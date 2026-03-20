@@ -3261,9 +3261,13 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
                     onMouseUp={e=>e.currentTarget.style.transform="scale(1)"}
                     onTouchStart={e=>e.currentTarget.style.transform="scale(0.97)"}
                     onTouchEnd={e=>e.currentTarget.style.transform="scale(1)"}>
-                    <div style={{height:"72px",background:`linear-gradient(135deg,${cp.c1}cc,${cp.c2}99)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"2.2rem",position:"relative"}}>
-                      {p.thumb||"📋"}
-                      <div style={{position:"absolute",top:"5px",right:"6px",background:"rgba(255,255,255,0.25)",borderRadius:"5px",padding:"1px 5px",fontSize:"0.58rem",color:"#fff",fontWeight:"700"}}>edit</div>
+                    <div style={{height:"72px",background:`linear-gradient(135deg,${cp.c1}cc,${cp.c2}99)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"2.2rem",position:"relative",overflow:"hidden"}}>
+                      {p.photos&&p.photos[0]
+                        ? <img src={p.photos[0]} alt="" style={{width:"100%",height:"100%",objectFit:"cover",position:"absolute",inset:0}}/>
+                        : <span style={{position:"relative",zIndex:1}}>{p.thumb||"📋"}</span>
+                      }
+                      {p.photos&&p.photos.length>1&&<div style={{position:"absolute",bottom:"4px",right:"5px",background:"rgba(0,0,0,0.55)",borderRadius:"5px",padding:"1px 5px",fontSize:"0.55rem",color:"#fff",fontWeight:"700"}}>+{p.photos.length-1}</div>}
+                      <div style={{position:"absolute",top:"5px",right:"6px",background:"rgba(0,0,0,0.35)",borderRadius:"5px",padding:"1px 5px",fontSize:"0.58rem",color:"#fff",fontWeight:"700"}}>edit</div>
                     </div>
                     <div style={{padding:"0.65rem 0.75rem"}}>
                       <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.8rem",lineHeight:1.3,marginBottom:"2px"}}>{p.title}</div>
@@ -3378,7 +3382,11 @@ function WeekView({pal,family,entries,child,onEdit}){
                       style={{background:pal.linen,borderRadius:"11px",padding:"0.6rem 0.8rem",display:"flex",gap:"0.6rem",alignItems:"center",border:`1.5px solid ${pal.stone}30`,cursor:"pointer",transition:"all 0.12s"}}
                       onMouseDown={e=>e.currentTarget.style.background=pal.pale}
                       onMouseUp={e=>e.currentTarget.style.background=pal.linen}>
-                      <div style={{width:"32px",height:"32px",borderRadius:"8px",background:`linear-gradient(135deg,${cp.c1}55,${cp.c2}33)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1rem",flexShrink:0}}>{e.thumb||"📋"}</div>
+                      <div style={{width:"32px",height:"32px",borderRadius:"8px",background:`linear-gradient(135deg,${cp.c1}55,${cp.c2}33)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1rem",flexShrink:0,overflow:"hidden",position:"relative"}}>
+                        {e.photos&&e.photos[0]
+                          ?<img src={e.photos[0]} alt="" style={{width:"100%",height:"100%",objectFit:"cover",position:"absolute",inset:0}}/>
+                          :<span>{e.thumb||"📋"}</span>}
+                      </div>
                       <div style={{flex:1,minWidth:0}}>
                         <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.8rem",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{e.title}</div>
                         <div style={{fontSize:"0.64rem",color:pal.slate}}>{e.subj} · {ch?.avatar} {ch?.name}</div>
@@ -3396,94 +3404,260 @@ function WeekView({pal,family,entries,child,onEdit}){
   );
 }
 
-/* ---- Portfolio Preview ---- */
+/* ---- Portfolio Preview — Compliance-Ready ---- */
 function PortfolioPreview({pal,family,entries,child}){
-  const today = new Date();
-  const weekStart = new Date(today);
-  const dow = today.getDay();
-  weekStart.setDate(today.getDate()-(dow===0?6:dow-1));
-  const weekEnd = new Date(weekStart); weekEnd.setDate(weekStart.getDate()+6);
-
+  const [scope, setScope] = useState("week"); // week | month | year | all
+  const now = new Date();
   const schoolName = family.schoolName||(family.familyName+" Academy")||"Home School";
-  const weekLabel = weekStart.toLocaleDateString("en-US",{month:"long",day:"numeric"})
-    +" — "+weekEnd.toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
+  const yearStart = family.yearStart ? new Date(family.yearStart) : new Date(now.getFullYear(),7,1);
+  const yearEnd   = family.yearEnd   ? new Date(family.yearEnd)   : new Date(now.getFullYear()+1,4,31);
+  const REQUIRED = 180;
 
-  // Which children to show
+  const scopeLabel = {
+    week:"This Week",month:"This Month",year:"School Year",all:"All Time"
+  }[scope];
+
+  // Filter entries by scope
+  const filterByScope = (ents) => {
+    const d = new Date();
+    if(scope==="all") return ents;
+    if(scope==="year") return ents.filter(e=>{
+      try{ const ed=new Date(e.date+", "+now.getFullYear()); return ed>=yearStart&&ed<=yearEnd; }catch{return true;}
+    });
+    if(scope==="month") {
+      const monthLabel = d.toLocaleDateString("en-US",{month:"short"});
+      return ents.filter(e=>e.date&&e.date.includes(monthLabel));
+    }
+    // week
+    const weekStart=new Date(d);weekStart.setDate(d.getDate()-(d.getDay()===0?6:d.getDay()-1));
+    return ents.filter(e=>{
+      try{
+        const ed=new Date(e.date+", "+now.getFullYear());
+        return ed>=weekStart&&ed<=d;
+      }catch{return false;}
+    });
+  };
+
   const childIndices = child==="all"
     ? family.children.map((_,i)=>i)
     : [family.children.findIndex(c=>c.id===child)].filter(i=>i>=0);
 
+  const formatDate = (d) => {
+    try{ return new Date(d).toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"}); }
+    catch{ return d; }
+  };
+
   return (
     <div style={{marginBottom:"1rem"}}>
-      {/* Print button */}
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.85rem"}}>
-        <div style={{fontSize:"0.74rem",color:pal.slate}}>Print-ready portfolio preview</div>
-        <button onClick={()=>window.print()} style={{padding:"0.38rem 0.85rem",border:"none",borderRadius:"9px",background:pal.accentGrad,color:"#fff",fontWeight:"700",fontSize:"0.74rem",cursor:"pointer"}}>🖨 Print</button>
+      {/* Controls */}
+      <div style={{display:"flex",gap:"0.5rem",alignItems:"center",marginBottom:"0.85rem",flexWrap:"wrap"}}>
+        <div style={{display:"flex",background:pal.parchm,borderRadius:"9px",padding:"2px",gap:"2px",flex:1}}>
+          {[["week","Week"],["month","Month"],["year","Year"],["all","All"]].map(([id,l])=>(
+            <button key={id} onClick={()=>setScope(id)} style={{flex:1,padding:"0.35rem",border:"none",borderRadius:"7px",background:scope===id?pal.linen:"transparent",color:scope===id?pal.ink:pal.slate,fontSize:"0.7rem",fontWeight:scope===id?"700":"400",cursor:"pointer"}}>{l}</button>
+          ))}
+        </div>
+        <button onClick={()=>window.print()} style={{padding:"0.4rem 0.85rem",border:"none",borderRadius:"9px",background:pal.accentGrad,color:"#fff",fontWeight:"700",fontSize:"0.74rem",cursor:"pointer",flexShrink:0}}>🖨 Print PDF</button>
       </div>
 
       {childIndices.map(ci=>{
         const ch=family.children[ci];
         if(!ch) return null;
         const cp=CHILD_COLOR_PALETTES.find(p=>p.id===(ch.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
-        const childEntries = entries.filter(e=>e.childIdx===ci);
-        if(childEntries.length===0 && child!=="all") return (
-          <div key={ci} style={{textAlign:"center",padding:"2rem",color:pal.slate,fontSize:"0.82rem"}}>No entries for {ch.name} yet.</div>
-        );
-        if(childEntries.length===0) return null;
+        const allChildEntries = entries.filter(e=>e.childIdx===ci);
+        const scopedEntries = filterByScope(allChildEntries);
+        if(allChildEntries.length===0) return null;
 
+        // Build subject map from all entries
         const bySubj = {};
-        childEntries.forEach(e=>{if(!bySubj[e.subj])bySubj[e.subj]=[];bySubj[e.subj].push(e);});
+        scopedEntries.forEach(e=>{
+          const subjs = e.subjects||[e.subj];
+          subjs.forEach(s=>{
+            if(!bySubj[s]) bySubj[s]=[];
+            bySubj[s].push(e);
+          });
+        });
+
+        // Reading list — entries tagged as Reading
+        const readingEntries = scopedEntries.filter(e=>
+          e.subj==="Reading"||(e.subjects||[]).includes("Reading")||
+          e.subj==="Bible / Faith"||(e.subjects||[]).includes("Bible / Faith")
+        );
+
+        const customSubjs = family.customSubjects||[];
+        const allSubjMap = Object.fromEntries([...SUBJECT_OPTIONS,...customSubjs].map(s=>[s.id,s]));
+        const activeSubjs = (family.subjects||[]).map(id=>allSubjMap[id]).filter(Boolean);
+        const pct = Math.min(100,Math.round((parseInt(family.attendanceDays||0)/REQUIRED)*100));
+
+        const dateRangeStr = scope==="year"
+          ? (family.yearStart?formatDate(family.yearStart):"Start")+" — "+(family.yearEnd?formatDate(family.yearEnd):"End")
+          : scopeLabel+" · "+now.toLocaleDateString("en-US",{month:"long",year:"numeric"});
 
         return (
-          <div key={ci} style={{background:"#fff",borderRadius:"18px",border:`2px solid ${cp.c1}40`,marginBottom:"1.2rem",overflow:"hidden",boxShadow:"0 2px 16px rgba(0,0,0,0.08)"}}>
-            {/* Page header */}
-            <div style={{background:`linear-gradient(135deg,${cp.c1},${cp.c2})`,padding:"1rem 1.2rem",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-              <div>
-                <div style={{fontWeight:"900",color:"#fff",fontSize:"1rem"}}>{ch.avatar} {ch.name}</div>
-                <div style={{fontSize:"0.7rem",color:"rgba(255,255,255,0.78)"}}>{ch.grade} · {schoolName}</div>
-              </div>
-              <div style={{textAlign:"right"}}>
-                <div style={{fontSize:"0.62rem",color:"rgba(255,255,255,0.65)",fontWeight:"700",textTransform:"uppercase",letterSpacing:"0.06em"}}>Portfolio</div>
-                <div style={{fontSize:"0.7rem",color:"rgba(255,255,255,0.85)"}}>{weekLabel}</div>
+          <div key={ci} id={"portfolio-"+ci} style={{background:"#fff",borderRadius:"16px",border:"1.5px solid #e8e8e8",marginBottom:"1.5rem",overflow:"hidden",fontFamily:"Georgia, serif",boxShadow:"0 2px 20px rgba(0,0,0,0.07)"}}>
+
+            {/* ── COVER PAGE ── */}
+            <div style={{background:`linear-gradient(160deg,${cp.c1},${cp.c2})`,padding:"1.5rem 1.3rem 1.2rem",position:"relative",overflow:"hidden"}}>
+              <div style={{position:"absolute",right:"-25px",top:"-25px",width:"100px",height:"100px",borderRadius:"50%",background:"rgba(255,255,255,0.1)"}}/>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",position:"relative"}}>
+                <div>
+                  <div style={{fontSize:"0.58rem",color:"rgba(255,255,255,0.6)",textTransform:"uppercase",letterSpacing:"0.12em",fontWeight:"700",marginBottom:"0.2rem"}}>Homeschool Portfolio</div>
+                  <div style={{fontWeight:"900",color:"#fff",fontSize:"1.3rem",lineHeight:1.1,marginBottom:"0.15rem"}}>{ch.name}</div>
+                  <div style={{fontSize:"0.78rem",color:"rgba(255,255,255,0.85)",marginBottom:"0.5rem"}}>{ch.grade} · {schoolName}</div>
+                  <div style={{fontSize:"0.68rem",color:"rgba(255,255,255,0.7)"}}>{family.state} · {family.parentName}</div>
+                </div>
+                <div style={{textAlign:"right",position:"relative"}}>
+                  <div style={{fontSize:"3rem",lineHeight:1}}>{ch.avatar}</div>
+                  <div style={{fontSize:"0.62rem",color:"rgba(255,255,255,0.75)",marginTop:"0.2rem"}}>{dateRangeStr}</div>
+                </div>
               </div>
             </div>
 
-            <div style={{padding:"1rem"}}>
-              {/* Subject summary chips */}
-              <div style={{display:"flex",flexWrap:"wrap",gap:"0.38rem",marginBottom:"0.85rem"}}>
-                {Object.keys(bySubj).map(s=>(
-                  <span key={s} style={{padding:"0.2rem 0.6rem",background:`${cp.c1}18`,borderRadius:"20px",fontSize:"0.72rem",fontWeight:"700",color:cp.c1,border:`1.5px solid ${cp.c1}30`}}>{s} ({bySubj[s].length})</span>
-                ))}
+            <div style={{padding:"1rem 1.2rem"}}>
+
+              {/* ── SECTION 1: STUDENT INFORMATION ── */}
+              <div style={{marginBottom:"1.1rem",paddingBottom:"1rem",borderBottom:"1.5px solid #f0f0f0"}}>
+                <div style={{fontWeight:"700",color:"#555",fontSize:"0.62rem",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:"0.6rem"}}>Student Information</div>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.5rem"}}>
+                  {[
+                    ["Student Name",ch.name],
+                    ["Grade Level",ch.grade],
+                    ["School Name",schoolName],
+                    ["Parent/Educator",family.parentName||"—"],
+                    ["State",family.state||"—"],
+                    ["School Year",(family.yearStart?new Date(family.yearStart).getFullYear():"—")+" — "+(family.yearEnd?new Date(family.yearEnd).getFullYear():"—")],
+                    ["Learning Approach",(Array.isArray(family.curriculumStyle)?family.curriculumStyle:[family.curriculumStyle||"Eclectic"]).join(", ")],
+                    ["Portfolio Period",scopeLabel],
+                  ].map(([l,v])=>(
+                    <div key={l} style={{padding:"0.38rem 0.6rem",background:"#fafafa",borderRadius:"7px",border:"1px solid #f0f0f0"}}>
+                      <div style={{fontSize:"0.55rem",color:"#aaa",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"1px"}}>{l}</div>
+                      <div style={{fontWeight:"700",color:"#222",fontSize:"0.76rem"}}>{v}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              {/* Entry list */}
-              {childEntries.map((e,i)=>(
-                <div key={i} style={{display:"flex",gap:"0.7rem",alignItems:"flex-start",padding:"0.55rem 0",borderTop:i>0?`1px solid #f5f5f5`:"none"}}>
-                  <div style={{width:"32px",height:"32px",borderRadius:"8px",background:`${cp.c1}20`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1rem",flexShrink:0}}>{e.thumb||"📋"}</div>
-                  <div style={{flex:1}}>
-                    <div style={{fontWeight:"700",color:"#1a1a1a",fontSize:"0.82rem"}}>{e.title}</div>
-                    <div style={{fontSize:"0.65rem",color:"#888"}}>{e.subj} · {e.date}</div>
-                    {e.note&&<div style={{fontSize:"0.74rem",color:"#444",marginTop:"2px",lineHeight:1.55,fontStyle:"italic"}}>{e.note}</div>}
+              {/* ── SECTION 2: ATTENDANCE RECORD ── */}
+              <div style={{marginBottom:"1.1rem",paddingBottom:"1rem",borderBottom:"1.5px solid #f0f0f0"}}>
+                <div style={{fontWeight:"700",color:"#555",fontSize:"0.62rem",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:"0.6rem"}}>Attendance Record</div>
+                <div style={{display:"flex",gap:"0.6rem",alignItems:"center",marginBottom:"0.5rem"}}>
+                  <div style={{flex:1,height:"10px",borderRadius:"99px",background:"#f0f0f0",overflow:"hidden"}}>
+                    <div style={{height:"100%",width:`${pct}%`,borderRadius:"99px",background:`linear-gradient(90deg,${cp.c1},${cp.c2})`,transition:"width 0.5s"}}/>
+                  </div>
+                  <div style={{fontWeight:"800",color:cp.c1,fontSize:"0.8rem",flexShrink:0,minWidth:"50px",textAlign:"right"}}>{pct}%</div>
+                </div>
+                <div style={{display:"flex",justifyContent:"space-between",fontSize:"0.72rem",color:"#888"}}>
+                  <span><b style={{color:"#333"}}>{family.attendanceDays||0}</b> days completed</span>
+                  <span><b style={{color:"#333"}}>{REQUIRED}</b> days required</span>
+                  <span>{family.state||"Your state"} law</span>
+                </div>
+              </div>
+
+              {/* ── SECTION 3: SUBJECTS COVERED ── */}
+              <div style={{marginBottom:"1.1rem",paddingBottom:"1rem",borderBottom:"1.5px solid #f0f0f0"}}>
+                <div style={{fontWeight:"700",color:"#555",fontSize:"0.62rem",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:"0.6rem"}}>Subjects Covered ({scopeLabel})</div>
+                {Object.keys(bySubj).length===0 ? (
+                  <div style={{fontSize:"0.78rem",color:"#aaa",fontStyle:"italic"}}>No entries for this period.</div>
+                ) : (
+                  <div style={{display:"flex",flexWrap:"wrap",gap:"0.38rem"}}>
+                    {Object.entries(bySubj).map(([subj,ents])=>(
+                      <div key={subj} style={{padding:"0.3rem 0.7rem",background:`${cp.c1}15`,borderRadius:"20px",border:`1.5px solid ${cp.c1}30`,display:"flex",gap:"0.4rem",alignItems:"center"}}>
+                        <span style={{fontWeight:"700",color:cp.c1,fontSize:"0.74rem"}}>{subj}</span>
+                        <span style={{fontSize:"0.64rem",color:"#999",background:"rgba(0,0,0,0.06)",borderRadius:"99px",padding:"0 5px"}}>{ents.length}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* ── SECTION 4: ACTIVITY LOG ── */}
+              <div style={{marginBottom:"1.1rem",paddingBottom:"1rem",borderBottom:"1.5px solid #f0f0f0"}}>
+                <div style={{fontWeight:"700",color:"#555",fontSize:"0.62rem",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:"0.6rem"}}>Activity Log ({scopedEntries.length} entries)</div>
+                {scopedEntries.length===0 ? (
+                  <div style={{fontSize:"0.78rem",color:"#aaa",fontStyle:"italic"}}>No activities logged for this period.</div>
+                ) : scopedEntries.map((e,i)=>{
+                  const subjList = e.subjects ? e.subjects.join(", ") : e.subj;
+                  return (
+                    <div key={i} style={{display:"flex",gap:"0.65rem",alignItems:"flex-start",padding:"0.55rem 0",borderTop:i>0?"1px solid #f8f8f8":"none"}}>
+                      <div style={{width:"8px",height:"8px",borderRadius:"50%",background:cp.c1,flexShrink:0,marginTop:"5px"}}/>
+                      <div style={{flex:1}}>
+                        <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",gap:"0.5rem",flexWrap:"wrap"}}>
+                          <div style={{fontWeight:"700",color:"#1a1a1a",fontSize:"0.82rem"}}>{e.title}</div>
+                          <div style={{fontSize:"0.62rem",color:"#aaa",flexShrink:0}}>{e.date}</div>
+                        </div>
+                        <div style={{fontSize:"0.68rem",color:"#888",marginTop:"1px"}}>{subjList}</div>
+                        {e.note&&e.note.trim()&&(
+                          <div style={{fontSize:"0.76rem",color:"#444",marginTop:"3px",lineHeight:1.6,fontStyle:"italic",paddingLeft:"0.5rem",borderLeft:"2px solid "+cp.c1+"40"}}>{e.note}</div>
+                        )}
+                        {e.photos&&e.photos.length>0&&(
+                          <div style={{display:"flex",gap:"0.3rem",marginTop:"5px",flexWrap:"wrap"}}>
+                            {e.photos.slice(0,4).map((src,pi)=>(
+                              <img key={pi} src={src} alt="" style={{width:"52px",height:"52px",borderRadius:"6px",objectFit:"cover",border:"1px solid #eee"}}/>
+                            ))}
+                            {e.photos.length>4&&<div style={{width:"52px",height:"52px",borderRadius:"6px",background:"#f5f5f5",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.68rem",color:"#aaa",fontWeight:"700"}}>+{e.photos.length-4}</div>}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* ── SECTION 5: CURRICULUM PROGRAMS ── */}
+              {(family.curriculumBrands||[]).length>0 && (
+                <div style={{marginBottom:"1.1rem",paddingBottom:"1rem",borderBottom:"1.5px solid #f0f0f0"}}>
+                  <div style={{fontWeight:"700",color:"#555",fontSize:"0.62rem",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:"0.5rem"}}>Curriculum Programs Used</div>
+                  <div style={{fontSize:"0.78rem",color:"#444",lineHeight:1.7}}>
+                    {(family.curriculumBrands||[]).map(id=>{
+                      const b=CURRICULUM_BRANDS.find(x=>x.id===id);
+                      return b?b.label:null;
+                    }).filter(Boolean).join(" · ")}
                   </div>
                 </div>
-              ))}
+              )}
 
-              {/* Signature line */}
-              <div style={{marginTop:"1rem",paddingTop:"0.75rem",borderTop:"1px solid #eee",display:"flex",justifyContent:"space-between"}}>
-                <div>
-                  <div style={{borderBottom:"1px solid #999",width:"140px",height:"22px",marginBottom:"3px"}}/>
-                  <div style={{fontSize:"0.6rem",color:"#aaa"}}>Parent Signature</div>
-                </div>
-                <div>
-                  <div style={{borderBottom:"1px solid #999",width:"80px",height:"22px",marginBottom:"3px"}}/>
-                  <div style={{fontSize:"0.6rem",color:"#aaa"}}>Date</div>
+              {/* ── SECTION 6: PARENT NARRATIVE ── */}
+              <div style={{marginBottom:"1.1rem",paddingBottom:"1rem",borderBottom:"1.5px solid #f0f0f0"}}>
+                <div style={{fontWeight:"700",color:"#555",fontSize:"0.62rem",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:"0.5rem"}}>Parent Narrative</div>
+                <NarrativeEditor pal={pal} ch={ch} family={family}
+                  bySubject={bySubj} attendanceDays={family.attendanceDays||0}
+                  schoolName={schoolName} cp={cp} compact/>
+              </div>
+
+              {/* ── SECTION 7: STATE COMPLIANCE NOTE ── */}
+              <div style={{background:"#fafafa",borderRadius:"10px",padding:"0.75rem",marginBottom:"1rem",border:"1px solid #eee"}}>
+                <div style={{fontSize:"0.62rem",color:"#aaa",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.25rem",fontWeight:"700"}}>State Compliance Note</div>
+                <div style={{fontSize:"0.72rem",color:"#666",lineHeight:1.6}}>
+                  {family.state==="Pennsylvania"?"PA requires: attendance record, immunization history, subject work samples, and annual evaluation by a certified teacher or licensed psychologist.":
+                   family.state==="Florida"?"FL requires: contemporaneous activity log with reading materials listed, and work samples. Annual evaluation due on anniversary of Letter of Intent.":
+                   family.state==="Maryland"?"MD requires: work samples for each week of the semester for each COMAR-required subject. Review is semi-annual.":
+                   "Check your state education department for specific portfolio requirements. Most states require: attendance records, activity log, and work samples by subject."}
                 </div>
               </div>
+
+              {/* ── CERTIFICATION / SIGNATURE ── */}
+              <div style={{marginTop:"1rem",paddingTop:"1rem",borderTop:"1.5px solid #e8e8e8"}}>
+                <div style={{fontSize:"0.68rem",color:"#888",lineHeight:1.7,marginBottom:"1rem",fontStyle:"italic"}}>
+                  I hereby certify that the information contained in this portfolio is accurate and represents the educational activities of the above-named student during the stated period.
+                </div>
+                <div style={{display:"flex",justifyContent:"space-between",gap:"1rem"}}>
+                  <div style={{flex:2}}>
+                    <div style={{borderBottom:"1px solid #888",height:"28px",marginBottom:"4px"}}/>
+                    <div style={{fontSize:"0.6rem",color:"#aaa"}}>Parent/Educator Signature</div>
+                  </div>
+                  <div style={{flex:1}}>
+                    <div style={{borderBottom:"1px solid #888",height:"28px",marginBottom:"4px"}}/>
+                    <div style={{fontSize:"0.6rem",color:"#aaa"}}>Date</div>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
         );
       })}
-      {childIndices.length===0&&<div style={{textAlign:"center",padding:"2rem",color:pal.slate,fontSize:"0.82rem"}}>Select a child to preview their portfolio.</div>}
+      {childIndices.every(ci=>entries.filter(e=>e.childIdx===ci).length===0)&&(
+        <div style={{textAlign:"center",padding:"2rem",color:pal.slate,fontSize:"0.82rem"}}>No entries yet. Complete some check-ins to build the portfolio.</div>
+      )}
     </div>
   );
 }
@@ -3510,6 +3684,52 @@ function AddEntryModal({pal,family,onClose,onSave,initialData=null}){
   const [note,      setNote]      = useState(initialData?.note||"");
   const [thumb,     setThumb]     = useState(initialData?.thumb||"📋");
   const THUMBS=["📋","📜","🎨","🔬","📖","🏛","📝","🌿","🧪","🎵","📐","🌍","🏃","🍳","🏠","🧹","🌳","📸","💡","🖌"];
+  const [photos,      setPhotos]    = useState(initialData?.photos||[]);
+  const [showCamera,  setShowCamera]= useState(false);
+  const galleryRef  = useRef(null);
+  const cameraRef   = useRef(null);
+  const videoRef    = useRef(null);
+  const canvasRef   = useRef(null);
+  const streamRef   = useRef(null);
+
+  const handleGallery = (e) => {
+    Array.from(e.target.files).forEach(file=>{
+      const reader = new FileReader();
+      reader.onload = ev => setPhotos(p=>[...p,{name:file.name,dataUrl:ev.target.result}]);
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const openCamera = async () => {
+    setShowCamera(true);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"},audio:false});
+      streamRef.current = stream;
+      if(videoRef.current) videoRef.current.srcObject = stream;
+    } catch(e) {
+      alert("Camera not available. Try uploading from gallery instead.");
+      setShowCamera(false);
+    }
+  };
+
+  const takePhoto = () => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if(!video||!canvas) return;
+    canvas.width  = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext("2d").drawImage(video,0,0);
+    const dataUrl = canvas.toDataURL("image/jpeg",0.85);
+    setPhotos(p=>[...p,{name:"photo-"+Date.now()+".jpg",dataUrl}]);
+    closeCamera();
+  };
+
+  const closeCamera = () => {
+    if(streamRef.current) { streamRef.current.getTracks().forEach(t=>t.stop()); streamRef.current=null; }
+    setShowCamera(false);
+  };
+
+  const removePhoto = (i) => setPhotos(p=>p.filter((_,pi)=>pi!==i));
   const customSubjs = family.customSubjects||[];
   const allSubjs = [...SUBJECT_OPTIONS,...customSubjs];
   const activeSubjs = (family.subjects||[]).map(id=>allSubjs.find(s=>s.id===id)).filter(Boolean);
@@ -3600,6 +3820,56 @@ function AddEntryModal({pal,family,onClose,onSave,initialData=null}){
             placeholder="Any details, observations, or reflections..."
             style={{width:"100%",padding:"0.65rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.82rem",fontFamily:"inherit",background:pal.parchm,color:pal.ink,resize:"none",outline:"none",lineHeight:1.55}}
             onFocus={e=>e.target.style.borderColor=pal.primary} onBlur={e=>e.target.style.borderColor=pal.stone}/>
+
+          {/* ── PHOTOS ── */}
+          <div style={{height:"0.75rem"}}/>
+          <Lbl pal={pal}>Photos (optional)</Lbl>
+          <div style={{display:"flex",gap:"0.5rem",marginBottom:"0.65rem"}}>
+            {/* Gallery upload */}
+            <input ref={galleryRef} type="file" accept="image/*" multiple onChange={handleGallery} style={{display:"none"}}/>
+            <button onClick={()=>galleryRef.current?.click()}
+              style={{flex:1,padding:"0.6rem 0.5rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",background:"transparent",color:pal.inkM,fontWeight:"700",fontSize:"0.76rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.35rem"}}>
+              <span style={{fontSize:"1.1rem"}}>📷</span><span>Gallery</span>
+            </button>
+            {/* Camera */}
+            <button onClick={openCamera}
+              style={{flex:1,padding:"0.6rem 0.5rem",border:`2px solid ${pal.primary}`,borderRadius:"11px",background:pal.pale,color:pal.primary,fontWeight:"700",fontSize:"0.76rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.35rem"}}>
+              <span style={{fontSize:"1.1rem"}}>📸</span><span>Camera</span>
+            </button>
+          </div>
+          {/* Photo grid */}
+          {photos.length>0 && (
+            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"0.4rem",marginBottom:"0.5rem"}}>
+              {photos.map((p,i)=>(
+                <div key={i} style={{position:"relative",borderRadius:"10px",overflow:"hidden",aspectRatio:"1",border:`1.5px solid ${pal.stone}40`}}>
+                  <img src={p.dataUrl} alt="" style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}}/>
+                  <button onClick={()=>removePhoto(i)}
+                    style={{position:"absolute",top:"4px",right:"4px",width:"20px",height:"20px",borderRadius:"50%",background:"rgba(0,0,0,0.6)",border:"none",color:"#fff",fontSize:"0.65rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",lineHeight:1}}>
+                    x
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          {photos.length===0&&<div style={{fontSize:"0.72rem",color:pal.stone,fontStyle:"italic",marginBottom:"0.5rem"}}>No photos yet</div>}
+
+          {/* Camera modal */}
+          {showCamera && (
+            <div style={{position:"fixed",inset:0,background:"#000",zIndex:500,display:"flex",flexDirection:"column"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"0.75rem 1rem",background:"rgba(0,0,0,0.8)"}}>
+                <span style={{color:"#fff",fontWeight:"700",fontSize:"0.9rem"}}>Take Photo</span>
+                <button onClick={closeCamera} style={{background:"rgba(255,255,255,0.15)",border:"none",borderRadius:"8px",padding:"0.3rem 0.7rem",color:"#fff",fontWeight:"700",fontSize:"0.8rem",cursor:"pointer"}}>Cancel</button>
+              </div>
+              <video ref={videoRef} autoPlay playsInline muted style={{flex:1,width:"100%",objectFit:"cover"}}/>
+              <canvas ref={canvasRef} style={{display:"none"}}/>
+              <div style={{padding:"1.2rem",background:"rgba(0,0,0,0.8)",display:"flex",justifyContent:"center"}}>
+                <button onClick={takePhoto}
+                  style={{width:"70px",height:"70px",borderRadius:"50%",border:"4px solid #fff",background:"rgba(255,255,255,0.9)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.8rem",boxShadow:"0 0 0 4px rgba(255,255,255,0.3)"}}>
+                  📸
+                </button>
+              </div>
+            </div>
+          )}
         </div>
         <div style={{padding:"0.9rem 1.3rem",borderTop:`1px solid ${pal.stone}45`,display:"flex",gap:"0.6rem",flexShrink:0}}>
           <button onClick={onClose} style={{padding:"0.7rem 1rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem"}}>Cancel</button>
@@ -3609,11 +3879,11 @@ function AddEntryModal({pal,family,onClose,onSave,initialData=null}){
               if(isEdit) {
                 // Edit = single child (first selected)
                 const childIdx = [...selectedChildren][0];
-                onSave({childIdx,title,subj,note,thumb,date:today});
+                onSave({childIdx,title,subj,note,thumb,date:today,photos:photos.map(p=>p.dataUrl)});
               } else {
                 // Multi-save — one per selected child
                 [...selectedChildren].forEach(childIdx => {
-                  onSave({childIdx,title,subj,note,thumb,date:today});
+                  onSave({childIdx,title,subj,note,thumb,date:today,photos:photos.map(p=>p.dataUrl)});
                 });
               }
             }}
@@ -4318,13 +4588,18 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
         </>)}
 
       </div>
-      <style>{`@media print { nav,button:not(.print-hide) { display:none!important } }`}</style>
+      <style>{`@media print {
+  nav, .no-print, button { display:none!important }
+  body { background: white!important; font-family: Georgia, serif!important; }
+  #root > div { max-width: 100%!important; }
+  [id^="portfolio-"] { box-shadow: none!important; border: none!important; page-break-after: always; }
+}`}</style>
     </div>
   );
 }
 
 /* ---- Narrative Editor (inline within TranscriptsScreen) ---- */
-function NarrativeEditor({pal,ch,family,bySubject,attendanceDays,schoolName,cp}){
+function NarrativeEditor({pal,ch,family,bySubject,attendanceDays,schoolName,cp,compact=false}){
   const LS_KEY = "stembloom_narrative_"+ch.id;
   const [text, setText] = useState(()=>{ try{return localStorage.getItem(LS_KEY)||"";}catch(e){return "";} });
   const [generating, setGenerating] = useState(false);
@@ -4366,9 +4641,12 @@ function NarrativeEditor({pal,ch,family,bySubject,attendanceDays,schoolName,cp})
         <div style={{fontSize:"0.72rem",fontWeight:"700",color:pal.inkM,textTransform:"uppercase",letterSpacing:"0.06em"}}>Annual Narrative</div>
         <div style={{display:"flex",gap:"0.4rem",alignItems:"center"}}>
           <span style={{fontSize:"0.65rem",color:pal.slate}}>{wordCount} words</span>
-          <button onClick={generate} disabled={generating} style={{padding:"0.28rem 0.65rem",borderRadius:"8px",border:"none",background:generating?"#ccc":pal.accentGrad,color:"#fff",fontWeight:"700",fontSize:"0.7rem",cursor:generating?"default":"pointer"}}>
+          {!compact&&<button onClick={generate} disabled={generating} style={{padding:"0.28rem 0.65rem",borderRadius:"8px",border:"none",background:generating?"#ccc":pal.accentGrad,color:"#fff",fontWeight:"700",fontSize:"0.7rem",cursor:generating?"default":"pointer"}}>
             {generating?"🔄 Writing...":"🤖 Generate"}
-          </button>
+          </button>}
+          {compact&&<button onClick={generate} disabled={generating} style={{padding:"0.22rem 0.5rem",borderRadius:"7px",border:"none",background:generating?"#ccc":`linear-gradient(135deg,${cp.c1},${cp.c2})`,color:"#fff",fontWeight:"700",fontSize:"0.62rem",cursor:generating?"default":"pointer"}}>
+            {generating?"...":"🤖 AI"}
+          </button>}
         </div>
       </div>
       {error && <div style={{fontSize:"0.74rem",color:"#a03030",marginBottom:"0.5rem",padding:"0.5rem",background:"#faeae4",borderRadius:"8px"}}>{error}</div>}
@@ -4449,18 +4727,25 @@ function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose}){
   const handleSave = () => {
     const entries = [];
     const today = new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
-    // One portfolio entry per completed subject per child
+    // One summary entry per child for the whole day
     family.children.forEach((ch,ci)=>{
       const note = notes[ch.id]||"";
-      subjsDone.forEach(subj=>{
-        entries.push({
-          childIdx:ci,
-          title:subj+" — "+dateLabel,
-          subj,
-          date:today,
-          thumb:blocks.find(b=>b.s===subj)?.i||"📋",
-          note:note+(aiSummary?"\n\nDay summary: "+aiSummary:""),
-        });
+      const subjList = subjsDone.join(", ");
+      const fullNote = [
+        subjsDone.length>0?"Subjects: "+subjList:"",
+        note,
+        aiSummary?"Summary: "+aiSummary:""
+      ].filter(Boolean).join("\n\n");
+      entries.push({
+        childIdx:ci,
+        title:"School Day — "+dateLabel,
+        subj:"Daily Record",
+        date:today,
+        thumb:"📋",
+        note:fullNote,
+        subjects:subjsDone, // store for portfolio display
+        photos:photos.map(p=>p.dataUrl), // store photo refs
+        isDay:true,
       });
     });
     onSave(entries);
