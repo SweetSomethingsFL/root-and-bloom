@@ -454,8 +454,9 @@ function StemAndBloom() {
           onClose={()=>{setShowEOY(false);setEoyDismissed(family.yearEnd);}}
           onGradeUp={handleGradeUp} />}
         {showDaySummary && daySummaryData && <DaySummaryModal pal={pal} family={family} data={daySummaryData} portfolioEntries={portfolioEntries}
-          onSave={(entries)=>{entries.forEach(e=>addPortfolioEntry(e));setShowDaySummary(false);setActiveTab("home");}}
-          onClose={()=>{setShowDaySummary(false);setActiveTab("home");}} />}
+          onSave={(entries)=>{entries.forEach(e=>addPortfolioEntry(e));}}
+          onClose={()=>{setShowDaySummary(false);setActiveTab("home");}}
+          onFinish={(goTo)=>{setShowDaySummary(false);setActiveTab(goTo||"home");}} />}
       </>)}
     </div>
   );
@@ -5175,7 +5176,7 @@ function MoreScreen({pal,family,onNav,onTheme,onNavEdit,onSettings,onLifeReady})
    DAY SUMMARY MODAL
    Shown after marking a day complete
 ======================================= */
-function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose}){
+function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose,onFinish}){
   const [step,      setStep]     = useState(0); // 0=summary 1=notes 2=photos 3=done
   const [notes,     setNotes]    = useState({}); // {childId: text}
   const [photos,    setPhotos]   = useState([]); // [{name,dataUrl}]
@@ -5230,14 +5231,14 @@ function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose}){
     setGenerating(false);
   };
 
-  const handleSave = () => {
+  const [savedEntries, setSavedEntries] = useState(null); // holds built entries after save
+
+  const buildEntries = () => {
     const entries = [];
     const today = new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
-
     family.children.forEach((ch,ci)=>{
       const childNote = notes[ch.id]||"";
-
-      // 1. One entry per completed subject — clean, no personal note attached
+      // 1. One clean entry per subject
       subjsDone.forEach(subj=>{
         const block = blocks.find(b=>b.s===subj);
         entries.push({
@@ -5246,17 +5247,15 @@ function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose}){
           subj:subj,
           date:today,
           thumb:block?.i||"📋",
-          note:"", // subjects get NO personal note
+          note:"",
           isSubject:true,
         });
       });
-
-      // 2. Separate daily summary entry — holds the note, AI summary, photos
+      // 2. Separate daily notes entry
       const summaryNote = [
         childNote.trim(),
         aiSummary?"AI Summary: "+aiSummary:""
       ].filter(Boolean).join("\n\n");
-
       entries.push({
         childIdx:ci,
         title:"Day Notes — "+dateLabel,
@@ -5270,8 +5269,16 @@ function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose}){
         aiSummary:aiSummary||"",
       });
     });
+    return entries;
+  };
 
-    onSave(entries);
+  const handleSave = () => {
+    // Build entries and store them — do NOT call onSave yet
+    // onSave fires when user taps a nav button on step 3
+    const entries = buildEntries();
+    setSavedEntries(entries);
+    onSave(entries); // persist to localStorage now
+    // Modal stays open — step 3 renders the confirmation
   };
 
   return (
@@ -5451,11 +5458,11 @@ function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose}){
 
             {/* Navigation options */}
             <div style={{display:"flex",flexDirection:"column",gap:"0.45rem"}}>
-              <button onClick={()=>{onClose();setTimeout(()=>window.dispatchEvent(new CustomEvent("stembloom-nav",{detail:"portfolio"})),50);}}
+              <button onClick={()=>onFinish?onFinish("portfolio"):onClose()}
                 style={{width:"100%",padding:"0.82rem",border:"none",borderRadius:"13px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.88rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.5rem"}}>
                 <span>🗂</span><span>View in Portfolio</span>
               </button>
-              <button onClick={onClose}
+              <button onClick={()=>onFinish?onFinish("home"):onClose()}
                 style={{width:"100%",padding:"0.75rem",border:`2px solid ${pal.stone}`,borderRadius:"13px",background:"transparent",color:pal.inkM,fontWeight:"700",fontSize:"0.84rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.5rem"}}>
                 <span>🏠</span><span>Back to Home</span>
               </button>
