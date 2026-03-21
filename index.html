@@ -3649,137 +3649,305 @@ function AIWorksheetModal({ pal, family, activeChild, wsType, onClose }) {
 
 
 function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEditEntry}){
-  const [packetChild, setPacketChild] = useState(null);
-  const [showAdd,     setShowAdd]     = useState(false);
-  const [editEntry,   setEditEntry]   = useState(null);
-  const [viewMode,    setViewMode]    = useState("grid"); // grid | week | preview
+  const [showAdd,     setShowAdd]   = useState(false);
+  const [editEntry,   setEditEntry] = useState(null);
+  const [detailEntry, setDetail]    = useState(null); // view detail modal
+  const [viewMode,    setViewMode]  = useState("weeks"); // weeks | preview
+  const [expandedWeeks, setExpandedWeeks] = useState({}); // {weekKey: bool}
 
-  const THUMB_OPTIONS = ["📋","📜","🎨","🔬","📖","🏛","📝","🌿","🧪","🎵","📐","🌍"];
+  // Active child index
+  const activeChildId = child==="all" ? family.children[0]?.id : child;
+  const activeIdx = family.children.findIndex(c=>c.id===activeChildId);
+  const activeCi  = activeIdx>=0 ? activeIdx : 0;
+  const activeCh  = family.children[activeCi];
+  const cp = CHILD_COLOR_PALETTES.find(p=>p.id===(activeCh?.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
 
-  const items = child==="all" ? entries : entries.filter(e=>{
-    const idx=family.children.findIndex(c=>c.id===child);
-    return e.childIdx===idx;
-  });
-  const getChild = (e) => family.children[e.childIdx];
+  // Entries for active child only
+  const childEntries = entries.filter(e=>e.childIdx===activeCi);
 
-  // Group by week for the packet view
-  const getWeekLabel = (dateStr) => {
+  // Group entries into weeks — key = "Mon Mar 17 – Sun Mar 23"
+  const getWeekKey = (dateStr) => {
     try {
-      const d = new Date(dateStr+", "+new Date().getFullYear());
-      const now = new Date();
-      const diff = Math.floor((now - d)/(1000*60*60*24));
-      if(diff<=7) return "This Week";
-      if(diff<=14) return "Last Week";
-      return dateStr;
+      const yr = new Date().getFullYear();
+      const d  = new Date(dateStr+", "+yr);
+      if(isNaN(d)) return dateStr;
+      const dow = d.getDay();
+      const mon = new Date(d); mon.setDate(d.getDate()-(dow===0?6:dow-1));
+      const sun = new Date(mon); sun.setDate(mon.getDate()+6);
+      const fmt = (x) => x.toLocaleDateString("en-US",{month:"short",day:"numeric"});
+      return fmt(mon)+" – "+fmt(sun);
     } catch(e){ return dateStr; }
   };
 
-  if(packetChild!==null) {
-    return <WeeklyPacket pal={pal} family={family} child={packetChild} entries={entries} onBack={()=>setPacketChild(null)}/>;
-  }
+  const getWeekStart = (dateStr) => {
+    try {
+      const yr = new Date().getFullYear();
+      const d  = new Date(dateStr+", "+yr);
+      if(isNaN(d)) return new Date(0);
+      const dow = d.getDay();
+      const mon = new Date(d); mon.setDate(d.getDate()-(dow===0?6:dow-1));
+      return mon;
+    } catch(e){ return new Date(0); }
+  };
+
+  // Build week groups sorted newest first
+  const weekMap = {};
+  childEntries.forEach(e=>{
+    const k = getWeekKey(e.date);
+    if(!weekMap[k]) weekMap[k] = {key:k, weekStart:getWeekStart(e.date), entries:[]};
+    weekMap[k].entries.push(e);
+  });
+  const weeks = Object.values(weekMap).sort((a,b)=>b.weekStart-a.weekStart);
+
+  // Auto-expand most recent week on first render
+  const currentWeekKey = weeks[0]?.key;
+  const isExpanded = (k) => expandedWeeks[k]!==undefined ? expandedWeeks[k] : k===currentWeekKey;
+  const toggleWeek = (k) => setExpandedWeeks(prev=>({...prev,[k]:!isExpanded(k)}));
+
+  // Active subjects for completeness dot
+  const customSubjs = family.customSubjects||[];
+  const allSubjMap  = Object.fromEntries([...SUBJECT_OPTIONS,...customSubjs].map(s=>[s.id,s]));
+  const activeSubjs = (family.subjects||[]).map(id=>allSubjMap[id]).filter(Boolean);
+
+  const weekComplete = (weekEntries) => {
+    const covered = new Set(weekEntries.map(e=>e.subj));
+    return activeSubjs.length>0 && activeSubjs.every(s=>covered.has(s.label));
+  };
+
+  const subjectEntries = (weekEntries) => weekEntries.filter(e=>!e.isDay);
+  const noteEntries    = (weekEntries) => weekEntries.filter(e=>e.isDay);
 
   return (
     <div style={{animation:"fadeUp 0.22s ease"}}>
       <ScreenHdr pal={pal} title="Portfolio" sub="Work & Achievements" icon="🗂"/>
       <div style={{padding:"0 1rem"}}>
-        {/* Child filter */}
-        <div style={{display:"flex",gap:"0.35rem",marginBottom:"0.75rem",overflowX:"auto"}}>
-          <Chip pal={pal} label="All" active={child==="all"} onClick={()=>setChild("all")} small/>
-          {family.children.map(c=><Chip key={c.id} pal={pal} label={c.avatar+" "+c.name} active={child===c.id} onClick={()=>setChild(c.id)} small/>)}
+
+        {/* Child tabs */}
+        <div style={{display:"flex",gap:"0",marginBottom:"1rem",background:pal.parchm,borderRadius:"13px",padding:"3px"}}>
+          {family.children.map((c,i)=>{
+            const isSel = i===activeCi;
+            const ccp = CHILD_COLOR_PALETTES.find(p=>p.id===(c.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+            const cnt = entries.filter(e=>e.childIdx===i).length;
+            return (
+              <button key={c.id} onClick={()=>setChild(c.id)}
+                style={{flex:1,padding:"0.5rem 0.3rem",border:"none",borderRadius:"10px",
+                  background:isSel?pal.linen:"transparent",cursor:"pointer",transition:"all 0.15s",
+                  display:"flex",flexDirection:"column",alignItems:"center",gap:"1px"}}>
+                <div style={{fontSize:"1.3rem",lineHeight:1}}>{c.avatar}</div>
+                <div style={{fontSize:"0.65rem",fontWeight:isSel?"800":"400",color:isSel?ccp.c1:pal.slate}}>{c.name}</div>
+                <div style={{fontSize:"0.55rem",color:isSel?ccp.c1:pal.stone,fontWeight:"600"}}>{cnt}</div>
+              </button>
+            );
+          })}
         </div>
 
-        {/* Weekly Packet CTA */}
-        <div style={{background:pal.heroGrad,borderRadius:"18px",padding:"1rem 1.1rem",marginBottom:"1rem",position:"relative",overflow:"hidden"}}>
-          <div style={{position:"absolute",right:"-20px",top:"-20px",width:"90px",height:"90px",borderRadius:"50%",background:"rgba(255,255,255,0.07)"}}/>
-          <div style={{position:"relative"}}>
-            <div style={{fontWeight:"800",color:"#fff",fontSize:"0.92rem",marginBottom:"0.18rem"}}>📄 Weekly Portfolio Packet</div>
-            <div style={{fontSize:"0.74rem",color:"rgba(255,255,255,0.72)",marginBottom:"0.75rem"}}>AI-generated 2-page summary · Print-ready PDF</div>
-            <div style={{display:"flex",gap:"0.5rem",flexWrap:"wrap"}}>
-              {family.children.map((c,i)=>(
-                <button key={c.id} onClick={()=>setPacketChild(i)}
-                  style={{padding:"0.38rem 0.85rem",borderRadius:"20px",background:"rgba(255,255,255,0.18)",border:"2px solid rgba(255,255,255,0.3)",color:"#fff",fontSize:"0.76rem",fontWeight:"700",cursor:"pointer",display:"flex",gap:"0.35rem",alignItems:"center"}}>
-                  <span>{c.avatar}</span><span>{c.name}</span>
-                </button>
-              ))}
-            </div>
+        {/* View tabs + Add button */}
+        <div style={{display:"flex",gap:"0.5rem",marginBottom:"1rem",alignItems:"center"}}>
+          <div style={{display:"flex",background:pal.parchm,borderRadius:"10px",padding:"2px",gap:"2px",flex:1}}>
+            {[["weeks","📅 By Week"],["preview","👀 Preview"]].map(([id,l])=>(
+              <button key={id} onClick={()=>setViewMode(id)} style={{flex:1,padding:"0.4rem",border:"none",borderRadius:"8px",background:viewMode===id?pal.linen:"transparent",color:viewMode===id?pal.ink:pal.slate,fontSize:"0.72rem",fontWeight:viewMode===id?"700":"400",cursor:"pointer"}}>{l}</button>
+            ))}
           </div>
+          <button onClick={()=>setShowAdd(true)}
+            style={{padding:"0.4rem 0.85rem",border:"none",borderRadius:"10px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.78rem",cursor:"pointer",flexShrink:0}}>
+            + Add
+          </button>
         </div>
 
-        {/* View mode tabs */}
-        <div style={{display:"flex",background:pal.parchm,borderRadius:"11px",padding:"3px",gap:"2px",marginBottom:"0.85rem"}}>
-          {[["grid","📷 Entries"],["week","📅 This Week"],["preview","👀 Preview"]].map(([id,l])=>(
-            <button key={id} onClick={()=>setViewMode(id)} style={{flex:1,padding:"0.42rem",border:"none",borderRadius:"9px",background:viewMode===id?pal.linen:"transparent",color:viewMode===id?pal.ink:pal.slate,fontSize:"0.72rem",fontWeight:viewMode===id?"700":"400",cursor:"pointer"}}>{l}</button>
-          ))}
-        </div>
-
-        {/* Add entry button */}
-        <button onClick={()=>setShowAdd(true)} style={{width:"100%",padding:"0.72rem",border:`2px dashed ${pal.primary}60`,borderRadius:"13px",background:"transparent",color:pal.primary,fontWeight:"700",fontSize:"0.82rem",cursor:"pointer",marginBottom:"1rem",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.4rem"}}>
-          <span style={{fontSize:"1rem"}}>+</span> Add Portfolio Entry
-        </button>
-
-        {/* ===== GRID VIEW ===== */}
-        {viewMode==="grid" && (<>
-          {items.length===0 ? (
-            <div style={{background:pal.linen,borderRadius:"18px",padding:"2rem",textAlign:"center",border:`1.5px solid ${pal.stone}35`}}>
-              <div style={{fontSize:"2.5rem",marginBottom:"0.5rem"}}>🌱</div>
-              <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.88rem",marginBottom:"0.2rem"}}>No entries yet</div>
-              <div style={{fontSize:"0.76rem",color:pal.slate}}>Complete a daily check-in or add an entry above.</div>
+        {/* ====== WEEKS VIEW ====== */}
+        {viewMode==="weeks" && (<>
+          {weeks.length===0 ? (
+            <div style={{background:pal.linen,borderRadius:"18px",padding:"2.5rem 1.5rem",textAlign:"center",border:`1.5px solid ${pal.stone}35`}}>
+              <div style={{fontSize:"3rem",marginBottom:"0.6rem"}}>🌱</div>
+              <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.92rem",marginBottom:"0.3rem"}}>No entries yet for {activeCh?.name}</div>
+              <div style={{fontSize:"0.78rem",color:pal.slate,marginBottom:"1rem"}}>Complete a school day or add an entry to get started.</div>
+              <button onClick={()=>setShowAdd(true)} style={{padding:"0.55rem 1.3rem",border:"none",borderRadius:"11px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.82rem",cursor:"pointer"}}>+ Add First Entry</button>
             </div>
-          ) : (
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.65rem",marginBottom:"1rem"}}>
-              {items.map(p=>{
-                const ch=getChild(p);
-                const cp=CHILD_COLOR_PALETTES.find(x=>x.id===(ch?.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
-                return (
-                  <div key={p.id} onClick={()=>setEditEntry(p)}
-                    style={{background:pal.linen,borderRadius:"16px",overflow:"hidden",border:`1.5px solid ${pal.stone}35`,cursor:"pointer",transition:"transform 0.12s"}}
-                    onMouseDown={e=>e.currentTarget.style.transform="scale(0.97)"}
-                    onMouseUp={e=>e.currentTarget.style.transform="scale(1)"}
-                    onTouchStart={e=>e.currentTarget.style.transform="scale(0.97)"}
-                    onTouchEnd={e=>e.currentTarget.style.transform="scale(1)"}>
-                    <div style={{height:"72px",background:`linear-gradient(135deg,${cp.c1}cc,${cp.c2}99)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"2.2rem",position:"relative",overflow:"hidden"}}>
-                      {p.photos&&p.photos[0]
-                        ? <img src={p.photos[0]} alt="" style={{width:"100%",height:"100%",objectFit:"cover",position:"absolute",inset:0}}/>
-                        : <span style={{position:"relative",zIndex:1}}>{p.thumb||"📋"}</span>
-                      }
-                      {p.photos&&p.photos.length>1&&<div style={{position:"absolute",bottom:"4px",right:"5px",background:"rgba(0,0,0,0.55)",borderRadius:"5px",padding:"1px 5px",fontSize:"0.55rem",color:"#fff",fontWeight:"700"}}>+{p.photos.length-1}</div>}
-                      <div style={{position:"absolute",top:"5px",right:"6px",background:"rgba(0,0,0,0.35)",borderRadius:"5px",padding:"1px 5px",fontSize:"0.58rem",color:"#fff",fontWeight:"700"}}>edit</div>
+          ) : weeks.map(week=>{
+            const expanded = isExpanded(week.key);
+            const subjList  = subjectEntries(week.entries);
+            const noteList  = noteEntries(week.entries);
+            const done      = weekComplete(week.entries);
+            const isNow     = week.key===currentWeekKey;
+
+            return (
+              <div key={week.key} style={{marginBottom:"0.75rem"}}>
+                {/* Week header — tap to expand/collapse */}
+                <button onClick={()=>toggleWeek(week.key)}
+                  style={{width:"100%",padding:"0.75rem 0.9rem",border:`1.5px solid ${done?cp.c1+"40":pal.stone+"35"}`,borderRadius:expanded?"14px 14px 0 0":"14px",background:done?cp.c1+"12":pal.linen,cursor:"pointer",display:"flex",alignItems:"center",gap:"0.65rem",textAlign:"left",transition:"all 0.15s"}}>
+                  {/* Completion dot */}
+                  <div style={{width:"10px",height:"10px",borderRadius:"50%",background:done?cp.c1:subjList.length>0?"#f5a623":pal.stone+"60",flexShrink:0}}/>
+                  <div style={{flex:1}}>
+                    <div style={{display:"flex",alignItems:"center",gap:"0.5rem",flexWrap:"wrap"}}>
+                      <span style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem"}}>{week.key}</span>
+                      {isNow&&<span style={{fontSize:"0.6rem",fontWeight:"800",color:cp.c1,background:cp.c1+"18",borderRadius:"20px",padding:"0.05rem 0.45rem"}}>This week</span>}
+                      {done&&<span style={{fontSize:"0.6rem",fontWeight:"800",color:cp.c1}}>✓ Complete</span>}
                     </div>
-                    <div style={{padding:"0.65rem 0.75rem"}}>
-                      <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.8rem",lineHeight:1.3,marginBottom:"2px"}}>{p.title}</div>
-                      <div style={{fontSize:"0.62rem",color:pal.slate,marginBottom:"4px"}}>{p.subj} · {p.date}</div>
-                      <div style={{fontSize:"0.62rem",fontWeight:"700",color:cp.c1}}>{ch?.avatar} {ch?.name}</div>
+                    <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"1px"}}>
+                      {subjList.length} subject{subjList.length!==1?"s":""}{noteList.length>0?" · "+noteList.length+" note"+(noteList.length!==1?"s":""):""}
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          )}
+                  <span style={{color:pal.slate,fontSize:"1rem",transform:expanded?"rotate(90deg)":"none",transition:"transform 0.2s",flexShrink:0}}>›</span>
+                </button>
+
+                {/* Expanded entries */}
+                {expanded&&(
+                  <div style={{border:`1.5px solid ${done?cp.c1+"40":pal.stone+"35"}`,borderTop:"none",borderRadius:"0 0 14px 14px",background:"#fff",overflow:"hidden"}}>
+
+                    {/* Subject entries */}
+                    {subjList.length>0&&(
+                      <div style={{padding:"0.55rem 0.75rem 0.35rem"}}>
+                        <div style={{fontSize:"0.6rem",fontWeight:"700",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.35rem"}}>Subjects</div>
+                        {subjList.map((e,i)=>(
+                          <div key={e.id||i} onClick={()=>setDetail(e)}
+                            style={{display:"flex",gap:"0.6rem",alignItems:"center",padding:"0.5rem 0.55rem",borderRadius:"10px",marginBottom:"0.28rem",background:pal.linen,cursor:"pointer",border:`1px solid ${pal.stone}22`,transition:"all 0.12s"}}
+                            onMouseDown={ev=>ev.currentTarget.style.background=pal.pale}
+                            onMouseUp={ev=>ev.currentTarget.style.background=pal.linen}
+                            onTouchStart={ev=>ev.currentTarget.style.background=pal.pale}
+                            onTouchEnd={ev=>ev.currentTarget.style.background=pal.linen}>
+                            {/* Photo or emoji thumb */}
+                            <div style={{width:"36px",height:"36px",borderRadius:"8px",background:`linear-gradient(135deg,${cp.c1}33,${cp.c2}22)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1rem",flexShrink:0,overflow:"hidden",position:"relative"}}>
+                              {e.photos&&e.photos[0]
+                                ?<img src={e.photos[0]} alt="" style={{width:"100%",height:"100%",objectFit:"cover",position:"absolute",inset:0}}/>
+                                :<span>{e.thumb||"📋"}</span>}
+                            </div>
+                            <div style={{flex:1,minWidth:0}}>
+                              <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.82rem",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{e.subj}</div>
+                              <div style={{fontSize:"0.65rem",color:pal.slate}}>{e.date}{e.title&&e.title!==e.subj+" — "+e.date?" · "+e.title.replace(e.subj+" — ",""):""}</div>
+                            </div>
+                            {e.photos&&e.photos.length>0&&<span style={{fontSize:"0.7rem"}}>📷</span>}
+                            <span style={{color:pal.stone,fontSize:"0.8rem",flexShrink:0}}>›</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Day notes entries */}
+                    {noteList.map((e,i)=>(
+                      <div key={e.id||i} onClick={()=>setDetail(e)}
+                        style={{margin:"0 0.75rem",marginBottom:"0.4rem",padding:"0.55rem 0.65rem",borderRadius:"10px",background:pal.pale,cursor:"pointer",border:`1px solid ${cp.c1}25`,display:"flex",gap:"0.55rem",alignItems:"flex-start"}}
+                        onMouseDown={ev=>ev.currentTarget.style.opacity="0.7"}
+                        onMouseUp={ev=>ev.currentTarget.style.opacity="1"}>
+                        <span style={{fontSize:"1rem",flexShrink:0}}>📝</span>
+                        <div style={{flex:1,minWidth:0}}>
+                          <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem"}}>Day Notes · {e.date}</div>
+                          {e.note&&<div style={{fontSize:"0.71rem",color:pal.slate,marginTop:"2px",lineHeight:1.5,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{e.note.replace("AI Summary: ","")}</div>}
+                          {e.photos&&e.photos.length>0&&<div style={{fontSize:"0.65rem",color:cp.c1,marginTop:"3px",fontWeight:"600"}}>📷 {e.photos.length} photo{e.photos.length!==1?"s":""}</div>}
+                        </div>
+                        <span style={{color:pal.stone,fontSize:"0.8rem",flexShrink:0}}>›</span>
+                      </div>
+                    ))}
+
+                    {/* Week summary footer */}
+                    <div style={{padding:"0.5rem 0.75rem 0.65rem",borderTop:`1px solid ${pal.stone}15`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                      <div style={{display:"flex",flexWrap:"wrap",gap:"0.3rem"}}>
+                        {[...new Set(subjList.map(e=>e.subj))].slice(0,5).map(s=>(
+                          <span key={s} style={{fontSize:"0.6rem",padding:"0.1rem 0.45rem",background:cp.c1+"18",borderRadius:"20px",color:cp.c1,fontWeight:"700"}}>{s}</span>
+                        ))}
+                        {[...new Set(subjList.map(e=>e.subj))].length>5&&<span style={{fontSize:"0.6rem",color:pal.slate}}>+{[...new Set(subjList.map(e=>e.subj))].length-5} more</span>}
+                      </div>
+                      {!done&&activeSubjs.length>0&&(
+                        <span style={{fontSize:"0.62rem",color:pal.slate,flexShrink:0}}>{[...new Set(subjList.map(e=>e.subj))].length}/{activeSubjs.length} subjects</span>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+          <div style={{height:"1rem"}}/>
         </>)}
 
-        {/* ===== WEEK VIEW ===== */}
-        {viewMode==="week" && (<>
-          <WeekView pal={pal} family={family} entries={items} child={child} onEdit={setEditEntry}/>
-        </>)}
-
-        {/* ===== PREVIEW VIEW ===== */}
-        {viewMode==="preview" && (<>
-          <PortfolioPreview pal={pal} family={family} entries={items} child={child}/>
-        </>)}
+        {/* ====== PREVIEW VIEW ====== */}
+        {viewMode==="preview" && (
+          <PortfolioPreview pal={pal} family={family} entries={childEntries} child={activeChildId}/>
+        )}
       </div>
 
       {/* Add Entry Modal */}
-      {showAdd && (
-        <AddEntryModal pal={pal} family={family} onClose={()=>setShowAdd(false)}
-          onSave={e=>{onAddEntry&&onAddEntry(e); setShowAdd(false);}}/>
-      )}
+      {showAdd&&<AddEntryModal pal={pal} family={family} onClose={()=>setShowAdd(false)}
+        onSave={e=>{onAddEntry&&onAddEntry(e);setShowAdd(false);}}/>}
+
       {/* Edit Entry Modal */}
-      {editEntry && (
-        <AddEntryModal pal={pal} family={family}
-          initialData={editEntry}
-          onClose={()=>setEditEntry(null)}
-          onSave={updated=>{onEditEntry&&onEditEntry(editEntry.id,updated);setEditEntry(null);}}/>
-      )}
+      {editEntry&&<AddEntryModal pal={pal} family={family} initialData={editEntry}
+        onClose={()=>setEditEntry(null)}
+        onSave={updated=>{onEditEntry&&onEditEntry(editEntry.id,updated);setEditEntry(null);}}/>}
+
+      {/* Entry Detail Modal */}
+      {detailEntry&&<EntryDetailModal pal={pal} family={family} entry={detailEntry}
+        onClose={()=>setDetail(null)}
+        onEdit={()=>{setEditEntry(detailEntry);setDetail(null);}}/>}
+    </div>
+  );
+}
+
+/* ---- Entry Detail Modal ---- */
+function EntryDetailModal({pal,family,entry,onClose,onEdit}){
+  const ch  = family.children[entry.childIdx];
+  const cp  = CHILD_COLOR_PALETTES.find(p=>p.id===(ch?.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+  return (
+    <div style={{position:"fixed",inset:0,background:"rgba(15,10,4,0.72)",backdropFilter:"blur(12px)",zIndex:250,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
+      <div style={{background:pal.linen,borderRadius:"28px 28px 0 0",width:"100%",maxWidth:"430px",maxHeight:"88vh",display:"flex",flexDirection:"column",animation:"slideUp 0.28s ease"}}>
+        <div style={{padding:"0.7rem 0 0",display:"flex",justifyContent:"center",flexShrink:0}}><div style={{width:"36px",height:"4px",borderRadius:"99px",background:pal.stone}}/></div>
+
+        {/* Header */}
+        <div style={{background:`linear-gradient(135deg,${cp.c1},${cp.c2})`,padding:"0.85rem 1.2rem",flexShrink:0,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div>
+            <div style={{fontWeight:"900",color:"#fff",fontSize:"0.95rem"}}>{entry.subj}</div>
+            <div style={{fontSize:"0.7rem",color:"rgba(255,255,255,0.75)"}}>{ch?.avatar} {ch?.name} · {entry.date}</div>
+          </div>
+          <button onClick={onClose} style={{background:"rgba(255,255,255,0.2)",border:"none",borderRadius:"9px",padding:"0.28rem 0.65rem",color:"#fff",fontWeight:"700",fontSize:"0.75rem",cursor:"pointer"}}>Close</button>
+        </div>
+
+        <div style={{flex:1,overflowY:"auto",padding:"1rem 1.2rem"}}>
+          {/* Title */}
+          <div style={{fontWeight:"800",color:pal.ink,fontSize:"1rem",marginBottom:"0.6rem",lineHeight:1.3}}>{entry.title}</div>
+
+          {/* Photos */}
+          {entry.photos&&entry.photos.length>0&&(
+            <div style={{marginBottom:"0.85rem"}}>
+              <div style={{display:"grid",gridTemplateColumns:entry.photos.length===1?"1fr":"1fr 1fr",gap:"0.4rem"}}>
+                {entry.photos.map((src,i)=>(
+                  <img key={i} src={src} alt="" style={{width:"100%",borderRadius:"10px",objectFit:"cover",maxHeight:"160px"}}/>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Subjects covered (day notes) */}
+          {entry.subjects&&entry.subjects.length>0&&(
+            <div style={{marginBottom:"0.75rem"}}>
+              <div style={{fontSize:"0.62rem",fontWeight:"700",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.35rem"}}>Subjects covered</div>
+              <div style={{display:"flex",flexWrap:"wrap",gap:"0.3rem"}}>
+                {entry.subjects.map(s=><span key={s} style={{padding:"0.2rem 0.6rem",background:cp.c1+"18",borderRadius:"20px",fontSize:"0.74rem",fontWeight:"700",color:cp.c1}}>{s}</span>)}
+              </div>
+            </div>
+          )}
+
+          {/* Notes */}
+          {entry.note&&entry.note.trim()&&(
+            <div style={{marginBottom:"0.75rem"}}>
+              <div style={{fontSize:"0.62rem",fontWeight:"700",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.35rem"}}>Notes</div>
+              <div style={{fontSize:"0.84rem",color:pal.ink,lineHeight:1.75,background:pal.parchm,borderRadius:"11px",padding:"0.75rem 0.9rem",whiteSpace:"pre-wrap"}}>{entry.note.replace("AI Summary: ","").trim()}</div>
+            </div>
+          )}
+
+          {/* AI Summary */}
+          {entry.aiSummary&&(
+            <div style={{background:pal.pale,borderRadius:"11px",padding:"0.75rem 0.9rem",border:`1.5px solid ${pal.primary}20`}}>
+              <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.68rem",marginBottom:"0.3rem"}}>✨ AI Summary</div>
+              <div style={{fontSize:"0.8rem",color:pal.ink,lineHeight:1.7}}>{entry.aiSummary}</div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div style={{padding:"0.85rem 1.2rem",borderTop:`1px solid ${pal.stone}40`,flexShrink:0}}>
+          <button onClick={onEdit} style={{width:"100%",padding:"0.72rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.86rem",cursor:"pointer"}}>
+            ✏️ Edit Entry
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
