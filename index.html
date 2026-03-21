@@ -238,6 +238,9 @@ function StemAndBloom() {
   const [showAIChat,        setShowAIChat]        = useState(false);
   const [showDaySummary,    setShowDaySummary]    = useState(false);
   const [showLifeReady,     setShowLifeReady]     = useState(false);
+  const [showEOY,           setShowEOY]           = useState(false);
+  const [eoyChild,          setEoyChild]          = useState(0);
+  const [eoyDismissed,      setEoyDismissed]      = useState(saved?.eoyDismissed||null);
   const [daySummaryData,    setDaySummaryData]    = useState(null);
   const [todayProgress,     setTodayProgress]     = useState(saved?.todayProgress||{count:0,total:0,date:""});
   const [paletteId, setPaletteId] = useState(saved?.paletteId||"sage");
@@ -246,8 +249,19 @@ function StemAndBloom() {
 
   // Auto-save whenever key state changes
   useEffect(()=>{
-    savePersist({family,navIds,portfolio:portfolioEntries,coopLog,attendanceDays,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress});
-  },[family,navIds,portfolioEntries,coopLog,attendanceDays,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress]);
+    savePersist({family,navIds,portfolio:portfolioEntries,coopLog,attendanceDays,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed});
+  },[family,navIds,portfolioEntries,coopLog,attendanceDays,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed]);
+
+  // Auto-show EOY checklist when within 3 weeks of year end OR year has passed
+  useEffect(()=>{
+    if(!family?.yearEnd) return;
+    const weeksLeft = getEOYWeeksLeft(family);
+    if(weeksLeft===null||weeksLeft>3) return;
+    const dismissKey = family.yearEnd;
+    if(eoyDismissed===dismissKey) return;
+    const t = setTimeout(()=>setShowEOY(true), 1800);
+    return ()=>clearTimeout(t);
+  },[family?.yearEnd, eoyDismissed]);
 
   const pal = useMemo(() => {
     const p = PRESET_PALETTES.find(p=>p.id===paletteId)||PRESET_PALETTES[0];
@@ -257,6 +271,16 @@ function StemAndBloom() {
   const navTabs = ALL_SECTIONS.filter(s=>navIds.includes(s.id));
 
   const handleSplash     = () => setView(family?"parent":"onboarding");
+  const handleGradeUp = (childIdx, newGrade) => {
+    setFamily(f => {
+      const updated = {...f, children: f.children.map((c,i) =>
+        i===childIdx ? {...c, grade:newGrade} : c
+      )};
+      return updated;
+    });
+    setShowEOY(false);
+    setEoyDismissed(family.yearEnd);
+  };
   const handleCheckinSave = (entries) => {
     entries.forEach(e => addPortfolioEntry(e));
     // increment attendance
@@ -418,6 +442,10 @@ function StemAndBloom() {
         {showSchedConfirm && <SchedConfirmModal pal={pal} family={family} days={pendingSchedDays} onConfirm={()=>{setAttendanceDays(d=>d+pendingSchedDays);setPendingSchedDays(0);setShowSchedConfirm(false);}} onClose={()=>setShowSchedConfirm(false)} />}
         {showCatchup  && <CatchupModal   pal={pal} family={family} days={attendanceDays} needed={180} onClose={()=>setShowCatchup(false)} />}
         {checkin      && <CheckinModal   pal={pal} family={family} onClose={()=>setCheckin(false)} onSave={handleCheckinSave} />}
+        {showEOY && family && <EOYChecklistModal pal={pal} family={family} childIdx={eoyChild} setChildIdx={setEoyChild}
+          weeksLeft={getEOYWeeksLeft(family)}
+          onClose={()=>{setShowEOY(false);setEoyDismissed(family.yearEnd);}}
+          onGradeUp={handleGradeUp} />}
         {showDaySummary && daySummaryData && <DaySummaryModal pal={pal} family={family} data={daySummaryData} portfolioEntries={portfolioEntries}
           onSave={(entries)=>{entries.forEach(e=>addPortfolioEntry(e));setShowDaySummary(false);setActiveTab("home");}}
           onClose={()=>{setShowDaySummary(false);setActiveTab("home");}} />}
@@ -1820,6 +1848,446 @@ function generateSchedule(family) {
   }
 
   return blocks;
+}
+
+
+/* =======================================
+   END-OF-YEAR SKILLS CHECKLIST
+   Grade-appropriate mastery benchmarks
+======================================= */
+const EOY_SKILLS = {
+  "Pre-K":[
+    {cat:"Language & Literacy",  skills:["Recognizes own name in print","Knows most letters of the alphabet","Understands that print has meaning","Can retell a simple story","Speaks in complete sentences","Rhymes simple words"]},
+    {cat:"Math & Numbers",       skills:["Counts to 20","Recognizes numbers 1-10","Understands more/less","Sorts objects by color, shape, size","Names basic shapes: circle, square, triangle","Understands patterns (ABAB)"]},
+    {cat:"Life Skills",          skills:["Washes hands independently","Dresses with minimal help","Follows 2-step directions","Takes turns and shares","Expresses needs with words","Manages basic self-care"]},
+    {cat:"Fine & Gross Motor",   skills:["Holds pencil/crayon correctly","Cuts with safety scissors","Hops on one foot","Catches a large ball","Draws basic shapes","Runs without falling"]},
+  ],
+  "K":[
+    {cat:"Reading",              skills:["Knows all 26 letters and sounds","Blends 3-letter words (CVC)","Reads 20+ sight words","Understands left-to-right reading","Identifies beginning/ending sounds","Retells a story with beginning/middle/end"]},
+    {cat:"Writing",              skills:["Writes first and last name","Writes all uppercase and lowercase letters","Writes simple sentences","Uses spaces between words","Beginning punctuation awareness","Draws and labels pictures"]},
+    {cat:"Math",                 skills:["Counts to 100 by 1s and 10s","Writes numbers 0-20","Adds within 10","Subtracts within 10","Compares numbers (greater/less)","Tells time to the hour","Identifies coins"]},
+    {cat:"Science & Social Studies",skills:["Knows seasons and weather","Names living vs non-living things","Understands family and community roles","Basic map concepts (near/far, left/right)","Observes and records simple experiments","Names continents and oceans (intro)"]},
+  ],
+  "1st":[
+    {cat:"Reading",              skills:["Reads simple books fluently","Decodes unfamiliar words using phonics","Identifies main idea and details","Reads 100+ sight words","Makes predictions and inferences","Reads aloud with expression"]},
+    {cat:"Writing",              skills:["Writes 3-5 sentence paragraphs","Uses capitals and end punctuation","Spells common words correctly","Writes narrative, informational, and opinion pieces","Uses descriptive words","Revises own writing"]},
+    {cat:"Math",                 skills:["Adds and subtracts within 20","Understands place value to 100","Measures length with non-standard units","Tells time to half-hour","Counts money to $1","Identifies and extends patterns"]},
+    {cat:"Science",              skills:["Understands the water cycle","Names properties of solids/liquids/gases","Knows basic needs of plants and animals","Conducts simple experiments","Understands push and pull forces","Identifies basic ecosystems"]},
+  ],
+  "2nd":[
+    {cat:"Reading",              skills:["Reads chapter books independently","Uses context clues for unknown words","Compares and contrasts stories","Identifies cause and effect","Reads with fluency (90+ wpm)","Summarizes nonfiction text"]},
+    {cat:"Writing",              skills:["Writes multi-paragraph pieces","Uses correct grammar and punctuation","Varies sentence structure","Writes opinion pieces with reasons","Uses transition words","Edits and proofreads own work"]},
+    {cat:"Math",                 skills:["Adds and subtracts within 1000","Knows multiplication concept","Understands fractions (halves, thirds, fourths)","Tells time to 5 minutes","Counts money and makes change","Measures in inches and centimeters"]},
+    {cat:"Science & Social Studies",skills:["Maps and geography basics","Understands habitats","Life cycles of plants and animals","Intro to matter and energy","Community, state, and country","Basic economics: wants vs needs"]},
+  ],
+  "3rd":[
+    {cat:"Reading",              skills:["Reads grade-level text independently","Identifies theme and moral","Uses text evidence to support answers","Reads poetry and drama","Understands figurative language (simile, metaphor)","Reads 120+ wpm fluently"]},
+    {cat:"Writing",              skills:["Writes 5+ paragraph essays","Uses research to inform writing","Writes narratives with dialogue","Correct use of commas and apostrophes","Writes to a prompt within a time limit","Cites sources (basic)"]},
+    {cat:"Math",                 skills:["Multiplication facts 0-10 (mastery)","Division facts 0-10","Fractions on a number line","Area and perimeter","Reads and interprets bar graphs","Rounds to nearest 10 and 100"]},
+    {cat:"Science",              skills:["Understands ecosystems and food chains","Weather vs climate","States of matter and changes","Forces and motion basics","Earth layers (intro)","Scientific method"]},
+  ],
+  "4th":[
+    {cat:"Reading",              skills:["Reads 4th-grade chapter books","Analyzes character development","Compares multiple texts on same topic","Understands point of view","Identifies author purpose","Uses dictionary and reference tools"]},
+    {cat:"Writing",              skills:["Multi-paragraph research report","Narrative writing with vivid detail","Opinion essay with counterargument","Consistent verb tense","Varied sentence structure","Basic citation format"]},
+    {cat:"Math",                 skills:["Multi-digit multiplication","Long division","Equivalent fractions","Decimal notation","Line plots and data analysis","Angles and geometry basics"]},
+    {cat:"Science & Social Studies",skills:["US regions and geography","American history (exploration to revolution)","Food webs and ecosystems","Electricity and circuits (basic)","Rocks and minerals","Weather patterns and prediction"]},
+  ],
+  "5th":[
+    {cat:"Reading",              skills:["Reads complex chapter books","Determines theme using text evidence","Compares genres and structures","Understands figurative language in context","Synthesizes information from multiple sources","Critical reading of nonfiction"]},
+    {cat:"Writing",              skills:["5-paragraph essay with thesis","Research paper with bibliography","Narrative with developed characters","Persuasive writing with evidence","Consistent style and voice","Peer editing skills"]},
+    {cat:"Math",                 skills:["Fractions: all operations","Decimals to thousandths","Order of operations (PEMDAS)","Volume of rectangular prisms","Coordinate plane basics","Intro to negative numbers"]},
+    {cat:"Science",              skills:["Cell structure basics","Earth and space systems","Energy and matter in ecosystems","Properties of matter","Simple machines","Scientific inquiry and lab reports"]},
+  ],
+  "6th":[
+    {cat:"Language Arts",        skills:["Analyzes literature themes and symbolism","Writes argumentative essays","Uses MLA/APA citation basics","Vocabulary: roots, prefixes, suffixes","Reads informational text at grade level","Oral presentations with evidence"]},
+    {cat:"Math",                 skills:["Ratios and proportions","Intro to algebra: variables and expressions","Negative numbers on number line","Statistics: mean, median, mode","Geometry: area of complex shapes","Intro to probability"]},
+    {cat:"Science",              skills:["Cells and organisms","Earth and human activity","Energy and waves basics","Forces and interactions","Intro to chemistry (elements)","Lab safety and methodology"]},
+    {cat:"Social Studies",       skills:["Ancient civilizations","World geography","Intro to economics","Government structures","Primary vs secondary sources","Reading historical maps"]},
+  ],
+  "7th":[
+    {cat:"Language Arts",        skills:["Literary analysis essay","Research with multiple sources","Understands bias and perspective","Grammar: complex sentences","Reads above grade level","Debates and structured discussion"]},
+    {cat:"Math",                 skills:["Proportional relationships","Multi-step equations","Geometry: circles and 3D shapes","Probability and statistics","Intro to functions","Rational numbers: all operations"]},
+    {cat:"Science",              skills:["Genetics and heredity","Ecosystems and human impact","Chemical reactions (basic)","Physics: forces, energy, motion","Earth history and fossils","Experimental design"]},
+    {cat:"Social Studies",       skills:["Medieval and early modern history","World religions (overview)","Economics: supply and demand","Civics and government","Geographic analysis","Historical cause and effect"]},
+  ],
+  "8th":[
+    {cat:"Language Arts",        skills:["Literary criticism and analysis","Research paper (5+ pages)","Persuasive and argumentative writing","Understands rhetoric and logic","Advanced vocabulary in context","Public speaking and debate"]},
+    {cat:"Math (Pre-Algebra/Algebra I)",skills:["Linear equations and inequalities","Systems of equations","Functions and graphs","Pythagorean theorem","Statistics and data analysis","Scientific notation"]},
+    {cat:"Science",              skills:["Matter and atomic structure","Evolution and natural selection","Earth systems interactions","Energy: types and transfers","Motion, forces, and Newton laws","Lab report writing"]},
+    {cat:"Social Studies",       skills:["American history through Reconstruction","Constitution and Bill of Rights","Economics: personal finance basics","Civics: branches of government","Primary source analysis","Current events and media literacy"]},
+  ],
+  "9th":[
+    {cat:"English I",            skills:["Literary analysis of novels and poetry","Research essay with proper citations","Narrative writing with developed voice","Grammar and mechanics mastery","Vocabulary acquisition strategies","Oral presentation skills"]},
+    {cat:"Math (Algebra I/II)",  skills:["Quadratic equations","Polynomial operations","Radical expressions","Graphing linear and quadratic functions","Systems of equations","Intro to statistics"]},
+    {cat:"Science (Biology)",    skills:["Cell biology and genetics","Evolution by natural selection","Ecosystems and biodiversity","Biochemistry basics","Lab design and analysis","Scientific writing"]},
+    {cat:"Social Studies",       skills:["World history: modern era","Geographic literacy","Global economics","Comparative government","Historical research skills","Ethical reasoning"]},
+  ],
+  "10th":[
+    {cat:"English II",           skills:["World literature analysis","Argumentative research paper","Synthesis writing across sources","Advanced grammar and style","Speech and debate","AP-level reading comprehension"]},
+    {cat:"Math (Geometry/Algebra II)",skills:["Geometric proofs","Trigonometry basics","Complex numbers","Logarithms and exponentials","Data analysis and probability","Mathematical modeling"]},
+    {cat:"Science (Chemistry)",  skills:["Atomic theory and periodic table","Chemical reactions and equations","Stoichiometry basics","Gas laws","Acids and bases","Lab technique and safety"]},
+    {cat:"Social Studies",       skills:["US History: Reconstruction to present","Constitutional law basics","Economics: macro and micro","Current events analysis","Primary source evaluation","College-prep writing"]},
+  ],
+  "11th":[
+    {cat:"English III",          skills:["American literature survey","AP-level essay writing","Independent research project","Advanced vocabulary","Satire and rhetorical analysis","SAT/ACT reading prep"]},
+    {cat:"Math (Pre-Calc/Calculus)",skills:["Trigonometric functions","Limits (intro)","Derivatives (basic)","Sequence and series","Vectors and matrices","AP Calculus readiness"]},
+    {cat:"Science (Physics)",    skills:["Kinematics and dynamics","Work, energy, power","Waves and optics","Electricity and magnetism","Modern physics intro","College-level lab reports"]},
+    {cat:"College Prep",         skills:["College research and planning","SAT/ACT preparation","Personal statement drafts","Financial aid basics","Time management and study skills","Career exploration"]},
+  ],
+  "12th":[
+    {cat:"English IV",           skills:["British or world literature","Senior thesis or capstone project","College-level essay writing","Portfolio of writing samples","Oral defense of ideas","Independent reading program"]},
+    {cat:"Math",                 skills:["Calculus or Statistics completion","Real-world math applications","Personal finance mastery","Data literacy","Mathematical communication","College placement readiness"]},
+    {cat:"Science",              skills:["AP or dual-enrollment science","Independent research project","Lab methodology mastery","Science writing for public audience","Ethics in science","STEM career exploration"]},
+    {cat:"Transitions",          skills:["College applications complete","Financial aid applications filed","Resume and interview skills","Adulting basics: taxes, budgeting, insurance","Driver license and independence skills","Senior reflection and goal-setting"]},
+  ],
+};
+
+/* =======================================
+   GRADE-SPECIFIC COMPLIANCE DATA
+   Based on state laws research
+======================================= */
+const GRADES_ELEM = ["Pre-K","K","1st","2nd","3rd","4th","5th"];
+const GRADES_MID  = ["6th","7th","8th"];
+const GRADES_HIGH = ["9th","10th","11th","12th"];
+
+function gradeLevel(grade) {
+  if(GRADES_ELEM.includes(grade)) return "elementary";
+  if(GRADES_MID.includes(grade))  return "middle";
+  if(GRADES_HIGH.includes(grade)) return "high";
+  return "elementary";
+}
+
+function gradeNum(grade) {
+  const map = {"Pre-K":-1,"K":0,"1st":1,"2nd":2,"3rd":3,"4th":4,"5th":5,"6th":6,"7th":7,"8th":8,"9th":9,"10th":10,"11th":11,"12th":12};
+  return map[grade] ?? 5;
+}
+
+function nextGrade(grade) {
+  const order = ["Pre-K","K","1st","2nd","3rd","4th","5th","6th","7th","8th","9th","10th","11th","12th"];
+  const idx = order.indexOf(grade);
+  return idx >= 0 && idx < order.length-1 ? order[idx+1] : null;
+}
+
+// Returns grade-specific compliance info for a given state + grade
+function getComplianceInfo(state, grade) {
+  const level = gradeLevel(grade);
+  const gnum  = gradeNum(grade);
+
+  // Core subjects required at each level (varies by state)
+  const coreByLevel = {
+    elementary: ["Reading/Language Arts","Math","Science","Social Studies","Health","Art","Music","Physical Education"],
+    middle:     ["English/Language Arts","Math","Science","Social Studies","Health","PE","Electives"],
+    high:       ["English","Math","Science","Social Studies/History","Health","PE","Electives","Foreign Language (recommended)"],
+  };
+
+  // Testing flags
+  const needsTest = {
+    "Pennsylvania": [3,5,8].includes(gnum),
+    "West Virginia": [3,5,8,11].includes(gnum),
+    "Colorado":      gnum>=3 && gnum%2===1,
+    "New York":      gnum>=4,
+    "Virginia":      [3,5,8].includes(gnum),
+    "Georgia":       gnum>=3,
+    "Ohio":          [3,4,5,6,7,8].includes(gnum),
+    "North Carolina":[3,4,5,6,7,8].includes(gnum),
+  }[state] || false;
+
+  const stateNotes = {
+    "Florida": {
+      hours: "No minimum hours — 180 days recommended",
+      portfolio: "Contemporaneous activity log (with reading titles listed) + work samples",
+      testing: "Not required — annual evaluation by certified teacher due on LOI anniversary",
+      gradeNotes: {
+        elementary: "Show reading materials by title. Keep samples from beginning, middle, and end of year.",
+        middle:     "Same as elementary — activity log + work samples per subject.",
+        high:       "Begin formal transcript (grades 9-12). College-bound students need credits documented.",
+      },
+      deadline: "Anniversary of Letter of Intent to school district",
+      keepFor:  "2 years",
+    },
+    "Pennsylvania": {
+      hours: level==="elementary"?"900 hours/year":"990 hours/year",
+      portfolio: "Log of reading materials (by title) + work samples from beginning, middle & end of year",
+      testing: needsTest?`REQUIRED: Standardized test in Reading/Language Arts & Math (grade ${grade})`:"Not required this grade",
+      gradeNotes: {
+        elementary: "Include samples showing progress over time. Log must list book titles. Evaluator checks for growth.",
+        middle:     "Same requirements + testing at grade 8. Evaluator is a PA-certified teacher or licensed psychologist.",
+        high:       "Transcript required. List subjects, credits earned, grades. 990 hours/year. Annual evaluation required.",
+      },
+      deadline: "Annual evaluation by June 30",
+      keepFor:  "Not specified — keep indefinitely recommended",
+    },
+    "New York": {
+      hours: level==="elementary"?"900 hours/year (225/quarter)":"990 hours/year (247.5/quarter)",
+      portfolio: "Quarterly reports + annual assessment. Hours must be documented by subject at secondary level.",
+      testing: "Required every other year starting grade 4, then annually from grade 9",
+      gradeNotes: {
+        elementary: "File IHIP annually. Submit quarterly reports listing subjects and hours. Keep attendance records.",
+        middle:     "Hours documented per subject. Units begin accumulating in grades 7-8.",
+        high:       "Standardized testing required annually. Graduation requires completing 24 cumulative units (9-12).",
+      },
+      deadline: "Quarterly reports to school district",
+      keepFor:  "Not specified",
+    },
+    "Maryland": {
+      hours: "No minimum — must show regular, thorough instruction",
+      portfolio: "Work samples per week of semester for each COMAR subject. Semi-annual portfolio review.",
+      testing: "Not required",
+      gradeNotes: {
+        elementary: "Work samples for English, Math, Science, Social Studies. Description only for Art, Music, PE, Health.",
+        middle:     "Work samples required for core subjects weekly. Same COMAR subjects apply.",
+        high:       "Same requirements. College-bound: maintain transcript with course names and grades.",
+      },
+      deadline: "Semi-annual reviews (Jan & June)",
+      keepFor:  "Duration of homeschooling",
+    },
+    "Texas": {
+      hours: "No requirement — full flexibility",
+      portfolio: "No state requirement — highly recommended for personal records",
+      testing: "Not required",
+      gradeNotes: {
+        elementary: "TX is highly flexible. No filing, no reporting. Teach visual arts, music, PE, health at minimum.",
+        middle:     "Same freedom as elementary. Keep records for your own reference and school re-entry if needed.",
+        high:       "Transcript strongly recommended for college. No state requirement but colleges expect it.",
+      },
+      deadline: "None",
+      keepFor:  "Recommended: keep permanently",
+    },
+    "California": {
+      hours: "No specific minimum — must show instruction",
+      portfolio: "Required if filing as private school. Keep attendance, coursework records.",
+      testing: "Not required",
+      gradeNotes: {
+        elementary: "File as private school or use PSA/ISP. Keep records of instruction in required subjects.",
+        middle:     "Same as elementary. Required subjects: English, Math, Social Sciences, Science, Arts, PE, Health.",
+        high:       "Transcript required for college. Courses must align with UC/CSU A-G requirements if college-bound.",
+      },
+      deadline: "Annual private school affidavit (Oct 1-15)",
+      keepFor:  "Recommended: 5 years",
+    },
+    "Georgia": {
+      hours: "180 days/year",
+      portfolio: "Declaration of intent + monthly attendance records + standardized test every 3 years (grades 3+)",
+      testing: needsTest?"Standardized test required this year (every 3 years)":"Not required this year",
+      gradeNotes: {
+        elementary: "Monthly attendance reports. Test every 3 years starting grade 3.",
+        middle:     "Same monthly reporting. Test every 3 years. Keep work samples for reference.",
+        high:       "Test every 3 years. Transcript needed for college. Keep detailed course records.",
+      },
+      deadline: "Monthly attendance to school district",
+      keepFor:  "Not specified",
+    },
+    "Ohio": {
+      hours: "900 hours/year",
+      portfolio: "Annual notification + assessment. Portfolio or standardized test as evaluation option.",
+      testing: needsTest?`Assessment required this grade — portfolio or standardized test`:"Assessment required annually",
+      gradeNotes: {
+        elementary: "900 hours/year. Annual assessment by licensed teacher or portfolio review. Keep attendance.",
+        middle:     "Same 900 hour requirement. Assessment or portfolio. Required subjects include all core areas.",
+        high:       "Must cover specific subjects each year. Keep credits and grades for transcript.",
+      },
+      deadline: "Annual assessment submitted to school district",
+      keepFor:  "2 years recommended",
+    },
+  };
+
+  const info = stateNotes[state] || {
+    hours: "Check your state education department for hours requirements",
+    portfolio: "Keep attendance log, activity log, and work samples by subject",
+    testing: "Check your state for standardized testing requirements",
+    gradeNotes: {
+      elementary: "Most states require: activity log, work samples per subject, attendance record.",
+      middle:     "Same as elementary. Some states add standardized testing at middle school grades.",
+      high:       "Add formal transcript (grades 9-12) with courses, credits, and grades for college preparation.",
+    },
+    deadline: "Check your state education department website",
+    keepFor:  "Recommended: keep for 5 years",
+  };
+
+  return {
+    state,
+    grade,
+    level,
+    gnum,
+    hours:      info.hours,
+    portfolio:  info.portfolio,
+    testing:    info.testing,
+    gradeNote:  info.gradeNotes[level]||info.gradeNotes.elementary,
+    deadline:   info.deadline,
+    keepFor:    info.keepFor,
+    subjects:   coreByLevel[level]||coreByLevel.elementary,
+    needsTest,
+  };
+}
+
+function getEOYWeeksLeft(family) {
+  if(!family?.yearEnd) return null;
+  const end = new Date(family.yearEnd);
+  const today = new Date();
+  const msLeft = end - today;
+  if(msLeft < 0) return 0;
+  return Math.ceil(msLeft / (7*24*60*60*1000));
+}
+
+/* =======================================
+   END OF YEAR CHECKLIST + GRADE PROMOTION
+======================================= */
+function EOYChecklistModal({pal,family,childIdx,setChildIdx,weeksLeft,onClose,onGradeUp}){
+  const [tab,       setTab]       = useState("checklist"); // checklist | promote
+  const [promoting, setPromoting] = useState(null); // childIdx being promoted
+  const [promoted,  setPromoted]  = useState({}); // {childId: newGrade}
+
+  const ch = family.children[childIdx]||family.children[0];
+  if(!ch) return null;
+
+  const info = getComplianceInfo(family.state||"", ch.grade||"5th");
+  const next = nextGrade(ch.grade);
+
+  const CHECKLIST_ITEMS = [
+    {id:"attendance",  icon:"📋", label:"Attendance Record",    detail:"180 days logged ("+info.hours+")"},
+    {id:"activitylog", icon:"📓", label:"Activity Log",         detail:"Daily/weekly log with reading titles listed"},
+    {id:"worksamples", icon:"📚", label:"Work Samples",         detail:"Beginning, middle, end of year per subject"},
+    {id:"subjects",    icon:"🔬", label:"All Subjects Covered", detail:info.subjects.slice(0,4).join(", ")+" + more"},
+    {id:"narrative",   icon:"📝", label:"Parent Narrative",     detail:"Written description of the year's progress"},
+    ...(info.needsTest?[{id:"testing",icon:"📊",label:"Standardized Test",detail:"Required this grade in "+family.state}]:[]),
+    {id:"portfolio",   icon:"🗂", label:"Portfolio Organized",  detail:"Sections tabbed, entries dated, photos included"},
+    {id:"save",        icon:"💾", label:"Portfolio Saved/Printed",detail:"PDF saved or printed for your records"},
+  ];
+
+  const [checked, setChecked] = useState({});
+  const toggle = id => setChecked(c=>({...c,[id]:!c[id]}));
+  const doneCount = Object.values(checked).filter(Boolean).length;
+  const allDone   = doneCount === CHECKLIST_ITEMS.length;
+
+  return (
+    <div style={{position:"fixed",inset:0,background:"rgba(15,10,4,0.75)",backdropFilter:"blur(12px)",zIndex:300,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
+      <div style={{background:pal.linen,borderRadius:"28px 28px 0 0",width:"100%",maxWidth:"430px",maxHeight:"90vh",display:"flex",flexDirection:"column",animation:"slideUp 0.28s ease"}}>
+
+        {/* Header */}
+        <div style={{padding:"0.7rem 0 0",display:"flex",justifyContent:"center",flexShrink:0}}><div style={{width:"36px",height:"4px",borderRadius:"99px",background:pal.stone}}/></div>
+        <div style={{background:pal.heroGrad,padding:"0.9rem 1.2rem",flexShrink:0}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <div>
+              <div style={{fontWeight:"900",color:"#fff",fontSize:"1rem"}}>🎓 End of Year</div>
+              <div style={{fontSize:"0.72rem",color:"rgba(255,255,255,0.75)"}}>
+                {weeksLeft===0?"Year complete!":weeksLeft===1?"Last week!":weeksLeft+" weeks remaining"}
+              </div>
+            </div>
+            <button onClick={onClose} style={{background:"rgba(255,255,255,0.18)",border:"none",borderRadius:"9px",padding:"0.3rem 0.65rem",color:"#fff",fontWeight:"700",fontSize:"0.75rem",cursor:"pointer"}}>Close</button>
+          </div>
+          {/* Child tabs */}
+          {family.children.length>1&&(
+            <div style={{display:"flex",gap:"0.35rem",marginTop:"0.65rem",overflowX:"auto"}}>
+              {family.children.map((c,i)=>(
+                <button key={c.id} onClick={()=>setChildIdx(i)}
+                  style={{padding:"0.25rem 0.65rem",borderRadius:"20px",border:`2px solid ${childIdx===i?"rgba(255,255,255,0.6)":"rgba(255,255,255,0.2)"}`,background:childIdx===i?"rgba(255,255,255,0.18)":"transparent",color:"#fff",fontSize:"0.72rem",fontWeight:childIdx===i?"700":"400",cursor:"pointer",whiteSpace:"nowrap",flexShrink:0}}>
+                  {c.avatar} {c.name}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Tab switcher */}
+        <div style={{display:"flex",background:pal.parchm,margin:"0.75rem 1.2rem 0",borderRadius:"11px",padding:"3px",gap:"2px",flexShrink:0}}>
+          {[["📋 Portfolio Checklist","checklist"],["🎓 Move to Next Grade","promote"]].map(([l,id])=>(
+            <button key={id} onClick={()=>setTab(id)} style={{flex:1,padding:"0.42rem",border:"none",borderRadius:"9px",background:tab===id?pal.linen:"transparent",color:tab===id?pal.ink:pal.slate,fontSize:"0.72rem",fontWeight:tab===id?"700":"400",cursor:"pointer"}}>{l}</button>
+          ))}
+        </div>
+
+        <div style={{flex:1,overflowY:"auto",padding:"0.85rem 1.2rem"}}>
+
+          {/* ====== CHECKLIST TAB ====== */}
+          {tab==="checklist" && (<>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.65rem"}}>
+              <div style={{fontSize:"0.78rem",fontWeight:"700",color:pal.inkM}}>{ch.avatar} {ch.name} · {ch.grade}</div>
+              <div style={{fontSize:"0.72rem",color:doneCount===CHECKLIST_ITEMS.length?pal.good:pal.slate,fontWeight:"700"}}>{doneCount}/{CHECKLIST_ITEMS.length} complete</div>
+            </div>
+
+            {/* Progress bar */}
+            <div style={{height:"6px",borderRadius:"99px",background:pal.parchm,overflow:"hidden",marginBottom:"0.85rem"}}>
+              <div style={{height:"100%",width:`${Math.round(doneCount/CHECKLIST_ITEMS.length*100)}%`,borderRadius:"99px",background:allDone?`linear-gradient(90deg,${pal.good},${pal.mid})`:pal.accentGrad,transition:"width 0.3s"}}/>
+            </div>
+
+            {/* State requirement reminder */}
+            {info.deadline&&info.deadline!=="None"&&(
+              <div style={{background:pal.pale,borderRadius:"12px",padding:"0.65rem 0.85rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.primary}20`,fontSize:"0.74rem",color:pal.inkM}}>
+                <span style={{fontWeight:"700",color:pal.primary}}>{family.state||"Your state"} deadline:</span> {info.deadline}
+              </div>
+            )}
+
+            {/* Checklist items */}
+            {CHECKLIST_ITEMS.map((item,i)=>(
+              <div key={item.id} onClick={()=>toggle(item.id)}
+                style={{display:"flex",gap:"0.75rem",alignItems:"flex-start",padding:"0.65rem 0.75rem",background:checked[item.id]?pal.goodBg:pal.linen,borderRadius:"12px",marginBottom:"0.42rem",border:`1.5px solid ${checked[item.id]?pal.good+"40":pal.stone+"35"}`,cursor:"pointer",transition:"all 0.15s"}}>
+                <div style={{width:"36px",height:"36px",borderRadius:"10px",background:checked[item.id]?pal.good:pal.pale,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.1rem",flexShrink:0,transition:"background 0.15s"}}>{checked[item.id]?"✓":item.icon}</div>
+                <div style={{flex:1}}>
+                  <div style={{fontWeight:"700",color:checked[item.id]?pal.good:pal.ink,fontSize:"0.84rem",textDecoration:checked[item.id]?"line-through":"none"}}>{item.label}</div>
+                  <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"1px",lineHeight:1.5}}>{item.detail}</div>
+                </div>
+              </div>
+            ))}
+
+            {allDone&&(
+              <div style={{background:pal.goodBg,borderRadius:"14px",padding:"1rem",marginTop:"0.5rem",textAlign:"center",border:`2px solid ${pal.good}40`}}>
+                <div style={{fontSize:"2rem",marginBottom:"0.3rem"}}>🌟</div>
+                <div style={{fontWeight:"900",color:pal.good,fontSize:"0.95rem",marginBottom:"0.2rem"}}>Portfolio Complete!</div>
+                <div style={{fontSize:"0.76rem",color:pal.inkM}}>Switch to "Move to Next Grade" to advance {ch.name}.</div>
+              </div>
+            )}
+          </>)}
+
+          {/* ====== GRADE PROMOTION TAB ====== */}
+          {tab==="promote" && (<>
+            <div style={{textAlign:"center",marginBottom:"1rem"}}>
+              <div style={{fontSize:"3rem",marginBottom:"0.4rem",animation:"bounce 2s ease infinite"}}>{ch.avatar}</div>
+              <div style={{fontWeight:"900",color:pal.ink,fontSize:"1.1rem",marginBottom:"0.15rem"}}>{ch.name}</div>
+              <div style={{fontSize:"0.8rem",color:pal.slate,marginBottom:"0.75rem"}}>Currently in <b>{ch.grade}</b></div>
+            </div>
+
+            {next ? (<>
+              <div style={{background:pal.pale,borderRadius:"18px",padding:"1.1rem 1.2rem",marginBottom:"1rem",border:`2px solid ${pal.primary}25`,textAlign:"center"}}>
+                <div style={{fontSize:"0.68rem",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.3rem"}}>Ready to advance to</div>
+                <div style={{fontWeight:"900",color:pal.primary,fontSize:"1.6rem",marginBottom:"0.25rem"}}>{next}</div>
+                <div style={{fontSize:"0.74rem",color:pal.slate}}>
+                  {gradeLevel(next)==="high"&&gradeLevel(ch.grade)!=="high"?"High school begins — transcript tracking starts now":
+                   gradeLevel(next)==="middle"&&gradeLevel(ch.grade)==="elementary"?"Moving to middle school — subject requirements expand":
+                   "New grade, new goals!"}
+                </div>
+              </div>
+
+              {/* What changes at the new grade */}
+              {(()=>{
+                const nextInfo = getComplianceInfo(family.state||"", next);
+                return (
+                  <div style={{background:pal.linen,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}35`}}>
+                    <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.74rem",marginBottom:"0.5rem"}}>What changes in {next}</div>
+                    {nextInfo.needsTest&&<div style={{background:"#fff8e8",borderRadius:"8px",padding:"0.4rem 0.6rem",marginBottom:"0.4rem",fontSize:"0.73rem",color:"#7a5500",fontWeight:"700",border:"1px solid #f5c842"}}>⚠️ Standardized test required in {next} ({family.state})</div>}
+                    <div style={{fontSize:"0.74rem",color:pal.inkM,lineHeight:1.6}}>{nextInfo.gradeNote}</div>
+                    {gradeLevel(next)==="high"&&<div style={{marginTop:"0.5rem",fontSize:"0.72rem",color:pal.primary,fontWeight:"700"}}>📜 Transcript tracking begins — grades and credits will be recorded from {next} onward.</div>}
+                  </div>
+                );
+              })()}
+
+              <button onClick={()=>onGradeUp&&onGradeUp(childIdx,next)}
+                style={{width:"100%",padding:"0.9rem",border:"none",borderRadius:"14px",background:pal.accentGrad,color:pal.onDark,fontWeight:"900",fontSize:"0.92rem",cursor:"pointer",boxShadow:`0 4px 18px ${pal.accent}40`,marginBottom:"0.6rem"}}>
+                🎓 Advance {ch.name} to {next}
+              </button>
+              <button onClick={onClose} style={{width:"100%",padding:"0.65rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.84rem",cursor:"pointer"}}>
+                Not yet — keep in {ch.grade}
+              </button>
+            </>) : (
+              <div style={{textAlign:"center",padding:"1rem",background:pal.goodBg,borderRadius:"18px",border:`2px solid ${pal.good}30`}}>
+                <div style={{fontSize:"2.5rem",marginBottom:"0.5rem"}}>🎓</div>
+                <div style={{fontWeight:"900",color:pal.good,fontSize:"1rem",marginBottom:"0.3rem"}}>Graduation!</div>
+                <div style={{fontSize:"0.8rem",color:pal.inkM,lineHeight:1.65}}>{ch.name} has completed 12th grade. Congratulations on completing your homeschool journey!</div>
+              </div>
+            )}
+          </>)}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 /* =======================================
@@ -3623,16 +4091,47 @@ function PortfolioPreview({pal,family,entries,child}){
                   schoolName={schoolName} cp={cp} compact/>
               </div>
 
-              {/* ── SECTION 7: STATE COMPLIANCE NOTE ── */}
-              <div style={{background:"#fafafa",borderRadius:"10px",padding:"0.75rem",marginBottom:"1rem",border:"1px solid #eee"}}>
-                <div style={{fontSize:"0.62rem",color:"#aaa",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.25rem",fontWeight:"700"}}>State Compliance Note</div>
-                <div style={{fontSize:"0.72rem",color:"#666",lineHeight:1.6}}>
-                  {family.state==="Pennsylvania"?"PA requires: attendance record, immunization history, subject work samples, and annual evaluation by a certified teacher or licensed psychologist.":
-                   family.state==="Florida"?"FL requires: contemporaneous activity log with reading materials listed, and work samples. Annual evaluation due on anniversary of Letter of Intent.":
-                   family.state==="Maryland"?"MD requires: work samples for each week of the semester for each COMAR-required subject. Review is semi-annual.":
-                   "Check your state education department for specific portfolio requirements. Most states require: attendance records, activity log, and work samples by subject."}
-                </div>
-              </div>
+              {/* ── SECTION 7: GRADE-SPECIFIC STATE COMPLIANCE ── */}
+              {(()=>{
+                const info = getComplianceInfo(family.state||"", ch.grade||"5th");
+                return (
+                  <div style={{marginBottom:"1.1rem",paddingBottom:"1rem",borderBottom:"1.5px solid #f0f0f0"}}>
+                    <div style={{fontWeight:"700",color:"#555",fontSize:"0.62rem",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:"0.6rem"}}>
+                      {family.state||"Your State"} Requirements · {ch.grade} Grade
+                    </div>
+                    <div style={{display:"flex",flexDirection:"column",gap:"0.38rem"}}>
+                      {[
+                        ["📚","Required subjects",info.subjects.join(", ")],
+                        ["📋","Portfolio",info.portfolio],
+                        ["⏰","Instructional hours",info.hours],
+                        ["📊","Testing",info.testing],
+                        ["📅","Submission deadline",info.deadline],
+                        ["🗂","Keep records for",info.keepFor],
+                      ].map(([icon,label,val])=>(
+                        <div key={label} style={{display:"flex",gap:"0.5rem",alignItems:"flex-start",padding:"0.38rem 0.5rem",background:"#fafafa",borderRadius:"7px",border:"1px solid #f0f0f0"}}>
+                          <span style={{fontSize:"0.85rem",flexShrink:0}}>{icon}</span>
+                          <div style={{flex:1}}>
+                            <div style={{fontSize:"0.58rem",color:"#aaa",fontWeight:"700",textTransform:"uppercase",letterSpacing:"0.05em",marginBottom:"1px"}}>{label}</div>
+                            <div style={{fontSize:"0.74rem",color:"#333",lineHeight:1.55}}>{val}</div>
+                          </div>
+                        </div>
+                      ))}
+                      {info.needsTest&&(
+                        <div style={{background:"#fff8e8",borderRadius:"7px",padding:"0.4rem 0.6rem",border:"1px solid #f5c842",display:"flex",gap:"0.4rem",alignItems:"center"}}>
+                          <span style={{fontSize:"0.9rem"}}>⚠️</span>
+                          <div style={{fontSize:"0.74rem",color:"#7a5500",fontWeight:"700"}}>Standardized test required this grade in {family.state}.</div>
+                        </div>
+                      )}
+                      <div style={{background:"#f0f8ff",borderRadius:"7px",padding:"0.4rem 0.6rem",border:"1px solid #b8d8f0",fontSize:"0.72rem",color:"#1a4a70",lineHeight:1.55}}>
+                        <b>{ch.grade} note:</b> {info.gradeNote}
+                      </div>
+                      <div style={{fontSize:"0.65rem",color:"#aaa",marginTop:"2px",fontStyle:"italic"}}>
+                        Verify requirements at your state education department. Laws change — always confirm with HSLDA.org or your state DOE.
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* ── CERTIFICATION / SIGNATURE ── */}
               <div style={{marginTop:"1rem",paddingTop:"1rem",borderTop:"1.5px solid #e8e8e8"}}>
