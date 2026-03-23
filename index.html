@@ -3844,31 +3844,33 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
           })}
         </div>
 
-        {/* State compliance banner */}
-        <div style={{background:pal.pale,borderRadius:"12px",padding:"0.65rem 0.9rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.primary}20`,display:"flex",gap:"0.6rem",alignItems:"flex-start"}}>
-          <span style={{fontSize:"1rem",flexShrink:0}}>📋</span>
-          <div style={{flex:1}}>
-            <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.76rem",marginBottom:"1px"}}>{family.state||"Your state"} requirements</div>
-            <div style={{fontSize:"0.7rem",color:pal.inkM,lineHeight:1.55}}>{stateInfo.portfolio}</div>
-            {stateInfo.deadline&&stateInfo.deadline!=="None"&&<div style={{fontSize:"0.65rem",color:pal.slate,marginTop:"2px"}}>Due: {stateInfo.deadline}</div>}
+        {/* ── STUDENT INFO ── */}
+        <div style={{background:pal.linen,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.stone}30`}}>
+          <div style={{fontWeight:"900",color:pal.ink,fontSize:"1rem",marginBottom:"2px"}}>{activeCh?.name}</div>
+          <div style={{fontSize:"0.72rem",color:pal.slate}}>
+            {family.schoolName||(family.familyName+" Academy")||"Home School"}
+            {" · "}
+            {family.yearStart&&family.yearEnd
+              ? new Date(family.yearStart).getFullYear()+" – "+new Date(family.yearEnd).getFullYear()
+              : new Date().getFullYear()+" – "+(new Date().getFullYear()+1)}
           </div>
-          <button onClick={()=>setView("preview")} style={{padding:"0.28rem 0.6rem",border:"none",borderRadius:"8px",background:pal.accentGrad,color:"#fff",fontWeight:"700",fontSize:"0.65rem",cursor:"pointer",flexShrink:0}}>Preview</button>
+          <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"2px"}}>{new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})}</div>
         </div>
 
-        {/* Add entry */}
-        <button onClick={()=>setShowAdd(true)}
-          style={{width:"100%",padding:"0.68rem",border:`2px dashed ${pal.primary}50`,borderRadius:"12px",background:"transparent",color:pal.primary,fontWeight:"700",fontSize:"0.8rem",cursor:"pointer",marginBottom:"1.1rem",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.4rem"}}>
-          <span>+</span><span>Add Entry</span>
-        </button>
-
-        {/* ══════════════════════════════════════
-            SECTION 1: ACTIVITY LOG
-        ══════════════════════════════════════ */}
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.55rem"}}>
-          <div style={{fontWeight:"900",color:pal.ink,fontSize:"0.88rem"}}>Activity Log</div>
-          <div style={{fontSize:"0.68rem",color:pal.slate}}>{subjEntries.length} entries</div>
+        {/* Add entry + Preview row */}
+        <div style={{display:"flex",gap:"0.5rem",marginBottom:"1.1rem"}}>
+          <button onClick={()=>setShowAdd(true)}
+            style={{flex:1,padding:"0.65rem",border:`2px dashed ${pal.primary}50`,borderRadius:"12px",background:"transparent",color:pal.primary,fontWeight:"700",fontSize:"0.8rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.4rem"}}>
+            <span>+</span><span>Add Entry</span>
+          </button>
+          <button onClick={()=>setView("preview")}
+            style={{padding:"0.65rem 1rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"700",fontSize:"0.8rem",cursor:"pointer",flexShrink:0}}>
+            🖨 Print PDF
+          </button>
         </div>
 
+        {/* ── SUBJECTS — expandable bubbles ── */}
+        <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.88rem",marginBottom:"0.55rem"}}>Subjects</div>
         {subjectList.length===0 ? (
           <div style={{background:pal.linen,borderRadius:"14px",padding:"1.5rem",textAlign:"center",border:`1.5px solid ${pal.stone}30`,marginBottom:"1.1rem"}}>
             <div style={{fontSize:"2rem",marginBottom:"0.4rem"}}>📚</div>
@@ -3876,121 +3878,16 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
             <div style={{fontSize:"0.74rem",color:pal.slate}}>Complete a school day or add an entry above.</div>
           </div>
         ) : (
-          <div style={{background:pal.linen,borderRadius:"14px",border:`1.5px solid ${pal.stone}30`,overflow:"hidden",marginBottom:"1.1rem"}}>
-            {subjectList.map((sd,i)=>(
-              <button key={sd.subj} onClick={()=>{setActiveSubj(sd.subj);setView("subject");}}
-                style={{width:"100%",display:"flex",gap:"0.7rem",alignItems:"center",padding:"0.7rem 0.9rem",borderTop:i>0?`1px solid ${pal.stone}20`:"none",background:"transparent",border:"none",cursor:"pointer",textAlign:"left"}}
-                onTouchStart={e=>e.currentTarget.style.background=pal.pale}
-                onTouchEnd={e=>e.currentTarget.style.background="transparent"}>
-                {/* Subject icon */}
-                <div style={{width:"38px",height:"38px",borderRadius:"10px",background:`linear-gradient(135deg,${cp.c1}25,${cp.c2}18)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.1rem",flexShrink:0}}>
-                  {(()=>{const customSubjs=family.customSubjects||[];const allSubjs=[...SUBJECT_OPTIONS,...customSubjs];const s=allSubjs.find(x=>x.label===sd.subj);return s?.icon||"📋";})()}
-                </div>
-                <div style={{flex:1,minWidth:0}}>
-                  <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.85rem"}}>{sd.subj}</div>
-                  <div style={{fontSize:"0.67rem",color:pal.slate,marginTop:"1px"}}>
-                    {sd.entries.length} {sd.entries.length===1?"entry":"entries"}
-                    {sd.entries[0]&&" · last "+sd.entries[sd.entries.length-1].date}
-                  </div>
-                </div>
-                {/* Photo badge */}
-                {sd.hasPhotos&&<span style={{fontSize:"0.75rem",flexShrink:0}}>📷</span>}
-                {/* Entry count pill */}
-                <div style={{background:cp.c1+"20",borderRadius:"20px",padding:"0.15rem 0.55rem",flexShrink:0}}>
-                  <span style={{fontWeight:"800",color:cp.c1,fontSize:"0.76rem"}}>{sd.entries.length}</span>
-                </div>
-                <span style={{color:pal.stone,fontSize:"0.9rem",flexShrink:0}}>›</span>
-              </button>
-            ))}
+          <div style={{display:"flex",flexDirection:"column",gap:"0.45rem",marginBottom:"1.1rem"}}>
+            {subjectList.map((sd)=><SubjectBubble key={sd.subj} sd={sd} cp={cp} pal={pal} family={family} onDetail={setDetail}/>)}
           </div>
         )}
 
-        {/* ══════════════════════════════════════
-            SECTION 2: WORK SAMPLES
-        ══════════════════════════════════════ */}
-        {(stateInfo.workSamples||sampleEntries.length>0) && (<>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.55rem"}}>
-            <div style={{fontWeight:"900",color:pal.ink,fontSize:"0.88rem"}}>Work Samples</div>
-            <div style={{fontSize:"0.68rem",color:pal.slate}}>{sampleEntries.length} with photos</div>
-          </div>
-          {sampleEntries.length===0 ? (
-            <div style={{background:pal.linen,borderRadius:"14px",padding:"1.1rem",textAlign:"center",border:`1.5px dashed ${pal.stone}40`,marginBottom:"1.1rem"}}>
-              <div style={{fontSize:"0.8rem",color:pal.slate}}>Add photos when logging entries to create work samples.
-{stateInfo.workSamples?"Required by "+family.state+".":""}</div>
-            </div>
-          ) : (
-            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"0.45rem",marginBottom:"1.1rem"}}>
-              {sampleEntries.slice(0,9).map((e,i)=>(
-                <div key={e.id||i} onClick={()=>setDetail(e)}
-                  style={{aspectRatio:"1",borderRadius:"10px",overflow:"hidden",border:`1.5px solid ${pal.stone}30`,cursor:"pointer",position:"relative",background:pal.parchm}}>
-                  <img src={e.photos[0]} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
-                  <div style={{position:"absolute",bottom:0,left:0,right:0,background:"linear-gradient(transparent,rgba(0,0,0,0.55))",padding:"0.3rem 0.35rem 0.3rem"}}>
-                    <div style={{fontSize:"0.55rem",color:"#fff",fontWeight:"700",lineHeight:1.2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.subj}</div>
-                  </div>
-                  {e.photos.length>1&&<div style={{position:"absolute",top:"4px",right:"4px",background:"rgba(0,0,0,0.55)",borderRadius:"5px",padding:"1px 4px",fontSize:"0.5rem",color:"#fff",fontWeight:"700"}}>+{e.photos.length-1}</div>}
-                </div>
-              ))}
-              {sampleEntries.length>9&&(
-                <div style={{aspectRatio:"1",borderRadius:"10px",background:pal.parchm,border:`1.5px solid ${pal.stone}30`,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:"2px",cursor:"pointer"}} onClick={()=>{}}>
-                  <div style={{fontWeight:"800",color:pal.primary,fontSize:"0.9rem"}}>+{sampleEntries.length-9}</div>
-                  <div style={{fontSize:"0.58rem",color:pal.slate}}>more</div>
-                </div>
-              )}
-            </div>
-          )}
-        </>)}
+        {/* ── STATE REMINDER ── */}
+        <StateReminder pal={pal} stateInfo={stateInfo} state={family.state||""}/>
 
-        {/* ══════════════════════════════════════
-            SECTION 3: READING LOG (state-required)
-        ══════════════════════════════════════ */}
-        {stateInfo.readingLog && (<>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.55rem"}}>
-            <div style={{fontWeight:"900",color:pal.ink,fontSize:"0.88rem"}}>Reading Log</div>
-            <div style={{fontSize:"0.65rem",color:pal.primary,fontWeight:"700",background:pal.pale,borderRadius:"20px",padding:"0.1rem 0.5rem"}}>Required by {family.state}</div>
-          </div>
-          <div style={{background:pal.linen,borderRadius:"14px",border:`1.5px solid ${pal.stone}30`,overflow:"hidden",marginBottom:"1.1rem"}}>
-            {readingEntries.length===0 ? (
-              <div style={{padding:"1rem",textAlign:"center",fontSize:"0.78rem",color:pal.slate}}>
-                No reading entries yet. When you log Reading as a subject, titles appear here.
-              </div>
-            ) : readingEntries.map((e,i)=>(
-              <div key={e.id||i} onClick={()=>setDetail(e)}
-                style={{display:"flex",gap:"0.6rem",alignItems:"center",padding:"0.6rem 0.9rem",borderTop:i>0?`1px solid ${pal.stone}20`:"none",cursor:"pointer"}}
-                onTouchStart={ev=>ev.currentTarget.style.background=pal.pale}
-                onTouchEnd={ev=>ev.currentTarget.style.background="transparent"}>
-                <span style={{fontSize:"1rem",flexShrink:0}}>📖</span>
-                <div style={{flex:1,minWidth:0}}>
-                  <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.82rem",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.readingTitle||e.title}</div>
-                  <div style={{fontSize:"0.65rem",color:pal.slate}}>{e.date}{e.note&&" · "+e.note.slice(0,40)}</div>
-                </div>
-                <span style={{color:pal.stone,fontSize:"0.9rem"}}>›</span>
-              </div>
-            ))}
-          </div>
-        </>)}
-
-        {/* Day notes */}
-        {noteEntries.length>0&&(
-          <div style={{marginBottom:"1.1rem"}}>
-            <div style={{fontWeight:"900",color:pal.ink,fontSize:"0.88rem",marginBottom:"0.55rem"}}>Day Notes</div>
-            <div style={{background:pal.linen,borderRadius:"14px",border:`1.5px solid ${pal.stone}30`,overflow:"hidden"}}>
-              {noteEntries.slice(0,5).map((e,i)=>(
-                <div key={e.id||i} onClick={()=>setDetail(e)}
-                  style={{display:"flex",gap:"0.6rem",alignItems:"center",padding:"0.6rem 0.9rem",borderTop:i>0?`1px solid ${pal.stone}20`:"none",cursor:"pointer"}}
-                  onTouchStart={ev=>ev.currentTarget.style.background=pal.pale}
-                  onTouchEnd={ev=>ev.currentTarget.style.background="transparent"}>
-                  <span style={{fontSize:"1rem",flexShrink:0}}>📝</span>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.82rem"}}>{e.date}</div>
-                    {e.note&&<div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"1px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.note.replace("AI Summary: ","").split("\n")[0]}</div>}
-                  </div>
-                  {e.photos&&e.photos.length>0&&<span style={{fontSize:"0.75rem"}}>📷</span>}
-                  <span style={{color:pal.stone,fontSize:"0.9rem"}}>›</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* ── ADDITIONAL NOTES ── */}
+        <AdditionalNotes pal={pal} family={family} child={activeCh}/>
 
         <div style={{height:"1rem"}}/>
       </div>
@@ -4008,6 +3905,155 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
     </div>
   );
 }
+}
+
+/* ---- Subject Bubble — expandable ---- */
+function SubjectBubble({sd,cp,pal,family,onDetail}){
+  const [open, setOpen] = useState(false);
+  const customSubjs = family.customSubjects||[];
+  const allSubjs = [...SUBJECT_OPTIONS,...customSubjs];
+  const subj = allSubjs.find(x=>x.label===sd.subj);
+  const icon = subj?.icon||"📋";
+  const entries = [...sd.entries].reverse(); // newest first
+
+  return (
+    <div style={{borderRadius:"14px",border:`1.5px solid ${open?cp.c1+"50":pal.stone+"30"}`,overflow:"hidden",background:pal.linen,transition:"all 0.15s"}}>
+      {/* Bubble header — always visible, tap to expand */}
+      <button onClick={()=>setOpen(o=>!o)}
+        style={{width:"100%",display:"flex",gap:"0.7rem",alignItems:"center",padding:"0.72rem 0.9rem",background:"transparent",border:"none",cursor:"pointer",textAlign:"left"}}>
+        <div style={{width:"38px",height:"38px",borderRadius:"10px",background:`linear-gradient(135deg,${cp.c1}22,${cp.c2}15)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.1rem",flexShrink:0}}>{icon}</div>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.85rem"}}>{sd.subj}</div>
+          <div style={{fontSize:"0.65rem",color:pal.slate,marginTop:"1px"}}>
+            {sd.entries.length} {sd.entries.length===1?"entry":"entries"}
+            {" · last "}
+            {sd.entries[sd.entries.length-1]?.date||""}
+          </div>
+        </div>
+        {sd.hasPhotos&&<span style={{fontSize:"0.8rem",flexShrink:0}}>📷</span>}
+        <div style={{background:cp.c1+"20",borderRadius:"20px",padding:"0.12rem 0.5rem",flexShrink:0}}>
+          <span style={{fontWeight:"800",color:cp.c1,fontSize:"0.76rem"}}>{sd.entries.length}</span>
+        </div>
+        <span style={{color:pal.slate,fontSize:"1rem",transform:open?"rotate(90deg)":"none",transition:"transform 0.2s",flexShrink:0}}>›</span>
+      </button>
+
+      {/* Expanded entries list */}
+      {open&&(
+        <div style={{borderTop:`1px solid ${pal.stone}20`}}>
+          {entries.map((e,i)=>(
+            <div key={e.id||i} onClick={()=>onDetail(e)}
+              style={{display:"flex",gap:"0.6rem",alignItems:"center",padding:"0.6rem 0.9rem",borderTop:i>0?`1px solid ${pal.stone}15`:"none",cursor:"pointer",background:"#fff"}}
+              onTouchStart={ev=>ev.currentTarget.style.background=pal.pale}
+              onTouchEnd={ev=>ev.currentTarget.style.background="#fff"}>
+              <div style={{width:"32px",height:"32px",borderRadius:"8px",background:`${cp.c1}18`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.9rem",flexShrink:0,overflow:"hidden",position:"relative"}}>
+                {e.photos&&e.photos[0]
+                  ?<img src={e.photos[0]} alt="" style={{width:"100%",height:"100%",objectFit:"cover",position:"absolute",inset:0}}/>
+                  :<span>{e.thumb||"📋"}</span>}
+              </div>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontWeight:"600",color:pal.ink,fontSize:"0.81rem",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                  {e.readingTitle||e.title}
+                </div>
+                <div style={{fontSize:"0.63rem",color:pal.slate,marginTop:"1px"}}>{e.date}</div>
+              </div>
+              {e.photos&&e.photos.length>0&&<span style={{fontSize:"0.72rem",flexShrink:0}}>📷</span>}
+              <span style={{color:pal.stone,fontSize:"0.85rem",flexShrink:0}}>›</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ---- State Reminder ---- */
+function StateReminder({pal,stateInfo,state}){
+  const [open, setOpen] = useState(false);
+  if(!state) return null;
+
+  const tier = stateInfo.tier||2;
+  const tierColor = tier<=1?pal.good:tier===2?pal.primary:tier===3?"#e07b00":"#c0392b";
+  const tierLabel = tier<=1?"Low regulation":tier===2?"Moderate regulation":tier===3?"Moderate-high regulation":"High regulation";
+
+  return (
+    <div style={{background:pal.linen,borderRadius:"14px",border:`1.5px solid ${pal.stone}30`,overflow:"hidden",marginBottom:"1.1rem"}}>
+      <button onClick={()=>setOpen(o=>!o)}
+        style={{width:"100%",display:"flex",gap:"0.65rem",alignItems:"center",padding:"0.75rem 0.9rem",background:"transparent",border:"none",cursor:"pointer",textAlign:"left"}}>
+        <span style={{fontSize:"1.1rem",flexShrink:0}}>📋</span>
+        <div style={{flex:1}}>
+          <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.83rem"}}>{state} Portfolio Reminder</div>
+          <div style={{fontSize:"0.65rem",color:tierColor,fontWeight:"700",marginTop:"1px"}}>{tierLabel}</div>
+        </div>
+        <span style={{color:pal.slate,fontSize:"1rem",transform:open?"rotate(90deg)":"none",transition:"transform 0.2s",flexShrink:0}}>›</span>
+      </button>
+      {open&&(
+        <div style={{borderTop:`1px solid ${pal.stone}20`,padding:"0.75rem 0.9rem",background:"#fff"}}>
+          <div style={{display:"flex",flexDirection:"column",gap:"0.5rem"}}>
+            {[
+              ["📋","What to keep",stateInfo.portfolio],
+              ["⏰","Hours / days",stateInfo.hours],
+              ["📊","Testing",stateInfo.testing],
+              ["📅","Due date",stateInfo.deadline],
+              ["🗂","Keep records for",stateInfo.keepFor],
+            ].filter(([_,__,v])=>v&&v!=="None"&&v!=="Not required"&&v!=="Not specified").map(([icon,label,val])=>(
+              <div key={label} style={{display:"flex",gap:"0.6rem",alignItems:"flex-start"}}>
+                <span style={{fontSize:"0.85rem",flexShrink:0,marginTop:"1px"}}>{icon}</span>
+                <div style={{flex:1}}>
+                  <div style={{fontSize:"0.65rem",fontWeight:"700",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.05em",marginBottom:"1px"}}>{label}</div>
+                  <div style={{fontSize:"0.78rem",color:pal.inkM,lineHeight:1.5}}>{val}</div>
+                </div>
+              </div>
+            ))}
+            <div style={{fontSize:"0.67rem",color:pal.slate,marginTop:"0.25rem",fontStyle:"italic",lineHeight:1.5}}>
+              Laws can change. Always verify with HSLDA.org or your state DOE before your annual evaluation.
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ---- Additional Notes ---- */
+function AdditionalNotes({pal,family,child}){
+  const LS_KEY = "stembloom_portnotes_"+(child?.id||"");
+  const [notes, setNotes] = useState(()=>{ try{return localStorage.getItem(LS_KEY)||"";}catch(e){return "";} });
+  const [editing, setEditing] = useState(false);
+
+  const save = (v) => {
+    setNotes(v);
+    try{localStorage.setItem(LS_KEY,v);}catch(e){}
+  };
+
+  return (
+    <div style={{background:pal.linen,borderRadius:"14px",border:`1.5px solid ${pal.stone}30`,overflow:"hidden",marginBottom:"1.1rem"}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"0.75rem 0.9rem",borderBottom:editing||notes?`1px solid ${pal.stone}20`:"none"}}>
+        <div>
+          <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.83rem"}}>Additional Notes</div>
+          <div style={{fontSize:"0.65rem",color:pal.slate,marginTop:"1px"}}>Parent observations, goals, reflections</div>
+        </div>
+        <button onClick={()=>setEditing(e=>!e)}
+          style={{padding:"0.28rem 0.65rem",border:`1.5px solid ${pal.stone}`,borderRadius:"8px",background:"transparent",color:pal.slate,fontWeight:"700",fontSize:"0.7rem",cursor:"pointer"}}>
+          {editing?"Done":"Edit"}
+        </button>
+      </div>
+      {(editing||notes.trim())&&(
+        <div style={{padding:"0.75rem 0.9rem",background:"#fff"}}>
+          {editing ? (
+            <textarea value={notes} onChange={e=>save(e.target.value)} rows={4}
+              placeholder={"Notes about "+child?.name+"'s progress, learning style observations, goals for next term..."}
+              style={{width:"100%",padding:"0.6rem 0.75rem",border:`1.5px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.8rem",fontFamily:"inherit",background:pal.parchm,color:pal.ink,resize:"none",outline:"none",lineHeight:1.6}}
+              onFocus={e=>e.target.style.borderColor=pal.primary}
+              onBlur={e=>e.target.style.borderColor=pal.stone}/>
+          ) : (
+            <div style={{fontSize:"0.8rem",color:pal.inkM,lineHeight:1.7,whiteSpace:"pre-wrap"}}>{notes}</div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 
 /* ---- Subject Drill-In View ---- */
 function SubjectView({pal,family,cp,sd,activeCh,onBack,onDetail,onEdit,stateInfo}){
