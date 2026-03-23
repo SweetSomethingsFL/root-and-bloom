@@ -2041,6 +2041,8 @@ const EOY_SKILLS = {
 ======================================= */
 function printPortfolioPDF(family, entries, child, attendanceDays, stateInfo) {
   const schoolName = family.schoolName||(family.familyName+" Academy")||"Home School";
+  // Read schedule notes from localStorage to include in activity log
+  const schedNotes = (()=>{ try{ const s=localStorage.getItem("rootbloom_sched_v1"); return s?JSON.parse(s).notes||{}:{}; }catch(e){return{};} })();
   const yearStart  = family.yearStart ? new Date(family.yearStart).getFullYear() : new Date().getFullYear();
   const yearEnd    = family.yearEnd   ? new Date(family.yearEnd).getFullYear()   : yearStart+1;
   const today      = new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
@@ -2072,10 +2074,13 @@ function printPortfolioPDF(family, entries, child, attendanceDays, stateInfo) {
 
   const noteRows = noteEntries.map((e,i)=>{
     const bg = i%2===0?"#f0f5ff":"#e8f0ff";
+    const noteText = (e.note||"").replace("AI Summary: ","").split("\n")[0].slice(0,120);
     return "<tr style='background:"+bg+"'>"
       +"<td>"+(e.date||"")+"</td>"
-      +"<td style='color:#555;font-style:italic' colspan='2'>Day notes</td>"
+      +"<td style='color:#555;font-style:italic'>Day Notes</td>"
       +"<td>"+(e.subjects||[]).slice(0,4).join(", ")+(((e.subjects||[]).length>4)?" +more":"")+"</td>"
+      +"<td></td>"
+      +"<td style='font-size:8.5pt;color:#555'>"+noteText+"</td>"
       +"</tr>";
   }).join("");
 
@@ -2170,10 +2175,11 @@ function printPortfolioPDF(family, entries, child, attendanceDays, stateInfo) {
     +"<p style='font-family:Arial,sans-serif;font-size:9pt;color:#777;margin-bottom:10px'>Contemporaneous record of educational activities as required by "+(family.state||"your state")+" law. Reading materials listed by title.</p>"
     +(subjEntries.length>0
       ? "<table><thead><tr>"
-        +"<th style='width:13%'>Date</th>"
-        +"<th style='width:18%'>Subject</th>"
-        +"<th style='width:37%'>Activity</th>"
-        +"<th>Reading / Materials Used</th>"
+        +"<th style='width:11%'>Date</th>"
+        +"<th style='width:15%'>Subject</th>"
+        +"<th style='width:30%'>Activity</th>"
+        +"<th style='width:20%'>Reading / Materials</th>"
+        +"<th>Notes</th>"
         +"</tr></thead><tbody>"+tableRows+noteRows+"</tbody></table>"
       : "<p style='font-family:Arial,sans-serif;font-size:10pt;color:#888'>No activity entries yet.</p>")
 
@@ -2186,47 +2192,6 @@ function printPortfolioPDF(family, entries, child, attendanceDays, stateInfo) {
     +"<div class='state-row'><span class='state-icon'>\U0001f5c2</span><span><b>Keep records for:</b> "+(stateInfo.keepFor||"")+"</span></div>"
     +"</div>"
 
-    // No signature on portfolio pages — evaluator page is separate
-    // Page break before evaluator page
-    +"<div style='page-break-before:always'></div>"
-
-    // ── EVALUATOR LETTER PAGE ──
-    +"<div style='border:2px solid #2a6a2a;border-radius:10px;padding:2rem;margin-top:1rem'>"
-    +"<div style='text-align:center;margin-bottom:1.5rem'>"
-    +"<div style='font-family:Arial,sans-serif;font-size:9pt;text-transform:uppercase;letter-spacing:0.1em;color:#888;margin-bottom:4px'>Florida Home Education Program</div>"
-    +"<h2 style='font-family:Georgia,serif;font-size:16pt;color:#2a6a2a;margin:0'>Annual Educational Evaluation</h2>"
-    +"<div style='font-family:Arial,sans-serif;font-size:9pt;color:#888;margin-top:4px'>Pursuant to Florida Statute 1002.41(1)(f)</div>"
-    +"</div>"
-
-    +"<div style='background:#f5f9f5;border:1px solid #b8d8b8;border-radius:6px;padding:1rem 1.2rem;margin-bottom:1.2rem;font-family:Arial,sans-serif;font-size:10pt;line-height:1.8'>"
-    +"<b>Student:</b> "+(child?.name||"")+"&nbsp;&nbsp;&nbsp;"
-    +"<b>Grade:</b> "+(child?.grade||"")+"&nbsp;&nbsp;&nbsp;"
-    +"<b>School Year:</b> "+yearStart+"&ndash;"+yearEnd+"<br>"
-    +"<b>School:</b> "+schoolName+"&nbsp;&nbsp;&nbsp;"
-    +"<b>County:</b> ___________________________"
-    +"</div>"
-
-    +"<p style='font-family:Arial,sans-serif;font-size:10pt;line-height:1.8;margin-bottom:1.5rem'>"
-    +"I, the undersigned Florida-certified teacher, have reviewed the above-named student's educational portfolio "
-    +"and conducted a discussion with the student as required by Florida Statute 1002.41(1)(f). "
-    +"Based on this evaluation, I have determined that the student has demonstrated educational progress "
-    +"<b>at a level commensurate with his/her ability</b> during the above school year."
-    +"</p>"
-
-    +"<div style='display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;font-family:Arial,sans-serif;font-size:9.5pt'>"
-    +"<div><div style='border-bottom:1.5px solid #888;height:32px;margin-bottom:4px'></div><div style='color:#888;font-size:8pt'>Evaluator Full Name (print)</div></div>"
-    +"<div><div style='border-bottom:1.5px solid #888;height:32px;margin-bottom:4px'></div><div style='color:#888;font-size:8pt'>FL Teaching Certificate Number</div></div>"
-    +"<div><div style='border-bottom:1.5px solid #888;height:32px;margin-bottom:4px'></div><div style='color:#888;font-size:8pt'>Evaluator Signature</div></div>"
-    +"<div><div style='border-bottom:1.5px solid #888;height:32px;margin-bottom:4px'></div><div style='color:#888;font-size:8pt'>Date of Evaluation</div></div>"
-    +"<div style='grid-column:span 2'><div style='border-bottom:1.5px solid #888;height:32px;margin-bottom:4px'></div><div style='color:#888;font-size:8pt'>Evaluator Email / Phone (optional)</div></div>"
-    +"</div>"
-
-    +"<div style='background:#fffbea;border:1px solid #e8d870;border-radius:6px;padding:0.75rem 1rem;font-family:Arial,sans-serif;font-size:8.5pt;color:#555;line-height:1.6'>"
-    +"<b>Parent instructions:</b> Once signed by your evaluator, mail or deliver a copy of this letter to the "
-    +"district school superintendent's office in your county of residence. Keep a copy with your portfolio. "
-    +"Due by the anniversary of your Letter of Intent filing date."
-    +"</div>"
-    +"</div>"
 
     // Footer
     +"<div class='footer'>"
@@ -2241,6 +2206,73 @@ function printPortfolioPDF(family, entries, child, attendanceDays, stateInfo) {
   const w = window.open("","_blank","width=820,height=960,scrollbars=yes");
   if(w){ w.document.write(html); w.document.close(); }
   else { alert("Please allow popups for this site to print your portfolio."); }
+}
+
+/* ---- Print Evaluator Letter separately ---- */
+function printEvaluatorLetter(family, child, attendanceDays) {
+  const schoolName = family.schoolName||(family.familyName+" Academy")||"Home School";
+  const yearStart  = family.yearStart ? new Date(family.yearStart).getFullYear() : new Date().getFullYear();
+  const yearEnd    = family.yearEnd   ? new Date(family.yearEnd).getFullYear()   : yearStart+1;
+  const today      = new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
+
+  const css = ""
+    +"*{box-sizing:border-box;margin:0;padding:0}"
+    +"body{font-family:Georgia,serif;color:#222;background:#fff;font-size:11pt;line-height:1.7}"
+    +".wrap{max-width:680px;margin:2rem auto;padding:2.5rem}"
+    +"@media print{.wrap{margin:0;padding:2rem}@page{margin:2cm}}";
+
+  const html = "<!DOCTYPE html><html><head>"
+    +"<meta charset='utf-8'>"
+    +"<title>Annual Evaluation Letter &mdash; "+(child?.name||"Student")+"</title>"
+    +"<style>"+css+"</style>"
+    +"</head><body><div class='wrap'>"
+
+    +"<div style='text-align:center;margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:2px solid #2a6a2a'>"
+    +"<div style='font-family:Arial,sans-serif;font-size:8.5pt;text-transform:uppercase;letter-spacing:0.1em;color:#888;margin-bottom:6px'>Florida Home Education Program</div>"
+    +"<div style='font-size:20pt;font-weight:bold;color:#2a6a2a;margin-bottom:4px'>Annual Educational Evaluation</div>"
+    +"<div style='font-family:Arial,sans-serif;font-size:9pt;color:#888'>Pursuant to Florida Statute 1002.41(1)(f)</div>"
+    +"</div>"
+
+    +"<div style='background:#f5f9f5;border:1px solid #b8d8b8;border-radius:6px;padding:1rem 1.2rem;margin-bottom:1.5rem;font-family:Arial,sans-serif;font-size:10pt;line-height:1.9'>"
+    +"<b>Student:</b> "+(child?.name||"")
+    +"&nbsp;&nbsp;&nbsp;<b>Grade:</b> "+(child?.grade||"")
+    +"&nbsp;&nbsp;&nbsp;<b>School Year:</b> "+yearStart+"&ndash;"+yearEnd+"<br>"
+    +"<b>School:</b> "+schoolName
+    +"&nbsp;&nbsp;&nbsp;<b>County:</b> ___________________________"
+    +"&nbsp;&nbsp;&nbsp;<b>Date:</b> "+today
+    +"</div>"
+
+    +"<p style='margin-bottom:1.5rem;line-height:1.8'>I, the undersigned Florida-certified teacher, have reviewed the educational portfolio "
+    +"of the above-named student and conducted a discussion with the student as required by "
+    +"Florida Statute 1002.41(1)(f). Based on this evaluation, I have determined that the student "
+    +"has demonstrated educational progress <b>at a level commensurate with his/her ability</b> "
+    +"during the "+yearStart+"&ndash;"+yearEnd+" school year.</p>"
+
+    +"<div style='display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-bottom:1.5rem;font-family:Arial,sans-serif;font-size:10pt'>"
+    +"<div><div style='border-bottom:1.5px solid #444;height:36px;margin-bottom:6px'></div><div style='color:#666;font-size:8pt'>Evaluator Full Name (print clearly)</div></div>"
+    +"<div><div style='border-bottom:1.5px solid #444;height:36px;margin-bottom:6px'></div><div style='color:#666;font-size:8pt'>FL Teaching Certificate Number</div></div>"
+    +"<div><div style='border-bottom:1.5px solid #444;height:36px;margin-bottom:6px'></div><div style='color:#666;font-size:8pt'>Evaluator Signature</div></div>"
+    +"<div><div style='border-bottom:1.5px solid #444;height:36px;margin-bottom:6px'></div><div style='color:#666;font-size:8pt'>Date of Evaluation</div></div>"
+    +"<div style='grid-column:span 2'><div style='border-bottom:1.5px solid #444;height:36px;margin-bottom:6px'></div><div style='color:#666;font-size:8pt'>Evaluator Email / Phone (optional — for your records)</div></div>"
+    +"</div>"
+
+    +"<div style='background:#fffbea;border:1px solid #e8d870;border-radius:6px;padding:0.85rem 1rem;font-family:Arial,sans-serif;font-size:9pt;color:#555;line-height:1.65;margin-bottom:1.5rem'>"
+    +"<b>Parent instructions:</b> Once signed, mail or deliver a copy to the district school superintendent's "
+    +"office in your county of residence. Keep a copy with your portfolio for 2 years. "
+    +"Due by the anniversary of your Letter of Intent filing date."
+    +"</div>"
+
+    +"<div style='text-align:center;font-family:Arial,sans-serif;font-size:8pt;color:#aaa;padding-top:1rem;border-top:1px solid #e0e0e0'>"
+    +"Generated by Root &amp; Bloom &bull; "+schoolName+" &bull; "+yearStart+"&ndash;"+yearEnd
+    +"</div>"
+
+    +"</div>"
+    +"<script>window.onload=function(){setTimeout(function(){window.print();},500);};</"+"script>"
+    +"</body></html>";
+
+  const w = window.open("","_blank","width=760,height=900,scrollbars=yes");
+  if(w){ w.document.write(html); w.document.close(); }
+  else { alert("Please allow popups for this site to print the evaluator letter."); }
 }
 
 
@@ -2664,7 +2696,11 @@ function EOYChecklistModal({pal,family,childIdx,setChildIdx,weeksLeft,onClose,on
               <div style={{background:pal.goodBg,borderRadius:"14px",padding:"1rem",marginTop:"0.5rem",textAlign:"center",border:`2px solid ${pal.good}40`}}>
                 <div style={{fontSize:"2rem",marginBottom:"0.3rem"}}>🌟</div>
                 <div style={{fontWeight:"900",color:pal.good,fontSize:"0.95rem",marginBottom:"0.2rem"}}>Portfolio Complete!</div>
-                <div style={{fontSize:"0.76rem",color:pal.inkM}}>Switch to "Move to Next Grade" to advance {ch.name}.</div>
+                <div style={{fontSize:"0.76rem",color:pal.inkM,marginBottom:"0.65rem"}}>Switch to "Move to Next Grade" to advance {ch.name}.</div>
+              <button onClick={()=>printEvaluatorLetter(family,ch,0)}
+                style={{padding:"0.5rem 1rem",border:"none",borderRadius:"10px",background:pal.accentGrad,color:pal.onDark,fontWeight:"700",fontSize:"0.78rem",cursor:"pointer"}}>
+                📜 Print Evaluator Letter
+              </button>
               </div>
             )}
           </>)}
@@ -4163,19 +4199,7 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
 
   const today = new Date();
 
-  if(view==="preview") {
-    return (
-      <div style={{animation:"fadeUp 0.22s ease"}}>
-        <ScreenHdr pal={pal} title="Portfolio Preview" sub={activeCh?.name||""} icon="🗂"/>
-        <div style={{padding:"0 1rem"}}>
-          <button onClick={()=>setView("main")} style={{marginBottom:"0.85rem",padding:"0.4rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",background:"transparent",color:pal.slate,fontWeight:"700",fontSize:"0.78rem",cursor:"pointer"}}>
-            Back to Portfolio
-          </button>
-          <PortfolioPreview pal={pal} family={family} entries={childEntries} child={child} attendanceDays={attendanceDays}/>
-        </div>
-      </div>
-    );
-  }
+
 
   if(view==="subject" && activeSubj) {
     const sd = bySubject[activeSubj];
@@ -4228,6 +4252,10 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
           <button onClick={()=>printPortfolioPDF(family,childEntries,activeCh,attendanceDays,stateInfo)}
             style={{padding:"0.65rem 1rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"700",fontSize:"0.8rem",cursor:"pointer",flexShrink:0}}>
             🖨 Print PDF
+          </button>
+          <button onClick={()=>printEvaluatorLetter(family,activeCh,attendanceDays)}
+            style={{padding:"0.65rem 0.8rem",border:`2px solid ${pal.primary}`,borderRadius:"12px",background:"transparent",color:pal.primary,fontWeight:"700",fontSize:"0.72rem",cursor:"pointer",flexShrink:0}}>
+            📜 Eval
           </button>
         </div>
 
