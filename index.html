@@ -2041,130 +2041,206 @@ const EOY_SKILLS = {
 ======================================= */
 function printPortfolioPDF(family, entries, child, attendanceDays, stateInfo) {
   const schoolName = family.schoolName||(family.familyName+" Academy")||"Home School";
-  const yearStart = family.yearStart ? new Date(family.yearStart).getFullYear() : new Date().getFullYear();
-  const yearEnd   = family.yearEnd   ? new Date(family.yearEnd).getFullYear()   : yearStart+1;
-  const today = new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
+  const yearStart  = family.yearStart ? new Date(family.yearStart).getFullYear() : new Date().getFullYear();
+  const yearEnd    = family.yearEnd   ? new Date(family.yearEnd).getFullYear()   : yearStart+1;
+  const today      = new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
+  const approach   = (Array.isArray(family.curriculumStyle)?family.curriculumStyle:[family.curriculumStyle||"Eclectic"]).join(", ");
+  const pct        = Math.min(100,Math.round(attendanceDays/180*100));
 
+  // Separate subject entries from day notes
+  const subjEntries = entries.filter(e=>!e.isDay&&e.subj!=="Daily Notes")
+    .sort((a,b)=>{try{return new Date(a.date+", "+yearStart)-new Date(b.date+", "+yearStart);}catch{return 0;}});
+  const noteEntries = entries.filter(e=>e.isDay||e.subj==="Daily Notes");
+
+  // Group by subject for summary
   const bySubject = {};
-  entries.filter(e=>!e.isDay&&e.subj!=="Daily Notes").forEach(e=>{
+  subjEntries.forEach(e=>{
     if(!bySubject[e.subj]) bySubject[e.subj]=[];
     bySubject[e.subj].push(e);
   });
 
-  const allSubjEntries = entries.filter(e=>!e.isDay&&e.subj!=="Daily Notes")
-    .sort((a,b)=>{ try{return new Date(a.date+", "+yearStart)-new Date(b.date+", "+yearStart);}catch{return 0;} });
-  const noteEntries = entries.filter(e=>e.isDay||e.subj==="Daily Notes");
-  const pct = Math.min(100,Math.round(attendanceDays/180*100));
-  const approach = (Array.isArray(family.curriculumStyle)?family.curriculumStyle:[family.curriculumStyle||"Eclectic"]).join(", ");
+  // Build rows
+  const tableRows = subjEntries.map((e,i)=>{
+    const bg = i%2===0?"#ffffff":"#f8f9fa";
+    return "<tr style='background:"+bg+"'>"
+      +"<td>"+( e.date||"")+"</td>"
+      +"<td style='font-weight:600'>"+( e.subj||"")+"</td>"
+      +"<td>"+((e.title||"").replace((e.subj||"")+" -- ","").replace((e.subj||"")+" \u2014 ",""))+"</td>"
+      +"<td style='color:#2a6a2a;font-style:italic'>"+(e.readingTitle||"")+"</td>"
+      +"</tr>";
+  }).join("");
 
-  const css = "*{box-sizing:border-box;margin:0;padding:0}"
-    +"body{font-family:Georgia,serif;color:#1a1a1a;background:#fff;font-size:11pt;line-height:1.6}"
-    +".page{max-width:720px;margin:0 auto;padding:2rem}"
-    +"h1{font-size:22pt;font-weight:bold;margin-bottom:4px}"
-    +"h2{font-size:14pt;font-weight:bold;margin:1.5rem 0 0.5rem;border-bottom:1.5px solid #ccc;padding-bottom:4px;color:#222}"
-    +".cover{text-align:center;padding:2rem 0 1.5rem;border-bottom:2px solid #1a1a1a;margin-bottom:1.5rem}"
-    +".cover h1{font-size:26pt;margin-bottom:8px}"
-    +".cover .school{font-size:13pt;color:#444;margin-bottom:4px}"
-    +".cover .meta{font-size:10pt;color:#777}"
-    +".info-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:1.2rem}"
-    +".info-cell{padding:0.4rem 0.6rem;background:#f9f9f9;border:1px solid #e0e0e0;border-radius:4px}"
-    +".info-label{font-size:8pt;color:#888;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,sans-serif}"
-    +".info-val{font-size:10pt;font-weight:bold;color:#1a1a1a}"
-    +".progress-bar{height:8px;background:#eee;border-radius:99px;margin:0.4rem 0}"
-    +".progress-fill{height:100%;border-radius:99px;background:#2a6a2a}"
-    +"table{width:100%;border-collapse:collapse;margin-bottom:1rem;font-size:9.5pt;font-family:Arial,sans-serif}"
-    +"th{background:#f0f0f0;padding:6px 8px;text-align:left;font-weight:bold;font-size:8.5pt;border:1px solid #ddd}"
-    +"td{padding:5px 8px;border:1px solid #eee;vertical-align:top}"
-    +"tr:nth-child(even){background:#fafafa}"
-    +".subj-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f0f0f0;font-family:Arial,sans-serif;font-size:10pt}"
-    +".subj-name{font-weight:bold}"
-    +".subj-count{color:#666;font-size:9pt}"
-    +".sig-block{margin-top:2rem;padding-top:1rem;border-top:1px solid #ccc;display:flex;justify-content:space-between}"
-    +".sig-line{width:45%}"
-    +".sig-line div{border-bottom:1px solid #444;height:28px;margin-bottom:4px}"
-    +".sig-label{font-size:8pt;color:#888;font-family:Arial,sans-serif}"
-    +".state-box{background:#f0f5ff;border:1px solid #b8cef0;border-radius:4px;padding:0.6rem 0.75rem;margin-bottom:1rem;font-size:9pt;font-family:Arial,sans-serif}"
-    +"@media print{.page{padding:1rem}@page{margin:2cm}}";
+  const noteRows = noteEntries.map((e,i)=>{
+    const bg = i%2===0?"#f0f5ff":"#e8f0ff";
+    return "<tr style='background:"+bg+"'>"
+      +"<td>"+(e.date||"")+"</td>"
+      +"<td style='color:#555;font-style:italic' colspan='2'>Day notes</td>"
+      +"<td>"+(e.subjects||[]).slice(0,4).join(", ")+(((e.subjects||[]).length>4)?" +more":"")+"</td>"
+      +"</tr>";
+  }).join("");
 
-  const logRows = allSubjEntries.map(e=>
-    "<tr><td>"+(e.date||"")+"</td><td>"+(e.subj||"")+"</td><td>"+((e.title||"").replace((e.subj||"")+" -- ",""))+"</td><td>"+(e.readingTitle||"")+"</td><td>"+((e.note||"").split("\n")[0].slice(0,80))+"</td></tr>"
+  const subjSummaryHTML = Object.entries(bySubject).map(([subj,ents])=>
+    "<div style='display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid #e8e8e8;font-family:Arial,sans-serif;font-size:10pt'>"
+    +"<span style='font-weight:600'>"+(subj)+"</span>"
+    +"<span style='color:#555;font-size:9pt;background:#f0f0f0;padding:2px 10px;border-radius:99px'>"+(ents.length)+" "+(ents.length===1?"entry":"entries")+"</span>"
+    +"</div>"
   ).join("");
 
-  const noteRows = noteEntries.map(e=>
-    "<tr><td>"+(e.date||"")+"</td><td colspan='3'>"+((e.subjects||[]).join(", ")||"General")+"</td><td>"+((e.note||"").replace("AI Summary: ","").split("\n")[0].slice(0,100))+"</td></tr>"
-  ).join("");
+  const css = ""
+    +"*{box-sizing:border-box;margin:0;padding:0}"
+    +"body{font-family:Georgia,serif;color:#222;background:#fff;font-size:10.5pt;line-height:1.65}"
+    +".wrap{max-width:740px;margin:0 auto;padding:2.5rem 2rem}"
+    +"h2{font-family:Arial,sans-serif;font-size:11pt;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#444;margin:1.6rem 0 0.6rem;padding-bottom:5px;border-bottom:2px solid #e0e0e0}"
+    +"h2.first{margin-top:0}"
+    +".cover{display:flex;justify-content:space-between;align-items:flex-end;padding:1.5rem 1.8rem;background:linear-gradient(135deg,#2a6a2a,#5a9a3a);border-radius:10px;margin-bottom:2rem;color:#fff}"
+    +".cover-left h1{font-size:22pt;font-weight:900;line-height:1.1;margin-bottom:4px}"
+    +".cover-left .sub{font-size:10pt;opacity:0.85}"
+    +".cover-right{text-align:right;opacity:0.85;font-family:Arial,sans-serif;font-size:9pt;line-height:1.7}"
+    +".two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}"
+    +".info-box{padding:10px 14px;background:#f8f9fa;border:1px solid #e5e5e5;border-radius:6px;border-left:3px solid #2a6a2a}"
+    +".info-label{font-family:Arial,sans-serif;font-size:7.5pt;text-transform:uppercase;letter-spacing:0.06em;color:#888;margin-bottom:2px}"
+    +".info-val{font-family:Arial,sans-serif;font-size:10pt;font-weight:700;color:#1a1a1a}"
+    +".att-bar-wrap{height:10px;background:#e0e0e0;border-radius:99px;margin:8px 0}"
+    +".att-bar{height:100%;border-radius:99px;background:linear-gradient(90deg,#2a6a2a,#5a9a3a)}"
+    +".att-row{display:flex;justify-content:space-between;font-family:Arial,sans-serif;font-size:9pt;color:#555}"
+    +".att-row b{color:#1a1a1a}"
+    +"table{width:100%;border-collapse:collapse;margin-bottom:1rem;font-family:Arial,sans-serif;font-size:9pt}"
+    +"thead tr{background:#2a6a2a}"
+    +"th{padding:8px 10px;text-align:left;font-weight:600;font-size:8pt;color:#fff;text-transform:uppercase;letter-spacing:0.04em}"
+    +"td{padding:6px 10px;border-bottom:1px solid #f0f0f0;vertical-align:top;color:#333}"
+    +".subj-section{border:1px solid #e5e5e5;border-radius:6px;overflow:hidden;margin-bottom:1rem}"
+    +".state-box{background:#f5f9f5;border:1px solid #b8d8b8;border-radius:6px;padding:12px 16px;margin-bottom:1rem;font-family:Arial,sans-serif;font-size:9.5pt;line-height:1.7}"
+    +".state-row{display:flex;gap:8px;margin-bottom:4px}"
+    +".state-icon{width:18px;text-align:center;flex-shrink:0}"
+    +".sig-area{margin-top:2.5rem;padding-top:1.2rem;border-top:1.5px solid #ccc;display:flex;gap:2rem}"
+    +".sig-col{flex:1}"
+    +".sig-line{border-bottom:1.5px solid #888;height:32px;margin-bottom:5px}"
+    +".sig-label{font-family:Arial,sans-serif;font-size:8pt;color:#888}"
+    +".footer{margin-top:1.5rem;padding-top:0.8rem;border-top:1px solid #e0e0e0;font-family:Arial,sans-serif;font-size:8pt;color:#aaa;display:flex;justify-content:space-between}"
+    +"@media print{.wrap{padding:1.2rem}@page{margin:1.8cm;size:letter}}"
+    +"@media screen{.wrap{box-shadow:0 2px 20px rgba(0,0,0,0.08);border-radius:8px;margin-top:1rem;margin-bottom:1rem}}";
 
-  const subjRows = Object.entries(bySubject).map(([subj,ents])=>
-    "<div class='subj-row'><span class='subj-name'>"+subj+"</span><span class='subj-count'>"+ents.length+" "+(ents.length===1?"entry":"entries")+"</span></div>"
-  ).join("");
-
-  const logTable = allSubjEntries.length>0
-    ? "<table><thead><tr><th style='width:12%'>Date</th><th style='width:18%'>Subject</th><th style='width:28%'>Activity</th><th style='width:22%'>Reading / Materials</th><th>Notes</th></tr></thead><tbody>"+logRows+noteRows+"</tbody></table>"
-    : "<p style='font-size:10pt;color:#888;font-family:Arial,sans-serif'>No entries yet.</p>";
-
-  const html = "<!DOCTYPE html><html><head>"
-    +"<title>"+(child?.name||"Student")+" -- "+schoolName+" Portfolio "+yearStart+"-"+yearEnd+"</title>"
+  let html = "<!DOCTYPE html><html lang='en'><head>"
     +"<meta charset='utf-8'>"
+    +"<meta name='viewport' content='width=device-width,initial-scale=1'>"
+    +"<title>"+schoolName+" Portfolio &mdash; "+(child?.name||"Student")+" "+yearStart+"-"+yearEnd+"</title>"
     +"<style>"+css+"</style>"
-    +"</head><body><div class='page'>"
+    +"</head><body><div class='wrap'>"
 
-    // Cover
+    // Cover block
     +"<div class='cover'>"
-    +"<div class='school'>"+schoolName+"</div>"
+    +"<div class='cover-left'>"
+    +"<div style='font-family:Arial,sans-serif;font-size:8pt;text-transform:uppercase;letter-spacing:0.1em;opacity:0.75;margin-bottom:4px'>Homeschool Portfolio</div>"
     +"<h1>"+(child?.name||"Student")+"</h1>"
-    +"<div class='meta'>"+(child?.grade||"")+" &bull; School Year "+yearStart+"&ndash;"+yearEnd+" &bull; "+(family.state||"")+"</div>"
-    +"<div class='meta' style='margin-top:6px'>Portfolio generated: "+today+"</div>"
+    +"<div class='sub'>"+(child?.grade||"")+" &bull; "+schoolName+"</div>"
+    +"</div>"
+    +"<div class='cover-right'>"
+    +(family.state||"")+"<br>"
+    +"School Year "+yearStart+"&ndash;"+yearEnd+"<br>"
+    +today
+    +"</div>"
     +"</div>"
 
     // Student info
-    +"<h2>Student Information</h2>"
-    +"<div class='info-grid'>"
-    +"<div class='info-cell'><div class='info-label'>Student</div><div class='info-val'>"+(child?.name||"--")+"</div></div>"
-    +"<div class='info-cell'><div class='info-label'>Grade</div><div class='info-val'>"+(child?.grade||"--")+"</div></div>"
-    +"<div class='info-cell'><div class='info-label'>School</div><div class='info-val'>"+schoolName+"</div></div>"
-    +"<div class='info-cell'><div class='info-label'>School Year</div><div class='info-val'>"+yearStart+"&ndash;"+yearEnd+"</div></div>"
-    +"<div class='info-cell'><div class='info-label'>State</div><div class='info-val'>"+(family.state||"--")+"</div></div>"
-    +"<div class='info-cell'><div class='info-label'>Learning Approach</div><div class='info-val'>"+approach+"</div></div>"
+    +"<h2 class='first'>Student Information</h2>"
+    +"<div class='two-col'>"
+    +"<div class='info-box'><div class='info-label'>Student Name</div><div class='info-val'>"+(child?.name||"--")+"</div></div>"
+    +"<div class='info-box'><div class='info-label'>Grade Level</div><div class='info-val'>"+(child?.grade||"--")+"</div></div>"
+    +"<div class='info-box'><div class='info-label'>School Name</div><div class='info-val'>"+schoolName+"</div></div>"
+    +"<div class='info-box'><div class='info-label'>State</div><div class='info-val'>"+(family.state||"--")+"</div></div>"
+    +"<div class='info-box'><div class='info-label'>School Year</div><div class='info-val'>"+yearStart+"&ndash;"+yearEnd+"</div></div>"
+    +"<div class='info-box'><div class='info-label'>Learning Approach</div><div class='info-val'>"+approach+"</div></div>"
     +"</div>"
 
     // Attendance
     +"<h2>Attendance Record</h2>"
-    +"<div class='info-grid'>"
-    +"<div class='info-cell'><div class='info-label'>Days Completed</div><div class='info-val'>"+attendanceDays+"</div></div>"
-    +"<div class='info-cell'><div class='info-label'>Required ("+( family.state||"your state")+")</div><div class='info-val'>180 days</div></div>"
+    +"<div class='two-col'>"
+    +"<div class='info-box'><div class='info-label'>Days Completed</div><div class='info-val' style='font-size:18pt;color:#2a6a2a'>"+attendanceDays+"</div></div>"
+    +"<div class='info-box'><div class='info-label'>Required ("+( family.state||"State")+")</div><div class='info-val' style='font-size:18pt'>180</div></div>"
     +"</div>"
-    +"<div class='progress-bar'><div class='progress-fill' style='width:"+pct+"%'></div></div>"
-    +"<p style='font-size:9pt;color:#666;font-family:Arial,sans-serif'>"+pct+"% of required days completed</p>"
+    +"<div class='att-bar-wrap'><div class='att-bar' style='width:"+pct+"%'></div></div>"
+    +"<div class='att-row'><span><b>"+pct+"%</b> completed</span><span>"+attendanceDays+" of <b>180</b> days</span></div>"
 
-    // Subjects
+    // Subjects covered
     +"<h2>Subjects Covered</h2>"
-    +(subjRows||"<p style='font-size:10pt;color:#888;font-family:Arial,sans-serif'>No subject entries yet.</p>")
+    +(subjSummaryHTML?("<div class='subj-section'>"+subjSummaryHTML+"</div>"):"<p style='font-family:Arial,sans-serif;font-size:10pt;color:#888'>No subject entries recorded yet.</p>")
 
     // Activity log
     +"<h2>Activity Log</h2>"
-    +"<p style='font-size:9pt;color:#666;font-family:Arial,sans-serif;margin-bottom:0.5rem'>Contemporaneous record of educational activities. Reading materials listed by title as required by "+(family.state||"your state")+" law.</p>"
-    +logTable
+    +"<p style='font-family:Arial,sans-serif;font-size:9pt;color:#777;margin-bottom:10px'>Contemporaneous record of educational activities as required by "+(family.state||"your state")+" law. Reading materials listed by title.</p>"
+    +(subjEntries.length>0
+      ? "<table><thead><tr>"
+        +"<th style='width:13%'>Date</th>"
+        +"<th style='width:18%'>Subject</th>"
+        +"<th style='width:37%'>Activity</th>"
+        +"<th>Reading / Materials Used</th>"
+        +"</tr></thead><tbody>"+tableRows+noteRows+"</tbody></table>"
+      : "<p style='font-family:Arial,sans-serif;font-size:10pt;color:#888'>No activity entries yet.</p>")
 
-    // State note
-    +"<h2>State Requirements &mdash; "+(family.state||"Your State")+"</h2>"
+    // State requirements
+    +"<h2>"+(family.state||"Your State")+" Portfolio Requirements</h2>"
     +"<div class='state-box'>"
-    +"<b>Portfolio requirement:</b> "+(stateInfo.portfolio||"")+"<br>"
-    +"<b>Evaluation due:</b> "+(stateInfo.deadline||"")+"<br>"
-    +"<b>Keep records for:</b> "+(stateInfo.keepFor||"")
+    +"<div class='state-row'><span class='state-icon'>\U0001f4cb</span><span><b>What to keep:</b> "+(stateInfo.portfolio||"")+"</span></div>"
+    +"<div class='state-row'><span class='state-icon'>\u23f0</span><span><b>Hours / Days:</b> "+(stateInfo.hours||"")+"</span></div>"
+    +"<div class='state-row'><span class='state-icon'>\U0001f4c5</span><span><b>Evaluation due:</b> "+(stateInfo.deadline||"")+"</span></div>"
+    +"<div class='state-row'><span class='state-icon'>\U0001f5c2</span><span><b>Keep records for:</b> "+(stateInfo.keepFor||"")+"</span></div>"
     +"</div>"
 
-    // Signature
-    +"<div class='sig-block'>"
-    +"<div class='sig-line'><div></div><div class='sig-label'>Parent / Educator Signature</div></div>"
-    +"<div class='sig-line'><div></div><div class='sig-label'>Date</div></div>"
+    // No signature on portfolio pages — evaluator page is separate
+    // Page break before evaluator page
+    +"<div style='page-break-before:always'></div>"
+
+    // ── EVALUATOR LETTER PAGE ──
+    +"<div style='border:2px solid #2a6a2a;border-radius:10px;padding:2rem;margin-top:1rem'>"
+    +"<div style='text-align:center;margin-bottom:1.5rem'>"
+    +"<div style='font-family:Arial,sans-serif;font-size:9pt;text-transform:uppercase;letter-spacing:0.1em;color:#888;margin-bottom:4px'>Florida Home Education Program</div>"
+    +"<h2 style='font-family:Georgia,serif;font-size:16pt;color:#2a6a2a;margin:0'>Annual Educational Evaluation</h2>"
+    +"<div style='font-family:Arial,sans-serif;font-size:9pt;color:#888;margin-top:4px'>Pursuant to Florida Statute 1002.41(1)(f)</div>"
+    +"</div>"
+
+    +"<div style='background:#f5f9f5;border:1px solid #b8d8b8;border-radius:6px;padding:1rem 1.2rem;margin-bottom:1.2rem;font-family:Arial,sans-serif;font-size:10pt;line-height:1.8'>"
+    +"<b>Student:</b> "+(child?.name||"")+"&nbsp;&nbsp;&nbsp;"
+    +"<b>Grade:</b> "+(child?.grade||"")+"&nbsp;&nbsp;&nbsp;"
+    +"<b>School Year:</b> "+yearStart+"&ndash;"+yearEnd+"<br>"
+    +"<b>School:</b> "+schoolName+"&nbsp;&nbsp;&nbsp;"
+    +"<b>County:</b> ___________________________"
+    +"</div>"
+
+    +"<p style='font-family:Arial,sans-serif;font-size:10pt;line-height:1.8;margin-bottom:1.5rem'>"
+    +"I, the undersigned Florida-certified teacher, have reviewed the above-named student's educational portfolio "
+    +"and conducted a discussion with the student as required by Florida Statute 1002.41(1)(f). "
+    +"Based on this evaluation, I have determined that the student has demonstrated educational progress "
+    +"<b>at a level commensurate with his/her ability</b> during the above school year."
+    +"</p>"
+
+    +"<div style='display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;font-family:Arial,sans-serif;font-size:9.5pt'>"
+    +"<div><div style='border-bottom:1.5px solid #888;height:32px;margin-bottom:4px'></div><div style='color:#888;font-size:8pt'>Evaluator Full Name (print)</div></div>"
+    +"<div><div style='border-bottom:1.5px solid #888;height:32px;margin-bottom:4px'></div><div style='color:#888;font-size:8pt'>FL Teaching Certificate Number</div></div>"
+    +"<div><div style='border-bottom:1.5px solid #888;height:32px;margin-bottom:4px'></div><div style='color:#888;font-size:8pt'>Evaluator Signature</div></div>"
+    +"<div><div style='border-bottom:1.5px solid #888;height:32px;margin-bottom:4px'></div><div style='color:#888;font-size:8pt'>Date of Evaluation</div></div>"
+    +"<div style='grid-column:span 2'><div style='border-bottom:1.5px solid #888;height:32px;margin-bottom:4px'></div><div style='color:#888;font-size:8pt'>Evaluator Email / Phone (optional)</div></div>"
+    +"</div>"
+
+    +"<div style='background:#fffbea;border:1px solid #e8d870;border-radius:6px;padding:0.75rem 1rem;font-family:Arial,sans-serif;font-size:8.5pt;color:#555;line-height:1.6'>"
+    +"<b>Parent instructions:</b> Once signed by your evaluator, mail or deliver a copy of this letter to the "
+    +"district school superintendent's office in your county of residence. Keep a copy with your portfolio. "
+    +"Due by the anniversary of your Letter of Intent filing date."
+    +"</div>"
+    +"</div>"
+
+    // Footer
+    +"<div class='footer'>"
+    +"<span>"+schoolName+" &bull; "+(child?.name||"")+" &bull; "+yearStart+"-"+yearEnd+"</span>"
+    +"<span>Generated by Root & Bloom &bull; rootandbloom.app</span>"
     +"</div>"
 
     +"</div>"
-    +"<script>window.onload=function(){setTimeout(function(){window.print();},400);};</"+"script>"
+    +"<script>window.onload=function(){setTimeout(function(){window.print();},600);};</"+"script>"
     +"</body></html>";
 
-  const w = window.open("","_blank","width=800,height=900");
+  const w = window.open("","_blank","width=820,height=960,scrollbars=yes");
   if(w){ w.document.write(html); w.document.close(); }
+  else { alert("Please allow popups for this site to print your portfolio."); }
 }
 
 
@@ -4149,7 +4225,7 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
             style={{flex:1,padding:"0.65rem",border:`2px dashed ${pal.primary}50`,borderRadius:"12px",background:"transparent",color:pal.primary,fontWeight:"700",fontSize:"0.8rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.4rem"}}>
             <span>+</span><span>Add Entry</span>
           </button>
-          <button onClick={()=>setView("preview")}
+          <button onClick={()=>printPortfolioPDF(family,childEntries,activeCh,attendanceDays,stateInfo)}
             style={{padding:"0.65rem 1rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"700",fontSize:"0.8rem",cursor:"pointer",flexShrink:0}}>
             🖨 Print PDF
           </button>
@@ -4514,6 +4590,7 @@ function WeekView({pal,family,entries,child,onEdit}){
 
 /* ---- Portfolio Preview — Compliance-Ready ---- */
 function PortfolioPreview({pal,family,entries,child,attendanceDays=0}){
+  const stateInfo = getStateInfo(family.state||"");
   const [scope, setScope] = useState("week"); // week | month | year | all
   const now = new Date();
   const schoolName = family.schoolName||(family.familyName+" Academy")||"Home School";
@@ -4564,7 +4641,7 @@ function PortfolioPreview({pal,family,entries,child,attendanceDays=0}){
             <button key={id} onClick={()=>setScope(id)} style={{flex:1,padding:"0.35rem",border:"none",borderRadius:"7px",background:scope===id?pal.linen:"transparent",color:scope===id?pal.ink:pal.slate,fontSize:"0.7rem",fontWeight:scope===id?"700":"400",cursor:"pointer"}}>{l}</button>
           ))}
         </div>
-        <button onClick={()=>window.print()} style={{padding:"0.4rem 0.85rem",border:"none",borderRadius:"9px",background:pal.accentGrad,color:"#fff",fontWeight:"700",fontSize:"0.74rem",cursor:"pointer",flexShrink:0}}>🖨 Print PDF</button>
+        <button onClick={()=>printPortfolioPDF(family,entries.filter(e=>e.childIdx===childIndices[0]),family.children[childIndices[0]],attendanceDays,stateInfo)} style={{padding:"0.4rem 0.85rem",border:"none",borderRadius:"9px",background:pal.accentGrad,color:"#fff",fontWeight:"700",fontSize:"0.74rem",cursor:"pointer",flexShrink:0}}>🖨 Print PDF</button>
       </div>
 
       {childIndices.map(ci=>{
