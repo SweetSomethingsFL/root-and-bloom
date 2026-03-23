@@ -1971,6 +1971,73 @@ const EOY_SKILLS = {
 };
 
 /* =======================================
+   50-STATE COMPLIANCE DATABASE
+   Tier 1 = very low, Tier 4 = high regulation
+======================================= */
+const STATE_COMPLIANCE = {
+  "Alabama":        {tier:1,notify:"Annual notice",hours:"180 days",portfolio:"Attendance + subjects taught",testing:"Not required",deadline:"Annual",subjects:["Physical Education"],keepFor:"Not specified",readingLog:false,workSamples:false,attendance:true,quarterly:false},
+  "Alaska":         {tier:1,notify:"None required",hours:"None",portfolio:"Not required — recommended",testing:"Not required",deadline:"None",subjects:[],keepFor:"Recommended: keep permanently",readingLog:false,workSamples:false,attendance:false,quarterly:false},
+  "Arizona":        {tier:1,notify:"Affidavit",hours:"180 days",portfolio:"Not required",testing:"Not required",deadline:"None",subjects:[],keepFor:"Recommended",readingLog:false,workSamples:false,attendance:false,quarterly:false},
+  "Arkansas":       {tier:2,notify:"Annual notice",hours:"180 days",portfolio:"Notice of intent only",testing:"Annual test grades 5+",deadline:"August 15",subjects:["Reading","Language Arts","Math","Science","Social Studies"],keepFor:"Not specified",readingLog:false,workSamples:false,attendance:true,quarterly:false},
+  "California":     {tier:2,notify:"Private school affidavit (Oct 1–15)",hours:"175 days",portfolio:"Required under private school option",testing:"Not required",deadline:"Oct 1–15 annually",subjects:["English","Math","Social Sciences","Science","Arts","PE","Health"],keepFor:"5 years recommended",readingLog:false,workSamples:true,attendance:true,quarterly:false},
+  "Colorado":       {tier:2,notify:"Annual NOI",hours:"172 days, 4 hrs/day",portfolio:"Attendance + test results",testing:"Every other year grades 3–11",deadline:"14 days before start",subjects:["Reading","Writing","Math","History","Civics","Literature","Science","PE"],keepFor:"Not specified",readingLog:false,workSamples:false,attendance:true,quarterly:false},
+  "Connecticut":    {tier:1,notify:"Optional NOI",hours:"180 days",portfolio:"Not required",testing:"Not required",deadline:"None",subjects:["Reading","Writing","Spelling","Math","Geography","Science","History","Civics","PE","Art","Music"],keepFor:"Recommended",readingLog:false,workSamples:false,attendance:false,quarterly:false},
+  "Delaware":       {tier:1,notify:"Register as non-public school",hours:"None",portfolio:"Attendance records only",testing:"Not required",deadline:"Annual enrollment report",subjects:[],keepFor:"Not specified",readingLog:false,workSamples:false,attendance:true,quarterly:false},
+  "Florida":        {tier:2,notify:"One-time Letter of Intent",hours:"None required",portfolio:"Activity log (reading titles by name) + work samples",testing:"Annual evaluation by FL-certified teacher or standardized test",deadline:"LOI anniversary date",subjects:[],keepFor:"2 years",readingLog:true,workSamples:true,attendance:false,quarterly:false},
+  "Georgia":        {tier:2,notify:"Annual declaration of intent",hours:"180 days",portfolio:"Monthly attendance records",testing:"Every 3 years grades 3+",deadline:"By Sept 1 annually",subjects:["Reading","Language Arts","Math","Social Studies","Science","Health","PE","Fine Arts"],keepFor:"Not specified",readingLog:false,workSamples:false,attendance:true,quarterly:false},
+  "Hawaii":         {tier:3,notify:"Annual NOI",hours:"180 days",portfolio:"Curriculum and records",testing:"Annual assessment",deadline:"Before school year",subjects:["Language Arts","Math","Science","Social Studies","Health","PE"],keepFor:"Not specified",readingLog:false,workSamples:true,attendance:true,quarterly:false},
+  "Idaho":          {tier:1,notify:"None required",hours:"None",portfolio:"Not required",testing:"Not required",deadline:"None",subjects:[],keepFor:"Recommended",readingLog:false,workSamples:false,attendance:false,quarterly:false},
+  "Illinois":       {tier:1,notify:"None required",hours:"None",portfolio:"Not required",testing:"Not required",deadline:"None",subjects:["Language Arts","Math","Biological/Physical Science","Fine Arts","Health","PE","Social Sciences"],keepFor:"Recommended",readingLog:false,workSamples:false,attendance:false,quarterly:false},
+  "Indiana":        {tier:1,notify:"Annual NOI",hours:"180 days",portfolio:"Not required (private school status)",testing:"Not required",deadline:"Annual",subjects:["English","Math","Science","Social Studies","Health","PE","Fine Arts","Practical Arts"],keepFor:"Recommended",readingLog:false,workSamples:false,attendance:false,quarterly:false},
+  "Iowa":           {tier:2,notify:"Annual competency forms",hours:"148 days",portfolio:"Annual assessment by licensed teacher",testing:"Annual licensed teacher assessment",deadline:"October 1",subjects:["Reading","Language Arts","Math","Science","Social Studies","Health","PE","Fine Arts"],keepFor:"Not specified",readingLog:false,workSamples:true,attendance:true,quarterly:false},
+  "Kansas":         {tier:1,notify:"Register as non-accredited private school",hours:"186 days",portfolio:"Attendance records",testing:"Not required",deadline:"Annual",subjects:["Reading","Writing","Math","Science","History","Government","Geography","PE","Health","Art","Music"],keepFor:"Not specified",readingLog:false,workSamples:false,attendance:true,quarterly:false},
+  "Kentucky":       {tier:2,notify:"Annual NOI",hours:"185 days",portfolio:"Attendance + courses + grades",testing:"Not required",deadline:"Annual",subjects:["Reading","Writing","Math","Science","Social Studies","Arts","PE","Health"],keepFor:"Not specified",readingLog:false,workSamples:false,attendance:true,quarterly:false},
+  "Louisiana":      {tier:2,notify:"Annual Home Study Application by Oct 1",hours:"180 days",portfolio:"Annual reapplication required",testing:"Not required",deadline:"Oct 1 annually",subjects:["Sustained curriculum at grade level"],keepFor:"Not specified",readingLog:false,workSamples:false,attendance:true,quarterly:false},
+  "Maine":          {tier:3,notify:"Annual NOI to superintendent",hours:"175 days",portfolio:"Annual assessment",testing:"Annual assessment or portfolio review",deadline:"Annual",subjects:["English","Math","Science","Social Studies","Health","PE","Fine Arts","Career Ed"],keepFor:"Not specified",readingLog:false,workSamples:true,attendance:true,quarterly:false},
+  "Maryland":       {tier:4,notify:"Annual NOI",hours:"Must show regular thorough instruction",portfolio:"Weekly work samples per COMAR subject — semi-annual review",testing:"Semi-annual portfolio review (Jan & June)",deadline:"Semi-annual",subjects:["English","Math","Science","Social Studies","Health","Art","Music","PE"],keepFor:"Duration of homeschooling",readingLog:false,workSamples:true,attendance:false,quarterly:false},
+  "Massachusetts":  {tier:4,notify:"Prior approval from local school committee",hours:"None specified",portfolio:"Annual review — curriculum, materials, assessments",testing:"Annual review",deadline:"Before starting",subjects:["Reading","Writing","Math","Science","History","Social Studies","Health","PE","Music","Art"],keepFor:"Not specified",readingLog:false,workSamples:true,attendance:false,quarterly:false},
+  "Michigan":       {tier:1,notify:"None (unless special needs)",hours:"None",portfolio:"Not required — keep core subject records",testing:"Not required",deadline:"None",subjects:["Reading","Writing","Math","Science","History","Social Studies","Civics","Literature","Health","PE","Art","Music"],keepFor:"Recommended",readingLog:false,workSamples:false,attendance:false,quarterly:false},
+  "Minnesota":      {tier:3,notify:"Annual NOI",hours:"None",portfolio:"Annual testing results",testing:"Annual test by qualified evaluator",deadline:"October 1",subjects:["Reading","Writing","Literature","Math","Science","History","Social Studies","Geography","Health","PE","Art","Music"],keepFor:"Not specified",readingLog:false,workSamples:false,attendance:false,quarterly:false},
+  "Mississippi":    {tier:1,notify:"Annual certificate of enrollment",hours:"180 days",portfolio:"Enrollment certificate only",testing:"Not required",deadline:"15 days after start",subjects:[],keepFor:"Not specified",readingLog:false,workSamples:false,attendance:false,quarterly:false},
+  "Missouri":       {tier:2,notify:"None required",hours:"1000 hours/year",portfolio:"Records of hours and subjects",testing:"Not required",deadline:"None",subjects:["Reading","Writing","Math","Science","Social Studies","PE","Health","Fine Arts"],keepFor:"Not specified",readingLog:false,workSamples:false,attendance:true,quarterly:false},
+  "Montana":        {tier:2,notify:"Annual NOI",hours:"180 days",portfolio:"Attendance + immunization records",testing:"Not required",deadline:"Annual",subjects:[],keepFor:"Not specified",readingLog:false,workSamples:false,attendance:true,quarterly:false},
+  "Nebraska":       {tier:2,notify:"Annual Forms A and B",hours:"1032 hrs elem / 1080 hrs secondary",portfolio:"Annual forms",testing:"Not required",deadline:"Annual",subjects:["Language Arts","Math","Science","Social Studies","PE","Health","Music","Visual Arts","Career Ed"],keepFor:"Not specified",readingLog:false,workSamples:false,attendance:true,quarterly:false},
+  "Nevada":         {tier:2,notify:"Annual NOI",hours:"180 days",portfolio:"Annual assessment",testing:"Annual assessment",deadline:"Annual",subjects:["English","Math","Science","Social Studies","Arts","PE","Health","Civics"],keepFor:"Not specified",readingLog:false,workSamples:true,attendance:false,quarterly:false},
+  "New Hampshire":  {tier:3,notify:"Annual NOI",hours:"None",portfolio:"Annual assessment",testing:"Annual evaluation or portfolio",deadline:"Annual",subjects:["Science","Math","Language Arts","Social Studies","Health","PE","Art","Music"],keepFor:"Not specified",readingLog:false,workSamples:true,attendance:false,quarterly:false},
+  "New Jersey":     {tier:1,notify:"None required",hours:"180 days",portfolio:"Not required",testing:"Not required",deadline:"None",subjects:["Language Arts","Math","Science","Social Studies","Health","PE","Arts"],keepFor:"Recommended",readingLog:false,workSamples:false,attendance:false,quarterly:false},
+  "New Mexico":     {tier:2,notify:"Annual NOI",hours:"180 days",portfolio:"Records on request",testing:"Not required",deadline:"Annual",subjects:["Language Arts","Math","Science","Social Studies","PE","Health","Fine Arts"],keepFor:"Not specified",readingLog:false,workSamples:false,attendance:false,quarterly:false},
+  "New York":       {tier:4,notify:"Annual IHIP + quarterly reports",hours:"900 hrs K–6 / 990 hrs 7–12",portfolio:"Quarterly reports + annual assessment",testing:"Every other year grade 4–8, annual grade 9–12",deadline:"Quarterly",subjects:["Patriotism","Citizenship","English","Math","Science","Social Studies","Health","PE","Art","Music","Languages"],keepFor:"Not specified",readingLog:false,workSamples:true,attendance:true,quarterly:true},
+  "North Carolina": {tier:3,notify:"Annual NOI to state",hours:"9 months/year",portfolio:"Attendance + immunization records",testing:"Annual national standardized test",deadline:"Annual",subjects:[],keepFor:"Not specified",readingLog:false,workSamples:false,attendance:true,quarterly:false},
+  "North Dakota":   {tier:3,notify:"Annual NOI",hours:"175 days",portfolio:"Annual assessment",testing:"Annual test grades 4–12",deadline:"Before school year",subjects:["English","Math","Science","Social Studies","Health","PE","Fine Arts","Career Ed"],keepFor:"Not specified",readingLog:false,workSamples:false,attendance:true,quarterly:false},
+  "Ohio":           {tier:3,notify:"Annual NOI",hours:"900 hours",portfolio:"Annual assessment by licensed teacher or portfolio",testing:"Annual assessment or portfolio",deadline:"Annual",subjects:["Language Arts","Math","Science","Social Studies","Health","PE","Fine Arts","Career-Tech"],keepFor:"2 years recommended",readingLog:false,workSamples:true,attendance:true,quarterly:false},
+  "Oklahoma":       {tier:1,notify:"None required",hours:"None",portfolio:"Not required",testing:"Not required",deadline:"None",subjects:[],keepFor:"Recommended",readingLog:false,workSamples:false,attendance:false,quarterly:false},
+  "Oregon":         {tier:3,notify:"Annual NOI",hours:"None",portfolio:"Annual test or approved program",testing:"Grades 3,5,8,10",deadline:"Annual",subjects:["English","Math","Science","Social Studies","Health","PE","Fine Arts","Career Ed"],keepFor:"Not specified",readingLog:false,workSamples:false,attendance:false,quarterly:false},
+  "Pennsylvania":   {tier:4,notify:"Annual affidavit + vaccination + subject outline",hours:"180 days / 900 elem / 990 secondary",portfolio:"Log of reading materials by title + work samples beginning middle end of year",testing:"Grades 3,5,8: standardized test required",deadline:"June 30 annually",subjects:["English","Math","Science","Social Studies","History","Geography","Art","Music","PE","Health"],keepFor:"Keep indefinitely recommended",readingLog:true,workSamples:true,attendance:true,quarterly:false},
+  "Rhode Island":   {tier:4,notify:"Prior approval required",hours:"180 days",portfolio:"Annual attendance + progress assessment",testing:"Annual district review",deadline:"Before starting",subjects:["English","Math","Science","Social Studies","History","Health","PE","Art","Music"],keepFor:"Not specified",readingLog:false,workSamples:true,attendance:true,quarterly:false},
+  "South Carolina": {tier:3,notify:"Annual NOI",hours:"180 days",portfolio:"Annual review by association or district",testing:"Annual assessment",deadline:"Annual",subjects:["Reading","Writing","Math","Science","Social Studies","PE","Health","Fine Arts"],keepFor:"Not specified",readingLog:false,workSamples:true,attendance:true,quarterly:false},
+  "South Dakota":   {tier:2,notify:"Annual NOI",hours:"175 days",portfolio:"Annual assessment or test",testing:"Annual assessment",deadline:"Annual",subjects:["Language Arts","Math","Science","Social Studies","Health","PE","Fine Arts"],keepFor:"Not specified",readingLog:false,workSamples:false,attendance:true,quarterly:false},
+  "Tennessee":      {tier:2,notify:"Annual application",hours:"180 days",portfolio:"Annual test results",testing:"Grades 5,7,9 standardized test",deadline:"Annual",subjects:["Language Arts","Math","Science","Social Studies","Fine Arts","PE","Health"],keepFor:"Not specified",readingLog:false,workSamples:false,attendance:true,quarterly:false},
+  "Texas":          {tier:1,notify:"None required",hours:"None",portfolio:"Not required — private school status",testing:"Not required",deadline:"None",subjects:[],keepFor:"Recommended: permanently",readingLog:false,workSamples:false,attendance:false,quarterly:false},
+  "Utah":           {tier:1,notify:"One-time affidavit",hours:"None",portfolio:"Not required",testing:"Not required",deadline:"None",subjects:[],keepFor:"Recommended",readingLog:false,workSamples:false,attendance:false,quarterly:false},
+  "Vermont":        {tier:4,notify:"Annual enrollment notice + curriculum plan",hours:"175 days",portfolio:"Annual portfolio review by licensed educator",testing:"Annual portfolio review",deadline:"Annual",subjects:["English","Math","History","PE","Health","Citizenship","Sciences","Fine Arts","Career Ed"],keepFor:"Not specified",readingLog:false,workSamples:true,attendance:true,quarterly:false},
+  "Virginia":       {tier:3,notify:"Annual NOI",hours:"180 days",portfolio:"Annual progress report or portfolio",testing:"Annual test or portfolio",deadline:"August 1",subjects:["Math","Science","English","History","Social Studies","PE","Health","Fine Arts","Foreign Languages"],keepFor:"Not specified",readingLog:false,workSamples:true,attendance:true,quarterly:false},
+  "Washington":     {tier:2,notify:"Annual NOI",hours:"None",portfolio:"Annual assessment",testing:"Annual test or assessment",deadline:"Annual",subjects:["Occupational Education","Language Arts","Math","Science","Social Studies","History","Health","PE","Art","Music"],keepFor:"Not specified",readingLog:false,workSamples:true,attendance:false,quarterly:false},
+  "West Virginia":  {tier:3,notify:"Annual NOI",hours:"180 days",portfolio:"Annual test or portfolio grades 3,5,8,11",testing:"Grades 3,5,8,11",deadline:"Annual",subjects:["English","Math","Science","Social Studies","History","PE","Health","Fine Arts"],keepFor:"Not specified",readingLog:false,workSamples:true,attendance:true,quarterly:false},
+  "Wisconsin":      {tier:2,notify:"Annual PI-1206 form",hours:"875 hours",portfolio:"Annual enrollment form",testing:"Not required",deadline:"Annual",subjects:["Reading","Language Arts","Math","Social Studies","Science","Health","PE","Art","Music"],keepFor:"Not specified",readingLog:false,workSamples:false,attendance:true,quarterly:false},
+  "Wyoming":        {tier:1,notify:"Annual NOI",hours:"175 days",portfolio:"Not required",testing:"Not required",deadline:"Annual",subjects:[],keepFor:"Recommended",readingLog:false,workSamples:false,attendance:false,quarterly:false},
+};
+
+function getStateInfo(state) {
+  return STATE_COMPLIANCE[state] || {
+    tier:2, notify:"Check your state DOE", hours:"Check your state",
+    portfolio:"Keep activity log and work samples — varies by state",
+    testing:"Check your state", deadline:"Check your state DOE website",
+    subjects:[], keepFor:"Recommended: 5 years",
+    readingLog:false, workSamples:true, attendance:true, quarterly:false
+  };
+}
+
+/* =======================================
    GRADE-SPECIFIC COMPLIANCE DATA
    Based on state laws research
 ======================================= */
@@ -3255,6 +3322,22 @@ function UnitModal({pal,family,initial,onClose,onSave}){
           <Input pal={pal} value={title} onChange={setTitle} placeholder="e.g. Ancient Egypt, Fractions, Essay Writing"/>
           <div style={{height:"0.75rem"}}/>
 
+          {/* Reading title — required for FL/PA states */}
+          {needsReadingTitle && (
+            <div style={{animation:"fadeUp 0.18s ease",marginBottom:"0.75rem"}}>
+              <Lbl pal={pal}>Book / Material Title <span style={{color:pal.primary,fontWeight:"900"}}>*</span></Lbl>
+              <div style={{background:pal.pale,borderRadius:"10px",padding:"0.45rem 0.7rem",marginBottom:"0.5rem",fontSize:"0.71rem",color:pal.primary,fontWeight:"600",border:`1.5px solid ${pal.primary}25`}}>
+                📖 {family.state||"Your state"} requires reading materials to be listed by title.
+              </div>
+              <Input pal={pal} value={readingTitle} onChange={setReadingTitle} placeholder="e.g. Charlotte Web, Saxon Math 5/4, Bible Story Vol.2"/>
+            </div>
+          )}
+          {isReadingSubj && !needsReadingTitle && (
+            <div style={{marginBottom:"0.55rem"}}>
+              <Lbl pal={pal}>Book / Material Title (optional)</Lbl>
+              <Input pal={pal} value={readingTitle} onChange={setReadingTitle} placeholder="e.g. Charlotte Web, Saxon Phonics..."/>
+            </div>
+          )}
           <Lbl pal={pal}>Icon</Lbl>
           <div style={{display:"flex",gap:"0.35rem",flexWrap:"wrap",marginBottom:"0.85rem"}}>
             {ICONS.map(ic=>(
@@ -3681,90 +3764,78 @@ function AIWorksheetModal({ pal, family, activeChild, wsType, onClose }) {
 
 
 function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEditEntry,attendanceDays=0}){
+  const [view,        setView]      = useState("main");     // main | subject | preview
+  const [activeSubj,  setActiveSubj]= useState(null);       // subject name when drilling in
   const [showAdd,     setShowAdd]   = useState(false);
   const [editEntry,   setEditEntry] = useState(null);
-  const [detailEntry, setDetail]    = useState(null); // view detail modal
-  const [viewMode,    setViewMode]  = useState("weeks"); // weeks | preview
-  const [expandedWeeks, setExpandedWeeks] = useState({}); // {weekKey: bool}
+  const [detailEntry, setDetail]    = useState(null);
 
-  // Active child index
-  const activeChildId = child==="all" ? family.children[0]?.id : child;
-  const activeIdx = family.children.findIndex(c=>c.id===activeChildId);
-  const activeCi  = activeIdx>=0 ? activeIdx : 0;
-  const activeCh  = family.children[activeCi];
+  const stateInfo = getStateInfo(family.state||"");
+
+  // Active child
+  const activeCi  = family.children.findIndex(c=>c.id===child);
+  const activeCh  = activeCi>=0 ? family.children[activeCi] : family.children[0];
+  const activeCiR = activeCi>=0 ? activeCi : 0;
   const cp = CHILD_COLOR_PALETTES.find(p=>p.id===(activeCh?.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
 
-  // Entries for active child only
-  const childEntries = entries.filter(e=>e.childIdx===activeCi);
+  // Entries for this child only
+  const childEntries = entries.filter(e=>e.childIdx===activeCiR);
 
-  // Group entries into weeks — key = "Mon Mar 17 – Sun Mar 23"
-  const getWeekKey = (dateStr) => {
-    try {
-      const yr = new Date().getFullYear();
-      const d  = new Date(dateStr+", "+yr);
-      if(isNaN(d)) return dateStr;
-      const dow = d.getDay();
-      const mon = new Date(d); mon.setDate(d.getDate()-(dow===0?6:dow-1));
-      const sun = new Date(mon); sun.setDate(mon.getDate()+6);
-      const fmt = (x) => x.toLocaleDateString("en-US",{month:"short",day:"numeric"});
-      return fmt(mon)+" – "+fmt(sun);
-    } catch(e){ return dateStr; }
-  };
+  // Subject entries (not day notes)
+  const subjEntries = childEntries.filter(e=>!e.isDay && e.subj!=="Daily Notes");
+  // Work sample entries (have photos)
+  const sampleEntries = childEntries.filter(e=>e.photos&&e.photos.length>0);
+  // Day note entries
+  const noteEntries = childEntries.filter(e=>e.isDay||e.subj==="Daily Notes");
+  // Reading entries
+  const readingEntries = subjEntries.filter(e=>e.subj==="Reading"||e.subj==="Bible / Faith"||e.subj==="Reading/Language Arts");
 
-  const getWeekStart = (dateStr) => {
-    try {
-      const yr = new Date().getFullYear();
-      const d  = new Date(dateStr+", "+yr);
-      if(isNaN(d)) return new Date(0);
-      const dow = d.getDay();
-      const mon = new Date(d); mon.setDate(d.getDate()-(dow===0?6:dow-1));
-      return mon;
-    } catch(e){ return new Date(0); }
-  };
-
-  // Build week groups sorted newest first
-  const weekMap = {};
-  childEntries.forEach(e=>{
-    const k = getWeekKey(e.date);
-    if(!weekMap[k]) weekMap[k] = {key:k, weekStart:getWeekStart(e.date), entries:[]};
-    weekMap[k].entries.push(e);
+  // Group subject entries by subject name
+  const bySubject = {};
+  subjEntries.forEach(e=>{
+    if(!bySubject[e.subj]) bySubject[e.subj]={subj:e.subj,entries:[],hasPhotos:false};
+    bySubject[e.subj].entries.push(e);
+    if(e.photos&&e.photos.length>0) bySubject[e.subj].hasPhotos=true;
   });
-  const weeks = Object.values(weekMap).sort((a,b)=>b.weekStart-a.weekStart);
+  const subjectList = Object.values(bySubject).sort((a,b)=>b.entries.length-a.entries.length);
 
-  // Auto-expand most recent week on first render
-  const currentWeekKey = weeks[0]?.key;
-  const isExpanded = (k) => expandedWeeks[k]!==undefined ? expandedWeeks[k] : k===currentWeekKey;
-  const toggleWeek = (k) => setExpandedWeeks(prev=>({...prev,[k]:!isExpanded(k)}));
+  const today = new Date();
 
-  // Active subjects for completeness dot
-  const customSubjs = family.customSubjects||[];
-  const allSubjMap  = Object.fromEntries([...SUBJECT_OPTIONS,...customSubjs].map(s=>[s.id,s]));
-  const activeSubjs = (family.subjects||[]).map(id=>allSubjMap[id]).filter(Boolean);
+  if(view==="preview") {
+    return (
+      <div style={{animation:"fadeUp 0.22s ease"}}>
+        <ScreenHdr pal={pal} title="Portfolio Preview" sub={activeCh?.name||""} icon="🗂"/>
+        <div style={{padding:"0 1rem"}}>
+          <button onClick={()=>setView("main")} style={{marginBottom:"0.85rem",padding:"0.4rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",background:"transparent",color:pal.slate,fontWeight:"700",fontSize:"0.78rem",cursor:"pointer"}}>
+            Back to Portfolio
+          </button>
+          <PortfolioPreview pal={pal} family={family} entries={childEntries} child={child} attendanceDays={attendanceDays}/>
+        </div>
+      </div>
+    );
+  }
 
-  const weekComplete = (weekEntries) => {
-    const covered = new Set(weekEntries.map(e=>e.subj));
-    return activeSubjs.length>0 && activeSubjs.every(s=>covered.has(s.label));
-  };
-
-  const subjectEntries = (weekEntries) => weekEntries.filter(e=>!e.isDay);
-  const noteEntries    = (weekEntries) => weekEntries.filter(e=>e.isDay);
+  if(view==="subject" && activeSubj) {
+    const sd = bySubject[activeSubj];
+    if(!sd) { setView("main"); return null; }
+    return <SubjectView pal={pal} family={family} cp={cp} sd={sd} activeCh={activeCh}
+      onBack={()=>setView("main")} onDetail={setDetail} onEdit={(e)=>{setEditEntry(e);}} stateInfo={stateInfo}/>;
+  }
 
   return (
     <div style={{animation:"fadeUp 0.22s ease"}}>
-      <ScreenHdr pal={pal} title="Portfolio" sub="Work & Achievements" icon="🗂"/>
+      <ScreenHdr pal={pal} title="Portfolio" sub={activeCh?.name||"Select a child"} icon="🗂"/>
       <div style={{padding:"0 1rem"}}>
 
         {/* Child tabs */}
-        <div style={{display:"flex",gap:"0",marginBottom:"1rem",background:pal.parchm,borderRadius:"13px",padding:"3px"}}>
+        <div style={{display:"flex",gap:"0",marginBottom:"0.85rem",background:pal.parchm,borderRadius:"13px",padding:"3px"}}>
           {family.children.map((c,i)=>{
-            const isSel = i===activeCi;
-            const ccp = CHILD_COLOR_PALETTES.find(p=>p.id===(c.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
-            const cnt = entries.filter(e=>e.childIdx===i).length;
-            return (
+            const isSel=i===activeCiR;
+            const ccp=CHILD_COLOR_PALETTES.find(p=>p.id===(c.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+            const cnt=entries.filter(e=>e.childIdx===i&&!e.isDay).length;
+            return(
               <button key={c.id} onClick={()=>setChild(c.id)}
-                style={{flex:1,padding:"0.5rem 0.3rem",border:"none",borderRadius:"10px",
-                  background:isSel?pal.linen:"transparent",cursor:"pointer",transition:"all 0.15s",
-                  display:"flex",flexDirection:"column",alignItems:"center",gap:"1px"}}>
+                style={{flex:1,padding:"0.5rem 0.3rem",border:"none",borderRadius:"10px",background:isSel?pal.linen:"transparent",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:"1px",transition:"all 0.15s"}}>
                 <div style={{fontSize:"1.3rem",lineHeight:1}}>{c.avatar}</div>
                 <div style={{fontSize:"0.65rem",fontWeight:isSel?"800":"400",color:isSel?ccp.c1:pal.slate}}>{c.name}</div>
                 <div style={{fontSize:"0.55rem",color:isSel?ccp.c1:pal.stone,fontWeight:"600"}}>{cnt}</div>
@@ -3773,159 +3844,164 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
           })}
         </div>
 
-        {/* View tabs + Add button */}
-        <div style={{display:"flex",gap:"0.5rem",marginBottom:"1rem",alignItems:"center"}}>
-          <div style={{display:"flex",background:pal.parchm,borderRadius:"10px",padding:"2px",gap:"2px",flex:1}}>
-            {[["weeks","📅 By Week"],["preview","👀 Preview"]].map(([id,l])=>(
-              <button key={id} onClick={()=>setViewMode(id)} style={{flex:1,padding:"0.4rem",border:"none",borderRadius:"8px",background:viewMode===id?pal.linen:"transparent",color:viewMode===id?pal.ink:pal.slate,fontSize:"0.72rem",fontWeight:viewMode===id?"700":"400",cursor:"pointer"}}>{l}</button>
-            ))}
+        {/* State compliance banner */}
+        <div style={{background:pal.pale,borderRadius:"12px",padding:"0.65rem 0.9rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.primary}20`,display:"flex",gap:"0.6rem",alignItems:"flex-start"}}>
+          <span style={{fontSize:"1rem",flexShrink:0}}>📋</span>
+          <div style={{flex:1}}>
+            <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.76rem",marginBottom:"1px"}}>{family.state||"Your state"} requirements</div>
+            <div style={{fontSize:"0.7rem",color:pal.inkM,lineHeight:1.55}}>{stateInfo.portfolio}</div>
+            {stateInfo.deadline&&stateInfo.deadline!=="None"&&<div style={{fontSize:"0.65rem",color:pal.slate,marginTop:"2px"}}>Due: {stateInfo.deadline}</div>}
           </div>
-          <button onClick={()=>setShowAdd(true)}
-            style={{padding:"0.4rem 0.85rem",border:"none",borderRadius:"10px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.78rem",cursor:"pointer",flexShrink:0}}>
-            + Add
-          </button>
+          <button onClick={()=>setView("preview")} style={{padding:"0.28rem 0.6rem",border:"none",borderRadius:"8px",background:pal.accentGrad,color:"#fff",fontWeight:"700",fontSize:"0.65rem",cursor:"pointer",flexShrink:0}}>Preview</button>
         </div>
 
-        {/* ====== WEEKS VIEW ====== */}
-        {viewMode==="weeks" && (<>
-          {weeks.length===0 ? (
-            <div style={{background:pal.linen,borderRadius:"18px",padding:"2.5rem 1.5rem",textAlign:"center",border:`1.5px solid ${pal.stone}35`}}>
-              <div style={{fontSize:"3rem",marginBottom:"0.6rem"}}>🌱</div>
-              <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.92rem",marginBottom:"0.3rem"}}>No entries yet for {activeCh?.name}</div>
-              <div style={{fontSize:"0.78rem",color:pal.slate,marginBottom:"1rem"}}>Complete a school day or add an entry to get started.</div>
-              <button onClick={()=>setShowAdd(true)} style={{padding:"0.55rem 1.3rem",border:"none",borderRadius:"11px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.82rem",cursor:"pointer"}}>+ Add First Entry</button>
+        {/* Add entry */}
+        <button onClick={()=>setShowAdd(true)}
+          style={{width:"100%",padding:"0.68rem",border:`2px dashed ${pal.primary}50`,borderRadius:"12px",background:"transparent",color:pal.primary,fontWeight:"700",fontSize:"0.8rem",cursor:"pointer",marginBottom:"1.1rem",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.4rem"}}>
+          <span>+</span><span>Add Entry</span>
+        </button>
+
+        {/* ══════════════════════════════════════
+            SECTION 1: ACTIVITY LOG
+        ══════════════════════════════════════ */}
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.55rem"}}>
+          <div style={{fontWeight:"900",color:pal.ink,fontSize:"0.88rem"}}>Activity Log</div>
+          <div style={{fontSize:"0.68rem",color:pal.slate}}>{subjEntries.length} entries</div>
+        </div>
+
+        {subjectList.length===0 ? (
+          <div style={{background:pal.linen,borderRadius:"14px",padding:"1.5rem",textAlign:"center",border:`1.5px solid ${pal.stone}30`,marginBottom:"1.1rem"}}>
+            <div style={{fontSize:"2rem",marginBottom:"0.4rem"}}>📚</div>
+            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.84rem",marginBottom:"0.2rem"}}>No activity logged yet</div>
+            <div style={{fontSize:"0.74rem",color:pal.slate}}>Complete a school day or add an entry above.</div>
+          </div>
+        ) : (
+          <div style={{background:pal.linen,borderRadius:"14px",border:`1.5px solid ${pal.stone}30`,overflow:"hidden",marginBottom:"1.1rem"}}>
+            {subjectList.map((sd,i)=>(
+              <button key={sd.subj} onClick={()=>{setActiveSubj(sd.subj);setView("subject");}}
+                style={{width:"100%",display:"flex",gap:"0.7rem",alignItems:"center",padding:"0.7rem 0.9rem",borderTop:i>0?`1px solid ${pal.stone}20`:"none",background:"transparent",border:"none",cursor:"pointer",textAlign:"left"}}
+                onTouchStart={e=>e.currentTarget.style.background=pal.pale}
+                onTouchEnd={e=>e.currentTarget.style.background="transparent"}>
+                {/* Subject icon */}
+                <div style={{width:"38px",height:"38px",borderRadius:"10px",background:`linear-gradient(135deg,${cp.c1}25,${cp.c2}18)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.1rem",flexShrink:0}}>
+                  {(()=>{const customSubjs=family.customSubjects||[];const allSubjs=[...SUBJECT_OPTIONS,...customSubjs];const s=allSubjs.find(x=>x.label===sd.subj);return s?.icon||"📋";})()}
+                </div>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.85rem"}}>{sd.subj}</div>
+                  <div style={{fontSize:"0.67rem",color:pal.slate,marginTop:"1px"}}>
+                    {sd.entries.length} {sd.entries.length===1?"entry":"entries"}
+                    {sd.entries[0]&&" · last "+sd.entries[sd.entries.length-1].date}
+                  </div>
+                </div>
+                {/* Photo badge */}
+                {sd.hasPhotos&&<span style={{fontSize:"0.75rem",flexShrink:0}}>📷</span>}
+                {/* Entry count pill */}
+                <div style={{background:cp.c1+"20",borderRadius:"20px",padding:"0.15rem 0.55rem",flexShrink:0}}>
+                  <span style={{fontWeight:"800",color:cp.c1,fontSize:"0.76rem"}}>{sd.entries.length}</span>
+                </div>
+                <span style={{color:pal.stone,fontSize:"0.9rem",flexShrink:0}}>›</span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* ══════════════════════════════════════
+            SECTION 2: WORK SAMPLES
+        ══════════════════════════════════════ */}
+        {(stateInfo.workSamples||sampleEntries.length>0) && (<>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.55rem"}}>
+            <div style={{fontWeight:"900",color:pal.ink,fontSize:"0.88rem"}}>Work Samples</div>
+            <div style={{fontSize:"0.68rem",color:pal.slate}}>{sampleEntries.length} with photos</div>
+          </div>
+          {sampleEntries.length===0 ? (
+            <div style={{background:pal.linen,borderRadius:"14px",padding:"1.1rem",textAlign:"center",border:`1.5px dashed ${pal.stone}40`,marginBottom:"1.1rem"}}>
+              <div style={{fontSize:"0.8rem",color:pal.slate}}>Add photos when logging entries to create work samples.
+{stateInfo.workSamples?"Required by "+family.state+".":""}</div>
             </div>
-          ) : weeks.map(week=>{
-            const expanded  = isExpanded(week.key);
-            const subjList  = subjectEntries(week.entries);
-            const noteList  = noteEntries(week.entries);
-            const done      = weekComplete(week.entries);
-            const isNow     = week.key===currentWeekKey;
-            const uniqueSubjs = [...new Set(subjList.map(e=>e.subj))];
-            const hasPhotos = week.entries.some(e=>e.photos&&e.photos.length>0);
-            const hasNotes  = noteList.some(e=>e.note&&e.note.trim());
-
-            return (
-              <div key={week.key} style={{marginBottom:"0.75rem",borderRadius:"16px",overflow:"hidden",border:`1.5px solid ${done?cp.c1+"50":pal.stone+"35"}`,background:pal.linen}}>
-
-                {/* ── WEEK BUBBLE (always visible, tap to expand) ── */}
-                <button onClick={()=>toggleWeek(week.key)}
-                  style={{width:"100%",padding:"0.85rem 1rem",border:"none",background:done?cp.c1+"10":"transparent",cursor:"pointer",display:"flex",alignItems:"center",gap:"0.75rem",textAlign:"left"}}>
-
-                  {/* Status circle */}
-                  <div style={{width:"42px",height:"42px",borderRadius:"50%",background:done?cp.c1:subjList.length>0?cp.c1+"25":pal.parchm,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,border:`2px solid ${done?cp.c1:pal.stone+"40"}`}}>
-                    {done
-                      ? <span style={{color:"#fff",fontWeight:"900",fontSize:"1rem"}}>✓</span>
-                      : <span style={{fontWeight:"900",color:subjList.length>0?cp.c1:pal.stone,fontSize:"0.78rem"}}>{subjList.length}</span>
-                    }
+          ) : (
+            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"0.45rem",marginBottom:"1.1rem"}}>
+              {sampleEntries.slice(0,9).map((e,i)=>(
+                <div key={e.id||i} onClick={()=>setDetail(e)}
+                  style={{aspectRatio:"1",borderRadius:"10px",overflow:"hidden",border:`1.5px solid ${pal.stone}30`,cursor:"pointer",position:"relative",background:pal.parchm}}>
+                  <img src={e.photos[0]} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                  <div style={{position:"absolute",bottom:0,left:0,right:0,background:"linear-gradient(transparent,rgba(0,0,0,0.55))",padding:"0.3rem 0.35rem 0.3rem"}}>
+                    <div style={{fontSize:"0.55rem",color:"#fff",fontWeight:"700",lineHeight:1.2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.subj}</div>
                   </div>
-
-                  <div style={{flex:1,minWidth:0}}>
-                    {/* Date range */}
-                    <div style={{display:"flex",alignItems:"center",gap:"0.4rem",marginBottom:"0.2rem",flexWrap:"wrap"}}>
-                      <span style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem"}}>{week.key}</span>
-                      {isNow&&<span style={{fontSize:"0.58rem",fontWeight:"800",color:cp.c1,background:cp.c1+"18",borderRadius:"20px",padding:"0.05rem 0.4rem"}}>This week</span>}
-                    </div>
-                    {/* Subject bubbles summary — collapsed view */}
-                    {!expanded&&uniqueSubjs.length>0&&(
-                      <div style={{display:"flex",flexWrap:"wrap",gap:"0.25rem",marginTop:"0.2rem"}}>
-                        {uniqueSubjs.slice(0,4).map(s=>(
-                          <span key={s} style={{fontSize:"0.6rem",padding:"0.1rem 0.42rem",background:cp.c1+"18",borderRadius:"20px",color:cp.c1,fontWeight:"700"}}>{s}</span>
-                        ))}
-                        {uniqueSubjs.length>4&&<span style={{fontSize:"0.6rem",color:pal.slate,padding:"0.1rem 0.3rem"}}>+{uniqueSubjs.length-4} more</span>}
-                        {hasPhotos&&<span style={{fontSize:"0.6rem",color:pal.slate,padding:"0.1rem 0.3rem"}}>📷</span>}
-                        {hasNotes&&<span style={{fontSize:"0.6rem",color:pal.slate,padding:"0.1rem 0.3rem"}}>📝</span>}
-                      </div>
-                    )}
-                    {!expanded&&uniqueSubjs.length===0&&(
-                      <div style={{fontSize:"0.68rem",color:pal.stone,fontStyle:"italic"}}>No entries yet</div>
-                    )}
-                    {expanded&&(
-                      <div style={{fontSize:"0.68rem",color:pal.slate}}>{uniqueSubjs.length} subject{uniqueSubjs.length!==1?"s":" "}{noteList.length>0?"· "+noteList.length+" note"+(noteList.length!==1?"s":""):""}</div>
-                    )}
-                  </div>
-
-                  <span style={{color:pal.slate,fontSize:"1.1rem",transform:expanded?"rotate(90deg)":"none",transition:"transform 0.2s",flexShrink:0}}>›</span>
-                </button>
-
-                {/* ── EXPANDED CONTENTS ── */}
-                {expanded&&(
-                  <div style={{borderTop:`1px solid ${pal.stone}20`}}>
-
-                    {/* Subject entries */}
-                    {subjList.length>0&&(
-                      <div style={{padding:"0.6rem 0.85rem 0.35rem"}}>
-                        <div style={{fontSize:"0.58rem",fontWeight:"700",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.4rem"}}>Subjects</div>
-                        {subjList.map((e,i)=>(
-                          <div key={e.id||i} onClick={()=>setDetail(e)}
-                            style={{display:"flex",gap:"0.6rem",alignItems:"center",padding:"0.5rem 0.6rem",borderRadius:"10px",marginBottom:"0.3rem",background:"#fff",cursor:"pointer",border:`1px solid ${pal.stone}20`}}
-                            onTouchStart={ev=>ev.currentTarget.style.background=pal.pale}
-                            onTouchEnd={ev=>ev.currentTarget.style.background="#fff"}>
-                            <div style={{width:"34px",height:"34px",borderRadius:"8px",background:`linear-gradient(135deg,${cp.c1}25,${cp.c2}18)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1rem",flexShrink:0,overflow:"hidden",position:"relative"}}>
-                              {e.photos&&e.photos[0]
-                                ?<img src={e.photos[0]} alt="" style={{width:"100%",height:"100%",objectFit:"cover",position:"absolute",inset:0}}/>
-                                :<span>{e.thumb||"📋"}</span>}
-                            </div>
-                            <div style={{flex:1,minWidth:0}}>
-                              <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.82rem"}}>{e.subj}</div>
-                              <div style={{fontSize:"0.63rem",color:pal.slate}}>{e.date}</div>
-                            </div>
-                            {e.photos&&e.photos.length>0&&<span style={{fontSize:"0.75rem",flexShrink:0}}>📷</span>}
-                            <span style={{color:pal.stone,fontSize:"0.9rem",flexShrink:0}}>›</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Day notes */}
-                    {noteList.length>0&&(
-                      <div style={{padding:"0 0.85rem 0.6rem"}}>
-                        <div style={{fontSize:"0.58rem",fontWeight:"700",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.4rem"}}>Notes</div>
-                        {noteList.map((e,i)=>(
-                          <div key={e.id||i} onClick={()=>setDetail(e)}
-                            style={{padding:"0.55rem 0.65rem",borderRadius:"10px",background:cp.c1+"08",cursor:"pointer",border:`1px solid ${cp.c1}20`,display:"flex",gap:"0.5rem",alignItems:"flex-start",marginBottom:"0.3rem"}}
-                            onTouchStart={ev=>ev.currentTarget.style.background=cp.c1+"18"}
-                            onTouchEnd={ev=>ev.currentTarget.style.background=cp.c1+"08"}>
-                            <span style={{fontSize:"0.9rem",flexShrink:0}}>📝</span>
-                            <div style={{flex:1,minWidth:0}}>
-                              <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.76rem"}}>Day Notes · {e.date}</div>
-                              {e.note&&e.note.trim()&&<div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"2px",lineHeight:1.5,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{e.note.replace("AI Summary: ","").split("\n\n")[0]}</div>}
-                              {e.photos&&e.photos.length>0&&<span style={{fontSize:"0.62rem",color:cp.c1,fontWeight:"700",marginTop:"2px",display:"block"}}>📷 {e.photos.length} photo{e.photos.length!==1?"s":""}</span>}
-                            </div>
-                            <span style={{color:pal.stone,fontSize:"0.9rem",flexShrink:0}}>›</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Empty state */}
-                    {subjList.length===0&&noteList.length===0&&(
-                      <div style={{padding:"1rem",textAlign:"center",fontSize:"0.78rem",color:pal.slate,fontStyle:"italic"}}>No entries this week yet.</div>
-                    )}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-          <div style={{height:"1rem"}}/>
+                  {e.photos.length>1&&<div style={{position:"absolute",top:"4px",right:"4px",background:"rgba(0,0,0,0.55)",borderRadius:"5px",padding:"1px 4px",fontSize:"0.5rem",color:"#fff",fontWeight:"700"}}>+{e.photos.length-1}</div>}
+                </div>
+              ))}
+              {sampleEntries.length>9&&(
+                <div style={{aspectRatio:"1",borderRadius:"10px",background:pal.parchm,border:`1.5px solid ${pal.stone}30`,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:"2px",cursor:"pointer"}} onClick={()=>{}}>
+                  <div style={{fontWeight:"800",color:pal.primary,fontSize:"0.9rem"}}>+{sampleEntries.length-9}</div>
+                  <div style={{fontSize:"0.58rem",color:pal.slate}}>more</div>
+                </div>
+              )}
+            </div>
+          )}
         </>)}
 
-        {/* ====== PREVIEW VIEW ====== */}
-        {viewMode==="preview" && (
-          <PortfolioPreview pal={pal} family={family} entries={childEntries} child={activeChildId} attendanceDays={attendanceDays}/>
+        {/* ══════════════════════════════════════
+            SECTION 3: READING LOG (state-required)
+        ══════════════════════════════════════ */}
+        {stateInfo.readingLog && (<>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.55rem"}}>
+            <div style={{fontWeight:"900",color:pal.ink,fontSize:"0.88rem"}}>Reading Log</div>
+            <div style={{fontSize:"0.65rem",color:pal.primary,fontWeight:"700",background:pal.pale,borderRadius:"20px",padding:"0.1rem 0.5rem"}}>Required by {family.state}</div>
+          </div>
+          <div style={{background:pal.linen,borderRadius:"14px",border:`1.5px solid ${pal.stone}30`,overflow:"hidden",marginBottom:"1.1rem"}}>
+            {readingEntries.length===0 ? (
+              <div style={{padding:"1rem",textAlign:"center",fontSize:"0.78rem",color:pal.slate}}>
+                No reading entries yet. When you log Reading as a subject, titles appear here.
+              </div>
+            ) : readingEntries.map((e,i)=>(
+              <div key={e.id||i} onClick={()=>setDetail(e)}
+                style={{display:"flex",gap:"0.6rem",alignItems:"center",padding:"0.6rem 0.9rem",borderTop:i>0?`1px solid ${pal.stone}20`:"none",cursor:"pointer"}}
+                onTouchStart={ev=>ev.currentTarget.style.background=pal.pale}
+                onTouchEnd={ev=>ev.currentTarget.style.background="transparent"}>
+                <span style={{fontSize:"1rem",flexShrink:0}}>📖</span>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.82rem",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.readingTitle||e.title}</div>
+                  <div style={{fontSize:"0.65rem",color:pal.slate}}>{e.date}{e.note&&" · "+e.note.slice(0,40)}</div>
+                </div>
+                <span style={{color:pal.stone,fontSize:"0.9rem"}}>›</span>
+              </div>
+            ))}
+          </div>
+        </>)}
+
+        {/* Day notes */}
+        {noteEntries.length>0&&(
+          <div style={{marginBottom:"1.1rem"}}>
+            <div style={{fontWeight:"900",color:pal.ink,fontSize:"0.88rem",marginBottom:"0.55rem"}}>Day Notes</div>
+            <div style={{background:pal.linen,borderRadius:"14px",border:`1.5px solid ${pal.stone}30`,overflow:"hidden"}}>
+              {noteEntries.slice(0,5).map((e,i)=>(
+                <div key={e.id||i} onClick={()=>setDetail(e)}
+                  style={{display:"flex",gap:"0.6rem",alignItems:"center",padding:"0.6rem 0.9rem",borderTop:i>0?`1px solid ${pal.stone}20`:"none",cursor:"pointer"}}
+                  onTouchStart={ev=>ev.currentTarget.style.background=pal.pale}
+                  onTouchEnd={ev=>ev.currentTarget.style.background="transparent"}>
+                  <span style={{fontSize:"1rem",flexShrink:0}}>📝</span>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.82rem"}}>{e.date}</div>
+                    {e.note&&<div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"1px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.note.replace("AI Summary: ","").split("\n")[0]}</div>}
+                  </div>
+                  {e.photos&&e.photos.length>0&&<span style={{fontSize:"0.75rem"}}>📷</span>}
+                  <span style={{color:pal.stone,fontSize:"0.9rem"}}>›</span>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
+
+        <div style={{height:"1rem"}}/>
       </div>
 
-      {/* Add Entry Modal */}
       {showAdd&&<AddEntryModal pal={pal} family={family} onClose={()=>setShowAdd(false)}
-        onSave={e=>{onAddEntry&&onAddEntry(e);setShowAdd(false);}}/>}
-
-      {/* Edit Entry Modal */}
+        onSave={e=>{onAddEntry&&onAddEntry(e);setShowAdd(false);}}
+        stateInfo={stateInfo}/>}
       {editEntry&&<AddEntryModal pal={pal} family={family} initialData={editEntry}
         onClose={()=>setEditEntry(null)}
-        onSave={updated=>{onEditEntry&&onEditEntry(editEntry.id,updated);setEditEntry(null);}}/>}
-
-      {/* Entry Detail Modal */}
+        onSave={updated=>{onEditEntry&&onEditEntry(editEntry.id,updated);setEditEntry(null);}}
+        stateInfo={stateInfo}/>}
       {detailEntry&&<EntryDetailModal pal={pal} family={family} entry={detailEntry}
         onClose={()=>setDetail(null)}
         onEdit={()=>{setEditEntry(detailEntry);setDetail(null);}}/>}
@@ -3933,76 +4009,81 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
   );
 }
 
-/* ---- Entry Detail Modal ---- */
-function EntryDetailModal({pal,family,entry,onClose,onEdit}){
-  const ch  = family.children[entry.childIdx];
-  const cp  = CHILD_COLOR_PALETTES.find(p=>p.id===(ch?.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+/* ---- Subject Drill-In View ---- */
+function SubjectView({pal,family,cp,sd,activeCh,onBack,onDetail,onEdit,stateInfo}){
+  const entries = [...sd.entries].reverse(); // newest first
+  const today   = new Date();
+
+  // Monthly summary
+  const monthMap = {};
+  entries.forEach(e=>{
+    try {
+      const d = new Date(e.date+", "+today.getFullYear());
+      const mk = d.toLocaleDateString("en-US",{month:"long",year:"numeric"});
+      if(!monthMap[mk]) monthMap[mk]=0;
+      monthMap[mk]++;
+    } catch(err){}
+  });
+  const months = Object.entries(monthMap);
+
   return (
-    <div style={{position:"fixed",inset:0,background:"rgba(15,10,4,0.72)",backdropFilter:"blur(12px)",zIndex:250,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
-      <div style={{background:pal.linen,borderRadius:"28px 28px 0 0",width:"100%",maxWidth:"430px",maxHeight:"88vh",display:"flex",flexDirection:"column",animation:"slideUp 0.28s ease"}}>
-        <div style={{padding:"0.7rem 0 0",display:"flex",justifyContent:"center",flexShrink:0}}><div style={{width:"36px",height:"4px",borderRadius:"99px",background:pal.stone}}/></div>
+    <div style={{animation:"fadeUp 0.2s ease"}}>
+      <div style={{background:`linear-gradient(135deg,${cp.c1},${cp.c2})`,padding:"1rem 1.1rem"}}>
+        <button onClick={onBack} style={{background:"rgba(255,255,255,0.18)",border:"none",borderRadius:"8px",padding:"0.28rem 0.7rem",color:"#fff",fontWeight:"700",fontSize:"0.76rem",cursor:"pointer",marginBottom:"0.65rem"}}>
+          Back
+        </button>
+        <div style={{fontWeight:"900",color:"#fff",fontSize:"1.1rem"}}>{sd.subj}</div>
+        <div style={{fontSize:"0.72rem",color:"rgba(255,255,255,0.75)"}}>{activeCh?.avatar} {activeCh?.name} · {entries.length} entries</div>
+      </div>
 
-        {/* Header */}
-        <div style={{background:`linear-gradient(135deg,${cp.c1},${cp.c2})`,padding:"0.85rem 1.2rem",flexShrink:0,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <div>
-            <div style={{fontWeight:"900",color:"#fff",fontSize:"0.95rem"}}>{entry.subj}</div>
-            <div style={{fontSize:"0.7rem",color:"rgba(255,255,255,0.75)"}}>{ch?.avatar} {ch?.name} · {entry.date}</div>
+      <div style={{padding:"0 1rem"}}>
+        {/* Monthly mini-summary */}
+        {months.length>0&&(
+          <div style={{background:pal.linen,borderRadius:"14px",padding:"0.85rem 1rem",marginTop:"0.85rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.stone}30`}}>
+            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.72rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.5rem"}}>Monthly Summary</div>
+            <div style={{display:"flex",gap:"0.45rem",flexWrap:"wrap"}}>
+              {months.map(([m,cnt])=>(
+                <div key={m} style={{background:cp.c1+"15",borderRadius:"10px",padding:"0.38rem 0.65rem",border:`1.5px solid ${cp.c1}25`}}>
+                  <div style={{fontWeight:"800",color:cp.c1,fontSize:"0.9rem",lineHeight:1}}>{cnt}</div>
+                  <div style={{fontSize:"0.6rem",color:pal.slate,marginTop:"1px"}}>{m.split(" ")[0]}</div>
+                </div>
+              ))}
+            </div>
           </div>
-          <button onClick={onClose} style={{background:"rgba(255,255,255,0.2)",border:"none",borderRadius:"9px",padding:"0.28rem 0.65rem",color:"#fff",fontWeight:"700",fontSize:"0.75rem",cursor:"pointer"}}>Close</button>
-        </div>
+        )}
 
-        <div style={{flex:1,overflowY:"auto",padding:"1rem 1.2rem"}}>
-          {/* Title */}
-          <div style={{fontWeight:"800",color:pal.ink,fontSize:"1rem",marginBottom:"0.6rem",lineHeight:1.3}}>{entry.title}</div>
-
-          {/* Photos */}
-          {entry.photos&&entry.photos.length>0&&(
-            <div style={{marginBottom:"0.85rem"}}>
-              <div style={{display:"grid",gridTemplateColumns:entry.photos.length===1?"1fr":"1fr 1fr",gap:"0.4rem"}}>
-                {entry.photos.map((src,i)=>(
-                  <img key={i} src={src} alt="" style={{width:"100%",borderRadius:"10px",objectFit:"cover",maxHeight:"160px"}}/>
-                ))}
+        {/* Entry list */}
+        <div style={{background:pal.linen,borderRadius:"14px",border:`1.5px solid ${pal.stone}30`,overflow:"hidden",marginBottom:"1rem"}}>
+          {entries.map((e,i)=>(
+            <div key={e.id||i} onClick={()=>onDetail(e)}
+              style={{display:"flex",gap:"0.65rem",alignItems:"center",padding:"0.7rem 0.9rem",borderTop:i>0?`1px solid ${pal.stone}20`:"none",cursor:"pointer"}}
+              onTouchStart={ev=>ev.currentTarget.style.background=pal.pale}
+              onTouchEnd={ev=>ev.currentTarget.style.background="transparent"}>
+              <div style={{width:"38px",height:"38px",borderRadius:"9px",overflow:"hidden",flexShrink:0,background:`linear-gradient(135deg,${cp.c1}25,${cp.c2}18)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.1rem",position:"relative"}}>
+                {e.photos&&e.photos[0]
+                  ?<img src={e.photos[0]} alt="" style={{width:"100%",height:"100%",objectFit:"cover",position:"absolute",inset:0}}/>
+                  :<span>{e.thumb||"📋"}</span>}
               </div>
-            </div>
-          )}
-
-          {/* Subjects covered (day notes) */}
-          {entry.subjects&&entry.subjects.length>0&&(
-            <div style={{marginBottom:"0.75rem"}}>
-              <div style={{fontSize:"0.62rem",fontWeight:"700",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.35rem"}}>Subjects covered</div>
-              <div style={{display:"flex",flexWrap:"wrap",gap:"0.3rem"}}>
-                {entry.subjects.map(s=><span key={s} style={{padding:"0.2rem 0.6rem",background:cp.c1+"18",borderRadius:"20px",fontSize:"0.74rem",fontWeight:"700",color:cp.c1}}>{s}</span>)}
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.83rem",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                  {e.readingTitle||e.title}
+                </div>
+                <div style={{fontSize:"0.65rem",color:pal.slate,marginTop:"1px"}}>
+                  {e.date}
+                  {e.note&&e.note.trim()&&!e.isSubject&&" · "+e.note.slice(0,50)}
+                </div>
               </div>
+              {e.photos&&e.photos.length>0&&<span style={{fontSize:"0.75rem",flexShrink:0}}>📷</span>}
+              <span style={{color:pal.stone,fontSize:"0.9rem",flexShrink:0}}>›</span>
             </div>
-          )}
-
-          {/* Notes */}
-          {entry.note&&entry.note.trim()&&!entry.isSubject&&(
-            <div style={{marginBottom:"0.75rem"}}>
-              <div style={{fontSize:"0.62rem",fontWeight:"700",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.35rem"}}>Notes</div>
-              <div style={{fontSize:"0.84rem",color:pal.ink,lineHeight:1.75,background:pal.parchm,borderRadius:"11px",padding:"0.75rem 0.9rem",whiteSpace:"pre-wrap"}}>{entry.note.replace("AI Summary: ","").trim()}</div>
-            </div>
-          )}
-
-          {/* AI Summary */}
-          {entry.aiSummary&&(
-            <div style={{background:pal.pale,borderRadius:"11px",padding:"0.75rem 0.9rem",border:`1.5px solid ${pal.primary}20`}}>
-              <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.68rem",marginBottom:"0.3rem"}}>✨ AI Summary</div>
-              <div style={{fontSize:"0.8rem",color:pal.ink,lineHeight:1.7}}>{entry.aiSummary}</div>
-            </div>
-          )}
+          ))}
         </div>
-
-        {/* Footer */}
-        <div style={{padding:"0.85rem 1.2rem",borderTop:`1px solid ${pal.stone}40`,flexShrink:0}}>
-          <button onClick={onEdit} style={{width:"100%",padding:"0.72rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.86rem",cursor:"pointer"}}>
-            ✏️ Edit Entry
-          </button>
-        </div>
+        <div style={{height:"1rem"}}/>
       </div>
     </div>
   );
 }
+
 
 /* ---- Add Entry Modal ---- */
 /* ---- Portfolio Week View ---- */
@@ -4389,7 +4470,7 @@ function PortfolioPreview({pal,family,entries,child,attendanceDays=0}){
   );
 }
 
-function AddEntryModal({pal,family,onClose,onSave,initialData=null}){
+function AddEntryModal({pal,family,onClose,onSave,initialData=null,stateInfo=null}){
   const isEdit = initialData!==null;
   // Multi-child: store as Set of indices
   const [selectedChildren, setSelectedChildren] = useState(
@@ -4409,7 +4490,11 @@ function AddEntryModal({pal,family,onClose,onSave,initialData=null}){
   const [customSubj,setCustomSubj]= useState("");
   const [showCustom,setShowCustom]= useState(false);
   const [note,      setNote]      = useState(initialData?.note||"");
-  const [thumb,     setThumb]     = useState(initialData?.thumb||"📋");
+  const [thumb,        setThumb]       = useState(initialData?.thumb||"📋");
+  const [readingTitle, setReadingTitle] = useState(initialData?.readingTitle||"");
+  const isReadingSubj = subj==="Reading" || subj==="Reading/Language Arts";
+  const needsReadingTitle = isReadingSubj && (stateInfo?.readingLog||false);
+  const canSaveReading = !needsReadingTitle || readingTitle.trim().length>0;
   const THUMBS=["📋","📜","🎨","🔬","📖","🏛","📝","🌿","🧪","🎵","📐","🌍","🏃","🍳","🏠","🧹","🌳","📸","💡","🖌"];
   const [photos,      setPhotos]    = useState(initialData?.photos||[]);
   const [showCamera,  setShowCamera]= useState(false);
@@ -4463,7 +4548,7 @@ function AddEntryModal({pal,family,onClose,onSave,initialData=null}){
   const subjOptions = ["Daily Check-In",...activeSubjs.map(s=>s.label)];
   // If editing with a subj not in the list, show it as custom
   const subjInList = subjOptions.includes(subj);
-  const canSave = title.trim().length>0;
+  const canSave = title.trim().length>0 && canSaveReading;
 
   const handleSubjSelect = (s) => {
     if(s==="__other__"){setShowCustom(true);}
@@ -4529,6 +4614,22 @@ function AddEntryModal({pal,family,onClose,onSave,initialData=null}){
           )}
           {subj && !showCustom && <div style={{fontSize:"0.72rem",color:pal.primary,fontWeight:"700",marginBottom:"0.75rem"}}>Subject: {subj}</div>}
 
+          {/* Reading title — required for FL/PA states */}
+          {needsReadingTitle && (
+            <div style={{animation:"fadeUp 0.18s ease",marginBottom:"0.75rem"}}>
+              <Lbl pal={pal}>Book / Material Title <span style={{color:pal.primary,fontWeight:"900"}}>*</span></Lbl>
+              <div style={{background:pal.pale,borderRadius:"10px",padding:"0.45rem 0.7rem",marginBottom:"0.5rem",fontSize:"0.71rem",color:pal.primary,fontWeight:"600",border:`1.5px solid ${pal.primary}25`}}>
+                📖 {family.state||"Your state"} requires reading materials to be listed by title.
+              </div>
+              <Input pal={pal} value={readingTitle} onChange={setReadingTitle} placeholder="e.g. Charlotte Web, Saxon Math 5/4, Bible Story Vol.2"/>
+            </div>
+          )}
+          {isReadingSubj && !needsReadingTitle && (
+            <div style={{marginBottom:"0.55rem"}}>
+              <Lbl pal={pal}>Book / Material Title (optional)</Lbl>
+              <Input pal={pal} value={readingTitle} onChange={setReadingTitle} placeholder="e.g. Charlotte Web, Saxon Phonics..."/>
+            </div>
+          )}
           <Lbl pal={pal}>Icon</Lbl>
           <div style={{display:"flex",gap:"0.35rem",flexWrap:"wrap",marginBottom:"0.85rem"}}>
             {THUMBS.map(t=>(
@@ -4606,11 +4707,11 @@ function AddEntryModal({pal,family,onClose,onSave,initialData=null}){
               if(isEdit) {
                 // Edit = single child (first selected)
                 const childIdx = [...selectedChildren][0];
-                onSave({childIdx,title,subj,note,thumb,date:today,photos:photos.map(p=>p.dataUrl)});
+                onSave({childIdx,title,subj,note,thumb,date:today,photos:photos.map(p=>p.dataUrl),readingTitle:readingTitle.trim()||undefined});
               } else {
                 // Multi-save — one per selected child
                 [...selectedChildren].forEach(childIdx => {
-                  onSave({childIdx,title,subj,note,thumb,date:today,photos:photos.map(p=>p.dataUrl)});
+                  onSave({childIdx,title,subj,note,thumb,date:today,photos:photos.map(p=>p.dataUrl),readingTitle:readingTitle.trim()||undefined});
                 });
               }
             }}
@@ -5554,7 +5655,7 @@ function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose,onFini
             <div style={{fontWeight:"900",color:"#fff",fontSize:"1.05rem"}}>Day Complete!</div>
             <div style={{fontSize:"0.74rem",color:"rgba(255,255,255,0.75)"}}>{"Great work — " + dateLabel}</div>
           </div>
-          <button onClick={onClose} style={{background:"rgba(255,255,255,0.18)",border:"none",borderRadius:"9px",padding:"0.3rem 0.65rem",color:"#fff",fontWeight:"700",fontSize:"0.75rem",cursor:"pointer"}}>Skip</button>
+          <button onClick={onClose} style={{background:"rgba(255,255,255,0.18)",border:"none",borderRadius:"9px",padding:"0.3rem 0.65rem",color:"#fff",fontWeight:"700",fontSize:"0.75rem",cursor:"pointer"}}>{"< "}Home</button>
         </div>
       </div>
 
