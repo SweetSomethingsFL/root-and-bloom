@@ -2045,163 +2045,128 @@ function printPortfolioPDF(family, entries, child, attendanceDays, stateInfo) {
   const yearEnd   = family.yearEnd   ? new Date(family.yearEnd).getFullYear()   : yearStart+1;
   const today = new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
 
-  // Group by subject
   const bySubject = {};
   entries.filter(e=>!e.isDay&&e.subj!=="Daily Notes").forEach(e=>{
     if(!bySubject[e.subj]) bySubject[e.subj]=[];
     bySubject[e.subj].push(e);
   });
-  const noteEntries = entries.filter(e=>e.isDay||e.subj==="Daily Notes");
 
-  // Build the activity log table rows
   const allSubjEntries = entries.filter(e=>!e.isDay&&e.subj!=="Daily Notes")
-    .sort((a,b)=>{
-      try{return new Date(a.date+", "+yearStart)-new Date(b.date+", "+yearStart);}catch{return 0;}
-    });
+    .sort((a,b)=>{ try{return new Date(a.date+", "+yearStart)-new Date(b.date+", "+yearStart);}catch{return 0;} });
+  const noteEntries = entries.filter(e=>e.isDay||e.subj==="Daily Notes");
+  const pct = Math.min(100,Math.round(attendanceDays/180*100));
+  const approach = (Array.isArray(family.curriculumStyle)?family.curriculumStyle:[family.curriculumStyle||"Eclectic"]).join(", ");
 
-  const logRows = allSubjEntries.map(e=>`
-    <tr>
-      <td>${e.date||""}</td>
-      <td>${e.subj||""}</td>
-      <td>${(e.title||"").replace(e.subj+" — ","")}</td>
-      <td>${e.readingTitle||""}</td>
-      <td>${(e.note||"").split("\n")[0].slice(0,80)}</td>
-    </tr>`).join("");
+  const css = "*{box-sizing:border-box;margin:0;padding:0}"
+    +"body{font-family:Georgia,serif;color:#1a1a1a;background:#fff;font-size:11pt;line-height:1.6}"
+    +".page{max-width:720px;margin:0 auto;padding:2rem}"
+    +"h1{font-size:22pt;font-weight:bold;margin-bottom:4px}"
+    +"h2{font-size:14pt;font-weight:bold;margin:1.5rem 0 0.5rem;border-bottom:1.5px solid #ccc;padding-bottom:4px;color:#222}"
+    +".cover{text-align:center;padding:2rem 0 1.5rem;border-bottom:2px solid #1a1a1a;margin-bottom:1.5rem}"
+    +".cover h1{font-size:26pt;margin-bottom:8px}"
+    +".cover .school{font-size:13pt;color:#444;margin-bottom:4px}"
+    +".cover .meta{font-size:10pt;color:#777}"
+    +".info-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:1.2rem}"
+    +".info-cell{padding:0.4rem 0.6rem;background:#f9f9f9;border:1px solid #e0e0e0;border-radius:4px}"
+    +".info-label{font-size:8pt;color:#888;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,sans-serif}"
+    +".info-val{font-size:10pt;font-weight:bold;color:#1a1a1a}"
+    +".progress-bar{height:8px;background:#eee;border-radius:99px;margin:0.4rem 0}"
+    +".progress-fill{height:100%;border-radius:99px;background:#2a6a2a}"
+    +"table{width:100%;border-collapse:collapse;margin-bottom:1rem;font-size:9.5pt;font-family:Arial,sans-serif}"
+    +"th{background:#f0f0f0;padding:6px 8px;text-align:left;font-weight:bold;font-size:8.5pt;border:1px solid #ddd}"
+    +"td{padding:5px 8px;border:1px solid #eee;vertical-align:top}"
+    +"tr:nth-child(even){background:#fafafa}"
+    +".subj-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f0f0f0;font-family:Arial,sans-serif;font-size:10pt}"
+    +".subj-name{font-weight:bold}"
+    +".subj-count{color:#666;font-size:9pt}"
+    +".sig-block{margin-top:2rem;padding-top:1rem;border-top:1px solid #ccc;display:flex;justify-content:space-between}"
+    +".sig-line{width:45%}"
+    +".sig-line div{border-bottom:1px solid #444;height:28px;margin-bottom:4px}"
+    +".sig-label{font-size:8pt;color:#888;font-family:Arial,sans-serif}"
+    +".state-box{background:#f0f5ff;border:1px solid #b8cef0;border-radius:4px;padding:0.6rem 0.75rem;margin-bottom:1rem;font-size:9pt;font-family:Arial,sans-serif}"
+    +"@media print{.page{padding:1rem}@page{margin:2cm}}";
 
-  const noteRows = noteEntries.map(e=>`
-    <tr>
-      <td>${e.date||""}</td>
-      <td colspan="3">${(e.subjects||[]).join(", ")||"General"}</td>
-      <td>${(e.note||"").replace("AI Summary: ","").split("\n")[0].slice(0,120)}</td>
-    </tr>`).join("");
+  const logRows = allSubjEntries.map(e=>
+    "<tr><td>"+(e.date||"")+"</td><td>"+(e.subj||"")+"</td><td>"+((e.title||"").replace((e.subj||"")+" -- ",""))+"</td><td>"+(e.readingTitle||"")+"</td><td>"+((e.note||"").split("\n")[0].slice(0,80))+"</td></tr>"
+  ).join("");
 
-  const subjSummary = Object.entries(bySubject).map(([subj,ents])=>`
-    <div class="subj-row">
-      <span class="subj-name">${subj}</span>
-      <span class="subj-count">${ents.length} ${ents.length===1?"entry":"entries"}</span>
-    </div>`).join("");
+  const noteRows = noteEntries.map(e=>
+    "<tr><td>"+(e.date||"")+"</td><td colspan='3'>"+((e.subjects||[]).join(", ")||"General")+"</td><td>"+((e.note||"").replace("AI Summary: ","").split("\n")[0].slice(0,100))+"</td></tr>"
+  ).join("");
 
-  const html = `<!DOCTYPE html>
-<html>
-<head>
-<title>${child?.name||"Student"} — ${schoolName} Portfolio ${yearStart}-${yearEnd}</title>
-<meta charset="utf-8">
-<style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:Georgia,serif;color:#1a1a1a;background:#fff;font-size:11pt;line-height:1.6}
-  .page{max-width:720px;margin:0 auto;padding:2rem}
-  h1{font-size:22pt;font-weight:bold;margin-bottom:4px}
-  h2{font-size:14pt;font-weight:bold;margin:1.5rem 0 0.5rem;border-bottom:1.5px solid #ccc;padding-bottom:4px;color:#222}
-  h3{font-size:11pt;font-weight:bold;margin:1rem 0 0.3rem;color:#333}
-  .cover{text-align:center;padding:2rem 0 1.5rem;border-bottom:2px solid #1a1a1a;margin-bottom:1.5rem}
-  .cover h1{font-size:26pt;margin-bottom:8px}
-  .cover .school{font-size:13pt;color:#444;margin-bottom:4px}
-  .cover .meta{font-size:10pt;color:#777}
-  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:1.2rem}
-  .info-cell{padding:0.4rem 0.6rem;background:#f9f9f9;border:1px solid #e0e0e0;border-radius:4px}
-  .info-label{font-size:8pt;color:#888;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,sans-serif}
-  .info-val{font-size:10pt;font-weight:bold;color:#1a1a1a}
-  .progress-bar{height:8px;background:#eee;border-radius:99px;margin:0.4rem 0}
-  .progress-fill{height:100%;border-radius:99px;background:#2a6a2a}
-  table{width:100%;border-collapse:collapse;margin-bottom:1rem;font-size:9.5pt;font-family:Arial,sans-serif}
-  th{background:#f0f0f0;padding:6px 8px;text-align:left;font-weight:bold;font-size:8.5pt;border:1px solid #ddd}
-  td{padding:5px 8px;border:1px solid #eee;vertical-align:top}
-  tr:nth-child(even){background:#fafafa}
-  .subj-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f0f0f0;font-family:Arial,sans-serif;font-size:10pt}
-  .subj-name{font-weight:bold}
-  .subj-count{color:#666;font-size:9pt}
-  .sig-block{margin-top:2rem;padding-top:1rem;border-top:1px solid #ccc;display:flex;justify-content:space-between}
-  .sig-line{width:45%}
-  .sig-line div{border-bottom:1px solid #444;height:28px;margin-bottom:4px}
-  .sig-label{font-size:8pt;color:#888;font-family:Arial,sans-serif}
-  .note-box{background:#fafafa;border:1px solid #e0e0e0;border-radius:4px;padding:0.6rem 0.75rem;margin-bottom:0.5rem;font-size:9.5pt;font-family:Arial,sans-serif}
-  .state-box{background:#f0f5ff;border:1px solid #b8cef0;border-radius:4px;padding:0.6rem 0.75rem;margin-bottom:1rem;font-size:9pt;font-family:Arial,sans-serif}
-  @media print{
-    .page{padding:1rem}
-    @page{margin:2cm}
-  }
-</style>
-</head>
-<body>
-<div class="page">
+  const subjRows = Object.entries(bySubject).map(([subj,ents])=>
+    "<div class='subj-row'><span class='subj-name'>"+subj+"</span><span class='subj-count'>"+ents.length+" "+(ents.length===1?"entry":"entries")+"</span></div>"
+  ).join("");
 
-  <!-- COVER -->
-  <div class="cover">
-    <div class="school">${schoolName}</div>
-    <h1>${child?.name||"Student"}</h1>
-    <div class="meta">${child?.grade||""} &bull; School Year ${yearStart}–${yearEnd} &bull; ${family.state||""}</div>
-    <div class="meta" style="margin-top:6px">Portfolio generated: ${today}</div>
-  </div>
+  const logTable = allSubjEntries.length>0
+    ? "<table><thead><tr><th style='width:12%'>Date</th><th style='width:18%'>Subject</th><th style='width:28%'>Activity</th><th style='width:22%'>Reading / Materials</th><th>Notes</th></tr></thead><tbody>"+logRows+noteRows+"</tbody></table>"
+    : "<p style='font-size:10pt;color:#888;font-family:Arial,sans-serif'>No entries yet.</p>";
 
-  <!-- STUDENT INFO -->
-  <h2>Student Information</h2>
-  <div class="info-grid">
-    <div class="info-cell"><div class="info-label">Student</div><div class="info-val">${child?.name||"—"}</div></div>
-    <div class="info-cell"><div class="info-label">Grade</div><div class="info-val">${child?.grade||"—"}</div></div>
-    <div class="info-cell"><div class="info-label">School</div><div class="info-val">${schoolName}</div></div>
-    <div class="info-cell"><div class="info-label">School Year</div><div class="info-val">${yearStart}–${yearEnd}</div></div>
-    <div class="info-cell"><div class="info-label">State</div><div class="info-val">${family.state||"—"}</div></div>
-    <div class="info-cell"><div class="info-label">Learning Approach</div><div class="info-val">${(Array.isArray(family.curriculumStyle)?family.curriculumStyle:[family.curriculumStyle||"Eclectic"]).join(", ")}</div></div>
-  </div>
+  const html = "<!DOCTYPE html><html><head>"
+    +"<title>"+(child?.name||"Student")+" -- "+schoolName+" Portfolio "+yearStart+"-"+yearEnd+"</title>"
+    +"<meta charset='utf-8'>"
+    +"<style>"+css+"</style>"
+    +"</head><body><div class='page'>"
 
-  <!-- ATTENDANCE -->
-  <h2>Attendance Record</h2>
-  <div class="info-grid">
-    <div class="info-cell"><div class="info-label">Days Completed</div><div class="info-val">${attendanceDays}</div></div>
-    <div class="info-cell"><div class="info-label">Required (${family.state})</div><div class="info-val">180 days</div></div>
-  </div>
-  <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(100,Math.round(attendanceDays/180*100))}%"></div></div>
-  <p style="font-size:9pt;color:#666;font-family:Arial,sans-serif">${Math.min(100,Math.round(attendanceDays/180*100))}% of required days completed</p>
+    // Cover
+    +"<div class='cover'>"
+    +"<div class='school'>"+schoolName+"</div>"
+    +"<h1>"+(child?.name||"Student")+"</h1>"
+    +"<div class='meta'>"+(child?.grade||"")+" &bull; School Year "+yearStart+"&ndash;"+yearEnd+" &bull; "+(family.state||"")+"</div>"
+    +"<div class='meta' style='margin-top:6px'>Portfolio generated: "+today+"</div>"
+    +"</div>"
 
-  <!-- SUBJECTS COVERED -->
-  <h2>Subjects Covered</h2>
-  ${subjSummary||"<p style='font-size:10pt;color:#888;font-family:Arial,sans-serif'>No subject entries yet.</p>"}
+    // Student info
+    +"<h2>Student Information</h2>"
+    +"<div class='info-grid'>"
+    +"<div class='info-cell'><div class='info-label'>Student</div><div class='info-val'>"+(child?.name||"--")+"</div></div>"
+    +"<div class='info-cell'><div class='info-label'>Grade</div><div class='info-val'>"+(child?.grade||"--")+"</div></div>"
+    +"<div class='info-cell'><div class='info-label'>School</div><div class='info-val'>"+schoolName+"</div></div>"
+    +"<div class='info-cell'><div class='info-label'>School Year</div><div class='info-val'>"+yearStart+"&ndash;"+yearEnd+"</div></div>"
+    +"<div class='info-cell'><div class='info-label'>State</div><div class='info-val'>"+(family.state||"--")+"</div></div>"
+    +"<div class='info-cell'><div class='info-label'>Learning Approach</div><div class='info-val'>"+approach+"</div></div>"
+    +"</div>"
 
-  <!-- ACTIVITY LOG -->
-  <h2>Activity Log</h2>
-  <p style="font-size:9pt;color:#666;font-family:Arial,sans-serif;margin-bottom:0.5rem">Contemporaneous record of educational activities as required by ${family.state||"your state"} law. Reading materials listed by title.</p>
-  ${allSubjEntries.length>0?`
-  <table>
-    <thead>
-      <tr>
-        <th style="width:12%">Date</th>
-        <th style="width:18%">Subject</th>
-        <th style="width:28%">Activity</th>
-        <th style="width:22%">Reading / Materials</th>
-        <th>Notes</th>
-      </tr>
-    </thead>
-    <tbody>${logRows}${noteRows}</tbody>
-  </table>`:"<p style='font-size:10pt;color:#888;font-family:Arial,sans-serif'>No entries yet.</p>"}
+    // Attendance
+    +"<h2>Attendance Record</h2>"
+    +"<div class='info-grid'>"
+    +"<div class='info-cell'><div class='info-label'>Days Completed</div><div class='info-val'>"+attendanceDays+"</div></div>"
+    +"<div class='info-cell'><div class='info-label'>Required ("+( family.state||"your state")+")</div><div class='info-val'>180 days</div></div>"
+    +"</div>"
+    +"<div class='progress-bar'><div class='progress-fill' style='width:"+pct+"%'></div></div>"
+    +"<p style='font-size:9pt;color:#666;font-family:Arial,sans-serif'>"+pct+"% of required days completed</p>"
 
-  <!-- STATE COMPLIANCE NOTE -->
-  <h2>State Requirements — ${family.state||"Your State"}</h2>
-  <div class="state-box">
-    <b>Portfolio requirement:</b> ${stateInfo.portfolio}<br>
-    <b>Evaluation due:</b> ${stateInfo.deadline}<br>
-    <b>Keep records for:</b> ${stateInfo.keepFor}
-  </div>
+    // Subjects
+    +"<h2>Subjects Covered</h2>"
+    +(subjRows||"<p style='font-size:10pt;color:#888;font-family:Arial,sans-serif'>No subject entries yet.</p>")
 
-  <!-- SIGNATURE -->
-  <div class="sig-block">
-    <div class="sig-line">
-      <div></div>
-      <div class="sig-label">Parent / Educator Signature</div>
-    </div>
-    <div class="sig-line">
-      <div></div>
-      <div class="sig-label">Date</div>
-    </div>
-  </div>
+    // Activity log
+    +"<h2>Activity Log</h2>"
+    +"<p style='font-size:9pt;color:#666;font-family:Arial,sans-serif;margin-bottom:0.5rem'>Contemporaneous record of educational activities. Reading materials listed by title as required by "+(family.state||"your state")+" law.</p>"
+    +logTable
 
-</div>
-<script>window.onload=()=>setTimeout(()=>window.print(),400);</script>
-</body>
-</html>`;
+    // State note
+    +"<h2>State Requirements &mdash; "+(family.state||"Your State")+"</h2>"
+    +"<div class='state-box'>"
+    +"<b>Portfolio requirement:</b> "+(stateInfo.portfolio||"")+"<br>"
+    +"<b>Evaluation due:</b> "+(stateInfo.deadline||"")+"<br>"
+    +"<b>Keep records for:</b> "+(stateInfo.keepFor||"")
+    +"</div>"
+
+    // Signature
+    +"<div class='sig-block'>"
+    +"<div class='sig-line'><div></div><div class='sig-label'>Parent / Educator Signature</div></div>"
+    +"<div class='sig-line'><div></div><div class='sig-label'>Date</div></div>"
+    +"</div>"
+
+    +"</div>"
+    +"<script>window.onload=function(){setTimeout(function(){window.print();},400);};</"+"script>"
+    +"</body></html>";
 
   const w = window.open("","_blank","width=800,height=900");
-  if(w) { w.document.write(html); w.document.close(); }
+  if(w){ w.document.write(html); w.document.close(); }
 }
+
 
 /* =======================================
    50-STATE COMPLIANCE DATABASE
