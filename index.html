@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="Stem & Bloom" />
+  <meta name="apple-mobile-web-app-title" content="Root & Bloom" />
   <meta name="theme-color" content="#2a4a28" />
-  <title>Stem & Bloom - Your homeschool, beautifully organized</title>
+  <title>Root & Bloom - Your homeschool, beautifully organized</title>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -79,7 +79,7 @@ const LEARNING_PHILOSOPHIES = [
   {id:"montessori",  label:"Montessori",       icon:"🌸", desc:"Self-directed, hands-on learning"},
   {id:"eclectic",    label:"Eclectic",         icon:"🧩", desc:"Mix of whatever works best for us"},
   {id:"unschooling", label:"Unschooling",      icon:"🌱", desc:"Child-led, interest-based"},
-  {id:"ai",          label:"Let Stem & Bloom Decide",   icon:"", desc:"Let Stem & Bloom build our curriculum"},
+  {id:"ai",          label:"Let Root & Bloom Decide",   icon:"", desc:"Let Root & Bloom build our curriculum"},
 ];
 
 const CURRICULUM_BRANDS = [
@@ -229,7 +229,7 @@ const h12   = t => { const [h,m]=t.split(":"); const hh=+h; return `${hh>12?hh-1
 const uid   = () => Math.random().toString(36).slice(2,8);
 
 /* =========================== ROOT =========================== */
-const LS_KEY = "stembloom_v1";
+const LS_KEY = "rootbloom_v1";
 function loadSaved() {
   try { const s=localStorage.getItem(LS_KEY); return s?JSON.parse(s):null; } catch(e){return null;}
 }
@@ -237,7 +237,7 @@ function savePersist(obj) {
   try { localStorage.setItem(LS_KEY, JSON.stringify(obj)); } catch(e){}
 }
 
-function StemAndBloom() {
+function RootAndBloom() {
   const saved = useMemo(()=>loadSaved(),[]);
   const [family,         setFamily]         = useState(saved?.family||null);
   const [view,           setView]           = useState("splash");
@@ -295,8 +295,8 @@ function StemAndBloom() {
   // Listen for in-app navigation events (e.g. from DaySummaryModal "View in Portfolio")
   useEffect(()=>{
     const handler = (e) => { setActiveTab(e.detail); };
-    window.addEventListener("stembloom-nav", handler);
-    return ()=>window.removeEventListener("stembloom-nav", handler);
+    window.addEventListener("rootbloom-nav", handler);
+    return ()=>window.removeEventListener("rootbloom-nav", handler);
   },[]);
 
   const handleSplash     = () => setView(family?"parent":"onboarding");
@@ -399,7 +399,7 @@ function StemAndBloom() {
           </button>
           <button onClick={()=>setShowTheme(true)} style={{display:"flex",alignItems:"center",gap:"0.4rem",background:"none",border:"none",cursor:"pointer",padding:0}}>
             <span style={{fontSize:"0.9rem"}}>🌱</span>
-            <span style={{fontWeight:"800",color:"rgba(255,255,255,0.9)",fontSize:"0.85rem"}}>{"Stem & Bloom"}</span>
+            <span style={{fontWeight:"800",color:"rgba(255,255,255,0.9)",fontSize:"0.85rem"}}>{"Root & Bloom"}</span>
           </button>
           <button onClick={openSettings} style={{background:"rgba(255,255,255,0.12)",border:"none",borderRadius:"7px",padding:"0.18rem 0.55rem",cursor:"pointer",fontSize:"0.65rem",color:"rgba(255,255,255,0.65)",fontWeight:"600"}}></button>
         </div>
@@ -495,7 +495,7 @@ function SplashScreen({ pal, onContinue }) {
       <div style={{position:"absolute",width:"200px",height:"200px",borderRadius:"50%",background:"rgba(255,255,255,0.03)",bottom:"40px",left:"-40px"}}/>
       <div style={{textAlign:"center",position:"relative",animation:"fadeIn 0.6s ease"}}>
         <div style={{fontSize:"5rem",marginBottom:"1rem",animation:"grow 0.6s ease 0.2s both"}}>🌱</div>
-        <h1 style={{fontFamily:"Georgia,serif",fontSize:"2.4rem",fontWeight:"800",color:"#fff",margin:"0 0 0.3rem",lineHeight:1.1}}>Stem {"&"}</h1>
+        <h1 style={{fontFamily:"Georgia,serif",fontSize:"2.4rem",fontWeight:"800",color:"#fff",margin:"0 0 0.3rem",lineHeight:1.1}}>Root {"&"}</h1>
         <h1 style={{fontFamily:"Georgia,serif",fontSize:"2.4rem",fontWeight:"800",margin:"0 0 0.6rem",lineHeight:1.1,background:pal.shimmer,backgroundSize:"200% auto",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",animation:"shimmer 3s linear infinite"}}>Bloom</h1>
         <p style={{color:"rgba(255,255,255,0.6)",fontSize:"0.88rem",margin:"0 0 2.5rem",letterSpacing:"0.04em"}}>Your homeschool, beautifully organized</p>
         <div style={{display:"flex",alignItems:"center",gap:"0.4rem",justifyContent:"center",animation:"pulse 2s ease infinite"}}>
@@ -503,7 +503,7 @@ function SplashScreen({ pal, onContinue }) {
           <span style={{color:"rgba(255,255,255,0.5)",fontSize:"0.75rem",letterSpacing:"0.08em"}}>tap to begin</span>
           <div style={{width:"6px",height:"6px",borderRadius:"50%",background:"rgba(255,255,255,0.5)"}}/>
         </div>
-        <button onClick={e=>{e.stopPropagation();if(window.confirm("Clear all data and start over?")){localStorage.removeItem("stembloom_v1");window.location.reload();}}} style={{marginTop:"2rem",background:"transparent",border:"1px solid rgba(255,255,255,0.2)",borderRadius:"20px",padding:"0.3rem 0.9rem",color:"rgba(255,255,255,0.35)",fontSize:"0.65rem",cursor:"pointer",letterSpacing:"0.05em"}}>
+        <button onClick={e=>{e.stopPropagation();if(window.confirm("Clear all data and start over?")){localStorage.removeItem("rootbloom_v1");window.location.reload();}}} style={{marginTop:"2rem",background:"transparent",border:"1px solid rgba(255,255,255,0.2)",borderRadius:"20px",padding:"0.3rem 0.9rem",color:"rgba(255,255,255,0.35)",fontSize:"0.65rem",cursor:"pointer",letterSpacing:"0.05em"}}>
           Reset app
         </button>
       </div>
@@ -955,7 +955,7 @@ function OnbWelcome({ pal, data, upd, onNext }) {
       <div style={{background:pal.heroGrad,padding:"2.5rem 1.4rem 2rem",textAlign:"center",position:"relative",overflow:"hidden"}}>
         <div style={{position:"absolute",right:"-40px",top:"-40px",width:"160px",height:"160px",borderRadius:"50%",background:"rgba(255,255,255,0.05)"}}/>
         <div style={{fontSize:"3.5rem",marginBottom:"0.75rem",animation:"grow 0.5s ease"}}>🌱</div>
-        <h1 style={{fontFamily:"Georgia",fontSize:"1.8rem",fontWeight:"800",color:"#fff",margin:"0 0 0.4rem",lineHeight:1.2}}>{"Welcome to"}<br/>{"Stem & Bloom"}</h1>
+        <h1 style={{fontFamily:"Georgia",fontSize:"1.8rem",fontWeight:"800",color:"#fff",margin:"0 0 0.4rem",lineHeight:1.2}}>{"Welcome to"}<br/>{"Root & Bloom"}</h1>
         <p style={{color:"rgba(255,255,255,0.62)",fontSize:"0.85rem",margin:0,lineHeight:1.65}}>Let us set up your homeschool in just a few minutes.</p>
       </div>
       <div style={{padding:"1.4rem 1.2rem"}}>
@@ -1486,7 +1486,7 @@ function OnbExtras({ pal, data, upd, onNext }) {
         <div style={{position:"absolute",right:"-20px",top:"-20px",width:"80px",height:"80px",borderRadius:"50%",background:"rgba(255,255,255,0.06)"}}/>
         <div style={{fontSize:"2rem",marginBottom:"0.4rem",position:"relative"}}>🌱</div>
         <div style={{fontWeight:"800",color:pal.onDark,fontSize:"0.94rem",marginBottom:"0.25rem",position:"relative"}}>{"You're all set, "}{data.parentName||"friend"}{"!"}</div>
-        <div style={{fontSize:"0.78rem",color:"rgba(255,255,255,0.65)",lineHeight:1.65,position:"relative"}}>Stem & Bloom is ready for your family. Let us grow something beautiful together.</div>
+        <div style={{fontSize:"0.78rem",color:"rgba(255,255,255,0.65)",lineHeight:1.65,position:"relative"}}>Root & Bloom is ready for your family. Let us grow something beautiful together.</div>
       </div>
       <Btn pal={pal} onClick={onNext}>Open My App 🌱</Btn>
     </div>
@@ -1524,10 +1524,10 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
     setFamily(local);
     // Apply API key and limit to global constants via localStorage
     if(local.apiKey) {
-      try { localStorage.setItem("stembloom_apikey", local.apiKey); } catch(e){}
+      try { localStorage.setItem("rootbloom_apikey", local.apiKey); } catch(e){}
     }
     if(local.aiMonthlyLimit) {
-      try { localStorage.setItem("stembloom_ailimit", local.aiMonthlyLimit==="Unlimited"?"9999":local.aiMonthlyLimit); } catch(e){}
+      try { localStorage.setItem("rootbloom_ailimit", local.aiMonthlyLimit==="Unlimited"?"9999":local.aiMonthlyLimit); } catch(e){}
     }
     onBack();
   };
@@ -2639,7 +2639,7 @@ function ScheduleScreen({pal,family,child,setChild,onMarkComplete,onProgressUpda
   const [selectedDay, setSelectedDay] = useState(Math.max(0,todayIdx));
 
   // Persist checked + skipped state in localStorage so partial progress saves across navigation
-  const SCHED_KEY = "stembloom_sched_v1";
+  const SCHED_KEY = "rootbloom_sched_v1";
   const loadSchedState = () => { try{const s=localStorage.getItem(SCHED_KEY);return s?JSON.parse(s):{checked:{},skipped:{}};}catch(e){return{checked:{},skipped:{}};}};
   const [schedState, setSchedState] = useState(()=>loadSchedState());
   const saveSchedState = (ns) => { try{localStorage.setItem(SCHED_KEY,JSON.stringify(ns));}catch(e){} };
@@ -2842,7 +2842,7 @@ const WS_TYPES  = [
 
 /* ---- AI Rate Limiter ---- */
 const AI_KEY = ""; // TODO: Add your Anthropic API key here (sk-ant-...)
-const AI_LIMIT_KEY = "stembloom_ai_limits";
+const AI_LIMIT_KEY = "rootbloom_ai_limits";
 const AI_MONTHLY_LIMIT = 50; // max AI calls per month — change as needed
 
 function checkAILimit(limitOverride) {
@@ -2851,7 +2851,7 @@ function checkAILimit(limitOverride) {
     const monthKey = now.getFullYear()+"-"+(now.getMonth()+1);
     const stored = JSON.parse(localStorage.getItem(AI_LIMIT_KEY)||"{}");
     const count = stored[monthKey]||0;
-    const limit = limitOverride || (() => { try{ return parseInt(localStorage.getItem("stembloom_ailimit")||String(AI_MONTHLY_LIMIT)); }catch(e){return AI_MONTHLY_LIMIT;} })();
+    const limit = limitOverride || (() => { try{ return parseInt(localStorage.getItem("rootbloom_ailimit")||String(AI_MONTHLY_LIMIT)); }catch(e){return AI_MONTHLY_LIMIT;} })();
     return { allowed: count < limit, used: count, limit, monthKey };
   } catch(e) { return { allowed: true, used: 0, limit: AI_MONTHLY_LIMIT, monthKey:"" }; }
 }
@@ -2868,8 +2868,8 @@ function incrementAILimit(monthKey) {
 }
 
 async function callClaude(prompt) {
-  const runtimeKey = (() => { try{ return localStorage.getItem("stembloom_apikey")||AI_KEY; }catch(e){return AI_KEY;} })();
-  const runtimeLimit = (() => { try{ return parseInt(localStorage.getItem("stembloom_ailimit")||"50"); }catch(e){return 50;} })();
+  const runtimeKey = (() => { try{ return localStorage.getItem("rootbloom_apikey")||AI_KEY; }catch(e){return AI_KEY;} })();
+  const runtimeLimit = (() => { try{ return parseInt(localStorage.getItem("rootbloom_ailimit")||"50"); }catch(e){return 50;} })();
   if(!runtimeKey) throw new Error("NO_KEY");
   const { allowed, monthKey } = checkAILimit(runtimeLimit);
   if(!allowed) throw new Error("RATE_LIMIT");
@@ -2894,7 +2894,7 @@ async function callClaude(prompt) {
 }
 
 function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab}) {
-  const LS_UNITS = "stembloom_units_v1";
+  const LS_UNITS = "rootbloom_units_v1";
   const loadUnits = () => { try{ const s=localStorage.getItem(LS_UNITS); return s?JSON.parse(s):[]; }catch(e){return[];} };
   const [units, setUnits] = useState(()=>loadUnits());
   const [showBuilder,  setShowBuilder]  = useState(false);
@@ -3114,7 +3114,7 @@ function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab}) {
 ======================================= */
 function AIChatModal({ pal, family, onClose }) {
   const [messages, setMessages] = useState([
-    { role:"assistant", content:`Hi! I'm your Stem & Bloom assistant 🌱\n\nI can help you create **worksheets**, **lesson plans**, **unit studies**, **discussion questions**, or anything else for your homeschool. Just tell me what you need!\n\nTry something like:\n* "Make a worksheet on fractions for 4th grade"\n* "Write a nature journal prompt for my 7-year-old"\n* "Plan a 3-day unit on the American Revolution"` }
+    { role:"assistant", content:`Hi! I'm your Root & Bloom assistant 🌱\n\nI can help you create **worksheets**, **lesson plans**, **unit studies**, **discussion questions**, or anything else for your homeschool. Just tell me what you need!\n\nTry something like:\n* "Make a worksheet on fractions for 4th grade"\n* "Write a nature journal prompt for my 7-year-old"\n* "Plan a 3-day unit on the American Revolution"` }
   ]);
   const [input,    setInput]    = useState("");
   const [loading,  setLoading]  = useState(false);
@@ -3154,7 +3154,7 @@ function AIChatModal({ pal, family, onClose }) {
         body:JSON.stringify({
           model:"claude-sonnet-4-5-20251001",
           max_tokens:1500,
-          system:"You are a warm, creative homeschool assistant for Stem & Bloom app. You help homeschool families with worksheets, lesson plans, unit studies, discussion questions, project ideas, and any educational content they need.\n\n"
+          system:"You are a warm, creative homeschool assistant for Root & Bloom app. You help homeschool families with worksheets, lesson plans, unit studies, discussion questions, project ideas, and any educational content they need.\n\n"
             +"Family info:\n"
             +"- Children: "+(childNames||"not specified")+"\n"
             +"- Learning philosophy: "+philosophies+"\n"
@@ -3905,7 +3905,6 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
     </div>
   );
 }
-}
 
 /* ---- Subject Bubble — expandable ---- */
 function SubjectBubble({sd,cp,pal,family,onDetail}){
@@ -4016,7 +4015,7 @@ function StateReminder({pal,stateInfo,state}){
 
 /* ---- Additional Notes ---- */
 function AdditionalNotes({pal,family,child}){
-  const LS_KEY = "stembloom_portnotes_"+(child?.id||"");
+  const LS_KEY = "rootbloom_portnotes_"+(child?.id||"");
   const [notes, setNotes] = useState(()=>{ try{return localStorage.getItem(LS_KEY)||"";}catch(e){return "";} });
   const [editing, setEditing] = useState(false);
 
@@ -4041,7 +4040,7 @@ function AdditionalNotes({pal,family,child}){
         <div style={{padding:"0.75rem 0.9rem",background:"#fff"}}>
           {editing ? (
             <textarea value={notes} onChange={e=>save(e.target.value)} rows={4}
-              placeholder={"Notes about "+child?.name+"'s progress, learning style observations, goals for next term..."}
+              placeholder={"Notes about "+(child?.name||"your student")+" - progress, observations, goals for next term..."}
               style={{width:"100%",padding:"0.6rem 0.75rem",border:`1.5px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.8rem",fontFamily:"inherit",background:pal.parchm,color:pal.ink,resize:"none",outline:"none",lineHeight:1.6}}
               onFocus={e=>e.target.style.borderColor=pal.primary}
               onBlur={e=>e.target.style.borderColor=pal.stone}/>
@@ -5072,7 +5071,7 @@ function LifeReadyScreen({pal,family,onBack}){
   const topic = getLRTopicForWeek(grade);
   const cats  = family.lifeReadyCategories||LR_CATEGORIES.map(c=>c.id);
   const freq  = family.lifeReadyFreq||"monday_plus_practice";
-  const LS_KEY = "stembloom_lr_lesson";
+  const LS_KEY = "rootbloom_lr_lesson";
 
   useState(()=>{
     try{ const s=localStorage.getItem(LS_KEY); if(s){const p=JSON.parse(s);if(p.topic===topic)setLesson(p);} }catch(e){}
@@ -5517,7 +5516,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
 
 /* ---- Narrative Editor (inline within TranscriptsScreen) ---- */
 function NarrativeEditor({pal,ch,family,bySubject,attendanceDays,schoolName,cp,compact=false}){
-  const LS_KEY = "stembloom_narrative_"+ch.id;
+  const LS_KEY = "rootbloom_narrative_"+ch.id;
   const [text, setText] = useState(()=>{ try{return localStorage.getItem(LS_KEY)||"";}catch(e){return "";} });
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState(null);
@@ -6155,7 +6154,7 @@ function Row({pal,title,action}){
   return <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.55rem"}}><span style={{fontWeight:"800",color:pal.ink,fontSize:"0.88rem"}}>{title}</span>{action&&<span style={{fontSize:"0.74rem",fontWeight:"700",cursor:"pointer",color:pal.primary,opacity:0.8}}>{action} -></span>}</div>;
 }
 
-    ReactDOM.createRoot(document.getElementById('root')).render(<StemAndBloom />);
+    ReactDOM.createRoot(document.getElementById('root')).render(<RootAndBloom />);
   </script>
 </body>
 </html>
