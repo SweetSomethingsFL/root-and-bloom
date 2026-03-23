@@ -206,7 +206,7 @@ const GOALS = [
 ];
 
 const COOP_FREQ = ["We don't do co-op","Once a week","Every other week","Once a month","Seasonally"];
-const EXTRACURRICULARS = ["Sports","Music lessons","Dance","Art classes","Scouting","4-H","Theater","None right now"];
+const EXTRACURRICULARS = ["Sports","Music lessons","Dance","Art classes","Scouting","4-H","Theater","Martial Arts","Drama / Theater","Chess Club","Coding Club","Robotics","Debate","Swim Team","Gymnastics","None right now"];
 const AVATARS = ["🌻","🌿","🌺","🦋","🌙","*","🐝","🦊","🐢","🌈","🍀","🦜"];
 const GRADES  = ["Pre-K","K","1st","2nd","3rd","4th","5th","6th","7th","8th","9th","10th","11th","12th"];
 const US_STATES = ["Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming","Washington D.C."];
@@ -322,7 +322,15 @@ function RootAndBloom() {
     else if (lastCheckinDate !== todayStr) setCheckinStreak(1);
     setLastCheckinDate(todayStr);
   };
-  const finishOnboarding = (data) => { setFamily(data); setPaletteId(data.paletteId||"sage"); setView("parent"); };
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [celebData,       setCelebData]       = useState(null);
+  const finishOnboarding = (data) => {
+    setFamily(data);
+    setPaletteId(data.paletteId||"sage");
+    setCelebData(data);
+    setShowCelebration(true);
+  };
+  const enterApp = () => { setShowCelebration(false); setView("parent"); };
   const openSettings     = () => setView("settings");
   const closeSettings    = () => setView("parent");
   const switchToStudent  = (child) => { setActiveStudent(child); setShowSwitcher(false); setView("student"); };
@@ -469,6 +477,7 @@ function RootAndBloom() {
         {showSwitcher && <ViewSwitcher   pal={pal} family={family} onParent={()=>setShowSwitcher(false)} onStudent={switchToStudent} />}
         {showSchedConfirm && <SchedConfirmModal pal={pal} family={family} days={pendingSchedDays} onConfirm={()=>{setAttendanceDays(d=>d+pendingSchedDays);setPendingSchedDays(0);setShowSchedConfirm(false);}} onClose={()=>setShowSchedConfirm(false)} />}
         {showCatchup  && <CatchupModal   pal={pal} family={family} days={attendanceDays} needed={180} onClose={()=>setShowCatchup(false)} />}
+        {showCelebration && celebData && <CelebrationModal pal={pal} data={celebData} onEnter={enterApp}/>}
         {showEOY && family && <EOYChecklistModal pal={pal} family={family} childIdx={eoyChild} setChildIdx={setEoyChild}
           weeksLeft={getEOYWeeksLeft(family)}
           onClose={()=>{setShowEOY(false);setEoyDismissed(family.yearEnd);}}
@@ -1157,7 +1166,7 @@ function OnbSubjects({ pal, data, upd, onNext }) {
             <button key={s.id} onClick={()=>toggleSubj(s.id)} style={{padding:"0.7rem 0.75rem",border:`2px solid ${isSelected?pal.primary:pal.stone+"50"}`,borderRadius:"12px",background:isSelected?pal.pale:"transparent",cursor:"pointer",textAlign:"left",display:"flex",gap:"0.5rem",alignItems:"center",transition:"all 0.13s",position:"relative"}}>
               <span style={{fontSize:"1.15rem",flexShrink:0}}>{s.icon}</span>
               <span style={{fontWeight:isSelected?"700":"400",color:isSelected?pal.primary:pal.inkM,fontSize:"0.78rem",flex:1}}>{s.label}</span>
-              {isSelected && !isCustom && <span style={{color:pal.primary,fontSize:"0.65rem",fontWeight:"900"}}>v</span>}
+              {isSelected && !isCustom && <span style={{color:pal.primary,fontSize:"0.75rem",fontWeight:"900"}}>✓</span>}
               {isCustom && <span onClick={e=>{e.stopPropagation();removeCustom(s.id);}} style={{fontSize:"0.65rem",color:pal.bad,fontWeight:"900",cursor:"pointer",padding:"0 2px"}}>x</span>}
             </button>
           );
@@ -1225,6 +1234,9 @@ function OnbLifeReady({ pal, data, upd, onNext }) {
     const cur = selectedCats;
     upd("lifeReadyCategories", cur.includes(id) ? cur.filter(x=>x!==id) : [...cur,id]);
   };
+  const selectAll  = () => upd("lifeReadyCategories", LR_CATEGORIES.map(c=>c.id));
+  const selectNone = () => upd("lifeReadyCategories", []);
+  const allSelected = selectedCats.length === LR_CATEGORIES.length;
 
   return (
     <div style={{animation:"fadeUp 0.25s ease"}}>
@@ -1292,7 +1304,13 @@ function OnbLifeReady({ pal, data, upd, onNext }) {
           </div>
 
           {/* Category picks */}
-          <Lbl pal={pal}>Focus areas (pick all that interest you)</Lbl>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.3rem"}}>
+            <Lbl pal={pal}>Focus areas</Lbl>
+            <button onClick={allSelected?selectNone:selectAll}
+              style={{padding:"0.22rem 0.65rem",borderRadius:"20px",border:`1.5px solid ${LR_COLOR}`,background:allSelected?LR_COLOR:"transparent",color:allSelected?"#fff":LR_COLOR,fontWeight:"700",fontSize:"0.7rem",cursor:"pointer"}}>
+              {allSelected?"Deselect all":"Select all"}
+            </button>
+          </div>
           <div style={{display:"flex",flexDirection:"column",gap:"0.38rem",marginBottom:"1.1rem"}}>
             {LR_CATEGORIES.map(c=>{
               const sel=selectedCats.includes(c.id);
@@ -1305,7 +1323,7 @@ function OnbLifeReady({ pal, data, upd, onNext }) {
                     <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"1px"}}>{c.desc}</div>
                   </div>
                   <div style={{width:"18px",height:"18px",borderRadius:"4px",border:`2px solid ${sel?LR_COLOR:pal.stone}`,background:sel?LR_COLOR:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                    {sel&&<span style={{color:"#fff",fontSize:"0.6rem",fontWeight:"900"}}>v</span>}
+                    {sel&&<span style={{color:"#fff",fontSize:"0.75rem",fontWeight:"900"}}>✓</span>}
                   </div>
                 </button>
               );
@@ -1452,7 +1470,17 @@ function OnbGoals({ pal, data, upd, onNext }) {
 
 /* --- STEP 5: Life & Extras --- */
 function OnbExtras({ pal, data, upd, onNext }) {
+  const [customExtra, setCustomExtra] = React.useState("");
   const toggleExtra = v => upd("extracurriculars",data.extracurriculars.includes(v)?data.extracurriculars.filter(e=>e!==v):[...data.extracurriculars,v]);
+  const addCustomExtra = () => {
+    const val = customExtra.trim();
+    if(!val) return;
+    const custom = data.customExtracurriculars||[];
+    if(!custom.includes(val)) upd("customExtracurriculars",[...custom,val]);
+    upd("extracurriculars",[...(data.extracurriculars||[]),val]);
+    setCustomExtra("");
+  };
+  const allExtras = [...EXTRACURRICULARS.filter(e=>e!=="None right now"), ...(data.customExtracurriculars||[]), "None right now"];
   return (
     <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
       <StepHdr pal={pal} icon="🌿" title="Life & Extras" sub="A few last things to personalize your app." />
@@ -1465,22 +1493,59 @@ function OnbExtras({ pal, data, upd, onNext }) {
         ))}
       </div>
       <Lbl pal={pal}>Extracurriculars <span style={{fontWeight:"400",color:pal.slate}}>(pick all that apply)</span></Lbl>
-      <div style={{display:"flex",flexWrap:"wrap",gap:"0.4rem",marginBottom:"1rem"}}>
-        {EXTRACURRICULARS.map(e=>(
-          <PillBtn key={e} label={e} active={data.extracurriculars.includes(e)} onClick={()=>toggleExtra(e)} pal={pal} />
-        ))}
-      </div>
-      <Lbl pal={pal}>Include in daily schedule?</Lbl>
-      <div style={{display:"flex",flexDirection:"column",gap:"0.45rem",marginBottom:"1.4rem"}}>
-        {[["choresInSched","🧹 Chore blocks"],["mealsInSched","🍽 Meal / snack blocks"]].map(([k,l])=>(
-          <button key={k} onClick={()=>upd(k,!data[k])} style={{display:"flex",gap:"0.75rem",alignItems:"center",padding:"0.75rem 1rem",border:`2px solid ${data[k]?pal.primary:pal.stone+"50"}`,borderRadius:"13px",background:data[k]?pal.pale:"transparent",cursor:"pointer",transition:"all 0.14s",textAlign:"left"}}>
-            <div style={{width:"20px",height:"20px",borderRadius:"6px",border:`2.5px solid ${data[k]?pal.primary:pal.stone}`,background:data[k]?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-              {data[k]&&<span style={{color:pal.onDark,fontSize:"0.7rem",fontWeight:"800"}}>v</span>}
-            </div>
-            <span style={{fontWeight:data[k]?"700":"400",color:data[k]?pal.primary:pal.inkM,fontSize:"0.84rem"}}>{l}</span>
+      <div style={{display:"flex",flexWrap:"wrap",gap:"0.4rem",marginBottom:"0.6rem"}}>
+        {allExtras.map(e=>(
+          <button key={e} onClick={()=>toggleExtra(e)}
+            style={{padding:"0.35rem 0.75rem",borderRadius:"20px",border:`2px solid ${data.extracurriculars.includes(e)?pal.primary:pal.stone+"50"}`,background:data.extracurriculars.includes(e)?pal.pale:"transparent",cursor:"pointer",display:"flex",alignItems:"center",gap:"0.3rem",transition:"all 0.13s"}}>
+            {data.extracurriculars.includes(e)&&<span style={{color:pal.primary,fontSize:"0.65rem",fontWeight:"900"}}>✓</span>}
+            <span style={{fontWeight:data.extracurriculars.includes(e)?"700":"400",color:data.extracurriculars.includes(e)?pal.primary:pal.inkM,fontSize:"0.78rem"}}>{e}</span>
           </button>
         ))}
       </div>
+      {/* Custom elective input */}
+      <div style={{display:"flex",gap:"0.4rem",marginBottom:"1rem"}}>
+        <input value={customExtra} onChange={e=>setCustomExtra(e.target.value)}
+          onKeyDown={e=>e.key==="Enter"&&addCustomExtra()}
+          placeholder="Add your own e.g. Karate, Ju-Jitsu, Horse Riding..."
+          style={{flex:1,padding:"0.55rem 0.8rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.8rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit"}}
+          onFocus={e=>e.target.style.borderColor=pal.primary}
+          onBlur={e=>e.target.style.borderColor=pal.stone}/>
+        <button onClick={addCustomExtra} disabled={!customExtra.trim()} style={{padding:"0.55rem 0.9rem",border:"none",borderRadius:"11px",background:customExtra.trim()?pal.accentGrad:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.8rem",cursor:customExtra.trim()?"pointer":"default",flexShrink:0}}>+ Add</button>
+      </div>
+      <Lbl pal={pal}>Include in daily schedule?</Lbl>
+      <div style={{display:"flex",flexDirection:"column",gap:"0.45rem",marginBottom:"0.85rem"}}>
+        {[["choresInSched","🧹 Chore blocks","Get daily chore suggestions"],["mealsInSched","🍽 Meal / snack blocks","Get daily meal suggestions"]].map(([k,l,hint])=>(
+          <button key={k} onClick={()=>upd(k,!data[k])} style={{display:"flex",gap:"0.75rem",alignItems:"center",padding:"0.75rem 1rem",border:`2px solid ${data[k]?pal.primary:pal.stone+"50"}`,borderRadius:"13px",background:data[k]?pal.pale:"transparent",cursor:"pointer",transition:"all 0.14s",textAlign:"left"}}>
+            <div style={{width:"20px",height:"20px",borderRadius:"6px",border:`2.5px solid ${data[k]?pal.primary:pal.stone}`,background:data[k]?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+              {data[k]&&<span style={{color:pal.onDark,fontSize:"0.8rem",fontWeight:"900"}}>✓</span>}
+            </div>
+            <div style={{flex:1}}>
+              <div style={{fontWeight:data[k]?"700":"400",color:data[k]?pal.primary:pal.inkM,fontSize:"0.84rem"}}>{l}</div>
+              {data[k]&&<div style={{fontSize:"0.68rem",color:pal.primary,marginTop:"1px"}}>✨ {hint}</div>}
+            </div>
+          </button>
+        ))}
+      </div>
+      {/* Meal/chore suggestions opt-in */}
+      {(data.choresInSched||data.mealsInSched)&&(
+        <div style={{background:pal.pale,borderRadius:"13px",padding:"0.85rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.primary}22`}}>
+          <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.85rem",marginBottom:"0.3rem"}}>💡 Daily suggestions</div>
+          <div style={{fontSize:"0.76rem",color:pal.inkM,lineHeight:1.6,marginBottom:"0.65rem"}}>
+            Would you like Root & Bloom to suggest {[data.choresInSched?"a chore":null,data.mealsInSched?"a meal or snack":null].filter(Boolean).join(" and ")} each day?
+          </div>
+          <div style={{display:"flex",gap:"0.5rem"}}>
+            <button onClick={()=>upd("dailySuggestions",true)}
+              style={{flex:1,padding:"0.55rem",borderRadius:"11px",border:`2px solid ${data.dailySuggestions===true?pal.primary:pal.stone+"50"}`,background:data.dailySuggestions===true?pal.pale:"transparent",cursor:"pointer",fontWeight:data.dailySuggestions===true?"700":"400",color:data.dailySuggestions===true?pal.primary:pal.inkM,fontSize:"0.82rem"}}>
+              Yes please!
+            </button>
+            <button onClick={()=>upd("dailySuggestions",false)}
+              style={{flex:1,padding:"0.55rem",borderRadius:"11px",border:`2px solid ${data.dailySuggestions===false?pal.stone:pal.stone+"50"}`,background:"transparent",cursor:"pointer",fontWeight:data.dailySuggestions===false?"700":"400",color:pal.inkM,fontSize:"0.82rem"}}>
+              No thanks
+            </button>
+          </div>
+        </div>
+      )}
+      <div style={{height:"0.5rem"}}/>
       {/* Final CTA - warm */}
       <div style={{background:pal.heroGrad,borderRadius:"18px",padding:"1.2rem 1.3rem",marginBottom:"1.1rem",textAlign:"center",position:"relative",overflow:"hidden"}}>
         <div style={{position:"absolute",right:"-20px",top:"-20px",width:"80px",height:"80px",borderRadius:"50%",background:"rgba(255,255,255,0.06)"}}/>
@@ -1971,6 +2036,174 @@ const EOY_SKILLS = {
 };
 
 /* =======================================
+   PORTFOLIO PDF PRINT FUNCTION
+   Opens a clean print window — not the app
+======================================= */
+function printPortfolioPDF(family, entries, child, attendanceDays, stateInfo) {
+  const schoolName = family.schoolName||(family.familyName+" Academy")||"Home School";
+  const yearStart = family.yearStart ? new Date(family.yearStart).getFullYear() : new Date().getFullYear();
+  const yearEnd   = family.yearEnd   ? new Date(family.yearEnd).getFullYear()   : yearStart+1;
+  const today = new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
+
+  // Group by subject
+  const bySubject = {};
+  entries.filter(e=>!e.isDay&&e.subj!=="Daily Notes").forEach(e=>{
+    if(!bySubject[e.subj]) bySubject[e.subj]=[];
+    bySubject[e.subj].push(e);
+  });
+  const noteEntries = entries.filter(e=>e.isDay||e.subj==="Daily Notes");
+
+  // Build the activity log table rows
+  const allSubjEntries = entries.filter(e=>!e.isDay&&e.subj!=="Daily Notes")
+    .sort((a,b)=>{
+      try{return new Date(a.date+", "+yearStart)-new Date(b.date+", "+yearStart);}catch{return 0;}
+    });
+
+  const logRows = allSubjEntries.map(e=>`
+    <tr>
+      <td>${e.date||""}</td>
+      <td>${e.subj||""}</td>
+      <td>${(e.title||"").replace(e.subj+" — ","")}</td>
+      <td>${e.readingTitle||""}</td>
+      <td>${(e.note||"").split("\n")[0].slice(0,80)}</td>
+    </tr>`).join("");
+
+  const noteRows = noteEntries.map(e=>`
+    <tr>
+      <td>${e.date||""}</td>
+      <td colspan="3">${(e.subjects||[]).join(", ")||"General"}</td>
+      <td>${(e.note||"").replace("AI Summary: ","").split("\n")[0].slice(0,120)}</td>
+    </tr>`).join("");
+
+  const subjSummary = Object.entries(bySubject).map(([subj,ents])=>`
+    <div class="subj-row">
+      <span class="subj-name">${subj}</span>
+      <span class="subj-count">${ents.length} ${ents.length===1?"entry":"entries"}</span>
+    </div>`).join("");
+
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+<title>${child?.name||"Student"} — ${schoolName} Portfolio ${yearStart}-${yearEnd}</title>
+<meta charset="utf-8">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Georgia,serif;color:#1a1a1a;background:#fff;font-size:11pt;line-height:1.6}
+  .page{max-width:720px;margin:0 auto;padding:2rem}
+  h1{font-size:22pt;font-weight:bold;margin-bottom:4px}
+  h2{font-size:14pt;font-weight:bold;margin:1.5rem 0 0.5rem;border-bottom:1.5px solid #ccc;padding-bottom:4px;color:#222}
+  h3{font-size:11pt;font-weight:bold;margin:1rem 0 0.3rem;color:#333}
+  .cover{text-align:center;padding:2rem 0 1.5rem;border-bottom:2px solid #1a1a1a;margin-bottom:1.5rem}
+  .cover h1{font-size:26pt;margin-bottom:8px}
+  .cover .school{font-size:13pt;color:#444;margin-bottom:4px}
+  .cover .meta{font-size:10pt;color:#777}
+  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:1.2rem}
+  .info-cell{padding:0.4rem 0.6rem;background:#f9f9f9;border:1px solid #e0e0e0;border-radius:4px}
+  .info-label{font-size:8pt;color:#888;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,sans-serif}
+  .info-val{font-size:10pt;font-weight:bold;color:#1a1a1a}
+  .progress-bar{height:8px;background:#eee;border-radius:99px;margin:0.4rem 0}
+  .progress-fill{height:100%;border-radius:99px;background:#2a6a2a}
+  table{width:100%;border-collapse:collapse;margin-bottom:1rem;font-size:9.5pt;font-family:Arial,sans-serif}
+  th{background:#f0f0f0;padding:6px 8px;text-align:left;font-weight:bold;font-size:8.5pt;border:1px solid #ddd}
+  td{padding:5px 8px;border:1px solid #eee;vertical-align:top}
+  tr:nth-child(even){background:#fafafa}
+  .subj-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f0f0f0;font-family:Arial,sans-serif;font-size:10pt}
+  .subj-name{font-weight:bold}
+  .subj-count{color:#666;font-size:9pt}
+  .sig-block{margin-top:2rem;padding-top:1rem;border-top:1px solid #ccc;display:flex;justify-content:space-between}
+  .sig-line{width:45%}
+  .sig-line div{border-bottom:1px solid #444;height:28px;margin-bottom:4px}
+  .sig-label{font-size:8pt;color:#888;font-family:Arial,sans-serif}
+  .note-box{background:#fafafa;border:1px solid #e0e0e0;border-radius:4px;padding:0.6rem 0.75rem;margin-bottom:0.5rem;font-size:9.5pt;font-family:Arial,sans-serif}
+  .state-box{background:#f0f5ff;border:1px solid #b8cef0;border-radius:4px;padding:0.6rem 0.75rem;margin-bottom:1rem;font-size:9pt;font-family:Arial,sans-serif}
+  @media print{
+    .page{padding:1rem}
+    @page{margin:2cm}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- COVER -->
+  <div class="cover">
+    <div class="school">${schoolName}</div>
+    <h1>${child?.name||"Student"}</h1>
+    <div class="meta">${child?.grade||""} &bull; School Year ${yearStart}–${yearEnd} &bull; ${family.state||""}</div>
+    <div class="meta" style="margin-top:6px">Portfolio generated: ${today}</div>
+  </div>
+
+  <!-- STUDENT INFO -->
+  <h2>Student Information</h2>
+  <div class="info-grid">
+    <div class="info-cell"><div class="info-label">Student</div><div class="info-val">${child?.name||"—"}</div></div>
+    <div class="info-cell"><div class="info-label">Grade</div><div class="info-val">${child?.grade||"—"}</div></div>
+    <div class="info-cell"><div class="info-label">School</div><div class="info-val">${schoolName}</div></div>
+    <div class="info-cell"><div class="info-label">School Year</div><div class="info-val">${yearStart}–${yearEnd}</div></div>
+    <div class="info-cell"><div class="info-label">State</div><div class="info-val">${family.state||"—"}</div></div>
+    <div class="info-cell"><div class="info-label">Learning Approach</div><div class="info-val">${(Array.isArray(family.curriculumStyle)?family.curriculumStyle:[family.curriculumStyle||"Eclectic"]).join(", ")}</div></div>
+  </div>
+
+  <!-- ATTENDANCE -->
+  <h2>Attendance Record</h2>
+  <div class="info-grid">
+    <div class="info-cell"><div class="info-label">Days Completed</div><div class="info-val">${attendanceDays}</div></div>
+    <div class="info-cell"><div class="info-label">Required (${family.state})</div><div class="info-val">180 days</div></div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(100,Math.round(attendanceDays/180*100))}%"></div></div>
+  <p style="font-size:9pt;color:#666;font-family:Arial,sans-serif">${Math.min(100,Math.round(attendanceDays/180*100))}% of required days completed</p>
+
+  <!-- SUBJECTS COVERED -->
+  <h2>Subjects Covered</h2>
+  ${subjSummary||"<p style='font-size:10pt;color:#888;font-family:Arial,sans-serif'>No subject entries yet.</p>"}
+
+  <!-- ACTIVITY LOG -->
+  <h2>Activity Log</h2>
+  <p style="font-size:9pt;color:#666;font-family:Arial,sans-serif;margin-bottom:0.5rem">Contemporaneous record of educational activities as required by ${family.state||"your state"} law. Reading materials listed by title.</p>
+  ${allSubjEntries.length>0?`
+  <table>
+    <thead>
+      <tr>
+        <th style="width:12%">Date</th>
+        <th style="width:18%">Subject</th>
+        <th style="width:28%">Activity</th>
+        <th style="width:22%">Reading / Materials</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>${logRows}${noteRows}</tbody>
+  </table>`:"<p style='font-size:10pt;color:#888;font-family:Arial,sans-serif'>No entries yet.</p>"}
+
+  <!-- STATE COMPLIANCE NOTE -->
+  <h2>State Requirements — ${family.state||"Your State"}</h2>
+  <div class="state-box">
+    <b>Portfolio requirement:</b> ${stateInfo.portfolio}<br>
+    <b>Evaluation due:</b> ${stateInfo.deadline}<br>
+    <b>Keep records for:</b> ${stateInfo.keepFor}
+  </div>
+
+  <!-- SIGNATURE -->
+  <div class="sig-block">
+    <div class="sig-line">
+      <div></div>
+      <div class="sig-label">Parent / Educator Signature</div>
+    </div>
+    <div class="sig-line">
+      <div></div>
+      <div class="sig-label">Date</div>
+    </div>
+  </div>
+
+</div>
+<script>window.onload=()=>setTimeout(()=>window.print(),400);</script>
+</body>
+</html>`;
+
+  const w = window.open("","_blank","width=800,height=900");
+  if(w) { w.document.write(html); w.document.close(); }
+}
+
+/* =======================================
    50-STATE COMPLIANCE DATABASE
    Tier 1 = very low, Tier 4 = high regulation
 ======================================= */
@@ -2222,6 +2455,69 @@ function getEOYWeeksLeft(family) {
   const msLeft = end - today;
   if(msLeft < 0) return 0;
   return Math.ceil(msLeft / (7*24*60*60*1000));
+}
+
+/* =======================================
+   CELEBRATION MODAL — after onboarding
+======================================= */
+function CelebrationModal({pal,data,onEnter}){
+  const childNames = (data.children||[]).map(c=>c.name).filter(Boolean);
+  const [confetti, setConfetti] = React.useState(true);
+  React.useEffect(()=>{ const t=setTimeout(()=>setConfetti(false),3500); return()=>clearTimeout(t); },[]);
+
+  return (
+    <div style={{position:"fixed",inset:0,zIndex:500,background:pal.heroGrad,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"2rem",textAlign:"center",animation:"fadeIn 0.4s ease"}}>
+      {confetti&&(
+        <div style={{position:"absolute",inset:0,overflow:"hidden",pointerEvents:"none"}}>
+          {Array.from({length:30}).map((_,i)=>(
+            <div key={i} style={{
+              position:"absolute",
+              left:Math.random()*100+"%",
+              top:"-10px",
+              width:"8px",height:"8px",
+              borderRadius:Math.random()>0.5?"50%":"2px",
+              background:["#fff","rgba(255,255,255,0.6)","rgba(255,255,255,0.3)"][Math.floor(Math.random()*3)],
+              animation:`fall ${1.5+Math.random()*2}s ease ${Math.random()*2}s forwards`,
+              transform:`rotate(${Math.random()*360}deg)`
+            }}/>
+          ))}
+        </div>
+      )}
+      <div style={{fontSize:"4rem",marginBottom:"1rem",animation:"grow 0.5s ease 0.2s both"}}>🌱</div>
+      <h1 style={{fontFamily:"Georgia,serif",fontWeight:"900",color:"#fff",fontSize:"2rem",margin:"0 0 0.5rem",lineHeight:1.1,animation:"fadeUp 0.5s ease 0.3s both"}}>
+        {"You're all set!"}
+      </h1>
+      <p style={{color:"rgba(255,255,255,0.85)",fontSize:"1rem",margin:"0 0 0.5rem",animation:"fadeUp 0.5s ease 0.4s both"}}>
+        Welcome to Root {"&"} Bloom
+      </p>
+      {childNames.length>0&&(
+        <p style={{color:"rgba(255,255,255,0.7)",fontSize:"0.88rem",margin:"0 0 2rem",animation:"fadeUp 0.5s ease 0.5s both"}}>
+          {"Your homeschool journey for "}
+          {childNames.join(childNames.length===2?" and ":childNames.length>2?", ":" ")}
+          {" starts now."}
+        </p>
+      )}
+      <div style={{background:"rgba(255,255,255,0.15)",borderRadius:"18px",padding:"1rem 1.5rem",marginBottom:"2rem",animation:"fadeUp 0.5s ease 0.6s both"}}>
+        <div style={{fontSize:"0.78rem",color:"rgba(255,255,255,0.75)",marginBottom:"0.5rem"}}>{"What's ready for you:"}</div>
+        {[
+          ["📅","Your schedule is built"],
+          ["🗂","Portfolio tracking is on"],
+          data.lifeReady&&["🛡","Prepared & Capable is set up"],
+          data.choresInSched&&["🧹","Daily chore suggestions ready"],
+          data.mealsInSched&&["🍽","Meal suggestions ready"],
+        ].filter(Boolean).map(([icon,label])=>(
+          <div key={label} style={{display:"flex",gap:"0.6rem",alignItems:"center",padding:"0.3rem 0",color:"rgba(255,255,255,0.9)",fontSize:"0.82rem"}}>
+            <span>{icon}</span><span>{label}</span>
+          </div>
+        ))}
+      </div>
+      <button onClick={onEnter}
+        style={{padding:"1rem 2.5rem",border:"none",borderRadius:"16px",background:"#fff",color:pal.primary,fontWeight:"900",fontSize:"1rem",cursor:"pointer",boxShadow:"0 4px 20px rgba(0,0,0,0.2)",animation:"fadeUp 0.5s ease 0.8s both"}}>
+        Let{"'"}s go! 🌱
+      </button>
+      <style>{`@keyframes fall{to{transform:translateY(100vh) rotate(720deg);opacity:0}}`}</style>
+    </div>
+  );
 }
 
 /* =======================================
@@ -2640,9 +2936,10 @@ function ScheduleScreen({pal,family,child,setChild,onMarkComplete,onProgressUpda
 
   // Persist checked + skipped state in localStorage so partial progress saves across navigation
   const SCHED_KEY = "rootbloom_sched_v1";
-  const loadSchedState = () => { try{const s=localStorage.getItem(SCHED_KEY);return s?JSON.parse(s):{checked:{},skipped:{}};}catch(e){return{checked:{},skipped:{}};}};
+  const loadSchedState = () => { try{const s=localStorage.getItem(SCHED_KEY);return s?JSON.parse(s):{checked:{},skipped:{},notes:{}};}catch(e){return{checked:{},skipped:{},notes:{}};}};
   const [schedState, setSchedState] = useState(()=>loadSchedState());
   const saveSchedState = (ns) => { try{localStorage.setItem(SCHED_KEY,JSON.stringify(ns));}catch(e){} };
+  const [expandedNoteKey, setExpandedNoteKey] = useState(null); // which block has note open
 
   const checked = schedState.checked || {};
   const daySubjects = schedState.skipped || {};
@@ -2651,6 +2948,11 @@ function ScheduleScreen({pal,family,child,setChild,onMarkComplete,onProgressUpda
     const ns = {...prev, checked:{...updFn(prev.checked||{})}};
     saveSchedState(ns); return ns;
   });
+  const setSubjectNote = (key, val) => setSchedState(prev=>{
+    const ns = {...prev, notes:{...(prev.notes||{}),[key]:val}};
+    saveSchedState(ns); return ns;
+  });
+  const subjectNotes = schedState.notes || {};
   const setDaySubjects = (updFn) => setSchedState(prev=>{
     const ns = {...prev, skipped:{...updFn(prev.skipped||{})}};
     saveSchedState(ns); return ns;
@@ -2730,24 +3032,43 @@ function ScheduleScreen({pal,family,child,setChild,onMarkComplete,onProgressUpda
           const done = !!checked[blockKey];
           const hiddenByChild = !(child==="all"||b.c==="all"||b.c===child);
           if(hiddenByChild) return null;
+          const noteKey = selectedDay+"_"+bi+"_note";
+          const noteOpen = expandedNoteKey===blockKey;
+          const hasNote  = !!(subjectNotes[noteKey]&&subjectNotes[noteKey].trim());
           return (
             <div key={bi} style={{marginBottom:"0.5rem",opacity:skipped?0.38:1,transition:"opacity 0.2s"}}>
-              <div onClick={()=>!skipped&&toggleBlock(selectedDay,bi)}
-                style={{background:done?pal.pale:pal.linen,borderRadius:"14px",padding:"0.85rem 1rem",display:"flex",gap:"0.85rem",alignItems:"center",border:`2px solid ${done?pal.primary+"40":pal.stone+"18"}`,position:"relative",overflow:"hidden",cursor:skipped?"default":"pointer",transition:"all 0.14s"}}>
+              <div style={{background:done?pal.pale:pal.linen,borderRadius:noteOpen?"14px 14px 0 0":"14px",border:`2px solid ${done?pal.primary+"40":pal.stone+"18"}`,position:"relative",overflow:"hidden",transition:"all 0.14s"}}>
                 <div style={{position:"absolute",left:0,top:0,bottom:0,width:"4px",background:done?pal.accentGrad:skipped?pal.stone+"40":pal.stone+"60"}}/>
-                <div style={{width:"40px",height:"40px",borderRadius:"11px",background:b.lifeReady?(done?LR_COLOR+"33":LR_COLOR+"18"):(done?pal.primary+"22":pal.pale),display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.25rem",flexShrink:0,border:b.lifeReady?`2px solid ${LR_COLOR}40`:"none"}}>{b.i}</div>
-                <div style={{flex:1}}>
-                  <div style={{fontWeight:"700",color:done?(b.lifeReady?LR_COLOR:pal.primary):skipped?pal.stone:pal.ink,fontSize:"0.88rem",textDecoration:done?"line-through":skipped?"line-through":"none"}}>{b.s}</div>
-                  <div style={{fontSize:"0.72rem",color:b.lifeReady?LR_COLOR:pal.slate,fontWeight:b.lifeReady?"600":"400"}}>{b.t?h12(b.t)+" · ":""}{b.dur} min{b.isLesson?" · Lesson":b.isPractice?" · Practice":""}</div>
+                <div onClick={()=>!skipped&&toggleBlock(selectedDay,bi)}
+                  style={{padding:"0.85rem 1rem",display:"flex",gap:"0.85rem",alignItems:"center",cursor:skipped?"default":"pointer"}}>
+                  <div style={{width:"40px",height:"40px",borderRadius:"11px",background:b.lifeReady?(done?LR_COLOR+"33":LR_COLOR+"18"):(done?pal.primary+"22":pal.pale),display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.25rem",flexShrink:0,border:b.lifeReady?`2px solid ${LR_COLOR}40`:"none"}}>{b.i}</div>
+                  <div style={{flex:1}}>
+                    <div style={{fontWeight:"700",color:done?(b.lifeReady?LR_COLOR:pal.primary):skipped?pal.stone:pal.ink,fontSize:"0.88rem",textDecoration:done?"line-through":skipped?"line-through":"none"}}>{b.s}</div>
+                    <div style={{fontSize:"0.72rem",color:b.lifeReady?LR_COLOR:pal.slate,fontWeight:b.lifeReady?"600":"400"}}>{b.t?h12(b.t)+" · ":""}{b.dur} min{b.isLesson?" · Lesson":b.isPractice?" · Practice":""}</div>
+                    {hasNote&&!noteOpen&&<div style={{fontSize:"0.65rem",color:pal.primary,marginTop:"2px",fontStyle:"italic",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>📝 {subjectNotes[noteKey]}</div>}
+                  </div>
+                  <button onClick={e=>{e.stopPropagation();skipBlock(e,selectedDay,bi);}}
+                    style={{padding:"0.18rem 0.5rem",borderRadius:"8px",border:`1.5px solid ${skipped?pal.warn:pal.stone+"60"}`,background:"transparent",color:skipped?pal.warn:pal.stone,fontSize:"0.62rem",fontWeight:"700",cursor:"pointer",flexShrink:0}}>
+                    {skipped?"restore":"skip"}
+                  </button>
+                  {/* Note button */}
+                  {!skipped&&<button onClick={e=>{e.stopPropagation();setExpandedNoteKey(noteOpen?null:blockKey);}}
+                    style={{padding:"0.18rem 0.45rem",borderRadius:"8px",border:`1.5px solid ${hasNote?pal.primary:pal.stone+"60"}`,background:hasNote?pal.pale:"transparent",color:hasNote?pal.primary:pal.stone,fontSize:"0.7rem",cursor:"pointer",flexShrink:0}}>
+                    📝
+                  </button>}
+                  <div style={{width:"22px",height:"22px",borderRadius:"6px",border:`2.5px solid ${done?pal.primary:pal.stone}`,background:done?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.14s"}}>
+                    {done&&<span style={{color:"#fff",fontSize:"0.75rem",fontWeight:"900"}}>✓</span>}
+                  </div>
                 </div>
-                {/* Skip toggle */}
-                <button onClick={e=>skipBlock(e,selectedDay,bi)}
-                  style={{padding:"0.18rem 0.5rem",borderRadius:"8px",border:`1.5px solid ${skipped?pal.warn:pal.stone+"60"}`,background:"transparent",color:skipped?pal.warn:pal.stone,fontSize:"0.62rem",fontWeight:"700",cursor:"pointer",flexShrink:0,marginRight:"0.35rem"}}>
-                  {skipped?"restore":"skip"}
-                </button>
-                <div style={{width:"22px",height:"22px",borderRadius:"6px",border:`2.5px solid ${done?pal.primary:pal.stone}`,background:done?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.14s"}}>
-                  {done&&<span style={{color:"#fff",fontSize:"0.75rem",fontWeight:"900"}}>✓</span>}
-                </div>
+                {/* Inline note field */}
+                {noteOpen&&(
+                  <div style={{padding:"0 1rem 0.75rem 1rem",borderTop:`1px solid ${pal.stone}20`}}>
+                    <textarea value={subjectNotes[noteKey]||""} onChange={e=>setSubjectNote(noteKey,e.target.value)}
+                      rows={2} placeholder={"Notes for "+b.s+"... what did they learn, struggles, highlights?"}
+                      autoFocus
+                      style={{width:"100%",padding:"0.55rem 0.75rem",border:`1.5px solid ${pal.primary}50`,borderRadius:"10px",fontSize:"0.8rem",fontFamily:"inherit",background:pal.parchm,color:pal.ink,resize:"none",outline:"none",lineHeight:1.55,marginTop:"0.65rem"}}/>
+                  </div>
+                )}
               </div>
             </div>
           );
