@@ -617,7 +617,7 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
         <button onClick={onBack} style={{background:"rgba(255,255,255,0.25)",border:"none",borderRadius:"9px",padding:"0.22rem 0.6rem",cursor:"pointer",color:"#fff",fontWeight:"800",fontSize:"0.7rem"}}>Back</button>
         <div style={{display:"flex",alignItems:"center",gap:"0.42rem"}}>
           <span style={{fontSize:"1.1rem"}}>{child.avatar}</span>
-          <span style={{fontWeight:"800",color:"#fff",fontSize:"0.88rem"}}>{child.name + "'s Space"}</span>
+          <span style={{fontWeight:"800",color:"#fff",fontSize:"0.88rem"}}>{child.name}{"'s Space"}</span>
         </div>
         <div style={{background:"rgba(255,255,255,0.22)",borderRadius:"9px",padding:"0.2rem 0.55rem",display:"flex",alignItems:"center",gap:"0.3rem"}}>
           <span style={{fontSize:"0.85rem"}}>*</span>
@@ -2472,7 +2472,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
               <div style={{textAlign:"left"}}>
                 <div style={{fontWeight:"800",fontSize:"0.84rem"}}>Log today{"'"}s school day</div>
                 <div style={{fontSize:"0.68rem",color:"rgba(255,255,255,0.75)",marginTop:"1px"}}>
-                  {checkinStreak>0?"🔥 "+checkinStreak+" day streak — don{"'"}t break it!":"Tap to open your schedule"}
+                  {checkinStreak>0?"🔥 "+checkinStreak+" day streak — keep it going!":"Tap to open your schedule"}
                 </div>
               </div>
             </div>
