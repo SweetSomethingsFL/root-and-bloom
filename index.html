@@ -3777,74 +3777,75 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
           </div>
         </div>
 
-        {/* Check-in button — changes after checked in */}
-        {/* Today progress from schedule */}
-        {(() => {
-          const todayStr = new Date().toDateString();
+        {/* ── Smart Today Card — single unified action ── */}
+        {(()=>{
           const prog = (todayProgress && todayProgress.date===todayStr) ? todayProgress : null;
           const schedDone = prog && prog.total>0 && prog.count>=prog.total;
-          if (schedDone) {
+          const inProgress = prog && prog.count>0 && !schedDone;
+
+          if(schedDone) {
+            // State 3: All done for the day
             return (
-              <div style={{background:pal.goodBg,borderRadius:"18px",padding:"0.9rem 1.15rem",marginBottom:"1rem",border:`2px solid ${pal.good}40`,display:"flex",gap:"0.85rem",alignItems:"center"}}>
-                <div style={{width:"44px",height:"44px",borderRadius:"13px",background:pal.good,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.4rem",flexShrink:0}}>🌟</div>
+              <div style={{background:pal.goodBg,borderRadius:"16px",padding:"0.95rem 1.1rem",marginBottom:"1rem",border:`2px solid ${pal.good}40`,display:"flex",gap:"0.85rem",alignItems:"center"}}>
+                <div style={{width:"46px",height:"46px",borderRadius:"13px",background:pal.good,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.5rem",flexShrink:0}}>{"🌟"}</div>
                 <div style={{flex:1}}>
-                  <div style={{fontWeight:"800",color:pal.good,fontSize:"0.9rem"}}>Day complete!</div>
-                  {checkinStreak>0&&<div style={{fontSize:"0.72rem",color:pal.inkM,marginTop:"1px"}}>🔥 {checkinStreak} day streak — great work!</div>}
+                  <div style={{fontWeight:"800",color:pal.good,fontSize:"0.92rem"}}>{"Day complete!"}</div>
+                  <div style={{fontSize:"0.71rem",color:pal.inkM,marginTop:"2px"}}>
+                    {checkinStreak>0 ? "🔥 "+checkinStreak+" day streak — amazing!" : "Great work today."}
+                  </div>
                 </div>
-                <button onClick={()=>onTabChange("schedule")} style={{padding:"0.38rem 0.75rem",border:`2px solid ${pal.good}50`,borderRadius:"10px",background:"transparent",color:pal.good,fontSize:"0.72rem",fontWeight:"700",cursor:"pointer"}}>View</button>
+                <button onClick={()=>onTabChange("schedule")}
+                  style={{padding:"0.38rem 0.75rem",border:`2px solid ${pal.good}50`,borderRadius:"10px",background:"transparent",color:pal.good,fontSize:"0.72rem",fontWeight:"700",cursor:"pointer",flexShrink:0}}>
+                  View
+                </button>
               </div>
             );
           }
-          if (prog && prog.count>0) {
+
+          if(inProgress) {
+            // State 2: In progress — show bar + subjects left
             const pct2 = Math.round(prog.count/prog.total*100);
             return (
-              <div style={{background:pal.linen,borderRadius:"18px",padding:"0.9rem 1.15rem",marginBottom:"1rem",border:`2px solid ${pal.stone}30`,cursor:"pointer"}} onClick={()=>onTabChange("schedule")}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"6px"}}>
-                  <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.88rem"}}>📋 In progress today</div>
-                  <span style={{fontSize:"0.78rem",fontWeight:"800",color:pal.primary}}>{prog.count}/{prog.total}</span>
+              <div onClick={()=>onTabChange("schedule")}
+                style={{background:pal.linen,borderRadius:"16px",padding:"0.95rem 1.1rem",marginBottom:"1rem",border:`2px solid ${pal.primary}30`,cursor:"pointer"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"7px"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:"0.5rem"}}>
+                    <span style={{fontSize:"1.1rem"}}>{"📋"}</span>
+                    <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.88rem"}}>{"In progress"}</div>
+                  </div>
+                  <span style={{fontSize:"0.78rem",fontWeight:"900",color:pal.primary}}>{prog.count}/{prog.total}</span>
                 </div>
-                <div style={{height:"8px",borderRadius:"99px",background:pal.parchm,overflow:"hidden",marginBottom:"5px"}}>
+                <div style={{height:"9px",borderRadius:"99px",background:pal.parchm,overflow:"hidden",marginBottom:"6px"}}>
                   <div style={{height:"100%",width:`${pct2}%`,borderRadius:"99px",background:pal.accentGrad,transition:"width 0.4s"}}/>
                 </div>
-                <div style={{fontSize:"0.7rem",color:pal.slate}}>{prog.total-prog.count} subjects left · tap to continue</div>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                  <div style={{fontSize:"0.7rem",color:pal.slate}}>
+                    {prog.total-prog.count} subject{prog.total-prog.count!==1?"s":""} left
+                    {checkinStreak>0?" · 🔥 "+checkinStreak+" day streak":""}
+                  </div>
+                  <div style={{fontSize:"0.7rem",fontWeight:"700",color:pal.primary}}>{"Continue →"}</div>
+                </div>
               </div>
             );
           }
+
+          // State 1: Haven't started yet
           return (
-            <button onClick={()=>onTabChange("schedule")} style={{width:"100%",background:pal.accentGrad,borderRadius:"18px",padding:"1rem 1.15rem",marginBottom:"1rem",cursor:"pointer",border:"none",display:"flex",justifyContent:"space-between",alignItems:"center",boxShadow:`0 6px 22px ${pal.accent}35`}}>
-              <div>
-                <div style={{fontWeight:"800",color:pal.onDark,fontSize:"0.92rem",marginBottom:"0.12rem",textAlign:"left"}}>📋 Start today</div>
-                <div style={{fontSize:"0.74rem",color:"rgba(255,255,255,0.78)",textAlign:"left"}}>{checkinStreak>0?"Streak: "+checkinStreak+" days 🔥":"Check off your subjects as you go"}</div>
+            <button onClick={()=>onTabChange("schedule")}
+              style={{width:"100%",background:pal.accentGrad,borderRadius:"16px",padding:"1rem 1.1rem",marginBottom:"1rem",cursor:"pointer",border:"none",display:"flex",justifyContent:"space-between",alignItems:"center",boxShadow:`0 5px 20px ${pal.accent}30`}}>
+              <div style={{display:"flex",alignItems:"center",gap:"0.75rem"}}>
+                <div style={{width:"44px",height:"44px",borderRadius:"12px",background:"rgba(255,255,255,0.18)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0}}>{"📋"}</div>
+                <div style={{textAlign:"left"}}>
+                  <div style={{fontWeight:"800",color:"#fff",fontSize:"0.92rem",marginBottom:"2px"}}>{"Start today's school day"}</div>
+                  <div style={{fontSize:"0.72rem",color:"rgba(255,255,255,0.75)"}}>
+                    {checkinStreak>0 ? "🔥 "+checkinStreak+" day streak — keep it going!" : "Check off subjects as you go"}
+                  </div>
+                </div>
               </div>
-              <div style={{width:"38px",height:"38px",borderRadius:"50%",background:"rgba(255,255,255,0.2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.1rem",color:pal.onDark,flexShrink:0}}>→</div>
+              <div style={{width:"34px",height:"34px",borderRadius:"50%",background:"rgba(255,255,255,0.18)",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:"1rem",flexShrink:0}}>{"→"}</div>
             </button>
           );
         })()}
-
-        {/* Daily reminder banner */}
-        {checkedInToday ? (
-          <div style={{background:pal.goodBg,borderRadius:"13px",padding:"0.65rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.good}30`,display:"flex",alignItems:"center",gap:"0.65rem"}}>
-            <span style={{fontSize:"1.2rem"}}>🌱</span>
-            <div style={{flex:1}}>
-              <div style={{fontWeight:"700",color:pal.good,fontSize:"0.8rem"}}>Portfolio logged today!</div>
-              {checkinStreak>1&&<div style={{fontSize:"0.68rem",color:pal.good,marginTop:"1px"}}>🔥 {checkinStreak} day streak — keep it up!</div>}
-            </div>
-          </div>
-        ) : (
-          <button onClick={()=>onTabChange("schedule")}
-            style={{width:"100%",padding:"0.75rem 1rem",border:"none",borderRadius:"13px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.84rem",cursor:"pointer",marginBottom:"1rem",display:"flex",alignItems:"center",gap:"0.6rem",justifyContent:"space-between",boxShadow:`0 3px 14px ${pal.accent}30`}}>
-            <div style={{display:"flex",alignItems:"center",gap:"0.6rem"}}>
-              <span style={{fontSize:"1.2rem"}}>📋</span>
-              <div style={{textAlign:"left"}}>
-                <div style={{fontWeight:"800",fontSize:"0.84rem"}}>Log today{"'"}s school day</div>
-                <div style={{fontSize:"0.68rem",color:"rgba(255,255,255,0.75)",marginTop:"1px"}}>
-                  {checkinStreak>0?"🔥 "+checkinStreak+" day streak — keep it going!":"Tap to open your schedule"}
-                </div>
-              </div>
-            </div>
-            <span style={{fontSize:"1rem",opacity:0.8}}>›</span>
-          </button>
-        )}
 
         {/* Today schedule preview */}
         {visible.length > 0 && (<>
