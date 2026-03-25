@@ -2014,195 +2014,255 @@ const EOY_SKILLS = {
 
 /* =======================================
    PREPARED & CAPABLE — PRE-WRITTEN LESSONS
-   Full lesson plans by topic, no AI needed
+   lessons.js — move here when library grows
+
+   TONE GUIDE (follow for ALL future lessons):
+   ─────────────────────────────────────────
+   Pre-K / K:   Warm, imaginative, pretend-play. "Let's imagine..." "What if..."
+                No scary scenarios. Focus on curiosity and safety as something fun.
+   1st / 2nd:   Gentle and story-based. "One day..." "Have you ever noticed..."
+                No time pressure, no graphic injuries. Make it feel like an adventure.
+   3rd / 4th:   Scenario-based, slightly more real. "Imagine you are home and..."
+                Can introduce mild challenge but always with a calm, problem-solving frame.
+   5th / 6th:   Direct but warm. Real-world scenarios OK. "This actually happens..."
+                Build confidence, not fear. Focus on "you can handle this."
+   7th / 8th:   Matter-of-fact. Treat them as capable young adults.
+                Can handle more serious topics with straightforward language.
+   9th-12th:    Peer-level tone. Real stakes, real skills, respect their intelligence.
+                "You will use this." Frame as independence and leadership.
+
+   HOOK RULES:
+   - Never use a countdown or time pressure for grades 1-4
+   - Never describe graphic injuries for grades 1-3
+   - Always end the hook with an open question, never a command
+   - Make it feel exciting to figure out, not stressful
+   ─────────────────────────────────────────
 ======================================= */
+
+/* Grade tier helper */
+function getLRGradeTier(grade) {
+  const early  = ["Pre-K","K","1st","2nd"];
+  const middle = ["3rd","4th","5th"];
+  const upper  = ["6th","7th","8th"];
+  const high   = ["9th","10th","11th","12th"];
+  if(early.includes(grade))  return "early";
+  if(middle.includes(grade)) return "middle";
+  if(upper.includes(grade))  return "upper";
+  if(high.includes(grade))   return "high";
+  return "middle";
+}
+
 const LR_LESSON_PLANS = {
+
   "First aid for cuts and scrapes": {
-    hook: "What would you do right now if your little brother fell and cut his knee? You have 60 seconds — go!",
-    materials: ["Clean cloth or paper towels","Soap and water","Bandages (various sizes)","Antibacterial ointment (optional)"],
+    hook: "Imagine your little brother is playing outside and he falls down and scrapes his knee. He is crying and comes running to you. What do you think would help him feel better?",
+    materials: ["A clean cloth or paper towels","Soap and water","Bandages in different sizes","Antibacterial ointment (optional — ask a grown-up)"],
     steps: [
-      "Stay calm — panicking makes it worse. Take a breath first.",
-      "Rinse the cut gently under cool running water for 1-2 minutes to flush out dirt.",
-      "Pat dry gently with a clean cloth. Do NOT rub.",
-      "Apply a small amount of ointment if available, then cover with a bandage.",
-      "Watch for signs of infection over the next few days: redness spreading, warmth, swelling, or pus. These mean it needs a doctor."
+      "First, take a slow breath and stay calm. When you are calm, it helps the person who is hurt feel calmer too.",
+      "Rinse the scrape gently under cool running water for about a minute. This washes away dirt and helps it heal faster.",
+      "Pat the skin dry with a clean cloth. Patting is gentle — rubbing can hurt more.",
+      "Put a bandage over it to keep it clean. If you have ointment, a tiny bit goes on first.",
+      "Check back tomorrow. If it looks redder or more swollen, tell a grown-up — that means it might need a doctor."
     ],
     discussion: [
-      "When would a cut need a doctor instead of just a bandage?",
-      "What would you do if you were alone and got a bad cut?"
+      "What does it feel like when someone stays calm near you when you are upset? How does that help?",
+      "What is the difference between a small scrape that just needs a bandage and one that needs a grown-up or doctor?"
     ],
-    challenge: "Build your own mini first aid kit this week. Find a small bag or box and fill it with bandages, a cloth, and anything else you think belongs in it."
+    challenge: "This week, find a small bag or box and start building your own mini first aid kit. Ask a parent to help you find bandages, a clean cloth, and anything else you think belongs in it."
   },
+
   "Calling for help — 911 practice": {
-    hook: "Imagine you come home and find someone on the floor who won't wake up. What do you say when 911 answers?",
-    materials: ["A phone (turned off or in airplane mode for practice)"],
+    hook: "Have you ever wondered what you would say if you called 911? Dispatchers are very friendly helpers — and knowing what to say means you can be a really great helper too. What do you think they ask first?",
+    materials: ["A phone that is turned off or in airplane mode for practicing"],
     steps: [
-      "911 is for emergencies where someone is in danger — not for non-emergencies.",
-      "When the operator answers, stay calm and speak clearly. Say: 'I need help. My address is ___.'",
-      "Tell them WHAT happened: 'Someone fell and won't wake up.'",
-      "Tell them WHERE you are: your full address, including city.",
-      "Stay on the line — don't hang up until they tell you to.",
-      "Go outside or to a window to wave down the ambulance if it helps."
+      "911 is for emergencies — when someone is hurt, in danger, or needs help right away.",
+      "When a 911 dispatcher answers, they will ask: What is your emergency? Where are you?",
+      "Practice saying your full home address out loud right now. Include the street number, street name, and city.",
+      "Then describe what happened in simple words: Someone fell and is not waking up. There is a fire. Someone needs help.",
+      "Stay on the phone. The dispatcher will talk you through what to do until help arrives.",
+      "You will NOT get in trouble for calling 911 in a real emergency. That is exactly what it is there for."
     ],
     discussion: [
-      "What is your full home address right now? Practice saying it out loud.",
-      "Name three real emergencies where you WOULD call 911."
+      "Can you say your home address from memory right now? Let us practice together.",
+      "What are some examples of real emergencies where you would call 911?"
     ],
-    challenge: "Memorize your home address and one parent phone number by heart this week. Quiz yourself every morning."
+    challenge: "Practice your home address and one parent phone number every morning this week until you know them by heart — no peeking."
   },
+
   "Home fire drill": {
-    hook: "You have 90 seconds to get out of this house right now. Every second counts. Where do you go?",
-    materials: ["Paper and pencil for drawing your home layout","A meeting spot outside (pick one today)"],
+    hook: "Did you know that firefighters say most families have never actually practiced getting out of their home? Let us make your family one of the prepared ones. What do you think the smartest escape route from your bedroom looks like?",
+    materials: ["Paper and a pencil for drawing","A spot outside to meet — pick one today"],
     steps: [
-      "Every family needs two ways out of every room — usually a door and a window.",
-      "Draw a simple map of your home. Mark every door and window exit.",
-      "Pick ONE outside meeting spot that everyone knows: the mailbox, a neighbor's tree, the end of the driveway.",
-      "Practice the drill: shout 'Fire drill!' and time how long it takes everyone to reach the meeting spot.",
-      "Feel a door before opening it — if it is hot, use your other exit.",
-      "Stay low if there is smoke. Crawl to the exit."
+      "Every room in your home should have two ways to get out — usually a door and a window.",
+      "Grab your paper and draw a simple map of your home. Mark every door and window that could be an exit.",
+      "Pick one meeting spot outside that everyone in your family can remember — a mailbox, a big tree, the end of the driveway.",
+      "Before opening a door during a fire, touch it first. If it feels warm, use your other exit.",
+      "If there is smoke, stay low and crawl. Smoke rises, so the air near the floor is cleaner.",
+      "Practice the whole thing with your family — from alarm to everyone at the meeting spot."
     ],
     discussion: [
-      "What do you do if your bedroom door is hot when there's a fire?",
-      "Why do we have a meeting spot instead of just running outside?"
+      "Why do families need a meeting spot outside instead of just running in different directions?",
+      "If your bedroom door felt warm during a fire drill, what would you do instead?"
     ],
-    challenge: "Run an actual timed fire drill with your family this week. Try to beat 2 minutes from alarm to everyone at the meeting spot."
+    challenge: "Run a real family fire drill this week. Time how long it takes everyone to reach the meeting spot. Try to make it feel like a fun game, not a scary thing — because being prepared is actually really exciting."
   },
+
   "Water storage basics": {
-    hook: "The power just went out and the water stopped working. You have whatever is already in your house. How long could you survive?",
-    materials: ["Clean food-grade containers or water bottles","Tap water","A permanent marker"],
+    hook: "Here is a fun challenge: look around your home right now and guess how many days your family could have clean drinking water if the tap stopped working. What is your guess?",
+    materials: ["Clean food-grade water bottles or containers","Tap water","A permanent marker for labeling"],
     steps: [
-      "The rule is 1 gallon per person per day — for drinking and basic hygiene.",
-      "A family of 4 needs at least 12 gallons for 3 days.",
-      "Use clean food-grade containers — never store water in milk jugs (they break down).",
-      "Fill containers from the tap, label with the date, and store in a cool dark place.",
-      "Replace stored water every 6 months.",
-      "Know where your water shut-off valve is in case of a burst pipe."
+      "The rule experts recommend is one gallon of water per person per day — for drinking and basic washing.",
+      "A family of four needs at least twelve gallons to last three days. That is a good starter goal.",
+      "Use food-grade containers — plastic water bottles or special storage jugs work great. Milk jugs are not good for long-term storage because they break down over time.",
+      "Fill your containers with tap water, write today's date on them with the marker, and store them somewhere cool and dark.",
+      "Every six months, swap out the old water for fresh. Mark your calendar!",
+      "Bonus: find out where your home's water shut-off valve is. Ask a parent to show you — it is an important thing to know."
     ],
     discussion: [
-      "Where is the water shut-off valve in your home? Go find it together.",
-      "If water came out of the tap brown, what would you do?"
+      "Why do you think people store water if it already comes out of the tap anytime we want it?",
+      "What are some situations where families might lose access to clean running water?"
     ],
-    challenge: "Fill and label enough water bottles for your family for one day. Store them somewhere cool. Date them."
+    challenge: "With a parent, fill and label enough water for your family for one full day. Store it somewhere safe. That is your first step toward being really prepared."
   },
+
   "Saving vs spending": {
-    hook: "You just got $20. Someone offers you a toy right now for $18. What do you do and why?",
-    materials: ["3 jars or envelopes","Coins or dollar bills for demonstration"],
+    hook: "Imagine you found five dollars on your birthday. Right away your friend says they will trade you their old toy for all five dollars. How would you decide what to do?",
+    materials: ["Three jars, envelopes, or small containers","Some coins or dollars to practice with"],
     steps: [
-      "Every dollar you earn can do three things: be spent now, be saved for later, or be given away.",
-      "Set up three jars: SPEND, SAVE, GIVE. When you get money, divide it before spending any of it.",
-      "A classic split is 70/20/10 — 70 cents of every dollar to spend, 20 to save, 10 to give.",
-      "Saving means your money is still there when you need something bigger.",
-      "Interest is money the bank pays you just for keeping your savings there — your money earns more money."
+      "Every time you get money, it can do three things: be spent now, be saved for something bigger, or be given to help others.",
+      "Set up three containers and label them: SPEND, SAVE, GIVE.",
+      "Before spending any money, divide it first. A simple split is 70 cents to spend, 20 cents to save, and 10 cents to give — for every dollar.",
+      "Your SAVE jar grows over time. That is how you buy bigger things later — or have money when you really need it.",
+      "Saving is like a superpower. The money just sits there getting stronger until you are ready."
     ],
     discussion: [
-      "What is something you would save up for right now? How long would it take?",
-      "What is the difference between something you WANT and something you NEED?"
+      "Is there something you would like to save up for? How long do you think it would take with your SAVE jar?",
+      "What is the difference between something you want and something you actually need?"
     ],
-    challenge: "Start your three jars this week. Next time you receive money — allowance, birthday, chores — divide it before spending any."
+    challenge: "Set up your three containers this week. The next time you receive any money — allowance, a gift, anything — divide it before spending a single penny."
   },
+
   "Simple cooking — no stove recipes": {
-    hook: "If the stove and microwave were both broken right now, could you feed yourself for one day? What would you make?",
-    materials: ["Bread, peanut butter, fruit, crackers, cheese — whatever is available","A butter knife","Plates"],
+    hook: "What if you could make yourself a whole meal without turning on a single appliance? Chefs call this cold cooking — and it is a real skill. What is the most delicious thing you can think of that needs zero heat?",
+    materials: ["Bread, nut butter, fruit, crackers, cheese — whatever your family has available","A butter knife","Plates"],
     steps: [
-      "No-cook meals are real survival skills — they work when power is out or equipment is unavailable.",
-      "Practice making: a peanut butter sandwich, a cheese and cracker plate, a fruit and nut bowl.",
-      "Think about nutrition — a good no-cook meal has protein (nut butter, cheese, beans), carbs (bread, crackers), and something fresh if possible.",
-      "Wash your hands before handling any food.",
-      "Clean up your workspace when done."
+      "Cold meals are real food — sandwiches, fruit bowls, cheese plates, and wraps are all complete meals that need no heat.",
+      "A great no-cook meal has three things: something filling like bread or crackers, something with protein like nut butter or cheese, and something fresh like fruit or veggies.",
+      "Practice making: a nut butter sandwich, a plate of crackers and cheese, and a bowl of fruit with nuts.",
+      "Always wash your hands before touching food.",
+      "Clean up your space when you are done — that is part of cooking too."
     ],
     discussion: [
-      "Name 5 foods in your house right now that need zero cooking.",
-      "Why might someone need to cook without a stove or microwave?"
+      "Can you name five foods in your house right now that need zero cooking?",
+      "Why might it be useful to know how to feed yourself without a stove or microwave?"
     ],
-    challenge: "Make one full no-cook meal for yourself this week — breakfast, lunch, or dinner — without asking for any help."
+    challenge: "Make one full no-cook meal for yourself this week — breakfast, lunch, or dinner — all on your own. See how creative you can get with what is already in the kitchen."
   },
+
   "Reading a simple map": {
-    hook: "Tear off a piece of paper right now and draw every room in your house from memory. Don't look — just draw. How close were you?",
-    materials: ["A simple printed map of your town or neighborhood (or draw one)","A pencil"],
+    hook: "Here is a fun experiment: grab a piece of paper and try to draw your house from above — like a bird looking straight down. Draw every room you can remember. How close do you think you can get?",
+    materials: ["A simple printed or hand-drawn map of your neighborhood","A pencil"],
     steps: [
-      "A map is a bird's-eye view — like looking straight down from above.",
-      "Maps have a key (or legend) that explains what the symbols mean.",
-      "North is usually at the top of a map. Find the compass rose.",
-      "Practice finding two landmarks on a map, then trace the route between them.",
-      "Estimate distance: if one block equals 0.1 miles, how far is the library from your house?"
+      "A map is a bird's-eye view — imagining you are looking straight down from the sky.",
+      "Most maps have a compass rose that shows which direction is North, South, East, and West.",
+      "Maps also have a legend — a little box that explains what the symbols and colors mean.",
+      "Find two places on a map and trace the route between them with your finger.",
+      "Try to estimate distance: if one block on the map equals one real block, how many blocks is it to the nearest park?"
     ],
     discussion: [
-      "If you had no phone, how would you navigate to a friend's house 3 miles away?",
-      "What are landmarks? Name 3 near your home that you could use to give directions."
+      "If you had no phone and needed to get somewhere new, how would a map help you?",
+      "What are some landmarks near your home — things you could use to describe where you are to someone?"
     ],
-    challenge: "Draw a map of your neighborhood from memory — your house, the nearest store, one friend's house, and at least two streets. Then compare it to a real map."
+    challenge: "Draw a map of your neighborhood from memory this week — your house, the nearest store, a friend's house, and at least two streets. Then compare it to a real map and see what you got right."
   },
+
   "Needs vs wants — what do I really need?": {
-    hook: "You are packing one bag for two weeks. You can only bring what fits. What do you absolutely have to have? What gets left behind?",
-    materials: ["Paper and pencil","A bag or box (optional — for physical sorting practice)"],
+    hook: "Imagine you are going on a really exciting camping trip and you can only bring one backpack. What would you absolutely have to put in it? What would you have to leave behind?",
+    materials: ["Paper and a pencil","A bag or box to sort things into (optional)"],
     steps: [
-      "NEEDS are things you must have to survive and stay healthy: water, food, shelter, clothing, safety.",
-      "WANTS are things that make life better or more comfortable but are not required: games, extra shoes, snacks, subscriptions.",
-      "Go through a list of 10-15 items together and sort each into needs or wants.",
-      "Notice: needs stay needs no matter what. Wants can change depending on circumstances.",
-      "Most purchases we make are wants. That is okay — but knowing the difference helps you make good decisions with money."
+      "NEEDS are things humans have to have to stay alive and healthy: clean water, food, shelter, clothing, and safety.",
+      "WANTS are things that make life more enjoyable but are not required to survive: toys, games, extra snacks, subscriptions.",
+      "Go through a list of everyday items together and sort each one into NEEDS or WANTS.",
+      "Here is the interesting part: some things feel like needs but are really wants — and that is okay! Knowing the difference is what matters.",
+      "When you understand needs versus wants, you make smarter choices about money, packing, and preparing for hard situations."
     ],
     discussion: [
-      "Is a phone a need or a want? What about a phone to call for emergency help?",
-      "Name something you thought was a need but is actually a want."
+      "Is a phone a need or a want? What about using a phone to call for help in an emergency — does that change your answer?",
+      "Can you think of something you used to think was a need but is actually a want?"
     ],
-    challenge: "For 3 days this week, before buying or asking for anything, pause and ask: is this a need or a want? Write down what you notice."
+    challenge: "For three days this week, whenever you are about to ask for something or spend money, pause and ask yourself: is this a need or a want? Just notice — no judgment, just curiosity."
   },
+
   "What to do if a friend gets hurt": {
-    hook: "You and a friend are riding bikes. Your friend crashes hard, hits their head, and is not responding normally. What do you do first?",
-    materials: ["None required"],
+    hook: "Has a friend or sibling ever gotten hurt while you were playing together? It can feel really confusing to know what to do. Today you are going to learn exactly what to do — and you might surprise yourself with how capable you already are.",
+    materials: ["No materials needed — just your attention and a willing practice partner"],
     steps: [
-      "Step 1: Stay calm. Your friend needs you to think clearly.",
-      "Step 2: Do NOT move someone who might have a neck or back injury — unless they are in immediate danger (like traffic or fire).",
-      "Step 3: Call for an adult or call 911. Tell them your location first.",
-      "Step 4: Stay with your friend. Talk to them calmly. Tell them help is coming.",
-      "Step 5: If they are bleeding, apply gentle pressure with a clean cloth.",
-      "Step 6: If they stop breathing and you know CPR basics, start chest compressions."
+      "The most important first step is to take a breath and stay calm. Your friend needs you to think clearly, not panic.",
+      "Look and listen: is your friend conscious and responding? Can they talk to you?",
+      "If they are not seriously hurt, stay with them, talk to them gently, and go get an adult.",
+      "If they might have hurt their neck or back from a fall, do not move them — wait for a grown-up or emergency help.",
+      "If there is bleeding, press a clean cloth gently on the wound and hold it there.",
+      "If no adult is nearby, call 911. Tell them your location first, then describe what happened.",
+      "Staying calm and staying with your friend is the most important thing you can do."
     ],
     discussion: [
-      "What is the difference between a serious injury and a minor one?",
-      "Why should you NOT move someone who fell hard and hit their head?"
+      "Why do you think staying calm matters so much when someone else is hurt?",
+      "What is the difference between a bump or bruise you can handle and an injury that needs a grown-up right away?"
     ],
-    challenge: "Practice saying your home address and a parent's phone number out loud 5 times each day this week until it is automatic."
+    challenge: "Practice saying your home address out loud every day this week until it comes out automatically. That one piece of information could help emergency responders reach someone you love."
   },
-  "Treats a bruise or bump": {
-    hook: "You bang your shin hard on the table corner. It is swelling up. What is RICE and why does it work?",
-    materials: ["Ice pack or bag of frozen vegetables","Cloth or towel to wrap it in","A place to sit and elevate"],
+
+  "Treating a bruise or bump (RICE method)": {
+    hook: "Have you ever bumped your knee or twisted your ankle and wondered what would actually help it feel better faster? Doctors use a simple four-step method you can learn today. Can you guess what the letters R-I-C-E might stand for?",
+    materials: ["An ice pack or a bag of frozen vegetables","A thin cloth or small towel to wrap it in","A comfortable place to sit"],
     steps: [
-      "RICE stands for: Rest, Ice, Compression, Elevation.",
-      "REST — stop using the injured area.",
-      "ICE — apply a cold pack wrapped in a cloth for 15-20 minutes at a time, never directly on skin.",
-      "COMPRESSION — gentle pressure with an elastic bandage can reduce swelling.",
-      "ELEVATION — raise the injured area above heart level when possible.",
-      "Seek medical help if: the pain is severe, you cannot bear weight, the shape looks wrong, or symptoms worsen."
+      "RICE stands for Rest, Ice, Compression, and Elevation — four steps that work together to reduce swelling and pain.",
+      "REST: stop using the hurt area. Give it a break.",
+      "ICE: wrap an ice pack in a thin cloth and hold it gently on the bump for about fifteen minutes. Never put ice directly on skin — the cloth protects you.",
+      "COMPRESSION: gently wrapping the area with a bandage can help reduce swelling. Not too tight.",
+      "ELEVATION: prop the hurt area up above heart level when you can. It helps fluid drain away from the swelling.",
+      "If the pain is very bad, the area looks very swollen or the wrong shape, or it hurts to put weight on it — tell a grown-up right away."
     ],
     discussion: [
-      "Why do we put ice on a bruise instead of heat?",
-      "What signs would tell you the bruise is actually something more serious?"
+      "Why do you think cold helps a bump or bruise feel better? What do you think it is actually doing?",
+      "What signs would tell you that a bump is more serious than it looks?"
     ],
-    challenge: "Make a simple RICE reminder card and keep it in your first aid kit. Draw a stick figure showing each step."
+    challenge: "Make a simple RICE reminder card to keep with your first aid kit. Draw a little picture for each step — Rest, Ice, Compression, Elevation. Teaching it to someone else is the best way to remember it yourself."
   },
+
 };
 
-/* Get the pre-written lesson or build a smart fallback */
-function getLessonPlan(topic) {
+/* Get the pre-written lesson or return a warm, grade-aware fallback */
+function getLessonPlan(topic, grade) {
   if(LR_LESSON_PLANS[topic]) return LR_LESSON_PLANS[topic];
-  // Smart fallback based on topic text
+  const tier = getLRGradeTier(grade||"5th");
+  const hooks = {
+    early:  "Here is something fun to think about: what do you already know about "+topic+"? You might know more than you think!",
+    middle: "Before we start — what do you already know about "+topic+"? Take a guess. There are no wrong answers.",
+    upper:  "Quick thought before we begin: when do you think someone might actually need to know about "+topic+"? Think of a real situation.",
+    high:   "Here is a question worth sitting with: how would knowing "+topic+" make you more independent or better prepared for real life?",
+  };
+  const challenges = {
+    early:  "Find one way to try or practice this topic this week. Ask a parent to do it with you.",
+    middle: "Find one real-life way to use or observe this skill before next week.",
+    upper:  "Apply this skill once in real life this week. Notice what you learn from actually doing it.",
+    high:   "Use this skill or knowledge in a real situation this week. Be ready to share what happened.",
+  };
   return {
-    hook: "Think about a time you or someone you know could have used this skill. What happened and what would have been different if you had known what to do?",
-    materials: ["Pen and paper for notes","Any household items relevant to the topic"],
+    hook: hooks[tier],
+    materials: ["Pen and paper for notes","Any household items relevant to this topic"],
     steps: [
-      "Discuss what this topic means and why it matters for everyday life.",
-      "Research together: look up one real example or news story related to this topic.",
-      "Brainstorm: what could go wrong without this knowledge? What could go right with it?",
-      "Practice: find one hands-on way to apply what you learned today.",
-      "Recap: each person says one thing they will remember from today."
+      "Start by talking about what this topic is and why real people find it useful.",
+      "Can you think of a time this skill would have helped someone you know?",
+      "Look it up together: find one real story or example related to this topic.",
+      "Try one hands-on way to practice or explore what you learned.",
+      "Wrap up: each person shares one thing they will remember from today."
     ],
     discussion: [
-      "How does knowing this make you safer or more capable?",
-      "Who else in your life could benefit from knowing this?"
+      "How does knowing this make you safer, smarter, or more capable?",
+      "Who else in your life might benefit from learning this too?"
     ],
-    challenge: "Find one way to practice or apply this skill in real life before next week's lesson."
+    challenge: challenges[tier],
   };
 }
 
@@ -5891,7 +5951,7 @@ function LifeReadyScreen({pal,family,onBack}){
 
           {/* Pre-written Lesson Plan */}
           {(()=>{
-            const plan = getLessonPlan(topic);
+            const plan = getLessonPlan(topic, grade);
             return (
               <div style={{display:"flex",flexDirection:"column",gap:"0.65rem",marginBottom:"1rem"}}>
 
