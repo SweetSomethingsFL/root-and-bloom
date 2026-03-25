@@ -1113,7 +1113,7 @@ function OnbPhilosophy({ pal, data, upd, onNext }) {
                 <div style={{fontSize:"0.72rem",color:pal.slate,marginTop:"1px"}}>{s.desc}</div>
               </div>
               <div style={{width:"19px",height:"19px",borderRadius:"4px",border:`2px solid ${isSelected?pal.primary:pal.stone}`,background:isSelected?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                {isSelected&&<span style={{color:pal.onDark,fontSize:"0.6rem",fontWeight:"900"}}>v</span>}
+                {isSelected&&<span style={{color:pal.onDark,fontSize:"0.75rem",fontWeight:"900"}}>✓</span>}
               </div>
             </button>
           );
@@ -1145,7 +1145,7 @@ function OnbCurrBrands({ pal, data, upd, onNext }) {
                 <div style={{fontSize:"0.72rem",color:pal.slate,marginTop:"1px"}}>{s.desc}</div>
               </div>
               <div style={{width:"19px",height:"19px",borderRadius:"4px",border:`2px solid ${isSelected?pal.accent:pal.stone}`,background:isSelected?pal.accent:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                {isSelected&&<span style={{color:pal.onDark,fontSize:"0.6rem",fontWeight:"900"}}>v</span>}
+                {isSelected&&<span style={{color:pal.onDark,fontSize:"0.75rem",fontWeight:"900"}}>✓</span>}
               </div>
             </button>
           );
@@ -1692,7 +1692,7 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                       <span style={{fontSize:"1.2rem"}}>{s.icon}</span>
                       <span style={{flex:1,fontWeight:isSel?"700":"400",color:isSel?pal.primary:pal.inkM,fontSize:"0.83rem"}}>{s.label}</span>
                       <div style={{width:"16px",height:"16px",borderRadius:"3px",border:`2px solid ${isSel?pal.primary:pal.stone}`,background:isSel?pal.primary:"transparent",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                        {isSel&&<span style={{color:pal.onDark,fontSize:"0.55rem",fontWeight:"900"}}>v</span>}
+                        {isSel&&<span style={{color:pal.onDark,fontSize:"0.7rem",fontWeight:"900"}}>✓</span>}
                       </div>
                     </button>
                   );
@@ -1713,7 +1713,7 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                       <span style={{fontSize:"1.2rem"}}>{s.icon}</span>
                       <span style={{flex:1,fontWeight:isSel?"700":"400",color:isSel?pal.accentD:pal.inkM,fontSize:"0.83rem"}}>{s.label}</span>
                       <div style={{width:"16px",height:"16px",borderRadius:"3px",border:`2px solid ${isSel?pal.accent:pal.stone}`,background:isSel?pal.accent:"transparent",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                        {isSel&&<span style={{color:pal.onDark,fontSize:"0.55rem",fontWeight:"900"}}>v</span>}
+                        {isSel&&<span style={{color:pal.onDark,fontSize:"0.7rem",fontWeight:"900"}}>✓</span>}
                       </div>
                     </button>
                   );
@@ -1784,7 +1784,7 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                       <span style={{flex:1,fontWeight:on?"700":"400",color:on?pal.primary:pal.inkM,fontSize:"0.84rem"}}>{s.label}</span>
                       {s.locked
                         ? <span style={{fontSize:"0.7rem",color:pal.slate}}>🔒</span>
-                        : <div style={{width:"19px",height:"19px",borderRadius:"5px",border:`2px solid ${on?pal.primary:pal.stone}`,background:on?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{on&&<span style={{color:pal.onDark,fontSize:"0.65rem",fontWeight:"900"}}>v</span>}</div>
+                        : <div style={{width:"19px",height:"19px",borderRadius:"5px",border:`2px solid ${on?pal.primary:pal.stone}`,background:on?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{on&&<span style={{color:pal.onDark,fontSize:"0.8rem",fontWeight:"900"}}>✓</span>}</div>
                       }
                     </button>
                   );
@@ -5910,7 +5910,7 @@ function AddEntryModal({pal,family,onClose,onSave,initialData=null,stateInfo=nul
               return (
                 <button key={c.id} onClick={()=>toggleChild(i)}
                   style={{flex:1,minWidth:"80px",padding:"0.55rem 0.4rem",borderRadius:"11px",border:`2px solid ${sel?pal.primary:pal.stone+"50"}`,background:sel?pal.pale:"transparent",cursor:"pointer",textAlign:"center",position:"relative",transition:"all 0.13s"}}>
-                  {sel&&<div style={{position:"absolute",top:"4px",right:"4px",width:"14px",height:"14px",borderRadius:"50%",background:pal.primary,display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{color:"#fff",fontSize:"0.55rem",fontWeight:"900"}}>v</span></div>}
+                  {sel&&<div style={{position:"absolute",top:"4px",right:"4px",width:"14px",height:"14px",borderRadius:"50%",background:pal.primary,display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{color:"#fff",fontSize:"0.7rem",fontWeight:"900"}}>✓</span></div>}
                   <div style={{fontSize:"1.3rem"}}>{c.avatar}</div>
                   <div style={{fontSize:"0.68rem",fontWeight:sel?"700":"400",color:sel?pal.primary:pal.inkM}}>{c.name}</div>
                 </button>
@@ -7380,7 +7380,7 @@ function NavModal({ pal, navIds, setNavIds, onClose }) {
           return <button key={s.id} onClick={()=>toggle(s.id)} style={{display:"flex",gap:"0.65rem",alignItems:"center",padding:"0.7rem 0.9rem",border:`2px solid ${on?pal.primary:pal.stone+"50"}`,borderRadius:"12px",background:on?pal.pale:"transparent",cursor:s.locked||atMax?"default":"pointer",opacity:atMax&&!on?0.35:1,transition:"all 0.13s",textAlign:"left"}}>
             <span style={{fontSize:"1.2rem",width:"28px",textAlign:"center"}}>{s.icon}</span>
             <span style={{flex:1,fontWeight:on?"700":"400",color:on?pal.primary:pal.inkM,fontSize:"0.84rem"}}>{s.label}</span>
-            {s.locked?<span style={{fontSize:"0.7rem",color:pal.slate}}>🔒</span>:<div style={{width:"19px",height:"19px",borderRadius:"5px",border:`2px solid ${on?pal.primary:pal.stone}`,background:on?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center"}}>{on&&<span style={{color:pal.onDark,fontSize:"0.65rem",fontWeight:"900"}}>v</span>}</div>}
+            {s.locked?<span style={{fontSize:"0.7rem",color:pal.slate}}>🔒</span>:<div style={{width:"19px",height:"19px",borderRadius:"5px",border:`2px solid ${on?pal.primary:pal.stone}`,background:on?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center"}}>{on&&<span style={{color:pal.onDark,fontSize:"0.8rem",fontWeight:"900"}}>✓</span>}</div>}
           </button>;
         })}
       </div>
