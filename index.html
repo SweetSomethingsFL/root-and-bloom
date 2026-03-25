@@ -215,8 +215,9 @@ const US_STATES = ["Alabama","Alaska","Arizona","Arkansas","California","Colorad
 const ALL_SECTIONS = [
   {id:"home",       label:"Home",       icon:"🏡", locked:true },
   {id:"schedule",   label:"Schedule",   icon:"📅", locked:true },
-  {id:"learn",      label:"Learn",      icon:"📚", locked:false},
   {id:"portfolio",  label:"Portfolio",  icon:"🗂", locked:true },
+  {id:"learn",      label:"Learn",      icon:"📚", locked:false},
+  {id:"preparedcapable", label:"P&C",   icon:"🛡", locked:false},
   {id:"attendance", label:"Attendance", icon:"📋", locked:false},
   {id:"coop",       label:"Co-op",      icon:"🏫", locked:false},
   {id:"transcripts",label:"Records",    icon:"🎓", locked:false},
@@ -242,7 +243,7 @@ function RootAndBloom() {
   const [family,         setFamily]         = useState(saved?.family||null);
   const [view,           setView]           = useState("splash");
   const [activeTab,      setActiveTab]      = useState("home");
-  const [navIds,         setNavIds]         = useState(saved?.navIds||["home","schedule","portfolio"]);
+  const [navIds,         setNavIds]         = useState(saved?.navIds||["home","schedule","portfolio","more"]);
   const [childFilt,      setChildFilt]      = useState("all");
   const [lastCheckinDate,setLastCheckinDate]= useState(saved?.lastCheckinDate||null);
   const [checkinStreak,  setCheckinStreak]  = useState(saved?.checkinStreak||0);
@@ -437,6 +438,15 @@ function RootAndBloom() {
           {activeTab==="coop"        && <CoopScreen        pal={pal} family={family} coopLog={coopLog} onLog={e=>setCoopLog(l=>[e,...l])} />}
           {activeTab==="transcripts" && <TranscriptsScreen pal={pal} family={family} portfolioEntries={portfolioEntries} attendanceDays={attendanceDays} coopLog={coopLog} />}
           {showLifeReady && family && <LifeReadyScreen pal={pal} family={family} onBack={()=>setShowLifeReady(false)}/>}
+          {activeTab==="preparedcapable" && family?.lifeReady && <LifeReadyScreen pal={pal} family={family} onBack={()=>setActiveTab("home")}/>}
+          {activeTab==="preparedcapable" && !family?.lifeReady && (
+            <div style={{animation:"fadeUp 0.22s ease",padding:"2rem 1.2rem",textAlign:"center"}}>
+              <div style={{fontSize:"3rem",marginBottom:"0.75rem"}}>🛡</div>
+              <div style={{fontWeight:"800",color:"#8b2500",fontSize:"1rem",marginBottom:"0.5rem"}}>Prepared & Capable</div>
+              <div style={{fontSize:"0.84rem",color:"#666",lineHeight:1.7,marginBottom:"1.2rem"}}>{"You haven't opted into Prepared & Capable yet."}</div>
+              <button onClick={()=>setActiveTab("more")} style={{padding:"0.65rem 1.5rem",border:"none",borderRadius:"12px",background:"linear-gradient(135deg,#8b2500,#e84c0a)",color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>Set it up in More</button>
+            </div>
+          )}
           {!showLifeReady && activeTab==="more"        && <MoreScreen        pal={pal} family={family}
               onNav={id=>{ if(id==="settings") openSettings(); else if(navIds.includes(id)) setActiveTab(id); }}
               onTheme={()=>setShowTheme(true)} onNavEdit={()=>setShowNav(true)} onSettings={openSettings} onLifeReady={()=>setShowLifeReady(true)} />}
