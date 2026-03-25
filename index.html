@@ -151,32 +151,41 @@ const LR_WEEKLY_TOPICS = {
   "12th": ["Teaching first aid to others — become a trainer", "Building a neighborhood emergency network", "Off-grid living plan — full design", "Full family food supply audit — one year", "Water independence plan — full system", "Full home maintenance audit and plan", "Complete personal finance plan — net worth to retirement", "Survival skills teaching practicum", "Foraging and permaculture design", "Emergency preparedness capstone project", "Stop the bleed instructor certification prep", "Community emergency plan — write and present", "Off-grid budget — cost of energy independence", "Caloric storage for one year — family of four", "Well drilling basics — shallow vs deep", "Home systems audit — HVAC plumbing electrical", "Budgeting for life after high school", "Teaching a land navigation course", "Designing a food forest", "Presenting your capstone to the community", "First aid curriculum design — create a lesson", "Mutual aid organization — legal structure", "Renewable energy ROI calculation", "Commercial-scale food preservation methods", "Water catchment system build — final project", "Apprentice home repair — work alongside a tradesperson", "Negotiating salary and benefits", "Wilderness survival course design", "Ethnobotany — local plant knowledge documentation", "Capstone: full community preparedness guide", "Mass casualty simulation — lead the response", "Disaster mental health — long-term recovery", "Passive house certification overview", "Farm-to-table supply chain — design your own", "Financial independence milestone check — are you on track?", "Legacy project — what did you build this year?"],
 };
 
+function getLRYearStart() {
+  const now = new Date();
+  const aug1ThisYear = new Date(now.getFullYear(), 7, 1);
+  // If we are before Aug 1 this year, school year started Aug 1 last year
+  return now >= aug1ThisYear
+    ? aug1ThisYear
+    : new Date(now.getFullYear() - 1, 7, 1);
+}
+
+function getLRSchoolWeek() {
+  const now = new Date();
+  const yearStart = getLRYearStart();
+  return Math.floor((now - yearStart) / (7*24*60*60*1000));
+}
+
 function getLRTopicForWeek(grade, offset=0) {
   const topics = LR_WEEKLY_TOPICS[grade] || LR_WEEKLY_TOPICS["5th"];
-  const yearStart = new Date(new Date().getFullYear(), 7, 1); // Aug 1 = school year start
-  const now = new Date();
-  const schoolWeek = Math.floor((now - yearStart) / (7*24*60*60*1000));
-  const idx = Math.max(0, schoolWeek + offset) % topics.length;
-  return topics[idx];
+  const schoolWeek = getLRSchoolWeek();
+  const idx = (schoolWeek + offset) % topics.length;
+  return topics[Math.max(0, idx)];
 }
 
 function getLRWeekNumber(grade) {
   const topics = LR_WEEKLY_TOPICS[grade] || LR_WEEKLY_TOPICS["5th"];
-  const yearStart = new Date(new Date().getFullYear(), 7, 1);
-  const now = new Date();
-  const schoolWeek = Math.floor((now - yearStart) / (7*24*60*60*1000));
-  return Math.max(0, schoolWeek) % topics.length + 1;
+  const schoolWeek = getLRSchoolWeek();
+  return (schoolWeek % topics.length) + 1;
 }
 
 function getLRUpcomingTopics(grade, count=4) {
   const topics = LR_WEEKLY_TOPICS[grade] || LR_WEEKLY_TOPICS["5th"];
-  const yearStart = new Date(new Date().getFullYear(), 7, 1);
-  const now = new Date();
-  const schoolWeek = Math.floor((now - yearStart) / (7*24*60*60*1000));
+  const schoolWeek = getLRSchoolWeek();
   return Array.from({length:count}, (_,i) => ({
     weekOffset: i,
-    topic: topics[Math.max(0, schoolWeek + i) % topics.length],
-    weekNum: Math.max(0, schoolWeek + i) % topics.length + 1,
+    topic: topics[(schoolWeek + i) % topics.length],
+    weekNum: ((schoolWeek + i) % topics.length) + 1,
   }));
 }
 
