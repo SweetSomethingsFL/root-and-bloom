@@ -2623,110 +2623,86 @@ function getLessonPlan(topic, grade) {
    Opens a clean print window — not the app
 ======================================= */
 function printPortfolioPDF(family, entries, child, attendanceDays, stateInfo) {
-  const schoolName = family.schoolName||(family.familyName+" Academy")||"Home School";
-  const yearStartNum = family.yearStart ? new Date(family.yearStart).getFullYear() : new Date().getFullYear();
-  const yearEndNum   = family.yearEnd   ? new Date(family.yearEnd).getFullYear()   : yearStartNum+1;
-  const today        = new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
-  const pct          = Math.min(100,Math.round(attendanceDays/180*100));
-  const childName    = child?.name||"Student";
-  const grade        = child?.grade||"";
+  const schoolName  = family.schoolName||(family.familyName+" Academy")||"Home School";
+  const yearStartNum= family.yearStart ? new Date(family.yearStart).getFullYear() : new Date().getFullYear();
+  const yearEndNum  = family.yearEnd   ? new Date(family.yearEnd).getFullYear()   : yearStartNum+1;
+  const today       = new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
+  const pct         = Math.min(100,Math.round(attendanceDays/180*100));
+  const childName   = child?.name||"Student";
+  const grade       = child?.grade||"";
 
-  // Separate entries
   const subjEntries = entries.filter(e=>!e.isDay&&e.subj!=="Daily Notes")
     .sort((a,b)=>{try{return new Date(a.date+", "+yearStartNum)-new Date(b.date+", "+yearStartNum);}catch{return 0;}});
   const dayNoteEntries = entries.filter(e=>e.isDay||e.subj==="Daily Notes");
 
-  // Group subject entries by date for daily pages
+  // Group by date
   const byDate = {};
-  subjEntries.forEach(e=>{
-    if(!byDate[e.date]) byDate[e.date]=[];
-    byDate[e.date].push(e);
-  });
-  // Merge in day notes by date
-  dayNoteEntries.forEach(e=>{
-    if(!byDate[e.date]) byDate[e.date]=[];
-    byDate[e.date].push(e);
-  });
+  subjEntries.forEach(e=>{ if(!byDate[e.date]) byDate[e.date]=[]; byDate[e.date].push(e); });
+  dayNoteEntries.forEach(e=>{ if(!byDate[e.date]) byDate[e.date]=[]; byDate[e.date].push(e); });
   const allDates = Object.keys(byDate).sort((a,b)=>{
     try{return new Date(a+", "+yearStartNum)-new Date(b+", "+yearStartNum);}catch{return 0;}
   });
 
-  // Group by week (Mon-Sun)
-  const getWeekKey = (dateStr) => {
-    try {
-      const d = new Date(dateStr+", "+yearStartNum);
-      const day = d.getDay();
-      const mon = new Date(d); mon.setDate(d.getDate()-(day===0?6:day-1));
+  // Group by week
+  const getWeekKey = (dateStr)=>{
+    try{
+      const d=new Date(dateStr+", "+yearStartNum);
+      const mon=new Date(d); mon.setDate(d.getDate()-(d.getDay()===0?6:d.getDay()-1));
       return mon.toLocaleDateString("en-US",{month:"short",day:"numeric"});
-    } catch{ return dateStr; }
+    }catch{return dateStr;}
   };
-  const byWeek = {};
-  allDates.forEach(date=>{
-    const wk = getWeekKey(date);
-    if(!byWeek[wk]) byWeek[wk]=[];
-    byWeek[wk].push(date);
-  });
+  const byWeek={};
+  allDates.forEach(date=>{ const wk=getWeekKey(date); if(!byWeek[wk]) byWeek[wk]=[]; byWeek[wk].push(date); });
 
-  // Subject summary
-  const bySubject = {};
-  subjEntries.forEach(e=>{
-    if(!bySubject[e.subj]) bySubject[e.subj]=[];
-    bySubject[e.subj].push(e);
-  });
+  const bySubject={};
+  subjEntries.forEach(e=>{ if(!bySubject[e.subj]) bySubject[e.subj]=[]; bySubject[e.subj].push(e); });
 
-  // Total subjects goal (from family settings)
-  const totalSubjGoal = (family.subjects||[]).length || 5;
-
-  // ── SHARED CSS ──
   const css = ""
     +"*{box-sizing:border-box;margin:0;padding:0}"
-    +"body{font-family:Arial,sans-serif;color:#1a1a1a;background:#fff;font-size:10pt;line-height:1.5}"
+    +"body{font-family:Arial,sans-serif;color:#1a1a1a;font-size:10pt;line-height:1.5}"
     +".page{max-width:720px;margin:0 auto;padding:2rem;page-break-after:always}"
     +".page:last-child{page-break-after:auto}"
     +".cover{background:linear-gradient(135deg,#2a6a2a,#5a9a3a);padding:2rem;border-radius:10px;color:#fff;text-align:center;margin-bottom:1.5rem}"
     +".cover h1{font-family:Georgia,serif;font-size:22pt;margin-bottom:6px}"
     +".cover .sub{font-size:10pt;opacity:0.85}"
     +".section-title{font-size:8pt;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#888;margin:1.2rem 0 0.5rem;padding-bottom:4px;border-bottom:1.5px solid #e0e0e0}"
-    +".day-header{display:flex;justify-content:space-between;align-items:center;background:#f5f9f5;border-radius:6px;padding:8px 12px;margin-bottom:8px;border-left:3px solid #2a6a2a}"
+    +".day-header{display:flex;justify-content:space-between;align-items:center;background:#f5f9f5;border-radius:6px;padding:8px 12px;margin-bottom:10px;border-left:3px solid #2a6a2a}"
     +".day-title{font-size:11pt;font-weight:700;color:#2a6a2a}"
     +".day-date{font-size:9pt;color:#888}"
-    +".subj-entry{padding:8px 12px;border-bottom:1px solid #f0f0f0;display:flex;gap:10px}"
-    +".subj-entry:last-child{border-bottom:none}"
-    +".subj-name{font-weight:700;font-size:9.5pt;color:#1a1a1a;min-width:90px}"
-    +".subj-note{font-size:9pt;color:#444;flex:1;line-height:1.6}"
-    +".reading-title{font-size:8.5pt;color:#2a6a2a;font-style:italic;margin-top:2px}"
-    +".photo-row{display:flex;gap:10px;margin-top:10px}"
-    +".photo-box{width:calc(33.33% - 7px);aspect-ratio:4/3;border:1.5px dashed #ccc;border-radius:6px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#fafafa}"
+    +".log-row{padding:9px 12px;border-bottom:1px solid #f0f0f0;display:flex;gap:12px;align-items:flex-start}"
+    +".log-row:last-child{border-bottom:none}"
+    +".log-subj{font-weight:700;font-size:9.5pt;color:#2a6a2a;min-width:90px;padding-top:1px}"
+    +".log-content{flex:1}"
+    +".log-title{font-size:9.5pt;color:#1a1a1a}"
+    +".log-note{font-size:9pt;color:#555;margin-top:2px;line-height:1.6}"
+    +".log-reading{font-size:8.5pt;color:#2a6a2a;font-style:italic;margin-top:2px}"
+    +".day-note-box{background:#f5f8ff;border-top:1px solid #e0e8ff;padding:9px 12px}"
+    +".photo-row{display:flex;gap:10px;margin-top:12px}"
+    +".photo-box{flex:1;aspect-ratio:4/3;border:1.5px dashed #ccc;border-radius:6px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#fafafa}"
     +".photo-box img{width:100%;height:100%;object-fit:cover;border-radius:4px}"
-    +".photo-placeholder{font-size:8pt;color:#bbb;text-align:center;padding:8px}"
-    +".week-card{background:#fff;border:1px solid #e5e5e5;border-radius:8px;padding:12px 16px;margin-bottom:12px;border-left:3px solid #2a6a2a}"
-    +".week-title{font-size:11pt;font-weight:700;color:#2a6a2a;margin-bottom:8px}"
-    +".subj-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f5f5f5;font-size:9.5pt}"
-    +".progress-bar{height:6px;background:#e0e0e0;border-radius:99px;margin:4px 0 8px}"
+    +".photo-label{font-size:8pt;color:#ccc;text-align:center}"
+    +".week-card{border:1px solid #e5e5e5;border-radius:8px;overflow:hidden;margin-bottom:12px}"
+    +".week-subj-row{display:flex;justify-content:space-between;align-items:center;padding:7px 12px;border-bottom:1px solid #f0f0f0;font-size:9.5pt}"
+    +".week-subj-row:last-child{border-bottom:none}"
+    +".progress-bar{height:6px;background:#e0e0e0;border-radius:99px;margin:3px 0 8px}"
     +".progress-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#2a6a2a,#5a9a3a)}"
-    +".highlight-box{background:#f5f9f5;border-radius:6px;padding:10px 12px;margin-top:8px;font-size:9pt;color:#444;line-height:1.65}"
-    +".year-grid{width:100%;border-collapse:collapse;font-size:8pt}"
-    +".year-grid th{background:#2a6a2a;color:#fff;padding:6px 4px;text-align:center;font-size:7.5pt}"
-    +".year-grid td{border:1px solid #e0e0e0;padding:5px 4px;text-align:center;vertical-align:top;min-height:24px}"
-    +".year-grid td.done{background:#f0f8f0}"
-    +".year-grid td.today{background:#e0f0e0;font-weight:700}"
-    +".extra-row{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid #f0f0f0;font-size:9.5pt;align-items:flex-start}"
-    +".extra-date{min-width:60px;color:#888;font-size:9pt}"
-    +".extra-name{font-weight:700;min-width:120px}"
-    +".extra-desc{color:#555;flex:1}"
+    +".highlight-box{background:#f5f9f5;border-radius:6px;padding:10px 14px;margin-top:8px;font-size:9pt;color:#444;line-height:1.7}"
+    +".year-grid{width:100%;border-collapse:collapse;font-size:8.5pt}"
+    +".year-grid th{background:#2a6a2a;color:#fff;padding:6px 8px;text-align:center}"
+    +".year-grid td{border:1px solid #e8e8e8;padding:5px 8px;text-align:center}"
+    +".year-grid tr.done td{background:#f0f8f0}"
+    +".extra-row{display:flex;gap:10px;padding:7px 12px;border-bottom:1px solid #f0f0f0;font-size:9.5pt;align-items:flex-start}"
+    +".extra-row:last-child{border-bottom:none}"
     +".sig-area{margin-top:2rem;padding-top:1rem;border-top:1.5px solid #ccc;display:flex;gap:2rem}"
     +".sig-col{flex:1}"
     +".sig-line{border-bottom:1.5px solid #888;height:28px;margin-bottom:4px}"
     +".sig-label{font-size:8pt;color:#888}"
-    +".footer{margin-top:1.5rem;padding-top:0.8rem;border-top:1px solid #e0e0e0;font-size:8pt;color:#aaa;display:flex;justify-content:space-between}"
-    +"@media print{.page{padding:1.2rem}@page{margin:1.8cm;size:letter}}";
+    +".footer{margin-top:1.5rem;padding-top:0.8rem;border-top:1px solid #e0e0e0;font-size:8pt;color:#aaa;display:flex;justify-content:space-between}";
 
-  // ── PAGE 1: COVER ──
+  // ── COVER ──
   let html = "<!DOCTYPE html><html lang='en'><head>"
-    +"<meta charset='utf-8'>"
-    +"<title>"+schoolName+" Portfolio "+yearStartNum+"-"+yearEndNum+"</title>"
-    +"<style>"+css+"</style>"
-    +"</head><body>"
+    +"<meta charset='utf-8'><title>"+schoolName+" Portfolio</title>"
+    +"<style>"+css+"</style></head><body>"
     +"<div class='page'>"
     +"<div class='cover'>"
     +"<div style='font-size:8pt;text-transform:uppercase;letter-spacing:0.12em;opacity:0.75;margin-bottom:6px'>Homeschool Portfolio</div>"
@@ -2735,29 +2711,17 @@ function printPortfolioPDF(family, entries, child, attendanceDays, stateInfo) {
     +"<div class='sub' style='margin-top:4px'>"+yearStartNum+"&ndash;"+yearEndNum+" &bull; "+(family.state||"")+"</div>"
     +"<div class='sub' style='margin-top:4px;opacity:0.65'>Generated: "+today+"</div>"
     +"</div>"
-
-    // Attendance bar
     +"<div class='section-title'>Attendance</div>"
-    +"<div style='display:flex;justify-content:space-between;font-size:9pt;color:#555;margin-bottom:4px'>"
+    +"<div style='display:flex;justify-content:space-between;font-size:9pt;color:#555;margin-bottom:5px'>"
     +"<span><b style='font-size:14pt;color:#2a6a2a'>"+attendanceDays+"</b> days completed</span>"
-    +"<span style='color:#888'>180 required &bull; "+pct+"% complete</span>"
+    +"<span style='color:#888'>"+pct+"% of 180 days</span>"
     +"</div>"
     +"<div class='progress-bar'><div class='progress-fill' style='width:"+pct+"%'></div></div>"
-
-    // Subject summary
-    +"<div class='section-title'>Subjects Covered</div>"
-    +Object.entries(bySubject).map(([subj,ents])=>
-      "<div class='subj-row'><span style='font-weight:700'>"+subj+"</span>"
-      +"<span style='color:#666'>"+ents.length+" "+(ents.length===1?"entry":"entries")+"</span></div>"
-    ).join("")
-
-    +"<div class='footer'>"
-    +"<span>"+schoolName+" &bull; "+childName+" &bull; "+yearStartNum+"-"+yearEndNum+"</span>"
-    +"<span>Root &amp; Bloom</span>"
-    +"</div>"
+    +"<div style='margin-top:1rem;font-size:9pt;color:#888;text-align:center'>"+allDates.length+" school days logged &bull; "+Object.keys(byWeek).length+" weeks &bull; "+subjEntries.length+" portfolio entries</div>"
+    +"<div class='footer'><span>"+schoolName+" &bull; "+childName+"</span><span>Root &amp; Bloom</span></div>"
     +"</div>";
 
-  // ── DAILY LOG PAGES ──
+  // ── DAILY PAGES ──
   allDates.forEach(date=>{
     const dateEntries = byDate[date];
     const subjs = dateEntries.filter(e=>!e.isDay&&e.subj!=="Daily Notes");
@@ -2769,242 +2733,199 @@ function printPortfolioPDF(family, entries, child, attendanceDays, stateInfo) {
       +"<div class='day-title'>"+date+"</div>"
       +"<div class='day-date'>"+childName+" &bull; "+grade+"</div>"
       +"</div>"
+      +"<div style='border:1px solid #e8e8e8;border-radius:6px;overflow:hidden'>";
 
-      // Subject entries with notes
-      +"<div class='section-title'>Subjects &amp; Activity Log</div>"
-      +"<div style='border:1px solid #e8e8e8;border-radius:6px;overflow:hidden;margin-bottom:10px'>";
-
-    if(subjs.length===0) {
-      html += "<div style='padding:12px;font-size:9pt;color:#aaa;text-align:center'>No subject entries logged for this day.</div>";
+    if(subjs.length===0&&!dayNote) {
+      html += "<div style='padding:14px;font-size:9pt;color:#aaa;text-align:center'>No entries logged for this day.</div>";
     } else {
       subjs.forEach((e,i)=>{
-        const noteTxt = (e.note||"").replace("AI Summary: ","").trim();
+        const noteTxt  = (e.note||"").replace("AI Summary: ","").trim();
         const titleTxt = (e.title||"").replace((e.subj||"")+" \u2014 ","").replace((e.subj||"")+" -- ","").trim();
-        html += "<div class='subj-entry' style='background:"+(i%2===0?"#fff":"#fafafa")+"'>"
-          +"<div class='subj-name'>"+e.subj+"</div>"
-          +"<div class='subj-note'>"
-          +(titleTxt&&titleTxt!==e.subj?"<div>"+titleTxt+"</div>":"")
-          +(noteTxt?"<div style='color:#555;margin-top:2px'>"+noteTxt+"</div>":"")
-          +(e.readingTitle?"<div class='reading-title'>\ud83d\udcd6 "+e.readingTitle+"</div>":"")
-          +"</div>"
-          +"</div>";
+        const showTitle= titleTxt && titleTxt!==e.subj && titleTxt!==e.date;
+        html += "<div class='log-row' style='background:"+(i%2===0?"#fff":"#fafafa")+"'>"
+          +"<div class='log-subj'>"+e.subj+"</div>"
+          +"<div class='log-content'>"
+          +(showTitle?"<div class='log-title'>"+titleTxt+"</div>":"")
+          +(noteTxt?"<div class='log-note'>"+noteTxt+"</div>":"")
+          +(e.readingTitle?"<div class='log-reading'>\ud83d\udcd6 "+e.readingTitle+"</div>":"")
+          +(!showTitle&&!noteTxt&&!e.readingTitle?"<div class='log-note' style='color:#bbb'>No notes</div>":"")
+          +"</div></div>";
       });
-    }
-
-    // Day notes / AI summary
-    if(dayNote&&dayNote.note) {
-      const noteClean = (dayNote.note||"").replace("AI Summary: ","").trim();
-      html += "<div style='padding:10px 12px;background:#f0f5ff;border-top:1px solid #e0e8ff'>"
-        +"<div style='font-size:8pt;font-weight:700;color:#4466aa;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px'>Day Notes</div>"
-        +"<div style='font-size:9pt;color:#334;line-height:1.65'>"+noteClean+"</div>"
-        +"</div>";
+      if(dayNote&&dayNote.note) {
+        const noteClean=(dayNote.note||"").replace("AI Summary: ","").trim();
+        html += "<div class='day-note-box'>"
+          +"<div style='font-size:8pt;font-weight:700;color:#4466aa;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px'>Parent Notes</div>"
+          +"<div style='font-size:9pt;color:#334;line-height:1.65'>"+noteClean+"</div>"
+          +"</div>";
+      }
     }
 
     html += "</div>";
 
-    // Photo spots
-    html += "<div class='section-title'>Photos &amp; Work Samples</div>"
+    // Photos
+    html += "<div class='section-title'>Work Samples</div>"
       +"<div class='photo-row'>";
-
     for(let i=0;i<3;i++){
-      html += "<div class='photo-box'>";
-      if(allPhotos[i]) {
-        html += "<img src='"+allPhotos[i]+"' alt='Work sample "/+(i+1)+"'/>";
-      } else {
-        html += "<div class='photo-placeholder'>\ud83d\udcf7<br>Photo "+(i+1)+"</div>";
-      }
-      html += "</div>";
+      html += "<div class='photo-box'>"
+        +(allPhotos[i]
+          ?"<img src='"+allPhotos[i]+"' alt='Sample "/+(i+1)+"'/>"
+          :"<div class='photo-label'>\ud83d\udcf7<br>Photo "+(i+1)+"</div>")
+        +"</div>";
     }
     html += "</div>"
-      +"<div style='font-size:7.5pt;color:#bbb;margin-top:4px;text-align:center'>Add photos when logging entries in Root &amp; Bloom</div>";
-
-    html += "<div class='footer'>"
-      +"<span>"+schoolName+" &bull; "+childName+"</span>"
-      +"<span>"+date+" &bull; Root &amp; Bloom</span>"
-      +"</div>"
+      +"<div class='footer'><span>"+schoolName+" &bull; "+childName+"</span><span>"+date+" &bull; Root &amp; Bloom</span></div>"
       +"</div>";
   });
 
-  // ── WEEKLY SUMMARY PAGES ──
+  // ── WEEKLY PAGES ──
   Object.entries(byWeek).forEach(([weekStart, dates])=>{
-    const weekSubjs = {};
+    const weekSubjs={};
     dates.forEach(date=>{
       (byDate[date]||[]).filter(e=>!e.isDay&&e.subj!=="Daily Notes").forEach(e=>{
         if(!weekSubjs[e.subj]) weekSubjs[e.subj]=0;
         weekSubjs[e.subj]++;
       });
     });
-    const weekNotes = dates.flatMap(date=>(byDate[date]||[])
-      .filter(e=>e.isDay&&e.note)
-      .map(e=>(e.note||"").replace("AI Summary: ","").split("\n")[0].slice(0,100))
+    const weekNotes = dates.flatMap(date=>
+      (byDate[date]||[]).filter(e=>(e.isDay||e.subj==="Daily Notes")&&e.note)
+        .map(e=>(e.note||"").replace("AI Summary: ","").split("\n")[0].slice(0,120))
     ).filter(Boolean);
-    const totalLessonsThisWeek = Object.values(weekSubjs).reduce((a,b)=>a+b,0);
+    const totalThisWeek = Object.values(weekSubjs).reduce((a,b)=>a+b,0);
 
     html += "<div class='page'>"
       +"<div class='day-header'>"
       +"<div class='day-title'>Week of "+weekStart+"</div>"
-      +"<div class='day-date'>"+childName+" &bull; "+dates.length+" day"+(dates.length===1?"":"s")+" logged</div>"
+      +"<div class='day-date'>"+childName+" &bull; "+dates.length+" day"+(dates.length===1?"":"s")+"</div>"
       +"</div>"
+      +"<div class='week-card'>";
 
-      +"<div class='section-title'>Subjects This Week</div>"
-      +"<div style='border:1px solid #e8e8e8;border-radius:6px;overflow:hidden;margin-bottom:12px'>";
-
-    const subjGoalMap = {};
-    (family.subjects||[]).forEach((id,i)=>{ subjGoalMap[id]=Math.ceil(180/36); }); // ~5 per week
-
-    Object.entries(weekSubjs).forEach(([subj,count],i)=>{
-      const totalDone = (bySubject[subj]||[]).length;
-      const totalGoal = Math.ceil(attendanceDays>0?(totalLessonsThisWeek/dates.length)*180:180);
-      html += "<div class='subj-row' style='padding:6px 12px;background:"+(i%2===0?"#fff":"#fafafa")+"'>"
-        +"<span style='font-weight:700'>"+subj+"</span>"
-        +"<span style='color:#2a6a2a;font-weight:700'>"+count+" this week</span>"
-        +"<span style='color:#888'>"+totalDone+" total</span>"
-        +"</div>";
-    });
-
-    if(Object.keys(weekSubjs).length===0) {
-      html += "<div style='padding:12px;font-size:9pt;color:#aaa;text-align:center'>No entries this week.</div>";
+    if(Object.keys(weekSubjs).length===0){
+      html += "<div style='padding:14px;font-size:9pt;color:#aaa;text-align:center'>No entries this week.</div>";
+    } else {
+      Object.entries(weekSubjs).forEach(([subj,count],i)=>{
+        const totalDone=(bySubject[subj]||[]).length;
+        html += "<div class='week-subj-row' style='background:"+(i%2===0?"#fff":"#fafafa")+"'>"
+          +"<span style='font-weight:700;color:#1a1a1a'>"+subj+"</span>"
+          +"<span style='color:#2a6a2a;font-weight:700'>"+count+" this week</span>"
+          +"<span style='color:#999;font-size:9pt'>"+totalDone+" total</span>"
+          +"</div>";
+      });
     }
-
     html += "</div>"
-      +"<div style='display:flex;justify-content:space-between;font-size:9pt;margin-bottom:12px;padding:8px 12px;background:#f5f9f5;border-radius:6px'>"
-      +"<span>\ud83d\udcda <b>"+totalLessonsThisWeek+"</b> lessons completed this week</span>"
-      +"<span>\ud83d\udcc5 <b>"+attendanceDays+"</b> / 180 days total</span>"
+      +"<div style='display:flex;gap:1rem;font-size:9pt;margin-bottom:10px'>"
+      +"<div style='flex:1;background:#f5f9f5;border-radius:6px;padding:8px 12px;text-align:center'>"
+      +"<div style='font-size:16pt;font-weight:700;color:#2a6a2a'>"+totalThisWeek+"</div>"
+      +"<div style='color:#888;font-size:8pt'>lessons this week</div>"
+      +"</div>"
+      +"<div style='flex:1;background:#f5f9f5;border-radius:6px;padding:8px 12px;text-align:center'>"
+      +"<div style='font-size:16pt;font-weight:700;color:#2a6a2a'>"+attendanceDays+"</div>"
+      +"<div style='color:#888;font-size:8pt'>total days logged</div>"
+      +"</div>"
+      +"<div style='flex:1;background:#f5f9f5;border-radius:6px;padding:8px 12px;text-align:center'>"
+      +"<div style='font-size:16pt;font-weight:700;color:#2a6a2a'>"+pct+"%</div>"
+      +"<div style='color:#888;font-size:8pt'>of year complete</div>"
+      +"</div>"
       +"</div>";
 
-    if(weekNotes.length>0) {
-      html += "<div class='section-title'>Highlights &amp; Notes</div>"
+    if(weekNotes.length>0){
+      html += "<div class='section-title'>Highlights</div>"
         +"<div class='highlight-box'>";
-      weekNotes.forEach(n=>{ html += "<div style='margin-bottom:4px'>&bull; "+n+"</div>"; });
+      weekNotes.forEach(n=>{ html += "<div style='margin-bottom:5px'>&bull; "+n+"</div>"; });
       html += "</div>";
     }
 
-    html += "<div class='footer'>"
-      +"<span>"+schoolName+" &bull; "+childName+"</span>"
-      +"<span>Week of "+weekStart+" &bull; Root &amp; Bloom</span>"
-      +"</div>"
+    html += "<div class='footer'><span>"+schoolName+" &bull; "+childName+"</span><span>Week of "+weekStart+" &bull; Root &amp; Bloom</span></div>"
       +"</div>";
   });
 
   // ── EXTRACURRICULAR LOG ──
-  const extras = entries.filter(e=>
-    e.subj==="Co-op"||e.subj==="Extracurricular"||
-    (family.customExtracurriculars||[]).some(x=>e.subj===x)||
-    (family.extracurriculars||[]).some(x=>e.subj===x||e.title?.includes(x))
-  );
+  const extracurricularSubjs = new Set([
+    "Co-op","Extracurricular",
+    ...(family.extracurriculars||[]),
+    ...(family.customExtracurriculars||[])
+  ]);
+  const extras = entries.filter(e=>extracurricularSubjs.has(e.subj));
 
   html += "<div class='page'>"
-    +"<div class='day-header'>"
-    +"<div class='day-title'>Extracurricular Log</div>"
-    +"<div class='day-date'>"+yearStartNum+"&ndash;"+yearEndNum+"</div>"
-    +"</div>"
-    +"<div class='section-title'>Activities &amp; Events</div>";
+    +"<div class='day-header'><div class='day-title'>Extracurricular Log</div><div class='day-date'>"+yearStartNum+"&ndash;"+yearEndNum+"</div></div>"
+    +"<div style='border:1px solid #e8e8e8;border-radius:6px;overflow:hidden'>";
 
-  if(extras.length===0) {
-    html += "<div style='padding:20px;text-align:center;color:#aaa;font-size:9pt;border:1px dashed #ddd;border-radius:6px'>"
-      +"No extracurricular entries logged yet. Activities logged in portfolio will appear here."
+  if(extras.length===0){
+    html += "<div style='padding:20px;text-align:center;color:#aaa;font-size:9pt'>"
+      +"No extracurricular entries logged yet."
       +"</div>";
   } else {
-    html += "<div style='border:1px solid #e8e8e8;border-radius:6px;overflow:hidden'>";
     extras.forEach((e,i)=>{
-      html += "<div class='extra-row' style='padding:8px 12px;background:"+(i%2===0?"#fff":"#fafafa")+"'>"
-        +"<div class='extra-date'>"+e.date+"</div>"
-        +"<div class='extra-name'>"+e.subj+"</div>"
-        +"<div class='extra-desc'>"+((e.title||"").replace(e.subj+" \u2014 ",""))+"</div>"
+      const title=(e.title||"").replace(e.subj+" \u2014 ","").replace(e.subj+" -- ","").trim();
+      html += "<div class='extra-row' style='background:"+(i%2===0?"#fff":"#fafafa")+"'>"
+        +"<div style='min-width:65px;color:#888;font-size:9pt'>"+e.date+"</div>"
+        +"<div style='font-weight:700;min-width:110px;color:#2a6a2a'>"+e.subj+"</div>"
+        +"<div style='color:#444;flex:1;font-size:9.5pt'>"+(title||"&mdash;")+"</div>"
         +"</div>";
     });
-    html += "</div>";
   }
 
-  html += "<div class='footer'>"
-    +"<span>"+schoolName+" &bull; "+childName+"</span>"
-    +"<span>"+yearStartNum+"-"+yearEndNum+" &bull; Root &amp; Bloom</span>"
-    +"</div>"
+  html += "</div>"
+    +"<div class='footer'><span>"+schoolName+" &bull; "+childName+"</span><span>Root &amp; Bloom</span></div>"
     +"</div>";
 
   // ── YEAR AT A GLANCE ──
   const schoolYearStart = family.yearStart ? new Date(family.yearStart) : new Date(yearStartNum,7,1);
   const schoolYearEnd   = family.yearEnd   ? new Date(family.yearEnd)   : new Date(yearEndNum,4,31);
-  const activeSubjList  = (family.subjects||[]).map(id=>{
-    const allS=[...( ([]||[]))]; return id;
-  }).slice(0,6);
-  const subjLabels = (family.subjects||[]).slice(0,6).map(id=>{
-    const found = [...(Array.isArray([])?[]:[]),...[]].find(s=>s.id===id);
-    return id.charAt(0).toUpperCase()+id.slice(1,4);
-  });
-
-  // Build week rows for the year
-  const weekRows = [];
-  let cursor = new Date(schoolYearStart);
-  // Align to Monday
+  const weekRows=[];
+  const cursor = new Date(schoolYearStart);
   const startDay = cursor.getDay();
   cursor.setDate(cursor.getDate()-(startDay===0?6:startDay-1));
-  let weekNum = 0;
-  while(cursor <= schoolYearEnd && weekNum < 40) {
+  let weekNum=0;
+  while(cursor<=schoolYearEnd&&weekNum<40){
     weekNum++;
-    const weekLabel = cursor.toLocaleDateString("en-US",{month:"short",day:"numeric"});
-    const datesInWeek = [];
-    for(let d=0;d<5;d++){
-      const dd = new Date(cursor);
-      dd.setDate(cursor.getDate()+d);
-      datesInWeek.push(dd.toLocaleDateString("en-US",{month:"short",day:"numeric"}));
-    }
-    const entriesThisWeek = subjEntries.filter(e=>datesInWeek.includes(e.date));
-    const daysWithEntries = new Set(entriesThisWeek.map(e=>e.date)).size;
-    weekRows.push({weekNum,weekLabel,daysWithEntries,entriesThisWeek});
+    const wkLabel = cursor.toLocaleDateString("en-US",{month:"short",day:"numeric"});
+    const datesInWk=[];
+    for(let d=0;d<5;d++){const dd=new Date(cursor);dd.setDate(cursor.getDate()+d);datesInWk.push(dd.toLocaleDateString("en-US",{month:"short",day:"numeric"}));}
+    const wkEntries=subjEntries.filter(e=>datesInWk.includes(e.date));
+    const daysLogged=new Set(wkEntries.map(e=>e.date)).size;
+    weekRows.push({weekNum,wkLabel,daysLogged,count:wkEntries.length});
     cursor.setDate(cursor.getDate()+7);
   }
 
   html += "<div class='page'>"
-    +"<div class='day-header'>"
-    +"<div class='day-title'>Year at a Glance</div>"
-    +"<div class='day-date'>"+yearStartNum+"&ndash;"+yearEndNum+"</div>"
-    +"</div>"
+    +"<div class='day-header'><div class='day-title'>Year at a Glance</div><div class='day-date'>"+yearStartNum+"&ndash;"+yearEndNum+"</div></div>"
     +"<table class='year-grid'>"
-    +"<thead><tr><th>Wk</th><th>Week of</th><th>Days</th><th>Entries</th><th>Progress</th></tr></thead>"
+    +"<thead><tr><th>Wk</th><th>Week of</th><th>Days</th><th>Entries</th><th style='width:180px'>Progress</th></tr></thead>"
     +"<tbody>";
-
   weekRows.forEach(row=>{
-    const hasDone = row.daysWithEntries>0;
-    const barW = Math.min(100,Math.round((row.daysWithEntries/5)*100));
-    html += "<tr class='"+(hasDone?"done":"")+"'>"
+    const barW=Math.min(100,Math.round((row.daysLogged/5)*100));
+    html += "<tr class='"+(row.daysLogged>0?"done":"")+"'>"
       +"<td style='font-weight:700;color:#2a6a2a'>"+row.weekNum+"</td>"
-      +"<td>"+row.weekLabel+"</td>"
-      +"<td style='text-align:center'>"+(hasDone?row.daysWithEntries+"\u2713":"&mdash;")+"</td>"
-      +"<td style='text-align:center'>"+row.entriesThisWeek.length+"</td>"
+      +"<td>"+row.wkLabel+"</td>"
+      +"<td style='text-align:center'>"+(row.daysLogged>0?row.daysLogged+"\u2713":"&mdash;")+"</td>"
+      +"<td style='text-align:center'>"+(row.count||"&mdash;")+"</td>"
       +"<td style='padding:6px 8px'>"
-      +(hasDone?"<div class='progress-bar' style='margin:2px 0'><div class='progress-fill' style='width:"+barW+"%'></div></div>":"")
+      +(row.daysLogged>0?"<div class='progress-bar' style='margin:2px 0'><div class='progress-fill' style='width:"+barW+"%'></div></div>":"")
       +"</td>"
       +"</tr>";
   });
-
   html += "</tbody></table>"
-    +"<div style='margin-top:10px;font-size:8pt;color:#888;text-align:center'>Shaded rows = school days logged &bull; "+attendanceDays+" of 180 days completed ("+pct+"%)</div>"
-    +"<div class='footer'>"
-    +"<span>"+schoolName+" &bull; "+childName+"</span>"
-    +"<span>Root &amp; Bloom</span>"
-    +"</div>"
+    +"<div style='margin-top:8px;font-size:8pt;color:#888;text-align:center'>Shaded = days logged &bull; "+attendanceDays+" of 180 days ("+pct+"%)</div>"
+    +"<div class='footer'><span>"+schoolName+" &bull; "+childName+"</span><span>Root &amp; Bloom</span></div>"
     +"</div>";
 
-  // Signature
+  // ── CERTIFICATION ──
   html += "<div class='page'>"
     +"<div class='day-header'><div class='day-title'>Portfolio Certification</div><div class='day-date'>"+today+"</div></div>"
-    +"<p style='font-size:10pt;line-height:1.8;margin:1rem 0'>I certify that the records contained in this portfolio accurately represent the educational activities of <b>"+childName+"</b> during the "+yearStartNum+"&ndash;"+yearEndNum+" school year at "+schoolName+". This portfolio has been maintained in accordance with applicable home education law.</p>"
+    +"<p style='font-size:10pt;line-height:1.8;margin:1.2rem 0'>I certify that the records in this portfolio accurately represent the educational activities of <b>"+childName+"</b> during the "+yearStartNum+"&ndash;"+yearEndNum+" school year at "+schoolName+".</p>"
     +"<div class='sig-area'>"
     +"<div class='sig-col'><div class='sig-line'></div><div class='sig-label'>Parent / Educator Signature</div></div>"
     +"<div class='sig-col'><div class='sig-line'></div><div class='sig-label'>Date</div></div>"
     +"</div>"
-    +"<div class='footer'>"
-    +"<span>"+schoolName+" &bull; "+childName+" &bull; "+yearStartNum+"-"+yearEndNum+"</span>"
-    +"<span>Generated by Root &amp; Bloom</span>"
-    +"</div>"
+    +"<div class='footer'><span>"+schoolName+" &bull; "+childName+" &bull; "+yearStartNum+"-"+yearEndNum+"</span><span>Generated by Root &amp; Bloom</span></div>"
     +"</div>";
 
   html += "<script>window.onload=function(){setTimeout(function(){window.print();},600);};</"+"script></body></html>";
 
-  const w = window.open("","_blank","width=860,height=980,scrollbars=yes");
-  if(w){ w.document.write(html); w.document.close(); }
-  else { alert("Please allow popups for this site to print your portfolio."); }
+  const w=window.open("","_blank","width=860,height=980,scrollbars=yes");
+  if(w){w.document.write(html);w.document.close();}
+  else{alert("Please allow popups to print your portfolio.");}
 }
 
 
