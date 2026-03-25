@@ -5259,19 +5259,25 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
           ) : (
             <div style={{display:"flex",flexDirection:"column",gap:"0.3rem",paddingTop:"0.1rem"}}>
               {readingEntries.slice().reverse().map((e,i)=>(
-                <div key={e.id||i} onClick={()=>setDetail(e)}
-                  style={{display:"flex",gap:"0.55rem",alignItems:"center",padding:"0.45rem 0.6rem",borderRadius:"10px",background:"#fff",cursor:"pointer",border:`1px solid ${pal.stone}20`}}>
+                <div key={e.id||i}
+                  style={{display:"flex",gap:"0.55rem",alignItems:"center",padding:"0.45rem 0.6rem",borderRadius:"10px",background:"#fff",border:`1px solid ${pal.stone}20`}}>
                   <span style={{fontSize:"1rem",flexShrink:0}}>{"📖"}</span>
-                  <div style={{flex:1,minWidth:0}}>
+                  <div style={{flex:1,minWidth:0,cursor:"pointer"}} onClick={()=>setDetail(e)}>
                     <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.8rem",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.readingTitle||e.title}</div>
                     <div style={{fontSize:"0.62rem",color:pal.slate}}>{e.subj} {"\u2022"} {e.date}</div>
                   </div>
-                  <span style={{color:pal.stone,fontSize:"0.8rem"}}>{"›"}</span>
+                  <button onClick={()=>setEditEntry(e)}
+                    style={{padding:"0.2rem 0.5rem",border:`1.5px solid ${pal.stone}`,borderRadius:"7px",background:"transparent",color:pal.slate,fontSize:"0.65rem",fontWeight:"700",cursor:"pointer",flexShrink:0}}>
+                    Edit
+                  </button>
                 </div>
               ))}
             </div>
           )}
         </PortfolioCard>
+
+        {/* ── PHOTOS CARD ── */}
+        <PortfolioPhotosCard pal={pal} cp={cp} entries={photoEntries} onDetail={setDetail} onEdit={(e)=>setEditEntry(e)}/>
 
         {/* ── EXTRACURRICULARS CARD ── */}
         <PortfolioCard pal={pal} icon="🏆" title="Extracurriculars" count={extraEntries.length}>
@@ -5282,22 +5288,25 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
           ) : (
             <div style={{display:"flex",flexDirection:"column",gap:"0.3rem",paddingTop:"0.1rem"}}>
               {extraEntries.slice().reverse().map((e,i)=>(
-                <div key={e.id||i} onClick={()=>setDetail(e)}
-                  style={{display:"flex",gap:"0.55rem",alignItems:"center",padding:"0.45rem 0.6rem",borderRadius:"10px",background:"#fff",cursor:"pointer",border:`1px solid ${pal.stone}20`}}>
+                <div key={e.id||i}
+                  style={{display:"flex",gap:"0.55rem",alignItems:"center",padding:"0.45rem 0.6rem",borderRadius:"10px",background:"#fff",border:`1px solid ${pal.stone}20`}}>
                   <span style={{fontSize:"1rem",flexShrink:0}}>{e.thumb||"🏆"}</span>
-                  <div style={{flex:1,minWidth:0}}>
+                  <div style={{flex:1,minWidth:0,cursor:"pointer"}} onClick={()=>setDetail(e)}>
                     <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.8rem",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.title}</div>
                     <div style={{fontSize:"0.62rem",color:pal.slate}}>{e.date}</div>
                   </div>
-                  <span style={{color:pal.stone,fontSize:"0.8rem"}}>{"›"}</span>
+                  <button onClick={()=>setEditEntry(e)}
+                    style={{padding:"0.2rem 0.5rem",border:`1.5px solid ${pal.stone}`,borderRadius:"7px",background:"transparent",color:pal.slate,fontSize:"0.65rem",fontWeight:"700",cursor:"pointer",flexShrink:0}}>
+                    Edit
+                  </button>
                 </div>
               ))}
             </div>
           )}
         </PortfolioCard>
 
-        {/* ── PHOTOS CARD ── */}
-        <PortfolioPhotosCard pal={pal} cp={cp} entries={photoEntries} onDetail={setDetail}/>
+        {/* ── ADDITIONAL NOTES ── */}
+        <AdditionalNotes pal={pal} family={family} child={activeCh}/>
 
         {/* ── WORKSHEET REMINDER ── */}
         <div style={{background:"#fffbeb",border:"1.5px solid #f5c842",borderRadius:"13px",padding:"0.85rem 1rem",marginBottom:"1rem",display:"flex",gap:"0.6rem",alignItems:"flex-start"}}>
@@ -5307,9 +5316,6 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
             <div style={{fontSize:"0.72rem",color:"#a07020",lineHeight:1.55}}>When you print your portfolio, add completed worksheets, tests, and work samples behind each section. Physical evidence strengthens your portfolio for evaluation.</div>
           </div>
         </div>
-
-        {/* ── ADDITIONAL NOTES ── */}
-        <AdditionalNotes pal={pal} family={family} child={activeCh}/>
 
         {/* ── STATE REMINDER ── */}
         <StateReminder pal={pal} stateInfo={stateInfo} state={family.state||""}/>
@@ -5421,8 +5427,8 @@ function PortfolioSubjectRow({sd,cp,pal,family,expanded,onToggle,onDetail}){
 }
 
 /* ---- Portfolio Photos Card ---- */
-function PortfolioPhotosCard({pal,cp,entries,onDetail}){
-  // Show up to 3 photo slots — filled from recent entries, empty = placeholder
+function PortfolioPhotosCard({pal,cp,entries,onDetail,onEdit}){
+  // Collect up to 3 photo slots from recent entries
   const photoItems = [];
   entries.slice().reverse().forEach(e=>{
     e.photos.forEach(src=>{
@@ -5438,7 +5444,7 @@ function PortfolioPhotosCard({pal,cp,entries,onDetail}){
           <span style={{fontSize:"1.1rem"}}>{"📷"}</span>
           <div>
             <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem"}}>Photos</div>
-            <div style={{fontSize:"0.62rem",color:pal.slate,marginTop:"1px"}}>3 featured {"\u2022"} add photos when logging entries</div>
+            <div style={{fontSize:"0.62rem",color:pal.slate,marginTop:"1px"}}>3 featured {"\u2022"} tap to view or edit</div>
           </div>
         </div>
         {entries.length>0&&<div style={{background:pal.primary+"18",borderRadius:"20px",padding:"0.12rem 0.55rem"}}>
@@ -5448,16 +5454,24 @@ function PortfolioPhotosCard({pal,cp,entries,onDetail}){
       <div style={{padding:"0.75rem"}}>
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"0.5rem"}}>
           {photoItems.map((item,i)=>(
-            <div key={i}
-              onClick={item?()=>onDetail(item.entry):undefined}
-              style={{aspectRatio:"1",borderRadius:"12px",overflow:"hidden",border:`1.5px solid ${item?cp.c1+"40":pal.stone+"30"}`,background:item?"#000":pal.parchm,cursor:item?"pointer":"default",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",position:"relative"}}>
-              {item ? (
-                <img src={item.src} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
-              ) : (
-                <div style={{textAlign:"center",padding:"0.5rem"}}>
-                  <div style={{fontSize:"1.3rem",marginBottom:"3px",opacity:0.35}}>{"📸"}</div>
-                  <div style={{fontSize:"0.55rem",color:pal.stone,opacity:0.7,lineHeight:1.4}}>{"Paste photo\nor leave blank"}</div>
-                </div>
+            <div key={i} style={{display:"flex",flexDirection:"column",gap:"0.3rem"}}>
+              <div
+                onClick={item?()=>onDetail(item.entry):undefined}
+                style={{aspectRatio:"1",borderRadius:"12px",overflow:"hidden",border:`1.5px solid ${item?cp.c1+"40":pal.stone+"30"}`,background:item?"#000":pal.parchm,cursor:item?"pointer":"default",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",position:"relative"}}>
+                {item ? (
+                  <img src={item.src} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                ) : (
+                  <div style={{textAlign:"center",padding:"0.5rem"}}>
+                    <div style={{fontSize:"1.3rem",marginBottom:"3px",opacity:0.35}}>{"📸"}</div>
+                    <div style={{fontSize:"0.55rem",color:pal.stone,opacity:0.7,lineHeight:1.4}}>{"Paste photo\nor leave blank"}</div>
+                  </div>
+                )}
+              </div>
+              {item&&onEdit&&(
+                <button onClick={()=>onEdit(item.entry)}
+                  style={{width:"100%",padding:"0.2rem 0",border:`1.5px solid ${pal.stone}`,borderRadius:"7px",background:"transparent",color:pal.slate,fontSize:"0.62rem",fontWeight:"700",cursor:"pointer"}}>
+                  Edit
+                </button>
               )}
             </div>
           ))}
@@ -7338,11 +7352,13 @@ function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose,onFini
 
   const [savedEntries, setSavedEntries] = useState(null); // holds built entries after save
 
+  const [parentNote, setParentNote] = useState(""); // separate parent-only notes field
+
   const buildEntries = () => {
     const entries = [];
     const today = new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
     family.children.forEach((ch,ci)=>{
-      // One entry per subject, each with its own description note
+      // One entry per subject with its own description note
       subjsDone.forEach(subj=>{
         const block = blocks.find(b=>b.s===subj);
         const subjNote = getNote(ch.id, subj);
@@ -7356,13 +7372,9 @@ function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose,onFini
           isSubject:true,
         });
       });
-      // Daily summary entry with AI summary if generated
-      const allNotes = subjsDone.map(s=>{
-        const n = getNote(ch.id,s);
-        return n.trim() ? s+": "+n : "";
-      }).filter(Boolean).join("\n");
+      // Daily Notes entry — parent notes + AI summary ONLY (no subject notes)
       const summaryNote = [
-        allNotes,
+        parentNote.trim(),
         aiSummary?"AI Summary: "+aiSummary:""
       ].filter(Boolean).join("\n\n");
       entries.push({
@@ -7406,10 +7418,10 @@ function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose,onFini
 
       {/* Step progress */}
       <div style={{display:"flex",gap:"3px",padding:"0.65rem 1.1rem 0",flexShrink:0}}>
-        {["Subjects","Notes","Photos","Done"].map((l,i)=>(
+        {["Subjects","Subject Notes","Parent Notes","Photos","Done"].map((l,i)=>(
           <div key={i} style={{flex:1,textAlign:"center"}}>
             <div style={{height:"4px",borderRadius:"99px",background:i<=step?pal.primary:pal.stone+"40",marginBottom:"3px",transition:"background 0.3s"}}/>
-            <div style={{fontSize:"0.58rem",color:i<=step?pal.primary:pal.stone,fontWeight:i===step?"700":"400"}}>{l}</div>
+            <div style={{fontSize:"0.55rem",color:i<=step?pal.primary:pal.stone,fontWeight:i===step?"700":"400"}}>{l}</div>
           </div>
         ))}
       </div>
@@ -7497,15 +7509,36 @@ function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose,onFini
           </div>
         )}
 
-        {/* Step 2: Photos */}
+        )}
+
+        {/* Step 2: Parent Notes */}
         {step===2 && (
+          <div style={{animation:"fadeUp 0.2s ease"}}>
+            <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.2rem"}}>{"Parent notes"}</div>
+            <div style={{fontSize:"0.74rem",color:pal.slate,marginBottom:"0.85rem",lineHeight:1.55}}>
+              {"Your private teaching notes — what worked well, what to revisit, observations about your student's progress. These go in the portfolio as parent notes and won't duplicate the subject descriptions."}
+            </div>
+            <textarea
+              value={parentNote}
+              onChange={e=>setParentNote(e.target.value)}
+              placeholder={"e.g. Raeley struggled with long division today — try using graph paper next time. She loved the science experiment and asked great questions. Consider spending more time on reading fluency this week."}
+              rows={6}
+              style={{width:"100%",padding:"0.75rem 0.9rem",border:`2px solid ${pal.stone}`,borderRadius:"13px",fontSize:"0.82rem",fontFamily:"inherit",background:pal.parchm,color:pal.ink,resize:"none",outline:"none",lineHeight:1.6}}
+              onFocus={e=>e.target.style.borderColor=pal.primary}
+              onBlur={e=>e.target.style.borderColor=pal.stone}/>
+            <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"0.45rem",fontStyle:"italic"}}>Optional — skip if nothing to note today.</div>
+          </div>
+        )}
+
+        {/* Step 3: Photos */}
+        {step===3 && (
           <div style={{animation:"fadeUp 0.2s ease"}}>
             <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.2rem"}}>Add photos</div>
             <div style={{fontSize:"0.74rem",color:pal.slate,marginBottom:"0.85rem"}}>Capture work, projects, or moments from today.</div>
             <input type="file" ref={fileInputRef} accept="image/*" multiple onChange={handlePhotoUpload} style={{display:"none"}}/>
             <button onClick={()=>fileInputRef.current?.click()}
               style={{width:"100%",padding:"1.1rem",border:`2px dashed ${pal.primary}50`,borderRadius:"16px",background:"transparent",color:pal.primary,fontWeight:"700",fontSize:"0.86rem",cursor:"pointer",marginBottom:"0.85rem",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.5rem"}}>
-              <span style={{fontSize:"1.4rem"}}>📷</span><span>Choose Photos</span>
+              <span style={{fontSize:"1.4rem"}}>{"📷"}</span><span>Choose Photos</span>
             </button>
             {photos.length>0 && (
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.55rem"}}>
@@ -7513,7 +7546,7 @@ function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose,onFini
                   <div key={i} style={{position:"relative",borderRadius:"12px",overflow:"hidden",border:`1.5px solid ${pal.stone}40`}}>
                     <img src={p.dataUrl} alt={p.name} style={{width:"100%",height:"110px",objectFit:"cover",display:"block"}}/>
                     <button onClick={()=>removePhoto(i)}
-                      style={{position:"absolute",top:"5px",right:"5px",width:"22px",height:"22px",borderRadius:"50%",background:"rgba(0,0,0,0.55)",border:"none",color:"#fff",fontSize:"0.7rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>x</button>
+                      style={{position:"absolute",top:"5px",right:"5px",width:"22px",height:"22px",borderRadius:"50%",background:"rgba(0,0,0,0.55)",border:"none",color:"#fff",fontSize:"0.7rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>{"x"}</button>
                   </div>
                 ))}
               </div>
@@ -7522,15 +7555,15 @@ function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose,onFini
           </div>
         )}
 
-        {/* Step 3: Done — celebration + preview */}
-        {step===3 && (
+        {/* Step 4: Done — celebration + preview */}
+        {step===4 && (
           <div style={{animation:"fadeUp 0.2s ease"}}>
             {/* Celebration banner */}
             <div style={{background:pal.accentGrad,borderRadius:"18px",padding:"1.3rem 1.2rem",marginBottom:"1rem",textAlign:"center",position:"relative",overflow:"hidden"}}>
               <div style={{position:"absolute",right:"-20px",top:"-20px",width:"80px",height:"80px",borderRadius:"50%",background:"rgba(255,255,255,0.1)"}}/>
-              <div style={{fontSize:"3rem",marginBottom:"0.4rem",animation:"grow 0.4s ease"}}>🌱</div>
+              <div style={{fontSize:"3rem",marginBottom:"0.4rem",animation:"grow 0.4s ease"}}>{"🌱"}</div>
               <div style={{fontWeight:"900",color:"#fff",fontSize:"1.15rem",marginBottom:"0.2rem"}}>{"Day saved to portfolio!"}</div>
-              <div style={{fontSize:"0.78rem",color:"rgba(255,255,255,0.78)"}}>{dateLabel} · {subjsDone.length} subject{subjsDone.length!==1?"s":""} · {family.children.length} student{family.children.length!==1?"s":""}</div>
+              <div style={{fontSize:"0.78rem",color:"rgba(255,255,255,0.78)"}}>{dateLabel} {"\u00b7"} {subjsDone.length} subject{subjsDone.length!==1?"s":""} {"\u00b7"} {family.children.length} student{family.children.length!==1?"s":""}</div>
             </div>
 
             {/* What was saved */}
@@ -7615,14 +7648,14 @@ function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose,onFini
       </div>
 
       {/* Footer buttons */}
-      {step<3 && (
+      {step<4 && (
         <div style={{padding:"0.9rem 1.1rem",borderTop:`1px solid ${pal.stone}40`,background:pal.linen,flexShrink:0,display:"flex",gap:"0.55rem"}}>
           {step>0 && <button onClick={()=>setStep(s=>s-1)} style={{padding:"0.7rem 0.9rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem",fontWeight:"600"}}>Back</button>}
           <button onClick={()=>{
-            if(step===2){handleSave();setStep(3);}
+            if(step===3){handleSave();setStep(4);}
             else setStep(s=>s+1);
           }} style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>
-            {step===0?"Add notes →":step===1?"Add photos →":"Save to portfolio ✓"}
+            {step===0?"Add subject notes →":step===1?"Parent notes →":step===2?"Add photos →":"Save to portfolio ✓"}
           </button>
         </div>
       )}
