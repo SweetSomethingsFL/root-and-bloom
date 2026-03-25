@@ -335,6 +335,9 @@ function RootAndBloom() {
   const mainScrollRef = React.useRef(null);
   React.useEffect(()=>{
     if(mainScrollRef.current) mainScrollRef.current.scrollTop=0;
+    window.scrollTo(0,0);
+    document.documentElement.scrollTop=0;
+    document.body.scrollTop=0;
   },[activeTab]);
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebData,       setCelebData]       = useState(null);
@@ -363,7 +366,7 @@ function RootAndBloom() {
 
   return (
     <div style={{
-      maxWidth:"430px",margin:"0 auto",minHeight:"100vh",
+      maxWidth:"430px",margin:"0 auto",height:"100vh",
       background: view==="student" ? "#fff8ee" : pal.sand,
       fontFamily: view==="student"
         ? "'Comic Sans MS','Chalkboard SE',cursive"
@@ -427,7 +430,7 @@ function RootAndBloom() {
         </div>
 
         {/* Main content */}
-        <div ref={mainScrollRef} style={{flex:1,overflowY:"auto",paddingBottom:"72px"}}>
+        <div ref={mainScrollRef} style={{flex:1,overflowY:"auto",paddingBottom:"72px",WebkitOverflowScrolling:"touch"}}>
           {activeTab==="home" && <HomeScreen pal={pal} family={family} child={childFilt} setChild={setChildFilt} onTheme={()=>setShowTheme(true)} attendanceDays={attendanceDays} checkinStreak={checkinStreak} lastCheckinDate={lastCheckinDate} portfolioEntries={portfolioEntries} onTabChange={setActiveTab} todayProgress={todayProgress} />}
           {activeTab==="schedule" && <ScheduleScreen pal={pal} family={family} child={childFilt} setChild={setChildFilt}
             onMarkComplete={(data)=>{
@@ -6221,6 +6224,9 @@ function LifeReadyScreen({pal,family,onBack}){
   },[tab]);
   React.useEffect(()=>{
     if(scrollRef.current) scrollRef.current.scrollTop=0;
+    window.scrollTo(0,0);
+    document.documentElement.scrollTop=0;
+    document.body.scrollTop=0;
   },[]);
 
   const grade = family.children?.[0]?.grade||"5th";
