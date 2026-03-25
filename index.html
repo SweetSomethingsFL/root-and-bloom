@@ -5719,25 +5719,38 @@ function LifeReadyScreen({pal,family,onBack}){
           {/* AI Lesson plan */}
           <div style={{background:pal.linen,borderRadius:"16px",padding:"1rem",border:"1.5px solid #e0e0e0",marginBottom:"1rem"}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.65rem"}}>
-              <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem"}}>Lesson Plan</div>
+              <div>
+                <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem"}}>Lesson Plan</div>
+                <div style={{fontSize:"0.62rem",color:pal.slate,marginTop:"1px"}}>Topic pre-set · AI builds the activity details</div>
+              </div>
               <button onClick={generateLesson} disabled={generating}
                 style={{padding:"0.28rem 0.7rem",borderRadius:"8px",border:"none",background:generating?"#ddd":`linear-gradient(135deg,${LR_COLOR},${LR_COLOR2})`,color:"#fff",fontWeight:"700",fontSize:"0.7rem",cursor:generating?"default":"pointer"}}>
-                {generating?"🔄 Generating...":"🤖 Generate with AI"}
+                {generating?"🔄 Building...":lesson?"🔄 Refresh":"🤖 Build activities"}
               </button>
             </div>
             {error&&<div style={{fontSize:"0.74rem",color:"#a03030",background:"#faeae4",padding:"0.55rem",borderRadius:"8px",marginBottom:"0.5rem"}}>{error}</div>}
             {generating&&(
               <div style={{display:"flex",gap:"4px",alignItems:"center",padding:"0.75rem 0"}}>
                 {[0,1,2].map(i=><div key={i} style={{width:"7px",height:"7px",borderRadius:"50%",background:LR_COLOR,animation:`bounce 1s ease ${i*0.15}s infinite`}}/>)}
-                <span style={{fontSize:"0.76rem",color:pal.slate,marginLeft:"0.4rem"}}>Building your lesson plan...</span>
+                <span style={{fontSize:"0.76rem",color:pal.slate,marginLeft:"0.4rem"}}>Building activity plan for {topic}...</span>
               </div>
             )}
             {lesson&&!generating ? (
               <div style={{fontSize:"0.8rem",color:pal.ink,lineHeight:1.75,whiteSpace:"pre-wrap"}}>{lesson.text}</div>
             ) : !generating&&!error&&(
-              <div style={{textAlign:"center",padding:"1rem",color:pal.slate,fontSize:"0.8rem"}}>
-                <div style={{fontSize:"2rem",marginBottom:"0.35rem"}}>{LR_ICON}</div>
-                Tap Generate to build an AI lesson plan for {topic}.
+              <div style={{padding:"0.75rem 0"}}>
+                <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.88rem",marginBottom:"0.3rem"}}>{topic}</div>
+                <div style={{fontSize:"0.75rem",color:pal.slate,lineHeight:1.65,marginBottom:"0.85rem"}}>
+                  Your lesson topic is ready. Tap Build to get a step-by-step activity plan with materials, discussion questions, and a practice challenge tailored to your {(()=>{const grades=(family.children||[]).map(c=>c.grade).filter(Boolean);return grades.length>1?"students":grades[0]||"student";})()}.
+                </div>
+                <div style={{display:"flex",flexDirection:"column",gap:"0.35rem"}}>
+                  {["Opening hook to grab their attention","Materials list + step-by-step activity","Discussion questions","Practice challenge for the week"].map((item,i)=>(
+                    <div key={i} style={{display:"flex",gap:"0.5rem",alignItems:"center",fontSize:"0.74rem",color:pal.slate}}>
+                      <span style={{color:LR_COLOR,fontSize:"0.7rem",fontWeight:"900",flexShrink:0}}>✓</span>
+                      <span>{item}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
