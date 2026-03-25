@@ -2059,10 +2059,10 @@ const LR_LESSON_PLANS = {
     materials: ["A clean cloth or paper towels","Soap and water","Bandages in different sizes","Antibacterial ointment (optional — ask a grown-up)"],
     steps: [
       "First, take a slow breath and stay calm. When you are calm, it helps the person who is hurt feel calmer too.",
-      "Rinse the scrape gently under cool running water for about a minute. This washes away dirt and helps it heal faster.",
+      "Rinse the scrape gently under cool running water. Let it run for a little while to wash away any dirt — there is no rush, just be gentle.",
       "Pat the skin dry with a clean cloth. Patting is gentle — rubbing can hurt more.",
       "Put a bandage over it to keep it clean. If you have ointment, a tiny bit goes on first.",
-      "Check back tomorrow. If it looks redder or more swollen, tell a grown-up — that means it might need a doctor."
+      "A grown-up should keep an eye on it over the next day or two. If it starts looking redder, feeling warmer, or getting more swollen instead of better, it is time to see a doctor."
     ],
     discussion: [
       "What does it feel like when someone stays calm near you when you are upset? How does that help?",
@@ -2113,9 +2113,9 @@ const LR_LESSON_PLANS = {
     steps: [
       "The rule experts recommend is one gallon of water per person per day — for drinking and basic washing.",
       "A family of four needs at least twelve gallons to last three days. That is a good starter goal.",
-      "Use food-grade containers — plastic water bottles or special storage jugs work great. Milk jugs are not good for long-term storage because they break down over time.",
+      "Use food-grade containers — plastic water bottles or special storage jugs work great. Avoid old milk jugs are not good for long-term storage because they break down over time.",
       "Fill your containers with tap water, write today's date on them with the marker, and store them somewhere cool and dark.",
-      "Every six months, swap out the old water for fresh. Mark your calendar!",
+      "Every six months, your family can swap out the old water for fresh. A grown-up can help make sure that happens on schedule.",
       "Bonus: find out where your home's water shut-off valve is. Ask a parent to show you — it is an important thing to know."
     ],
     discussion: [
@@ -2218,7 +2218,7 @@ const LR_LESSON_PLANS = {
     steps: [
       "RICE stands for Rest, Ice, Compression, and Elevation — four steps that work together to reduce swelling and pain.",
       "REST: stop using the hurt area. Give it a break.",
-      "ICE: wrap an ice pack in a thin cloth and hold it gently on the bump for about fifteen minutes. Never put ice directly on skin — the cloth protects you.",
+      "ICE: wrap an ice pack or a bag of frozen veggies in a thin cloth and hold it gently on the bump for a little while — not too long. Never put ice directly on skin; always keep the cloth in between to stay comfortable.",
       "COMPRESSION: gently wrapping the area with a bandage can help reduce swelling. Not too tight.",
       "ELEVATION: prop the hurt area up above heart level when you can. It helps fluid drain away from the swelling.",
       "If the pain is very bad, the area looks very swollen or the wrong shape, or it hurts to put weight on it — tell a grown-up right away."
@@ -6005,25 +6005,60 @@ function LifeReadyScreen({pal,family,onBack}){
               </div>
             );
           })()}
-          {/* Week schedule preview */}
-          <div style={{background:pal.linen,borderRadius:"16px",padding:"0.9rem 1rem",marginBottom:"1rem",border:"1.5px solid #e0e0e0"}}>
-            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem",marginBottom:"0.65rem"}}>This week plan</div>
-            {[
-              {day:"Monday",type:"30-min lesson",icon:"📚",active:true},
-              {day:"Tuesday",type:freq==="monday_plus_practice"?"10-min practice":"—",icon:"🔧",active:freq==="monday_plus_practice"},
-              {day:"Wednesday",type:freq==="monday_plus_practice"?"Practice challenge":"—",icon:"🎯",active:freq==="monday_plus_practice"},
-              {day:"Thursday",type:freq==="monday_plus_practice"?"Quick review":"—",icon:"📝",active:freq==="monday_plus_practice"},
-            ].map((d,i)=>(
-              <div key={i} style={{display:"flex",gap:"0.65rem",alignItems:"center",padding:"0.42rem 0",borderTop:i>0?"1px solid #f0f0f0":"none"}}>
-                <div style={{width:"30px",height:"30px",borderRadius:"8px",background:d.active?LR_COLOR+"20":"#f5f5f5",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.9rem",flexShrink:0}}>{d.icon}</div>
-                <div style={{flex:1}}>
-                  <div style={{fontWeight:"700",color:d.active?pal.ink:"#aaa",fontSize:"0.8rem"}}>{d.day}</div>
-                  <div style={{fontSize:"0.68rem",color:d.active?"#666":"#bbb"}}>{d.type}</div>
+          {/* Week schedule preview — clickable, expands upcoming topics */}
+          {(()=>{
+            const [weekExpanded, setWeekExpanded] = React.useState(false);
+            const upcoming = getLRUpcomingTopics(grade, 5).slice(1); // next 4 after this week
+            const seen = new Set(); const nextTopics = upcoming.filter(x=>{ if(seen.has(x.topic)) return false; seen.add(x.topic); return true; });
+            return (
+              <div style={{background:pal.linen,borderRadius:"16px",overflow:"hidden",marginBottom:"1rem",border:"1.5px solid #e0e0e0"}}>
+                {/* Header — tap to expand */}
+                <button onClick={()=>setWeekExpanded(e=>!e)}
+                  style={{width:"100%",padding:"0.9rem 1rem",background:"transparent",border:"none",cursor:"pointer",textAlign:"left",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                  <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem"}}>This week plan</div>
+                  <div style={{display:"flex",alignItems:"center",gap:"0.5rem"}}>
+                    <span style={{fontSize:"0.65rem",color:LR_COLOR,fontWeight:"600"}}>See upcoming →</span>
+                    <span style={{color:pal.slate,fontSize:"0.9rem",transform:weekExpanded?"rotate(90deg)":"none",transition:"transform 0.2s"}}>›</span>
+                  </div>
+                </button>
+                {/* This week days */}
+                <div style={{padding:"0 1rem 0.75rem"}}>
+                  {[
+                    {day:"Monday",   type:"30-min lesson",           icon:"📚",active:true},
+                    {day:"Tuesday",  type:freq==="monday_plus_practice"?"10-min practice":"—",  icon:"🔧",active:freq==="monday_plus_practice"},
+                    {day:"Wednesday",type:freq==="monday_plus_practice"?"Practice challenge":"—",icon:"🎯",active:freq==="monday_plus_practice"},
+                    {day:"Thursday", type:freq==="monday_plus_practice"?"Quick review":"—",     icon:"📝",active:freq==="monday_plus_practice"},
+                  ].map((d,i)=>(
+                    <div key={i} style={{display:"flex",gap:"0.65rem",alignItems:"center",padding:"0.38rem 0",borderTop:i>0?"1px solid #f0f0f0":"none"}}>
+                      <div style={{width:"28px",height:"28px",borderRadius:"7px",background:d.active?LR_COLOR+"20":"#f5f5f5",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.85rem",flexShrink:0}}>{d.icon}</div>
+                      <div style={{flex:1}}>
+                        <div style={{fontWeight:"700",color:d.active?pal.ink:"#bbb",fontSize:"0.78rem"}}>{d.day}</div>
+                        <div style={{fontSize:"0.65rem",color:d.active?"#666":"#ccc"}}>{d.type}</div>
+                      </div>
+                      {d.active&&<div style={{width:"8px",height:"8px",borderRadius:"50%",background:LR_COLOR,flexShrink:0}}/>}
+                    </div>
+                  ))}
                 </div>
-                {d.active&&<div style={{width:"10px",height:"10px",borderRadius:"50%",background:LR_COLOR,flexShrink:0}}/>}
+                {/* Expanded upcoming topics */}
+                {weekExpanded&&(
+                  <div style={{borderTop:"1px solid #f0f0f0",padding:"0.75rem 1rem 0.85rem",background:"#fff"}}>
+                    <div style={{fontSize:"0.62rem",fontWeight:"800",color:LR_COLOR,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.55rem"}}>Coming up next</div>
+                    {nextTopics.map((item,i)=>(
+                      <div key={i} style={{display:"flex",gap:"0.6rem",alignItems:"center",padding:"0.4rem 0",borderTop:i>0?"1px solid #f8f8f8":"none"}}>
+                        <div style={{width:"26px",height:"26px",borderRadius:"6px",background:LR_COLOR+"18",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                          <span style={{fontSize:"0.58rem",fontWeight:"900",color:LR_COLOR}}>W{item.weekNum}</span>
+                        </div>
+                        <div style={{flex:1}}>
+                          <div style={{fontSize:"0.78rem",color:pal.inkM,fontWeight:"600"}}>{item.topic}</div>
+                          <div style={{fontSize:"0.62rem",color:pal.slate}}>{i===0?"Next week":"In "+(i+1)+" weeks"}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-            ))}
-          </div>
+            );
+          })()}
 
         </>)}
 
