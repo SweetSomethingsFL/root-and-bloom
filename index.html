@@ -925,7 +925,7 @@ function OnboardingFlow({ pal, onComplete }) {
     morningGathering:true, morningGatheringName:"Morning Time",
     schoolDays:"Monday-Friday", startTime:"8:00", endTime:"15:00", breakStyle:"Short breaks every hour",
     goals:["faith","reading"],
-    coopFreq:"Every other week", extracurriculars:[], choresInSched:false, mealsInSched:false,
+    coopFreq:"Every other week", extracurriculars:[],
     lifeReady:false, lifeReadyFreq:"monday_plus_practice", lifeReadyCategories:[],
     paletteId:"sage",
   });
@@ -1522,39 +1522,6 @@ function OnbExtras({ pal, data, upd, onNext }) {
           onBlur={e=>e.target.style.borderColor=pal.stone}/>
         <button onClick={addCustomExtra} disabled={!customExtra.trim()} style={{padding:"0.55rem 0.9rem",border:"none",borderRadius:"11px",background:customExtra.trim()?pal.accentGrad:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.8rem",cursor:customExtra.trim()?"pointer":"default",flexShrink:0}}>+ Add</button>
       </div>
-      <Lbl pal={pal}>Include in daily schedule?</Lbl>
-      <div style={{display:"flex",flexDirection:"column",gap:"0.45rem",marginBottom:"0.85rem"}}>
-        {[["choresInSched","🧹 Chore blocks","Get daily chore suggestions"],["mealsInSched","🍽 Meal / snack blocks","Get daily meal suggestions"]].map(([k,l,hint])=>(
-          <button key={k} onClick={()=>upd(k,!data[k])} style={{display:"flex",gap:"0.75rem",alignItems:"center",padding:"0.75rem 1rem",border:`2px solid ${data[k]?pal.primary:pal.stone+"50"}`,borderRadius:"13px",background:data[k]?pal.pale:"transparent",cursor:"pointer",transition:"all 0.14s",textAlign:"left"}}>
-            <div style={{width:"20px",height:"20px",borderRadius:"6px",border:`2.5px solid ${data[k]?pal.primary:pal.stone}`,background:data[k]?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-              {data[k]&&<span style={{color:pal.onDark,fontSize:"0.8rem",fontWeight:"900"}}>✓</span>}
-            </div>
-            <div style={{flex:1}}>
-              <div style={{fontWeight:data[k]?"700":"400",color:data[k]?pal.primary:pal.inkM,fontSize:"0.84rem"}}>{l}</div>
-              {data[k]&&<div style={{fontSize:"0.68rem",color:pal.primary,marginTop:"1px"}}>✨ {hint}</div>}
-            </div>
-          </button>
-        ))}
-      </div>
-      {/* Meal/chore suggestions opt-in */}
-      {(data.choresInSched||data.mealsInSched)&&(
-        <div style={{background:pal.pale,borderRadius:"13px",padding:"0.85rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.primary}22`}}>
-          <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.85rem",marginBottom:"0.3rem"}}>💡 Daily suggestions</div>
-          <div style={{fontSize:"0.76rem",color:pal.inkM,lineHeight:1.6,marginBottom:"0.65rem"}}>
-            Would you like Root & Bloom to suggest {[data.choresInSched?"a chore":null,data.mealsInSched?"a meal or snack":null].filter(Boolean).join(" and ")} each day?
-          </div>
-          <div style={{display:"flex",gap:"0.5rem"}}>
-            <button onClick={()=>upd("dailySuggestions",true)}
-              style={{flex:1,padding:"0.55rem",borderRadius:"11px",border:`2px solid ${data.dailySuggestions===true?pal.primary:pal.stone+"50"}`,background:data.dailySuggestions===true?pal.pale:"transparent",cursor:"pointer",fontWeight:data.dailySuggestions===true?"700":"400",color:data.dailySuggestions===true?pal.primary:pal.inkM,fontSize:"0.82rem"}}>
-              Yes please!
-            </button>
-            <button onClick={()=>upd("dailySuggestions",false)}
-              style={{flex:1,padding:"0.55rem",borderRadius:"11px",border:`2px solid ${data.dailySuggestions===false?pal.stone:pal.stone+"50"}`,background:"transparent",cursor:"pointer",fontWeight:data.dailySuggestions===false?"700":"400",color:pal.inkM,fontSize:"0.82rem"}}>
-              No thanks
-            </button>
-          </div>
-        </div>
-      )}
       <div style={{height:"0.5rem"}}/>
       {/* Final CTA - warm */}
       <div style={{background:pal.heroGrad,borderRadius:"18px",padding:"1.2rem 1.3rem",marginBottom:"1.1rem",textAlign:"center",position:"relative",overflow:"hidden"}}>
@@ -2044,6 +2011,201 @@ const EOY_SKILLS = {
     {cat:"Transitions",          skills:["College applications complete","Financial aid applications filed","Resume and interview skills","Adulting basics: taxes, budgeting, insurance","Driver license and independence skills","Senior reflection and goal-setting"]},
   ],
 };
+
+/* =======================================
+   PREPARED & CAPABLE — PRE-WRITTEN LESSONS
+   Full lesson plans by topic, no AI needed
+======================================= */
+const LR_LESSON_PLANS = {
+  "First aid for cuts and scrapes": {
+    hook: "What would you do right now if your little brother fell and cut his knee? You have 60 seconds — go!",
+    materials: ["Clean cloth or paper towels","Soap and water","Bandages (various sizes)","Antibacterial ointment (optional)"],
+    steps: [
+      "Stay calm — panicking makes it worse. Take a breath first.",
+      "Rinse the cut gently under cool running water for 1-2 minutes to flush out dirt.",
+      "Pat dry gently with a clean cloth. Do NOT rub.",
+      "Apply a small amount of ointment if available, then cover with a bandage.",
+      "Watch for signs of infection over the next few days: redness spreading, warmth, swelling, or pus. These mean it needs a doctor."
+    ],
+    discussion: [
+      "When would a cut need a doctor instead of just a bandage?",
+      "What would you do if you were alone and got a bad cut?"
+    ],
+    challenge: "Build your own mini first aid kit this week. Find a small bag or box and fill it with bandages, a cloth, and anything else you think belongs in it."
+  },
+  "Calling for help — 911 practice": {
+    hook: "Imagine you come home and find someone on the floor who won't wake up. What do you say when 911 answers?",
+    materials: ["A phone (turned off or in airplane mode for practice)"],
+    steps: [
+      "911 is for emergencies where someone is in danger — not for non-emergencies.",
+      "When the operator answers, stay calm and speak clearly. Say: 'I need help. My address is ___.'",
+      "Tell them WHAT happened: 'Someone fell and won't wake up.'",
+      "Tell them WHERE you are: your full address, including city.",
+      "Stay on the line — don't hang up until they tell you to.",
+      "Go outside or to a window to wave down the ambulance if it helps."
+    ],
+    discussion: [
+      "What is your full home address right now? Practice saying it out loud.",
+      "Name three real emergencies where you WOULD call 911."
+    ],
+    challenge: "Memorize your home address and one parent phone number by heart this week. Quiz yourself every morning."
+  },
+  "Home fire drill": {
+    hook: "You have 90 seconds to get out of this house right now. Every second counts. Where do you go?",
+    materials: ["Paper and pencil for drawing your home layout","A meeting spot outside (pick one today)"],
+    steps: [
+      "Every family needs two ways out of every room — usually a door and a window.",
+      "Draw a simple map of your home. Mark every door and window exit.",
+      "Pick ONE outside meeting spot that everyone knows: the mailbox, a neighbor's tree, the end of the driveway.",
+      "Practice the drill: shout 'Fire drill!' and time how long it takes everyone to reach the meeting spot.",
+      "Feel a door before opening it — if it is hot, use your other exit.",
+      "Stay low if there is smoke. Crawl to the exit."
+    ],
+    discussion: [
+      "What do you do if your bedroom door is hot when there's a fire?",
+      "Why do we have a meeting spot instead of just running outside?"
+    ],
+    challenge: "Run an actual timed fire drill with your family this week. Try to beat 2 minutes from alarm to everyone at the meeting spot."
+  },
+  "Water storage basics": {
+    hook: "The power just went out and the water stopped working. You have whatever is already in your house. How long could you survive?",
+    materials: ["Clean food-grade containers or water bottles","Tap water","A permanent marker"],
+    steps: [
+      "The rule is 1 gallon per person per day — for drinking and basic hygiene.",
+      "A family of 4 needs at least 12 gallons for 3 days.",
+      "Use clean food-grade containers — never store water in milk jugs (they break down).",
+      "Fill containers from the tap, label with the date, and store in a cool dark place.",
+      "Replace stored water every 6 months.",
+      "Know where your water shut-off valve is in case of a burst pipe."
+    ],
+    discussion: [
+      "Where is the water shut-off valve in your home? Go find it together.",
+      "If water came out of the tap brown, what would you do?"
+    ],
+    challenge: "Fill and label enough water bottles for your family for one day. Store them somewhere cool. Date them."
+  },
+  "Saving vs spending": {
+    hook: "You just got $20. Someone offers you a toy right now for $18. What do you do and why?",
+    materials: ["3 jars or envelopes","Coins or dollar bills for demonstration"],
+    steps: [
+      "Every dollar you earn can do three things: be spent now, be saved for later, or be given away.",
+      "Set up three jars: SPEND, SAVE, GIVE. When you get money, divide it before spending any of it.",
+      "A classic split is 70/20/10 — 70 cents of every dollar to spend, 20 to save, 10 to give.",
+      "Saving means your money is still there when you need something bigger.",
+      "Interest is money the bank pays you just for keeping your savings there — your money earns more money."
+    ],
+    discussion: [
+      "What is something you would save up for right now? How long would it take?",
+      "What is the difference between something you WANT and something you NEED?"
+    ],
+    challenge: "Start your three jars this week. Next time you receive money — allowance, birthday, chores — divide it before spending any."
+  },
+  "Simple cooking — no stove recipes": {
+    hook: "If the stove and microwave were both broken right now, could you feed yourself for one day? What would you make?",
+    materials: ["Bread, peanut butter, fruit, crackers, cheese — whatever is available","A butter knife","Plates"],
+    steps: [
+      "No-cook meals are real survival skills — they work when power is out or equipment is unavailable.",
+      "Practice making: a peanut butter sandwich, a cheese and cracker plate, a fruit and nut bowl.",
+      "Think about nutrition — a good no-cook meal has protein (nut butter, cheese, beans), carbs (bread, crackers), and something fresh if possible.",
+      "Wash your hands before handling any food.",
+      "Clean up your workspace when done."
+    ],
+    discussion: [
+      "Name 5 foods in your house right now that need zero cooking.",
+      "Why might someone need to cook without a stove or microwave?"
+    ],
+    challenge: "Make one full no-cook meal for yourself this week — breakfast, lunch, or dinner — without asking for any help."
+  },
+  "Reading a simple map": {
+    hook: "Tear off a piece of paper right now and draw every room in your house from memory. Don't look — just draw. How close were you?",
+    materials: ["A simple printed map of your town or neighborhood (or draw one)","A pencil"],
+    steps: [
+      "A map is a bird's-eye view — like looking straight down from above.",
+      "Maps have a key (or legend) that explains what the symbols mean.",
+      "North is usually at the top of a map. Find the compass rose.",
+      "Practice finding two landmarks on a map, then trace the route between them.",
+      "Estimate distance: if one block equals 0.1 miles, how far is the library from your house?"
+    ],
+    discussion: [
+      "If you had no phone, how would you navigate to a friend's house 3 miles away?",
+      "What are landmarks? Name 3 near your home that you could use to give directions."
+    ],
+    challenge: "Draw a map of your neighborhood from memory — your house, the nearest store, one friend's house, and at least two streets. Then compare it to a real map."
+  },
+  "Needs vs wants — what do I really need?": {
+    hook: "You are packing one bag for two weeks. You can only bring what fits. What do you absolutely have to have? What gets left behind?",
+    materials: ["Paper and pencil","A bag or box (optional — for physical sorting practice)"],
+    steps: [
+      "NEEDS are things you must have to survive and stay healthy: water, food, shelter, clothing, safety.",
+      "WANTS are things that make life better or more comfortable but are not required: games, extra shoes, snacks, subscriptions.",
+      "Go through a list of 10-15 items together and sort each into needs or wants.",
+      "Notice: needs stay needs no matter what. Wants can change depending on circumstances.",
+      "Most purchases we make are wants. That is okay — but knowing the difference helps you make good decisions with money."
+    ],
+    discussion: [
+      "Is a phone a need or a want? What about a phone to call for emergency help?",
+      "Name something you thought was a need but is actually a want."
+    ],
+    challenge: "For 3 days this week, before buying or asking for anything, pause and ask: is this a need or a want? Write down what you notice."
+  },
+  "What to do if a friend gets hurt": {
+    hook: "You and a friend are riding bikes. Your friend crashes hard, hits their head, and is not responding normally. What do you do first?",
+    materials: ["None required"],
+    steps: [
+      "Step 1: Stay calm. Your friend needs you to think clearly.",
+      "Step 2: Do NOT move someone who might have a neck or back injury — unless they are in immediate danger (like traffic or fire).",
+      "Step 3: Call for an adult or call 911. Tell them your location first.",
+      "Step 4: Stay with your friend. Talk to them calmly. Tell them help is coming.",
+      "Step 5: If they are bleeding, apply gentle pressure with a clean cloth.",
+      "Step 6: If they stop breathing and you know CPR basics, start chest compressions."
+    ],
+    discussion: [
+      "What is the difference between a serious injury and a minor one?",
+      "Why should you NOT move someone who fell hard and hit their head?"
+    ],
+    challenge: "Practice saying your home address and a parent's phone number out loud 5 times each day this week until it is automatic."
+  },
+  "Treats a bruise or bump": {
+    hook: "You bang your shin hard on the table corner. It is swelling up. What is RICE and why does it work?",
+    materials: ["Ice pack or bag of frozen vegetables","Cloth or towel to wrap it in","A place to sit and elevate"],
+    steps: [
+      "RICE stands for: Rest, Ice, Compression, Elevation.",
+      "REST — stop using the injured area.",
+      "ICE — apply a cold pack wrapped in a cloth for 15-20 minutes at a time, never directly on skin.",
+      "COMPRESSION — gentle pressure with an elastic bandage can reduce swelling.",
+      "ELEVATION — raise the injured area above heart level when possible.",
+      "Seek medical help if: the pain is severe, you cannot bear weight, the shape looks wrong, or symptoms worsen."
+    ],
+    discussion: [
+      "Why do we put ice on a bruise instead of heat?",
+      "What signs would tell you the bruise is actually something more serious?"
+    ],
+    challenge: "Make a simple RICE reminder card and keep it in your first aid kit. Draw a stick figure showing each step."
+  },
+};
+
+/* Get the pre-written lesson or build a smart fallback */
+function getLessonPlan(topic) {
+  if(LR_LESSON_PLANS[topic]) return LR_LESSON_PLANS[topic];
+  // Smart fallback based on topic text
+  return {
+    hook: "Think about a time you or someone you know could have used this skill. What happened and what would have been different if you had known what to do?",
+    materials: ["Pen and paper for notes","Any household items relevant to the topic"],
+    steps: [
+      "Discuss what this topic means and why it matters for everyday life.",
+      "Research together: look up one real example or news story related to this topic.",
+      "Brainstorm: what could go wrong without this knowledge? What could go right with it?",
+      "Practice: find one hands-on way to apply what you learned today.",
+      "Recap: each person says one thing they will remember from today."
+    ],
+    discussion: [
+      "How does knowing this make you safer or more capable?",
+      "Who else in your life could benefit from knowing this?"
+    ],
+    challenge: "Find one way to practice or apply this skill in real life before next week's lesson."
+  };
+}
+
 
 /* =======================================
    PORTFOLIO PDF PRINT FUNCTION
@@ -2586,8 +2748,7 @@ function CelebrationModal({pal,data,onEnter}){
           ["📅","Your schedule is built"],
           ["🗂","Portfolio tracking is on"],
           data.lifeReady&&["🛡","Prepared & Capable is set up"],
-          data.choresInSched&&["🧹","Daily chore suggestions ready"],
-          data.mealsInSched&&["🍽","Meal suggestions ready"],
+
         ].filter(Boolean).map(([icon,label])=>(
           <div key={label} style={{display:"flex",gap:"0.6rem",alignItems:"center",padding:"0.3rem 0",color:"rgba(255,255,255,0.9)",fontSize:"0.82rem"}}>
             <span>{icon}</span><span>{label}</span>
@@ -2774,6 +2935,22 @@ function EOYChecklistModal({pal,family,childIdx,setChildIdx,weeksLeft,onClose,on
 function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress }) {
   const REQUIRED = 180;
   const blocks = generateSchedule(family);
+
+  // P&C week completion state
+  const PC_KEY = "rootbloom_pc_done";
+  const getPCWeekKey = () => {
+    const now = new Date();
+    const yearStart = new Date(now.getFullYear(),7,1);
+    const weekNum = Math.floor((now-yearStart)/(7*24*60*60*1000));
+    return now.getFullYear()+"-"+weekNum;
+  };
+  const [pcDone, setPcDone] = useState(()=>{
+    try{ const s=localStorage.getItem(PC_KEY); return s?JSON.parse(s).weekKey===getPCWeekKey():false; }catch(e){return false;}
+  });
+  const markPCDone = () => {
+    try{ localStorage.setItem(PC_KEY,JSON.stringify({weekKey:getPCWeekKey(),date:new Date().toDateString()})); }catch(e){}
+    setPcDone(true);
+  };
   const visible = blocks.filter(b=>child==="all"||b.c==="all"||b.c===child);
   const pct = Math.min(100, Math.round((attendanceDays/REQUIRED)*100));
   const todayStr = new Date().toDateString();
@@ -2980,18 +3157,31 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
         </>)}
 
         {/* ── P&C This Week ── */}
-        {family.lifeReady && (<>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.5rem"}}>
-            <span style={{fontWeight:"800",color:LR_COLOR,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>{LR_ICON} Prepared & Capable</span>
-            <button onClick={()=>onTabChange("preparedcapable")} style={{fontSize:"0.72rem",color:LR_COLOR,fontWeight:"700",background:"transparent",border:"none",cursor:"pointer"}}>Open →</button>
-          </div>
-          <div style={{background:`linear-gradient(135deg,${LR_COLOR}12,${LR_COLOR2}08)`,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:`1.5px solid ${LR_COLOR}25`}}>
-            {(()=>{
-              const ch = family.children[0];
-              const grade = ch?.grade||"5th";
-              const topic = getLRTopicForWeek(grade);
-              const week  = getLRWeekNumber(grade);
-              return (
+        {family.lifeReady && (()=>{
+          const ch    = family.children[0];
+          const grade = ch?.grade||"5th";
+          const topic = getLRTopicForWeek(grade);
+          const week  = getLRWeekNumber(grade);
+          return (<>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.5rem"}}>
+              <span style={{fontWeight:"800",color:pcDone?pal.good:LR_COLOR,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>
+                {pcDone?"✓":LR_ICON} Prepared {"&"} Capable
+              </span>
+              <button onClick={()=>onTabChange("preparedcapable")} style={{fontSize:"0.72rem",color:LR_COLOR,fontWeight:"700",background:"transparent",border:"none",cursor:"pointer"}}>Open →</button>
+            </div>
+            {pcDone ? (
+              /* Completed state */
+              <div style={{background:pal.goodBg,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.good}40`,display:"flex",gap:"0.75rem",alignItems:"center"}}>
+                <div style={{width:"42px",height:"42px",borderRadius:"11px",background:pal.good,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0}}>✓</div>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontWeight:"800",color:pal.good,fontSize:"0.86rem"}}>Week {week} complete!</div>
+                  <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"2px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{topic}</div>
+                </div>
+                <button onClick={()=>onTabChange("preparedcapable")} style={{padding:"0.3rem 0.65rem",border:`1.5px solid ${pal.good}50`,borderRadius:"9px",background:"transparent",color:pal.good,fontSize:"0.68rem",fontWeight:"700",cursor:"pointer",flexShrink:0}}>Review</button>
+              </div>
+            ) : (
+              /* Active / not yet done state */
+              <div style={{background:`linear-gradient(135deg,${LR_COLOR}12,${LR_COLOR2}08)`,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:`1.5px solid ${LR_COLOR}25`}}>
                 <div style={{display:"flex",gap:"0.75rem",alignItems:"center"}}>
                   <div style={{width:"42px",height:"42px",borderRadius:"11px",background:`linear-gradient(135deg,${LR_COLOR},${LR_COLOR2})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0}}>{LR_ICON}</div>
                   <div style={{flex:1,minWidth:0}}>
@@ -2999,12 +3189,15 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
                     <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.86rem",lineHeight:1.3}}>{topic}</div>
                     <div style={{fontSize:"0.67rem",color:pal.slate,marginTop:"2px"}}>{grade} · {ch?.name||"your student"}</div>
                   </div>
-                  <span style={{color:LR_COLOR,fontSize:"1.1rem",flexShrink:0}}>›</span>
+                  <button onClick={e=>{e.stopPropagation();markPCDone();}}
+                    style={{padding:"0.38rem 0.65rem",border:"none",borderRadius:"10px",background:`linear-gradient(135deg,${LR_COLOR},${LR_COLOR2})`,color:"#fff",fontSize:"0.68rem",fontWeight:"800",cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}}>
+                    Done ✓
+                  </button>
                 </div>
-              );
-            })()}
-          </div>
-        </>)}
+              </div>
+            )}
+          </>);
+        })()}
 
         {/* Recent portfolio entries */}
         {portfolioEntries.length > 0 && (<>
@@ -5696,6 +5889,62 @@ function LifeReadyScreen({pal,family,onBack}){
             );
           })()}
 
+          {/* Pre-written Lesson Plan */}
+          {(()=>{
+            const plan = getLessonPlan(topic);
+            return (
+              <div style={{display:"flex",flexDirection:"column",gap:"0.65rem",marginBottom:"1rem"}}>
+
+                {/* Hook */}
+                <div style={{background:`linear-gradient(135deg,${LR_COLOR}15,${LR_COLOR2}08)`,borderRadius:"14px",padding:"0.9rem 1rem",border:`1.5px solid ${LR_COLOR}30`}}>
+                  <div style={{fontSize:"0.6rem",fontWeight:"800",color:LR_COLOR,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.35rem"}}>🔥 Opening Hook</div>
+                  <div style={{fontSize:"0.84rem",color:pal.ink,lineHeight:1.65,fontStyle:"italic"}}>{"""+plan.hook+"""}</div>
+                </div>
+
+                {/* Materials */}
+                <div style={{background:pal.linen,borderRadius:"14px",padding:"0.9rem 1rem",border:"1.5px solid #e8e8e8"}}>
+                  <div style={{fontSize:"0.6rem",fontWeight:"800",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.45rem"}}>📋 What You Need</div>
+                  {plan.materials.map((m,i)=>(
+                    <div key={i} style={{display:"flex",gap:"0.5rem",alignItems:"flex-start",fontSize:"0.8rem",color:pal.inkM,marginBottom:"0.3rem"}}>
+                      <span style={{color:LR_COLOR,flexShrink:0,marginTop:"1px"}}>•</span>
+                      <span>{m}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Steps */}
+                <div style={{background:pal.linen,borderRadius:"14px",padding:"0.9rem 1rem",border:"1.5px solid #e8e8e8"}}>
+                  <div style={{fontSize:"0.6rem",fontWeight:"800",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.55rem"}}>📚 The Lesson</div>
+                  {plan.steps.map((s,i)=>(
+                    <div key={i} style={{display:"flex",gap:"0.65rem",alignItems:"flex-start",marginBottom:"0.65rem"}}>
+                      <div style={{width:"22px",height:"22px",borderRadius:"50%",background:`linear-gradient(135deg,${LR_COLOR},${LR_COLOR2})`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:"1px"}}>
+                        <span style={{fontSize:"0.62rem",fontWeight:"900",color:"#fff"}}>{i+1}</span>
+                      </div>
+                      <div style={{fontSize:"0.8rem",color:pal.ink,lineHeight:1.65,flex:1}}>{s}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Discussion */}
+                <div style={{background:pal.linen,borderRadius:"14px",padding:"0.9rem 1rem",border:"1.5px solid #e8e8e8"}}>
+                  <div style={{fontSize:"0.6rem",fontWeight:"800",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.45rem"}}>💬 Discussion Questions</div>
+                  {plan.discussion.map((q,i)=>(
+                    <div key={i} style={{display:"flex",gap:"0.5rem",alignItems:"flex-start",fontSize:"0.8rem",color:pal.inkM,marginBottom:"0.45rem",lineHeight:1.6}}>
+                      <span style={{color:LR_COLOR,fontWeight:"900",flexShrink:0}}>Q{i+1}</span>
+                      <span>{q}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Practice challenge */}
+                <div style={{background:`linear-gradient(135deg,${LR_COLOR},${LR_COLOR2})`,borderRadius:"14px",padding:"0.9rem 1rem"}}>
+                  <div style={{fontSize:"0.6rem",fontWeight:"800",color:"rgba(255,255,255,0.7)",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.35rem"}}>🎯 Practice Challenge</div>
+                  <div style={{fontSize:"0.82rem",color:"#fff",lineHeight:1.65}}>{plan.challenge}</div>
+                </div>
+
+              </div>
+            );
+          })()}
           {/* Week schedule preview */}
           <div style={{background:pal.linen,borderRadius:"16px",padding:"0.9rem 1rem",marginBottom:"1rem",border:"1.5px solid #e0e0e0"}}>
             <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem",marginBottom:"0.65rem"}}>This week plan</div>
@@ -5716,62 +5965,33 @@ function LifeReadyScreen({pal,family,onBack}){
             ))}
           </div>
 
-          {/* AI Lesson plan */}
-          <div style={{background:pal.linen,borderRadius:"16px",padding:"1rem",border:"1.5px solid #e0e0e0",marginBottom:"1rem"}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.65rem"}}>
-              <div>
-                <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem"}}>Lesson Plan</div>
-                <div style={{fontSize:"0.62rem",color:pal.slate,marginTop:"1px"}}>Topic pre-set · AI builds the activity details</div>
-              </div>
-              <button onClick={generateLesson} disabled={generating}
-                style={{padding:"0.28rem 0.7rem",borderRadius:"8px",border:"none",background:generating?"#ddd":`linear-gradient(135deg,${LR_COLOR},${LR_COLOR2})`,color:"#fff",fontWeight:"700",fontSize:"0.7rem",cursor:generating?"default":"pointer"}}>
-                {generating?"🔄 Building...":lesson?"🔄 Refresh":"🤖 Build activities"}
-              </button>
-            </div>
-            {error&&<div style={{fontSize:"0.74rem",color:"#a03030",background:"#faeae4",padding:"0.55rem",borderRadius:"8px",marginBottom:"0.5rem"}}>{error}</div>}
-            {generating&&(
-              <div style={{display:"flex",gap:"4px",alignItems:"center",padding:"0.75rem 0"}}>
-                {[0,1,2].map(i=><div key={i} style={{width:"7px",height:"7px",borderRadius:"50%",background:LR_COLOR,animation:`bounce 1s ease ${i*0.15}s infinite`}}/>)}
-                <span style={{fontSize:"0.76rem",color:pal.slate,marginLeft:"0.4rem"}}>Building activity plan for {topic}...</span>
-              </div>
-            )}
-            {lesson&&!generating ? (
-              <div style={{fontSize:"0.8rem",color:pal.ink,lineHeight:1.75,whiteSpace:"pre-wrap"}}>{lesson.text}</div>
-            ) : !generating&&!error&&(
-              <div style={{padding:"0.75rem 0"}}>
-                <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.88rem",marginBottom:"0.3rem"}}>{topic}</div>
-                <div style={{fontSize:"0.75rem",color:pal.slate,lineHeight:1.65,marginBottom:"0.85rem"}}>
-                  Your lesson topic is ready. Tap Build to get a step-by-step activity plan with materials, discussion questions, and a practice challenge tailored to your {(()=>{const grades=(family.children||[]).map(c=>c.grade).filter(Boolean);return grades.length>1?"students":grades[0]||"student";})()}.
-                </div>
-                <div style={{display:"flex",flexDirection:"column",gap:"0.35rem"}}>
-                  {["Opening hook to grab their attention","Materials list + step-by-step activity","Discussion questions","Practice challenge for the week"].map((item,i)=>(
-                    <div key={i} style={{display:"flex",gap:"0.5rem",alignItems:"center",fontSize:"0.74rem",color:pal.slate}}>
-                      <span style={{color:LR_COLOR,fontSize:"0.7rem",fontWeight:"900",flexShrink:0}}>✓</span>
-                      <span>{item}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
         </>)}
 
         {/* ====== TOPICS TAB ====== */}
         {tab==="topics" && (<>
-          {/* Upcoming 4 weeks */}
-          <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.74rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.55rem"}}>Coming up</div>
-          {getLRUpcomingTopics(grade, 4).map((item,i)=>(
-            <div key={i} style={{display:"flex",gap:"0.6rem",alignItems:"center",padding:"0.55rem 0.75rem",background:i===0?LR_COLOR+"18":pal.linen,borderRadius:"11px",marginBottom:"0.35rem",border:`1.5px solid ${i===0?LR_COLOR+"40":"#e8e8e8"}`}}>
-              <div style={{width:"28px",height:"28px",borderRadius:"7px",background:i===0?LR_COLOR:pal.parchm,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                <span style={{fontSize:"0.65rem",fontWeight:"900",color:i===0?"#fff":pal.slate}}>W{item.weekNum}</span>
+          {/* Upcoming 4 weeks — one per child so grades are correct */}
+          <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.74rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.55rem"}}>Upcoming 4 Weeks</div>
+          {(()=>{
+            const upcoming = getLRUpcomingTopics(grade, 4);
+            // Deduplicate — if same topic appears due to wrapping, show distinct
+            const seen = new Set();
+            const deduped = upcoming.filter(item=>{
+              if(seen.has(item.topic)) return false;
+              seen.add(item.topic); return true;
+            });
+            return deduped.map((item,i)=>(
+              <div key={i} style={{display:"flex",gap:"0.6rem",alignItems:"center",padding:"0.55rem 0.75rem",background:i===0?LR_COLOR+"18":pal.linen,borderRadius:"11px",marginBottom:"0.35rem",border:`1.5px solid ${i===0?LR_COLOR+"40":"#e8e8e8"}`}}>
+                <div style={{width:"28px",height:"28px",borderRadius:"7px",background:i===0?LR_COLOR:pal.parchm,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                  <span style={{fontSize:"0.65rem",fontWeight:"900",color:i===0?"#fff":pal.slate}}>W{item.weekNum}</span>
+                </div>
+                <div style={{flex:1}}>
+                  <div style={{fontWeight:i===0?"800":"600",color:i===0?LR_COLOR:pal.inkM,fontSize:"0.82rem"}}>{item.topic}</div>
+                  <div style={{fontSize:"0.65rem",color:pal.slate}}>{i===0?"This week":i===1?"Next week":"In "+i+" weeks"}</div>
+                </div>
+                {i===0&&<span style={{fontSize:"0.7rem",color:LR_COLOR,fontWeight:"800"}}>Now</span>}
               </div>
-              <div style={{flex:1}}>
-                <div style={{fontWeight:i===0?"800":"600",color:i===0?LR_COLOR:pal.inkM,fontSize:"0.82rem"}}>{item.topic}</div>
-                <div style={{fontSize:"0.65rem",color:pal.slate}}>{i===0?"This week":i===1?"Next week":"In "+i+" weeks"}</div>
-              </div>
-              {i===0&&<span style={{fontSize:"0.7rem",color:LR_COLOR,fontWeight:"800"}}>Now</span>}
-            </div>
-          ))}
+            ));
+          })()}
 
           {/* Full 36-week list */}
           <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.74rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.55rem",marginTop:"1rem"}}>Full year curriculum ({grade})</div>
