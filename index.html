@@ -83,17 +83,57 @@ const LEARNING_PHILOSOPHIES = [
 ];
 
 const CURRICULUM_BRANDS = [
-  {id:"tgatb",   label:"The Good and the Beautiful", icon:"📖", desc:"Faith-based, beautifully designed"},
-  {id:"abeka",   label:"Abeka",                      icon:"📚", desc:"Traditional Christian textbooks"},
-  {id:"mfw",     label:"My Father's World",          icon:"+", desc:"Faith-based unit studies"},
-  {id:"sonlight",label:"Sonlight",                   icon:"🌎", desc:"Literature-rich, global focus"},
-  {id:"bju",     label:"Bob Jones University Press", icon:"🎓", desc:"Comprehensive Christian curriculum"},
-  {id:"saxon",   label:"Saxon Math",                 icon:"+", desc:"Incremental math program"},
-  {id:"moh",     label:"Mystery of History",         icon:"🏺", desc:"Chronological world history"},
-  {id:"aop",     label:"Alpha Omega",                icon:"🔤", desc:"Worktexts & digital learning"},
-  {id:"acellus", label:"Acellus / IONS",             icon:"💻", desc:"Video-based online school"},
-  {id:"other",   label:"Other / Custom",             icon:"📝", desc:"Something not listed here"},
-  {id:"none",    label:"No Boxed Curriculum",        icon:"🆓", desc:"We build our own resources"},
+  // --- Faith-Based ---
+  {id:"tgatb",    label:"The Good and the Beautiful",  icon:"📖", desc:"Charlotte Mason-inspired, faith-based", url:"https://www.goodandbeautiful.com"},
+  {id:"abeka",    label:"Abeka",                       icon:"📚", desc:"Traditional Christian textbooks",       url:"https://www.abeka.com"},
+  {id:"mfw",      label:"My Father’s World",      icon:"🌿", desc:"Faith-based unit studies",              url:"https://www.mfwbooks.com"},
+  {id:"sonlight", label:"Sonlight",                    icon:"🌎", desc:"Literature-rich, global perspective",   url:"https://www.sonlight.com"},
+  {id:"bju",      label:"BJU Press",                   icon:"🎓", desc:"Comprehensive Christian curriculum",    url:"https://www.bjupress.com"},
+  {id:"winterpromise", label:"Winter Promise",         icon:"❄️", desc:"Unit studies with a cozy approach",    url:"https://www.winterpromise.com"},
+  {id:"notgrass", label:"Notgrass History",            icon:"🏛", desc:"History-centered, faith-based",        url:"https://www.notgrass.com"},
+  // --- Classical ---
+  {id:"classicalconv", label:"Classical Conversations",icon:"🏛", desc:"Community-based classical education",  url:"https://www.classicalconversations.com"},
+  {id:"welltr",   label:"The Well-Trained Mind",       icon:"📜", desc:"Susan Wise Bauer classical approach",  url:"https://www.welltrainedmind.com"},
+  {id:"veritas",  label:"Veritas Press",               icon:"📜", desc:"Classical Christian curriculum",       url:"https://www.veritaspress.com"},
+  {id:"memoria",  label:"Memoria Press",               icon:"🦉", desc:"Classical education with Latin",       url:"https://www.memoriapress.com"},
+  {id:"trivium",  label:"Trivium Pursuit",             icon:"📐", desc:"Classical trivium approach",           url:"https://www.triviumpursuit.com"},
+  // --- Charlotte Mason ---
+  {id:"ambleside",label:"Ambleside Online",            icon:"🌸", desc:"Free Charlotte Mason curriculum",      url:"https://www.amblesideonline.org"},
+  {id:"simplycharlotte", label:"Simply Charlotte Mason",icon:"🌼", desc:"Charlotte Mason resources & guides",  url:"https://simplycharlottemason.com"},
+  // --- Math Focused ---
+  {id:"saxon",    label:"Saxon Math",                  icon:"➕", desc:"Incremental, mastery-based math",      url:"https://www.hmhco.com/programs/saxon-math"},
+  {id:"mathu",    label:"Math-U-See",                  icon:"🔢", desc:"Manipulative-based math program",      url:"https://www.mathusee.com"},
+  {id:"rightstart",label:"RightStart Math",            icon:"🧮", desc:"Visual, activity-based math",         url:"https://www.rightstartmath.com"},
+  {id:"ctc",      label:"CTC Math",                    icon:"💻", desc:"Online video-based math",              url:"https://www.ctcmath.com"},
+  {id:"beast",    label:"Beast Academy",               icon:"🐉", desc:"Advanced math comics for kids",        url:"https://www.beastacademy.com"},
+  {id:"aaa",      label:"AAA Math",                    icon:"🔣", desc:"Free online math practice",            url:"https://www.aaamath.com"},
+  // --- Language Arts / Reading ---
+  {id:"aas",      label:"All About Spelling",          icon:"🔤", desc:"Orton-Gillingham spelling program",    url:"https://www.allaboutlearningpress.com"},
+  {id:"aar",      label:"All About Reading",           icon:"📖", desc:"Multisensory reading program",         url:"https://www.allaboutlearningpress.com"},
+  {id:"rodd",     label:"Rodd Rumford Reading",        icon:"📗", desc:"Phonics-based reading approach",       url:"https://www.roddrumford.com"},
+  {id:"explode",  label:"Explode the Code",            icon:"💥", desc:"Phonics workbook series",              url:"https://www.explodethecode.com"},
+  {id:"fll",      label:"First Language Lessons",      icon:"📝", desc:"Grammar and composition for young kids",url:"https://www.welltrainedmind.com"},
+  {id:"iewa",     label:"Institute for Excellence in Writing", icon:"✍️", desc:"Writing curriculum",          url:"https://www.iew.com"},
+  {id:"writeshop",label:"WriteShop",                   icon:"✏️", desc:"Step-by-step writing program",        url:"https://www.writeshop.com"},
+  // --- Science ---
+  {id:"apologia", label:"Apologia Science",            icon:"🔬", desc:"Faith-based, award-winning science",  url:"https://www.apologia.com"},
+  {id:"noeo",     label:"NOEO Science",                icon:"🧪", desc:"Charlotte Mason science curriculum",   url:"https://www.noeo.com"},
+  {id:"campfire", label:"Camp Fire Science",           icon:"🔥", desc:"Outdoor and nature-based science",    url:"https://www.campfiresciencecurriculum.com"},
+  // --- History / Social Studies ---
+  {id:"moh",      label:"Mystery of History",          icon:"🏺", desc:"Chronological world history",         url:"https://www.mysteryofhistory.com"},
+  {id:"sotw",     label:"Story of the World",          icon:"🌍", desc:"Susan Wise Bauer narrative history",  url:"https://www.welltrainedmind.com"},
+  {id:"beautiful", label:"Beautiful Feet Books",       icon:"📚", desc:"Literature-based history",            url:"https://www.bfbooks.com"},
+  // --- All-In-One / Online ---
+  {id:"aop",      label:"Alpha Omega / Monarch",       icon:"🔤", desc:"Worktexts and digital learning",      url:"https://www.aop.com"},
+  {id:"acellus",  label:"Acellus / Power Homeschool",  icon:"💻", desc:"Video-based online school",           url:"https://www.powerhomeschool.org"},
+  {id:"time4",    label:"Time4Learning",               icon:"⏰", desc:"Online all-in-one curriculum",        url:"https://www.time4learning.com"},
+  {id:"calvert",  label:"Calvert Education",           icon:"🎒", desc:"Structured all-in-one program",       url:"https://www.calverteducation.com"},
+  {id:"k12",      label:"K12 / Stride",                icon:"🏫", desc:"Online public school option",         url:"https://www.k12.com"},
+  {id:"connections", label:"Connections Academy",      icon:"🖥", desc:"Online public charter school",        url:"https://www.connectionsacademy.com"},
+  {id:"oak",      label:"Oak Meadow",                  icon:"🌳", desc:"Waldorf-inspired, nature-focused",    url:"https://www.oakmeadow.com"},
+  {id:"tsc",      label:"The Scholars Community",      icon:"👩‍🏫", desc:"Tutored online homeschool",          url:"https://thescholarscommunity.com"},
+  // --- Separators ---
+  {id:"none",     label:"No Boxed Curriculum",         icon:"🆓", desc:"We build our own from scratch",       url:""},
 ];
 
 const SUBJECT_OPTIONS = [
@@ -1126,31 +1166,181 @@ function OnbPhilosophy({ pal, data, upd, onNext }) {
 
 /* --- STEP 3: Curriculum Brands (multi-select) --- */
 function OnbCurrBrands({ pal, data, upd, onNext }) {
+  const [search,    setSearch]    = React.useState("");
+  const [showCustom,setShowCustom]= React.useState(false);
+  const [custName,  setCustName]  = React.useState("");
+  const [custUrl,   setCustUrl]   = React.useState("");
+  const [fetching,  setFetching]  = React.useState(false);
+  const [fetchMsg,  setFetchMsg]  = React.useState("");
+  const [fetchDone, setFetchDone] = React.useState(false);
+
+  const sel     = data.curriculumBrands || [];
+  const customs = data.customCurriculums || [];
+
   const toggle = id => {
-    const cur = data.curriculumBrands || [];
-    upd("curriculumBrands", cur.includes(id) ? cur.filter(x=>x!==id) : [...cur, id]);
+    upd("curriculumBrands", sel.includes(id) ? sel.filter(x=>x!==id) : [...sel, id]);
   };
-  const sel = data.curriculumBrands || [];
+
+  const filtered = search.trim()
+    ? CURRICULUM_BRANDS.filter(s=>s.label.toLowerCase().includes(search.toLowerCase())||s.desc.toLowerCase().includes(search.toLowerCase()))
+    : CURRICULUM_BRANDS;
+
+  const addCustom = async () => {
+    const name = custName.trim();
+    const url  = custUrl.trim();
+    if(!name || !url) return;
+    const id = "custom_curr_" + name.toLowerCase().replace(/\s+/g,"_");
+    // Save immediately
+    const entry = {id, label:name, url, icon:"📘", desc:"Custom curriculum", summary:""};
+    const updated = [...customs.filter(c=>c.id!==id), entry];
+    upd("customCurriculums", updated);
+    upd("curriculumBrands", [...sel.filter(x=>x!==id), id]);
+    // Now fetch the website via Anthropic API to learn about it
+    setFetching(true);
+    setFetchMsg("Checking out " + name + "’s website…");
+    setFetchDone(false);
+    try {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({
+          model:"claude-sonnet-4-20250514",
+          max_tokens:600,
+          tools:[{type:"web_search_20250305",name:"web_search"}],
+          messages:[{
+            role:"user",
+            content:"Please visit " + url + " and give me a 2-3 sentence summary of what this homeschool curriculum covers, its teaching philosophy, grade levels, and what makes it unique. Be concise and practical — this is for a homeschool parent profile."
+          }]
+        })
+      });
+      const d = await res.json();
+      const summary = d.content?.filter(b=>b.type==="text").map(b=>b.text).join(" ").trim()||"";
+      if(summary) {
+        const withSummary = [...customs.filter(c=>c.id!==id), {...entry, summary}];
+        upd("customCurriculums", withSummary);
+        setFetchMsg("✓ Got it! " + name + " has been added to your profile.");
+      } else {
+        setFetchMsg("✓ Added! We couldn’t pull details from the site, but your curriculum is saved.");
+      }
+      setFetchDone(true);
+    } catch(e) {
+      setFetchMsg("✓ Added! The website lookup didn’t load, but your curriculum is saved.");
+      setFetchDone(true);
+    }
+    setFetching(false);
+    setCustName("");
+    setCustUrl("");
+    setShowCustom(false);
+  };
+
+  const removeCustom = id => {
+    upd("customCurriculums", customs.filter(c=>c.id!==id));
+    upd("curriculumBrands", sel.filter(x=>x!==id));
+  };
+
+  const urlValid = custUrl.trim().startsWith("http")||custUrl.trim().startsWith("www");
+
   return (
     <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
-      <StepHdr pal={pal} icon="📖" title="Curriculum Programs" sub="Do you use any purchased curriculum? Select all that apply - or skip if you build your own!" />
-      <div style={{display:"flex",flexDirection:"column",gap:"0.5rem",marginBottom:"1.2rem"}}>
-        {CURRICULUM_BRANDS.map(s=>{
+      <StepHdr pal={pal} icon="📖" title="Curriculum Programs" sub="Select everything you use. We will tailor your experience to fit how you already teach." />
+
+      {/* Search */}
+      <div style={{position:"relative",marginBottom:"0.85rem"}}>
+        <input
+          value={search} onChange={e=>setSearch(e.target.value)}
+          placeholder="Search curriculums…"
+          style={{width:"100%",padding:"0.6rem 0.85rem 0.6rem 2.2rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.82rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit"}}
+          onFocus={e=>e.target.style.borderColor=pal.primary}
+          onBlur={e=>e.target.style.borderColor=pal.stone}
+        />
+        <span style={{position:"absolute",left:"0.7rem",top:"50%",transform:"translateY(-50%)",fontSize:"0.9rem",pointerEvents:"none"}}>🔍</span>
+      </div>
+
+      {/* AI fetch result banner */}
+      {fetchMsg&&(
+        <div style={{background:fetchDone?pal.goodBg:pal.pale,border:`1.5px solid ${fetchDone?pal.good:pal.primary}40`,borderRadius:"11px",padding:"0.65rem 0.9rem",marginBottom:"0.85rem",fontSize:"0.8rem",color:fetchDone?pal.good:pal.primary,fontWeight:"600"}}>
+          {fetching&&<span style={{marginRight:"6px"}}>⏳</span>}{fetchMsg}
+        </div>
+      )}
+
+      {/* Custom curriculums added */}
+      {customs.length>0&&(
+        <div style={{marginBottom:"0.75rem"}}>
+          <div style={{fontSize:"0.65rem",fontWeight:"800",color:pal.primary,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"0.4rem"}}>Your Custom Curriculums</div>
+          {customs.map(c=>(
+            <div key={c.id} style={{display:"flex",gap:"0.6rem",alignItems:"flex-start",padding:"0.6rem 0.85rem",background:pal.pale,borderRadius:"11px",border:`2px solid ${pal.primary}40`,marginBottom:"0.35rem"}}>
+              <span style={{fontSize:"1.1rem",flexShrink:0}}>{c.icon}</span>
+              <div style={{flex:1}}>
+                <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.84rem"}}>{c.label}</div>
+                {c.summary&&<div style={{fontSize:"0.72rem",color:pal.slate,marginTop:"2px",lineHeight:1.5}}>{c.summary}</div>}
+                {c.url&&<div style={{fontSize:"0.68rem",color:pal.mid,marginTop:"2px"}}>{c.url}</div>}
+              </div>
+              <button onClick={()=>removeCustom(c.id)} style={{background:"transparent",border:"none",color:pal.bad,fontSize:"0.8rem",cursor:"pointer",padding:"2px 4px",flexShrink:0}}>✕</button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Brand list */}
+      <div style={{display:"flex",flexDirection:"column",gap:"0.4rem",marginBottom:"0.85rem"}}>
+        {filtered.map(s=>{
           const isSelected = sel.includes(s.id);
           return (
-            <button key={s.id} onClick={()=>toggle(s.id)} style={{padding:"0.85rem 1rem",border:`2px solid ${isSelected?pal.accent:pal.stone+"50"}`,borderRadius:"14px",background:isSelected?pal.paleMid:"transparent",cursor:"pointer",textAlign:"left",display:"flex",gap:"0.75rem",alignItems:"center",transition:"all 0.14s"}}>
-              <span style={{fontSize:"1.4rem",flexShrink:0}}>{s.icon}</span>
+            <button key={s.id} onClick={()=>toggle(s.id)}
+              style={{padding:"0.75rem 0.9rem",border:`2px solid ${isSelected?pal.accent:pal.stone+"50"}`,borderRadius:"13px",background:isSelected?pal.paleMid:"transparent",cursor:"pointer",textAlign:"left",display:"flex",gap:"0.7rem",alignItems:"center",transition:"all 0.14s"}}>
+              <span style={{fontSize:"1.25rem",flexShrink:0}}>{s.icon}</span>
               <div style={{flex:1}}>
-                <div style={{fontWeight:"700",color:isSelected?pal.accentD:pal.ink,fontSize:"0.86rem"}}>{s.label}</div>
-                <div style={{fontSize:"0.72rem",color:pal.slate,marginTop:"1px"}}>{s.desc}</div>
+                <div style={{fontWeight:"700",color:isSelected?pal.accentD:pal.ink,fontSize:"0.84rem"}}>{s.label}</div>
+                <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>{s.desc}</div>
               </div>
-              <div style={{width:"19px",height:"19px",borderRadius:"4px",border:`2px solid ${isSelected?pal.accent:pal.stone}`,background:isSelected?pal.accent:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+              <div style={{width:"19px",height:"19px",borderRadius:"4px",border:`2px solid ${isSelected?pal.accent:pal.stone}`,background:isSelected?pal.accent:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,flexShrink:0}}>
                 {isSelected&&<span style={{color:pal.onDark,fontSize:"0.75rem",fontWeight:"900"}}>✓</span>}
               </div>
             </button>
           );
         })}
+        {filtered.length===0&&<div style={{padding:"1rem",textAlign:"center",color:pal.slate,fontSize:"0.82rem"}}>No results for {"“"}{search}{"”"}</div>}
       </div>
+
+      {/* Add custom curriculum */}
+      {!showCustom?(
+        <button onClick={()=>setShowCustom(true)}
+          style={{width:"100%",padding:"0.75rem",border:`2px dashed ${pal.primary}50`,borderRadius:"13px",background:"transparent",color:pal.primary,fontWeight:"700",fontSize:"0.84rem",cursor:"pointer",marginBottom:"1rem",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.5rem"}}>
+          <span>+</span> Add a curriculum not listed
+        </button>
+      ):(
+        <div style={{background:pal.pale,borderRadius:"14px",padding:"1rem",border:`2px solid ${pal.primary}30`,marginBottom:"1rem"}}>
+          <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.84rem",marginBottom:"0.75rem"}}>Add your curriculum</div>
+          <Lbl pal={pal}>Curriculum name *</Lbl>
+          <input value={custName} onChange={e=>setCustName(e.target.value)}
+            placeholder="e.g. My Homeschool Hub"
+            style={{width:"100%",padding:"0.6rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.82rem",background:"#fff",color:pal.ink,outline:"none",fontFamily:"inherit",marginBottom:"0.65rem"}}
+            onFocus={e=>e.target.style.borderColor=pal.primary}
+            onBlur={e=>e.target.style.borderColor=pal.stone}
+          />
+          <Lbl pal={pal}>Website URL * <span style={{fontSize:"0.68rem",color:pal.slate,fontWeight:"400"}}>(required — Root {"&"} Bloom will check it out)</span></Lbl>
+          <input value={custUrl} onChange={e=>setCustUrl(e.target.value)}
+            placeholder="https://www.yourcurriculum.com"
+            type="url"
+            style={{width:"100%",padding:"0.6rem 0.85rem",border:`2px solid ${urlValid||!custUrl?pal.stone:pal.bad}`,borderRadius:"10px",fontSize:"0.82rem",background:"#fff",color:pal.ink,outline:"none",fontFamily:"inherit",marginBottom:"0.75rem"}}
+            onFocus={e=>e.target.style.borderColor=pal.primary}
+            onBlur={e=>e.target.style.borderColor=(urlValid||!custUrl)?pal.stone:pal.bad}
+          />
+          {custUrl&&!urlValid&&<div style={{fontSize:"0.72rem",color:pal.bad,marginTop:"-0.5rem",marginBottom:"0.5rem"}}>Please enter a valid URL starting with https://</div>}
+          <div style={{fontSize:"0.72rem",color:pal.slate,marginBottom:"0.75rem",lineHeight:1.5}}>
+            🤖 Root {"&"} Bloom will visit the website and learn about this curriculum so it can give you better suggestions and planning help.
+          </div>
+          <div style={{display:"flex",gap:"0.5rem"}}>
+            <button onClick={()=>{setShowCustom(false);setCustName("");setCustUrl("");}}
+              style={{padding:"0.6rem 1rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.82rem"}}>Cancel</button>
+            <button onClick={addCustom} disabled={!custName.trim()||!urlValid||fetching}
+              style={{flex:1,padding:"0.6rem",border:"none",borderRadius:"10px",background:custName.trim()&&urlValid&&!fetching?pal.accentGrad:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.82rem",cursor:custName.trim()&&urlValid&&!fetching?"pointer":"default"}}>
+              {fetching?"Fetching…":"Add + Let AI Learn"}
+            </button>
+          </div>
+        </div>
+      )}
+
       <Btn pal={pal} onClick={onNext}>Next -></Btn>
     </div>
   );
@@ -4941,33 +5131,24 @@ function AIWorksheetModal({ pal, family, activeChild, wsType, onClose }) {
 
 
 function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEditEntry,attendanceDays=0}){
-  const [view,        setView]      = useState("main");     // main | subject | preview
-  const [activeSubj,  setActiveSubj]= useState(null);       // subject name when drilling in
-  const [showAdd,     setShowAdd]   = useState(false);
-  const [editEntry,   setEditEntry] = useState(null);
-  const [detailEntry, setDetail]    = useState(null);
+  const [showDailyLog,   setShowDailyLog]   = useState(false);
+  const [showAdd,        setShowAdd]        = useState(false);
+  const [editEntry,      setEditEntry]      = useState(null);
+  const [detailEntry,    setDetail]         = useState(null);
+  const [expandedSubj,   setExpandedSubj]   = useState(null);
+  const [showYearView,   setShowYearView]   = useState(false);
 
   const stateInfo = getStateInfo(family.state||"");
-
-  // Active child
   const activeCi  = family.children.findIndex(c=>c.id===child);
   const activeCh  = activeCi>=0 ? family.children[activeCi] : family.children[0];
   const activeCiR = activeCi>=0 ? activeCi : 0;
   const cp = CHILD_COLOR_PALETTES.find(p=>p.id===(activeCh?.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
-
-  // Entries for this child only
   const childEntries = entries.filter(e=>e.childIdx===activeCiR);
+  const subjEntries  = childEntries.filter(e=>!e.isDay && e.subj!=="Daily Notes");
+  const readingEntries = subjEntries.filter(e=>e.subj==="Reading"||e.subj==="Reading/Language Arts"||e.subj==="Bible / Faith");
+  const extraEntries = childEntries.filter(e=>e.isExtra||e.subj==="Extracurricular"||e.subj==="Co-op");
+  const photoEntries = childEntries.filter(e=>e.photos&&e.photos.length>0);
 
-  // Subject entries (not day notes)
-  const subjEntries = childEntries.filter(e=>!e.isDay && e.subj!=="Daily Notes");
-  // Work sample entries (have photos)
-  const sampleEntries = childEntries.filter(e=>e.photos&&e.photos.length>0);
-  // Day note entries
-  const noteEntries = childEntries.filter(e=>e.isDay||e.subj==="Daily Notes");
-  // Reading entries
-  const readingEntries = subjEntries.filter(e=>e.subj==="Reading"||e.subj==="Bible / Faith"||e.subj==="Reading/Language Arts");
-
-  // Group subject entries by subject name
   const bySubject = {};
   subjEntries.forEach(e=>{
     if(!bySubject[e.subj]) bySubject[e.subj]={subj:e.subj,entries:[],hasPhotos:false};
@@ -4975,17 +5156,10 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
     if(e.photos&&e.photos.length>0) bySubject[e.subj].hasPhotos=true;
   });
   const subjectList = Object.values(bySubject).sort((a,b)=>b.entries.length-a.entries.length);
+  const schoolName  = family.schoolName||(family.familyName+" Academy")||"Home School";
 
-  const today = new Date();
-
-
-
-  if(view==="subject" && activeSubj) {
-    const sd = bySubject[activeSubj];
-    if(!sd) { setView("main"); return null; }
-    return <SubjectView pal={pal} family={family} cp={cp} sd={sd} activeCh={activeCh}
-      onBack={()=>setView("main")} onDetail={setDetail} onEdit={(e)=>{setEditEntry(e);}} stateInfo={stateInfo}/>;
-  }
+  if(showYearView) return <YearOverview pal={pal} family={family} activeCh={activeCh} cp={cp}
+    entries={childEntries} attendanceDays={attendanceDays} onBack={()=>setShowYearView(false)}/>;
 
   return (
     <div style={{animation:"fadeUp 0.22s ease"}}>
@@ -5009,48 +5183,129 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
           })}
         </div>
 
-        {/* ── STUDENT INFO ── */}
-        <div style={{background:pal.linen,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.stone}30`}}>
-          <div style={{fontWeight:"900",color:pal.ink,fontSize:"1rem",marginBottom:"2px"}}>{activeCh?.name}</div>
-          <div style={{fontSize:"0.72rem",color:pal.slate}}>
-            {family.schoolName||(family.familyName+" Academy")||"Home School"}
-            {" · "}
-            {family.yearStart&&family.yearEnd
-              ? new Date(family.yearStart).getFullYear()+" – "+new Date(family.yearEnd).getFullYear()
-              : new Date().getFullYear()+" – "+(new Date().getFullYear()+1)}
+        {/* ── STUDENT HEADER CARD ── */}
+        <div style={{background:`linear-gradient(135deg,${cp.c1},${cp.c2})`,borderRadius:"16px",padding:"1rem 1.1rem",marginBottom:"0.85rem",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div>
+            <div style={{fontWeight:"900",color:"#fff",fontSize:"1.05rem",lineHeight:1.2}}>{activeCh?.name}</div>
+            <div style={{fontSize:"0.7rem",color:"rgba(255,255,255,0.82)",marginTop:"2px"}}>{activeCh?.grade} {"\u2022"} {schoolName}</div>
+            <div style={{fontSize:"0.68rem",color:"rgba(255,255,255,0.65)",marginTop:"2px"}}>
+              {family.yearStart&&family.yearEnd
+                ? new Date(family.yearStart).getFullYear()+" \u2013 "+new Date(family.yearEnd).getFullYear()
+                : new Date().getFullYear()+" \u2013 "+(new Date().getFullYear()+1)}
+            </div>
           </div>
-          <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"2px"}}>{new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})}</div>
+          <div style={{textAlign:"right"}}>
+            <div style={{fontSize:"2.8rem",lineHeight:1}}>{activeCh?.avatar}</div>
+            <div style={{fontSize:"0.6rem",color:"rgba(255,255,255,0.7)",marginTop:"2px"}}>{subjEntries.length} entries</div>
+          </div>
         </div>
 
-        {/* Add entry + Preview row */}
-        <div style={{display:"flex",gap:"0.5rem",marginBottom:"1.1rem"}}>
+        {/* ── ACTION ROW ── */}
+        <div style={{display:"flex",gap:"0.45rem",marginBottom:"1rem"}}>
+          <button onClick={()=>setShowDailyLog(true)}
+            style={{flex:1,padding:"0.65rem 0.5rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.78rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.35rem"}}>
+            <span>{"+"}</span><span>Log Today</span>
+          </button>
           <button onClick={()=>setShowAdd(true)}
-            style={{flex:1,padding:"0.65rem",border:`2px dashed ${pal.primary}50`,borderRadius:"12px",background:"transparent",color:pal.primary,fontWeight:"700",fontSize:"0.8rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.4rem"}}>
-            <span>+</span><span>Add Entry</span>
+            style={{flex:1,padding:"0.65rem 0.5rem",border:`2px solid ${pal.stone}50`,borderRadius:"12px",background:"transparent",color:pal.inkM,fontWeight:"700",fontSize:"0.78rem",cursor:"pointer"}}>
+            Quick Add
           </button>
           <button onClick={()=>printPortfolioPDF(family,childEntries,activeCh,attendanceDays,stateInfo)}
-            style={{padding:"0.65rem 1rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"700",fontSize:"0.8rem",cursor:"pointer",flexShrink:0}}>
-            🖨 Print PDF
+            style={{padding:"0.65rem 0.75rem",border:"none",borderRadius:"12px",background:pal.primary,color:"#fff",fontWeight:"700",fontSize:"0.78rem",cursor:"pointer",flexShrink:0}}>
+            {"🖨"}
           </button>
           <button onClick={()=>printEvaluatorLetter(family,activeCh,attendanceDays)}
-            style={{padding:"0.65rem 0.8rem",border:`2px solid ${pal.primary}`,borderRadius:"12px",background:"transparent",color:pal.primary,fontWeight:"700",fontSize:"0.72rem",cursor:"pointer",flexShrink:0}}>
-            📜 Eval
+            style={{padding:"0.65rem 0.65rem",border:`2px solid ${pal.primary}`,borderRadius:"12px",background:"transparent",color:pal.primary,fontWeight:"700",fontSize:"0.75rem",cursor:"pointer",flexShrink:0}}>
+            {"📜"}
           </button>
         </div>
 
-        {/* ── SUBJECTS — expandable bubbles ── */}
-        <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.88rem",marginBottom:"0.55rem"}}>Subjects</div>
-        {subjectList.length===0 ? (
-          <div style={{background:pal.linen,borderRadius:"14px",padding:"1.5rem",textAlign:"center",border:`1.5px solid ${pal.stone}30`,marginBottom:"1.1rem"}}>
-            <div style={{fontSize:"2rem",marginBottom:"0.4rem"}}>📚</div>
-            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.84rem",marginBottom:"0.2rem"}}>No activity logged yet</div>
-            <div style={{fontSize:"0.74rem",color:pal.slate}}>Complete a school day or add an entry above.</div>
+        {/* ── YEAR OVERVIEW BUTTON ── */}
+        <button onClick={()=>setShowYearView(true)}
+          style={{width:"100%",display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0.7rem 0.9rem",background:pal.linen,border:`1.5px solid ${pal.stone}30`,borderRadius:"13px",cursor:"pointer",marginBottom:"1rem"}}>
+          <div style={{display:"flex",alignItems:"center",gap:"0.55rem"}}>
+            <span style={{fontSize:"1.2rem"}}>{"📅"}</span>
+            <div style={{textAlign:"left"}}>
+              <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.84rem"}}>Year Overview</div>
+              <div style={{fontSize:"0.64rem",color:pal.slate,marginTop:"1px"}}>{attendanceDays} days logged {"\u2022"} See what{"'"}s done {"&"} what{"'"}s left</div>
+            </div>
           </div>
-        ) : (
-          <div style={{display:"flex",flexDirection:"column",gap:"0.45rem",marginBottom:"1.1rem"}}>
-            {subjectList.map((sd)=><SubjectBubble key={sd.subj} sd={sd} cp={cp} pal={pal} family={family} onDetail={setDetail}/>)}
+          <span style={{color:pal.stone,fontSize:"1rem"}}>{"›"}</span>
+        </button>
+
+        {/* ── SUBJECTS CARD ── */}
+        <PortfolioCard pal={pal} icon="📚" title="Subjects" count={subjEntries.length}>
+          {subjectList.length===0 ? (
+            <div style={{textAlign:"center",padding:"1.2rem 0.5rem"}}>
+              <div style={{fontSize:"1.8rem",marginBottom:"0.35rem"}}>📖</div>
+              <div style={{fontSize:"0.78rem",color:pal.slate}}>No subjects logged yet. Tap {"\""}Log Today{"\""}!</div>
+            </div>
+          ) : subjectList.map((sd)=>(
+            <PortfolioSubjectRow key={sd.subj} sd={sd} cp={cp} pal={pal} family={family}
+              expanded={expandedSubj===sd.subj}
+              onToggle={()=>setExpandedSubj(expandedSubj===sd.subj?null:sd.subj)}
+              onDetail={setDetail}/>
+          ))}
+        </PortfolioCard>
+
+        {/* ── BOOK LIST CARD ── */}
+        <PortfolioCard pal={pal} icon="📖" title="Book List" count={readingEntries.length}
+          note="Reading titles logged">
+          {readingEntries.length===0 ? (
+            <div style={{padding:"0.85rem 0",textAlign:"center"}}>
+              <div style={{fontSize:"0.78rem",color:pal.slate}}>No books logged yet. Add reading entries above.</div>
+            </div>
+          ) : (
+            <div style={{display:"flex",flexDirection:"column",gap:"0.3rem",paddingTop:"0.1rem"}}>
+              {readingEntries.slice().reverse().map((e,i)=>(
+                <div key={e.id||i} onClick={()=>setDetail(e)}
+                  style={{display:"flex",gap:"0.55rem",alignItems:"center",padding:"0.45rem 0.6rem",borderRadius:"10px",background:"#fff",cursor:"pointer",border:`1px solid ${pal.stone}20`}}>
+                  <span style={{fontSize:"1rem",flexShrink:0}}>{"📖"}</span>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.8rem",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.readingTitle||e.title}</div>
+                    <div style={{fontSize:"0.62rem",color:pal.slate}}>{e.subj} {"\u2022"} {e.date}</div>
+                  </div>
+                  <span style={{color:pal.stone,fontSize:"0.8rem"}}>{"›"}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </PortfolioCard>
+
+        {/* ── EXTRACURRICULARS CARD ── */}
+        <PortfolioCard pal={pal} icon="🏆" title="Extracurriculars" count={extraEntries.length}>
+          {extraEntries.length===0 ? (
+            <div style={{padding:"0.85rem 0",textAlign:"center"}}>
+              <div style={{fontSize:"0.78rem",color:pal.slate}}>Sports, music, co-op, field trips {"\u2014"} add them with Quick Add.</div>
+            </div>
+          ) : (
+            <div style={{display:"flex",flexDirection:"column",gap:"0.3rem",paddingTop:"0.1rem"}}>
+              {extraEntries.slice().reverse().map((e,i)=>(
+                <div key={e.id||i} onClick={()=>setDetail(e)}
+                  style={{display:"flex",gap:"0.55rem",alignItems:"center",padding:"0.45rem 0.6rem",borderRadius:"10px",background:"#fff",cursor:"pointer",border:`1px solid ${pal.stone}20`}}>
+                  <span style={{fontSize:"1rem",flexShrink:0}}>{e.thumb||"🏆"}</span>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.8rem",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.title}</div>
+                    <div style={{fontSize:"0.62rem",color:pal.slate}}>{e.date}</div>
+                  </div>
+                  <span style={{color:pal.stone,fontSize:"0.8rem"}}>{"›"}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </PortfolioCard>
+
+        {/* ── PHOTOS CARD ── */}
+        <PortfolioPhotosCard pal={pal} cp={cp} entries={photoEntries} onDetail={setDetail}/>
+
+        {/* ── WORKSHEET REMINDER ── */}
+        <div style={{background:"#fffbeb",border:"1.5px solid #f5c842",borderRadius:"13px",padding:"0.85rem 1rem",marginBottom:"1rem",display:"flex",gap:"0.6rem",alignItems:"flex-start"}}>
+          <span style={{fontSize:"1.1rem",flexShrink:0,marginTop:"1px"}}>{"📎"}</span>
+          <div>
+            <div style={{fontWeight:"800",color:"#7a5500",fontSize:"0.82rem",marginBottom:"2px"}}>Add Worksheets to Your Binder</div>
+            <div style={{fontSize:"0.72rem",color:"#a07020",lineHeight:1.55}}>When you print your portfolio, add completed worksheets, tests, and work samples behind each section. Physical evidence strengthens your portfolio for evaluation.</div>
           </div>
-        )}
+        </div>
 
         {/* ── ADDITIONAL NOTES ── */}
         <AdditionalNotes pal={pal} family={family} child={activeCh}/>
@@ -5061,6 +5316,10 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
         <div style={{height:"1rem"}}/>
       </div>
 
+      {showDailyLog&&<DailyPortfolioModal pal={pal} family={family} childIdx={activeCiR}
+        stateInfo={stateInfo}
+        onClose={()=>setShowDailyLog(false)}
+        onSave={(entries)=>{entries.forEach(e=>{onAddEntry&&onAddEntry(e);});setShowDailyLog(false);}}/>}
       {showAdd&&<AddEntryModal pal={pal} family={family} onClose={()=>setShowAdd(false)}
         onSave={e=>{onAddEntry&&onAddEntry(e);setShowAdd(false);}}
         stateInfo={stateInfo}/>}
@@ -5071,6 +5330,545 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
       {detailEntry&&<EntryDetailModal pal={pal} family={family} entry={detailEntry}
         onClose={()=>setDetail(null)}
         onEdit={()=>{setEditEntry(detailEntry);setDetail(null);}}/>}
+    </div>
+  );
+}
+
+/* ---- Portfolio Card wrapper ---- */
+function PortfolioCard({pal,icon,title,count,note,children}){
+  return (
+    <div style={{background:pal.linen,borderRadius:"16px",border:`1.5px solid ${pal.stone}30`,overflow:"hidden",marginBottom:"1rem"}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"0.75rem 0.9rem 0.65rem",borderBottom:`1px solid ${pal.stone}20`}}>
+        <div style={{display:"flex",alignItems:"center",gap:"0.5rem"}}>
+          <span style={{fontSize:"1.1rem"}}>{icon}</span>
+          <div>
+            <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem"}}>{title}</div>
+            {note&&<div style={{fontSize:"0.62rem",color:pal.slate,marginTop:"1px"}}>{note}</div>}
+          </div>
+        </div>
+        {count>0&&<div style={{background:pal.primary+"18",borderRadius:"20px",padding:"0.12rem 0.55rem"}}>
+          <span style={{fontWeight:"800",color:pal.primary,fontSize:"0.76rem"}}>{count}</span>
+        </div>}
+      </div>
+      <div style={{padding:"0.6rem 0.75rem 0.75rem"}}>{children}</div>
+    </div>
+  );
+}
+
+/* ---- Portfolio Subject Row (replaces SubjectBubble) ---- */
+function PortfolioSubjectRow({sd,cp,pal,family,expanded,onToggle,onDetail}){
+  const customSubjs = family.customSubjects||[];
+  const allSubjs = [...SUBJECT_OPTIONS,...customSubjs];
+  const subj = allSubjs.find(x=>x.label===sd.subj);
+  const icon = subj?.icon||"📋";
+  const now = new Date();
+  const weekStart = new Date(now);
+  weekStart.setDate(now.getDate()-(now.getDay()===0?6:now.getDay()-1));
+  weekStart.setHours(0,0,0,0);
+  const yearNum = now.getFullYear();
+  const thisWeekEntries = sd.entries.filter(e=>{
+    try{ const d=new Date(e.date+", "+yearNum); return d>=weekStart; }catch{return false;}
+  });
+  const recentEntries = [...sd.entries].reverse().slice(0,8);
+
+  return (
+    <div style={{borderRadius:"12px",border:`1.5px solid ${expanded?cp.c1+"60":pal.stone+"25"}`,overflow:"hidden",background:"#fff",marginBottom:"0.35rem",transition:"all 0.15s"}}>
+      <button onClick={onToggle}
+        style={{width:"100%",display:"flex",gap:"0.65rem",alignItems:"center",padding:"0.65rem 0.8rem",background:"transparent",border:"none",cursor:"pointer",textAlign:"left"}}>
+        <div style={{width:"36px",height:"36px",borderRadius:"9px",background:`linear-gradient(135deg,${cp.c1}22,${cp.c2}15)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1rem",flexShrink:0}}>{icon}</div>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.83rem"}}>{sd.subj}</div>
+          <div style={{fontSize:"0.63rem",color:pal.slate,marginTop:"1px"}}>
+            {thisWeekEntries.length>0
+              ? thisWeekEntries.length+" this week \u2022 "+sd.entries.length+" total"
+              : sd.entries.length+" total \u2022 last: "+(sd.entries[sd.entries.length-1]?.date||"")}
+          </div>
+        </div>
+        {sd.hasPhotos&&<span style={{fontSize:"0.78rem",flexShrink:0}}>{"📷"}</span>}
+        <div style={{background:cp.c1+"20",borderRadius:"20px",padding:"0.1rem 0.45rem",flexShrink:0}}>
+          <span style={{fontWeight:"800",color:cp.c1,fontSize:"0.74rem"}}>{sd.entries.length}</span>
+        </div>
+        <span style={{color:pal.slate,fontSize:"1rem",transform:expanded?"rotate(90deg)":"none",transition:"transform 0.2s",flexShrink:0}}>{"›"}</span>
+      </button>
+      {expanded&&(
+        <div style={{borderTop:`1px solid ${pal.stone}15`}}>
+          {recentEntries.map((e,i)=>(
+            <div key={e.id||i} onClick={()=>onDetail(e)}
+              style={{display:"flex",gap:"0.55rem",alignItems:"center",padding:"0.55rem 0.8rem",borderTop:i>0?`1px solid ${pal.stone}12`:"none",cursor:"pointer",background:"#fafafa"}}
+              onTouchStart={ev=>ev.currentTarget.style.background=pal.pale}
+              onTouchEnd={ev=>ev.currentTarget.style.background="#fafafa"}>
+              <div style={{width:"30px",height:"30px",borderRadius:"7px",background:`${cp.c1}18`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.85rem",flexShrink:0,overflow:"hidden",position:"relative"}}>
+                {e.photos&&e.photos[0]?<img src={e.photos[0]} alt="" style={{width:"100%",height:"100%",objectFit:"cover",position:"absolute",inset:0}}/>:<span>{e.thumb||"📋"}</span>}
+              </div>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontWeight:"600",color:pal.ink,fontSize:"0.79rem",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.readingTitle||e.title}</div>
+                {e.note&&e.note.trim()&&<div style={{fontSize:"0.62rem",color:pal.slate,marginTop:"1px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.note.slice(0,60)}</div>}
+              </div>
+              <div style={{fontSize:"0.61rem",color:pal.stone,flexShrink:0}}>{e.date}</div>
+              <span style={{color:pal.stone,fontSize:"0.8rem",flexShrink:0}}>{"›"}</span>
+            </div>
+          ))}
+          {sd.entries.length>8&&(
+            <div style={{padding:"0.45rem",textAlign:"center",fontSize:"0.68rem",color:pal.slate,borderTop:`1px solid ${pal.stone}12`}}>
+              +{sd.entries.length-8} more entries
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ---- Portfolio Photos Card ---- */
+function PortfolioPhotosCard({pal,cp,entries,onDetail}){
+  // Show up to 3 photo slots — filled from recent entries, empty = placeholder
+  const photoItems = [];
+  entries.slice().reverse().forEach(e=>{
+    e.photos.forEach(src=>{
+      if(photoItems.length<3) photoItems.push({src,entry:e});
+    });
+  });
+  while(photoItems.length<3) photoItems.push(null);
+
+  return (
+    <div style={{background:pal.linen,borderRadius:"16px",border:`1.5px solid ${pal.stone}30`,overflow:"hidden",marginBottom:"1rem"}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"0.75rem 0.9rem 0.65rem",borderBottom:`1px solid ${pal.stone}20`}}>
+        <div style={{display:"flex",alignItems:"center",gap:"0.5rem"}}>
+          <span style={{fontSize:"1.1rem"}}>{"📷"}</span>
+          <div>
+            <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem"}}>Photos</div>
+            <div style={{fontSize:"0.62rem",color:pal.slate,marginTop:"1px"}}>3 featured {"\u2022"} add photos when logging entries</div>
+          </div>
+        </div>
+        {entries.length>0&&<div style={{background:pal.primary+"18",borderRadius:"20px",padding:"0.12rem 0.55rem"}}>
+          <span style={{fontWeight:"800",color:pal.primary,fontSize:"0.76rem"}}>{entries.length}</span>
+        </div>}
+      </div>
+      <div style={{padding:"0.75rem"}}>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"0.5rem"}}>
+          {photoItems.map((item,i)=>(
+            <div key={i}
+              onClick={item?()=>onDetail(item.entry):undefined}
+              style={{aspectRatio:"1",borderRadius:"12px",overflow:"hidden",border:`1.5px solid ${item?cp.c1+"40":pal.stone+"30"}`,background:item?"#000":pal.parchm,cursor:item?"pointer":"default",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",position:"relative"}}>
+              {item ? (
+                <img src={item.src} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+              ) : (
+                <div style={{textAlign:"center",padding:"0.5rem"}}>
+                  <div style={{fontSize:"1.3rem",marginBottom:"3px",opacity:0.35}}>{"📸"}</div>
+                  <div style={{fontSize:"0.55rem",color:pal.stone,opacity:0.7,lineHeight:1.4}}>{"Paste photo\nor leave blank"}</div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+        {entries.length===0&&(
+          <div style={{marginTop:"0.6rem",fontSize:"0.7rem",color:pal.slate,textAlign:"center",lineHeight:1.5}}>
+            Photos you add to entries will appear here. You can also leave slots blank to paste polaroids or printed photos to your binder.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ---- Year Overview ---- */
+function YearOverview({pal,family,activeCh,cp,entries,attendanceDays,onBack}){
+  const TOTAL_WEEKS = 40;
+  const now = new Date();
+  const yearStart = family.yearStart ? new Date(family.yearStart) : new Date(now.getFullYear(),7,1);
+  const yearEnd   = family.yearEnd   ? new Date(family.yearEnd)   : new Date(now.getFullYear()+1,4,31);
+  const schoolName = family.schoolName||(family.familyName+" Academy")||"Home School";
+
+  // Build a map of week# => entry count
+  const weekMap = {};
+  entries.forEach(e=>{
+    try{
+      const d = new Date(e.date+", "+now.getFullYear());
+      if(isNaN(d)) return;
+      const diff = Math.floor((d-yearStart)/(7*24*60*60*1000));
+      if(diff>=0&&diff<TOTAL_WEEKS){ weekMap[diff]=(weekMap[diff]||0)+1; }
+    }catch(err){}
+  });
+
+  const msPerWeek = 7*24*60*60*1000;
+  const currentWeek = Math.floor((now-yearStart)/msPerWeek);
+  const REQUIRED = 180;
+  const pct = Math.min(100,Math.round((attendanceDays/REQUIRED)*100));
+
+  // Subject breakdown
+  const bySubj = {};
+  entries.filter(e=>!e.isDay&&e.subj!=="Daily Notes").forEach(e=>{
+    bySubj[e.subj]=(bySubj[e.subj]||0)+1;
+  });
+  const subjList = Object.entries(bySubj).sort((a,b)=>b[1]-a[1]).slice(0,8);
+
+  return (
+    <div style={{animation:"fadeUp 0.22s ease"}}>
+      <div style={{background:`linear-gradient(135deg,${cp.c1},${cp.c2})`,padding:"1rem 1.1rem",display:"flex",alignItems:"center",gap:"0.75rem"}}>
+        <button onClick={onBack} style={{background:"rgba(255,255,255,0.2)",border:"none",borderRadius:"9px",padding:"0.3rem 0.7rem",color:"#fff",fontWeight:"700",fontSize:"0.75rem",cursor:"pointer"}}>
+          {"< Back"}
+        </button>
+        <div style={{flex:1}}>
+          <div style={{fontWeight:"900",color:"#fff",fontSize:"0.95rem"}}>{activeCh?.avatar} {activeCh?.name} {"—"} Year Overview</div>
+          <div style={{fontSize:"0.7rem",color:"rgba(255,255,255,0.75)"}}>{schoolName}</div>
+        </div>
+      </div>
+
+      <div style={{padding:"0.85rem 1rem"}}>
+
+        {/* Attendance bar */}
+        <div style={{background:pal.linen,borderRadius:"14px",padding:"0.9rem 1rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.stone}30`}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:"0.5rem"}}>
+            <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem"}}>School Year Progress</div>
+            <div style={{fontWeight:"900",color:cp.c1,fontSize:"1rem"}}>{pct}{"% done"}</div>
+          </div>
+          <div style={{height:"10px",borderRadius:"99px",background:pal.parchm,overflow:"hidden",marginBottom:"0.45rem"}}>
+            <div style={{height:"100%",width:`${pct}%`,borderRadius:"99px",background:`linear-gradient(90deg,${cp.c1},${cp.c2})`,transition:"width 0.5s"}}/>
+          </div>
+          <div style={{display:"flex",justifyContent:"space-between",fontSize:"0.69rem",color:pal.slate}}>
+            <span><b style={{color:pal.ink}}>{attendanceDays}</b> days logged</span>
+            <span><b style={{color:pal.ink}}>{Math.max(0,REQUIRED-attendanceDays)}</b> days remaining</span>
+            <span><b style={{color:pal.ink}}>{REQUIRED}</b> required</span>
+          </div>
+        </div>
+
+        {/* 40-week grid */}
+        <div style={{background:pal.linen,borderRadius:"14px",padding:"0.9rem 1rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.stone}30`}}>
+          <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem",marginBottom:"0.65rem"}}>40-Week Grid</div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(8,1fr)",gap:"0.3rem",marginBottom:"0.7rem"}}>
+            {Array.from({length:TOTAL_WEEKS},(_,w)=>{
+              const count  = weekMap[w]||0;
+              const isPast = w<currentWeek;
+              const isCurr = w===currentWeek;
+              const hasWork= count>0;
+              const bg = isCurr
+                ? cp.c1
+                : hasWork
+                  ? cp.c1+"55"
+                  : isPast
+                    ? "#f0ece6"
+                    : pal.parchm;
+              const textCol = isCurr?"#fff": hasWork?cp.c1 : isPast?"#ccc" : pal.stone;
+              return (
+                <div key={w} style={{aspectRatio:"1",borderRadius:"7px",background:bg,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",border:`1.5px solid ${isCurr?cp.c1:hasWork?cp.c1+"40":"transparent"}`,transition:"all 0.15s"}}>
+                  <div style={{fontSize:"0.52rem",fontWeight:isCurr||hasWork?"800":"400",color:textCol,lineHeight:1}}>{w+1}</div>
+                  {count>0&&<div style={{fontSize:"0.45rem",color:isCurr?"rgba(255,255,255,0.8)":cp.c1,fontWeight:"700"}}>{count}</div>}
+                </div>
+              );
+            })}
+          </div>
+          {/* Legend */}
+          <div style={{display:"flex",gap:"0.8rem",flexWrap:"wrap",fontSize:"0.62rem",color:pal.slate}}>
+            <div style={{display:"flex",alignItems:"center",gap:"0.28rem"}}>
+              <div style={{width:"10px",height:"10px",borderRadius:"3px",background:cp.c1}}/>
+              <span>This week</span>
+            </div>
+            <div style={{display:"flex",alignItems:"center",gap:"0.28rem"}}>
+              <div style={{width:"10px",height:"10px",borderRadius:"3px",background:cp.c1+"55"}}/>
+              <span>Logged</span>
+            </div>
+            <div style={{display:"flex",alignItems:"center",gap:"0.28rem"}}>
+              <div style={{width:"10px",height:"10px",borderRadius:"3px",background:"#f0ece6"}}/>
+              <span>Past / no log</span>
+            </div>
+            <div style={{display:"flex",alignItems:"center",gap:"0.28rem"}}>
+              <div style={{width:"10px",height:"10px",borderRadius:"3px",background:pal.parchm,border:`1px solid ${pal.stone}40`}}/>
+              <span>Upcoming</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Subject breakdown */}
+        {subjList.length>0&&(
+          <div style={{background:pal.linen,borderRadius:"14px",padding:"0.9rem 1rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.stone}30`}}>
+            <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem",marginBottom:"0.65rem"}}>Subjects This Year</div>
+            <div style={{display:"flex",flexDirection:"column",gap:"0.45rem"}}>
+              {subjList.map(([subj,cnt])=>{
+                const maxCnt = subjList[0][1];
+                const w = Math.max(8,Math.round((cnt/maxCnt)*100));
+                return (
+                  <div key={subj} style={{display:"flex",alignItems:"center",gap:"0.55rem"}}>
+                    <div style={{width:"90px",fontSize:"0.73rem",color:pal.inkM,fontWeight:"600",flexShrink:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{subj}</div>
+                    <div style={{flex:1,height:"8px",borderRadius:"99px",background:pal.parchm,overflow:"hidden"}}>
+                      <div style={{height:"100%",width:`${w}%`,borderRadius:"99px",background:`linear-gradient(90deg,${cp.c1},${cp.c2})`,transition:"width 0.4s"}}/>
+                    </div>
+                    <div style={{fontSize:"0.72rem",fontWeight:"800",color:cp.c1,minWidth:"22px",textAlign:"right",flexShrink:0}}>{cnt}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Worksheet reminder */}
+        <div style={{background:"#fffbeb",border:"1.5px solid #f5c842",borderRadius:"13px",padding:"0.85rem 1rem",marginBottom:"1rem",display:"flex",gap:"0.55rem",alignItems:"flex-start"}}>
+          <span style={{fontSize:"1.1rem",flexShrink:0,marginTop:"1px"}}>{"📎"}</span>
+          <div>
+            <div style={{fontWeight:"800",color:"#7a5500",fontSize:"0.82rem",marginBottom:"2px"}}>Remember: Add Worksheets to Your Binder</div>
+            <div style={{fontSize:"0.71rem",color:"#a07020",lineHeight:1.55}}>After printing your portfolio, insert completed worksheets, tests, and work samples behind each section. Physical work samples strengthen your portfolio for state evaluation.</div>
+          </div>
+        </div>
+
+        <div style={{height:"1rem"}}/>
+      </div>
+    </div>
+  );
+}
+
+/* ---- Daily Portfolio Log Modal (step-through per subject) ---- */
+function DailyPortfolioModal({pal,family,childIdx,stateInfo,onClose,onSave}){
+  const activeCh = family.children[childIdx];
+  const cp = CHILD_COLOR_PALETTES.find(p=>p.id===(activeCh?.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+
+  const customSubjs = family.customSubjects||[];
+  const allSubjs = [...SUBJECT_OPTIONS,...customSubjs];
+  const activeSubjIds = family.subjects||[];
+  const activeSubjList = activeSubjIds.map(id=>allSubjs.find(s=>s.id===id)).filter(Boolean);
+
+  // Step 0 = pick date + subjects for today; steps 1..N = one per subject; final = done
+  const [step,        setStep]       = useState(0);
+  const [todayDate,   setTodayDate]  = useState(new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"}));
+  const [selectedSubjs, setSelSubjs] = useState(new Set(activeSubjList.map(s=>s.label)));
+  const [descMap,     setDescMap]    = useState({});
+  const [photoMap,    setPhotoMap]   = useState({});
+  const [readMap,     setReadMap]    = useState({});
+  const [saved,       setSaved]      = useState(false);
+
+  const galleryRef = useRef(null);
+  const [gallerySubj, setGallerySubj] = useState(null);
+
+  const toggleSubj = (label) => {
+    setSelSubjs(prev=>{
+      const next=new Set(prev);
+      if(next.has(label)) next.delete(label); else next.add(label);
+      return next;
+    });
+  };
+
+  const subjSteps = activeSubjList.filter(s=>selectedSubjs.has(s.label));
+  const totalSteps = subjSteps.length;
+  const currentSubj = subjSteps[step-1];
+  const isReadingSubj = currentSubj&&(currentSubj.label==="Reading"||currentSubj.label==="Reading/Language Arts");
+  const needsReadingTitle = isReadingSubj&&(stateInfo?.readingLog||false);
+
+  const setDesc = (label,val)=>setDescMap(m=>({...m,[label]:val}));
+  const setPhotos = (label,val)=>setPhotoMap(m=>({...m,[label]:val}));
+  const setReadTitle = (label,val)=>setReadMap(m=>({...m,[label]:val}));
+
+  const handleGallery = (e) => {
+    if(!gallerySubj) return;
+    Array.from(e.target.files).forEach(file=>{
+      const reader=new FileReader();
+      reader.onload=ev=>{
+        setPhotos(gallerySubj,prev=>[...(prev||[]),{name:file.name,dataUrl:ev.target.result}]);
+      };
+      reader.readAsDataURL(file);
+    });
+    e.target.value="";
+  };
+
+  const removePhoto = (label,i)=>{
+    setPhotos(label,(photoMap[label]||[]).filter((_,pi)=>pi!==i));
+  };
+
+  const handleNext = () => {
+    if(step<totalSteps) setStep(s=>s+1);
+    else handleFinish();
+  };
+
+  const handleFinish = () => {
+    const entries = subjSteps.map(s=>{
+      const desc = (descMap[s.label]||"").trim();
+      const photos = (photoMap[s.label]||[]).map(p=>p.dataUrl);
+      const readingTitle = (readMap[s.label]||"").trim()||undefined;
+      return {
+        childIdx,
+        subj: s.label,
+        title: desc ? desc.slice(0,80) : s.label+" session",
+        note: desc||"",
+        thumb: s.icon||"📋",
+        date: todayDate,
+        photos,
+        readingTitle,
+      };
+    }).filter(s=>s.note.trim()||(photoMap[s.subj]||[]).length>0||(descMap[s.subj]||"").trim());
+    if(entries.length===0){
+      // save at least one entry per selected subject
+      onSave(subjSteps.map(s=>({childIdx,subj:s.label,title:s.label+" session",note:"",thumb:s.icon||"📋",date:todayDate,photos:[]})));
+      return;
+    }
+    setSaved(true);
+    onSave(entries);
+  };
+
+  const canProceed0 = selectedSubjs.size>0;
+  const curDesc = currentSubj ? (descMap[currentSubj.label]||"") : "";
+  const curPhotos = currentSubj ? (photoMap[currentSubj.label]||[]) : [];
+  const curRead = currentSubj ? (readMap[currentSubj.label]||"") : "";
+  const canProceedSubj = !needsReadingTitle || curRead.trim().length>0;
+
+  if(saved){
+    return (
+      <div style={{position:"fixed",inset:0,background:"rgba(15,10,4,0.72)",backdropFilter:"blur(12px)",zIndex:200,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
+        <div style={{background:pal.linen,borderRadius:"28px 28px 0 0",width:"100%",maxWidth:"430px",padding:"2rem 1.5rem 3rem",textAlign:"center",animation:"slideUp 0.28s ease"}}>
+          <div style={{fontSize:"3.5rem",marginBottom:"0.6rem"}}>{"🌱"}</div>
+          <div style={{fontWeight:"900",color:cp.c1,fontSize:"1.1rem",marginBottom:"0.35rem"}}>{"Today" + String.fromCharCode(39) + "s log saved!"}</div>
+          <div style={{fontSize:"0.82rem",color:pal.slate,lineHeight:1.65,marginBottom:"1.5rem"}}>{selectedSubjs.size} subject{selectedSubjs.size!==1?"s":""} added to {activeCh?.name}{String.fromCharCode(39)}s portfolio.</div>
+          <button onClick={onClose} style={{width:"100%",padding:"0.82rem",border:"none",borderRadius:"13px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.9rem",cursor:"pointer"}}>Done</button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{position:"fixed",inset:0,background:"rgba(15,10,4,0.72)",backdropFilter:"blur(12px)",zIndex:200,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
+      <div style={{background:pal.linen,borderRadius:"28px 28px 0 0",width:"100%",maxWidth:"430px",maxHeight:"90vh",display:"flex",flexDirection:"column",animation:"slideUp 0.28s ease"}}>
+
+        {/* Handle + Header */}
+        <div style={{padding:"0.7rem 0 0",display:"flex",justifyContent:"center",flexShrink:0}}>
+          <div style={{width:"36px",height:"4px",borderRadius:"99px",background:pal.stone}}/>
+        </div>
+        <div style={{padding:"0.7rem 1.3rem",borderBottom:`1px solid ${pal.stone}45`,flexShrink:0,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div>
+            <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.98rem"}}>
+              {step===0 ? "What did we do today?" : currentSubj?.icon+" "+currentSubj?.label}
+            </div>
+            <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"1px"}}>
+              {step===0 ? activeCh?.avatar+" "+activeCh?.name : "Step "+(step)+" of "+totalSteps+" \u2022 "+activeCh?.name}
+            </div>
+          </div>
+          <button onClick={onClose} style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.9rem"}}>{"x"}</button>
+        </div>
+
+        {/* Progress bar */}
+        {totalSteps>0&&(
+          <div style={{display:"flex",gap:"3px",padding:"0.55rem 1.3rem 0",flexShrink:0}}>
+            {Array.from({length:totalSteps},(_,i)=>(
+              <div key={i} style={{flex:1,height:"4px",borderRadius:"99px",background:i<step?cp.c1:i===step-1?cp.c1+"88":pal.stone+"40",transition:"background 0.25s"}}/>
+            ))}
+          </div>
+        )}
+
+        <div style={{flex:1,overflowY:"auto",padding:"1rem 1.3rem"}}>
+
+          {/* Step 0: Date + Subject picker */}
+          {step===0&&(
+            <div>
+              <div style={{marginBottom:"1rem"}}>
+                <Lbl pal={pal}>Date</Lbl>
+                <input value={todayDate} onChange={e=>setTodayDate(e.target.value)}
+                  style={{width:"100%",padding:"0.55rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.85rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit"}}
+                  onFocus={e=>e.target.style.borderColor=pal.primary} onBlur={e=>e.target.style.borderColor=pal.stone}/>
+              </div>
+              <Lbl pal={pal}>Subjects covered today</Lbl>
+              <div style={{display:"flex",flexDirection:"column",gap:"0.35rem"}}>
+                {activeSubjList.map(s=>{
+                  const sel=selectedSubjs.has(s.label);
+                  return (
+                    <button key={s.id||s.label} onClick={()=>toggleSubj(s.label)}
+                      style={{display:"flex",alignItems:"center",gap:"0.65rem",padding:"0.62rem 0.9rem",borderRadius:"12px",border:`2px solid ${sel?cp.c1:pal.stone+"50"}`,background:sel?cp.c1+"12":"transparent",cursor:"pointer",textAlign:"left",transition:"all 0.13s"}}>
+                      <div style={{width:"32px",height:"32px",borderRadius:"8px",background:sel?cp.c1+"22":pal.parchm,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1rem",flexShrink:0}}>{s.icon||"📋"}</div>
+                      <div style={{flex:1}}>
+                        <div style={{fontWeight:sel?"700":"500",color:sel?pal.ink:pal.inkM,fontSize:"0.84rem"}}>{s.label}</div>
+                      </div>
+                      <div style={{width:"20px",height:"20px",borderRadius:"50%",border:`2px solid ${sel?cp.c1:pal.stone+"60"}`,background:sel?cp.c1:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                        {sel&&<span style={{color:"#fff",fontSize:"0.65rem",fontWeight:"900"}}>{"\u2713"}</span>}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+              {activeSubjList.length===0&&(
+                <div style={{padding:"1rem",textAlign:"center",fontSize:"0.78rem",color:pal.slate,background:pal.parchm,borderRadius:"12px"}}>
+                  No subjects set up yet. Go to Settings to add your subjects.
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Steps 1..N: per-subject description */}
+          {step>0&&currentSubj&&(
+            <div>
+              <div style={{background:`linear-gradient(135deg,${cp.c1}15,${cp.c2}08)`,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:`1.5px solid ${cp.c1}25`}}>
+                <div style={{fontSize:"2rem",marginBottom:"0.3rem"}}>{currentSubj.icon||"📋"}</div>
+                <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.95rem"}}>{currentSubj.label}</div>
+                <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"2px"}}>Describe what was worked on today</div>
+              </div>
+
+              {needsReadingTitle&&(
+                <div style={{marginBottom:"0.85rem",animation:"fadeUp 0.18s ease"}}>
+                  <Lbl pal={pal}>Book / Material Title <span style={{color:pal.primary,fontWeight:"900"}}>{"*"}</span></Lbl>
+                  <div style={{background:pal.pale,borderRadius:"10px",padding:"0.4rem 0.65rem",marginBottom:"0.45rem",fontSize:"0.7rem",color:pal.primary,fontWeight:"600",border:`1.5px solid ${pal.primary}25`}}>
+                    {"📖 "}{family.state||"Your state"} requires reading materials to be listed by title.
+                  </div>
+                  <Input pal={pal} value={curRead} onChange={v=>setReadTitle(currentSubj.label,v)} placeholder="e.g. Charlotte Web, Saxon Math 5/4..."/>
+                </div>
+              )}
+              {isReadingSubj&&!needsReadingTitle&&(
+                <div style={{marginBottom:"0.7rem"}}>
+                  <Lbl pal={pal}>Book / Material Title (optional)</Lbl>
+                  <Input pal={pal} value={curRead} onChange={v=>setReadTitle(currentSubj.label,v)} placeholder="e.g. Charlotte Web, Saxon Phonics..."/>
+                </div>
+              )}
+
+              <Lbl pal={pal}>What did {activeCh?.name} work on?</Lbl>
+              <textarea
+                value={curDesc}
+                onChange={e=>setDesc(currentSubj.label,e.target.value)}
+                rows={4}
+                placeholder={"Describe the activity, lesson, or topic covered. What did " + (activeCh?.name||"they") + " learn or practice?"}
+                style={{width:"100%",padding:"0.7rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",fontSize:"0.83rem",fontFamily:"inherit",background:pal.parchm,color:pal.ink,resize:"none",outline:"none",lineHeight:1.6,marginBottom:"0.75rem"}}
+                onFocus={e=>e.target.style.borderColor=cp.c1}
+                onBlur={e=>e.target.style.borderColor=pal.stone}/>
+
+              {/* Photos for this subject */}
+              <Lbl pal={pal}>Photos (optional)</Lbl>
+              <input ref={galleryRef} type="file" accept="image/*" multiple onChange={handleGallery} style={{display:"none"}}/>
+              <button onClick={()=>{setGallerySubj(currentSubj.label);setTimeout(()=>galleryRef.current?.click(),50);}}
+                style={{display:"flex",alignItems:"center",gap:"0.5rem",padding:"0.55rem 0.9rem",border:`2px solid ${pal.stone}50`,borderRadius:"11px",background:"transparent",color:pal.inkM,fontWeight:"700",fontSize:"0.77rem",cursor:"pointer",marginBottom:"0.6rem"}}>
+                <span style={{fontSize:"1rem"}}>{"📷"}</span><span>Add Photos</span>
+              </button>
+              {curPhotos.length>0&&(
+                <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"0.4rem",marginBottom:"0.5rem"}}>
+                  {curPhotos.map((p,i)=>(
+                    <div key={i} style={{position:"relative",borderRadius:"10px",overflow:"hidden",aspectRatio:"1",border:`1.5px solid ${pal.stone}40`}}>
+                      <img src={p.dataUrl} alt="" style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}}/>
+                      <button onClick={()=>removePhoto(currentSubj.label,i)}
+                        style={{position:"absolute",top:"4px",right:"4px",width:"20px",height:"20px",borderRadius:"50%",background:"rgba(0,0,0,0.6)",border:"none",color:"#fff",fontSize:"0.65rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",lineHeight:1}}>
+                        {"x"}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Footer buttons */}
+        <div style={{padding:"0.9rem 1.3rem",borderTop:`1px solid ${pal.stone}45`,display:"flex",gap:"0.6rem",flexShrink:0}}>
+          {step>0&&(
+            <button onClick={()=>setStep(s=>s-1)}
+              style={{padding:"0.7rem 1rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem"}}>
+              {"< Back"}
+            </button>
+          )}
+          {step===0&&(
+            <button onClick={onClose}
+              style={{padding:"0.7rem 1rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem"}}>
+              Cancel
+            </button>
+          )}
+          <button
+            onClick={handleNext}
+            disabled={step===0?!canProceed0:!canProceedSubj}
+            style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:(step===0?canProceed0:canProceedSubj)?pal.accentGrad:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:(step===0?canProceed0:canProceedSubj)?"pointer":"default"}}>
+            {step===0 ? "Start \u2192 "+selectedSubjs.size+" subject"+(selectedSubjs.size!==1?"s":"")
+              : step===totalSteps ? "Save Portfolio \u2713"
+              : "Next: "+(subjSteps[step]?.label||"")+" \u2192"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -5164,82 +5962,7 @@ function EntryDetailModal({pal,family,entry,onClose,onEdit}){
   );
 }
 
-/* ---- Subject Bubble — expandable ---- */
-function SubjectBubble({sd,cp,pal,family,onDetail}){
-  const [open, setOpen] = useState(false);
-  const customSubjs = family.customSubjects||[];
-  const allSubjs = [...SUBJECT_OPTIONS,...customSubjs];
-  const subj = allSubjs.find(x=>x.label===sd.subj);
-  const icon = subj?.icon||"📋";
-  // Default to this week's entries only
-  const now = new Date();
-  const weekStart = new Date(now);
-  weekStart.setDate(now.getDate() - (now.getDay()===0?6:now.getDay()-1));
-  weekStart.setHours(0,0,0,0);
-  const yearNum = now.getFullYear();
-  const thisWeekEntries = sd.entries.filter(e=>{
-    try{
-      const d = new Date(e.date+", "+yearNum);
-      return d >= weekStart;
-    }catch{return false;}
-  });
-  const entries = [...(thisWeekEntries.length>0?thisWeekEntries:sd.entries)].reverse();
-  const showingAll = thisWeekEntries.length===0 && sd.entries.length>0;
 
-  return (
-    <div style={{borderRadius:"14px",border:`1.5px solid ${open?cp.c1+"50":pal.stone+"30"}`,overflow:"hidden",background:pal.linen,transition:"all 0.15s"}}>
-      {/* Bubble header — always visible, tap to expand */}
-      <button onClick={()=>setOpen(o=>!o)}
-        style={{width:"100%",display:"flex",gap:"0.7rem",alignItems:"center",padding:"0.72rem 0.9rem",background:"transparent",border:"none",cursor:"pointer",textAlign:"left"}}>
-        <div style={{width:"38px",height:"38px",borderRadius:"10px",background:`linear-gradient(135deg,${cp.c1}22,${cp.c2}15)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.1rem",flexShrink:0}}>{icon}</div>
-        <div style={{flex:1,minWidth:0}}>
-          <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.85rem"}}>{sd.subj}</div>
-          <div style={{fontSize:"0.65rem",color:pal.slate,marginTop:"1px"}}>
-            {thisWeekEntries.length>0
-              ? thisWeekEntries.length+" this week · "+sd.entries.length+" total"
-              : sd.entries.length+" total · last "+( sd.entries[sd.entries.length-1]?.date||"")}
-          </div>
-        </div>
-        {sd.hasPhotos&&<span style={{fontSize:"0.8rem",flexShrink:0}}>📷</span>}
-        <div style={{background:cp.c1+"20",borderRadius:"20px",padding:"0.12rem 0.5rem",flexShrink:0}}>
-          <span style={{fontWeight:"800",color:cp.c1,fontSize:"0.76rem"}}>{sd.entries.length}</span>
-        </div>
-        <span style={{color:pal.slate,fontSize:"1rem",transform:open?"rotate(90deg)":"none",transition:"transform 0.2s",flexShrink:0}}>›</span>
-      </button>
-
-      {/* Expanded entries list */}
-      {open&&(
-        <div style={{borderTop:`1px solid ${pal.stone}20`}}>
-          {showingAll&&(
-            <div style={{padding:"0.45rem 0.9rem",fontSize:"0.65rem",color:pal.slate,fontStyle:"italic",borderBottom:`1px solid ${pal.stone}15`}}>
-              No entries this week — showing all time
-            </div>
-          )}
-          {entries.map((e,i)=>(
-            <div key={e.id||i} onClick={()=>onDetail(e)}
-              style={{display:"flex",gap:"0.6rem",alignItems:"center",padding:"0.6rem 0.9rem",borderTop:i>0?`1px solid ${pal.stone}15`:"none",cursor:"pointer",background:"#fff"}}
-              onTouchStart={ev=>ev.currentTarget.style.background=pal.pale}
-              onTouchEnd={ev=>ev.currentTarget.style.background="#fff"}>
-              <div style={{width:"32px",height:"32px",borderRadius:"8px",background:`${cp.c1}18`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.9rem",flexShrink:0,overflow:"hidden",position:"relative"}}>
-                {e.photos&&e.photos[0]
-                  ?<img src={e.photos[0]} alt="" style={{width:"100%",height:"100%",objectFit:"cover",position:"absolute",inset:0}}/>
-                  :<span>{e.thumb||"📋"}</span>}
-              </div>
-              <div style={{flex:1,minWidth:0}}>
-                <div style={{fontWeight:"600",color:pal.ink,fontSize:"0.81rem",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-                  {e.readingTitle||e.title}
-                </div>
-                <div style={{fontSize:"0.63rem",color:pal.slate,marginTop:"1px"}}>{e.date}</div>
-              </div>
-              {e.photos&&e.photos.length>0&&<span style={{fontSize:"0.72rem",flexShrink:0}}>📷</span>}
-              <span style={{color:pal.stone,fontSize:"0.85rem",flexShrink:0}}>›</span>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
 
 /* ---- State Reminder ---- */
 function StateReminder({pal,stateInfo,state}){
@@ -5325,95 +6048,6 @@ function AdditionalNotes({pal,family,child}){
           )}
         </div>
       )}
-    </div>
-  );
-}
-
-
-/* ---- Subject Drill-In View ---- */
-function SubjectView({pal,family,cp,sd,activeCh,onBack,onDetail,onEdit,stateInfo}){
-  // Default to this week's entries only
-  const now = new Date();
-  const weekStart = new Date(now);
-  weekStart.setDate(now.getDate() - (now.getDay()===0?6:now.getDay()-1));
-  weekStart.setHours(0,0,0,0);
-  const yearNum = now.getFullYear();
-  const thisWeekEntries = sd.entries.filter(e=>{
-    try{
-      const d = new Date(e.date+", "+yearNum);
-      return d >= weekStart;
-    }catch{return false;}
-  });
-  const entries = [...(thisWeekEntries.length>0?thisWeekEntries:sd.entries)].reverse();
-  const showingAll = thisWeekEntries.length===0 && sd.entries.length>0;
-  const today   = new Date();
-
-  // Monthly summary
-  const monthMap = {};
-  entries.forEach(e=>{
-    try {
-      const d = new Date(e.date+", "+today.getFullYear());
-      const mk = d.toLocaleDateString("en-US",{month:"long",year:"numeric"});
-      if(!monthMap[mk]) monthMap[mk]=0;
-      monthMap[mk]++;
-    } catch(err){}
-  });
-  const months = Object.entries(monthMap);
-
-  return (
-    <div style={{animation:"fadeUp 0.2s ease"}}>
-      <div style={{background:`linear-gradient(135deg,${cp.c1},${cp.c2})`,padding:"1rem 1.1rem"}}>
-        <button onClick={onBack} style={{background:"rgba(255,255,255,0.18)",border:"none",borderRadius:"8px",padding:"0.28rem 0.7rem",color:"#fff",fontWeight:"700",fontSize:"0.76rem",cursor:"pointer",marginBottom:"0.65rem"}}>
-          Back
-        </button>
-        <div style={{fontWeight:"900",color:"#fff",fontSize:"1.1rem"}}>{sd.subj}</div>
-        <div style={{fontSize:"0.72rem",color:"rgba(255,255,255,0.75)"}}>{activeCh?.avatar} {activeCh?.name} · {entries.length} entries</div>
-      </div>
-
-      <div style={{padding:"0 1rem"}}>
-        {/* Monthly mini-summary */}
-        {months.length>0&&(
-          <div style={{background:pal.linen,borderRadius:"14px",padding:"0.85rem 1rem",marginTop:"0.85rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.stone}30`}}>
-            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.72rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.5rem"}}>Monthly Summary</div>
-            <div style={{display:"flex",gap:"0.45rem",flexWrap:"wrap"}}>
-              {months.map(([m,cnt])=>(
-                <div key={m} style={{background:cp.c1+"15",borderRadius:"10px",padding:"0.38rem 0.65rem",border:`1.5px solid ${cp.c1}25`}}>
-                  <div style={{fontWeight:"800",color:cp.c1,fontSize:"0.9rem",lineHeight:1}}>{cnt}</div>
-                  <div style={{fontSize:"0.6rem",color:pal.slate,marginTop:"1px"}}>{m.split(" ")[0]}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Entry list */}
-        <div style={{background:pal.linen,borderRadius:"14px",border:`1.5px solid ${pal.stone}30`,overflow:"hidden",marginBottom:"1rem"}}>
-          {entries.map((e,i)=>(
-            <div key={e.id||i} onClick={()=>onDetail(e)}
-              style={{display:"flex",gap:"0.65rem",alignItems:"center",padding:"0.7rem 0.9rem",borderTop:i>0?`1px solid ${pal.stone}20`:"none",cursor:"pointer"}}
-              onTouchStart={ev=>ev.currentTarget.style.background=pal.pale}
-              onTouchEnd={ev=>ev.currentTarget.style.background="transparent"}>
-              <div style={{width:"38px",height:"38px",borderRadius:"9px",overflow:"hidden",flexShrink:0,background:`linear-gradient(135deg,${cp.c1}25,${cp.c2}18)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.1rem",position:"relative"}}>
-                {e.photos&&e.photos[0]
-                  ?<img src={e.photos[0]} alt="" style={{width:"100%",height:"100%",objectFit:"cover",position:"absolute",inset:0}}/>
-                  :<span>{e.thumb||"📋"}</span>}
-              </div>
-              <div style={{flex:1,minWidth:0}}>
-                <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.83rem",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-                  {e.readingTitle||e.title}
-                </div>
-                <div style={{fontSize:"0.65rem",color:pal.slate,marginTop:"1px"}}>
-                  {e.date}
-                  {e.note&&e.note.trim()&&!e.isSubject&&" · "+e.note.slice(0,50)}
-                </div>
-              </div>
-              {e.photos&&e.photos.length>0&&<span style={{fontSize:"0.75rem",flexShrink:0}}>📷</span>}
-              <span style={{color:pal.stone,fontSize:"0.9rem",flexShrink:0}}>›</span>
-            </div>
-          ))}
-        </div>
-        <div style={{height:"1rem"}}/>
-      </div>
     </div>
   );
 }
