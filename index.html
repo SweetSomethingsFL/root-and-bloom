@@ -7274,7 +7274,7 @@ function MoreScreen({pal,family,onNav,onTheme,onNavEdit,onSettings,onLifeReady})
 ======================================= */
 function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose,onFinish}){
   const [step,      setStep]     = useState(0); // 0=summary 1=notes 2=photos 3=done
-  const [notes,     setNotes]    = useState({}); // {childId: text}
+  const [notes,     setNotes]    = useState({}); // {childId_subj: text}
   const [photos,    setPhotos]   = useState([]); // [{name,dataUrl}]
   const [generating,setGenerating]=useState(false);
   const [aiSummary, setAiSummary]=useState(null);
@@ -7284,6 +7284,11 @@ function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose,onFini
   const blocks    = data.blocks || [];
   const dateLabel = data.dateLabel || "Today";
   const subjsDone = [...new Set(blocks.filter(b=>b.s!=="Break"&&b.s!=="Lunch").map(b=>b.s))];
+
+  // note key per child+subject
+  const noteKey = (childId, subj) => childId+"__"+subj;
+  const getNote = (childId, subj) => notes[noteKey(childId,subj)]||"";
+  const setNote = (childId, subj, val) => setNotes(n=>({...n,[noteKey(childId,subj)]:val}));
 
   const handlePhotoUpload = (e) => {
     const files = Array.from(e.target.files);
@@ -7300,16 +7305,20 @@ function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose,onFini
 
   const generateSummary = async () => {
     setGenerating(true); setAiError(null);
-    const notesList = Object.entries(notes).map(([cid,n])=>{
-      const ch = family.children.find(c=>c.id===cid);
-      return ch&&n.trim() ? ch.name+": "+n : "";
+    // Build a subject-by-subject summary from per-subject notes
+    const notesList = family.children.map(ch=>{
+      const subjNotes = subjsDone.map(s=>{
+        const n = getNote(ch.id,s);
+        return n.trim() ? s+": "+n : "";
+      }).filter(Boolean).join("; ");
+      return subjNotes ? ch.name+" — "+subjNotes : "";
     }).filter(Boolean).join(" | ");
     const subjList = subjsDone.join(", ");
     const schoolName = family.schoolName||(family.familyName+" Academy")||"Home School";
     const prompt = "Write a warm, encouraging 2-3 sentence daily summary for a homeschool family."
       + " Date: "+dateLabel+". School: "+schoolName+"."
       + " Subjects completed: "+subjList+"."
-      + (notesList?" Student notes: "+notesList:"")
+      + (notesList?" Notes per subject: "+notesList:"")
       + " Write in a celebratory, warm tone. Mention specific subjects. Under 80 words.";
     try {
       const res = await fetch("https://api.anthropic.com/v1/messages",{
@@ -7333,23 +7342,27 @@ function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose,onFini
     const entries = [];
     const today = new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
     family.children.forEach((ch,ci)=>{
-      const childNote = notes[ch.id]||"";
-      // 1. One clean entry per subject
+      // One entry per subject, each with its own description note
       subjsDone.forEach(subj=>{
         const block = blocks.find(b=>b.s===subj);
+        const subjNote = getNote(ch.id, subj);
         entries.push({
           childIdx:ci,
-          title:subj+" — "+dateLabel,
+          title: subjNote.trim() ? subjNote.slice(0,80) : subj+" — "+dateLabel,
           subj:subj,
           date:today,
           thumb:block?.i||"📋",
-          note:"",
+          note:subjNote,
           isSubject:true,
         });
       });
-      // 2. Separate daily notes entry
+      // Daily summary entry with AI summary if generated
+      const allNotes = subjsDone.map(s=>{
+        const n = getNote(ch.id,s);
+        return n.trim() ? s+": "+n : "";
+      }).filter(Boolean).join("\n");
       const summaryNote = [
-        childNote.trim(),
+        allNotes,
         aiSummary?"AI Summary: "+aiSummary:""
       ].filter(Boolean).join("\n\n");
       entries.push({
@@ -7443,22 +7456,44 @@ function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose,onFini
         )}
 
         {/* Step 1: Student notes */}
+        {/* Step 1: Per-subject notes */}
         {step===1 && (
           <div style={{animation:"fadeUp 0.2s ease"}}>
-            <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.2rem"}}>Student notes</div>
-            <div style={{fontSize:"0.74rem",color:pal.slate,marginBottom:"0.85rem"}}>{"Optional — add anything a child wants to remember about today."}</div>
-            {family.children.map((c)=>(
-              <div key={c.id} style={{marginBottom:"0.85rem"}}>
-                <div style={{display:"flex",alignItems:"center",gap:"0.4rem",marginBottom:"0.3rem"}}>
-                  <span style={{fontSize:"1.2rem"}}>{c.avatar}</span>
-                  <span style={{fontWeight:"700",color:pal.inkM,fontSize:"0.86rem"}}>{c.name}</span>
+            <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.2rem"}}>{"What did you work on?"}</div>
+            <div style={{fontSize:"0.74rem",color:pal.slate,marginBottom:"1rem"}}>{"Write a quick description for each subject. These go straight into the portfolio."}</div>
+            {family.children.map((c)=>{
+              const cp = CHILD_COLOR_PALETTES.find(p=>p.id===(c.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+              return (
+                <div key={c.id} style={{marginBottom:"1.25rem"}}>
+                  {family.children.length>1&&(
+                    <div style={{display:"flex",alignItems:"center",gap:"0.5rem",marginBottom:"0.65rem",paddingBottom:"0.5rem",borderBottom:`2px solid ${cp.c1}30`}}>
+                      <div style={{width:"30px",height:"30px",borderRadius:"8px",background:`linear-gradient(135deg,${cp.c1},${cp.c2})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1rem",flexShrink:0}}>{c.avatar}</div>
+                      <span style={{fontWeight:"800",color:pal.ink,fontSize:"0.88rem"}}>{c.name}</span>
+                    </div>
+                  )}
+                  {subjsDone.map((subj,si)=>{
+                    const block = blocks.find(b=>b.s===subj);
+                    const val = getNote(c.id, subj);
+                    return (
+                      <div key={subj} style={{marginBottom:"0.75rem"}}>
+                        <div style={{display:"flex",alignItems:"center",gap:"0.4rem",marginBottom:"0.3rem"}}>
+                          <span style={{fontSize:"1rem"}}>{block?.i||"📋"}</span>
+                          <span style={{fontWeight:"700",color:pal.inkM,fontSize:"0.82rem"}}>{subj}</span>
+                        </div>
+                        <textarea
+                          value={val}
+                          onChange={e=>setNote(c.id,subj,e.target.value)}
+                          placeholder={"What did "+c.name+" do in "+subj+" today?"}
+                          rows={2}
+                          style={{width:"100%",padding:"0.6rem 0.8rem",border:`2px solid ${val.trim()?cp.c1+"60":pal.stone}`,borderRadius:"11px",fontSize:"0.81rem",fontFamily:"inherit",background:pal.parchm,color:pal.ink,resize:"none",outline:"none",lineHeight:1.55,transition:"border-color 0.15s"}}
+                          onFocus={e=>e.target.style.borderColor=cp.c1}
+                          onBlur={e=>e.target.style.borderColor=val.trim()?cp.c1+"60":pal.stone}/>
+                      </div>
+                    );
+                  })}
                 </div>
-                <textarea value={notes[c.id]||""} onChange={e=>setNotes(n=>({...n,[c.id]:e.target.value}))}
-                  placeholder={"What did "+c.name+" enjoy or want to remember?"}
-                  rows={3} style={{width:"100%",padding:"0.7rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",fontSize:"0.82rem",fontFamily:"inherit",background:pal.parchm,color:pal.ink,resize:"none",outline:"none",lineHeight:1.55}}
-                  onFocus={e=>e.target.style.borderColor=pal.primary} onBlur={e=>e.target.style.borderColor=pal.stone}/>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
@@ -7510,17 +7545,29 @@ function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose,onFini
                 })}
               </div>
 
-              {/* Per-child notes saved */}
+              {/* Per-subject notes preview */}
               {family.children.map(c=>{
-                const n=notes[c.id]||"";
-                if(!n.trim()) return null;
+                const hasNotes = subjsDone.some(s=>getNote(c.id,s).trim());
+                if(!hasNotes) return null;
                 return (
-                  <div key={c.id} style={{padding:"0.45rem 0.6rem",background:pal.sand,borderRadius:"9px",marginBottom:"0.3rem",display:"flex",gap:"0.5rem",alignItems:"flex-start"}}>
-                    <span style={{fontSize:"1rem",flexShrink:0}}>{c.avatar}</span>
-                    <div style={{flex:1}}>
-                      <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.72rem",marginBottom:"1px"}}>{c.name} note saved</div>
-                      <div style={{fontSize:"0.72rem",color:pal.slate,lineHeight:1.5,fontStyle:"italic"}}>{n.slice(0,80)}{n.length>80?"...":""}</div>
-                    </div>
+                  <div key={c.id} style={{marginBottom:"0.5rem"}}>
+                    {family.children.length>1&&(
+                      <div style={{fontSize:"0.68rem",fontWeight:"800",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.05em",marginBottom:"0.3rem"}}>{c.avatar} {c.name}</div>
+                    )}
+                    {subjsDone.map(s=>{
+                      const n = getNote(c.id,s);
+                      if(!n.trim()) return null;
+                      const block = blocks.find(b=>b.s===s);
+                      return (
+                        <div key={s} style={{padding:"0.38rem 0.6rem",background:pal.sand,borderRadius:"8px",marginBottom:"0.25rem",display:"flex",gap:"0.45rem",alignItems:"flex-start"}}>
+                          <span style={{fontSize:"0.85rem",flexShrink:0,marginTop:"1px"}}>{block?.i||"📋"}</span>
+                          <div style={{flex:1}}>
+                            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.7rem"}}>{s}</div>
+                            <div style={{fontSize:"0.71rem",color:pal.slate,lineHeight:1.5}}>{n.slice(0,80)}{n.length>80?"...":""}</div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 );
               })}
