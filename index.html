@@ -2504,7 +2504,19 @@ const LR_LESSON_PLANS = {
 
 /* Get the pre-written lesson or return a warm, grade-aware fallback */
 function getLessonPlan(topic, grade) {
-  if(LR_LESSON_PLANS[topic]) return LR_LESSON_PLANS[topic];
+  if(LR_LESSON_PLANS[topic]) {
+    const plan = LR_LESSON_PLANS[topic];
+    let hook = plan.hook || "";
+    if(plan.gradeHooks) {
+      const g = grade||"5th";
+      const low  = ["Pre-K","K","1st","2nd"];
+      const high = ["9th","10th","11th","12th"];
+      hook = low.includes(g) ? plan.gradeHooks.low
+           : high.includes(g) ? plan.gradeHooks.high
+           : plan.gradeHooks.mid;
+    }
+    return {...plan, hook};
+  }
   const tier = getLRGradeTier(grade||"5th");
   const hooks = {
     early:  "Here is something fun to think about: what do you already know about "+topic+"? You might know more than you think!",
