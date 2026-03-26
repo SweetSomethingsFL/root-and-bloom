@@ -313,6 +313,8 @@ function RootAndBloom() {
   const [showEOY,           setShowEOY]           = useState(false);
   const [eoyChild,          setEoyChild]          = useState(0);
   const [eoyDismissed,      setEoyDismissed]      = useState(saved?.eoyDismissed||null);
+  const [showNewYear,       setShowNewYear]        = useState(false);
+  const [newYearDismissed,  setNewYearDismissed]   = useState(saved?.newYearDismissed||null);
   const [daySummaryData,    setDaySummaryData]    = useState(null);
   const [todayProgress,     setTodayProgress]     = useState(saved?.todayProgress||{count:0,total:0,date:""});
   const [paletteId, setPaletteId] = useState(saved?.paletteId||"sage");
@@ -321,8 +323,21 @@ function RootAndBloom() {
 
   // Auto-save whenever key state changes
   useEffect(()=>{
-    savePersist({family,navIds,portfolio:portfolioEntries,coopLog,attendanceDays,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed});
-  },[family,navIds,portfolioEntries,coopLog,attendanceDays,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed]);
+    savePersist({family,navIds,portfolio:portfolioEntries,coopLog,attendanceDays,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed});
+  },[family,navIds,portfolioEntries,coopLog,attendanceDays,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed]);
+
+  // Auto-show New Year prompt when yearEnd has passed
+  useEffect(()=>{
+    if(!family?.yearEnd) return;
+    const end = new Date(family.yearEnd);
+    const now = new Date();
+    const daysPast = Math.floor((now - end) / (24*60*60*1000));
+    if(daysPast < 1) return; // year hasn't ended yet
+    const dismissKey = "newyear_"+family.yearEnd;
+    if(newYearDismissed===dismissKey) return;
+    const t = setTimeout(()=>setShowNewYear(true), 2200);
+    return ()=>clearTimeout(t);
+  },[family?.yearEnd, newYearDismissed]);
 
   // Auto-show EOY checklist when within 3 weeks of year end OR year has passed
   useEffect(()=>{
@@ -359,6 +374,15 @@ function RootAndBloom() {
     });
     setShowEOY(false);
     setEoyDismissed(family.yearEnd);
+  };
+  const handleNewYear = (newData) => {
+    // newData: {yearStart, yearEnd, subjects, children (with updated grades)}
+    setFamily(f=>({...f,...newData}));
+    setAttendanceDays(0);
+    setCheckinStreak(0);
+    setLastCheckinDate(null);
+    setNewYearDismissed("newyear_"+family.yearEnd);
+    setShowNewYear(false);
   };
   const handleCheckinSave = (entries) => {
     entries.forEach(e => addPortfolioEntry(e));
@@ -548,6 +572,9 @@ function RootAndBloom() {
           weeksLeft={getEOYWeeksLeft(family)}
           onClose={()=>{setShowEOY(false);setEoyDismissed(family.yearEnd);}}
           onGradeUp={handleGradeUp} />}
+        {showNewYear && family && <NewYearModal pal={pal} family={family}
+          onStart={handleNewYear}
+          onDismiss={()=>{setNewYearDismissed("newyear_"+family.yearEnd);setShowNewYear(false);}}/>}
         {showDaySummary && daySummaryData && <DaySummaryModal pal={pal} family={family} data={daySummaryData} portfolioEntries={portfolioEntries}
           onSave={(entries)=>{entries.forEach(e=>addPortfolioEntry(e));}}
           onClose={()=>{setShowDaySummary(false);setActiveTab("home");}}
@@ -1867,6 +1894,90 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
           <div style={{animation:"fadeUp 0.18s ease"}}>
             <SCard pal={pal} title="School Name">
               <Input pal={pal} value={local.schoolName||""} onChange={v=>updL("schoolName",v)} placeholder="e.g. Thornwood Academy" />
+            </SCard>
+
+            {/* ── SUBJECTS EDITOR ── */}
+            <SCard pal={pal} title="Subjects" note="These drive your schedule and portfolio">
+              <div style={{fontSize:"0.72rem",color:pal.slate,marginBottom:"0.65rem",lineHeight:1.5}}>
+                Select all subjects your family covers. These appear in your daily schedule and portfolio tracking.
+              </div>
+              <div style={{display:"flex",flexDirection:"column",gap:"0.35rem",marginBottom:"0.85rem"}}>
+                {[...SUBJECT_OPTIONS,...(local.customSubjects||[])].map(s=>{
+                  const sel=(local.subjects||[]).includes(s.id);
+                  return (
+                    <button key={s.id} onClick={()=>{
+                      const cur=local.subjects||[];
+                      updL("subjects",sel?cur.filter(x=>x!==s.id):[...cur,s.id]);
+                    }} style={{display:"flex",gap:"0.65rem",alignItems:"center",padding:"0.6rem 0.85rem",border:`2px solid ${sel?pal.primary:pal.stone+"50"}`,borderRadius:"11px",background:sel?pal.pale:"transparent",cursor:"pointer",textAlign:"left",transition:"all 0.13s"}}>
+                      <span style={{fontSize:"1.1rem",width:"24px",textAlign:"center",flexShrink:0}}>{s.icon||"📋"}</span>
+                      <span style={{flex:1,fontWeight:sel?"700":"400",color:sel?pal.primary:pal.inkM,fontSize:"0.83rem"}}>{s.label}</span>
+                      <div style={{width:"18px",height:"18px",borderRadius:"4px",border:`2px solid ${sel?pal.primary:pal.stone}`,background:sel?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                        {sel&&<span style={{color:pal.onDark,fontSize:"0.72rem",fontWeight:"900"}}>✓</span>}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+              {/* Add custom subject */}
+              {(()=>{
+                const [showAdd, setShowAdd] = React.useState(false);
+                const [custVal, setCustVal] = React.useState("");
+                const addCustom = () => {
+                  const val = custVal.trim();
+                  if(!val) return;
+                  const id = "custom_"+val.toLowerCase().replace(/\s+/g,"_");
+                  const existing = local.customSubjects||[];
+                  if(existing.find(x=>x.id===id)) return;
+                  const newSubj = {id, label:val, icon:"📋"};
+                  updL("customSubjects",[...existing,newSubj]);
+                  updL("subjects",[...(local.subjects||[]),id]);
+                  setCustVal("");
+                  setShowAdd(false);
+                };
+                const removeCustom = (id) => {
+                  updL("customSubjects",(local.customSubjects||[]).filter(s=>s.id!==id));
+                  updL("subjects",(local.subjects||[]).filter(x=>x!==id));
+                };
+                return (
+                  <div>
+                    {!showAdd ? (
+                      <button onClick={()=>setShowAdd(true)}
+                        style={{width:"100%",padding:"0.55rem",border:`2px dashed ${pal.stone}`,borderRadius:"10px",background:"transparent",color:pal.slate,fontSize:"0.78rem",fontWeight:"600",cursor:"pointer"}}>
+                        + Add custom subject
+                      </button>
+                    ) : (
+                      <div style={{display:"flex",gap:"0.4rem"}}>
+                        <input value={custVal} onChange={e=>setCustVal(e.target.value)}
+                          onKeyDown={e=>e.key==="Enter"&&addCustom()}
+                          placeholder="e.g. Home Economics"
+                          autoFocus
+                          style={{flex:1,padding:"0.5rem 0.75rem",border:`2px solid ${pal.primary}`,borderRadius:"10px",fontSize:"0.82rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit"}}/>
+                        <button onClick={addCustom}
+                          style={{padding:"0.5rem 0.75rem",border:"none",borderRadius:"10px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.78rem",cursor:"pointer"}}>
+                          Add
+                        </button>
+                        <button onClick={()=>{setShowAdd(false);setCustVal("");}}
+                          style={{padding:"0.5rem 0.6rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",background:"transparent",color:pal.slate,fontSize:"0.78rem",cursor:"pointer"}}>
+                          ✕
+                        </button>
+                      </div>
+                    )}
+                    {(local.customSubjects||[]).length>0&&(
+                      <div style={{marginTop:"0.5rem",display:"flex",flexWrap:"wrap",gap:"0.3rem"}}>
+                        {(local.customSubjects||[]).map(s=>(
+                          <div key={s.id} style={{display:"flex",alignItems:"center",gap:"0.3rem",padding:"0.2rem 0.5rem 0.2rem 0.65rem",background:pal.pale,borderRadius:"20px",border:`1.5px solid ${pal.primary}30`}}>
+                            <span style={{fontSize:"0.75rem",color:pal.primary,fontWeight:"700"}}>{s.label}</span>
+                            <button onClick={()=>removeCustom(s.id)}
+                              style={{width:"16px",height:"16px",borderRadius:"50%",background:pal.primary+"30",border:"none",color:pal.primary,fontSize:"0.6rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:"900",flexShrink:0}}>
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </SCard>
             <SCard pal={pal} title="Learning Philosophy">
               <div style={{fontSize:"0.72rem",color:pal.slate,marginBottom:"0.5rem"}}>Select all that apply</div>
@@ -3669,8 +3780,242 @@ function EOYChecklistModal({pal,family,childIdx,setChildIdx,weeksLeft,onClose,on
 }
 
 /* =======================================
-   HOME SCREEN
+   NEW YEAR MODAL
 ======================================= */
+function NewYearModal({pal,family,onStart,onDismiss}){
+  const today = new Date();
+  // Default new year: starts today, ends ~10 months from now
+  const defStart = today.toISOString().slice(0,10);
+  const defEnd = new Date(today.getFullYear()+1, today.getMonth()-1, today.getDate()).toISOString().slice(0,10);
+
+  const [yearStart, setYearStart] = useState(defStart);
+  const [yearEnd,   setYearEnd]   = useState(defEnd);
+  const [children,  setChildren]  = useState(
+    family.children.map(c=>({...c, newGrade: nextGrade(c.grade)||c.grade}))
+  );
+  const [subjects,  setSubjects]  = useState(family.subjects||[]);
+  const [notes,     setNotes]     = useState({}); // {childId: noteText}
+  const [step,      setStep]      = useState(0); // 0=intro 1=dates 2=grades 3=notes 4=subjects
+
+  const allSubjs = [...SUBJECT_OPTIONS,...(family.customSubjects||[])];
+  const toggleSubj = id => setSubjects(s=>s.includes(id)?s.filter(x=>x!==id):[...s,id]);
+  const updGrade = (id, grade) => setChildren(cs=>cs.map(c=>c.id===id?{...c,newGrade:grade}:c));
+  const updNote  = (id, val)   => setNotes(n=>({...n,[id]:val}));
+
+  const handleStart = () => {
+    onStart({
+      yearStart,
+      yearEnd,
+      subjects,
+      children: children.map(c=>({...c, grade:c.newGrade, newYearNote:notes[c.id]||""})),
+    });
+  };
+
+  return (
+    <div style={{position:"fixed",inset:0,background:"rgba(15,10,4,0.82)",backdropFilter:"blur(14px)",zIndex:400,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
+      <div style={{background:pal.linen,borderRadius:"28px 28px 0 0",width:"100%",maxWidth:"430px",maxHeight:"92vh",display:"flex",flexDirection:"column",animation:"slideUp 0.3s ease"}}>
+
+        {/* Handle */}
+        <div style={{padding:"0.7rem 0 0",display:"flex",justifyContent:"center",flexShrink:0}}>
+          <div style={{width:"36px",height:"4px",borderRadius:"99px",background:pal.stone}}/>
+        </div>
+
+        {/* Header */}
+        <div style={{background:pal.heroGrad,padding:"1rem 1.2rem",flexShrink:0}}>
+          <div style={{fontWeight:"900",color:"#fff",fontSize:"1.05rem",marginBottom:"2px"}}>{"🌱 New School Year!"}</div>
+          <div style={{fontSize:"0.74rem",color:"rgba(255,255,255,0.75)"}}>
+            {"Your " + new Date(family.yearEnd).getFullYear() + " school year has ended. Let" + String.fromCharCode(39) + "s set up the next one."}
+          </div>
+        </div>
+
+        {/* Step dots */}
+        <div style={{display:"flex",gap:"5px",padding:"0.7rem 1.2rem 0",flexShrink:0}}>
+          {["Dates","Grades","Notes","Subjects"].map((l,i)=>(
+            <div key={i} style={{flex:1,textAlign:"center"}}>
+              <div style={{height:"4px",borderRadius:"99px",background:i<=step-1?pal.primary:pal.stone+"35",marginBottom:"3px",transition:"background 0.25s"}}/>
+              <div style={{fontSize:"0.58rem",color:i<=step-1?pal.primary:pal.stone,fontWeight:i===step-1?"700":"400"}}>{l}</div>
+            </div>
+          ))}
+        </div>
+
+        <div key={step} style={{flex:1,overflowY:"auto",padding:"1rem 1.2rem"}}>
+
+          {/* Step 0: Intro */}
+          {step===0&&(
+            <div style={{animation:"fadeUp 0.2s ease"}}>
+              <div style={{textAlign:"center",marginBottom:"1.5rem",paddingTop:"0.5rem"}}>
+                <div style={{fontSize:"3.5rem",marginBottom:"0.6rem"}}>🎉</div>
+                <div style={{fontWeight:"900",color:pal.ink,fontSize:"1.1rem",marginBottom:"0.4rem"}}>Year Complete!</div>
+                <div style={{fontSize:"0.82rem",color:pal.slate,lineHeight:1.65,maxWidth:"280px",margin:"0 auto"}}>
+                  {"Your attendance counter will reset to zero and your new year will start fresh. Your portfolio and all past entries are saved."}
+                </div>
+              </div>
+              <div style={{background:pal.pale,borderRadius:"14px",padding:"0.9rem 1rem",border:`1.5px solid ${pal.primary}20`,marginBottom:"1rem"}}>
+                <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.82rem",marginBottom:"0.5rem"}}>{"What resets:"}</div>
+                {[
+                  ["📅","Attendance counter → back to 0"],
+                  ["🔥","Daily streak → resets"],
+                  ["📋","Schedule stays the same"],
+                  ["🗂","Portfolio entries are kept"],
+                ].map(([icon,label])=>(
+                  <div key={label} style={{display:"flex",gap:"0.5rem",alignItems:"center",marginBottom:"0.3rem"}}>
+                    <span style={{fontSize:"0.9rem",flexShrink:0}}>{icon}</span>
+                    <span style={{fontSize:"0.78rem",color:pal.inkM}}>{label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Step 1: Dates */}
+          {step===1&&(
+            <div style={{animation:"fadeUp 0.2s ease"}}>
+              <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.65rem"}}>New Year Dates</div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.65rem",marginBottom:"1rem"}}>
+                <div>
+                  <Lbl pal={pal}>Start date</Lbl>
+                  <input type="date" value={yearStart} onChange={e=>setYearStart(e.target.value)}
+                    style={{width:"100%",padding:"0.55rem 0.7rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.82rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit"}}
+                    onFocus={e=>e.target.style.borderColor=pal.primary} onBlur={e=>e.target.style.borderColor=pal.stone}/>
+                </div>
+                <div>
+                  <Lbl pal={pal}>Goal end date</Lbl>
+                  <input type="date" value={yearEnd} onChange={e=>setYearEnd(e.target.value)}
+                    style={{width:"100%",padding:"0.55rem 0.7rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.82rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit"}}
+                    onFocus={e=>e.target.style.borderColor=pal.primary} onBlur={e=>e.target.style.borderColor=pal.stone}/>
+                </div>
+              </div>
+              <div style={{background:pal.linen,borderRadius:"12px",padding:"0.7rem 0.9rem",border:`1.5px solid ${pal.stone}30`,fontSize:"0.74rem",color:pal.slate,lineHeight:1.6}}>
+                {"You can always adjust these later in Settings \u2192 Family."}
+              </div>
+            </div>
+          )}
+
+          {/* Step 2: Grade promotion */}
+          {step===2&&(
+            <div style={{animation:"fadeUp 0.2s ease"}}>
+              <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.2rem"}}>Confirm Grades</div>
+              <div style={{fontSize:"0.74rem",color:pal.slate,marginBottom:"0.85rem",lineHeight:1.55}}>
+                {"We" + String.fromCharCode(39) + "ve suggested the next grade for each child. Change any that don" + String.fromCharCode(39) + "t look right."}
+              </div>
+              {children.map(c=>{
+                const cp = CHILD_COLOR_PALETTES.find(p=>p.id===(c.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+                const pcTier = c.newGrade&&["Pre-K","K","1st","2nd"].includes(c.newGrade)?"Playful & low-pressure"
+                  :["3rd","4th","5th","6th","7th","8th"].includes(c.newGrade)?"Story-based & scenario-driven"
+                  :"Matter-of-fact & responsibility-focused";
+                return (
+                  <div key={c.id} style={{background:pal.linen,borderRadius:"16px",padding:"0.9rem 1rem",marginBottom:"0.75rem",border:`1.5px solid ${pal.stone}30`}}>
+                    <div style={{display:"flex",gap:"0.75rem",alignItems:"center",marginBottom:"0.75rem"}}>
+                      <div style={{width:"42px",height:"42px",borderRadius:"11px",background:`linear-gradient(135deg,${cp.c1},${cp.c2})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.4rem",flexShrink:0}}>{c.avatar}</div>
+                      <div style={{flex:1}}>
+                        <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.9rem"}}>{c.name}</div>
+                        <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>
+                          {c.grade} {"\u2192"} <span style={{fontWeight:"700",color:cp.c1}}>{c.newGrade}</span>
+                        </div>
+                      </div>
+                      <select value={c.newGrade} onChange={e=>updGrade(c.id,e.target.value)}
+                        style={{padding:"0.42rem 0.65rem",border:`2px solid ${cp.c1}`,borderRadius:"10px",fontSize:"0.84rem",background:pal.pale,color:cp.c1,fontWeight:"700",outline:"none",cursor:"pointer"}}>
+                        {GRADES.map(g=><option key={g} value={g}>{g}</option>)}
+                      </select>
+                    </div>
+                    {family.lifeReady&&(
+                      <div style={{background:`${LR_COLOR}10`,borderRadius:"9px",padding:"0.45rem 0.65rem",border:`1px solid ${LR_COLOR}25`,display:"flex",gap:"0.4rem",alignItems:"flex-start"}}>
+                        <span style={{fontSize:"0.85rem",flexShrink:0}}>{LR_ICON}</span>
+                        <div style={{fontSize:"0.69rem",color:LR_COLOR,lineHeight:1.5}}>
+                          <b>P{"&"}C updates automatically</b>{" \u2014 "}{c.newGrade} lessons will use the <b>{pcTier}</b> style.
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Step 3: New year notes per child */}
+          {step===3&&(
+            <div style={{animation:"fadeUp 0.2s ease"}}>
+              <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.2rem"}}>Teaching Notes</div>
+              <div style={{fontSize:"0.74rem",color:pal.slate,marginBottom:"0.85rem",lineHeight:1.55}}>
+                Optional — jot down anything to keep in mind going into the new year. What to focus on, what struggled, goals, or anything you want to remember on day one.
+              </div>
+              {children.map(c=>{
+                const cp = CHILD_COLOR_PALETTES.find(p=>p.id===(c.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+                return (
+                  <div key={c.id} style={{marginBottom:"1rem"}}>
+                    {family.children.length>1&&(
+                      <div style={{display:"flex",alignItems:"center",gap:"0.5rem",marginBottom:"0.4rem"}}>
+                        <div style={{width:"28px",height:"28px",borderRadius:"7px",background:`linear-gradient(135deg,${cp.c1},${cp.c2})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.95rem",flexShrink:0}}>{c.avatar}</div>
+                        <span style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem"}}>{c.name}</span>
+                        <span style={{fontSize:"0.7rem",color:pal.slate}}>{c.newGrade}</span>
+                      </div>
+                    )}
+                    <textarea
+                      value={notes[c.id]||""}
+                      onChange={e=>updNote(c.id,e.target.value)}
+                      placeholder={"e.g. " + c.name + " needs more practice with reading fluency. Really excelled at math this year \u2014 ready for harder problems. Consider adding more hands-on science. Keep an eye on writing stamina."}
+                      rows={4}
+                      style={{width:"100%",padding:"0.7rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",fontSize:"0.81rem",fontFamily:"inherit",background:pal.parchm,color:pal.ink,resize:"none",outline:"none",lineHeight:1.6}}
+                      onFocus={e=>e.target.style.borderColor=cp.c1}
+                      onBlur={e=>e.target.style.borderColor=pal.stone}/>
+                  </div>
+                );
+              })}
+              <div style={{background:pal.pale,borderRadius:"11px",padding:"0.65rem 0.85rem",border:`1.5px solid ${pal.primary}20`,fontSize:"0.71rem",color:pal.slate,lineHeight:1.55}}>
+                {"These notes are saved to each child" + String.fromCharCode(39) + "s profile and will show in their portfolio as a new year note."}
+              </div>
+            </div>
+          )}
+
+          {/* Step 4: Subjects */}
+          {step===4&&(
+            <div style={{animation:"fadeUp 0.2s ease"}}>
+              <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.2rem"}}>Subjects This Year</div>
+              <div style={{fontSize:"0.74rem",color:pal.slate,marginBottom:"0.85rem"}}>Review and update for the new year. Add or remove anything that changed.</div>
+              <div style={{display:"flex",flexDirection:"column",gap:"0.35rem"}}>
+                {allSubjs.map(s=>{
+                  const sel=subjects.includes(s.id);
+                  return (
+                    <button key={s.id} onClick={()=>toggleSubj(s.id)}
+                      style={{display:"flex",gap:"0.65rem",alignItems:"center",padding:"0.6rem 0.85rem",border:`2px solid ${sel?pal.primary:pal.stone+"50"}`,borderRadius:"11px",background:sel?pal.pale:"transparent",cursor:"pointer",textAlign:"left",transition:"all 0.13s"}}>
+                      <span style={{fontSize:"1rem",width:"22px",textAlign:"center",flexShrink:0}}>{s.icon||"📋"}</span>
+                      <span style={{flex:1,fontWeight:sel?"700":"400",color:sel?pal.primary:pal.inkM,fontSize:"0.83rem"}}>{s.label}</span>
+                      <div style={{width:"18px",height:"18px",borderRadius:"4px",border:`2px solid ${sel?pal.primary:pal.stone}`,background:sel?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                        {sel&&<span style={{color:"#fff",fontSize:"0.72rem",fontWeight:"900"}}>{"✓"}</span>}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+        </div>
+
+        {/* Footer */}
+        <div style={{padding:"0.9rem 1.2rem",borderTop:`1px solid ${pal.stone}40`,background:pal.linen,flexShrink:0,display:"flex",gap:"0.55rem"}}>
+          {step===0 ? (
+            <button onClick={onDismiss}
+              style={{padding:"0.7rem 1rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.82rem"}}>
+              Later
+            </button>
+          ) : (
+            <button onClick={()=>setStep(s=>s-1)}
+              style={{padding:"0.7rem 1rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.82rem"}}>
+              Back
+            </button>
+          )}
+          <button onClick={()=>{
+            if(step<4) setStep(s=>s+1);
+            else handleStart();
+          }} style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>
+            {step===0?"Set up new year \u2192":step===4?"Start new year \uD83C\uDF31":"Next \u2192"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress }) {
   const REQUIRED = 180;
   const blocks = generateSchedule(family);
