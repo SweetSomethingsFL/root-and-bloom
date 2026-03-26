@@ -8663,17 +8663,6 @@ function MoreScreen({pal,family,onNav,onTheme,onNavEdit,onSettings,onLifeReady})
             </button>
           ))}
         </div>
-        {family.lifeReady && onLifeReady && (
-          <button onClick={onLifeReady}
-            style={{width:"100%",marginBottom:"0.85rem",padding:"1rem 1.2rem",border:"none",borderRadius:"18px",background:`linear-gradient(135deg,${LR_COLOR},${LR_COLOR2})`,cursor:"pointer",display:"flex",gap:"0.9rem",alignItems:"center",textAlign:"left"}}>
-            <div style={{width:"46px",height:"46px",borderRadius:"13px",background:"rgba(255,255,255,0.2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.5rem",flexShrink:0}}>{LR_ICON}</div>
-            <div style={{flex:1}}>
-              <div style={{fontWeight:"900",color:"#fff",fontSize:"0.92rem"}}>Prepared {"&"} Capable</div>
-              <div style={{fontSize:"0.74rem",color:"rgba(255,255,255,0.75)",marginTop:"2px"}}>{"This week: "+getLRTopicForWeek(family.children?.[0]?.grade||"5th")}</div>
-            </div>
-            <span style={{color:"rgba(255,255,255,0.7)",fontSize:"1.2rem"}}>{"›"}</span>
-          </button>
-        )}
         <div style={{background:pal.heroGrad,borderRadius:"18px",padding:"1.1rem 1.2rem",position:"relative",overflow:"hidden"}}>
           <div style={{position:"absolute",right:"-20px",top:"-20px",width:"100px",height:"100px",borderRadius:"50%",background:"rgba(255,255,255,0.06)"}}/>
           <div style={{position:"relative"}}>
