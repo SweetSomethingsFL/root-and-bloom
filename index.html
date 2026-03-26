@@ -522,7 +522,7 @@ function RootAndBloom() {
           {activeTab==="learn"       && <LearnScreen       pal={pal} family={family} child={childFilt} setChild={setChildFilt} learnTab={learnTab} setLearnTab={setLearnTab} />}
           {activeTab==="portfolio"   && <PortfolioScreen   pal={pal} family={family} child={childFilt} setChild={setChildFilt} entries={portfolioEntries} onAddEntry={addPortfolioEntry} onEditEntry={editPortfolioEntry} attendanceDays={attendanceDays} />}
           {activeTab==="attendance"  && <AttendanceScreen  pal={pal} family={family} days={attendanceDays} pending={pendingSchedDays} onConfirmPull={()=>{setAttendanceDays(d=>d+pendingSchedDays);setPendingSchedDays(0);setShowSchedConfirm(false);}} onCatchup={()=>setShowCatchup(true)} />}
-          {activeTab==="coop"        && <CoopScreen        pal={pal} family={family} coopLog={coopLog} onLog={e=>setCoopLog(l=>[e,...l])} />}
+          {activeTab==="coop"        && <CoopScreen        pal={pal} family={family} coopLog={coopLog} onLog={e=>setCoopLog(l=>[e,...l])} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} />}
           {activeTab==="transcripts" && <TranscriptsScreen pal={pal} family={family} portfolioEntries={portfolioEntries} attendanceDays={attendanceDays} coopLog={coopLog} />}
           {showLifeReady && family && <LifeReadyScreen pal={pal} family={family} onBack={()=>setShowLifeReady(false)}/>}
           {activeTab==="preparedcapable" && family?.lifeReady && <LifeReadyScreen pal={pal} family={family} onBack={()=>setActiveTab("home")}/>}
@@ -814,8 +814,8 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
                   <div style={{fontSize:"0.72rem",color:SK.lite}}>{b.dur} min{b.t?" - "+b.t:""}</div>
                 </div>
                 <div style={{width:"30px",height:"30px",borderRadius:"50%",border:`2.5px solid #ddd`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.85rem",color:"#ccc",cursor:"pointer",flexShrink:0,transition:"all 0.14s"}}
-                  onClick={e=>{e.currentTarget.style.background=c1;e.currentTarget.style.borderColor=c1;e.currentTarget.style.color="#fff";e.currentTarget.textContent="v";}}>
-                  v
+                  onClick={e=>{e.currentTarget.style.background=c1;e.currentTarget.style.borderColor=c1;e.currentTarget.style.color="#fff";e.currentTarget.textContent="✓";}}>
+                  ✓
                 </div>
               </div>
             ))}
@@ -954,21 +954,21 @@ function CoopDayPopup({ child, heroGrad, c1, onLog, onDismiss }) {
    CO-OP QUICK LOG MODAL (parent)
 ======================================= */
 function CoopQuickLogModal({ pal, family, onSave, onClose }) {
+  const coopClasses = (family.coopClasses||[]).length>0 ? family.coopClasses : ["Classical Conversations","Art & Nature Study","Science Fair Prep","History co-op","Literature circle","Math enrichment","Other"];
+  const defaultSession = family.coopName||(family.coopClasses?.[0]||"Co-op Session");
   const [step,       setStep]       = useState(0);
-  const [session,    setSession]    = useState("Classical Conversations");
+  const [session,    setSession]    = useState(defaultSession);
   const [hrs,        setHrs]        = useState("2");
   const [childNotes, setChildNotes] = useState({});
   const updNote = (id,v)=>setChildNotes(n=>({...n,[id]:v}));
-  const canNext1 = true;
   const handleSave = () => { onSave({session,hrs:parseFloat(hrs),notes:childNotes}); setStep(2); };
-  const SESSIONS=["Classical Conversations","Art & Nature Study","Science Fair Prep","History co-op","Literature circle","Math enrichment","Other"];
   return (
     <div style={{position:"fixed",inset:0,background:"rgba(10,20,10,0.72)",backdropFilter:"blur(12px)",zIndex:200,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
       <div style={{background:pal.linen,borderRadius:"28px 28px 0 0",width:"100%",maxWidth:"430px",boxShadow:"0 -14px 60px rgba(0,0,0,0.3)",animation:"slideUp 0.28s ease",maxHeight:"84vh",display:"flex",flexDirection:"column"}}>
         <div style={{padding:"0.7rem 0 0",display:"flex",justifyContent:"center",flexShrink:0}}><div style={{width:"36px",height:"4px",borderRadius:"99px",background:pal.stone}}/></div>
         <div style={{padding:"0.75rem 1.3rem",borderBottom:`1px solid ${pal.stone}45`,flexShrink:0,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <div><div style={{fontWeight:"800",color:pal.ink,fontSize:"1rem"}}>! Quick Co-op Log</div><div style={{fontSize:"0.74rem",color:pal.slate}}>About 60 seconds - you can do this.</div></div>
-          <button onClick={onClose} style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.9rem"}}>x</button>
+          <div><div style={{fontWeight:"800",color:pal.ink,fontSize:"1rem"}}>{"🏫 Log Co-op Session"}</div><div style={{fontSize:"0.74rem",color:pal.slate}}>About 60 seconds.</div></div>
+          <button onClick={onClose} style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.9rem"}}>{"✕"}</button>
         </div>
         <div style={{display:"flex",gap:"4px",padding:"0.7rem 1.3rem 0",flexShrink:0}}>
           {[0,1,2].map(i=><div key={i} style={{flex:1,height:"4px",borderRadius:"99px",background:i<=step?pal.primary:pal.stone+"50",transition:"background 0.25s"}}/>)}
@@ -977,7 +977,7 @@ function CoopQuickLogModal({ pal, family, onSave, onClose }) {
           {step===0&&<>
             <Lbl pal={pal}>Which session?</Lbl>
             <div style={{display:"flex",flexDirection:"column",gap:"0.38rem",marginBottom:"1rem"}}>
-              {SESSIONS.map(s=><button key={s} onClick={()=>setSession(s)} style={{padding:"0.6rem 0.9rem",border:`2px solid ${session===s?pal.primary:pal.stone+"50"}`,borderRadius:"11px",background:session===s?pal.pale:"transparent",cursor:"pointer",textAlign:"left",fontWeight:session===s?"700":"400",color:session===s?pal.primary:pal.inkM,fontSize:"0.84rem"}}>{s}</button>)}
+              {coopClasses.map(s=><button key={s} onClick={()=>setSession(s)} style={{padding:"0.6rem 0.9rem",border:`2px solid ${session===s?pal.primary:pal.stone+"50"}`,borderRadius:"11px",background:session===s?pal.pale:"transparent",cursor:"pointer",textAlign:"left",fontWeight:session===s?"700":"400",color:session===s?pal.primary:pal.inkM,fontSize:"0.84rem"}}>{s}</button>)}
             </div>
             <Lbl pal={pal}>Hours</Lbl>
             <div style={{display:"flex",gap:"0.4rem"}}>
@@ -1035,10 +1035,10 @@ function OnboardingFlow({ pal, onComplete }) {
     paletteId:"sage",
   });
   const upd = (k,v) => setData(d=>({...d,[k]:v}));
-  const STEPS = ["Welcome","Your Children","Learning Style","Curriculum","Subjects","Schedule","Goals","Life & Extras","Life Ready"];
-  const pct = Math.round((step/8)*100);
+  const STEPS = ["Welcome","Your Children","Learning Style","Curriculum","Subjects","Schedule","Co-op","Goals","Life & Extras","Life Ready"];
+  const pct = Math.round((step/9)*100);
 
-  const STEP_ICONS = ["🌱","👨👩👧👦","📚","📖","🔬","📅","🌟","🌿","🛡"];
+  const STEP_ICONS = ["🌱","👨👩👧👦","📚","📖","🔬","📅","🏫","🌟","🌿","🛡"];
 
   return (
     <div style={{minHeight:"100vh",background:pal.sand,display:"flex",flexDirection:"column"}}>
@@ -1048,7 +1048,7 @@ function OnboardingFlow({ pal, onComplete }) {
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.55rem"}}>
             <button onClick={()=>setStep(s=>Math.max(0,s-1))} style={{background:"rgba(255,255,255,0.14)",border:"none",color:"#fff",borderRadius:"50%",width:"28px",height:"28px",cursor:"pointer",fontSize:"0.9rem",display:"flex",alignItems:"center",justifyContent:"center"}}>Back</button>
             <span style={{fontSize:"0.7rem",color:"rgba(255,255,255,0.55)",fontWeight:"700",letterSpacing:"0.08em",textTransform:"uppercase"}}>{STEP_ICONS[step]} {STEPS[step]}</span>
-            <span style={{fontSize:"0.68rem",color:"rgba(255,255,255,0.4)",fontWeight:"600"}}>{step + " of 8"}</span>
+            <span style={{fontSize:"0.68rem",color:"rgba(255,255,255,0.4)",fontWeight:"600"}}>{step + " of 9"}</span>
           </div>
           <div style={{height:"4px",borderRadius:"99px",background:"rgba(255,255,255,0.15)",overflow:"hidden"}}>
             <div style={{height:"100%",width:`${pct}%`,borderRadius:"99px",background:pal.accentGrad,transition:"width 0.35s ease"}}/>
@@ -1063,9 +1063,10 @@ function OnboardingFlow({ pal, onComplete }) {
         {step===3 && <OnbCurrBrands   pal={pal} data={data} upd={upd} onNext={()=>setStep(4)} />}
         {step===4 && <OnbSubjects     pal={pal} data={data} upd={upd} onNext={()=>setStep(5)} />}
         {step===5 && <OnbSchedule     pal={pal} data={data} upd={upd} onNext={()=>setStep(6)} />}
-        {step===6 && <OnbGoals        pal={pal} data={data} upd={upd} onNext={()=>setStep(7)} />}
-        {step===7 && <OnbExtras       pal={pal} data={data} upd={upd} onNext={()=>setStep(8)} />}
-        {step===8 && <OnbLifeReady    pal={pal} data={data} upd={upd} onNext={()=>onComplete(data)} />}
+        {step===6 && <OnbCoop         pal={pal} data={data} upd={upd} onNext={()=>setStep(7)} />}
+        {step===7 && <OnbGoals        pal={pal} data={data} upd={upd} onNext={()=>setStep(8)} />}
+        {step===8 && <OnbExtras       pal={pal} data={data} upd={upd} onNext={()=>setStep(9)} />}
+        {step===9 && <OnbLifeReady    pal={pal} data={data} upd={upd} onNext={()=>onComplete(data)} />}
       </div>
     </div>
   );
@@ -1686,7 +1687,146 @@ function OnbSchedule({ pal, data, upd, onNext }) {
   );
 }
 
-/* --- STEP 4: Goals --- */
+/* --- STEP 6: Co-op --- */
+function OnbCoop({ pal, data, upd, onNext }) {
+  const [classInput, setClassInput] = React.useState("");
+  const doesCoop = data.coopFreq && data.coopFreq !== "We don't do co-op";
+
+  const addClass = () => {
+    const val = classInput.trim();
+    if(!val) return;
+    const cur = data.coopClasses||[];
+    if(!cur.includes(val)) upd("coopClasses",[...cur,val]);
+    setClassInput("");
+  };
+  const removeClass = (c) => upd("coopClasses",(data.coopClasses||[]).filter(x=>x!==c));
+
+  const DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const TIMES = ["7:00 AM","7:30 AM","8:00 AM","8:30 AM","9:00 AM","9:30 AM","10:00 AM","10:30 AM","11:00 AM","11:30 AM","12:00 PM","12:30 PM","1:00 PM","1:30 PM","2:00 PM"];
+  const SUGGESTED = ["Bible / Faith","Art","Music","Physical Education","Science","History","Literature","Latin","Foreign Language","Drama","Debate","Writing","Math","Cooking","Nature Study"];
+
+  return (
+    <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
+      <StepHdr pal={pal} icon="🏫" title="Co-op" sub={"Tell us about your co-op so we can build it into your schedule and records."} />
+
+      {/* Do you co-op? */}
+      <div style={{marginBottom:"1rem"}}>
+        <Lbl pal={pal}>Do you participate in a co-op or group class?</Lbl>
+        <div style={{display:"flex",flexDirection:"column",gap:"0.38rem"}}>
+          {COOP_FREQ.map(f=>(
+            <button key={f} onClick={()=>upd("coopFreq",f)}
+              style={{padding:"0.7rem 1rem",border:`2px solid ${data.coopFreq===f?pal.primary:pal.stone+"50"}`,borderRadius:"12px",background:data.coopFreq===f?pal.pale:"transparent",cursor:"pointer",textAlign:"left",fontWeight:data.coopFreq===f?"700":"400",color:data.coopFreq===f?pal.primary:pal.inkM,fontSize:"0.84rem",transition:"all 0.13s"}}>
+              {f}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {doesCoop&&(
+        <div style={{animation:"fadeUp 0.2s ease"}}>
+
+          {/* Day */}
+          <div style={{marginBottom:"1rem"}}>
+            <Lbl pal={pal}>What day do you meet?</Lbl>
+            <div style={{display:"flex",gap:"0.35rem",flexWrap:"wrap"}}>
+              {DAYS.map(d=>(
+                <button key={d} onClick={()=>upd("coopDay",d)}
+                  style={{padding:"0.38rem 0.75rem",borderRadius:"20px",border:`2px solid ${data.coopDay===d?pal.primary:pal.stone+"50"}`,background:data.coopDay===d?pal.pale:"transparent",cursor:"pointer",fontSize:"0.78rem",fontWeight:data.coopDay===d?"700":"400",color:data.coopDay===d?pal.primary:pal.inkM,transition:"all 0.13s"}}>
+                  {d}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Time */}
+          <div style={{marginBottom:"1rem"}}>
+            <Lbl pal={pal}>Start time</Lbl>
+            <select value={data.coopTime||""} onChange={e=>upd("coopTime",e.target.value)}
+              style={{width:"100%",padding:"0.55rem 0.75rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.84rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit"}}>
+              <option value="">Select a time...</option>
+              {TIMES.map(t=><option key={t} value={t}>{t}</option>)}
+            </select>
+          </div>
+
+          {/* Which kids */}
+          {(data.children||[]).length>1&&(
+            <div style={{marginBottom:"1rem"}}>
+              <Lbl pal={pal}>Which children attend?</Lbl>
+              <div style={{display:"flex",gap:"0.4rem",flexWrap:"wrap"}}>
+                {(data.children||[]).map(c=>{
+                  const sel = (data.coopKids||[]).includes(c.id);
+                  return (
+                    <button key={c.id} onClick={()=>{
+                      const cur = data.coopKids||[];
+                      upd("coopKids",sel?cur.filter(x=>x!==c.id):[...cur,c.id]);
+                    }} style={{padding:"0.35rem 0.75rem",borderRadius:"20px",border:`2px solid ${sel?pal.primary:pal.stone+"50"}`,background:sel?pal.pale:"transparent",cursor:"pointer",fontSize:"0.82rem",fontWeight:sel?"700":"400",color:sel?pal.primary:pal.inkM,display:"flex",alignItems:"center",gap:"0.3rem"}}>
+                      <span>{c.avatar}</span><span>{c.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Classes covered */}
+          <div style={{marginBottom:"1rem"}}>
+            <Lbl pal={pal}>What classes or subjects are covered?</Lbl>
+            <div style={{fontSize:"0.71rem",color:pal.slate,marginBottom:"0.5rem"}}>These will appear as session options when you log a co-op day.</div>
+
+            {/* Suggestions */}
+            <div style={{display:"flex",gap:"0.3rem",flexWrap:"wrap",marginBottom:"0.65rem"}}>
+              {SUGGESTED.filter(s=>!(data.coopClasses||[]).includes(s)).slice(0,10).map(s=>(
+                <button key={s} onClick={()=>upd("coopClasses",[...(data.coopClasses||[]),s])}
+                  style={{padding:"0.22rem 0.55rem",borderRadius:"20px",border:`1.5px solid ${pal.stone+"60"}`,background:"transparent",cursor:"pointer",fontSize:"0.72rem",color:pal.inkM,transition:"all 0.12s"}}>
+                  + {s}
+                </button>
+              ))}
+            </div>
+
+            {/* Custom class input */}
+            <div style={{display:"flex",gap:"0.4rem",marginBottom:"0.55rem"}}>
+              <input value={classInput} onChange={e=>setClassInput(e.target.value)}
+                onKeyDown={e=>e.key==="Enter"&&addClass()}
+                placeholder="Add a class..."
+                style={{flex:1,padding:"0.5rem 0.75rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.82rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit"}}
+                onFocus={e=>e.target.style.borderColor=pal.primary}
+                onBlur={e=>e.target.style.borderColor=pal.stone}/>
+              <button onClick={addClass}
+                style={{padding:"0.5rem 0.85rem",border:"none",borderRadius:"10px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.8rem",cursor:"pointer"}}>
+                Add
+              </button>
+            </div>
+
+            {/* Selected classes */}
+            {(data.coopClasses||[]).length>0&&(
+              <div style={{display:"flex",flexWrap:"wrap",gap:"0.35rem"}}>
+                {(data.coopClasses||[]).map(c=>(
+                  <div key={c} style={{display:"flex",alignItems:"center",gap:"0.3rem",padding:"0.25rem 0.6rem 0.25rem 0.75rem",background:pal.pale,borderRadius:"20px",border:`1.5px solid ${pal.primary}30`}}>
+                    <span style={{fontSize:"0.76rem",fontWeight:"700",color:pal.primary}}>{c}</span>
+                    <button onClick={()=>removeClass(c)}
+                      style={{width:"16px",height:"16px",borderRadius:"50%",background:pal.primary+"30",border:"none",color:pal.primary,fontSize:"0.62rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:"900",flexShrink:0}}>
+                      {"✕"}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Name / group */}
+          <div style={{marginBottom:"1rem"}}>
+            <Lbl pal={pal}>Co-op group name (optional)</Lbl>
+            <Input pal={pal} value={data.coopName||""} onChange={v=>upd("coopName",v)} placeholder={"e.g. Classical Conversations, Umbrella Co-op..."} />
+          </div>
+        </div>
+      )}
+
+      <Btn pal={pal} onClick={onNext}>{doesCoop?"Next ->":"Skip ->"}</Btn>
+    </div>
+  );
+}
+
+/* --- STEP 7: Goals --- */
 function OnbGoals({ pal, data, upd, onNext }) {
   const [customInput, setCustomInput] = React.useState("");
   const toggle = id => upd("goals",data.goals.includes(id)?data.goals.filter(g=>g!==id):[...data.goals,id]);
@@ -5947,13 +6087,17 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
         </PortfolioCard>
 
         {/* ── PHOTOS CARD ── */}
-        <PortfolioPhotosCard pal={pal} cp={cp} entries={photoEntries} onDetail={setDetail} onEdit={(e)=>setEditEntry(e)}/>
+        <PortfolioPhotosCard pal={pal} cp={cp} entries={photoEntries} onDetail={setDetail} onEdit={(e)=>setEditEntry(e)} onAdd={()=>setShowAdd(true)}/>
 
         {/* ── EXTRACURRICULARS CARD ── */}
         <PortfolioCard pal={pal} icon="🏆" title="Extracurriculars" count={extraEntries.length}>
           {extraEntries.length===0 ? (
-            <div style={{padding:"0.85rem 0",textAlign:"center"}}>
-              <div style={{fontSize:"0.78rem",color:pal.slate}}>Sports, music, co-op, field trips {"\u2014"} add them with Quick Add.</div>
+            <div style={{padding:"0.5rem 0",textAlign:"center"}}>
+              <div style={{fontSize:"0.78rem",color:pal.slate,marginBottom:"0.65rem"}}>Sports, music, co-op, field trips {"\u2014"} log them here.</div>
+              <button onClick={()=>setShowAdd(true)}
+                style={{padding:"0.42rem 1rem",border:`1.5px solid ${pal.primary}`,borderRadius:"10px",background:"transparent",color:pal.primary,fontSize:"0.76rem",fontWeight:"700",cursor:"pointer"}}>
+                + Add Extracurricular
+              </button>
             </div>
           ) : (
             <div style={{display:"flex",flexDirection:"column",gap:"0.3rem",paddingTop:"0.1rem"}}>
@@ -6102,7 +6246,7 @@ function PortfolioSubjectRow({sd,cp,pal,family,expanded,onToggle,onDetail}){
 }
 
 /* ---- Portfolio Photos Card ---- */
-function PortfolioPhotosCard({pal,cp,entries,onDetail,onEdit}){
+function PortfolioPhotosCard({pal,cp,entries,onDetail,onEdit,onAdd}){
   // Collect up to 3 photo slots from recent entries
   const photoItems = [];
   entries.slice().reverse().forEach(e=>{
@@ -6119,41 +6263,53 @@ function PortfolioPhotosCard({pal,cp,entries,onDetail,onEdit}){
           <span style={{fontSize:"1.1rem"}}>{"📷"}</span>
           <div>
             <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem"}}>Photos</div>
-            <div style={{fontSize:"0.62rem",color:pal.slate,marginTop:"1px"}}>3 featured {"\u2022"} tap to view or edit</div>
+            <div style={{fontSize:"0.62rem",color:pal.slate,marginTop:"1px"}}>Tap a slot to add or edit</div>
           </div>
         </div>
-        {entries.length>0&&<div style={{background:pal.primary+"18",borderRadius:"20px",padding:"0.12rem 0.55rem"}}>
-          <span style={{fontWeight:"800",color:pal.primary,fontSize:"0.76rem"}}>{entries.length}</span>
-        </div>}
+        <div style={{display:"flex",alignItems:"center",gap:"0.5rem"}}>
+          {entries.length>0&&<div style={{background:pal.primary+"18",borderRadius:"20px",padding:"0.12rem 0.55rem"}}>
+            <span style={{fontWeight:"800",color:pal.primary,fontSize:"0.76rem"}}>{entries.length}</span>
+          </div>}
+          <button onClick={onAdd}
+            style={{padding:"0.22rem 0.6rem",border:`1.5px solid ${pal.primary}`,borderRadius:"8px",background:"transparent",color:pal.primary,fontSize:"0.68rem",fontWeight:"800",cursor:"pointer"}}>
+            + Add
+          </button>
+        </div>
       </div>
       <div style={{padding:"0.75rem"}}>
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"0.5rem"}}>
           {photoItems.map((item,i)=>(
             <div key={i} style={{display:"flex",flexDirection:"column",gap:"0.3rem"}}>
               <div
-                onClick={item?()=>onDetail(item.entry):undefined}
-                style={{aspectRatio:"1",borderRadius:"12px",overflow:"hidden",border:`1.5px solid ${item?cp.c1+"40":pal.stone+"30"}`,background:item?"#000":pal.parchm,cursor:item?"pointer":"default",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",position:"relative"}}>
+                onClick={item ? ()=>onDetail(item.entry) : onAdd}
+                style={{aspectRatio:"1",borderRadius:"12px",overflow:"hidden",border:`1.5px solid ${item?cp.c1+"40":pal.primary+"30"}`,background:item?"#000":pal.parchm,cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",position:"relative"}}>
                 {item ? (
                   <img src={item.src} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
                 ) : (
                   <div style={{textAlign:"center",padding:"0.5rem"}}>
-                    <div style={{fontSize:"1.3rem",marginBottom:"3px",opacity:0.35}}>{"📸"}</div>
-                    <div style={{fontSize:"0.55rem",color:pal.stone,opacity:0.7,lineHeight:1.4}}>{"Paste photo\nor leave blank"}</div>
+                    <div style={{fontSize:"1.3rem",marginBottom:"3px",opacity:0.4}}>{"📸"}</div>
+                    <div style={{fontSize:"0.55rem",color:pal.primary,opacity:0.8,lineHeight:1.4,fontWeight:"600"}}>{"Tap to add"}</div>
                   </div>
                 )}
               </div>
-              {item&&onEdit&&(
-                <button onClick={()=>onEdit(item.entry)}
-                  style={{width:"100%",padding:"0.2rem 0",border:`1.5px solid ${pal.stone}`,borderRadius:"7px",background:"transparent",color:pal.slate,fontSize:"0.62rem",fontWeight:"700",cursor:"pointer"}}>
-                  Edit
-                </button>
+              {item&&(
+                <div style={{display:"flex",gap:"0.25rem"}}>
+                  <button onClick={()=>onDetail(item.entry)}
+                    style={{flex:1,padding:"0.2rem 0",border:`1.5px solid ${pal.stone}`,borderRadius:"7px",background:"transparent",color:pal.slate,fontSize:"0.6rem",fontWeight:"700",cursor:"pointer"}}>
+                    View
+                  </button>
+                  <button onClick={()=>onEdit(item.entry)}
+                    style={{flex:1,padding:"0.2rem 0",border:`1.5px solid ${cp.c1}`,borderRadius:"7px",background:"transparent",color:cp.c1,fontSize:"0.6rem",fontWeight:"700",cursor:"pointer"}}>
+                    Edit
+                  </button>
+                </div>
               )}
             </div>
           ))}
         </div>
         {entries.length===0&&(
-          <div style={{marginTop:"0.6rem",fontSize:"0.7rem",color:pal.slate,textAlign:"center",lineHeight:1.5}}>
-            Photos you add to entries will appear here. You can also leave slots blank to paste polaroids or printed photos to your binder.
+          <div style={{marginTop:"0.5rem",fontSize:"0.7rem",color:pal.slate,textAlign:"center",lineHeight:1.5}}>
+            Photos from your portfolio entries appear here. Use Quick Add to attach photos to any entry.
           </div>
         )}
       </div>
@@ -7229,7 +7385,7 @@ function AttendanceScreen({pal, family, days, pending, onConfirmPull, onCatchup}
         <div style={{background:pal.linen,borderRadius:"16px",padding:"1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}45`}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"8px"}}>
             <span style={{fontWeight:"700",color:pal.inkM,fontSize:"0.8rem"}}>Year Progress</span>
-            <span style={{fontWeight:"900",color:onTrack?pal.good:pal.warn,fontSize:"0.82rem"}}>{pct}% {onTrack?"v":"!"}</span>
+            <span style={{fontWeight:"900",color:onTrack?pal.good:pal.warn,fontSize:"0.82rem"}}>{pct}% {onTrack?"✓":"!"}</span>
           </div>
           <div style={{height:"12px",borderRadius:"99px",background:pal.parchm,overflow:"hidden",marginBottom:"7px"}}>
             <div style={{height:"100%",width:`${pct}%`,borderRadius:"99px",background:onTrack?`linear-gradient(90deg,${pal.good},${pal.mid})`:pal.accentGrad,transition:"width 0.4s ease"}}/>
@@ -7285,12 +7441,286 @@ function AttendanceScreen({pal, family, days, pending, onConfirmPull, onCatchup}
     </div>
   );
 }
-function CoopScreen({pal,family,coopLog,onLog}){
-  const [showQL,setShowQL]=useState(false);
-  return <><div style={{animation:"fadeUp 0.22s ease"}}><ScreenHdr pal={pal} title="Co-op" sub="Sessions & Field Trips" icon="🏫"/><div style={{padding:"1rem"}}><div style={{background:pal.pale,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:`2px solid ${pal.accent}25`}}><div style={{fontWeight:"700",color:pal.primary,fontSize:"0.84rem",marginBottom:"2px"}}>📅 Next Session</div><div style={{fontSize:"0.8rem",color:pal.inkM}}>Friday, March 14 - Classical Conversations - 9am-12pm</div></div>{[{d:"Mar 14",s:"Classical Conversations",h:3,i:"🏛"},{d:"Mar 21",s:"Art & Nature Study",h:2,i:"🎨"},{d:"Mar 28",s:"Science Fair Prep",h:2.5,i:"🔬"}].map((s,i)=><div key={i} style={{background:pal.linen,borderRadius:"13px",padding:"0.75rem 0.9rem",display:"flex",gap:"0.75rem",alignItems:"center",border:`1.5px solid ${pal.stone}40`,marginBottom:"0.5rem"}}><div style={{width:"38px",height:"38px",borderRadius:"10px",background:pal.pale,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.15rem",flexShrink:0}}>{s.i}</div><div style={{flex:1}}><div style={{fontWeight:"700",color:pal.ink,fontSize:"0.83rem"}}>{s.s}</div><div style={{fontSize:"0.7rem",color:pal.slate}}>{s.d} - {s.h}h</div></div><button onClick={()=>setShowQL(true)} style={{padding:"0.28rem 0.65rem",border:"none",borderRadius:"7px",background:pal.accentGrad,color:pal.onDark,fontSize:"0.68rem",fontWeight:"700",cursor:"pointer"}}>Log</button></div>)}
-    {coopLog.length>0&&<div style={{marginBottom:"0.75rem"}}><div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.8rem",marginBottom:"0.5rem"}}> Recent logs</div>{coopLog.slice(0,2).map((l,i)=><div key={i} style={{background:pal.pale,borderRadius:"11px",padding:"0.6rem 0.85rem",marginBottom:"0.38rem",fontSize:"0.78rem",color:pal.inkM}}><b>{l.session}</b> - {l.hrs}h - {l.date||"today"}</div>)}</div>}
-    <button onClick={()=>setShowQL(true)} style={{width:"100%",padding:"0.8rem",border:"none",borderRadius:"14px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.86rem",cursor:"pointer",marginTop:"0.25rem"}}>! Quick Log (60 sec)</button><div style={{height:"1rem"}}/></div></div>
-  {showQL&&<CoopQuickLogModal pal={pal} family={family} onSave={e=>{onLog({...e,date:new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"})});}} onClose={()=>setShowQL(false)}/>}</>;
+/* ---- Co-op Setup Card (inline editor on Co-op screen) ---- */
+function CoopSetupCard({pal,family,onSave,onCancel}){
+  const [freq,     setFreq]     = useState(family.coopFreq||"Once a week");
+  const [day,      setDay]      = useState(family.coopDay||"");
+  const [time,     setTime]     = useState(family.coopTime||"");
+  const [name,     setName]     = useState(family.coopName||"");
+  const [kids,     setKids]     = useState(family.coopKids||(family.children||[]).map(c=>c.id));
+  const [classes,  setClasses]  = useState(family.coopClasses||[]);
+  const [classVal, setClassVal] = useState("");
+
+  const DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const TIMES = ["7:00 AM","7:30 AM","8:00 AM","8:30 AM","9:00 AM","9:30 AM","10:00 AM","10:30 AM","11:00 AM","11:30 AM","12:00 PM","12:30 PM","1:00 PM","1:30 PM","2:00 PM"];
+  const SUGGESTED = ["Bible / Faith","Art","Music","Physical Education","Science","History","Literature","Latin","Foreign Language","Drama","Debate","Writing","Math","Cooking","Nature Study"];
+
+  const addClass = () => {
+    const val = classVal.trim();
+    if(!val||classes.includes(val)) return;
+    setClasses(c=>[...c,val]);
+    setClassVal("");
+  };
+  const toggleKid = (id) => setKids(k=>k.includes(id)?k.filter(x=>x!==id):[...k,id]);
+
+  return (
+    <div style={{background:pal.linen,borderRadius:"16px",padding:"1.1rem",marginBottom:"1rem",border:`1.5px solid ${pal.primary}30`}}>
+      <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.9rem",marginBottom:"0.85rem"}}>{"🏫 Co-op Setup"}</div>
+
+      <Lbl pal={pal}>Group name (optional)</Lbl>
+      <Input pal={pal} value={name} onChange={setName} placeholder={"e.g. Classical Conversations, Umbrella Co-op..."} />
+      <div style={{height:"0.65rem"}}/>
+
+      <Lbl pal={pal}>Frequency</Lbl>
+      <div style={{display:"flex",flexDirection:"column",gap:"0.3rem",marginBottom:"0.65rem"}}>
+        {COOP_FREQ.filter(f=>f!=="We don't do co-op").map(f=>(
+          <button key={f} onClick={()=>setFreq(f)}
+            style={{padding:"0.5rem 0.85rem",border:`2px solid ${freq===f?pal.primary:pal.stone+"50"}`,borderRadius:"10px",background:freq===f?pal.pale:"transparent",cursor:"pointer",textAlign:"left",fontWeight:freq===f?"700":"400",color:freq===f?pal.primary:pal.inkM,fontSize:"0.82rem"}}>
+            {f}
+          </button>
+        ))}
+      </div>
+
+      <Lbl pal={pal}>Meeting day</Lbl>
+      <div style={{display:"flex",gap:"0.3rem",flexWrap:"wrap",marginBottom:"0.65rem"}}>
+        {DAYS.map(d=>(
+          <button key={d} onClick={()=>setDay(d)}
+            style={{padding:"0.32rem 0.65rem",borderRadius:"20px",border:`2px solid ${day===d?pal.primary:pal.stone+"50"}`,background:day===d?pal.pale:"transparent",cursor:"pointer",fontSize:"0.76rem",fontWeight:day===d?"700":"400",color:day===d?pal.primary:pal.inkM}}>
+            {d}
+          </button>
+        ))}
+      </div>
+
+      <Lbl pal={pal}>Start time</Lbl>
+      <select value={time} onChange={e=>setTime(e.target.value)}
+        style={{width:"100%",padding:"0.52rem 0.75rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.83rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit",marginBottom:"0.65rem"}}>
+        <option value="">Select a time...</option>
+        {TIMES.map(t=><option key={t} value={t}>{t}</option>)}
+      </select>
+
+      {(family.children||[]).length>1&&(
+        <>
+          <Lbl pal={pal}>Which children attend?</Lbl>
+          <div style={{display:"flex",gap:"0.38rem",flexWrap:"wrap",marginBottom:"0.65rem"}}>
+            {(family.children||[]).map(c=>{
+              const sel=kids.includes(c.id);
+              return (
+                <button key={c.id} onClick={()=>toggleKid(c.id)}
+                  style={{padding:"0.32rem 0.7rem",borderRadius:"20px",border:`2px solid ${sel?pal.primary:pal.stone+"50"}`,background:sel?pal.pale:"transparent",cursor:"pointer",fontSize:"0.8rem",fontWeight:sel?"700":"400",color:sel?pal.primary:pal.inkM,display:"flex",alignItems:"center",gap:"0.3rem"}}>
+                  <span>{c.avatar}</span><span>{c.name}</span>
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      <Lbl pal={pal}>Classes covered</Lbl>
+      <div style={{display:"flex",gap:"0.3rem",flexWrap:"wrap",marginBottom:"0.5rem"}}>
+        {SUGGESTED.filter(s=>!classes.includes(s)).slice(0,8).map(s=>(
+          <button key={s} onClick={()=>setClasses(c=>[...c,s])}
+            style={{padding:"0.2rem 0.5rem",borderRadius:"20px",border:`1.5px solid ${pal.stone+"60"}`,background:"transparent",cursor:"pointer",fontSize:"0.7rem",color:pal.inkM}}>
+            {"+ "+s}
+          </button>
+        ))}
+      </div>
+      <div style={{display:"flex",gap:"0.4rem",marginBottom:"0.45rem"}}>
+        <input value={classVal} onChange={e=>setClassVal(e.target.value)}
+          onKeyDown={e=>e.key==="Enter"&&addClass()}
+          placeholder="Add a class..."
+          style={{flex:1,padding:"0.48rem 0.7rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.8rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit"}}
+          onFocus={e=>e.target.style.borderColor=pal.primary}
+          onBlur={e=>e.target.style.borderColor=pal.stone}/>
+        <button onClick={addClass}
+          style={{padding:"0.48rem 0.8rem",border:"none",borderRadius:"10px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.78rem",cursor:"pointer"}}>
+          Add
+        </button>
+      </div>
+      {classes.length>0&&(
+        <div style={{display:"flex",flexWrap:"wrap",gap:"0.3rem",marginBottom:"0.75rem"}}>
+          {classes.map(c=>(
+            <div key={c} style={{display:"flex",alignItems:"center",gap:"0.28rem",padding:"0.22rem 0.55rem 0.22rem 0.65rem",background:pal.pale,borderRadius:"20px",border:`1.5px solid ${pal.primary}30`}}>
+              <span style={{fontSize:"0.73rem",fontWeight:"700",color:pal.primary}}>{c}</span>
+              <button onClick={()=>setClasses(cs=>cs.filter(x=>x!==c))}
+                style={{width:"15px",height:"15px",borderRadius:"50%",background:pal.primary+"30",border:"none",color:pal.primary,fontSize:"0.58rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:"900",flexShrink:0}}>
+                {"✕"}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div style={{display:"flex",gap:"0.5rem",marginTop:"0.5rem"}}>
+        <button onClick={onCancel}
+          style={{padding:"0.6rem 1rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.82rem",cursor:"pointer"}}>
+          Cancel
+        </button>
+        <button onClick={()=>onSave({coopFreq:freq,coopDay:day,coopTime:time,coopName:name,coopKids:kids,coopClasses:classes})}
+          style={{flex:1,padding:"0.6rem",border:"none",borderRadius:"11px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.84rem",cursor:"pointer"}}>
+          Save Co-op Info
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function CoopScreen({pal,family,coopLog,onLog,onUpdateFamily}){
+  const [showQL,    setShowQL]    = useState(false);
+  const [showSetup, setShowSetup] = useState(false);
+  const [expanded,  setExpanded]  = useState(null);
+
+  const freq      = family.coopFreq||"";
+  const doesCoop  = freq && freq!=="We don't do co-op";
+  const coopDay   = family.coopDay||"";
+  const coopTime  = family.coopTime||"";
+  const coopName  = family.coopName||"";
+  const coopClasses = family.coopClasses||[];
+  const needsSetup = doesCoop && (!coopDay || coopClasses.length===0);
+
+  const totalHrs = coopLog.reduce((s,l)=>s+(parseFloat(l.hrs)||0),0);
+  const thisMonth = new Date().toLocaleDateString("en-US",{month:"short",year:"numeric"});
+  const monthHrs  = coopLog.filter(l=>{
+    try{ return new Date(l.date+", "+new Date().getFullYear()).toLocaleDateString("en-US",{month:"short",year:"numeric"})===thisMonth; }catch{return false;}
+  }).reduce((s,l)=>s+(parseFloat(l.hrs)||0),0);
+
+  const saveLog = (e) => {
+    onLog({...e, date:new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"})});
+    setShowQL(false);
+  };
+
+  return (
+    <div style={{animation:"fadeUp 0.22s ease"}}>
+      <ScreenHdr pal={pal} title="Co-op" sub="Sessions & Field Trips" icon="🏫"/>
+      <div style={{padding:"0 1rem"}}>
+
+        {/* Setup prompt — shown if co-op is on but not fully configured */}
+        {needsSetup&&!showSetup&&(
+          <div style={{background:`linear-gradient(135deg,${pal.primary}12,${pal.accent}08)`,borderRadius:"16px",padding:"1rem 1.1rem",marginBottom:"1rem",border:`2px solid ${pal.primary}25`}}>
+            <div style={{fontWeight:"800",color:pal.primary,fontSize:"0.9rem",marginBottom:"0.25rem"}}>{"🏫 Finish setting up your co-op"}</div>
+            <div style={{fontSize:"0.76rem",color:pal.inkM,lineHeight:1.55,marginBottom:"0.75rem"}}>
+              Tell us what day you meet, what classes are covered, and which kids attend — so logging sessions is quick and your schedule stays accurate.
+            </div>
+            <button onClick={()=>setShowSetup(true)}
+              style={{padding:"0.55rem 1.2rem",border:"none",borderRadius:"11px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.82rem",cursor:"pointer"}}>
+              Complete Setup →
+            </button>
+          </div>
+        )}
+
+        {/* Setup form inline */}
+        {showSetup&&<CoopSetupCard pal={pal} family={family} onSave={(updates)=>{onUpdateFamily&&onUpdateFamily(updates);setShowSetup(false);}} onCancel={()=>setShowSetup(false)}/>}
+
+        {/* Info banner when set up */}
+        {doesCoop&&!needsSetup&&!showSetup&&(
+          <div style={{background:pal.pale,borderRadius:"13px",padding:"0.75rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.primary}20`}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+              <div style={{display:"flex",gap:"0.6rem",alignItems:"flex-start"}}>
+                <span style={{fontSize:"1.2rem",flexShrink:0,marginTop:"1px"}}>{"📅"}</span>
+                <div>
+                  <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.82rem"}}>{coopName||"Co-op"} {"\u00b7"} {coopDay}{coopTime?" at "+coopTime:""}</div>
+                  <div style={{fontSize:"0.72rem",color:pal.inkM,marginTop:"2px"}}>{freq}</div>
+                  {coopClasses.length>0&&(
+                    <div style={{display:"flex",flexWrap:"wrap",gap:"0.25rem",marginTop:"0.4rem"}}>
+                      {coopClasses.map(c=>(
+                        <span key={c} style={{padding:"0.12rem 0.45rem",background:pal.primary+"18",borderRadius:"20px",fontSize:"0.65rem",fontWeight:"600",color:pal.primary}}>{c}</span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <button onClick={()=>setShowSetup(true)}
+                style={{padding:"0.22rem 0.6rem",border:`1.5px solid ${pal.stone}`,borderRadius:"8px",background:"transparent",color:pal.slate,fontSize:"0.68rem",fontWeight:"700",cursor:"pointer",flexShrink:0}}>
+                Edit
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Stats row */}
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"0.5rem",marginBottom:"1rem"}}>
+          {[
+            {l:"Total Hours", v:totalHrs>0?totalHrs+"h":"—",  c:pal.primary, bg:pal.pale},
+            {l:"This Month",  v:monthHrs>0?monthHrs+"h":"—",  c:pal.mid,     bg:pal.paleMid},
+            {l:"Sessions",    v:coopLog.length||"—",           c:pal.accentD, bg:pal.pale},
+          ].map(s=>(
+            <div key={s.l} style={{background:s.bg,borderRadius:"13px",padding:"0.75rem 0.5rem",textAlign:"center",border:`1.5px solid ${s.c}22`}}>
+              <div style={{fontWeight:"900",color:s.c,fontSize:"1.2rem",lineHeight:1}}>{s.v}</div>
+              <div style={{fontSize:"0.55rem",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.06em",marginTop:"3px"}}>{s.l}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Log button */}
+        <button onClick={()=>setShowQL(true)}
+          style={{width:"100%",padding:"0.9rem",border:"none",borderRadius:"14px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.88rem",cursor:"pointer",marginBottom:"1.1rem",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.6rem",boxShadow:`0 4px 18px ${pal.accent}35`}}>
+          <span style={{fontSize:"1.1rem"}}>{"🏫"}</span>
+          <span>Log a Co-op Session</span>
+        </button>
+
+        {/* Session history */}
+        {coopLog.length===0?(
+          <div style={{background:pal.linen,borderRadius:"16px",padding:"2rem 1.5rem",textAlign:"center",border:`1.5px solid ${pal.stone}30`,marginBottom:"1rem"}}>
+            <div style={{fontSize:"2.5rem",marginBottom:"0.5rem"}}>🏫</div>
+            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.88rem",marginBottom:"0.3rem"}}>No sessions logged yet</div>
+            <div style={{fontSize:"0.74rem",color:pal.slate,lineHeight:1.55}}>Tap the button above to log your first co-op session. Hours will appear in your records and transcript.</div>
+          </div>
+        ):(
+          <>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:"0.55rem"}}>
+              <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem"}}>Session History</div>
+              <div style={{fontSize:"0.7rem",color:pal.slate}}>{coopLog.length} session{coopLog.length!==1?"s":""}</div>
+            </div>
+            <div style={{display:"flex",flexDirection:"column",gap:"0.4rem",marginBottom:"1rem"}}>
+              {coopLog.map((log,i)=>{
+                const isOpen = expanded===i;
+                const hasNotes = log.notes&&Object.values(log.notes).some(n=>n&&n.trim());
+                return (
+                  <div key={i} style={{background:pal.linen,borderRadius:"13px",border:`1.5px solid ${isOpen?pal.primary+"40":pal.stone+"30"}`,overflow:"hidden",transition:"border-color 0.15s"}}>
+                    <button onClick={()=>setExpanded(isOpen?null:i)}
+                      style={{width:"100%",display:"flex",alignItems:"center",gap:"0.65rem",padding:"0.7rem 0.9rem",background:"transparent",border:"none",cursor:"pointer",textAlign:"left"}}>
+                      <div style={{width:"40px",height:"40px",borderRadius:"11px",background:pal.pale,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.25rem",flexShrink:0}}>{"🏫"}</div>
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.84rem",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{log.session||"Co-op Session"}</div>
+                        <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"1px"}}>{log.date||"—"} {"\u00b7"} {log.hrs}h</div>
+                      </div>
+                      <div style={{display:"flex",alignItems:"center",gap:"0.4rem",flexShrink:0}}>
+                        <div style={{background:pal.primary+"18",borderRadius:"20px",padding:"0.1rem 0.5rem"}}>
+                          <span style={{fontWeight:"800",color:pal.primary,fontSize:"0.75rem"}}>{log.hrs}h</span>
+                        </div>
+                        {hasNotes&&<span style={{fontSize:"0.75rem"}}>{"📝"}</span>}
+                        <span style={{color:pal.slate,fontSize:"0.9rem",transform:isOpen?"rotate(90deg)":"none",transition:"transform 0.2s"}}>{"›"}</span>
+                      </div>
+                    </button>
+                    {isOpen&&(
+                      <div style={{borderTop:`1px solid ${pal.stone}20`}}>
+                        {hasNotes ? family.children.map(c=>{
+                          const note = log.notes?.[c.id]||"";
+                          if(!note.trim()) return null;
+                          return (
+                            <div key={c.id} style={{display:"flex",gap:"0.55rem",alignItems:"flex-start",padding:"0.55rem 0.9rem",borderTop:`1px solid ${pal.stone}12`}}>
+                              <span style={{fontSize:"1rem",flexShrink:0,marginTop:"1px"}}>{c.avatar}</span>
+                              <div>
+                                <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.75rem",marginBottom:"2px"}}>{c.name}</div>
+                                <div style={{fontSize:"0.76rem",color:pal.ink,lineHeight:1.55}}>{note}</div>
+                              </div>
+                            </div>
+                          );
+                        }) : (
+                          <div style={{padding:"0.55rem 0.9rem",fontSize:"0.74rem",color:pal.slate,fontStyle:"italic"}}>No notes recorded for this session.</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+        <div style={{height:"0.5rem"}}/>
+      </div>
+      {showQL&&<CoopQuickLogModal pal={pal} family={family} onSave={saveLog} onClose={()=>setShowQL(false)}/>}
+    </div>
+  );
 }
 /* =======================================
    LIFE READY SCREEN
@@ -7863,7 +8293,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
                 ["School Year",yearStart+" — "+yearEnd],
                 ["State",family.state||"—"],
                 ["Days Completed",attendanceDays+" / "+REQUIRED+" ("+pct+"%)"],
-                ["Approach",(Array.isArray(family.curriculumStyle)?family.curriculumStyle:[family.curriculumStyle||"Eclectic"]).join(", ")],
+                ["Co-op Hours",childCoopHrs>0?childCoopHrs+"h logged":"—"],
               ].map(([l,v])=>(
                 <div key={l} style={{padding:"0.42rem 0.6rem",background:pal.sand,borderRadius:"8px"}}>
                   <div style={{fontSize:"0.58rem",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"2px"}}>{l}</div>
@@ -7887,7 +8317,6 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
               <div style={{fontSize:"0.78rem",color:pal.slate,textAlign:"center",padding:"0.75rem"}}>No subjects recorded yet.</div>
             ):(
               <div style={{display:"flex",flexDirection:"column",gap:"0.35rem",marginBottom:"0.85rem"}}>
-                {/* Column headers for high school */}
                 {isHighSchool&&(
                   <div style={{display:"grid",gridTemplateColumns:"1fr 70px 70px 80px",gap:"0.35rem",padding:"0 0.4rem",marginBottom:"0.1rem"}}>
                     {["Subject","Grade","Credits","Status"].map(h=>(
@@ -7928,14 +8357,6 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
               </div>
             )}
 
-            {/* Co-op row */}
-            {childCoopHrs>0&&(
-              <div style={{padding:"0.55rem 0.65rem",background:pal.parchm,borderRadius:"9px",display:"flex",justifyContent:"space-between",marginBottom:"0.85rem"}}>
-                <span style={{fontSize:"0.8rem",fontWeight:"600",color:pal.ink}}>Co-op / Enrichment</span>
-                <span style={{fontSize:"0.78rem",color:pal.slate}}>{childCoopHrs}h logged</span>
-              </div>
-            )}
-
             {/* Signature block */}
             <div style={{marginTop:"1.2rem",paddingTop:"0.85rem",borderTop:`1px solid ${pal.stone}40`,display:"flex",justifyContent:"space-between",alignItems:"flex-end"}}>
               <div>
@@ -7948,6 +8369,10 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
               </div>
             </div>
           </div>
+
+          {/* Daily Log — all saved portfolio days, searchable by date */}
+          <DailyLogSection pal={pal} cp={cp} childEntries={childEntries} subjEntries={subjEntries}/>
+
           <div style={{height:"0.5rem"}}/>
         </>)}
 
@@ -8020,6 +8445,137 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
   body { background: white!important; font-family: Georgia, serif!important; }
   #root > div { max-width: 100%!important; }
 }`}</style>
+    </div>
+  );
+}
+
+/* ---- Daily Log Section (inside Transcript tab) ---- */
+function DailyLogSection({pal,cp,childEntries,subjEntries}){
+  const [search, setSearch] = useState("");
+  const [expanded, setExpanded] = useState(null);
+
+  // Group subject entries by date
+  const byDate = {};
+  subjEntries.forEach(e=>{
+    if(!e.date) return;
+    if(!byDate[e.date]) byDate[e.date]={date:e.date,entries:[],dayNote:null};
+    byDate[e.date].entries.push(e);
+  });
+  // Also pull daily notes entries for parent notes per day
+  childEntries.filter(e=>e.isDay||e.subj==="Daily Notes").forEach(e=>{
+    if(!e.date) return;
+    if(!byDate[e.date]) byDate[e.date]={date:e.date,entries:[],dayNote:null};
+    byDate[e.date].dayNote = e;
+  });
+
+  // Sort dates newest first
+  const allDates = Object.values(byDate).sort((a,b)=>{
+    // Parse "Mar 25" style dates for sorting
+    try{
+      const parse = s => new Date(s+", "+new Date().getFullYear());
+      return parse(b.date) - parse(a.date);
+    }catch{return 0;}
+  });
+
+  // Filter by search
+  const filtered = search.trim()
+    ? allDates.filter(d=>
+        d.date.toLowerCase().includes(search.toLowerCase()) ||
+        d.entries.some(e=>e.subj?.toLowerCase().includes(search.toLowerCase())||e.note?.toLowerCase().includes(search.toLowerCase())||e.title?.toLowerCase().includes(search.toLowerCase()))
+      )
+    : allDates;
+
+  if(allDates.length===0) return null;
+
+  return (
+    <div style={{marginBottom:"0.85rem"}}>
+      {/* Header + search */}
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.55rem"}}>
+        <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem"}}>Daily Activity Log</div>
+        <div style={{fontSize:"0.7rem",color:pal.slate,fontWeight:"600"}}>{allDates.length} day{allDates.length!==1?"s":""}</div>
+      </div>
+      <div style={{position:"relative",marginBottom:"0.65rem"}}>
+        <input
+          value={search} onChange={e=>setSearch(e.target.value)}
+          placeholder={"Search by date or subject..."}
+          style={{width:"100%",padding:"0.5rem 0.85rem 0.5rem 2.1rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.81rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit"}}
+          onFocus={e=>e.target.style.borderColor=cp.c1}
+          onBlur={e=>e.target.style.borderColor=pal.stone}/>
+        <span style={{position:"absolute",left:"0.65rem",top:"50%",transform:"translateY(-50%)",fontSize:"0.85rem",pointerEvents:"none"}}>{"🔍"}</span>
+        {search&&<button onClick={()=>setSearch("")}
+          style={{position:"absolute",right:"0.55rem",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.75rem",padding:"0.1rem 0.25rem"}}>{"✕"}</button>}
+      </div>
+
+      {filtered.length===0?(
+        <div style={{textAlign:"center",padding:"1rem",fontSize:"0.78rem",color:pal.slate,background:pal.linen,borderRadius:"12px",border:`1.5px solid ${pal.stone}25`}}>
+          No days match {"\""+search+"\""}.
+        </div>
+      ):(
+        <div style={{display:"flex",flexDirection:"column",gap:"0.4rem"}}>
+          {filtered.map(day=>{
+            const isOpen = expanded===day.date;
+            const parentNote = day.dayNote?.note?.replace("AI Summary: ","").trim()||"";
+            const aiSummary  = day.dayNote?.aiSummary||"";
+            const noteToShow = parentNote.replace(aiSummary,"").trim();
+            return (
+              <div key={day.date} style={{background:pal.linen,borderRadius:"13px",border:`1.5px solid ${isOpen?cp.c1+"50":pal.stone+"30"}`,overflow:"hidden",transition:"border-color 0.15s"}}>
+                {/* Day header row */}
+                <button onClick={()=>setExpanded(isOpen?null:day.date)}
+                  style={{width:"100%",display:"flex",alignItems:"center",gap:"0.65rem",padding:"0.65rem 0.85rem",background:"transparent",border:"none",cursor:"pointer",textAlign:"left"}}>
+                  <div style={{width:"38px",height:"38px",borderRadius:"10px",background:`linear-gradient(135deg,${cp.c1}22,${cp.c2}15)`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                    <div style={{fontSize:"0.55rem",fontWeight:"700",color:cp.c1,textTransform:"uppercase"}}>{day.date.split(" ")[0]}</div>
+                    <div style={{fontSize:"0.9rem",fontWeight:"900",color:cp.c1,lineHeight:1}}>{day.date.split(" ")[1]||""}</div>
+                  </div>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.83rem"}}>{day.date}</div>
+                    <div style={{fontSize:"0.65rem",color:pal.slate,marginTop:"1px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                      {day.entries.map(e=>e.subj).filter((v,i,a)=>a.indexOf(v)===i).join(" \u00b7 ")}
+                    </div>
+                  </div>
+                  <div style={{display:"flex",alignItems:"center",gap:"0.4rem",flexShrink:0}}>
+                    <div style={{background:cp.c1+"20",borderRadius:"20px",padding:"0.1rem 0.45rem"}}>
+                      <span style={{fontWeight:"800",color:cp.c1,fontSize:"0.72rem"}}>{day.entries.length}</span>
+                    </div>
+                    <span style={{color:pal.slate,fontSize:"0.9rem",transform:isOpen?"rotate(90deg)":"none",transition:"transform 0.2s"}}>{"›"}</span>
+                  </div>
+                </button>
+
+                {/* Expanded entries */}
+                {isOpen&&(
+                  <div style={{borderTop:`1px solid ${pal.stone}20`}}>
+                    {day.entries.map((e,i)=>(
+                      <div key={e.id||i} style={{display:"flex",gap:"0.55rem",alignItems:"flex-start",padding:"0.55rem 0.85rem",borderTop:i>0?`1px solid ${pal.stone}12`:"none",background:"#fff"}}>
+                        <span style={{fontSize:"1rem",flexShrink:0,marginTop:"1px"}}>{e.thumb||"📋"}</span>
+                        <div style={{flex:1,minWidth:0}}>
+                          <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.8rem"}}>{e.subj}</div>
+                          {e.readingTitle&&(
+                            <div style={{fontSize:"0.7rem",color:pal.primary,fontWeight:"600",marginTop:"1px"}}>{"📖 "+e.readingTitle}</div>
+                          )}
+                          {e.note&&e.note.trim()&&(
+                            <div style={{fontSize:"0.72rem",color:pal.inkM,marginTop:"2px",lineHeight:1.55}}>{e.note}</div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                    {noteToShow&&(
+                      <div style={{padding:"0.55rem 0.85rem",borderTop:`1px solid ${pal.stone}15`,background:pal.pale}}>
+                        <div style={{fontSize:"0.62rem",fontWeight:"800",color:pal.primary,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"3px"}}>Parent Notes</div>
+                        <div style={{fontSize:"0.75rem",color:pal.inkM,lineHeight:1.6}}>{noteToShow}</div>
+                      </div>
+                    )}
+                    {aiSummary&&(
+                      <div style={{padding:"0.45rem 0.85rem",borderTop:`1px solid ${pal.stone}12`,background:"#fff"}}>
+                        <div style={{fontSize:"0.62rem",fontWeight:"700",color:pal.slate,marginBottom:"2px"}}>{"✨ AI Summary"}</div>
+                        <div style={{fontSize:"0.72rem",color:pal.inkM,lineHeight:1.55,fontStyle:"italic"}}>{aiSummary}</div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
@@ -8368,8 +8924,6 @@ function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose,onFini
           </div>
         )}
 
-        )}
-
         {/* Step 2: Parent Notes */}
         {step===2 && (
           <div style={{animation:"fadeUp 0.2s ease"}}>
@@ -8548,7 +9102,7 @@ function ThemeModal({ pal, paletteId, setPaletteId, customA, customB, setCustomA
         <div><div style={{fontSize:"0.6rem",color:"rgba(255,255,255,0.5)",letterSpacing:"0.1em",fontWeight:"700",textTransform:"uppercase"}}>Preview</div><div style={{fontWeight:"800",color:"rgba(255,255,255,0.9)",fontSize:"0.92rem"}}>Good morning 🌱</div></div>
         <div style={{height:"30px",padding:"0 0.75rem",borderRadius:"99px",background:preview.accentGrad,display:"flex",alignItems:"center"}}><span style={{fontSize:"0.7rem",fontWeight:"800",color:preview.onDark}}> Check-In</span></div>
       </div>
-      <button onClick={()=>{if(paletteId==="custom"){setCustomA(la);setCustomB(lb);}onClose();}} style={{width:"100%",padding:"0.8rem",border:"none",borderRadius:"13px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>Apply Theme v</button>
+      <button onClick={()=>{if(paletteId==="custom"){setCustomA(la);setCustomB(lb);}onClose();}} style={{width:"100%",padding:"0.8rem",border:"none",borderRadius:"13px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>Apply Theme</button>
     </BottomSheet>
   );
 }
@@ -8610,7 +9164,7 @@ function SchedConfirmModal({ pal, family, days, onConfirm, onClose }) {
       </div>
       <div style={{display:"flex",gap:"0.6rem"}}>
         <button onClick={onClose} style={{padding:"0.7rem 1rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem"}}>Not yet</button>
-        <button onClick={onConfirm} style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>v Yes, log it!</button>
+        <button onClick={onConfirm} style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>{"✓ Yes, log it!"}</button>
       </div>
     </BottomSheet>
   );
