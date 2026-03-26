@@ -535,7 +535,7 @@ function RootAndBloom() {
             </div>
           )}
           {!showLifeReady && activeTab==="more"        && <MoreScreen        pal={pal} family={family}
-              onNav={id=>{ if(id==="settings") openSettings(); else if(navIds.includes(id)) setActiveTab(id); }}
+              onNav={id=>{ if(id==="settings") openSettings(); else setActiveTab(id); }}
               onTheme={()=>setShowTheme(true)} onNavEdit={()=>setShowNav(true)} onSettings={openSettings} onLifeReady={()=>setShowLifeReady(true)} />}
         </div>
 
