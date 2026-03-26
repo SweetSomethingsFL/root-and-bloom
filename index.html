@@ -416,7 +416,13 @@ function RootAndBloom() {
   const closeSettings    = () => setView("parent");
   const switchToStudent  = (child) => { setActiveStudent(child); setShowSwitcher(false); setView("student"); };
   const backToParent     = () => { setActiveStudent(null); setView("parent"); };
-  const addPortfolioEntry  = (e) => setPortfolioEntries(p=>[{id:uid(),...e},...p]);
+  const addPortfolioEntry  = (e) => setPortfolioEntries(p=>{
+    // Deduplicate: remove any existing entry for same child+subject+date (keeps latest)
+    const filtered = (e.subj && e.date && !e.isDay)
+      ? p.filter(x=>!(x.childIdx===e.childIdx && x.subj===e.subj && x.date===e.date && !x.isDay))
+      : p;
+    return [{id:uid(),...e},...filtered];
+  });
   const editPortfolioEntry = (id,updated) => setPortfolioEntries(p=>p.map(e=>e.id===id?{...e,...updated}:e));
 
   // Today is co-op day if it's a Friday (demo) or already logged
@@ -570,6 +576,8 @@ function RootAndBloom() {
         {showCelebration && celebData && <CelebrationModal pal={pal} data={celebData} onEnter={enterApp}/>}
         {showEOY && family && <EOYChecklistModal pal={pal} family={family} childIdx={eoyChild} setChildIdx={setEoyChild}
           weeksLeft={getEOYWeeksLeft(family)}
+          portfolioEntries={portfolioEntries}
+          attendanceDays={attendanceDays}
           onClose={()=>{setShowEOY(false);setEoyDismissed(family.yearEnd);}}
           onGradeUp={handleGradeUp} />}
         {showNewYear && family && <NewYearModal pal={pal} family={family}
@@ -3617,50 +3625,93 @@ function CelebrationModal({pal,data,onEnter}){
 /* =======================================
    END OF YEAR CHECKLIST + GRADE PROMOTION
 ======================================= */
-function EOYChecklistModal({pal,family,childIdx,setChildIdx,weeksLeft,onClose,onGradeUp}){
-  const [tab,       setTab]       = useState("checklist"); // checklist | promote
-  const [promoting, setPromoting] = useState(null); // childIdx being promoted
-  const [promoted,  setPromoted]  = useState({}); // {childId: newGrade}
+function EOYChecklistModal({pal,family,childIdx,setChildIdx,weeksLeft,portfolioEntries=[],attendanceDays=0,onClose,onGradeUp}){
+  const [tab, setTab] = useState("checklist"); // checklist | reflect | promote
 
   const ch = family.children[childIdx]||family.children[0];
   if(!ch) return null;
 
   const info = getComplianceInfo(family.state||"", ch.grade||"5th");
   const next = nextGrade(ch.grade);
+  const cp   = CHILD_COLOR_PALETTES.find(p=>p.id===(ch.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+  const REQUIRED = 180;
 
+  // ── Checklist tab state ──
   const CHECKLIST_ITEMS = [
-    {id:"attendance",  icon:"📋", label:"Attendance Record",    detail:"180 days logged ("+info.hours+")"},
-    {id:"activitylog", icon:"📓", label:"Activity Log",         detail:"Daily/weekly log with reading titles listed"},
-    {id:"worksamples", icon:"📚", label:"Work Samples",         detail:"Beginning, middle, end of year per subject"},
-    {id:"subjects",    icon:"🔬", label:"All Subjects Covered", detail:info.subjects.slice(0,4).join(", ")+" + more"},
-    {id:"narrative",   icon:"📝", label:"Parent Narrative",     detail:"Written description of the year's progress"},
+    {id:"attendance",  icon:"📋", label:"Attendance Record",      detail:attendanceDays+" days logged ("+info.hours+" required)"},
+    {id:"activitylog", icon:"📓", label:"Activity Log",           detail:"Daily/weekly log with reading titles listed"},
+    {id:"worksamples", icon:"📚", label:"Work Samples",           detail:"Beginning, middle, end of year per subject"},
+    {id:"subjects",    icon:"🔬", label:"All Subjects Covered",   detail:info.subjects.slice(0,4).join(", ")+(info.subjects.length>4?" + more":"")},
+    {id:"narrative",   icon:"📝", label:"Parent Narrative",       detail:"Written description of the year's progress"},
     ...(info.needsTest?[{id:"testing",icon:"📊",label:"Standardized Test",detail:"Required this grade in "+family.state}]:[]),
-    {id:"portfolio",   icon:"🗂", label:"Portfolio Organized",  detail:"Sections tabbed, entries dated, photos included"},
+    {id:"portfolio",   icon:"🗂", label:"Portfolio Organized",    detail:"Sections tabbed, entries dated, photos included"},
     {id:"save",        icon:"💾", label:"Portfolio Saved/Printed",detail:"PDF saved or printed for your records"},
   ];
-
   const [checked, setChecked] = useState({});
   const toggle = id => setChecked(c=>({...c,[id]:!c[id]}));
   const doneCount = Object.values(checked).filter(Boolean).length;
   const allDone   = doneCount === CHECKLIST_ITEMS.length;
 
+  // ── Reflection tab state ──
+  const REFLECT_KEY = "rootbloom_eoy_reflect_"+(ch.id||"")+"_"+(family.yearEnd||"");
+  const [reflectNote, setReflectNote] = useState(()=>{
+    try{ return localStorage.getItem(REFLECT_KEY)||""; }catch(e){return "";}
+  });
+  const saveReflect = (v) => {
+    setReflectNote(v);
+    try{ localStorage.setItem(REFLECT_KEY, v); }catch(e){}
+  };
+  const [skillsChecked, setSkillsChecked] = useState({});
+  const toggleSkill = (cat,i) => setSkillsChecked(s=>({...s,[cat+"_"+i]:!s[cat+"_"+i]}));
+
+  // Portfolio entries for this child
+  const childEntries = portfolioEntries.filter(e=>e.childIdx===childIdx);
+  const subjEntries  = childEntries.filter(e=>!e.isDay&&e.subj!=="Daily Notes");
+
+  // Subject counts
+  const subjCounts = {};
+  subjEntries.forEach(e=>{ subjCounts[e.subj]=(subjCounts[e.subj]||0)+1; });
+  const subjList = Object.entries(subjCounts).sort((a,b)=>b[1]-a[1]);
+  const maxCount = subjList[0]?.[1]||1;
+
+  // Goals recap — map each goal to entry counts
+  const allGoalObjs = [...GOALS,...(family.customGoals||[])];
+  const goalRecap = (family.goals||[]).map(id=>{
+    const g = allGoalObjs.find(x=>x.id===id);
+    const nudge = GOAL_NUDGES[id];
+    if(!g) return null;
+    const relSubjs = nudge?.subjs||[];
+    const count = relSubjs.length>0
+      ? subjEntries.filter(e=>relSubjs.includes(e.subj)).length
+      : 0;
+    return {id, g, nudge, count, hasSubjs: relSubjs.length>0};
+  }).filter(Boolean);
+
+  // Skills for this grade
+  const gradeSkills = EOY_SKILLS[ch.grade]||EOY_SKILLS["5th"]||[];
+  const totalSkills = gradeSkills.reduce((s,cat)=>s+cat.skills.length,0);
+  const checkedSkills = Object.values(skillsChecked).filter(Boolean).length;
+
   return (
     <div style={{position:"fixed",inset:0,background:"rgba(15,10,4,0.75)",backdropFilter:"blur(12px)",zIndex:300,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
-      <div style={{background:pal.linen,borderRadius:"28px 28px 0 0",width:"100%",maxWidth:"430px",maxHeight:"90vh",display:"flex",flexDirection:"column",animation:"slideUp 0.28s ease"}}>
+      <div style={{background:pal.linen,borderRadius:"28px 28px 0 0",width:"100%",maxWidth:"430px",maxHeight:"92vh",display:"flex",flexDirection:"column",animation:"slideUp 0.28s ease"}}>
+
+        {/* Handle */}
+        <div style={{padding:"0.7rem 0 0",display:"flex",justifyContent:"center",flexShrink:0}}>
+          <div style={{width:"36px",height:"4px",borderRadius:"99px",background:pal.stone}}/>
+        </div>
 
         {/* Header */}
-        <div style={{padding:"0.7rem 0 0",display:"flex",justifyContent:"center",flexShrink:0}}><div style={{width:"36px",height:"4px",borderRadius:"99px",background:pal.stone}}/></div>
         <div style={{background:pal.heroGrad,padding:"0.9rem 1.2rem",flexShrink:0}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
             <div>
-              <div style={{fontWeight:"900",color:"#fff",fontSize:"1rem"}}>🎓 End of Year</div>
+              <div style={{fontWeight:"900",color:"#fff",fontSize:"1rem"}}>{"🎓 End of Year"}</div>
               <div style={{fontSize:"0.72rem",color:"rgba(255,255,255,0.75)"}}>
                 {weeksLeft===0?"Year complete!":weeksLeft===1?"Last week!":weeksLeft+" weeks remaining"}
               </div>
             </div>
             <button onClick={onClose} style={{background:"rgba(255,255,255,0.18)",border:"none",borderRadius:"9px",padding:"0.3rem 0.65rem",color:"#fff",fontWeight:"700",fontSize:"0.75rem",cursor:"pointer"}}>Close</button>
           </div>
-          {/* Child tabs */}
           {family.children.length>1&&(
             <div style={{display:"flex",gap:"0.35rem",marginTop:"0.65rem",overflowX:"auto"}}>
               {family.children.map((c,i)=>(
@@ -3673,67 +3724,182 @@ function EOYChecklistModal({pal,family,childIdx,setChildIdx,weeksLeft,onClose,on
           )}
         </div>
 
-        {/* Tab switcher */}
+        {/* 3-tab switcher */}
         <div style={{display:"flex",background:pal.parchm,margin:"0.75rem 1.2rem 0",borderRadius:"11px",padding:"3px",gap:"2px",flexShrink:0}}>
-          {[["📋 Portfolio Checklist","checklist"],["🎓 Move to Next Grade","promote"]].map(([l,id])=>(
-            <button key={id} onClick={()=>setTab(id)} style={{flex:1,padding:"0.42rem",border:"none",borderRadius:"9px",background:tab===id?pal.linen:"transparent",color:tab===id?pal.ink:pal.slate,fontSize:"0.72rem",fontWeight:tab===id?"700":"400",cursor:"pointer"}}>{l}</button>
+          {[["📋","Checklist","checklist"],["🌟","Year Review","reflect"],["🎓","Next Grade","promote"]].map(([icon,l,id])=>(
+            <button key={id} onClick={()=>setTab(id)}
+              style={{flex:1,padding:"0.42rem 0.3rem",border:"none",borderRadius:"9px",background:tab===id?pal.linen:"transparent",color:tab===id?pal.ink:pal.slate,fontSize:"0.65rem",fontWeight:tab===id?"700":"400",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:"1px"}}>
+              <span style={{fontSize:"0.85rem"}}>{icon}</span>
+              <span>{l}</span>
+            </button>
           ))}
         </div>
 
         <div style={{flex:1,overflowY:"auto",padding:"0.85rem 1.2rem"}}>
 
           {/* ====== CHECKLIST TAB ====== */}
-          {tab==="checklist" && (<>
+          {tab==="checklist"&&(<>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.65rem"}}>
-              <div style={{fontSize:"0.78rem",fontWeight:"700",color:pal.inkM}}>{ch.avatar} {ch.name} · {ch.grade}</div>
+              <div style={{fontSize:"0.78rem",fontWeight:"700",color:pal.inkM}}>{ch.avatar} {ch.name} {"\u00b7"} {ch.grade}</div>
               <div style={{fontSize:"0.72rem",color:doneCount===CHECKLIST_ITEMS.length?pal.good:pal.slate,fontWeight:"700"}}>{doneCount}/{CHECKLIST_ITEMS.length} complete</div>
             </div>
-
-            {/* Progress bar */}
             <div style={{height:"6px",borderRadius:"99px",background:pal.parchm,overflow:"hidden",marginBottom:"0.85rem"}}>
               <div style={{height:"100%",width:`${Math.round(doneCount/CHECKLIST_ITEMS.length*100)}%`,borderRadius:"99px",background:allDone?`linear-gradient(90deg,${pal.good},${pal.mid})`:pal.accentGrad,transition:"width 0.3s"}}/>
             </div>
-
-            {/* State requirement reminder */}
             {info.deadline&&info.deadline!=="None"&&(
               <div style={{background:pal.pale,borderRadius:"12px",padding:"0.65rem 0.85rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.primary}20`,fontSize:"0.74rem",color:pal.inkM}}>
                 <span style={{fontWeight:"700",color:pal.primary}}>{family.state||"Your state"} deadline:</span> {info.deadline}
               </div>
             )}
-
-            {/* Checklist items */}
-            {CHECKLIST_ITEMS.map((item,i)=>(
+            {CHECKLIST_ITEMS.map((item)=>(
               <div key={item.id} onClick={()=>toggle(item.id)}
                 style={{display:"flex",gap:"0.75rem",alignItems:"flex-start",padding:"0.65rem 0.75rem",background:checked[item.id]?pal.goodBg:pal.linen,borderRadius:"12px",marginBottom:"0.42rem",border:`1.5px solid ${checked[item.id]?pal.good+"40":pal.stone+"35"}`,cursor:"pointer",transition:"all 0.15s"}}>
-                <div style={{width:"36px",height:"36px",borderRadius:"10px",background:checked[item.id]?pal.good:pal.pale,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.1rem",flexShrink:0,transition:"background 0.15s"}}>{checked[item.id]?"✓":item.icon}</div>
+                <div style={{width:"36px",height:"36px",borderRadius:"10px",background:checked[item.id]?pal.good:pal.pale,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.1rem",flexShrink:0,transition:"background 0.15s"}}>
+                  {checked[item.id]?"✓":item.icon}
+                </div>
                 <div style={{flex:1}}>
                   <div style={{fontWeight:"700",color:checked[item.id]?pal.good:pal.ink,fontSize:"0.84rem",textDecoration:checked[item.id]?"line-through":"none"}}>{item.label}</div>
                   <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"1px",lineHeight:1.5}}>{item.detail}</div>
                 </div>
               </div>
             ))}
-
             {allDone&&(
               <div style={{background:pal.goodBg,borderRadius:"14px",padding:"1rem",marginTop:"0.5rem",textAlign:"center",border:`2px solid ${pal.good}40`}}>
-                <div style={{fontSize:"2rem",marginBottom:"0.3rem"}}>🌟</div>
+                <div style={{fontSize:"2rem",marginBottom:"0.3rem"}}>{"🌟"}</div>
                 <div style={{fontWeight:"900",color:pal.good,fontSize:"0.95rem",marginBottom:"0.2rem"}}>Portfolio Complete!</div>
-                <div style={{fontSize:"0.76rem",color:pal.inkM,marginBottom:"0.65rem"}}>Switch to "Move to Next Grade" to advance {ch.name}.</div>
-              <button onClick={()=>printEvaluatorLetter(family,ch,0)}
-                style={{padding:"0.5rem 1rem",border:"none",borderRadius:"10px",background:pal.accentGrad,color:pal.onDark,fontWeight:"700",fontSize:"0.78rem",cursor:"pointer"}}>
-                📜 Print Evaluator Letter
-              </button>
+                <div style={{fontSize:"0.76rem",color:pal.inkM,marginBottom:"0.65rem"}}>Switch to {"\""}Year Review{"\""}  to see how far you{"'"}ve come.</div>
+                <button onClick={()=>printEvaluatorLetter(family,ch,attendanceDays)}
+                  style={{padding:"0.5rem 1rem",border:"none",borderRadius:"10px",background:pal.accentGrad,color:pal.onDark,fontWeight:"700",fontSize:"0.78rem",cursor:"pointer"}}>
+                  {"📜 Print Evaluator Letter"}
+                </button>
               </div>
             )}
           </>)}
 
-          {/* ====== GRADE PROMOTION TAB ====== */}
-          {tab==="promote" && (<>
+          {/* ====== YEAR REVIEW TAB ====== */}
+          {tab==="reflect"&&(<>
+
+            {/* ── Attendance summary ── */}
+            <div style={{background:pal.linen,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.stone}30`}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:"6px"}}>
+                <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.84rem"}}>{"Attendance"}</div>
+                <div style={{fontWeight:"900",color:cp.c1,fontSize:"1rem"}}>{Math.min(100,Math.round(attendanceDays/REQUIRED*100))}{"% done"}</div>
+              </div>
+              <div style={{height:"8px",borderRadius:"99px",background:pal.parchm,overflow:"hidden",marginBottom:"6px"}}>
+                <div style={{height:"100%",width:`${Math.min(100,Math.round(attendanceDays/REQUIRED*100))}%`,borderRadius:"99px",background:`linear-gradient(90deg,${cp.c1},${cp.c2})`,transition:"width 0.5s"}}/>
+              </div>
+              <div style={{display:"flex",justifyContent:"space-between",fontSize:"0.7rem",color:pal.slate}}>
+                <span><b style={{color:pal.ink}}>{attendanceDays}</b> days logged</span>
+                <span><b style={{color:pal.ink}}>{Math.max(0,REQUIRED-attendanceDays)}</b> remaining</span>
+                <span><b style={{color:pal.ink}}>{REQUIRED}</b> required</span>
+              </div>
+            </div>
+
+            {/* ── Goals recap ── */}
+            {goalRecap.length>0&&(
+              <div style={{background:pal.linen,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.stone}30`}}>
+                <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.84rem",marginBottom:"0.65rem"}}>Goals This Year</div>
+                <div style={{display:"flex",flexDirection:"column",gap:"0.45rem"}}>
+                  {goalRecap.map(({id,g,nudge,count,hasSubjs})=>{
+                    const hit = hasSubjs ? count>0 : null;
+                    return (
+                      <div key={id} style={{display:"flex",gap:"0.6rem",alignItems:"center",padding:"0.45rem 0.65rem",background:hit===true?pal.goodBg:pal.parchm,borderRadius:"10px",border:`1.5px solid ${hit===true?pal.good+"40":pal.stone+"25"}`}}>
+                        <span style={{fontSize:"1rem",flexShrink:0}}>{nudge?.icon||g.icon}</span>
+                        <div style={{flex:1}}>
+                          <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.8rem"}}>{g.label}</div>
+                          {hasSubjs&&(
+                            <div style={{fontSize:"0.66rem",color:hit?pal.good:pal.slate,marginTop:"1px"}}>
+                              {count>0 ? count+" related entries logged " : "No related entries yet"}
+                              {count>0&&<span style={{fontWeight:"900"}}>{"✓"}</span>}
+                            </div>
+                          )}
+                        </div>
+                        {!hasSubjs&&<span style={{fontSize:"0.68rem",color:pal.slate,fontStyle:"italic"}}>track manually</span>}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* ── Subject breakdown ── */}
+            {subjList.length>0&&(
+              <div style={{background:pal.linen,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.stone}30`}}>
+                <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.84rem",marginBottom:"0.65rem"}}>
+                  {"Subjects Logged — "+subjEntries.length+" total entries"}
+                </div>
+                <div style={{display:"flex",flexDirection:"column",gap:"0.4rem"}}>
+                  {subjList.slice(0,8).map(([subj,cnt])=>(
+                    <div key={subj} style={{display:"flex",alignItems:"center",gap:"0.55rem"}}>
+                      <div style={{width:"88px",fontSize:"0.72rem",color:pal.inkM,fontWeight:"600",flexShrink:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{subj}</div>
+                      <div style={{flex:1,height:"8px",borderRadius:"99px",background:pal.parchm,overflow:"hidden"}}>
+                        <div style={{height:"100%",width:`${Math.round(cnt/maxCount*100)}%`,borderRadius:"99px",background:`linear-gradient(90deg,${cp.c1},${cp.c2})`,transition:"width 0.4s"}}/>
+                      </div>
+                      <div style={{fontSize:"0.72rem",fontWeight:"800",color:cp.c1,minWidth:"22px",textAlign:"right",flexShrink:0}}>{cnt}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ── Grade-level skills checklist ── */}
+            {gradeSkills.length>0&&(
+              <div style={{background:pal.linen,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.stone}30`}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:"0.65rem"}}>
+                  <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.84rem"}}>{ch.grade} Skills Checklist</div>
+                  <div style={{fontSize:"0.7rem",color:pal.slate,fontWeight:"700"}}>{checkedSkills}/{totalSkills}</div>
+                </div>
+                {gradeSkills.map((cat)=>(
+                  <div key={cat.cat} style={{marginBottom:"0.75rem"}}>
+                    <div style={{fontSize:"0.65rem",fontWeight:"800",color:pal.primary,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"0.35rem"}}>{cat.cat}</div>
+                    <div style={{display:"flex",flexDirection:"column",gap:"0.28rem"}}>
+                      {cat.skills.map((skill,si)=>{
+                        const key = cat.cat+"_"+si;
+                        const done = skillsChecked[key];
+                        return (
+                          <button key={si} onClick={()=>toggleSkill(cat.cat,si)}
+                            style={{display:"flex",gap:"0.55rem",alignItems:"center",padding:"0.38rem 0.55rem",borderRadius:"9px",background:done?pal.goodBg:"#fff",border:`1px solid ${done?pal.good+"40":pal.stone+"25"}`,cursor:"pointer",textAlign:"left",transition:"all 0.12s"}}>
+                            <div style={{width:"18px",height:"18px",borderRadius:"4px",border:`2px solid ${done?pal.good:pal.stone}`,background:done?pal.good:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.12s"}}>
+                              {done&&<span style={{color:"#fff",fontSize:"0.65rem",fontWeight:"900"}}>{"✓"}</span>}
+                            </div>
+                            <span style={{fontSize:"0.76rem",color:done?pal.good:pal.inkM,fontWeight:done?"600":"400",textDecoration:done?"line-through":"none",lineHeight:1.4}}>{skill}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* ── Year reflection notes ── */}
+            <div style={{background:pal.linen,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.stone}30`}}>
+              <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.84rem",marginBottom:"0.3rem"}}>Year Reflection</div>
+              <div style={{fontSize:"0.72rem",color:pal.slate,marginBottom:"0.65rem",lineHeight:1.5}}>
+                What went well this year? What would you do differently? Notes for next year.
+              </div>
+              <textarea
+                value={reflectNote}
+                onChange={e=>saveReflect(e.target.value)}
+                placeholder={"e.g. " + ch.name + " really thrived with hands-on science this year. Reading improved significantly by mid-year. Next year we want to add more writing practice and get outside more. Overall a great year!"}
+                rows={5}
+                style={{width:"100%",padding:"0.7rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",fontSize:"0.81rem",fontFamily:"inherit",background:pal.parchm,color:pal.ink,resize:"none",outline:"none",lineHeight:1.6}}
+                onFocus={e=>e.target.style.borderColor=cp.c1}
+                onBlur={e=>e.target.style.borderColor=pal.stone}/>
+              {reflectNote.trim()&&(
+                <div style={{fontSize:"0.66rem",color:pal.good,marginTop:"0.35rem",fontWeight:"600"}}>{"✓ Saved automatically"}</div>
+              )}
+            </div>
+
+          </>)}
+
+          {/* ====== NEXT GRADE TAB ====== */}
+          {tab==="promote"&&(<>
             <div style={{textAlign:"center",marginBottom:"1rem"}}>
               <div style={{fontSize:"3rem",marginBottom:"0.4rem",animation:"bounce 2s ease infinite"}}>{ch.avatar}</div>
               <div style={{fontWeight:"900",color:pal.ink,fontSize:"1.1rem",marginBottom:"0.15rem"}}>{ch.name}</div>
               <div style={{fontSize:"0.8rem",color:pal.slate,marginBottom:"0.75rem"}}>Currently in <b>{ch.grade}</b></div>
             </div>
-
             {next ? (<>
               <div style={{background:pal.pale,borderRadius:"18px",padding:"1.1rem 1.2rem",marginBottom:"1rem",border:`2px solid ${pal.primary}25`,textAlign:"center"}}>
                 <div style={{fontSize:"0.68rem",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.3rem"}}>Ready to advance to</div>
@@ -3744,35 +3910,34 @@ function EOYChecklistModal({pal,family,childIdx,setChildIdx,weeksLeft,onClose,on
                    "New grade, new goals!"}
                 </div>
               </div>
-
-              {/* What changes at the new grade */}
               {(()=>{
                 const nextInfo = getComplianceInfo(family.state||"", next);
                 return (
                   <div style={{background:pal.linen,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}35`}}>
                     <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.74rem",marginBottom:"0.5rem"}}>What changes in {next}</div>
-                    {nextInfo.needsTest&&<div style={{background:"#fff8e8",borderRadius:"8px",padding:"0.4rem 0.6rem",marginBottom:"0.4rem",fontSize:"0.73rem",color:"#7a5500",fontWeight:"700",border:"1px solid #f5c842"}}>⚠️ Standardized test required in {next} ({family.state})</div>}
+                    {nextInfo.needsTest&&<div style={{background:"#fff8e8",borderRadius:"8px",padding:"0.4rem 0.6rem",marginBottom:"0.4rem",fontSize:"0.73rem",color:"#7a5500",fontWeight:"700",border:"1px solid #f5c842"}}>{"⚠️ Standardized test required in "+next+" ("+family.state+")"}</div>}
                     <div style={{fontSize:"0.74rem",color:pal.inkM,lineHeight:1.6}}>{nextInfo.gradeNote}</div>
-                    {gradeLevel(next)==="high"&&<div style={{marginTop:"0.5rem",fontSize:"0.72rem",color:pal.primary,fontWeight:"700"}}>📜 Transcript tracking begins — grades and credits will be recorded from {next} onward.</div>}
+                    {gradeLevel(next)==="high"&&<div style={{marginTop:"0.5rem",fontSize:"0.72rem",color:pal.primary,fontWeight:"700"}}>{"📜 Transcript tracking begins — grades and credits will be recorded from "+next+" onward."}</div>}
                   </div>
                 );
               })()}
-
               <button onClick={()=>onGradeUp&&onGradeUp(childIdx,next)}
                 style={{width:"100%",padding:"0.9rem",border:"none",borderRadius:"14px",background:pal.accentGrad,color:pal.onDark,fontWeight:"900",fontSize:"0.92rem",cursor:"pointer",boxShadow:`0 4px 18px ${pal.accent}40`,marginBottom:"0.6rem"}}>
-                🎓 Advance {ch.name} to {next}
+                {"🎓 Advance "+ch.name+" to "+next}
               </button>
-              <button onClick={onClose} style={{width:"100%",padding:"0.65rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.84rem",cursor:"pointer"}}>
-                Not yet — keep in {ch.grade}
+              <button onClick={onClose}
+                style={{width:"100%",padding:"0.65rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.84rem",cursor:"pointer"}}>
+                {"Not yet — keep in "+ch.grade}
               </button>
             </>) : (
               <div style={{textAlign:"center",padding:"1rem",background:pal.goodBg,borderRadius:"18px",border:`2px solid ${pal.good}30`}}>
-                <div style={{fontSize:"2.5rem",marginBottom:"0.5rem"}}>🎓</div>
+                <div style={{fontSize:"2.5rem",marginBottom:"0.5rem"}}>{"🎓"}</div>
                 <div style={{fontWeight:"900",color:pal.good,fontSize:"1rem",marginBottom:"0.3rem"}}>Graduation!</div>
                 <div style={{fontSize:"0.8rem",color:pal.inkM,lineHeight:1.65}}>{ch.name} has completed 12th grade. Congratulations on completing your homeschool journey!</div>
               </div>
             )}
           </>)}
+
         </div>
       </div>
     </div>
@@ -4016,6 +4181,127 @@ function NewYearModal({pal,family,onStart,onDismiss}){
     </div>
   );
 }
+/* =======================================
+   GOALS NUDGE CARD
+======================================= */
+const GOAL_NUDGES = {
+  faith:       {nudge:"Start with devotion or Bible time today.",          subjs:["Bible / Faith"],          tab:"schedule", icon:"✞"},
+  college:     {nudge:"Keep those records sharp — log today's work.",      subjs:[],                         tab:"portfolio", icon:"🎓"},
+  stem:        {nudge:"Any science, math, or tech to log today?",          subjs:["Math","Science"],         tab:"portfolio", icon:"🔬"},
+  arts:        {nudge:"Make time for art or creative work today.",         subjs:["Art","Music"],            tab:"schedule",  icon:"🎨"},
+  reading:     {nudge:"Did you log reading today? Titles count for FL.",   subjs:["Reading","Reading/Language Arts"], tab:"portfolio", icon:"📖"},
+  writing:     {nudge:"Even 10 minutes of writing makes a difference.",   subjs:["Language Arts"],          tab:"schedule",  icon:"📝"},
+  life:        {nudge:"Any life skills to practice or log this week?",    subjs:["Life Skills"],            tab:"portfolio", icon:"🏠"},
+  nature:      {nudge:"A nature walk or observation counts as school!",   subjs:["Nature Study"],           tab:"portfolio", icon:"🌿"},
+  music:       {nudge:"Practice time logged? Music builds every day.",    subjs:["Music"],                  tab:"portfolio", icon:"🎵"},
+  sports:      {nudge:"Movement and PE count — log it in portfolio.",     subjs:["PE / Movement"],          tab:"portfolio", icon:"🏃"},
+  social:      {nudge:"Co-op, community, or group activities this week?", subjs:["Co-op"],                  tab:"coop",      icon:"🤝"},
+  worldview:   {nudge:"Weave worldview into today — history or current events.", subjs:["History"],         tab:"schedule",  icon:"🌍"},
+  critical:    {nudge:"Ask one open-ended question at the end of school.", subjs:[],                         tab:"schedule",  icon:"🧠"},
+  entrepreneur:{nudge:"Talk money, business, or a project idea today.",   subjs:[],                         tab:"schedule",  icon:"💼"},
+  languages:   {nudge:"Even 15 min of language practice adds up.",        subjs:["Foreign Language","Latin"],tab:"schedule", icon:"🗣"},
+  independence:{nudge:"Let them lead something today — even something small.", subjs:[],                    tab:"schedule",  icon:"🦅"},
+  service:     {nudge:"Any service or giving opportunities this week?",   subjs:[],                         tab:"more",      icon:"🤎"},
+  cooking:     {nudge:"Have them help in the kitchen today — it counts!", subjs:[],                         tab:"portfolio", icon:"🍳"},
+  homestead:   {nudge:"Garden, animals, or home project time today?",     subjs:[],                         tab:"portfolio", icon:"🌻"},
+  travel:      {nudge:"Explore a map, culture, or geography today.",      subjs:["Geography"],              tab:"schedule",  icon:"🗺"},
+};
+
+const DISMISS_KEY = "rootbloom_goals_nudge_dismiss";
+
+function GoalsNudgeCard({pal,family,portfolioEntries,todayStr,onTabChange}){
+  const goals = family.goals||[];
+  if(goals.length===0) return null;
+
+  // Check if dismissed today
+  const [dismissed, setDismissed] = useState(()=>{
+    try{ return localStorage.getItem(DISMISS_KEY)===todayStr; }catch(e){return false;}
+  });
+  const dismiss = () => {
+    try{ localStorage.setItem(DISMISS_KEY, todayStr); }catch(e){}
+    setDismissed(true);
+  };
+  if(dismissed) return null;
+
+  // Find the most actionable goal — prefer one whose subject hasn't been logged today
+  const todayEntries = portfolioEntries.filter(e=>
+    e.date===new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"})
+  );
+  const loggedSubjsToday = new Set(todayEntries.map(e=>e.subj));
+
+  // Score each goal: +2 if subject not yet logged today, +1 otherwise
+  const allGoalObjs = [...GOALS,...(family.customGoals||[])];
+  const scored = goals.map(id=>{
+    const g = allGoalObjs.find(x=>x.id===id);
+    const nudge = GOAL_NUDGES[id];
+    if(!g||!nudge) return null;
+    const subjectLogged = nudge.subjs.length>0 && nudge.subjs.some(s=>loggedSubjsToday.has(s));
+    return {id, g, nudge, subjectLogged, score: subjectLogged?0:2};
+  }).filter(Boolean).sort((a,b)=>b.score-a.score);
+
+  if(scored.length===0) return null;
+
+  const primary = scored[0]; // most actionable goal
+  const completed = primary.subjectLogged;
+
+  // Show top 3 goal icons
+  const topGoals = scored.slice(0,3);
+
+  return (
+    <div style={{background:pal.linen,borderRadius:"16px",border:`1.5px solid ${pal.primary}25`,marginBottom:"1rem",overflow:"hidden"}}>
+      {/* Header row */}
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"0.7rem 0.9rem 0.55rem"}}>
+        <div style={{display:"flex",alignItems:"center",gap:"0.5rem"}}>
+          <span style={{fontSize:"0.62rem",fontWeight:"800",color:pal.primary,textTransform:"uppercase",letterSpacing:"0.1em"}}>
+            Working Toward
+          </span>
+        </div>
+        <button onClick={dismiss}
+          style={{width:"22px",height:"22px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.stone,fontSize:"0.7rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:"700",flexShrink:0}}>
+          {"✕"}
+        </button>
+      </div>
+
+      {/* Goal pills */}
+      <div style={{display:"flex",gap:"0.35rem",padding:"0 0.9rem 0.65rem",flexWrap:"wrap"}}>
+        {topGoals.map(({id,g,subjectLogged})=>{
+          const nudge = GOAL_NUDGES[id];
+          return (
+            <div key={id} style={{display:"flex",alignItems:"center",gap:"0.3rem",padding:"0.22rem 0.6rem",background:subjectLogged?pal.goodBg:`${pal.primary}12`,borderRadius:"20px",border:`1.5px solid ${subjectLogged?pal.good+"50":pal.primary+"30"}`}}>
+              <span style={{fontSize:"0.85rem"}}>{nudge?.icon||g.icon}</span>
+              <span style={{fontSize:"0.7rem",fontWeight:"700",color:subjectLogged?pal.good:pal.primary}}>{g.label}</span>
+              {subjectLogged&&<span style={{fontSize:"0.65rem",color:pal.good,fontWeight:"900"}}>{"✓"}</span>}
+            </div>
+          );
+        })}
+        {goals.length>3&&(
+          <div style={{display:"flex",alignItems:"center",padding:"0.22rem 0.55rem",background:pal.parchm,borderRadius:"20px"}}>
+            <span style={{fontSize:"0.68rem",color:pal.slate,fontWeight:"600"}}>+{goals.length-3} more</span>
+          </div>
+        )}
+      </div>
+
+      {/* Nudge message */}
+      <div style={{borderTop:`1px solid ${pal.stone}20`,padding:"0.6rem 0.9rem",background:completed?"transparent":pal.pale,display:"flex",gap:"0.6rem",alignItems:"center"}}>
+        <span style={{fontSize:"1rem",flexShrink:0}}>{completed?"🌟":primary.nudge?.icon||"💡"}</span>
+        <div style={{flex:1}}>
+          <div style={{fontSize:"0.77rem",color:completed?pal.good:pal.inkM,fontWeight:"600",lineHeight:1.5}}>
+            {completed
+              ? primary.g.label+" logged today — great work!"
+              : primary.nudge.nudge}
+          </div>
+        </div>
+        {!completed&&(
+          <button onClick={()=>onTabChange(primary.nudge.tab||"schedule")}
+            style={{padding:"0.28rem 0.65rem",border:"none",borderRadius:"9px",background:pal.primary,color:"#fff",fontSize:"0.68rem",fontWeight:"800",cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}}>
+            Go {"→"}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress }) {
   const REQUIRED = 180;
   const blocks = generateSchedule(family);
@@ -4191,6 +4477,9 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
             </button>
           );
         })()}
+
+        {/* ── Goals Nudge Card ── */}
+        <GoalsNudgeCard pal={pal} family={family} portfolioEntries={portfolioEntries} todayStr={todayStr} onTabChange={onTabChange}/>
 
         {/* Today schedule preview */}
         {visible.length > 0 && (<>
@@ -6051,9 +6340,9 @@ function DailyPortfolioModal({pal,family,childIdx,stateInfo,onClose,onSave}){
         photos,
         readingTitle,
       };
-    }).filter(s=>s.note.trim()||(photoMap[s.subj]||[]).length>0||(descMap[s.subj]||"").trim());
+    }).filter(e=>e.note.trim()||e.photos.length>0);
     if(entries.length===0){
-      // save at least one entry per selected subject
+      // save at least one entry per selected subject with empty note
       onSave(subjSteps.map(s=>({childIdx,subj:s.label,title:s.label+" session",note:"",thumb:s.icon||"📋",date:todayDate,photos:[]})));
       return;
     }
@@ -7622,8 +7911,58 @@ function NarrativeEditor({pal,ch,family,bySubject,attendanceDays,schoolName,cp,c
   );
 }
 function MoreScreen({pal,family,onNav,onTheme,onNavEdit,onSettings,onLifeReady}){
-  return <div style={{animation:"fadeUp 0.22s ease"}}><ScreenHdr pal={pal} title="More" sub="Tools & Settings" icon="..."/><div style={{padding:"1rem"}}><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.65rem",marginBottom:"1rem"}}>{[{id:"attendance",icon:"📋",label:"Attendance"},{id:"transcripts",icon:"🎓",label:"Records"},{id:"coop",icon:"🏫",label:"Co-op"},{id:"settings",icon:"",label:"Settings"}].map(it=><button key={it.id} onClick={()=>onNav(it.id)} style={{padding:"1.1rem 0.85rem",border:`2px solid ${pal.stone}40`,borderRadius:"16px",background:pal.linen,cursor:"pointer",textAlign:"left",display:"flex",flexDirection:"column",gap:"0.5rem"}}><span style={{fontSize:"1.6rem"}}>{it.icon}</span><span style={{fontWeight:"700",color:pal.ink,fontSize:"0.84rem"}}>{it.label}</span></button>)}</div>
-{family.lifeReady && onLifeReady && <button onClick={onLifeReady} style={{width:"100%",marginBottom:"0.85rem",padding:"1rem 1.2rem",border:"none",borderRadius:"18px",background:`linear-gradient(135deg,${LR_COLOR},${LR_COLOR2})`,cursor:"pointer",display:"flex",gap:"0.9rem",alignItems:"center",textAlign:"left"}}><div style={{width:"46px",height:"46px",borderRadius:"13px",background:"rgba(255,255,255,0.2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.5rem",flexShrink:0}}>{LR_ICON}</div><div style={{flex:1}}><div style={{fontWeight:"900",color:"#fff",fontSize:"0.92rem"}}>Prepared {"&"} Capable</div><div style={{fontSize:"0.74rem",color:"rgba(255,255,255,0.75)",marginTop:"2px"}}>{"This week: "+getLRTopicForWeek(family.children?.[0]?.grade||"5th")}</div></div><span style={{color:"rgba(255,255,255,0.7)",fontSize:"1.2rem"}}>›</span></button>}<div style={{background:pal.heroGrad,borderRadius:"18px",padding:"1.1rem 1.2rem",position:"relative",overflow:"hidden"}}><div style={{position:"absolute",right:"-20px",top:"-20px",width:"100px",height:"100px",borderRadius:"50%",background:"rgba(255,255,255,0.06)"}}/><div style={{position:"relative"}}><div style={{fontSize:"0.6rem",color:"rgba(255,255,255,0.5)",textTransform:"uppercase",letterSpacing:"0.12em",fontWeight:"700",marginBottom:"0.2rem"}}>Your School</div><div style={{fontWeight:"800",color:pal.onDark,fontSize:"0.95rem",marginBottom:"0.1rem"}}>{family.schoolName||"Bloom Academy"}</div><div style={{fontSize:"0.75rem",color:"rgba(255,255,255,0.5)",marginBottom:"0.75rem"}}>{family.familyName} - {family.state}</div><div style={{display:"flex",gap:"0.5rem"}}>{family.children.map(c=><div key={c.id} style={{background:"rgba(255,255,255,0.12)",borderRadius:"9px",padding:"0.35rem 0.6rem",textAlign:"center"}}><div style={{fontSize:"1rem"}}>{c.avatar}</div><div style={{fontSize:"0.6rem",color:"rgba(255,255,255,0.65)",fontWeight:"600"}}>{c.name}</div></div>)}</div></div></div><div style={{height:"1rem"}}/></div></div>;
+  const tiles = [
+    {id:"attendance", icon:"📋", label:"Attendance"},
+    {id:"transcripts", icon:"🎓", label:"Records"},
+    {id:"coop",        icon:"🏫", label:"Co-op"},
+    {id:"settings",    icon:"⚙️",  label:"Settings"},
+  ];
+  return (
+    <div style={{animation:"fadeUp 0.22s ease"}}>
+      <ScreenHdr pal={pal} title="More" sub="Tools & Settings" icon="⚙️"/>
+      <div style={{padding:"1rem"}}>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.65rem",marginBottom:"1rem"}}>
+          {tiles.map(it=>(
+            <button key={it.id} onClick={()=>onNav(it.id)}
+              style={{padding:"1.1rem 0.85rem",border:`2px solid ${pal.stone}40`,borderRadius:"16px",background:pal.linen,cursor:"pointer",textAlign:"left",display:"flex",flexDirection:"column",gap:"0.5rem",transition:"all 0.13s"}}
+              onTouchStart={e=>e.currentTarget.style.background=pal.pale}
+              onTouchEnd={e=>e.currentTarget.style.background=pal.linen}>
+              <span style={{fontSize:"1.6rem"}}>{it.icon}</span>
+              <span style={{fontWeight:"700",color:pal.ink,fontSize:"0.84rem"}}>{it.label}</span>
+            </button>
+          ))}
+        </div>
+        {family.lifeReady && onLifeReady && (
+          <button onClick={onLifeReady}
+            style={{width:"100%",marginBottom:"0.85rem",padding:"1rem 1.2rem",border:"none",borderRadius:"18px",background:`linear-gradient(135deg,${LR_COLOR},${LR_COLOR2})`,cursor:"pointer",display:"flex",gap:"0.9rem",alignItems:"center",textAlign:"left"}}>
+            <div style={{width:"46px",height:"46px",borderRadius:"13px",background:"rgba(255,255,255,0.2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.5rem",flexShrink:0}}>{LR_ICON}</div>
+            <div style={{flex:1}}>
+              <div style={{fontWeight:"900",color:"#fff",fontSize:"0.92rem"}}>Prepared {"&"} Capable</div>
+              <div style={{fontSize:"0.74rem",color:"rgba(255,255,255,0.75)",marginTop:"2px"}}>{"This week: "+getLRTopicForWeek(family.children?.[0]?.grade||"5th")}</div>
+            </div>
+            <span style={{color:"rgba(255,255,255,0.7)",fontSize:"1.2rem"}}>{"›"}</span>
+          </button>
+        )}
+        <div style={{background:pal.heroGrad,borderRadius:"18px",padding:"1.1rem 1.2rem",position:"relative",overflow:"hidden"}}>
+          <div style={{position:"absolute",right:"-20px",top:"-20px",width:"100px",height:"100px",borderRadius:"50%",background:"rgba(255,255,255,0.06)"}}/>
+          <div style={{position:"relative"}}>
+            <div style={{fontSize:"0.6rem",color:"rgba(255,255,255,0.5)",textTransform:"uppercase",letterSpacing:"0.12em",fontWeight:"700",marginBottom:"0.2rem"}}>Your School</div>
+            <div style={{fontWeight:"800",color:pal.onDark,fontSize:"0.95rem",marginBottom:"0.1rem"}}>{family.schoolName||"Bloom Academy"}</div>
+            <div style={{fontSize:"0.75rem",color:"rgba(255,255,255,0.5)",marginBottom:"0.75rem"}}>{family.familyName} {"\u2022"} {family.state}</div>
+            <div style={{display:"flex",gap:"0.5rem"}}>
+              {family.children.map(c=>(
+                <div key={c.id} style={{background:"rgba(255,255,255,0.12)",borderRadius:"9px",padding:"0.35rem 0.6rem",textAlign:"center"}}>
+                  <div style={{fontSize:"1rem"}}>{c.avatar}</div>
+                  <div style={{fontSize:"0.6rem",color:"rgba(255,255,255,0.65)",fontWeight:"600"}}>{c.name}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div style={{height:"1rem"}}/>
+      </div>
+    </div>
+  );
 }
 
 /* ======= MODALS ======= */
