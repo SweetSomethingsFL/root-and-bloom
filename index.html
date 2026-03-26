@@ -304,6 +304,7 @@ function RootAndBloom() {
   const [portfolioEntries,setPortfolioEntries]=useState(saved?.portfolio||[]);
   const [coopLog, setCoopLog] = useState(saved?.coopLog||[]);
   const [attendanceDays,    setAttendanceDays]    = useState(saved?.attendanceDays||0);
+  const [attendanceLog,     setAttendanceLog]     = useState(saved?.attendanceLog||[]);
   const [pendingSchedDays,  setPendingSchedDays]  = useState(1);
   const [showSchedConfirm,  setShowSchedConfirm]  = useState(false);
   const [showCatchup,       setShowCatchup]       = useState(false);
@@ -323,8 +324,8 @@ function RootAndBloom() {
 
   // Auto-save whenever key state changes
   useEffect(()=>{
-    savePersist({family,navIds,portfolio:portfolioEntries,coopLog,attendanceDays,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed});
-  },[family,navIds,portfolioEntries,coopLog,attendanceDays,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed]);
+    savePersist({family,navIds,portfolio:portfolioEntries,coopLog,attendanceDays,attendanceLog,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed});
+  },[family,navIds,portfolioEntries,coopLog,attendanceDays,attendanceLog,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed]);
 
   // Auto-show New Year prompt when yearEnd has passed
   useEffect(()=>{
@@ -379,6 +380,7 @@ function RootAndBloom() {
     // newData: {yearStart, yearEnd, subjects, children (with updated grades)}
     setFamily(f=>({...f,...newData}));
     setAttendanceDays(0);
+    setAttendanceLog([]);
     setCheckinStreak(0);
     setLastCheckinDate(null);
     setNewYearDismissed("newyear_"+family.yearEnd);
@@ -521,7 +523,34 @@ function RootAndBloom() {
           />}
           {activeTab==="learn"       && <LearnScreen       pal={pal} family={family} child={childFilt} setChild={setChildFilt} learnTab={learnTab} setLearnTab={setLearnTab} />}
           {activeTab==="portfolio"   && <PortfolioScreen   pal={pal} family={family} child={childFilt} setChild={setChildFilt} entries={portfolioEntries} onAddEntry={addPortfolioEntry} onEditEntry={editPortfolioEntry} attendanceDays={attendanceDays} />}
-          {activeTab==="attendance"  && <AttendanceScreen  pal={pal} family={family} days={attendanceDays} pending={pendingSchedDays} onConfirmPull={()=>{setAttendanceDays(d=>d+pendingSchedDays);setPendingSchedDays(0);setShowSchedConfirm(false);}} onCatchup={()=>setShowCatchup(true)} />}
+          {activeTab==="attendance"  && <AttendanceScreen  pal={pal} family={family} days={attendanceDays} attendanceLog={attendanceLog} portfolioEntries={portfolioEntries} coopLog={coopLog}
+            onAddDay={(entry)=>{
+              setAttendanceLog(l=>[entry,...l.filter(x=>x.date!==entry.date)]);
+              if(!["Excused Absence","Unexcused Absence","Holiday"].includes(entry.type)){
+                setAttendanceDays(d=>d+1);
+              }
+            }}
+            onRemoveDay={(date)=>{
+              const entry = attendanceLog.find(e=>e.date===date);
+              setAttendanceLog(l=>l.filter(e=>e.date!==date));
+              if(entry&&!["Excused Absence","Unexcused Absence","Holiday"].includes(entry.type)){
+                setAttendanceDays(d=>Math.max(0,d-1));
+              }
+            }}
+            onSyncPortfolio={()=>{
+              // Find portfolio dates not already in attendanceLog
+              const loggedDates = new Set(attendanceLog.map(e=>e.date));
+              const portfolioDates = [...new Set(portfolioEntries.filter(e=>!e.isDay&&e.date).map(e=>e.date))];
+              const newDates = portfolioDates.filter(d=>!loggedDates.has(d));
+              if(newDates.length===0) return 0;
+              const newEntries = newDates.map(d=>({date:d,type:"School Day",note:"Synced from portfolio",subjects:[...new Set(portfolioEntries.filter(e=>e.date===d&&!e.isDay).map(e=>e.subj))]}));
+              setAttendanceLog(l=>[...newEntries,...l]);
+              setAttendanceDays(d=>d+newDates.length);
+              return newDates.length;
+            }}
+            pending={pendingSchedDays}
+            onConfirmPull={()=>{setAttendanceDays(d=>d+pendingSchedDays);setPendingSchedDays(0);setShowSchedConfirm(false);}}
+            onCatchup={()=>setShowCatchup(true)} />}
           {activeTab==="coop"        && <CoopScreen        pal={pal} family={family} coopLog={coopLog} onLog={e=>setCoopLog(l=>[e,...l])} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} />}
           {activeTab==="transcripts" && <TranscriptsScreen pal={pal} family={family} portfolioEntries={portfolioEntries} attendanceDays={attendanceDays} coopLog={coopLog} />}
           {showLifeReady && family && <LifeReadyScreen pal={pal} family={family} onBack={()=>setShowLifeReady(false)}/>}
@@ -7324,118 +7353,348 @@ function WeeklyPacket({pal,family,child,entries,onBack}){
     </div>
   );
 }
-function AttendanceScreen({pal, family, days, pending, onConfirmPull, onCatchup}){
-  const REQUIRED = 180;
-  const remaining = REQUIRED - days;
-  const pct = Math.round((days/REQUIRED)*100);
-  const weeksLeft = Math.round(remaining/5*10)/10;
-  const onTrack = pct >= 68; // roughly where they should be mid-year
-  const MONTHS=[
-    {m:"Aug",target:20,actual:20},{m:"Sep",target:20,actual:20},{m:"Oct",target:18,actual:18},
-    {m:"Nov",target:14,actual:13},{m:"Dec",target:10,actual:10},{m:"Jan",target:20,actual:18},
-    {m:"Feb",target:18,actual:17},{m:"Mar",target:10,actual:days-116,cap:true},
-    {m:"Apr",target:18,actual:0},{m:"May",target:12,actual:0},
-  ];
+function AttendanceScreen({pal,family,days,attendanceLog=[],portfolioEntries=[],coopLog=[],onAddDay,onRemoveDay,onSyncPortfolio,pending,onConfirmPull,onCatchup}){
+  const stateInfo  = getStateInfo(family.state||"");
+  const REQUIRED   = parseInt((stateInfo.hours||"180").match(/\d+/)?.[0]||"180");
+  const remaining  = Math.max(0,REQUIRED-days);
+  const pct        = Math.min(100,Math.round((days/REQUIRED)*100));
+  const onTrack    = (() => {
+    if(!family.yearStart||!family.yearEnd) return pct>=68;
+    const start=new Date(family.yearStart), end=new Date(family.yearEnd), now=new Date();
+    const totalDays=(end-start)/(24*60*60*1000);
+    const elapsed=(now-start)/(24*60*60*1000);
+    const expectedPct=Math.min(100,Math.round((elapsed/totalDays)*100));
+    return pct>=expectedPct-10;
+  })();
+
+  const [view,     setView]     = useState("overview"); // overview | ledger
+  const [showAdd,  setShowAdd]  = useState(false);
+  const [syncMsg,  setSyncMsg]  = useState(null);
+  const [addDate,  setAddDate]  = useState(new Date().toISOString().slice(0,10));
+  const [addType,  setAddType]  = useState("School Day");
+  const [addNote,  setAddNote]  = useState("");
+
+  const DAY_TYPES = ["School Day","Co-op Day","Field Trip","Excused Absence","Holiday"];
+  const TYPE_ICONS = {"School Day":"📋","Co-op Day":"🏫","Field Trip":"🗺","Excused Absence":"🤒","Holiday":"🎉"};
+  const TYPE_COUNTS = {"School Day":true,"Co-op Day":true,"Field Trip":true,"Excused Absence":false,"Holiday":false};
+
+  // Build monthly breakdown from attendanceLog
+  const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const monthCounts = {};
+  attendanceLog.forEach(e=>{
+    if(!TYPE_COUNTS[e.type]) return;
+    try{
+      const d=new Date(e.date+", "+new Date().getFullYear());
+      if(isNaN(d)) return;
+      const key=d.getMonth();
+      monthCounts[key]=(monthCounts[key]||0)+1;
+    }catch{}
+  });
+
+  // Build ledger sorted newest first
+  const ledger = [...attendanceLog].sort((a,b)=>{
+    try{ return new Date(b.date+", 2025")-new Date(a.date+", 2025"); }catch{return 0;}
+  });
+
+  // Get portfolio dates not yet in log for sync
+  const loggedDates = new Set(attendanceLog.map(e=>e.date));
+  const portfolioDates = [...new Set(portfolioEntries.filter(e=>!e.isDay&&e.date).map(e=>e.date))];
+  const unsyncedCount = portfolioDates.filter(d=>!loggedDates.has(d)).length;
+
+  const handleAddDay = () => {
+    const dateStr = new Date(addDate).toLocaleDateString("en-US",{month:"short",day:"numeric"});
+    onAddDay({date:dateStr,type:addType,note:addNote.trim()});
+    setShowAdd(false);
+    setAddNote("");
+    setAddType("School Day");
+  };
+
+  const handleSync = () => {
+    const count = onSyncPortfolio();
+    setSyncMsg(count>0?`Added ${count} day${count!==1?"s":""} from portfolio!`:"All portfolio days are already logged.");
+    setTimeout(()=>setSyncMsg(null),3000);
+  };
+
+  // Weeks left calc
+  const weeksLeft = (() => {
+    if(!family.yearEnd) return Math.round(remaining/5*10)/10;
+    const end=new Date(family.yearEnd), now=new Date();
+    const wks=Math.max(0,Math.ceil((end-now)/(7*24*60*60*1000)));
+    return wks;
+  })();
+  const daysPerWeekNeeded = weeksLeft>0 ? Math.ceil(remaining/weeksLeft) : remaining;
+
+  const printAttendance = () => {
+    const win = window.open("","_blank");
+    if(!win) return;
+    const rows = ledger.map(e=>`<tr><td>${e.date}</td><td>${e.type}</td><td>${e.note||""}</td></tr>`).join("");
+    win.document.write(`<!DOCTYPE html><html><head><title>Attendance Record</title>
+    <style>body{font-family:Georgia,serif;padding:2rem;max-width:700px;margin:0 auto}
+    h1{font-size:1.4rem;margin-bottom:0.25rem}h2{font-size:1rem;color:#555;font-weight:400;margin-bottom:1.5rem}
+    table{width:100%;border-collapse:collapse;font-size:0.9rem}
+    th{background:#f0f0f0;padding:0.5rem 0.75rem;text-align:left;border-bottom:2px solid #ccc}
+    td{padding:0.45rem 0.75rem;border-bottom:1px solid #eee}
+    .stats{display:flex;gap:2rem;margin-bottom:1.5rem;padding:1rem;background:#f9f9f9;border-radius:8px}
+    .stat{text-align:center}.stat-n{font-size:1.8rem;font-weight:700;color:#2a6a2a}.stat-l{font-size:0.75rem;color:#777;text-transform:uppercase}
+    .sig{margin-top:3rem;display:flex;justify-content:space-between}
+    .sig-line{border-top:1px solid #333;width:200px;padding-top:4px;font-size:0.75rem;color:#555}
+    @media print{button{display:none}}</style></head><body>
+    <h1>${family.schoolName||family.familyName+" Academy"}</h1>
+    <h2>Attendance Record &bull; ${family.state||""} &bull; ${new Date().getFullYear()}</h2>
+    <p style="margin-bottom:1rem"><b>Student(s):</b> ${family.children.map(c=>c.name+" ("+c.grade+")").join(", ")}</p>
+    <div class="stats">
+      <div class="stat"><div class="stat-n">${days}</div><div class="stat-l">Days Logged</div></div>
+      <div class="stat"><div class="stat-n">${REQUIRED}</div><div class="stat-l">Required</div></div>
+      <div class="stat"><div class="stat-n">${pct}%</div><div class="stat-l">Complete</div></div>
+      <div class="stat"><div class="stat-n">${remaining}</div><div class="stat-l">Remaining</div></div>
+    </div>
+    <table><thead><tr><th>Date</th><th>Type</th><th>Notes</th></tr></thead><tbody>${rows||"<tr><td colspan='3' style='color:#999;text-align:center'>No days logged yet</td></tr>"}</tbody></table>
+    <div class="sig"><div class="sig-line">Parent / Educator Signature</div><div class="sig-line">Date</div></div>
+    <button onclick="window.print()" style="margin-top:1.5rem;padding:0.6rem 1.5rem;background:#2a6a2a;color:#fff;border:none;border-radius:8px;font-size:1rem;cursor:pointer">Print / Save PDF</button>
+    </body></html>`);
+    win.document.close();
+  };
+
   return (
     <div style={{animation:"fadeUp 0.22s ease"}}>
-      <ScreenHdr pal={pal} title="Attendance" sub={(family?.state||"Your state") + (family?.yearStart?" - "+new Date(family.yearStart).getFullYear()+(family?.yearEnd?"-"+new Date(family.yearEnd).getFullYear():""):" - Current year")} icon="📋"/>
-      <div style={{padding:"1rem"}}>
+      <ScreenHdr pal={pal} title="Attendance" sub={(family.state||"Your state")+(family.yearStart?" \u00b7 "+new Date(family.yearStart).getFullYear()+(family.yearEnd?"\u2013"+new Date(family.yearEnd).getFullYear():""):"")} icon="📋"/>
+      <div style={{padding:"0 1rem"}}>
 
-        {/* Schedule pull banner - appears when schedule has unconfirmed days */}
+        {/* Pending schedule days banner */}
         {pending>0&&(
-          <div style={{background:pal.pale,borderRadius:"16px",padding:"0.9rem 1.1rem",marginBottom:"1rem",border:`2px solid ${pal.primary}30`,animation:"fadeUp 0.2s ease"}}>
-            <div style={{display:"flex",gap:"0.75rem",alignItems:"flex-start"}}>
-              <div style={{width:"40px",height:"40px",borderRadius:"11px",background:pal.primary,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0}}>📅</div>
-              <div style={{flex:1}}>
-                <div style={{fontWeight:"800",color:pal.primary,fontSize:"0.88rem",marginBottom:"0.2rem"}}>
-                  {pending} school {pending===1?"day":"days"} ready to log
-                </div>
-                <div style={{fontSize:"0.75rem",color:pal.inkM,lineHeight:1.6,marginBottom:"0.65rem"}}>
-                  Your schedule shows {pending} completed {pending===1?"day":"days"} not yet counted. Add {pending===1?"it":"them"} to your attendance record?
-                </div>
-                <div style={{display:"flex",gap:"0.5rem"}}>
-                  <button onClick={onConfirmPull} style={{flex:1,padding:"0.6rem",border:"none",borderRadius:"10px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.8rem",cursor:"pointer"}}>
-                    v Yes, add {pending===1?"it":"them"}
-                  </button>
-                  <button style={{padding:"0.6rem 0.85rem",border:`1.5px solid ${pal.stone}`,borderRadius:"10px",background:"transparent",color:pal.slate,fontSize:"0.8rem",cursor:"pointer"}}>
-                    Skip
-                  </button>
-                </div>
+          <div style={{background:pal.pale,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:`2px solid ${pal.primary}30`,display:"flex",gap:"0.75rem",alignItems:"flex-start"}}>
+            <div style={{width:"38px",height:"38px",borderRadius:"10px",background:pal.primary,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.2rem",flexShrink:0}}>{"📅"}</div>
+            <div style={{flex:1}}>
+              <div style={{fontWeight:"800",color:pal.primary,fontSize:"0.86rem",marginBottom:"0.2rem"}}>{pending} completed school {pending===1?"day":"days"} ready to log</div>
+              <div style={{fontSize:"0.74rem",color:pal.inkM,marginBottom:"0.55rem",lineHeight:1.5}}>Your schedule shows {pending} {pending===1?"day":"days"} checked off. Add {pending===1?"it":"them"} to your attendance record?</div>
+              <div style={{display:"flex",gap:"0.45rem"}}>
+                <button onClick={onConfirmPull} style={{flex:1,padding:"0.5rem",border:"none",borderRadius:"9px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.78rem",cursor:"pointer"}}>{"✓ Yes, add "+pending}</button>
+                <button style={{padding:"0.5rem 0.75rem",border:`1.5px solid ${pal.stone}`,borderRadius:"9px",background:"transparent",color:pal.slate,fontSize:"0.78rem",cursor:"pointer"}}>Later</button>
               </div>
             </div>
           </div>
         )}
 
-        {/* Stats grid */}
-        <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:"0.65rem",marginBottom:"1rem"}}>
+        {/* Sync from portfolio banner */}
+        {unsyncedCount>0&&(
+          <div style={{background:pal.linen,borderRadius:"13px",padding:"0.7rem 0.9rem",marginBottom:"1rem",border:`1.5px solid ${pal.primary}25`,display:"flex",gap:"0.6rem",alignItems:"center"}}>
+            <span style={{fontSize:"1rem",flexShrink:0}}>{"🗂"}</span>
+            <div style={{flex:1,fontSize:"0.76rem",color:pal.inkM,lineHeight:1.5}}>
+              <b>{unsyncedCount} portfolio {unsyncedCount===1?"day":"days"}</b> not yet in your attendance record.
+            </div>
+            <button onClick={handleSync} style={{padding:"0.32rem 0.75rem",border:"none",borderRadius:"9px",background:pal.primary,color:"#fff",fontSize:"0.72rem",fontWeight:"800",cursor:"pointer",flexShrink:0}}>Sync</button>
+          </div>
+        )}
+        {syncMsg&&<div style={{background:pal.goodBg,borderRadius:"10px",padding:"0.55rem 0.85rem",marginBottom:"0.85rem",fontSize:"0.76rem",color:pal.good,fontWeight:"700",border:`1.5px solid ${pal.good}30`}}>{"✓ "+syncMsg}</div>}
+
+        {/* Stats row */}
+        <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"0.4rem",marginBottom:"1rem"}}>
           {[
-            {l:"Days Logged",  v:days,         bg:pal.goodBg,  c:pal.good},
-            {l:"Days Needed",  v:remaining,    bg:pal.warnBg,  c:pal.warn},
-            {l:"Absences",     v:4,            bg:pal.badBg,   c:pal.bad},
-            {l:"Excused",      v:3,            bg:pal.parchm,  c:pal.slate},
+            {l:"Logged",   v:days,      c:pal.good,  bg:pal.goodBg},
+            {l:"Required", v:REQUIRED,  c:pal.primary,bg:pal.pale},
+            {l:"Remaining",v:remaining, c:remaining>0?pal.warn:pal.good, bg:remaining>0?"#fffbeb":pal.goodBg},
+            {l:"Complete", v:pct+"%",   c:onTrack?pal.good:pal.warn, bg:onTrack?pal.goodBg:"#fffbeb"},
           ].map(s=>(
-            <div key={s.l} style={{background:s.bg,borderRadius:"14px",padding:"0.85rem",textAlign:"center",border:`1px solid ${s.c}18`}}>
-              <div style={{fontWeight:"900",fontSize:"1.5rem",color:s.c,lineHeight:1}}>{s.v}</div>
-              <div style={{fontSize:"0.62rem",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.06em",marginTop:"3px"}}>{s.l}</div>
+            <div key={s.l} style={{background:s.bg,borderRadius:"12px",padding:"0.65rem 0.4rem",textAlign:"center",border:`1.5px solid ${s.c}22`}}>
+              <div style={{fontWeight:"900",color:s.c,fontSize:"1.1rem",lineHeight:1}}>{s.v}</div>
+              <div style={{fontSize:"0.52rem",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.05em",marginTop:"3px"}}>{s.l}</div>
             </div>
           ))}
         </div>
 
         {/* Year progress bar */}
-        <div style={{background:pal.linen,borderRadius:"16px",padding:"1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}45`}}>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"8px"}}>
-            <span style={{fontWeight:"700",color:pal.inkM,fontSize:"0.8rem"}}>Year Progress</span>
-            <span style={{fontWeight:"900",color:onTrack?pal.good:pal.warn,fontSize:"0.82rem"}}>{pct}% {onTrack?"✓":"!"}</span>
+        <div style={{background:pal.linen,borderRadius:"14px",padding:"0.9rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}35`}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"7px"}}>
+            <span style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem"}}>Year Progress</span>
+            <span style={{fontWeight:"900",color:onTrack?pal.good:pal.warn,fontSize:"0.8rem"}}>{onTrack?"✓ On track":"⚠ Behind pace"}</span>
           </div>
-          <div style={{height:"12px",borderRadius:"99px",background:pal.parchm,overflow:"hidden",marginBottom:"7px"}}>
-            <div style={{height:"100%",width:`${pct}%`,borderRadius:"99px",background:onTrack?`linear-gradient(90deg,${pal.good},${pal.mid})`:pal.accentGrad,transition:"width 0.4s ease"}}/>
+          <div style={{height:"11px",borderRadius:"99px",background:pal.parchm,overflow:"hidden",marginBottom:"6px"}}>
+            <div style={{height:"100%",width:`${pct}%`,borderRadius:"99px",background:onTrack?`linear-gradient(90deg,${pal.good},${pal.mid})`:pal.accentGrad,transition:"width 0.5s"}}/>
           </div>
-          <div style={{display:"flex",justifyContent:"space-between",fontSize:"0.7rem",color:pal.slate}}>
-            <span>{days} of {REQUIRED} days complete</span>
-            <span>~{weeksLeft} weeks to go</span>
+          <div style={{display:"flex",justifyContent:"space-between",fontSize:"0.68rem",color:pal.slate}}>
+            <span>{days} of {REQUIRED} days</span>
+            <span>{weeksLeft} weeks left</span>
           </div>
         </div>
 
-        {/* Monthly breakdown */}
-        <div style={{background:pal.linen,borderRadius:"16px",padding:"1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}45`}}>
-          <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.8rem",marginBottom:"0.75rem"}}>Monthly Breakdown</div>
-          <div style={{display:"flex",flexDirection:"column",gap:"0.45rem"}}>
-            {MONTHS.filter(m=>m.target>0).map((m,i)=>{
-              const actual=m.cap?Math.max(0,Math.min(m.actual,m.target)):m.actual;
-              const done=actual>=m.target;
-              const future=m.actual===0&&!m.cap;
-              return (
-                <div key={i} style={{display:"flex",alignItems:"center",gap:"0.65rem"}}>
-                  <div style={{width:"28px",fontSize:"0.7rem",fontWeight:"700",color:future?pal.stone:pal.inkM,flexShrink:0}}>{m.m}</div>
-                  <div style={{flex:1,height:"8px",borderRadius:"99px",background:pal.parchm,overflow:"hidden"}}>
-                    {!future&&<div style={{height:"100%",width:`${Math.round(actual/m.target*100)}%`,borderRadius:"99px",background:done?`linear-gradient(90deg,${pal.good},${pal.mid})`:pal.accentGrad,transition:"width 0.4s"}}/>}
-                  </div>
-                  <div style={{width:"32px",textAlign:"right",fontSize:"0.7rem",fontWeight:"700",color:future?pal.stone:done?pal.good:pal.warn,flexShrink:0}}>
-                    {future?"-":`${actual}/${m.target}`}
-                  </div>
+        {/* State requirement note */}
+        {stateInfo.attendance&&(
+          <div style={{background:pal.pale,borderRadius:"12px",padding:"0.6rem 0.85rem",marginBottom:"1rem",border:`1.5px solid ${pal.primary}20`,fontSize:"0.73rem",color:pal.inkM,lineHeight:1.55}}>
+            <b style={{color:pal.primary}}>{family.state||"Your state"}:</b> {stateInfo.hours} {stateInfo.deadline&&stateInfo.deadline!=="None"?" \u00b7 Deadline: "+stateInfo.deadline:""}
+          </div>
+        )}
+
+        {/* Tab switcher */}
+        <div style={{display:"flex",background:pal.parchm,borderRadius:"11px",padding:"3px",gap:"2px",marginBottom:"1rem"}}>
+          {[["overview","📊 Overview"],["ledger","📋 Daily Ledger"]].map(([id,l])=>(
+            <button key={id} onClick={()=>setView(id)}
+              style={{flex:1,padding:"0.45rem",border:"none",borderRadius:"9px",background:view===id?pal.linen:"transparent",color:view===id?pal.ink:pal.slate,fontSize:"0.76rem",fontWeight:view===id?"700":"400",cursor:"pointer"}}>
+              {l}
+            </button>
+          ))}
+        </div>
+
+        {/* ── OVERVIEW ── */}
+        {view==="overview"&&(<>
+
+          {/* Monthly breakdown — real data */}
+          <div style={{background:pal.linen,borderRadius:"14px",padding:"0.9rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}35`}}>
+            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem",marginBottom:"0.75rem"}}>Monthly Breakdown</div>
+            {Object.keys(monthCounts).length===0?(
+              <div style={{fontSize:"0.75rem",color:pal.slate,textAlign:"center",padding:"0.5rem 0"}}>No days logged yet — add days using the button below.</div>
+            ):(
+              <div style={{display:"flex",flexDirection:"column",gap:"0.42rem"}}>
+                {MONTH_NAMES.map((m,mi)=>{
+                  const cnt = monthCounts[mi]||0;
+                  if(cnt===0) return null;
+                  const target = Math.round(REQUIRED/10);
+                  return (
+                    <div key={m} style={{display:"flex",alignItems:"center",gap:"0.65rem"}}>
+                      <div style={{width:"28px",fontSize:"0.7rem",fontWeight:"700",color:pal.inkM,flexShrink:0}}>{m}</div>
+                      <div style={{flex:1,height:"8px",borderRadius:"99px",background:pal.parchm,overflow:"hidden"}}>
+                        <div style={{height:"100%",width:`${Math.min(100,Math.round(cnt/target*100))}%`,borderRadius:"99px",background:cnt>=target?`linear-gradient(90deg,${pal.good},${pal.mid})`:pal.accentGrad,transition:"width 0.4s"}}/>
+                      </div>
+                      <div style={{width:"22px",textAlign:"right",fontSize:"0.7rem",fontWeight:"800",color:pal.inkM,flexShrink:0}}>{cnt}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Day type breakdown */}
+          {attendanceLog.length>0&&(()=>{
+            const typeCounts = {};
+            attendanceLog.forEach(e=>{ typeCounts[e.type]=(typeCounts[e.type]||0)+1; });
+            return (
+              <div style={{background:pal.linen,borderRadius:"14px",padding:"0.9rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}35`}}>
+                <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem",marginBottom:"0.6rem"}}>By Type</div>
+                <div style={{display:"flex",flexDirection:"column",gap:"0.35rem"}}>
+                  {Object.entries(typeCounts).map(([type,cnt])=>(
+                    <div key={type} style={{display:"flex",alignItems:"center",gap:"0.55rem"}}>
+                      <span style={{fontSize:"0.9rem",flexShrink:0}}>{TYPE_ICONS[type]||"📋"}</span>
+                      <span style={{flex:1,fontSize:"0.78rem",color:pal.inkM,fontWeight:"600"}}>{type}</span>
+                      <span style={{fontSize:"0.76rem",fontWeight:"800",color:pal.primary}}>{cnt}</span>
+                    </div>
+                  ))}
                 </div>
-              );
-            })}
-          </div>
-        </div>
+              </div>
+            );
+          })()}
 
-        {/* Warm status card + catch-up trigger */}
-        <div style={{background:onTrack?pal.goodBg:pal.warnBg,borderRadius:"16px",padding:"1rem 1.1rem",marginBottom:"1rem",border:`2px solid ${onTrack?pal.good:pal.warn}22`}}>
-          <div style={{fontWeight:"800",color:onTrack?pal.good:pal.warn,fontSize:"0.9rem",marginBottom:"0.3rem"}}>
-            {onTrack ? "💚 You\u2019re on track!" : "💛 A little behind - no worries!"}
+          {/* Catch-up / on-track card */}
+          <div style={{background:onTrack?pal.goodBg:"#fffbeb",borderRadius:"14px",padding:"0.9rem 1rem",marginBottom:"1rem",border:`2px solid ${onTrack?pal.good:pal.warn}25`}}>
+            <div style={{fontWeight:"800",color:onTrack?pal.good:pal.warn,fontSize:"0.88rem",marginBottom:"0.25rem"}}>
+              {onTrack?"💚 You\u2019re on track!":"💛 A little behind \u2014 no worries!"}
+            </div>
+            <div style={{fontSize:"0.77rem",color:pal.inkM,lineHeight:1.65,marginBottom:onTrack?0:"0.65rem"}}>
+              {onTrack
+                ? `${days} days logged and right on pace. Keep going!`
+                : `You need ${remaining} more days. About ${daysPerWeekNeeded} day${daysPerWeekNeeded!==1?"s":""}/week for the remaining ${weeksLeft} weeks.`}
+            </div>
+            {!onTrack&&(
+              <button onClick={onCatchup}
+                style={{width:"100%",padding:"0.6rem",border:"none",borderRadius:"10px",background:`linear-gradient(135deg,${pal.warn},${pal.accentD})`,color:"#fff",fontWeight:"800",fontSize:"0.82rem",cursor:"pointer"}}>
+                {"📅 Build a Catch-Up Plan"}
+              </button>
+            )}
           </div>
-          <div style={{fontSize:"0.78rem",color:pal.inkM,lineHeight:1.65,marginBottom:onTrack?0:"0.75rem"}}>
-            {onTrack
-              ? `Amazing work - ${days} days logged and right on schedule. Keep going!`
-              : `You need ${remaining} more days. That's totally doable - you've got about ${weeksLeft} weeks left and plenty of time to catch up.`
-            }
+
+          {/* Print button */}
+          <button onClick={printAttendance}
+            style={{width:"100%",padding:"0.75rem",border:`2px solid ${pal.stone}`,borderRadius:"13px",background:"transparent",color:pal.inkM,fontWeight:"700",fontSize:"0.84rem",cursor:"pointer",marginBottom:"1rem",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.5rem"}}>
+            <span>{"🖨"}</span><span>Print Attendance Record</span>
+          </button>
+        </>)}
+
+        {/* ── DAILY LEDGER ── */}
+        {view==="ledger"&&(<>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.65rem"}}>
+            <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem"}}>Daily Log</div>
+            <button onClick={()=>setShowAdd(true)}
+              style={{padding:"0.32rem 0.8rem",border:"none",borderRadius:"9px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.76rem",cursor:"pointer"}}>
+              + Log Day
+            </button>
           </div>
-          {!onTrack&&(
-            <button onClick={onCatchup} style={{width:"100%",padding:"0.7rem",border:"none",borderRadius:"12px",background:`linear-gradient(135deg,${pal.warn},${pal.accentD})`,color:"#fff",fontWeight:"800",fontSize:"0.84rem",cursor:"pointer"}}>
-              📅 Build a Catch-Up Plan
+
+          {/* Add day form */}
+          {showAdd&&(
+            <div style={{background:pal.linen,borderRadius:"14px",padding:"0.9rem 1rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.primary}30`,animation:"fadeUp 0.18s ease"}}>
+              <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.84rem",marginBottom:"0.65rem"}}>Log a Day</div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.5rem",marginBottom:"0.55rem"}}>
+                <div>
+                  <Lbl pal={pal}>Date</Lbl>
+                  <input type="date" value={addDate} onChange={e=>setAddDate(e.target.value)}
+                    style={{width:"100%",padding:"0.5rem 0.6rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.81rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit"}}
+                    onFocus={e=>e.target.style.borderColor=pal.primary} onBlur={e=>e.target.style.borderColor=pal.stone}/>
+                </div>
+                <div>
+                  <Lbl pal={pal}>Type</Lbl>
+                  <select value={addType} onChange={e=>setAddType(e.target.value)}
+                    style={{width:"100%",padding:"0.5rem 0.6rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.81rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit"}}>
+                    {DAY_TYPES.map(t=><option key={t} value={t}>{t}</option>)}
+                  </select>
+                </div>
+              </div>
+              <Lbl pal={pal}>Note (optional)</Lbl>
+              <input value={addNote} onChange={e=>setAddNote(e.target.value)}
+                placeholder={"e.g. Field trip to science museum"}
+                style={{width:"100%",padding:"0.5rem 0.6rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.81rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit",marginBottom:"0.65rem"}}
+                onFocus={e=>e.target.style.borderColor=pal.primary} onBlur={e=>e.target.style.borderColor=pal.stone}/>
+              <div style={{display:"flex",gap:"0.45rem"}}>
+                <button onClick={()=>setShowAdd(false)}
+                  style={{padding:"0.55rem 0.9rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.8rem",cursor:"pointer"}}>
+                  Cancel
+                </button>
+                <button onClick={handleAddDay}
+                  style={{flex:1,padding:"0.55rem",border:"none",borderRadius:"10px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.82rem",cursor:"pointer"}}>
+                  Save Day
+                </button>
+              </div>
+            </div>
+          )}
+
+          {ledger.length===0?(
+            <div style={{background:pal.linen,borderRadius:"14px",padding:"1.5rem",textAlign:"center",border:`1.5px solid ${pal.stone}25`,marginBottom:"1rem"}}>
+              <div style={{fontSize:"2rem",marginBottom:"0.4rem"}}>📋</div>
+              <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.86rem",marginBottom:"0.3rem"}}>No days logged yet</div>
+              <div style={{fontSize:"0.74rem",color:pal.slate,lineHeight:1.55,marginBottom:"0.75rem"}}>Use "+ Log Day" above to add days manually, or sync from your portfolio entries.</div>
+              {unsyncedCount>0&&(
+                <button onClick={handleSync}
+                  style={{padding:"0.5rem 1.1rem",border:"none",borderRadius:"10px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.78rem",cursor:"pointer"}}>
+                  {"🗂 Sync "+unsyncedCount+" days from portfolio"}
+                </button>
+              )}
+            </div>
+          ):(
+            <div style={{display:"flex",flexDirection:"column",gap:"0.35rem",marginBottom:"1rem"}}>
+              {ledger.map((entry,i)=>(
+                <div key={entry.date+i} style={{display:"flex",gap:"0.6rem",alignItems:"center",padding:"0.6rem 0.85rem",background:pal.linen,borderRadius:"11px",border:`1px solid ${pal.stone}25`}}>
+                  <span style={{fontSize:"1.1rem",flexShrink:0}}>{TYPE_ICONS[entry.type]||"📋"}</span>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.82rem"}}>{entry.date}</div>
+                    <div style={{fontSize:"0.66rem",color:pal.slate,marginTop:"1px"}}>
+                      {entry.type}{entry.note?" \u00b7 "+entry.note.slice(0,40):""}
+                      {entry.subjects?.length>0&&" \u00b7 "+entry.subjects.slice(0,3).join(", ")}
+                    </div>
+                  </div>
+                  <button onClick={()=>onRemoveDay(entry.date)}
+                    style={{width:"22px",height:"22px",borderRadius:"50%",background:pal.parchm,border:`1px solid ${pal.stone}`,color:pal.slate,fontSize:"0.65rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                    {"✕"}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {ledger.length>0&&(
+            <button onClick={printAttendance}
+              style={{width:"100%",padding:"0.75rem",border:`2px solid ${pal.stone}`,borderRadius:"13px",background:"transparent",color:pal.inkM,fontWeight:"700",fontSize:"0.84rem",cursor:"pointer",marginBottom:"1rem",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.5rem"}}>
+              <span>{"🖨"}</span><span>Print Attendance Record</span>
             </button>
           )}
-        </div>
+        </>)}
+
         <div style={{height:"0.5rem"}}/>
       </div>
     </div>
