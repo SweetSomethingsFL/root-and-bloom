@@ -6350,7 +6350,10 @@ function DailyPortfolioModal({pal,family,childIdx,stateInfo,onClose,onSave}){
     Array.from(e.target.files).forEach(file=>{
       const reader=new FileReader();
       reader.onload=ev=>{
-        setPhotos(gallerySubj,prev=>[...(prev||[]),{name:file.name,dataUrl:ev.target.result}]);
+        setPhotoMap(m=>{
+          const cur = Array.isArray(m[gallerySubj]) ? m[gallerySubj] : [];
+          return {...m,[gallerySubj]:[...cur,{name:file.name,dataUrl:ev.target.result}]};
+        });
       };
       reader.readAsDataURL(file);
     });
@@ -6358,7 +6361,10 @@ function DailyPortfolioModal({pal,family,childIdx,stateInfo,onClose,onSave}){
   };
 
   const removePhoto = (label,i)=>{
-    setPhotos(label,(photoMap[label]||[]).filter((_,pi)=>pi!==i));
+    setPhotoMap(m=>{
+      const cur = Array.isArray(m[label]) ? m[label] : [];
+      return {...m,[label]:cur.filter((_,pi)=>pi!==i)};
+    });
   };
 
   const handleNext = () => {
@@ -6393,7 +6399,7 @@ function DailyPortfolioModal({pal,family,childIdx,stateInfo,onClose,onSave}){
 
   const canProceed0 = selectedSubjs.size>0;
   const curDesc = currentSubj ? (descMap[currentSubj.label]||"") : "";
-  const curPhotos = currentSubj ? (photoMap[currentSubj.label]||[]) : [];
+  const curPhotos = currentSubj ? (Array.isArray(photoMap[currentSubj.label]) ? photoMap[currentSubj.label] : []) : [];
   const curRead = currentSubj ? (readMap[currentSubj.label]||"") : "";
   const canProceedSubj = !needsReadingTitle || curRead.trim().length>0;
 
