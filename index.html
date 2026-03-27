@@ -506,6 +506,7 @@ function RootAndBloom() {
         <div ref={mainScrollRef} style={{flex:1,overflowY:"auto",paddingBottom:"72px"}}>
           {activeTab==="home" && <HomeScreen pal={pal} family={family} child={childFilt} setChild={setChildFilt} onTheme={()=>setShowTheme(true)} attendanceDays={attendanceDays} checkinStreak={checkinStreak} lastCheckinDate={lastCheckinDate} portfolioEntries={portfolioEntries} onTabChange={setActiveTab} todayProgress={todayProgress} />}
           {activeTab==="schedule" && <ScheduleScreen pal={pal} family={family} child={childFilt} setChild={setChildFilt}
+            lastCheckinDate={lastCheckinDate}
             onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))}
             onMarkComplete={(data)=>{
               const todayStr=new Date().toDateString();
@@ -522,8 +523,17 @@ function RootAndBloom() {
               setTodayProgress({count,total,date:todayStr});
             }}
           />}
-          {activeTab==="learn"       && <LearnScreen       pal={pal} family={family} child={childFilt} setChild={setChildFilt} learnTab={learnTab} setLearnTab={setLearnTab} />}
-          {activeTab==="portfolio"   && <PortfolioScreen   pal={pal} family={family} child={childFilt} setChild={setChildFilt} entries={portfolioEntries} onAddEntry={addPortfolioEntry} onEditEntry={editPortfolioEntry} attendanceDays={attendanceDays} />}
+          {activeTab==="learn"       && <LearnScreen       pal={pal} family={family} child={childFilt} setChild={setChildFilt} learnTab={learnTab} setLearnTab={setLearnTab} portfolioEntries={portfolioEntries} />}
+          {activeTab==="portfolio"   && <PortfolioScreen   pal={pal} family={family} child={childFilt} setChild={setChildFilt} entries={portfolioEntries} onAddEntry={addPortfolioEntry} onEditEntry={editPortfolioEntry} attendanceDays={attendanceDays}
+            lastCheckinDate={lastCheckinDate}
+            onCheckin={()=>{
+              const todayStr=new Date().toDateString();
+              setAttendanceDays(d=>d+(lastCheckinDate===todayStr?0:1));
+              const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
+              if(lastCheckinDate===yesterday.toDateString()) setCheckinStreak(s=>s+1);
+              else if(lastCheckinDate!==todayStr) setCheckinStreak(1);
+              setLastCheckinDate(todayStr);
+            }}/>}
           {activeTab==="attendance"  && <AttendanceScreen  pal={pal} family={family} days={attendanceDays} attendanceLog={attendanceLog} portfolioEntries={portfolioEntries} coopLog={coopLog}
             onAddDay={(entry)=>{
               setAttendanceLog(l=>[entry,...l.filter(x=>x.date!==entry.date)]);
@@ -552,7 +562,7 @@ function RootAndBloom() {
             pending={pendingSchedDays}
             onConfirmPull={()=>{setAttendanceDays(d=>d+pendingSchedDays);setPendingSchedDays(0);setShowSchedConfirm(false);}}
             onCatchup={()=>setShowCatchup(true)} />}
-          {activeTab==="coop"        && <CoopScreen        pal={pal} family={family} coopLog={coopLog} onLog={e=>setCoopLog(l=>[e,...l])} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} />}
+          {activeTab==="coop"        && <CoopScreen        pal={pal} family={family} coopLog={coopLog} onLog={e=>setCoopLog(l=>[e,...l])} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} onAddEntry={addPortfolioEntry} />}
           {activeTab==="transcripts" && <TranscriptsScreen pal={pal} family={family} portfolioEntries={portfolioEntries} attendanceDays={attendanceDays} coopLog={coopLog} />}
           {showLifeReady && family && <LifeReadyScreen pal={pal} family={family} onBack={()=>setShowLifeReady(false)}/>}
           {activeTab==="preparedcapable" && family?.lifeReady && <LifeReadyScreen pal={pal} family={family} onBack={()=>setActiveTab("home")}/>}
@@ -984,60 +994,217 @@ function CoopDayPopup({ child, heroGrad, c1, onLog, onDismiss }) {
    CO-OP QUICK LOG MODAL (parent)
 ======================================= */
 function CoopQuickLogModal({ pal, family, onSave, onClose }) {
-  const coopClasses = (family.coopClasses||[]).length>0 ? family.coopClasses : ["Classical Conversations","Art & Nature Study","Science Fair Prep","History co-op","Literature circle","Math enrichment","Other"];
-  const defaultSession = family.coopName||(family.coopClasses?.[0]||"Co-op Session");
-  const [step,       setStep]       = useState(0);
-  const [session,    setSession]    = useState(defaultSession);
-  const [hrs,        setHrs]        = useState("2");
-  const [childNotes, setChildNotes] = useState({});
-  const updNote = (id,v)=>setChildNotes(n=>({...n,[id]:v}));
-  const handleSave = () => { onSave({session,hrs:parseFloat(hrs),notes:childNotes}); setStep(2); };
+  const coopClasses = (family.coopClasses||[]).length>0
+    ? family.coopClasses
+    : ["Bible / Faith","Art","Science","History","Literature","Math","Music","PE","Other"];
+
+  const [step,         setStep]        = useState(0); // 0=subjects+hrs, 1=notes, 2=photos, 3=done
+  const [selSubjs,     setSelSubjs]    = useState(new Set());
+  const [hrs,          setHrs]         = useState("2");
+  const [subjectNotes, setSubjectNotes]= useState({}); // {childId: {subj: note}}
+  const [photos,       setPhotos]      = useState([]);
+  const fileRef = useRef(null);
+
+  const toggleSubj = (s) => setSelSubjs(prev=>{
+    const n=new Set(prev);
+    n.has(s)?n.delete(s):n.add(s);
+    return n;
+  });
+  const updNote = (childId,subj,val) => setSubjectNotes(n=>({
+    ...n,
+    [childId]:{...(n[childId]||{}),[subj]:val}
+  }));
+  const handlePhoto = (e) => {
+    Array.from(e.target.files).forEach(file=>{
+      const r=new FileReader();
+      r.onload=ev=>setPhotos(p=>[...p,{name:file.name,dataUrl:ev.target.result}]);
+      r.readAsDataURL(file);
+    });
+    e.target.value="";
+  };
+
+  const subjList = [...selSubjs];
+  const canNext0 = selSubjs.size>0;
+
+  const handleSave = () => {
+    onSave({
+      session: subjList.join(", ")||"Co-op",
+      subjects: subjList,
+      hrs: parseFloat(hrs),
+      subjectNotes,
+      notes: Object.fromEntries(
+        family.children.map(c=>[c.id,
+          subjList.map(s=>(subjectNotes[c.id]?.[s]||"")).filter(Boolean).join(" | ")
+        ])
+      ),
+      photos: photos.map(p=>p.dataUrl),
+    });
+    setStep(3);
+  };
+
+  const STEP_LABELS = ["Subjects","Notes","Photos","Done"];
+
   return (
-    <div style={{position:"fixed",inset:0,background:"rgba(10,20,10,0.72)",backdropFilter:"blur(12px)",zIndex:200,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
-      <div style={{background:pal.linen,borderRadius:"28px 28px 0 0",width:"100%",maxWidth:"430px",boxShadow:"0 -14px 60px rgba(0,0,0,0.3)",animation:"slideUp 0.28s ease",maxHeight:"84vh",display:"flex",flexDirection:"column"}}>
-        <div style={{padding:"0.7rem 0 0",display:"flex",justifyContent:"center",flexShrink:0}}><div style={{width:"36px",height:"4px",borderRadius:"99px",background:pal.stone}}/></div>
-        <div style={{padding:"0.75rem 1.3rem",borderBottom:`1px solid ${pal.stone}45`,flexShrink:0,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <div><div style={{fontWeight:"800",color:pal.ink,fontSize:"1rem"}}>{"🏫 Log Co-op Session"}</div><div style={{fontSize:"0.74rem",color:pal.slate}}>About 60 seconds.</div></div>
-          <button onClick={onClose} style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.9rem"}}>{"✕"}</button>
+    <div style={{position:"fixed",inset:0,background:"rgba(10,20,10,0.78)",backdropFilter:"blur(14px)",zIndex:200,display:"flex",alignItems:"center",justifyContent:"center",padding:"1rem"}}>
+      <div style={{background:pal.linen,borderRadius:"24px",width:"100%",maxWidth:"420px",maxHeight:"88vh",display:"flex",flexDirection:"column",boxShadow:"0 20px 60px rgba(0,0,0,0.4)",animation:"grow 0.22s ease"}}>
+
+        {/* Header */}
+        <div style={{padding:"1rem 1.2rem 0.75rem",borderBottom:`1px solid ${pal.stone}30`,flexShrink:0,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div>
+            <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.95rem"}}>{"🏫 Log Co-op Session"}</div>
+            <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"2px"}}>{STEP_LABELS[step]} {"\u00b7"} Step {step+1} of 4</div>
+          </div>
+          <button onClick={onClose}
+            style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.85rem",display:"flex",alignItems:"center",justifyContent:"center"}}>
+            {"✕"}
+          </button>
         </div>
-        <div style={{display:"flex",gap:"4px",padding:"0.7rem 1.3rem 0",flexShrink:0}}>
-          {[0,1,2].map(i=><div key={i} style={{flex:1,height:"4px",borderRadius:"99px",background:i<=step?pal.primary:pal.stone+"50",transition:"background 0.25s"}}/>)}
+
+        {/* Step dots */}
+        <div style={{display:"flex",gap:"4px",padding:"0.55rem 1.2rem 0",flexShrink:0}}>
+          {STEP_LABELS.map((l,i)=>(
+            <div key={i} style={{flex:1,height:"3px",borderRadius:"99px",background:i<=step?pal.primary:pal.stone+"40",transition:"background 0.25s"}}/>
+          ))}
         </div>
-        <div style={{flex:1,overflowY:"auto",padding:"1rem 1.3rem"}}>
-          {step===0&&<>
-            <Lbl pal={pal}>Which session?</Lbl>
-            <div style={{display:"flex",flexDirection:"column",gap:"0.38rem",marginBottom:"1rem"}}>
-              {coopClasses.map(s=><button key={s} onClick={()=>setSession(s)} style={{padding:"0.6rem 0.9rem",border:`2px solid ${session===s?pal.primary:pal.stone+"50"}`,borderRadius:"11px",background:session===s?pal.pale:"transparent",cursor:"pointer",textAlign:"left",fontWeight:session===s?"700":"400",color:session===s?pal.primary:pal.inkM,fontSize:"0.84rem"}}>{s}</button>)}
+
+        {/* Content */}
+        <div key={step} style={{flex:1,overflowY:"auto",padding:"0.85rem 1.2rem"}}>
+
+          {/* Step 0: Select subjects + hours */}
+          {step===0&&(<>
+            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.8rem",marginBottom:"0.55rem"}}>
+              {"Which subjects did you cover?"} <span style={{color:pal.slate,fontWeight:"400"}}>(select all that apply)</span>
             </div>
-            <Lbl pal={pal}>Hours</Lbl>
-            <div style={{display:"flex",gap:"0.4rem"}}>
-              {["1","1.5","2","2.5","3","3.5"].map(h=><button key={h} onClick={()=>setHrs(h)} style={{flex:1,padding:"0.55rem 0",borderRadius:"10px",border:`2px solid ${hrs===h?pal.primary:pal.stone+"50"}`,background:hrs===h?pal.pale:"transparent",cursor:"pointer",fontWeight:hrs===h?"800":"400",color:hrs===h?pal.primary:pal.inkM,fontSize:"0.82rem"}}>{h}h</button>)}
+            <div style={{display:"flex",flexDirection:"column",gap:"0.32rem",marginBottom:"1rem"}}>
+              {coopClasses.map(s=>{
+                const sel=selSubjs.has(s);
+                return (
+                  <button key={s} onClick={()=>toggleSubj(s)}
+                    style={{display:"flex",gap:"0.6rem",alignItems:"center",padding:"0.6rem 0.85rem",border:`2px solid ${sel?pal.primary:pal.stone+"50"}`,borderRadius:"11px",background:sel?pal.pale:"transparent",cursor:"pointer",textAlign:"left",transition:"all 0.12s"}}>
+                    <div style={{width:"18px",height:"18px",borderRadius:"4px",border:`2px solid ${sel?pal.primary:pal.stone}`,background:sel?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                      {sel&&<span style={{color:"#fff",fontSize:"0.65rem",fontWeight:"900"}}>{"✓"}</span>}
+                    </div>
+                    <span style={{fontWeight:sel?"700":"400",color:sel?pal.primary:pal.inkM,fontSize:"0.84rem"}}>{s}</span>
+                  </button>
+                );
+              })}
             </div>
-          </>}
-          {step===1&&<>
-            <div style={{fontSize:"0.78rem",color:pal.slate,lineHeight:1.6,marginBottom:"0.85rem"}}>One sentence per child - what did they work on?</div>
-            {family.children.map(c=>(
-              <div key={c.id} style={{marginBottom:"0.75rem"}}>
-                <div style={{display:"flex",alignItems:"center",gap:"0.5rem",marginBottom:"0.3rem"}}><span>{c.avatar}</span><span style={{fontSize:"0.8rem",fontWeight:"700",color:pal.inkM}}>{c.name}</span></div>
-                <textarea value={childNotes[c.id]||""} onChange={e=>updNote(c.id,e.target.value)} placeholder={"What " + c.name + " did..."} rows={2}
-                  style={{width:"100%",padding:"0.65rem 0.8rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.82rem",fontFamily:"inherit",background:pal.parchm,color:pal.ink,resize:"none",lineHeight:1.55,outline:"none"}}
-                  onFocus={e=>e.target.style.borderColor=pal.primary} onBlur={e=>e.target.style.borderColor=pal.stone}/>
-              </div>
-            ))}
-          </>}
-          {step===2&&<div style={{textAlign:"center",padding:"0.75rem 0"}}>
-            <div style={{fontSize:"3.5rem",marginBottom:"0.6rem"}}>🏫</div>
-            <div style={{fontWeight:"800",color:pal.primary,fontSize:"1rem",marginBottom:"0.35rem"}}>Co-op logged!</div>
-            <div style={{fontSize:"0.82rem",color:pal.slate,lineHeight:1.7}}>{session} - {hrs}h - saved to attendance, records, and portfolio queue.</div>
-          </div>}
-        </div>
-        <div style={{padding:"0.9rem 1.3rem",borderTop:`1px solid ${pal.stone}45`,display:"flex",gap:"0.6rem",flexShrink:0}}>
-          {step<2?<>
-            <button onClick={onClose} style={{padding:"0.7rem 1rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem"}}>Cancel</button>
-            <button onClick={()=>step===1?handleSave():setStep(s=>s+1)} style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>
-              {step===0?"Next ->":"Save"}
+            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.8rem",marginBottom:"0.45rem"}}>Hours</div>
+            <div style={{display:"flex",gap:"0.35rem"}}>
+              {["1","1.5","2","2.5","3","3.5","4"].map(h=>(
+                <button key={h} onClick={()=>setHrs(h)}
+                  style={{flex:1,padding:"0.5rem 0",borderRadius:"10px",border:`2px solid ${hrs===h?pal.primary:pal.stone+"50"}`,background:hrs===h?pal.pale:"transparent",cursor:"pointer",fontWeight:hrs===h?"800":"400",color:hrs===h?pal.primary:pal.inkM,fontSize:"0.8rem"}}>
+                  {h}h
+                </button>
+              ))}
+            </div>
+          </>)}
+
+          {/* Step 1: Per-subject notes per child */}
+          {step===1&&(<>
+            <div style={{fontSize:"0.76rem",color:pal.slate,lineHeight:1.55,marginBottom:"0.85rem"}}>
+              Add notes for each subject — what did each child do or learn?
+            </div>
+            {family.children.map(c=>{
+              const cp=CHILD_COLOR_PALETTES.find(p=>p.id===(c.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+              return (
+                <div key={c.id} style={{marginBottom:"1rem"}}>
+                  {family.children.length>1&&(
+                    <div style={{display:"flex",alignItems:"center",gap:"0.45rem",marginBottom:"0.5rem",paddingBottom:"0.4rem",borderBottom:`2px solid ${cp.c1}25`}}>
+                      <div style={{width:"26px",height:"26px",borderRadius:"7px",background:`linear-gradient(135deg,${cp.c1},${cp.c2})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.9rem"}}>{c.avatar}</div>
+                      <span style={{fontWeight:"800",color:pal.ink,fontSize:"0.84rem"}}>{c.name}</span>
+                    </div>
+                  )}
+                  {subjList.map(subj=>(
+                    <div key={subj} style={{marginBottom:"0.55rem"}}>
+                      <div style={{fontSize:"0.74rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.25rem"}}>{"📋 "+subj}</div>
+                      <textarea
+                        value={(subjectNotes[c.id]||{})[subj]||""}
+                        onChange={e=>updNote(c.id,subj,e.target.value)}
+                        placeholder={"What did "+c.name+" do in "+subj+"?"}
+                        rows={2}
+                        style={{width:"100%",padding:"0.55rem 0.7rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.8rem",fontFamily:"inherit",background:pal.parchm,color:pal.ink,resize:"none",outline:"none",lineHeight:1.5}}
+                        onFocus={e=>e.target.style.borderColor=cp.c1}
+                        onBlur={e=>e.target.style.borderColor=pal.stone}/>
+                    </div>
+                  ))}
+                </div>
+              );
+            })}
+          </>)}
+
+          {/* Step 2: Photos */}
+          {step===2&&(<>
+            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.8rem",marginBottom:"0.3rem"}}>{"Add Photos"}</div>
+            <div style={{fontSize:"0.73rem",color:pal.slate,marginBottom:"0.75rem",lineHeight:1.5}}>
+              Optional — photos will be saved with each subject entry in the portfolio.
+            </div>
+            <input type="file" ref={fileRef} accept="image/*" multiple onChange={handlePhoto} style={{display:"none"}}/>
+            <button onClick={()=>fileRef.current?.click()}
+              style={{width:"100%",padding:"1rem",border:`2px dashed ${pal.primary}50`,borderRadius:"14px",background:"transparent",color:pal.primary,fontWeight:"700",fontSize:"0.84rem",cursor:"pointer",marginBottom:"0.75rem",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.5rem"}}>
+              <span style={{fontSize:"1.3rem"}}>{"📷"}</span><span>Choose Photos</span>
             </button>
-          </>:<button onClick={onClose} style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>Done 🌱</button>}
+            {photos.length>0&&(
+              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"0.4rem"}}>
+                {photos.map((p,i)=>(
+                  <div key={i} style={{position:"relative",borderRadius:"10px",overflow:"hidden",border:`1.5px solid ${pal.stone}35`}}>
+                    <img src={p.dataUrl} alt="" style={{width:"100%",height:"80px",objectFit:"cover",display:"block"}}/>
+                    <button onClick={()=>setPhotos(ps=>ps.filter((_,pi)=>pi!==i))}
+                      style={{position:"absolute",top:"3px",right:"3px",width:"20px",height:"20px",borderRadius:"50%",background:"rgba(0,0,0,0.55)",border:"none",color:"#fff",fontSize:"0.65rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                      {"✕"}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {photos.length===0&&(
+              <div style={{textAlign:"center",padding:"0.5rem",fontSize:"0.73rem",color:pal.stone,fontStyle:"italic"}}>No photos yet — totally optional!</div>
+            )}
+          </>)}
+
+          {/* Step 3: Done */}
+          {step===3&&(
+            <div style={{textAlign:"center",padding:"1rem 0"}}>
+              <div style={{fontSize:"3rem",marginBottom:"0.5rem"}}>{"🏫"}</div>
+              <div style={{fontWeight:"800",color:pal.primary,fontSize:"1rem",marginBottom:"0.35rem"}}>Co-op logged!</div>
+              <div style={{fontSize:"0.8rem",color:pal.slate,lineHeight:1.7,marginBottom:"0.5rem"}}>
+                {subjList.join(", ")} {"\u00b7"} {hrs}h
+              </div>
+              <div style={{background:pal.goodBg,borderRadius:"12px",padding:"0.65rem 0.85rem",border:`1.5px solid ${pal.good}30`,fontSize:"0.76rem",color:pal.good,fontWeight:"600"}}>
+                {"✓ Saved to co-op log and portfolio for "+family.children.map(c=>c.name).join(" & ")}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div style={{padding:"0.85rem 1.2rem",borderTop:`1px solid ${pal.stone}30`,flexShrink:0,display:"flex",gap:"0.5rem"}}>
+          {step<3?(
+            <>
+              {step>0?(
+                <button onClick={()=>setStep(s=>s-1)}
+                  style={{padding:"0.65rem 0.9rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.82rem"}}>
+                  Back
+                </button>
+              ):(
+                <button onClick={onClose}
+                  style={{padding:"0.65rem 0.9rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.82rem"}}>
+                  Cancel
+                </button>
+              )}
+              <button
+                onClick={()=>{ if(step===2){handleSave();} else setStep(s=>s+1); }}
+                disabled={step===0&&!canNext0}
+                style={{flex:1,padding:"0.65rem",border:"none",borderRadius:"11px",background:step===0&&!canNext0?"#ccc":pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.86rem",cursor:step===0&&!canNext0?"default":"pointer"}}>
+                {step===2?"Save to Portfolio ✓":"Next →"}
+              </button>
+            </>
+          ):(
+            <button onClick={onClose}
+              style={{flex:1,padding:"0.65rem",border:"none",borderRadius:"11px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.86rem",cursor:"pointer"}}>
+              {"Done 🌱"}
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -1980,6 +2147,81 @@ function AIUsageDisplay({pal}){
   );
 }
 
+/* ---- Curriculum Add Widget (used in Settings) ---- */
+function CurriculumAddWidget({pal, local, updL}){
+  const [show,     setShow]     = useState(false);
+  const [name,     setName]     = useState("");
+  const [url,      setUrl]      = useState("");
+  const [fetching, setFetching] = useState(false);
+  const [msg,      setMsg]      = useState("");
+
+  const urlValid = url.trim().startsWith("http")||url.trim().startsWith("www");
+
+  const add = async () => {
+    const n = name.trim();
+    const u = url.trim();
+    if(!n||!urlValid) return;
+    const id = "custom_curr_"+n.toLowerCase().replace(/\s+/g,"_");
+    const entry = {id,label:n,url:u,icon:"📘",desc:"Custom curriculum",summary:""};
+    const existing = (local.customCurriculums||[]).filter(c=>c.id!==id);
+    updL("customCurriculums",[...existing,entry]);
+    updL("curriculumBrands",[...(local.curriculumBrands||[]).filter(x=>x!==id),id]);
+    setFetching(true);
+    setMsg("Looking up "+n+"...");
+    try {
+      const res = await fetch("https://api.anthropic.com/v1/messages",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          model:"claude-sonnet-4-20250514",
+          max_tokens:400,
+          tools:[{type:"web_search_20250305",name:"web_search"}],
+          messages:[{role:"user",content:"Please visit "+u+" and give me a 2-3 sentence summary of what this homeschool curriculum covers, its teaching philosophy, grade levels, and what makes it unique. Be concise and practical."}]
+        })
+      });
+      const d = await res.json();
+      const summary = d.content?.filter(b=>b.type==="text").map(b=>b.text).join(" ").trim()||"";
+      const withSummary = [...existing,{...entry,summary:summary||""}];
+      updL("customCurriculums",withSummary);
+      setMsg(summary?"✓ Summary added!":"✓ Added — no summary found.");
+    } catch(e) {
+      setMsg("✓ Added! (Website lookup failed)");
+    }
+    setFetching(false);
+    setName(""); setUrl(""); setShow(false);
+    setTimeout(()=>setMsg(""),3000);
+  };
+
+  return (
+    <div>
+      {msg&&<div style={{fontSize:"0.72rem",color:pal.good,fontWeight:"600",marginBottom:"0.45rem",padding:"0.4rem 0.6rem",background:pal.goodBg,borderRadius:"8px",border:`1px solid ${pal.good}30`}}>{msg}</div>}
+      {!show?(
+        <button onClick={()=>setShow(true)}
+          style={{width:"100%",padding:"0.48rem",border:`2px dashed ${pal.stone}`,borderRadius:"10px",background:"transparent",color:pal.slate,fontSize:"0.76rem",fontWeight:"600",cursor:"pointer"}}>
+          + Add custom curriculum
+        </button>
+      ):(
+        <div style={{background:pal.pale,borderRadius:"12px",padding:"0.75rem",border:`1.5px solid ${pal.primary}20`,animation:"fadeUp 0.18s ease"}}>
+          <Input pal={pal} value={name} onChange={setName} placeholder="Curriculum name..." />
+          <div style={{height:"0.4rem"}}/>
+          <Input pal={pal} value={url} onChange={setUrl} placeholder="Website URL (https://...)" />
+          {url&&!urlValid&&<div style={{fontSize:"0.68rem",color:pal.bad,marginTop:"2px"}}>Enter a valid URL starting with https://</div>}
+          <div style={{display:"flex",gap:"0.4rem",marginTop:"0.55rem"}}>
+            <button onClick={()=>{setShow(false);setName("");setUrl("");}}
+              style={{padding:"0.48rem 0.75rem",border:`2px solid ${pal.stone}`,borderRadius:"9px",background:"transparent",color:pal.slate,fontSize:"0.78rem",cursor:"pointer"}}>
+              Cancel
+            </button>
+            <button onClick={add} disabled={!name.trim()||!urlValid||fetching}
+              style={{flex:1,padding:"0.48rem",border:"none",borderRadius:"9px",background:name.trim()&&urlValid&&!fetching?"linear-gradient(135deg,#2a6a2a,#4a9a4a)":"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.78rem",cursor:name.trim()&&urlValid&&!fetching?"pointer":"default"}}>
+              {fetching?"Fetching...":"Add + Fetch Summary"}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, customA, customB, setCustomA, setCustomB, navIds, setNavIds, onBack }) {
   const [tab,         setTab]        = useState("family");
   const [local,       setLocal]      = useState(family ? {...family} : {});
@@ -2215,25 +2457,58 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
               </div>
             </SCard>
             <SCard pal={pal} title="Curriculum Programs">
-              <div style={{fontSize:"0.72rem",color:pal.slate,marginBottom:"0.5rem"}}>Select all that apply</div>
-              <div style={{display:"flex",flexDirection:"column",gap:"0.38rem"}}>
+              <div style={{fontSize:"0.72rem",color:pal.slate,marginBottom:"0.65rem"}}>Select all that apply. Custom curricula can be added with a URL to pull an AI summary.</div>
+
+              {/* Selected programs with descriptions */}
+              <div style={{display:"flex",flexDirection:"column",gap:"0.42rem",marginBottom:"0.65rem"}}>
                 {CURRICULUM_BRANDS.map(s=>{
-                  const selArr = local.curriculumBrands || [];
-                  const isSel = selArr.includes(s.id);
+                  const selArr = local.curriculumBrands||[];
+                  const isSel  = selArr.includes(s.id);
                   return (
                     <button key={s.id} onClick={()=>{
-                      const cur = local.curriculumBrands || [];
-                      updL("curriculumBrands", isSel ? cur.filter(x=>x!==s.id) : [...cur, s.id]);
-                    }} style={{display:"flex",gap:"0.65rem",alignItems:"center",padding:"0.65rem 0.85rem",border:`2px solid ${isSel?pal.accent:pal.stone+"50"}`,borderRadius:"11px",background:isSel?pal.paleMid:"transparent",cursor:"pointer",textAlign:"left",transition:"all 0.13s"}}>
-                      <span style={{fontSize:"1.2rem"}}>{s.icon}</span>
-                      <span style={{flex:1,fontWeight:isSel?"700":"400",color:isSel?pal.accentD:pal.inkM,fontSize:"0.83rem"}}>{s.label}</span>
-                      <div style={{width:"16px",height:"16px",borderRadius:"3px",border:`2px solid ${isSel?pal.accent:pal.stone}`,background:isSel?pal.accent:"transparent",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                      const cur = local.curriculumBrands||[];
+                      updL("curriculumBrands", isSel?cur.filter(x=>x!==s.id):[...cur,s.id]);
+                    }} style={{display:"flex",gap:"0.65rem",alignItems:"flex-start",padding:"0.65rem 0.85rem",border:`2px solid ${isSel?pal.accent:pal.stone+"40"}`,borderRadius:"11px",background:isSel?pal.paleMid:"transparent",cursor:"pointer",textAlign:"left",transition:"all 0.13s"}}>
+                      <span style={{fontSize:"1.2rem",flexShrink:0,marginTop:"1px"}}>{s.icon}</span>
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{fontWeight:isSel?"700":"500",color:isSel?pal.accentD:pal.inkM,fontSize:"0.83rem"}}>{s.label}</div>
+                        {isSel&&<div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"2px",lineHeight:1.4}}>{s.desc}</div>}
+                      </div>
+                      <div style={{width:"16px",height:"16px",borderRadius:"3px",border:`2px solid ${isSel?pal.accent:pal.stone}`,background:isSel?pal.accent:"transparent",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",marginTop:"2px"}}>
                         {isSel&&<span style={{color:pal.onDark,fontSize:"0.7rem",fontWeight:"900"}}>✓</span>}
                       </div>
                     </button>
                   );
                 })}
               </div>
+
+              {/* Custom curricula with AI summaries */}
+              {(local.customCurriculums||[]).length>0&&(
+                <div style={{display:"flex",flexDirection:"column",gap:"0.42rem",marginBottom:"0.65rem"}}>
+                  {(local.customCurriculums||[]).map(c=>{
+                    const isSel=(local.curriculumBrands||[]).includes(c.id);
+                    return (
+                      <div key={c.id} style={{padding:"0.65rem 0.85rem",borderRadius:"11px",background:isSel?pal.paleMid:pal.parchm,border:`2px solid ${isSel?pal.accent:pal.stone+"40"}`}}>
+                        <div style={{display:"flex",gap:"0.5rem",alignItems:"flex-start"}}>
+                          <span style={{fontSize:"1.1rem",flexShrink:0}}>{"📘"}</span>
+                          <div style={{flex:1,minWidth:0}}>
+                            <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.83rem"}}>{c.label}</div>
+                            {c.url&&<div style={{fontSize:"0.64rem",color:pal.primary,marginTop:"1px"}}>{c.url}</div>}
+                            {c.summary&&<div style={{fontSize:"0.71rem",color:pal.inkM,marginTop:"4px",lineHeight:1.55,background:"rgba(255,255,255,0.6)",borderRadius:"7px",padding:"0.35rem 0.5rem"}}>{c.summary}</div>}
+                          </div>
+                          <button onClick={()=>{
+                            updL("customCurriculums",(local.customCurriculums||[]).filter(x=>x.id!==c.id));
+                            updL("curriculumBrands",(local.curriculumBrands||[]).filter(x=>x!==c.id));
+                          }} style={{width:"20px",height:"20px",borderRadius:"50%",border:`1px solid ${pal.stone}`,background:"transparent",color:pal.slate,fontSize:"0.62rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{"✕"}</button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Add custom curriculum inline */}
+              <CurriculumAddWidget pal={pal} local={local} updL={updL}/>
             </SCard>
             <SCard pal={pal} title="Co-op Frequency">
               <div style={{display:"flex",flexDirection:"column",gap:"0.38rem"}}>
@@ -2438,6 +2713,28 @@ function generateSchedule(family) {
         const bi = orderMap[b.s]??999;
         return ai-bi;
       });
+    }
+  }
+
+  // Inject co-op block on the family's co-op day
+  if(family.coopFreq && family.coopFreq!=="We don't do co-op" && family.coopDay) {
+    const DOW_MAP = {"Monday":1,"Tuesday":2,"Wednesday":3,"Thursday":4,"Friday":5,"Saturday":6};
+    const coopDow = DOW_MAP[family.coopDay];
+    const todayDow = new Date().getDay();
+    if(coopDow===todayDow) {
+      const coopName = family.coopName||"Co-op";
+      const coopTime = family.coopTime||"";
+      // Don't duplicate if already in blocks
+      if(!blocks.find(b=>b.s===coopName||b.s==="Co-op")) {
+        blocks.push({
+          t: coopTime||"",
+          s: coopName,
+          i: "🏫",
+          c: "all",
+          dur: 180,
+          isCoop: true,
+        });
+      }
     }
   }
 
@@ -5022,7 +5319,7 @@ function ScheduleEditorModal({pal,family,onSave,onClose}){
   );
 }
 
-function ScheduleScreen({pal,family,child,setChild,onMarkComplete,onProgressUpdate,onUpdateFamily}){
+function ScheduleScreen({pal,family,child,setChild,onMarkComplete,onProgressUpdate,onUpdateFamily,lastCheckinDate}){
   const today = new Date();
   const todayDow = today.getDay();
   const weekStart = new Date(today);
@@ -5119,15 +5416,27 @@ function ScheduleScreen({pal,family,child,setChild,onMarkComplete,onProgressUpda
         </div>
 
         {/* Today tip - only show on today */}
-        {DAYS[selectedDay]?.isToday && (
-          <div style={{background:pal.pale,borderRadius:"13px",padding:"0.65rem 1rem",marginBottom:"0.85rem",border:`2px solid ${pal.primary}22`,display:"flex",gap:"0.65rem",alignItems:"center"}}>
-            <span style={{fontSize:"1.1rem",flexShrink:0}}>🌱</span>
-            <div style={{flex:1}}>
-              <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.78rem"}}>{"Today's checklist"}</div>
-              <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>Tap items to check them off. Skip any you are not doing today.</div>
+        {DAYS[selectedDay]?.isToday && (()=>{
+          const loggedViaPortfolio = lastCheckinDate===new Date().toDateString() && !allDone;
+          return (
+            <div style={{background:loggedViaPortfolio?pal.goodBg:pal.pale,borderRadius:"13px",padding:"0.65rem 1rem",marginBottom:"0.85rem",border:`2px solid ${loggedViaPortfolio?pal.good+"40":pal.primary+"22"}`,display:"flex",gap:"0.65rem",alignItems:"center"}}>
+              <span style={{fontSize:"1.1rem",flexShrink:0}}>{loggedViaPortfolio?"✓":"🌱"}</span>
+              <div style={{flex:1}}>
+                {loggedViaPortfolio?(
+                  <>
+                    <div style={{fontWeight:"700",color:pal.good,fontSize:"0.78rem"}}>Already logged via Portfolio</div>
+                    <div style={{fontSize:"0.7rem",color:pal.inkM,marginTop:"1px"}}>You can still check off subjects here if you want to track them — or skip to the next day.</div>
+                  </>
+                ):(
+                  <>
+                    <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.78rem"}}>{"Today's checklist"}</div>
+                    <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>Tap items to check them off. Skip any you are not doing today.</div>
+                  </>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Block list */}
         {filteredByChild.length===0 && (
@@ -5351,7 +5660,7 @@ async function callClaude(prompt) {
   return data.content?.map(b=>b.text||"").join("") || "";
 }
 
-function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab}) {
+function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab, portfolioEntries=[]}) {
   const LS_UNITS = "rootbloom_units_v1";
   const loadUnits = () => { try{ const s=localStorage.getItem(LS_UNITS); return s?JSON.parse(s):[]; }catch(e){return[];} };
   const [units, setUnits] = useState(()=>loadUnits());
@@ -5413,14 +5722,33 @@ function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab}) {
             </button>
           </div>
 
-          {/* Curriculum programs */}
+          {/* Curriculum programs — expanded with descriptions */}
           {(family.curriculumBrands||[]).length>0 && (
-            <div style={{background:pal.linen,borderRadius:"14px",padding:"0.8rem 1rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.stone}35`}}>
-              <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.72rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.45rem"}}>Your Programs</div>
-              <div style={{display:"flex",flexWrap:"wrap",gap:"0.38rem"}}>
+            <div style={{background:pal.linen,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.stone}35`}}>
+              <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.72rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.55rem"}}>Your Programs</div>
+              <div style={{display:"flex",flexDirection:"column",gap:"0.45rem"}}>
                 {(family.curriculumBrands||[]).map(id=>{
-                  const b=CURRICULUM_BRANDS.find(x=>x.id===id);
-                  return b?<span key={id} style={{padding:"0.2rem 0.6rem",background:pal.pale,borderRadius:"20px",fontSize:"0.72rem",fontWeight:"700",color:pal.primary,border:`1.5px solid ${pal.primary}30`}}>{b.icon} {b.label}</span>:null;
+                  const b = CURRICULUM_BRANDS.find(x=>x.id===id);
+                  const custom = (family.customCurriculums||[]).find(x=>x.id===id);
+                  const item = b||custom;
+                  if(!item) return null;
+                  return (
+                    <div key={id} style={{display:"flex",gap:"0.6rem",alignItems:"flex-start",padding:"0.55rem 0.65rem",background:pal.parchm,borderRadius:"10px"}}>
+                      <span style={{fontSize:"1.1rem",flexShrink:0,marginTop:"1px"}}>{item.icon||"📘"}</span>
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.82rem"}}>{item.label}</div>
+                        {custom?.summary?(
+                          <div style={{fontSize:"0.71rem",color:pal.inkM,marginTop:"3px",lineHeight:1.5}}>{custom.summary}</div>
+                        ):item.desc?(
+                          <div style={{fontSize:"0.71rem",color:pal.slate,marginTop:"2px"}}>{item.desc}</div>
+                        ):null}
+                        {item.url&&<a href={item.url} target="_blank" rel="noopener noreferrer"
+                          style={{fontSize:"0.64rem",color:pal.primary,marginTop:"2px",display:"inline-block",textDecoration:"none"}}>
+                          {"↗ "+item.url.replace("https://","").replace("www.","").split("/")[0]}
+                        </a>}
+                      </div>
+                    </div>
+                  );
                 })}
               </div>
             </div>
@@ -5480,8 +5808,108 @@ function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab}) {
 
         {/* ====== PROGRESS TAB ====== */}
         {learnTab==="progress" && (<>
+
+          {/* ── Subject progress from real portfolio entries ── */}
+          {(() => {
+            const childIdx = family.children.findIndex(c=>c.id===child);
+            const ciR = childIdx>=0 ? childIdx : 0;
+            const childEntries = portfolioEntries.filter(e=>e.childIdx===ciR&&!e.isDay&&e.subj!=="Daily Notes");
+            const totalEntries = childEntries.length;
+
+            // Count per subject
+            const bySub = {};
+            childEntries.forEach(e=>{
+              if(!bySub[e.subj]) bySub[e.subj]={count:0,recent:null};
+              bySub[e.subj].count++;
+              if(!bySub[e.subj].recent) bySub[e.subj].recent=e.date;
+            });
+
+            // Unique days logged (activity)
+            const uniqueDays = new Set(childEntries.map(e=>e.date)).size;
+            // Reading entries
+            const readingCount = childEntries.filter(e=>e.subj==="Reading"||e.subj==="Reading/Language Arts").length;
+            const maxCount = Math.max(...Object.values(bySub).map(v=>v.count),1);
+
+            return (
+              <>
+                {/* Summary stats */}
+                <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"0.45rem",marginBottom:"1rem"}}>
+                  {[
+                    {l:"Total Entries", v:totalEntries, c:pal.primary,  bg:pal.pale},
+                    {l:"Days Active",   v:uniqueDays,   c:pal.mid,      bg:pal.paleMid},
+                    {l:"Reading",       v:readingCount, c:pal.accentD,  bg:pal.pale},
+                  ].map(s=>(
+                    <div key={s.l} style={{background:s.bg,borderRadius:"12px",padding:"0.65rem 0.4rem",textAlign:"center",border:`1.5px solid ${s.c}22`}}>
+                      <div style={{fontWeight:"900",color:s.c,fontSize:"1.1rem",lineHeight:1}}>{s.v}</div>
+                      <div style={{fontSize:"0.55rem",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.05em",marginTop:"3px"}}>{s.l}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Subject breakdown */}
+                <div style={{background:pal.linen,borderRadius:"16px",padding:"0.9rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}35`}}>
+                  <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem",marginBottom:"0.75rem"}}>
+                    {"Subjects This Year"}
+                  </div>
+                  {activeSubjs.length===0&&Object.keys(bySub).length===0?(
+                    <div style={{fontSize:"0.78rem",color:pal.slate,textAlign:"center",padding:"0.5rem 0"}}>
+                      No entries yet. Start logging to track progress.
+                    </div>
+                  ):(
+                    <div style={{display:"flex",flexDirection:"column",gap:"0.5rem"}}>
+                      {[...new Set([...activeSubjs.map(s=>s.label),...Object.keys(bySub)])].map(label=>{
+                        const subj = activeSubjs.find(s=>s.label===label);
+                        const data = bySub[label]||{count:0,recent:null};
+                        const pct  = Math.round(data.count/maxCount*100);
+                        return (
+                          <div key={label} style={{display:"flex",alignItems:"center",gap:"0.6rem"}}>
+                            <div style={{width:"32px",height:"32px",borderRadius:"8px",background:data.count>0?pal.pale:pal.parchm,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.95rem",flexShrink:0}}>
+                              {subj?.icon||"📋"}
+                            </div>
+                            <div style={{flex:1,minWidth:0}}>
+                              <div style={{display:"flex",justifyContent:"space-between",marginBottom:"3px"}}>
+                                <span style={{fontSize:"0.78rem",fontWeight:"600",color:data.count>0?pal.ink:pal.slate}}>{label}</span>
+                                <span style={{fontSize:"0.7rem",fontWeight:"800",color:data.count>0?pal.primary:pal.stone}}>
+                                  {data.count>0?data.count+" entries":"—"}
+                                </span>
+                              </div>
+                              <div style={{height:"5px",borderRadius:"99px",background:pal.parchm,overflow:"hidden"}}>
+                                <div style={{height:"100%",width:`${pct}%`,borderRadius:"99px",background:data.count>0?pal.accentGrad:pal.stone+"20",transition:"width 0.4s"}}/>
+                              </div>
+                              {data.recent&&(
+                                <div style={{fontSize:"0.6rem",color:pal.stone,marginTop:"2px"}}>Last: {data.recent}</div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                {/* Unlogged subjects warning */}
+                {(() => {
+                  const unlogged = activeSubjs.filter(s=>!(bySub[s.label]));
+                  return unlogged.length>0?(
+                    <div style={{background:"#fffbeb",borderRadius:"13px",padding:"0.7rem 0.9rem",marginBottom:"1rem",border:"1.5px solid #f5c842"}}>
+                      <div style={{fontWeight:"700",color:"#7a5500",fontSize:"0.78rem",marginBottom:"0.3rem"}}>{"⚠️ Subjects not yet logged"}</div>
+                      <div style={{display:"flex",flexWrap:"wrap",gap:"0.3rem"}}>
+                        {unlogged.map(s=>(
+                          <span key={s.id} style={{padding:"0.18rem 0.5rem",background:"#fff8e8",borderRadius:"20px",fontSize:"0.7rem",fontWeight:"600",color:"#7a5500",border:"1px solid #f5c842"}}>
+                            {s.icon} {s.label}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ):null;
+                })()}
+              </>
+            );
+          })()}
+
+          {/* ── Unit studies ── */}
           {units.length>0&&(
-            <div style={{background:pal.linen,borderRadius:"16px",padding:"1rem",border:`1.5px solid ${pal.stone}45`,marginBottom:"1rem"}}>
+            <div style={{background:pal.linen,borderRadius:"16px",padding:"0.9rem 1rem",border:`1.5px solid ${pal.stone}35`,marginBottom:"1rem"}}>
               <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem",marginBottom:"0.75rem"}}>Unit Studies</div>
               {units.map((u,i,a)=>{
                 const pct=u.weeks>0?Math.round(u.weeksDone/u.weeks*100):0;
@@ -5502,20 +5930,7 @@ function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab}) {
               })}
             </div>
           )}
-          <div style={{background:pal.linen,borderRadius:"16px",padding:"1rem",border:`1.5px solid ${pal.stone}45`,marginBottom:"1rem"}}>
-            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem",marginBottom:"0.75rem"}}>Subjects This Year</div>
-            {activeSubjs.length===0 ? (
-              <div style={{fontSize:"0.8rem",color:pal.slate,textAlign:"center",padding:"0.75rem"}}>Add subjects in onboarding or Settings to track progress.</div>
-            ) : activeSubjs.map((s,i,a)=>(
-              <div key={i} style={{display:"flex",alignItems:"center",gap:"0.65rem",marginBottom:i<a.length-1?"0.65rem":"0"}}>
-                <div style={{width:"34px",height:"34px",borderRadius:"9px",background:pal.pale,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1rem",flexShrink:0}}>{s.icon}</div>
-                <div style={{flex:1}}>
-                  <span style={{fontSize:"0.78rem",fontWeight:"600",color:pal.inkM}}>{s.label}</span>
-                </div>
-                <span style={{fontSize:"0.65rem",color:pal.slate,background:pal.parchm,padding:"0.12rem 0.5rem",borderRadius:"20px"}}>Active</span>
-              </div>
-            ))}
-          </div>
+
           <div style={{height:"1rem"}}/>
         </>)}
 
@@ -6217,7 +6632,7 @@ function AIWorksheetModal({ pal, family, activeChild, wsType, onClose }) {
             <>
               <button onClick={()=>{setResult(null);setTopic("");}} style={{padding:"0.7rem 1rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem"}}>New</button>
               <button onClick={onClose} style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>
-                Done v
+                Done
               </button>
             </>
           )}
@@ -6228,7 +6643,7 @@ function AIWorksheetModal({ pal, family, activeChild, wsType, onClose }) {
 }
 
 
-function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEditEntry,attendanceDays=0}){
+function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEditEntry,attendanceDays=0,lastCheckinDate,onCheckin}){
   const [showDailyLog,   setShowDailyLog]   = useState(false);
   const [showAdd,        setShowAdd]        = useState(false);
   const [editEntry,      setEditEntry]      = useState(null);
@@ -6299,16 +6714,21 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
         </div>
 
         {/* ── ACTION ROW ── */}
-        <div style={{display:"flex",gap:"0.45rem",marginBottom:"1rem"}}>
-          <button onClick={()=>setShowDailyLog(true)}
-            style={{flex:1,padding:"0.65rem 0.5rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.78rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.35rem"}}>
-            <span>{"+"}</span><span>Log Today</span>
-          </button>
-          <button onClick={()=>setShowAdd(true)}
-            style={{flex:1,padding:"0.65rem 0.5rem",border:`2px solid ${pal.stone}50`,borderRadius:"12px",background:"transparent",color:pal.inkM,fontWeight:"700",fontSize:"0.78rem",cursor:"pointer"}}>
-            Quick Add
-          </button>
-          <button onClick={()=>printPortfolioPDF(family,childEntries,activeCh,attendanceDays,stateInfo)}
+        {(()=>{
+          const todayStr = new Date().toDateString();
+          const loggedToday = lastCheckinDate===todayStr;
+          return (
+            <div style={{display:"flex",gap:"0.45rem",marginBottom:"1rem"}}>
+              <button onClick={()=>setShowDailyLog(true)}
+                style={{flex:1,padding:"0.65rem 0.5rem",border:"none",borderRadius:"12px",background:loggedToday?pal.goodBg:pal.accentGrad,color:loggedToday?pal.good:"#fff",fontWeight:"800",fontSize:"0.78rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.35rem",border:loggedToday?`2px solid ${pal.good}40`:"none"}}>
+                <span>{loggedToday?"✓":"+"}</span>
+                <span>{loggedToday?"Logged Today":"Log Today"}</span>
+              </button>
+              <button onClick={()=>setShowAdd(true)}
+                style={{flex:1,padding:"0.65rem 0.5rem",border:`2px solid ${pal.stone}50`,borderRadius:"12px",background:"transparent",color:pal.inkM,fontWeight:"700",fontSize:"0.78rem",cursor:"pointer"}}>
+                Quick Add
+              </button>
+              <button onClick={()=>printPortfolioPDF(family,childEntries,activeCh,attendanceDays,stateInfo)}
             style={{padding:"0.65rem 0.75rem",border:"none",borderRadius:"12px",background:pal.primary,color:"#fff",fontWeight:"700",fontSize:"0.78rem",cursor:"pointer",flexShrink:0}}>
             {"🖨"}
           </button>
@@ -6316,7 +6736,9 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
             style={{padding:"0.65rem 0.65rem",border:`2px solid ${pal.primary}`,borderRadius:"12px",background:"transparent",color:pal.primary,fontWeight:"700",fontSize:"0.75rem",cursor:"pointer",flexShrink:0}}>
             {"📜"}
           </button>
-        </div>
+            </div>
+          );
+        })()}
 
         {/* ── YEAR OVERVIEW BUTTON ── */}
         <button onClick={()=>setShowYearView(true)}
@@ -6431,6 +6853,7 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
           if(onAddEntry) {
             newEntries.forEach(e=>onAddEntry(e));
           }
+          onCheckin&&onCheckin();
           setShowDailyLog(false);
         }}/>}
       {showAdd&&<AddEntryModal pal={pal} family={family} onClose={()=>setShowAdd(false)}
@@ -8081,7 +8504,7 @@ function CoopSetupCard({pal,family,onSave,onCancel}){
   );
 }
 
-function CoopScreen({pal,family,coopLog,onLog,onUpdateFamily}){
+function CoopScreen({pal,family,coopLog,onLog,onUpdateFamily,onAddEntry}){
   const [showQL,    setShowQL]    = useState(false);
   const [showSetup, setShowSetup] = useState(false);
   const [expanded,  setExpanded]  = useState(null);
@@ -8100,9 +8523,26 @@ function CoopScreen({pal,family,coopLog,onLog,onUpdateFamily}){
     try{ return new Date(l.date+", "+new Date().getFullYear()).toLocaleDateString("en-US",{month:"short",year:"numeric"})===thisMonth; }catch{return false;}
   }).reduce((s,l)=>s+(parseFloat(l.hrs)||0),0);
 
-  const saveLog = (e) => {
-    onLog({...e, date:new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"})});
-    setShowQL(false);
+  const saveLog = (logData) => {
+    const date = new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
+    onLog({...logData, date});
+    // Save portfolio entries — one per selected subject per child
+    if(onAddEntry && (logData.subjects||[]).length>0) {
+      family.children.forEach((ch,ci)=>{
+        (logData.subjects||[]).forEach(subj=>{
+          const note = (logData.subjectNotes&&logData.subjectNotes[ch.id]&&logData.subjectNotes[ch.id][subj])||"";
+          onAddEntry({
+            childIdx: ci,
+            subj: subj,
+            title: subj+" \u2014 Co-op",
+            note: note,
+            thumb: "🏫",
+            date: date,
+            photos: logData.photos||[],
+          });
+        });
+      });
+    }
   };
 
   return (
