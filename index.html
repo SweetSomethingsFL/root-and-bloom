@@ -4829,18 +4829,10 @@ function GoalsNudgeCard({pal,family,portfolioEntries,todayStr,onTabChange}){
               : primary.nudge.nudge}
           </div>
         </div>
-        <div style={{display:"flex",gap:"0.3rem",flexShrink:0}}>
-          {!completed&&(
-            <button onClick={()=>onTabChange(primary.nudge.tab||"schedule")}
-              style={{padding:"0.28rem 0.65rem",border:"none",borderRadius:"9px",background:pal.primary,color:"#fff",fontSize:"0.68rem",fontWeight:"800",cursor:"pointer",whiteSpace:"nowrap"}}>
-              Go {"→"}
-            </button>
-          )}
-          <button onClick={()=>onTabChange("goals")}
-            style={{padding:"0.28rem 0.65rem",border:`1.5px solid ${pal.stone}`,borderRadius:"9px",background:"transparent",color:pal.slate,fontSize:"0.68rem",fontWeight:"700",cursor:"pointer",whiteSpace:"nowrap"}}>
-            {"🌟"}
-          </button>
-        </div>
+        <button onClick={()=>onTabChange("goals")}
+          style={{padding:"0.28rem 0.7rem",border:"none",borderRadius:"9px",background:pal.accentGrad,color:"#fff",fontSize:"0.68rem",fontWeight:"800",cursor:"pointer",whiteSpace:"nowrap",flexShrink:0}}>
+          {"View Goals"}
+        </button>
       </div>
     </div>
   );
