@@ -506,6 +506,7 @@ function RootAndBloom() {
         <div ref={mainScrollRef} style={{flex:1,overflowY:"auto",paddingBottom:"72px"}}>
           {activeTab==="home" && <HomeScreen pal={pal} family={family} child={childFilt} setChild={setChildFilt} onTheme={()=>setShowTheme(true)} attendanceDays={attendanceDays} checkinStreak={checkinStreak} lastCheckinDate={lastCheckinDate} portfolioEntries={portfolioEntries} onTabChange={setActiveTab} todayProgress={todayProgress} />}
           {activeTab==="schedule" && <ScheduleScreen pal={pal} family={family} child={childFilt} setChild={setChildFilt}
+            onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))}
             onMarkComplete={(data)=>{
               const todayStr=new Date().toDateString();
               setAttendanceDays(d=>d+(lastCheckinDate===todayStr?0:1));
@@ -2407,20 +2408,45 @@ function generateSchedule(family) {
       if ((idx+1) % 2 === 0 && idx < subjects.length-1) {
         const breakStyle = family.breakStyle||"";
         if (!breakStyle.includes("No set")) {
-          blocks.push({t:toTime(cursor), s:"Break", i:"", c:"all", dur:15});
+          blocks.push({t:toTime(cursor), s:"Break", i:"☕", c:"all", dur:15});
           cursor += 15;
         }
       }
     }
   });
 
+  // Apply schedule overrides: remove deleted, apply duration edits, add custom, reorder
+  const overrides = family.scheduleOverrides;
+  if(overrides) {
+    // Remove blocks marked for deletion
+    if(overrides.removed?.length) {
+      blocks = blocks.filter(b=>!overrides.removed.includes(b.s));
+    }
+    // Apply duration edits
+    if(overrides.durations) {
+      blocks = blocks.map(b=>overrides.durations[b.s]?{...b,dur:overrides.durations[b.s]}:b);
+    }
+    // Add custom blocks
+    if(overrides.custom?.length) {
+      blocks = [...blocks, ...overrides.custom];
+    }
+    // Apply custom order if set
+    if(overrides.order?.length) {
+      const orderMap = Object.fromEntries(overrides.order.map((s,i)=>[s,i]));
+      blocks.sort((a,b)=>{
+        const ai = orderMap[a.s]??999;
+        const bi = orderMap[b.s]??999;
+        return ai-bi;
+      });
+    }
+  }
+
   // Inject Life Ready blocks based on day of week
   if (family.lifeReady) {
-    const dow = new Date().getDay(); // 0=Sun,1=Mon,2=Tue,3=Wed,4=Thu
+    const dow = new Date().getDay();
     const freq = family.lifeReadyFreq || "monday_plus_practice";
     const topic = getLRTopicForWeek(family.children?.[0]?.grade||"5th");
     if (dow===1) {
-      // Monday — full 30-min lesson inserted right after morning gathering (or at top)
       const insertAt = family.morningGathering ? 1 : 0;
       blocks.splice(insertAt, 0, {
         t: isTimed ? toTime(cursor) : "",
@@ -2433,7 +2459,6 @@ function generateSchedule(family) {
         accentColor: LR_COLOR,
       });
     } else if (freq === "monday_plus_practice" && (dow===2||dow===3||dow===4)) {
-      // Tue-Thu — short 10-min practice prompt appended at end
       blocks.push({
         t: "",
         s: "P&C Practice: " + topic,
@@ -4808,7 +4833,196 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
 
 /* ======= SKELETON SCREENS for other tabs ======= */
 
-function ScheduleScreen({pal,family,child,setChild,onMarkComplete,onProgressUpdate}){
+/* =======================================
+   SCHEDULE EDITOR MODAL
+======================================= */
+function ScheduleEditorModal({pal,family,onSave,onClose}){
+  // Build the current schedule to edit
+  const baseBlocks = generateSchedule({...family, scheduleOverrides:null, lifeReady:false});
+
+  // Working copy of blocks for editing
+  const [blocks, setBlocks] = useState(()=>{
+    const overrides = family.scheduleOverrides||{};
+    return baseBlocks
+      .filter(b=>!(overrides.removed||[]).includes(b.s))
+      .map(b=>({...b, dur:overrides.durations?.[b.s]||b.dur}))
+      .concat((overrides.custom||[]).map(b=>({...b,_custom:true})));
+  });
+
+  const [showAdd,   setShowAdd]   = useState(false);
+  const [newName,   setNewName]   = useState("");
+  const [newIcon,   setNewIcon]   = useState("📋");
+  const [newDur,    setNewDur]    = useState("30");
+
+  const ICONS = ["📋","📖","✏️","📐","🔬","🌿","🎨","🎵","🏃","🌍","💻","🙏","🍳","🏠","🧠","⭐"];
+  const DURATIONS = ["10","15","20","30","45","60","90"];
+
+  const moveUp   = (i) => { if(i===0) return; const b=[...blocks]; [b[i-1],b[i]]=[b[i],b[i-1]]; setBlocks(b); };
+  const moveDown = (i) => { if(i===blocks.length-1) return; const b=[...blocks]; [b[i],b[i+1]]=[b[i+1],b[i]]; setBlocks(b); };
+  const remove   = (i) => setBlocks(b=>b.filter((_,bi)=>bi!==i));
+  const setDur   = (i,dur) => setBlocks(b=>b.map((bl,bi)=>bi===i?{...bl,dur:parseInt(dur)}:bl));
+
+  const addBlock = () => {
+    if(!newName.trim()) return;
+    setBlocks(b=>[...b,{s:newName.trim(),i:newIcon,dur:parseInt(newDur)||30,c:"all",t:"",_custom:true}]);
+    setNewName(""); setNewIcon("📋"); setNewDur("30");
+    setShowAdd(false);
+  };
+
+  const handleSave = () => {
+    const baseNames = baseBlocks.map(b=>b.s);
+    const currentNames = blocks.map(b=>b.s);
+    // What was removed from base
+    const removed = baseNames.filter(n=>!currentNames.includes(n));
+    // Duration overrides
+    const durations = {};
+    blocks.forEach(b=>{
+      const base = baseBlocks.find(bb=>bb.s===b.s);
+      if(base && base.dur!==b.dur) durations[b.s]=b.dur;
+    });
+    // Custom blocks
+    const custom = blocks.filter(b=>b._custom);
+    // Order of all blocks
+    const order = blocks.map(b=>b.s);
+    onSave({removed, durations, custom, order});
+  };
+
+  const totalMins = blocks.reduce((s,b)=>s+b.dur,0);
+  const hrs = Math.floor(totalMins/60);
+  const mins = totalMins%60;
+
+  return (
+    <div style={{position:"fixed",inset:0,background:"rgba(15,10,4,0.78)",backdropFilter:"blur(12px)",zIndex:300,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
+      <div style={{background:pal.linen,borderRadius:"28px 28px 0 0",width:"100%",maxWidth:"430px",maxHeight:"92vh",display:"flex",flexDirection:"column",animation:"slideUp 0.28s ease"}}>
+
+        {/* Handle */}
+        <div style={{padding:"0.7rem 0 0",display:"flex",justifyContent:"center",flexShrink:0}}>
+          <div style={{width:"36px",height:"4px",borderRadius:"99px",background:pal.stone}}/>
+        </div>
+
+        {/* Header */}
+        <div style={{background:pal.heroGrad,padding:"0.9rem 1.2rem",flexShrink:0}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+            <div>
+              <div style={{fontWeight:"900",color:"#fff",fontSize:"1rem"}}>{"✏️ Edit Schedule"}</div>
+              <div style={{fontSize:"0.72rem",color:"rgba(255,255,255,0.72)",marginTop:"2px"}}>
+                {blocks.length} blocks {"\u00b7"} {hrs>0?hrs+"h ":""}{mins>0?mins+"m":""} total
+              </div>
+            </div>
+            <div style={{display:"flex",gap:"0.4rem",alignItems:"center"}}>
+              <button onClick={()=>{if(window.confirm("Reset to default schedule?"))onSave({removed:[],durations:{},custom:[],order:[]});}}
+                style={{padding:"0.28rem 0.6rem",border:"none",borderRadius:"8px",background:"rgba(255,255,255,0.15)",color:"#fff",fontSize:"0.68rem",fontWeight:"700",cursor:"pointer"}}>
+                Reset
+              </button>
+              <button onClick={onClose}
+                style={{padding:"0.28rem 0.6rem",border:"none",borderRadius:"8px",background:"rgba(255,255,255,0.15)",color:"#fff",fontSize:"0.68rem",fontWeight:"700",cursor:"pointer"}}>
+                {"✕"}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Block list */}
+        <div style={{flex:1,overflowY:"auto",padding:"0.85rem 1.1rem"}}>
+          <div style={{fontSize:"0.72rem",color:pal.slate,marginBottom:"0.65rem",lineHeight:1.5}}>
+            Drag to reorder using the arrows. Tap the duration to change it. Remove any block with ✕.
+          </div>
+
+          {blocks.map((b,i)=>(
+            <div key={b.s+i} style={{display:"flex",gap:"0.5rem",alignItems:"center",padding:"0.55rem 0.75rem",background:"#fff",borderRadius:"12px",marginBottom:"0.38rem",border:`1.5px solid ${pal.stone}25`}}>
+              {/* Move buttons */}
+              <div style={{display:"flex",flexDirection:"column",gap:"1px",flexShrink:0}}>
+                <button onClick={()=>moveUp(i)}
+                  style={{width:"20px",height:"18px",border:`1px solid ${pal.stone}50`,borderRadius:"4px",background:"transparent",color:i===0?pal.stone+"50":pal.slate,cursor:i===0?"default":"pointer",fontSize:"0.6rem",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                  {"▲"}
+                </button>
+                <button onClick={()=>moveDown(i)}
+                  style={{width:"20px",height:"18px",border:`1px solid ${pal.stone}50`,borderRadius:"4px",background:"transparent",color:i===blocks.length-1?pal.stone+"50":pal.slate,cursor:i===blocks.length-1?"default":"pointer",fontSize:"0.6rem",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                  {"▼"}
+                </button>
+              </div>
+
+              {/* Icon + name */}
+              <span style={{fontSize:"1.1rem",flexShrink:0}}>{b.i||"📋"}</span>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.83rem",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{b.s}</div>
+                {b._custom&&<div style={{fontSize:"0.6rem",color:pal.primary,fontWeight:"700"}}>custom</div>}
+              </div>
+
+              {/* Duration selector */}
+              <select value={String(b.dur)} onChange={e=>setDur(i,e.target.value)}
+                style={{padding:"0.22rem 0.3rem",border:`1.5px solid ${pal.stone}`,borderRadius:"7px",fontSize:"0.76rem",background:pal.parchm,color:pal.inkM,outline:"none",cursor:"pointer",flexShrink:0}}>
+                {DURATIONS.map(d=><option key={d} value={d}>{d}m</option>)}
+              </select>
+
+              {/* Remove */}
+              <button onClick={()=>remove(i)}
+                style={{width:"24px",height:"24px",borderRadius:"50%",border:`1.5px solid ${pal.stone}`,background:"transparent",color:pal.slate,fontSize:"0.7rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                {"✕"}
+              </button>
+            </div>
+          ))}
+
+          {/* Add block */}
+          {!showAdd?(
+            <button onClick={()=>setShowAdd(true)}
+              style={{width:"100%",padding:"0.6rem",border:`2px dashed ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,fontSize:"0.8rem",fontWeight:"600",cursor:"pointer",marginTop:"0.35rem"}}>
+              + Add a block
+            </button>
+          ):(
+            <div style={{background:pal.pale,borderRadius:"14px",padding:"0.85rem",marginTop:"0.5rem",border:`1.5px solid ${pal.primary}25`,animation:"fadeUp 0.18s ease"}}>
+              <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.82rem",marginBottom:"0.6rem"}}>New Block</div>
+              <div style={{display:"flex",gap:"0.4rem",marginBottom:"0.5rem"}}>
+                <input value={newName} onChange={e=>setNewName(e.target.value)}
+                  placeholder="Block name..."
+                  onKeyDown={e=>e.key==="Enter"&&addBlock()}
+                  style={{flex:1,padding:"0.48rem 0.65rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.82rem",background:"#fff",color:pal.ink,outline:"none",fontFamily:"inherit"}}
+                  onFocus={e=>e.target.style.borderColor=pal.primary}
+                  onBlur={e=>e.target.style.borderColor=pal.stone}
+                  autoFocus/>
+                <select value={newDur} onChange={e=>setNewDur(e.target.value)}
+                  style={{padding:"0.48rem 0.5rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.82rem",background:"#fff",color:pal.inkM,outline:"none"}}>
+                  {DURATIONS.map(d=><option key={d} value={d}>{d} min</option>)}
+                </select>
+              </div>
+              <div style={{marginBottom:"0.6rem"}}>
+                <div style={{fontSize:"0.7rem",color:pal.slate,marginBottom:"0.3rem"}}>Icon</div>
+                <div style={{display:"flex",gap:"0.3rem",flexWrap:"wrap"}}>
+                  {ICONS.map(ic=>(
+                    <button key={ic} onClick={()=>setNewIcon(ic)}
+                      style={{width:"32px",height:"32px",borderRadius:"8px",border:`2px solid ${newIcon===ic?pal.primary:pal.stone+"50"}`,background:newIcon===ic?pal.pale:"transparent",cursor:"pointer",fontSize:"1rem",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                      {ic}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div style={{display:"flex",gap:"0.4rem"}}>
+                <button onClick={()=>{setShowAdd(false);setNewName("");}}
+                  style={{padding:"0.5rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",background:"transparent",color:pal.slate,fontSize:"0.8rem",cursor:"pointer"}}>
+                  Cancel
+                </button>
+                <button onClick={addBlock}
+                  style={{flex:1,padding:"0.5rem",border:"none",borderRadius:"10px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.82rem",cursor:"pointer"}}>
+                  Add Block
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div style={{padding:"0.9rem 1.1rem",borderTop:`1px solid ${pal.stone}40`,background:pal.linen,flexShrink:0}}>
+          <button onClick={handleSave}
+            style={{width:"100%",padding:"0.82rem",border:"none",borderRadius:"13px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.9rem",cursor:"pointer"}}>
+            Save Schedule
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ScheduleScreen({pal,family,child,setChild,onMarkComplete,onProgressUpdate,onUpdateFamily}){
   const today = new Date();
   const todayDow = today.getDay();
   const weekStart = new Date(today);
@@ -4819,6 +5033,7 @@ function ScheduleScreen({pal,family,child,setChild,onMarkComplete,onProgressUpda
   });
   const todayIdx = DAYS.findIndex(d=>d.isToday);
   const [selectedDay, setSelectedDay] = useState(Math.max(0,todayIdx));
+  const [showEditor, setShowEditor] = useState(false);
 
   // Persist checked + skipped state in localStorage so partial progress saves across navigation
   const SCHED_KEY = "rootbloom_sched_v1";
@@ -4882,10 +5097,16 @@ function ScheduleScreen({pal,family,child,setChild,onMarkComplete,onProgressUpda
     <div style={{animation:"fadeUp 0.22s ease"}}>
       <ScreenHdr pal={pal} title="Schedule" sub={new Date().toLocaleDateString("en-US",{month:"long",year:"numeric"})} icon="📅"/>
       <div style={{padding:"0 1rem"}}>
-        {/* Child filter */}
-        <div style={{display:"flex",gap:"0.35rem",marginBottom:"0.9rem",overflowX:"auto"}}>
-          <Chip pal={pal} label="All" active={child==="all"} onClick={()=>setChild("all")}/>
-          {family.children.map(c=><Chip key={c.id} pal={pal} label={c.avatar+" "+c.name} active={child===c.id} onClick={()=>setChild(c.id)}/>)}
+        {/* Child filter + edit button */}
+        <div style={{display:"flex",gap:"0.35rem",marginBottom:"0.9rem",alignItems:"center"}}>
+          <div style={{display:"flex",gap:"0.35rem",flex:1,overflowX:"auto"}}>
+            <Chip pal={pal} label="All" active={child==="all"} onClick={()=>setChild("all")}/>
+            {family.children.map(c=><Chip key={c.id} pal={pal} label={c.avatar+" "+c.name} active={child===c.id} onClick={()=>setChild(c.id)}/>)}
+          </div>
+          <button onClick={()=>setShowEditor(true)}
+            style={{padding:"0.32rem 0.7rem",border:`1.5px solid ${pal.stone}`,borderRadius:"9px",background:pal.linen,color:pal.inkM,fontSize:"0.72rem",fontWeight:"700",cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}}>
+            {"✏️ Edit"}
+          </button>
         </div>
         {/* Day strip - real dates */}
         <div style={{display:"flex",gap:"0.35rem",marginBottom:"1rem"}}>
@@ -5016,11 +5237,12 @@ function ScheduleScreen({pal,family,child,setChild,onMarkComplete,onProgressUpda
         </button>
         <div style={{height:"1rem"}}/>
       </div>
+      {showEditor&&<ScheduleEditorModal pal={pal} family={family}
+        onSave={overrides=>{onUpdateFamily&&onUpdateFamily({scheduleOverrides:overrides});setShowEditor(false);}}
+        onClose={()=>setShowEditor(false)}/>}
     </div>
   );
 }
-/* =======================================
-   LEARN SCREEN - AI Curriculum Builder
    Full Claude API integration
 ======================================= */
 const SUBJECTS = [
@@ -5072,6 +5294,33 @@ function incrementAILimit(monthKey) {
     Object.keys(stored).forEach(k=>{ if(k!==current) delete stored[k]; });
     localStorage.setItem(AI_LIMIT_KEY, JSON.stringify(stored));
   } catch(e) {}
+}
+
+// Returns a rich goals string for AI prompts — human-readable, context-rich
+function goalSummary(family) {
+  const allGoals = [...GOALS,...(family.customGoals||[])];
+  const goalIds  = family.goals||[];
+  if(goalIds.length===0) return "well-rounded education";
+  const labels = goalIds.map(id=>{
+    const g = allGoals.find(x=>x.id===id);
+    return g ? g.label : id;
+  }).filter(Boolean);
+  return labels.join(", ");
+}
+
+// Returns curriculum context string for AI prompts
+function curriculumContext(family) {
+  const brands = (family.curriculumBrands||[]).map(id=>{
+    const b = CURRICULUM_BRANDS.find(x=>x.id===id);
+    return b ? b.label : id;
+  }).filter(Boolean);
+  const style  = Array.isArray(family.curriculumStyle)
+    ? family.curriculumStyle.join(", ")
+    : family.curriculumStyle||"eclectic";
+  const parts = [];
+  if(brands.length>0) parts.push("Programs: "+brands.join(", "));
+  if(style) parts.push("Approach: "+style);
+  return parts.join(" | ")||"eclectic homeschool";
 }
 
 async function callClaude(prompt) {
@@ -5364,11 +5613,12 @@ function AIChatModal({ pal, family, onClose }) {
           system:"You are a warm, creative homeschool assistant for Root & Bloom app. You help homeschool families with worksheets, lesson plans, unit studies, discussion questions, project ideas, and any educational content they need.\n\n"
             +"Family info:\n"
             +"- Children: "+(childNames||"not specified")+"\n"
-            +"- Learning philosophy: "+philosophies+"\n"
-            +"- Curriculum programs: "+((family?.curriculumBrands||[]).join(", ")||"not specified")+"\n"
+            +"- Curriculum: "+curriculumContext(family)+"\n"
             +"- State: "+(family?.state||"not specified")+"\n"
-            +"- Goals: "+((family?.goals||[]).join(", ")||"not specified")+"\n\n"
-            +"When creating worksheets or lesson plans, format them clearly with headers, questions numbered, and age-appropriate content. Be warm, encouraging, and practical. Keep responses focused and useful - not overly long.",
+            +"- Family goals: "+goalSummary(family)+"\n"
+            +"- Active subjects: "+((family?.subjects||[]).join(", ")||"not specified")+"\n\n"
+            +"Always shape your suggestions to reflect the family's goals. If they prioritize Faith & Character, weave in character development. If Strong Readers, emphasize reading-based learning. If STEM Focus, lean into experiments and inquiry. If Nature & Outdoors, suggest outdoor and nature-based activities.\n\n"
+            +"When creating worksheets or lesson plans, format them clearly with headers and numbered items. Be warm, encouraging, and practical. Keep responses focused and useful.",
           messages:history
         })
       });
@@ -5411,7 +5661,7 @@ function AIChatModal({ pal, family, onClose }) {
           <div style={{fontWeight:"800",color:"#fff",fontSize:"0.95rem"}}>AI Assistant</div>
           <div style={{fontSize:"0.72rem",color:"rgba(255,255,255,0.65)"}}>Worksheets, lessons, projects & more</div>
         </div>
-        <button onClick={onClose} style={{background:"rgba(255,255,255,0.15)",border:"none",borderRadius:"8px",padding:"0.3rem 0.65rem",color:"#fff",cursor:"pointer",fontSize:"0.8rem",fontWeight:"700"}}>x</button>
+        <button onClick={onClose} style={{background:"rgba(255,255,255,0.15)",border:"none",borderRadius:"8px",padding:"0.3rem 0.65rem",color:"#fff",cursor:"pointer",fontSize:"0.8rem",fontWeight:"700"}}>{"✕"}</button>
       </div>
 
       {/* Messages */}
@@ -5506,7 +5756,7 @@ function UnitModal({pal,family,initial,onClose,onSave}){
         <div style={{padding:"0.7rem 0 0",display:"flex",justifyContent:"center",flexShrink:0}}><div style={{width:"36px",height:"4px",borderRadius:"99px",background:pal.stone}}/></div>
         <div style={{padding:"0.75rem 1.3rem",borderBottom:`1px solid ${pal.stone}45`,flexShrink:0,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <div style={{fontWeight:"800",color:pal.ink,fontSize:"1rem"}}>{isEdit?"Edit Unit Study":"Add Unit Study"}</div>
-          <button onClick={onClose} style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.9rem"}}>x</button>
+          <button onClick={onClose} style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.9rem"}}>{"✕"}</button>
         </div>
         <div style={{flex:1,overflowY:"auto",padding:"1rem 1.3rem"}}>
           <Lbl pal={pal}>Subject</Lbl>
@@ -5611,17 +5861,18 @@ function AIUnitBuilderModal({ pal, family, activeChild, onSave, onClose }) {
     setStep(2);
     setError(null);
     const child = activeChild;
-    const style = family.curriculumStyle||"classical";
-    const goals = (family.goals||[]).slice(0,4).join(", ")||"well-rounded education";
-    const prompt = "You are a homeschool curriculum assistant. Create a concise unit study plan for a homeschool family.\n\n"
+    const goals = goalSummary(family);
+    const curriculum = curriculumContext(family);
+    const prompt = "You are a homeschool curriculum assistant. Create a concise unit study plan shaped toward this family's goals.\n\n"
       + "Student: "+(child?.name||"Student")+", "+(child?.grade||"elementary")+" grade\n"
-      + "Curriculum approach: "+style+"\n"
+      + "Curriculum: "+curriculum+"\n"
       + "Subject: "+subject.label+"\n"
       + "Topic: "+topic+"\n"
       + "Duration: "+duration+"\n"
       + "Family goals: "+goals+"\n"
       + (notes?"Special notes: "+notes+"\n":"")
-      + "\nRespond in this exact JSON format (no markdown, no backticks, just raw JSON):\n"
+      + "\nIMPORTANT: Shape the unit to reflect the family's goals. If they prioritize Faith & Character, weave in character development. If Strong Readers, emphasize reading-based activities. If STEM Focus, add hands-on experiments. If Nature & Outdoors, include outdoor learning.\n\n"
+      + "Respond in this exact JSON format (no markdown, no backticks, just raw JSON):\n"
       + '{\n  \"title\": \"unit title (5-8 words)\",\n  \"overview\": \"2-3 sentence engaging overview\",\n'
       + '  \"weeklyPlan\": [\n    {\"week\": 1, \"focus\": \"focus area\", \"activities\": [\"activity 1\", \"activity 2\", \"activity 3\"], \"resources\": \"suggested books or materials\"},\n'
       + '    {\"week\": 2, \"focus\": \"focus area\", \"activities\": [\"activity 1\", \"activity 2\", \"activity 3\"], \"resources\": \"suggested books or materials\"}\n  ],\n'
@@ -5668,7 +5919,7 @@ function AIUnitBuilderModal({ pal, family, activeChild, onSave, onClose }) {
               {["Pick a subject","Details","Generating...","Your unit plan"][step]}
             </div>
           </div>
-          {step!==2&&<button onClick={onClose} style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.9rem",display:"flex",alignItems:"center",justifyContent:"center"}}>x</button>}
+          {step!==2&&<button onClick={onClose} style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.9rem",display:"flex",alignItems:"center",justifyContent:"center"}}>{"✕"}</button>}
         </div>
         {/* Progress steps */}
         {step<3&&<div style={{display:"flex",gap:"4px",padding:"0.65rem 1.3rem 0",flexShrink:0}}>
@@ -5849,12 +6100,17 @@ function AIWorksheetModal({ pal, family, activeChild, wsType, onClose }) {
   const generate = async () => {
     if(!topic.trim()) return;
     setLoading(true); setError(null);
-    const child=activeChild;
-    const grade=child?.grade||"elementary";
+    const child  = activeChild;
+    const grade  = child?.grade||"elementary";
+    const goals  = goalSummary(family);
+    const curriculum = curriculumContext(family);
     const prompt = "Create a homeschool worksheet for a "+grade+" student.\n\n"
       + "Worksheet type: "+ws.label+"\n"
       + "Topic: "+topic+"\n"
-      + "Student name: "+(child?.name||"Student")+"\n\n"
+      + "Student name: "+(child?.name||"Student")+"\n"
+      + "Curriculum: "+curriculum+"\n"
+      + "Family goals: "+goals+"\n\n"
+      + "Let the family's goals subtly shape the content tone and examples where natural (e.g. if Faith & Character is a goal, use character-building scenarios; if Nature & Outdoors, use nature-based examples; if Strong Readers, include rich vocabulary).\n\n"
       + "Respond in this exact JSON format (no markdown, no backticks, just raw JSON):\n"
       + '{"title":"worksheet title","instructions":"one clear sentence of instructions",'
       + '"items":[{"type":"prompt","content":"item text"},{"type":"prompt","content":"item text"},{"type":"prompt","content":"item text"},{"type":"prompt","content":"item text"},{"type":"prompt","content":"item text"}],'
@@ -5882,7 +6138,7 @@ function AIWorksheetModal({ pal, family, activeChild, wsType, onClose }) {
             <div style={{fontWeight:"800",color:pal.ink,fontSize:"1rem"}}>{ws.icon} {ws.label}</div>
             <div style={{fontSize:"0.74rem",color:pal.slate,marginTop:"2px"}}>{activeChild?.name||"Student"} - {activeChild?.grade||"All grades"}</div>
           </div>
-          <button onClick={onClose} style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.9rem",display:"flex",alignItems:"center",justifyContent:"center"}}>x</button>
+          <button onClick={onClose} style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.9rem",display:"flex",alignItems:"center",justifyContent:"center"}}>{"✕"}</button>
         </div>
 
         <div style={{flex:1,overflowY:"auto",padding:"1rem 1.3rem"}}>
@@ -7029,7 +7285,7 @@ function AddEntryModal({pal,family,onClose,onSave,initialData=null,stateInfo=nul
         <div style={{padding:"0.7rem 0 0",display:"flex",justifyContent:"center",flexShrink:0}}><div style={{width:"36px",height:"4px",borderRadius:"99px",background:pal.stone}}/></div>
         <div style={{padding:"0.75rem 1.3rem",borderBottom:`1px solid ${pal.stone}45`,flexShrink:0,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <div style={{fontWeight:"800",color:pal.ink,fontSize:"1rem"}}>{isEdit?"Edit Entry":"Add Portfolio Entry"}</div>
-          <button onClick={onClose} style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.9rem"}}>x</button>
+          <button onClick={onClose} style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.9rem"}}>{"✕"}</button>
         </div>
         <div style={{flex:1,overflowY:"auto",padding:"1rem 1.3rem"}}>
 
@@ -8014,8 +8270,15 @@ function LifeReadyScreen({pal,family,onBack}){
   const generateLesson = async () => {
     setGenerating(true); setError(null);
     const childNames = (family.children||[]).map(c=>c.name+" ("+c.grade+")").join(", ");
+    const goals = goalSummary(family);
+    const lifeGoals = (family.goals||[]).filter(id=>["life","nature","independence","cooking","homestead","service"].includes(id));
+    const lifeGoalLabels = lifeGoals.map(id=>{
+      const g = GOALS.find(x=>x.id===id);
+      return g?g.label:id;
+    }).join(", ");
     const prompt = "Create an age-appropriate Life Ready lesson plan for homeschool students."
       + " Topic: "+topic+". Students: "+childNames+"."
+      + (lifeGoalLabels?" This family especially values: "+lifeGoalLabels+" — let these shape your examples and framing where natural.":"")
       + " Format: 1) Opening hook (1-2 sentences to grab attention), "
       + "2) What you need (materials list, simple), "
       + "3) The lesson (3-5 clear steps, hands-on), "
@@ -8854,16 +9117,36 @@ function NarrativeEditor({pal,ch,family,bySubject,attendanceDays,schoolName,cp,c
 
   const generate = async () => {
     setGenerating(true); setError(null);
-    const subjList = Object.keys(bySubject).join(", ")||"various subjects";
-    const approach = (Array.isArray(family.curriculumStyle)?family.curriculumStyle:[family.curriculumStyle||"eclectic"]).join(", ");
+    const subjList    = Object.keys(bySubject).join(", ")||"various subjects";
+    const subjCounts  = Object.entries(bySubject).map(([s,d])=>s+": "+d.count+" entries").join(", ");
+    const goals       = goalSummary(family);
+    const curriculum  = curriculumContext(family);
+    const allGoalObjs = [...GOALS,...(family.customGoals||[])];
+    // Map goals to entry counts for context
+    const goalProgress = (family.goals||[]).map(id=>{
+      const g = allGoalObjs.find(x=>x.id===id);
+      const nudge = GOAL_NUDGES[id];
+      if(!g) return null;
+      const cnt = nudge?.subjs?.length>0
+        ? Object.entries(bySubject).filter(([s])=>nudge.subjs.includes(s)).reduce((n,[,d])=>n+d.count,0)
+        : null;
+      return g.label+(cnt!==null?" ("+cnt+" related entries)":"");
+    }).filter(Boolean).join(", ");
     const prompt = "Write a warm, professional annual narrative report for a homeschool portfolio."
       + " Student: "+ch.name+", "+ch.grade+" grade."
       + " School: "+schoolName+". State: "+(family.state||"")+"."
-      + " Learning approach: "+approach+"."
+      + " Curriculum: "+curriculum+"."
       + " Subjects studied: "+subjList+"."
+      + " Portfolio entries by subject: "+subjCounts+"."
       + " Days completed: "+attendanceDays+"."
-      + " Write 3 paragraphs: 1) Overview of the year and approach, 2) Academic highlights and growth in key subjects, 3) Character and personal development."
-      + " Warm, specific, and suitable for state review. Under 250 words.";
+      + " Family goals this year: "+goals+"."
+      + (goalProgress?" Goal progress: "+goalProgress+".":"")
+      + " Write 3 paragraphs:"
+      + " 1) Overview of the year — approach, rhythm, and how the family's goals shaped their homeschool."
+      + " 2) Academic highlights — growth in key subjects, notable entries, reading, and specific achievements."
+      + " 3) Character and personal development — tie back to their stated goals, highlight growth beyond academics."
+      + " Weave the family goals naturally into the narrative — don't just list them, show how the year reflected them."
+      + " Warm, specific, parent-voice. Suitable for state review. Under 280 words.";
     try {
       const text = await callClaude(prompt);
       save(text);
@@ -9552,7 +9835,7 @@ function ScreenHdr({pal,title,sub,icon}){
   return <div style={{background:pal.heroGrad,padding:"1.15rem 1.1rem 1.3rem",position:"relative",overflow:"hidden"}}><div style={{position:"absolute",right:"-25px",top:"-25px",width:"110px",height:"110px",borderRadius:"50%",background:"rgba(255,255,255,0.055)"}}/><div style={{position:"relative"}}><div style={{fontSize:"0.6rem",color:"rgba(255,255,255,0.45)",textTransform:"uppercase",letterSpacing:"0.12em",fontWeight:"600",marginBottom:"0.2rem"}}>{sub}</div><div style={{display:"flex",alignItems:"center",gap:"0.55rem"}}><span style={{fontSize:"1.35rem"}}>{icon}</span><span style={{fontWeight:"800",color:pal.onDark,fontSize:"1.25rem"}}>{title}</span></div></div></div>;
 }
 function BottomSheet({children,onClose,title,sub,pal,tall}){
-  return <div style={{position:"fixed",inset:0,background:"rgba(15,10,4,0.72)",backdropFilter:"blur(12px)",zIndex:200,display:"flex",alignItems:"flex-end",justifyContent:"center"}}><div style={{background:pal.linen,borderRadius:"28px 28px 0 0",width:"100%",maxWidth:"430px",boxShadow:"0 -14px 60px rgba(0,0,0,0.32)",animation:"slideUp 0.28s ease",maxHeight:tall?"88vh":"82vh",display:"flex",flexDirection:"column"}}><div style={{padding:"0.7rem 0 0",display:"flex",justifyContent:"center",flexShrink:0}}><div style={{width:"36px",height:"4px",borderRadius:"99px",background:pal.stone}}/></div><div style={{padding:"0.75rem 1.3rem 0.75rem",borderBottom:`1px solid ${pal.stone}45`,flexShrink:0,display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}><div><div style={{fontWeight:"800",color:pal.ink,fontSize:"1rem"}}>{title}</div>{sub&&<div style={{fontSize:"0.74rem",color:pal.slate,marginTop:"2px"}}>{sub}</div>}</div><button onClick={onClose} style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.9rem",flexShrink:0,marginLeft:"0.75rem"}}>x</button></div><div style={{flex:1,overflowY:"auto",padding:"1rem 1.3rem 1.3rem"}}>{children}</div></div></div>;
+  return <div style={{position:"fixed",inset:0,background:"rgba(15,10,4,0.72)",backdropFilter:"blur(12px)",zIndex:200,display:"flex",alignItems:"flex-end",justifyContent:"center"}}><div style={{background:pal.linen,borderRadius:"28px 28px 0 0",width:"100%",maxWidth:"430px",boxShadow:"0 -14px 60px rgba(0,0,0,0.32)",animation:"slideUp 0.28s ease",maxHeight:tall?"88vh":"82vh",display:"flex",flexDirection:"column"}}><div style={{padding:"0.7rem 0 0",display:"flex",justifyContent:"center",flexShrink:0}}><div style={{width:"36px",height:"4px",borderRadius:"99px",background:pal.stone}}/></div><div style={{padding:"0.75rem 1.3rem 0.75rem",borderBottom:`1px solid ${pal.stone}45`,flexShrink:0,display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}><div><div style={{fontWeight:"800",color:pal.ink,fontSize:"1rem"}}>{title}</div>{sub&&<div style={{fontSize:"0.74rem",color:pal.slate,marginTop:"2px"}}>{sub}</div>}</div><button onClick={onClose} style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.9rem",flexShrink:0,marginLeft:"0.75rem"}}>{"✕"}</button></div><div style={{flex:1,overflowY:"auto",padding:"1rem 1.3rem 1.3rem"}}>{children}</div></div></div>;
 }
 function Chip({pal,label,active,onClick,dark,small}){
   return <button onClick={onClick} style={{padding:small?"0.2rem 0.55rem":"0.25rem 0.7rem",border:`2px solid ${active?(dark?"rgba(255,255,255,0.55)":pal.primary):(dark?"rgba(255,255,255,0.2)":pal.stone+"70")}`,borderRadius:"50px",background:active?(dark?"rgba(255,255,255,0.18)":pal.pale):"transparent",color:active?(dark?"#fff":pal.primary):(dark?"rgba(255,255,255,0.55)":pal.slate),fontSize:small?"0.7rem":"0.75rem",fontWeight:active?"700":"500",cursor:"pointer",whiteSpace:"nowrap",flexShrink:0}}>{label}</button>;
