@@ -270,6 +270,7 @@ const ALL_SECTIONS = [
   {id:"attendance", label:"Attendance", icon:"📋", locked:false},
   {id:"coop",       label:"Co-op",      icon:"🏫", locked:false},
   {id:"transcripts",label:"Records",    icon:"🎓", locked:false},
+  {id:"goals",      label:"Goals",      icon:"🌟", locked:false},
   {id:"more",       label:"More",       icon:"...",  locked:false},
 ];
 
@@ -562,6 +563,7 @@ function RootAndBloom() {
             pending={pendingSchedDays}
             onConfirmPull={()=>{setAttendanceDays(d=>d+pendingSchedDays);setPendingSchedDays(0);setShowSchedConfirm(false);}}
             onCatchup={()=>setShowCatchup(true)} />}
+          {activeTab==="goals"       && <GoalsScreen       pal={pal} family={family} portfolioEntries={portfolioEntries} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} />}
           {activeTab==="coop"        && <CoopScreen        pal={pal} family={family} coopLog={coopLog} onLog={e=>setCoopLog(l=>[e,...l])} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} onAddEntry={addPortfolioEntry} />}
           {activeTab==="transcripts" && <TranscriptsScreen pal={pal} family={family} portfolioEntries={portfolioEntries} attendanceDays={attendanceDays} coopLog={coopLog} />}
           {showLifeReady && family && <LifeReadyScreen pal={pal} family={family} onBack={()=>setShowLifeReady(false)}/>}
@@ -1226,7 +1228,7 @@ function OnboardingFlow({ pal, onComplete }) {
     sessionLength:"45 min",
     morningGathering:true, morningGatheringName:"Morning Time",
     schoolDays:"Monday-Friday", startTime:"8:00", endTime:"15:00", breakStyle:"Short breaks every hour",
-    goals:["faith","reading"],
+    goals:[],
     coopFreq:"Every other week", extracurriculars:[],
     lifeReady:false, lifeReadyFreq:"monday_plus_practice", lifeReadyCategories:[],
     paletteId:"sage",
@@ -2026,7 +2028,7 @@ function OnbCoop({ pal, data, upd, onNext }) {
 /* --- STEP 7: Goals --- */
 function OnbGoals({ pal, data, upd, onNext }) {
   const [customInput, setCustomInput] = React.useState("");
-  const toggle = id => upd("goals",data.goals.includes(id)?data.goals.filter(g=>g!==id):[...data.goals,id]);
+  const toggle = id => upd("goals",(data.goals||[]).includes(id)?(data.goals||[]).filter(g=>g!==id):[...(data.goals||[]),id]);
   const addCustom = () => {
     const val = customInput.trim();
     if (!val) return;
@@ -2042,18 +2044,19 @@ function OnbGoals({ pal, data, upd, onNext }) {
     upd("goals",(data.goals||[]).filter(g=>g!==id));
   };
   const allGoals = [...GOALS,...(data.customGoals||[])];
+  const hasGoals = (data.goals||[]).length>0;
   return (
     <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
-      <StepHdr pal={pal} icon="🌟" title="Your Goals" sub="What matters most for your family? Pick as many as you like." />
+      <StepHdr pal={pal} icon="🌟" title="Your Goals" sub={"Optional — what matters most for your family this year? You can always set or change these later in Settings."} />
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.5rem",marginBottom:"0.85rem"}}>
         {allGoals.map(g=>{
-          const sel=data.goals.includes(g.id);
+          const sel=(data.goals||[]).includes(g.id);
           const isCustom=g.id.startsWith("custom_");
           return (
             <button key={g.id} onClick={()=>toggle(g.id)} style={{padding:"0.8rem 0.75rem",border:`2px solid ${sel?pal.primary:pal.stone+"50"}`,borderRadius:"14px",background:sel?pal.pale:"transparent",cursor:"pointer",textAlign:"center",display:"flex",flexDirection:"column",alignItems:"center",gap:"0.3rem",transition:"all 0.14s",position:"relative"}}>
               <span style={{fontSize:"1.5rem"}}>{g.icon}</span>
               <span style={{fontSize:"0.74rem",fontWeight:sel?"800":"500",color:sel?pal.primary:pal.inkM,lineHeight:1.25}}>{g.label}</span>
-              {isCustom&&<span onClick={e=>{e.stopPropagation();removeCustom(g.id);}} style={{position:"absolute",top:"4px",right:"6px",fontSize:"0.6rem",color:pal.bad,fontWeight:"900",cursor:"pointer"}}>x</span>}
+              {isCustom&&<span onClick={e=>{e.stopPropagation();removeCustom(g.id);}} style={{position:"absolute",top:"4px",right:"6px",fontSize:"0.6rem",color:pal.bad,fontWeight:"900",cursor:"pointer"}}>{"✕"}</span>}
             </button>
           );
         })}
@@ -2065,7 +2068,13 @@ function OnbGoals({ pal, data, upd, onNext }) {
           onFocus={e=>e.target.style.borderColor=pal.primary} onBlur={e=>e.target.style.borderColor=pal.stone}/>
         <button onClick={addCustom} disabled={!customInput.trim()} style={{padding:"0.62rem 1rem",border:"none",borderRadius:"11px",background:customInput.trim()?pal.accentGrad:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.82rem",cursor:customInput.trim()?"pointer":"default",flexShrink:0}}>+ Add</button>
       </div>
-      <Btn pal={pal} onClick={onNext}>Next -></Btn>
+      <div style={{display:"flex",gap:"0.5rem"}}>
+        <button onClick={onNext}
+          style={{flex:1,padding:"0.72rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.86rem",cursor:"pointer"}}>
+          {"Skip →"}
+        </button>
+        <Btn pal={pal} onClick={onNext} style={{flex:2}}>{hasGoals?"Next →":"Skip →"}</Btn>
+      </div>
     </div>
   );
 }
@@ -4794,17 +4803,19 @@ function GoalsNudgeCard({pal,family,portfolioEntries,todayStr,onTabChange}){
         {topGoals.map(({id,g,subjectLogged})=>{
           const nudge = GOAL_NUDGES[id];
           return (
-            <div key={id} style={{display:"flex",alignItems:"center",gap:"0.3rem",padding:"0.22rem 0.6rem",background:subjectLogged?pal.goodBg:`${pal.primary}12`,borderRadius:"20px",border:`1.5px solid ${subjectLogged?pal.good+"50":pal.primary+"30"}`}}>
+            <button key={id} onClick={()=>onTabChange("goals")}
+              style={{display:"flex",alignItems:"center",gap:"0.3rem",padding:"0.22rem 0.6rem",background:subjectLogged?pal.goodBg:`${pal.primary}12`,borderRadius:"20px",border:`1.5px solid ${subjectLogged?pal.good+"50":pal.primary+"30"}`,cursor:"pointer"}}>
               <span style={{fontSize:"0.85rem"}}>{nudge?.icon||g.icon}</span>
               <span style={{fontSize:"0.7rem",fontWeight:"700",color:subjectLogged?pal.good:pal.primary}}>{g.label}</span>
               {subjectLogged&&<span style={{fontSize:"0.65rem",color:pal.good,fontWeight:"900"}}>{"✓"}</span>}
-            </div>
+            </button>
           );
         })}
         {goals.length>3&&(
-          <div style={{display:"flex",alignItems:"center",padding:"0.22rem 0.55rem",background:pal.parchm,borderRadius:"20px"}}>
+          <button onClick={()=>onTabChange("goals")}
+            style={{display:"flex",alignItems:"center",padding:"0.22rem 0.55rem",background:pal.parchm,borderRadius:"20px",border:"none",cursor:"pointer"}}>
             <span style={{fontSize:"0.68rem",color:pal.slate,fontWeight:"600"}}>+{goals.length-3} more</span>
-          </div>
+          </button>
         )}
       </div>
 
@@ -4818,12 +4829,18 @@ function GoalsNudgeCard({pal,family,portfolioEntries,todayStr,onTabChange}){
               : primary.nudge.nudge}
           </div>
         </div>
-        {!completed&&(
-          <button onClick={()=>onTabChange(primary.nudge.tab||"schedule")}
-            style={{padding:"0.28rem 0.65rem",border:"none",borderRadius:"9px",background:pal.primary,color:"#fff",fontSize:"0.68rem",fontWeight:"800",cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}}>
-            Go {"→"}
+        <div style={{display:"flex",gap:"0.3rem",flexShrink:0}}>
+          {!completed&&(
+            <button onClick={()=>onTabChange(primary.nudge.tab||"schedule")}
+              style={{padding:"0.28rem 0.65rem",border:"none",borderRadius:"9px",background:pal.primary,color:"#fff",fontSize:"0.68rem",fontWeight:"800",cursor:"pointer",whiteSpace:"nowrap"}}>
+              Go {"→"}
+            </button>
+          )}
+          <button onClick={()=>onTabChange("goals")}
+            style={{padding:"0.28rem 0.65rem",border:`1.5px solid ${pal.stone}`,borderRadius:"9px",background:"transparent",color:pal.slate,fontSize:"0.68rem",fontWeight:"700",cursor:"pointer",whiteSpace:"nowrap"}}>
+            {"🌟"}
           </button>
-        )}
+        </div>
       </div>
     </div>
   );
@@ -9625,11 +9642,175 @@ function NarrativeEditor({pal,ch,family,bySubject,attendanceDays,schoolName,cp,c
     </div>
   );
 }
+/* =======================================
+   GOALS SCREEN
+======================================= */
+function GoalsScreen({pal,family,portfolioEntries=[],onUpdateFamily}){
+  const [editing, setEditing] = useState(false);
+  const [draftGoals, setDraftGoals] = useState(family.goals||[]);
+  const [customInput, setCustomInput] = useState("");
+
+  const allGoalObjs = [...GOALS,...(family.customGoals||[])];
+  const activeGoals = (family.goals||[]).map(id=>allGoalObjs.find(x=>x.id===id)).filter(Boolean);
+  const subjEntries = portfolioEntries.filter(e=>!e.isDay&&e.subj!=="Daily Notes");
+
+  const toggleDraft = id => setDraftGoals(g=>g.includes(id)?g.filter(x=>x!==id):[...g,id]);
+  const addCustom = () => {
+    const val = customInput.trim();
+    if(!val) return;
+    const id = "custom_"+val.toLowerCase().replace(/\s+/g,"_");
+    const customs = family.customGoals||[];
+    if(!customs.find(c=>c.id===id)){
+      onUpdateFamily({customGoals:[...customs,{id,label:val,icon:"🌟"}]});
+    }
+    setDraftGoals(g=>[...g,id]);
+    setCustomInput("");
+  };
+  const saveEdits = () => {
+    onUpdateFamily({goals:draftGoals});
+    setEditing(false);
+  };
+  const cancelEdits = () => {
+    setDraftGoals(family.goals||[]);
+    setEditing(false);
+  };
+
+  return (
+    <div style={{animation:"fadeUp 0.22s ease"}}>
+      <ScreenHdr pal={pal} title="Goals" sub="Your family learning priorities" icon="🌟"/>
+      <div style={{padding:"0 1rem"}}>
+
+        {(family.goals||[]).length===0&&!editing?(
+          /* Empty state */
+          <div style={{background:pal.linen,borderRadius:"18px",padding:"2rem 1.5rem",textAlign:"center",border:`1.5px solid ${pal.stone}30`,marginBottom:"1rem"}}>
+            <div style={{fontSize:"2.5rem",marginBottom:"0.5rem"}}>🌟</div>
+            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.9rem",marginBottom:"0.3rem"}}>No goals set yet</div>
+            <div style={{fontSize:"0.76rem",color:pal.slate,lineHeight:1.6,marginBottom:"0.85rem"}}>
+              {"Goals shape your daily nudges, AI suggestions, and year-end review. They're completely optional."}
+            </div>
+            <button onClick={()=>setEditing(true)}
+              style={{padding:"0.6rem 1.4rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.84rem",cursor:"pointer"}}>
+              + Set Goals
+            </button>
+          </div>
+        ):(
+          <>
+            {/* Goal progress cards */}
+            {!editing&&(
+              <>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.65rem"}}>
+                  <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem"}}>{activeGoals.length} Goal{activeGoals.length!==1?"s":""} This Year</div>
+                  <button onClick={()=>setEditing(true)}
+                    style={{padding:"0.28rem 0.7rem",border:`1.5px solid ${pal.stone}`,borderRadius:"9px",background:"transparent",color:pal.inkM,fontSize:"0.72rem",fontWeight:"700",cursor:"pointer"}}>
+                    Edit
+                  </button>
+                </div>
+
+                <div style={{display:"flex",flexDirection:"column",gap:"0.5rem",marginBottom:"1rem"}}>
+                  {activeGoals.map(g=>{
+                    const nudge  = GOAL_NUDGES[g.id];
+                    const relSubjs = nudge?.subjs||[];
+                    const count  = relSubjs.length>0
+                      ? subjEntries.filter(e=>relSubjs.includes(e.subj)).length
+                      : null;
+                    const hit = count!==null&&count>0;
+                    return (
+                      <div key={g.id} style={{background:pal.linen,borderRadius:"14px",padding:"0.85rem 1rem",border:`1.5px solid ${hit?pal.good+"40":pal.stone+"30"}`,display:"flex",gap:"0.75rem",alignItems:"flex-start"}}>
+                        <div style={{width:"42px",height:"42px",borderRadius:"11px",background:hit?pal.goodBg:pal.pale,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0}}>
+                          {nudge?.icon||g.icon}
+                        </div>
+                        <div style={{flex:1,minWidth:0}}>
+                          <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem"}}>{g.label}</div>
+                          {nudge&&(
+                            <div style={{fontSize:"0.71rem",color:pal.slate,marginTop:"2px",lineHeight:1.5}}>{nudge.nudge}</div>
+                          )}
+                          {count!==null&&(
+                            <div style={{marginTop:"0.4rem",display:"flex",alignItems:"center",gap:"0.4rem"}}>
+                              <div style={{flex:1,height:"5px",borderRadius:"99px",background:pal.parchm,overflow:"hidden"}}>
+                                <div style={{height:"100%",width:`${Math.min(100,count*5)}%`,borderRadius:"99px",background:hit?`linear-gradient(90deg,${pal.good},${pal.mid})`:pal.stone+"40",transition:"width 0.4s"}}/>
+                              </div>
+                              <span style={{fontSize:"0.66rem",fontWeight:"800",color:hit?pal.good:pal.stone,flexShrink:0}}>
+                                {count} {count===1?"entry":"entries"}
+                              </span>
+                            </div>
+                          )}
+                          {count===null&&(
+                            <div style={{fontSize:"0.68rem",color:pal.stone,marginTop:"2px",fontStyle:"italic"}}>Track manually</div>
+                          )}
+                        </div>
+                        {hit&&<span style={{fontSize:"1.1rem",flexShrink:0,marginTop:"2px"}}>{"✓"}</span>}
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+
+            {/* Edit mode */}
+            {editing&&(
+              <div style={{animation:"fadeUp 0.18s ease"}}>
+                <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem",marginBottom:"0.4rem"}}>Edit Goals</div>
+                <div style={{fontSize:"0.74rem",color:pal.slate,marginBottom:"0.75rem",lineHeight:1.5}}>
+                  {"Tap to toggle. Goals shape your daily nudges and AI suggestions. Totally optional."}
+                </div>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.45rem",marginBottom:"0.75rem"}}>
+                  {[...GOALS,...(family.customGoals||[])].map(g=>{
+                    const sel=draftGoals.includes(g.id);
+                    return (
+                      <button key={g.id} onClick={()=>toggleDraft(g.id)}
+                        style={{padding:"0.75rem 0.65rem",border:`2px solid ${sel?pal.primary:pal.stone+"45"}`,borderRadius:"13px",background:sel?pal.pale:"transparent",cursor:"pointer",textAlign:"center",display:"flex",flexDirection:"column",alignItems:"center",gap:"0.28rem",transition:"all 0.13s"}}>
+                        <span style={{fontSize:"1.35rem"}}>{g.icon}</span>
+                        <span style={{fontSize:"0.72rem",fontWeight:sel?"800":"500",color:sel?pal.primary:pal.inkM,lineHeight:1.25}}>{g.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div style={{display:"flex",gap:"0.4rem",marginBottom:"0.75rem"}}>
+                  <input value={customInput} onChange={e=>setCustomInput(e.target.value)}
+                    onKeyDown={e=>e.key==="Enter"&&addCustom()}
+                    placeholder="Add your own goal..."
+                    style={{flex:1,padding:"0.55rem 0.75rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.81rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit"}}
+                    onFocus={e=>e.target.style.borderColor=pal.primary}
+                    onBlur={e=>e.target.style.borderColor=pal.stone}/>
+                  <button onClick={addCustom} disabled={!customInput.trim()}
+                    style={{padding:"0.55rem 0.85rem",border:"none",borderRadius:"10px",background:customInput.trim()?pal.accentGrad:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.78rem",cursor:customInput.trim()?"pointer":"default",flexShrink:0}}>
+                    Add
+                  </button>
+                </div>
+                <div style={{display:"flex",gap:"0.5rem"}}>
+                  <button onClick={cancelEdits}
+                    style={{padding:"0.65rem 1rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.84rem",cursor:"pointer"}}>
+                    Cancel
+                  </button>
+                  <button onClick={saveEdits}
+                    style={{flex:1,padding:"0.65rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.86rem",cursor:"pointer"}}>
+                    Save Goals
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Info note */}
+        {!editing&&(
+          <div style={{background:pal.parchm,borderRadius:"12px",padding:"0.65rem 0.85rem",marginBottom:"1rem",fontSize:"0.72rem",color:pal.slate,lineHeight:1.6}}>
+            {"🌟 Goals appear as daily nudges on your home screen, shape AI lesson and worksheet suggestions, and power your year-end reflection report."}
+          </div>
+        )}
+
+        <div style={{height:"0.5rem"}}/>
+      </div>
+    </div>
+  );
+}
+
 function MoreScreen({pal,family,onNav,onTheme,onNavEdit,onSettings,onLifeReady}){
   const tiles = [
     {id:"attendance", icon:"📋", label:"Attendance"},
     {id:"transcripts", icon:"🎓", label:"Records"},
     {id:"coop",        icon:"🏫", label:"Co-op"},
+    {id:"goals",       icon:"🌟", label:"Goals"},
     {id:"settings",    icon:"⚙️",  label:"Settings"},
   ];
   return (
