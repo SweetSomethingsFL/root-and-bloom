@@ -2861,16 +2861,10 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
               ))}
             </div>
 
-            {/* School sub-tab */}
-            {schoolSubTab==="school"&&<>
-            <SCard pal={pal} title="School Name">
-              <Input pal={pal} value={local.schoolName||""} onChange={v=>updL("schoolName",v)} placeholder="e.g. Thornwood Academy" />
-            </SCard>
-
-            {schoolSubTab==="schedule"&&<>
-            {/* ── SCHEDULE TYPE (multi-child only) ── */}
-            {(local.children||[]).length>1&&(
-              <SCard pal={pal} title="Schedule Type" note="How do your children's days work?">
+            {/* Schedule sub-tab */}
+            {schoolSubTab==="schedule"&&(
+              <div>
+            <SCard pal={pal} title="Schedule Type" note="How do your children's days work?">
                 <div style={{display:"flex",flexDirection:"column",gap:"0.4rem",marginBottom:"0.75rem"}}>
                   {[
                     {id:"same",    icon:"👨‍👩‍👧‍👦", label:"Same schedule",      desc:"One shared plan for everyone"},
@@ -2976,7 +2970,7 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                   </div>
                 )}
               </SCard>
-            )}
+
             <SCard pal={pal} title="Subjects" note="These drive your schedule and portfolio">
               <div style={{fontSize:"0.72rem",color:pal.slate,marginBottom:"0.65rem",lineHeight:1.5}}>
                 Select all subjects your family covers. These appear in your daily schedule and portfolio tracking.
@@ -3037,6 +3031,7 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                 )}
               </div>
             </SCard>
+
             <SCard pal={pal} title="Subject Days" note="Which days does each subject run?">
               <div style={{fontSize:"0.72rem",color:pal.slate,marginBottom:"0.75rem",lineHeight:1.5}}>
                 {"Leave a subject unassigned to show it every day. Tap days to assign. Off-day subjects appear grayed out on the schedule but can still be logged."}
@@ -3064,6 +3059,7 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                 <div style={{fontSize:"0.72rem",color:pal.slate,fontStyle:"italic"}}>{"All subjects show every school day."}</div>
               )}
             </SCard>
+
             <SCard pal={pal} title="Morning Time">
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:local.morningGathering?"0.75rem":"0"}}>
                 <div>
@@ -3089,7 +3085,15 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                 </div>
               )}
             </SCard>
-            </> {/* end schedule sub-tab */}
+              </div>
+            )}
+
+            {/* School sub-tab */}
+            {schoolSubTab==="school"&&(
+              <div>
+            <SCard pal={pal} title="School Name">
+              <Input pal={pal} value={local.schoolName||""} onChange={v=>updL("schoolName",v)} placeholder="e.g. Thornwood Academy" />
+            </SCard>
 
             <SCard pal={pal} title="Learning Philosophy">
               <div style={{fontSize:"0.72rem",color:pal.slate,marginBottom:"0.5rem"}}>Select all that apply</div>
@@ -3112,6 +3116,7 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                 })}
               </div>
             </SCard>
+
             <SCard pal={pal} title="Curriculum Programs">
               <div style={{fontSize:"0.72rem",color:pal.slate,marginBottom:"0.65rem"}}>Select all that apply. Custom curricula can be added with a URL to pull an AI summary.</div>
 
@@ -3166,6 +3171,7 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
               {/* Add custom curriculum inline */}
               <CurriculumAddWidget pal={pal} local={local} updL={updL}/>
             </SCard>
+
             <SCard pal={pal} title="Goals" note="Optional — shapes nudges and AI suggestions">
               <div style={{fontSize:"0.72rem",color:pal.slate,marginBottom:"0.65rem",lineHeight:1.5}}>
                 {"Select what matters most this year. These shape your daily nudges, AI lesson suggestions, and year-end narrative."}
@@ -3200,11 +3206,10 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                 ))}
               </div>
             </SCard>
-            </> {/* end school sub-tab */}
-            }
+              </div>
+            )}
           </div>
         )}
-
         {tab==="theme" && (
           <div style={{animation:"fadeUp 0.18s ease"}}>
             <SCard pal={pal} title="Color Theme">
