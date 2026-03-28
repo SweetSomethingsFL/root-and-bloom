@@ -6515,14 +6515,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
     ? checkinDates[child]===todayStr
     : family.children.some(c=>checkinDates[c.id]===todayStr) || lastCheckinDate===todayStr;
 
-  // Hours estimate using daily goal or default 3hrs
-  const dailyHrs = (() => {
-    const g = family.dailyHoursGoal||"3 hours/day";
-    if(g==="No hour tracking") return null;
-    const m = g.match(/(\d+)/);
-    return m ? parseInt(m[1]) : 3;
-  })();
-  const hoursEst = dailyHrs ? Math.round(attendanceDays * dailyHrs) : null;
+
 
   return (
     <div style={{animation:"fadeUp 0.24s ease"}}>
@@ -6655,20 +6648,32 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
             </div>
           );
         })()}
-        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"0.55rem",marginBottom:"1rem"}}>
-          {[
-            {l:"Days",    v:attendanceDays,  c:pal.primary, bg:pal.pale},
-            {l:"Hours",   v:hoursEst!==null?hoursEst+"h":"—", c:pal.mid, bg:pal.paleMid},
-            REQUIRED
-              ? {l:"On Track", v:pct+"%", c:onTrack?pal.good:pal.warn, bg:onTrack?pal.goodBg:pal.warnBg}
-              : {l:"This Year", v:attendanceDays+" days", c:pal.good, bg:pal.goodBg},
-          ].map(s=>(
-            <div key={s.l} style={{background:s.bg,borderRadius:"15px",padding:"0.8rem 0.6rem",textAlign:"center",border:`1.5px solid ${s.c}22`}}>
-              <div style={{fontWeight:"800",color:s.c,fontSize:"1.25rem",lineHeight:1}}>{s.v}</div>
-              <div style={{fontSize:"0.58rem",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.07em",marginTop:"3px"}}>{s.l}</div>
+        {(()=>{
+          const weekStart2 = new Date();
+          weekStart2.setDate(weekStart2.getDate()-(weekStart2.getDay()===0?6:weekStart2.getDay()-1));
+          weekStart2.setHours(0,0,0,0);
+          const thisWeekDays = [...new Set(
+            portfolioEntries
+              .filter(e=>{ try{ return new Date(e.date+", "+new Date().getFullYear())>=weekStart2; }catch{return false;} })
+              .map(e=>e.date)
+          )].length;
+          const totalEntries = portfolioEntries.filter(e=>!e.isDay).length;
+          const stats = [
+            {l:"Streak",     v:checkinStreak>0?"🔥 "+checkinStreak:"—", c:checkinStreak>2?pal.warn:pal.primary, bg:checkinStreak>2?"#fff8f0":pal.pale},
+            {l:"This Week",  v:thisWeekDays,    c:pal.mid,   bg:pal.paleMid},
+            {l:"Entries",    v:totalEntries,    c:pal.good,  bg:pal.goodBg},
+          ];
+          return (
+            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"0.55rem",marginBottom:"1rem"}}>
+              {stats.map(s=>(
+                <div key={s.l} style={{background:s.bg,borderRadius:"15px",padding:"0.8rem 0.6rem",textAlign:"center",border:`1.5px solid ${s.c}22`}}>
+                  <div style={{fontWeight:"800",color:s.c,fontSize:"1.25rem",lineHeight:1}}>{s.v}</div>
+                  <div style={{fontSize:"0.58rem",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.07em",marginTop:"3px"}}>{s.l}</div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          );
+        })()}
 
         {/* Year progress bar — only show if state has day requirement */}
         {REQUIRED&&(
