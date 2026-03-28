@@ -306,7 +306,52 @@ function RootAndBloom() {
   const [coopLog, setCoopLog] = useState(saved?.coopLog||[]);
   const [attendanceDays,    setAttendanceDays]    = useState(saved?.attendanceDays||0);
   const [attendanceLog,     setAttendanceLog]     = useState(saved?.attendanceLog||[]);
-  const [pendingSchedDays,  setPendingSchedDays]  = useState(1);
+  const [observationLog,    setObservationLog]    = useState(saved?.observationLog||[]);
+
+  // Compute pending schedule days — days this week that are fully checked off
+  // but not yet in the attendance log
+  const pendingSchedDays = useMemo(()=>{
+    try {
+      const schedRaw = localStorage.getItem("rootbloom_sched_v1");
+      if(!schedRaw) return 0;
+      const sched = JSON.parse(schedRaw);
+      const checked = sched.checked||{};
+      const skipped = sched.skipped||{};
+
+      // Build this week's days (Mon–Fri)
+      const today = new Date();
+      const dow = today.getDay();
+      const weekStart = new Date(today);
+      weekStart.setDate(today.getDate()-(dow===0?6:dow-1));
+      const weekDays = [0,1,2,3,4].map(i=>{
+        const d=new Date(weekStart);d.setDate(weekStart.getDate()+i);
+        return d.toLocaleDateString("en-US",{month:"short",day:"numeric"});
+      });
+
+      // For each past day (not today), check if all blocks were checked
+      const loggedDates = new Set((saved?.attendanceLog||[]).map(e=>e.date));
+      let pending = 0;
+      const allBlocks = family ? generateSchedule(family, family.scheduleMode2!=="same"?family.children?.[0]?.id:null) : [];
+      if(allBlocks.length===0) return 0;
+
+      weekDays.forEach((dateStr, di)=>{
+        // Only count past days (not today, not future)
+        const dayDate = new Date(weekStart);
+        dayDate.setDate(weekStart.getDate()+di);
+        if(dayDate >= today) return; // skip today and future
+        if(loggedDates.has(dateStr)) return; // already in attendance log
+
+        const daySkipped = skipped[di]||{};
+        const activeBlocks = allBlocks.filter((_,bi)=>!daySkipped[bi]);
+        if(activeBlocks.length===0) return;
+
+        const allChecked = activeBlocks.every((_,bi)=>!!checked[di+"_"+bi]);
+        if(allChecked) pending++;
+      });
+      return pending;
+    } catch(e){ return 0; }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[attendanceLog, attendanceDays]);
   const [showSchedConfirm,  setShowSchedConfirm]  = useState(false);
   const [showCatchup,       setShowCatchup]       = useState(false);
   const [showAIChat,        setShowAIChat]        = useState(false);
@@ -318,6 +363,7 @@ function RootAndBloom() {
   const [showNewYear,       setShowNewYear]        = useState(false);
   const [newYearDismissed,  setNewYearDismissed]   = useState(saved?.newYearDismissed||null);
   const [daySummaryData,    setDaySummaryData]    = useState(null);
+  const [showJournal,       setShowJournal]       = useState(null); // childId or null
   const [todayProgress,     setTodayProgress]     = useState(saved?.todayProgress||{count:0,total:0,date:""});
   const [paletteId, setPaletteId] = useState(saved?.paletteId||"sage");
   const [customA,   setCustomA]   = useState(saved?.customA||"#2a4a28");
@@ -325,8 +371,8 @@ function RootAndBloom() {
 
   // Auto-save whenever key state changes
   useEffect(()=>{
-    savePersist({family,navIds,portfolio:portfolioEntries,coopLog,attendanceDays,attendanceLog,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed});
-  },[family,navIds,portfolioEntries,coopLog,attendanceDays,attendanceLog,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed]);
+    savePersist({family,navIds,portfolio:portfolioEntries,coopLog,attendanceDays,attendanceLog,observationLog,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed});
+  },[family,navIds,portfolioEntries,coopLog,attendanceDays,attendanceLog,observationLog,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed]);
 
   // Auto-show New Year prompt when yearEnd has passed
   useEffect(()=>{
@@ -414,7 +460,9 @@ function RootAndBloom() {
     setCelebData(data);
     setShowCelebration(true);
   };
-  const enterApp = () => { setShowCelebration(false); setView("parent"); };
+  const [showTour,       setShowTour]       = useState(false);
+  const enterApp = () => { setShowCelebration(false); setShowTour(true); };
+  const finishTour = () => { setShowTour(false); setView("parent"); };
   const openSettings     = () => setView("settings");
   const closeSettings    = () => setView("parent");
   const switchToStudent  = (child) => { setActiveStudent(child); setShowSwitcher(false); setView("student"); };
@@ -500,12 +548,24 @@ function RootAndBloom() {
             <span style={{fontSize:"0.9rem"}}>🌱</span>
             <span style={{fontWeight:"800",color:"rgba(255,255,255,0.9)",fontSize:"0.85rem"}}>{"Root & Bloom"}</span>
           </button>
-          <button onClick={openSettings} style={{background:"rgba(255,255,255,0.12)",border:"none",borderRadius:"7px",padding:"0.18rem 0.55rem",cursor:"pointer",fontSize:"0.65rem",color:"rgba(255,255,255,0.65)",fontWeight:"600"}}></button>
+          <button onClick={openSettings} style={{background:"rgba(255,255,255,0.12)",border:"none",borderRadius:"7px",padding:"0.18rem 0.55rem",cursor:"pointer",fontSize:"0.75rem",color:"rgba(255,255,255,0.65)",fontWeight:"600"}}>{"⚙️"}</button>
         </div>
 
         {/* Main content */}
         <div ref={mainScrollRef} style={{flex:1,overflowY:"auto",paddingBottom:"72px"}}>
-          {activeTab==="home" && <HomeScreen pal={pal} family={family} child={childFilt} setChild={setChildFilt} onTheme={()=>setShowTheme(true)} attendanceDays={attendanceDays} checkinStreak={checkinStreak} lastCheckinDate={lastCheckinDate} portfolioEntries={portfolioEntries} onTabChange={setActiveTab} todayProgress={todayProgress} />}
+          {activeTab==="home" && <HomeScreen pal={pal} family={family} child={childFilt} setChild={setChildFilt} onTheme={()=>setShowTheme(true)} attendanceDays={attendanceDays} checkinStreak={checkinStreak} lastCheckinDate={lastCheckinDate} portfolioEntries={portfolioEntries} onTabChange={setActiveTab} todayProgress={todayProgress}
+            onAddEntry={addPortfolioEntry}
+            onCheckin={()=>{
+              const todayStr=new Date().toDateString();
+              setAttendanceDays(d=>d+(lastCheckinDate===todayStr?0:1));
+              const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
+              if(lastCheckinDate===yesterday.toDateString()) setCheckinStreak(s=>s+1);
+              else if(lastCheckinDate!==todayStr) setCheckinStreak(1);
+              setLastCheckinDate(todayStr);
+            }}
+            observationLog={observationLog}
+            onOpenJournal={(childId)=>setShowJournal(childId)}
+          />}
           {activeTab==="schedule" && <ScheduleScreen pal={pal} family={family} child={childFilt} setChild={setChildFilt}
             lastCheckinDate={lastCheckinDate}
             onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))}
@@ -561,7 +621,27 @@ function RootAndBloom() {
               return newDates.length;
             }}
             pending={pendingSchedDays}
-            onConfirmPull={()=>{setAttendanceDays(d=>d+pendingSchedDays);setPendingSchedDays(0);setShowSchedConfirm(false);}}
+            onConfirmPull={()=>{
+              // Add pending days to attendance log so they won't show as pending again
+              const today = new Date();
+              const dow = today.getDay();
+              const weekStart = new Date(today);
+              weekStart.setDate(today.getDate()-(dow===0?6:dow-1));
+              const newEntries = [];
+              for(let di=0;di<5;di++){
+                const d=new Date(weekStart);d.setDate(weekStart.getDate()+di);
+                if(d>=today) continue;
+                const dateStr=d.toLocaleDateString("en-US",{month:"short",day:"numeric"});
+                if(!attendanceLog.find(e=>e.date===dateStr)){
+                  newEntries.push({date:dateStr,type:"School Day",note:"Added from schedule"});
+                }
+              }
+              if(newEntries.length>0){
+                setAttendanceLog(l=>[...newEntries,...l]);
+                setAttendanceDays(d=>d+newEntries.length);
+              }
+              setShowSchedConfirm(false);
+            }}
             onCatchup={()=>setShowCatchup(true)} />}
           {activeTab==="goals"       && <GoalsScreen       pal={pal} family={family} portfolioEntries={portfolioEntries} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} />}
           {activeTab==="coop"        && <CoopScreen        pal={pal} family={family} coopLog={coopLog} onLog={e=>setCoopLog(l=>[e,...l])} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} onAddEntry={addPortfolioEntry} />}
@@ -614,9 +694,22 @@ function RootAndBloom() {
         {showTheme    && <ThemeModal     pal={pal} paletteId={paletteId} setPaletteId={setPaletteId} customA={customA} customB={customB} setCustomA={setCustomA} setCustomB={setCustomB} onClose={()=>setShowTheme(false)} />}
         {showNav      && <NavModal       pal={pal} navIds={navIds} setNavIds={setNavIds} onClose={()=>setShowNav(false)} />}
         {showSwitcher && <ViewSwitcher   pal={pal} family={family} onParent={()=>setShowSwitcher(false)} onStudent={switchToStudent} />}
-        {showSchedConfirm && <SchedConfirmModal pal={pal} family={family} days={pendingSchedDays} onConfirm={()=>{setAttendanceDays(d=>d+pendingSchedDays);setPendingSchedDays(0);setShowSchedConfirm(false);}} onClose={()=>setShowSchedConfirm(false)} />}
-        {showCatchup  && <CatchupModal   pal={pal} family={family} days={attendanceDays} needed={180} onClose={()=>setShowCatchup(false)} />}
+        {showSchedConfirm && <SchedConfirmModal pal={pal} family={family} days={pendingSchedDays} onConfirm={()=>{
+          const today=new Date(); const dow=today.getDay(); const weekStart=new Date(today);
+          weekStart.setDate(today.getDate()-(dow===0?6:dow-1));
+          const newEntries=[];
+          for(let di=0;di<5;di++){
+            const d=new Date(weekStart);d.setDate(weekStart.getDate()+di);
+            if(d>=today) continue;
+            const dateStr=d.toLocaleDateString("en-US",{month:"short",day:"numeric"});
+            if(!attendanceLog.find(e=>e.date===dateStr)) newEntries.push({date:dateStr,type:"School Day",note:"Added from schedule"});
+          }
+          if(newEntries.length>0){setAttendanceLog(l=>[...newEntries,...l]);setAttendanceDays(d=>d+newEntries.length);}
+          setShowSchedConfirm(false);
+        }} onClose={()=>setShowSchedConfirm(false)} />}
+        {showCatchup  && <CatchupModal   pal={pal} family={family} days={attendanceDays} needed={parseInt((getStateInfo(family.state||"").hours||"180").match(/\d+/)?.[0]||"180")} onClose={()=>setShowCatchup(false)} />}
         {showCelebration && celebData && <CelebrationModal pal={pal} data={celebData} onEnter={enterApp}/>}
+        {showTour && <TourModal pal={pal} onDone={finishTour}/>}
         {showEOY && family && <EOYChecklistModal pal={pal} family={family} childIdx={eoyChild} setChildIdx={setEoyChild}
           weeksLeft={getEOYWeeksLeft(family)}
           portfolioEntries={portfolioEntries}
@@ -643,6 +736,15 @@ function RootAndBloom() {
           }}
           onClose={()=>{setShowDaySummary(false);setActiveTab("home");}}
           onFinish={(goTo)=>{setShowDaySummary(false);setActiveTab(goTo||"home");}} />}
+        {showJournal!==null && family && (
+          <ObservationJournalModal
+            pal={pal} family={family} childId={showJournal}
+            entries={observationLog}
+            onAdd={(entry)=>setObservationLog(l=>[entry,...l])}
+            onDelete={(id)=>setObservationLog(l=>l.filter(e=>e.id!==id))}
+            onClose={()=>setShowJournal(null)}
+          />
+        )}
       </>)}
     </div>
   );
@@ -1376,7 +1478,7 @@ function OnbChildren({ pal, data, upd, onNext }) {
       <button onClick={addChild} style={{width:"100%",padding:"0.75rem",border:`2px dashed ${pal.stone}`,borderRadius:"14px",background:"transparent",color:pal.slate,fontSize:"0.84rem",fontWeight:"600",cursor:"pointer",marginBottom:"1.1rem"}}>
         + Add another child
       </button>
-      <Btn pal={pal} disabled={!canNext} onClick={onNext}>Next -></Btn>
+      <Btn pal={pal} disabled={!canNext} onClick={onNext}>{"Next →"}</Btn>
     </div>
   );
 }
@@ -1408,7 +1510,7 @@ function OnbPhilosophy({ pal, data, upd, onNext }) {
           );
         })}
       </div>
-      <Btn pal={pal} disabled={sel.length===0} onClick={onNext}>Next -></Btn>
+      <Btn pal={pal} disabled={sel.length===0} onClick={onNext}>{"Next →"}</Btn>
     </div>
   );
 }
@@ -1453,7 +1555,7 @@ function OnbCurrBrands({ pal, data, upd, onNext }) {
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body: JSON.stringify({
-          model:"claude-sonnet-4-20250514",
+          model:"claude-sonnet-4-5-20251001",
           max_tokens:600,
           tools:[{type:"web_search_20250305",name:"web_search"}],
           messages:[{
@@ -1590,7 +1692,7 @@ function OnbCurrBrands({ pal, data, upd, onNext }) {
         </div>
       )}
 
-      <Btn pal={pal} onClick={onNext}>Next -></Btn>
+      <Btn pal={pal} onClick={onNext}>{"Next →"}</Btn>
     </div>
   );
 }
@@ -1684,7 +1786,7 @@ function OnbSubjects({ pal, data, upd, onNext }) {
           </div>
         )}
       </div>
-      <Btn pal={pal} disabled={sel.length===0} onClick={onNext}>Next -></Btn>
+      <Btn pal={pal} disabled={sel.length===0} onClick={onNext}>{"Next →"}</Btn>
     </div>
   );
 }
@@ -1806,6 +1908,160 @@ function OnbLifeReady({ pal, data, upd, onNext }) {
 
 /* --- STEP 5: Schedule --- */
 function OnbSchedule({ pal, data, upd, onNext }) {
+  const multiChild = (data.children||[]).length > 1;
+  const schedMode2 = data.scheduleMode2 || (multiChild ? null : "same");
+  const [childStep, setChildStep] = React.useState(0); // which child we're configuring (for separate/mixed)
+
+  // For separate/mixed: build per-child config
+  const updChildCfg = (childId, field, val) => {
+    const updated = (data.children||[]).map(c=>
+      c.id===childId ? {...c, scheduleConfig:{...(c.scheduleConfig||{}),[field]:val}} : c
+    );
+    upd("children", updated);
+  };
+  const updGroupSubjs = (id) => {
+    const cur = data.groupSubjects||[];
+    upd("groupSubjects", cur.includes(id)?cur.filter(x=>x!==id):[...cur,id]);
+  };
+
+  const allSubjOptions = [...SUBJECT_OPTIONS,...(data.customSubjects||[])];
+  const children = data.children||[];
+  const currentChild = children[childStep];
+  const childCfg = currentChild?.scheduleConfig||{};
+
+  // Mode selection screen — shown first for multi-child
+  if(multiChild && !schedMode2) {
+    return (
+      <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
+        <StepHdr pal={pal} icon="📅" title="Schedule Setup" sub={"You have "+children.length+" children — how should we build their schedule?"} />
+        <div style={{display:"flex",flexDirection:"column",gap:"0.65rem",marginBottom:"1.5rem"}}>
+          {[
+            {id:"same",   icon:"👨‍👩‍👧‍👦", title:"Same schedule",     desc:"All children follow the same daily plan. Great for mixed-age learning and unit studies."},
+            {id:"mixed",  icon:"🔀",        title:"Mostly together",  desc:"Shared subjects like History and Science are done together. Math and Reading are done separately at each child's level."},
+            {id:"separate",icon:"📋",       title:"Separate schedules",desc:"Each child has their own completely different daily schedule, subjects, and timing."},
+          ].map(opt=>(
+            <button key={opt.id} onClick={()=>upd("scheduleMode2",opt.id)}
+              style={{display:"flex",gap:"0.85rem",alignItems:"flex-start",padding:"0.9rem 1rem",border:`2px solid ${schedMode2===opt.id?pal.primary:pal.stone+"50"}`,borderRadius:"14px",background:schedMode2===opt.id?pal.pale:"transparent",cursor:"pointer",textAlign:"left",transition:"all 0.14s"}}>
+              <span style={{fontSize:"1.6rem",flexShrink:0,marginTop:"2px"}}>{opt.icon}</span>
+              <div>
+                <div style={{fontWeight:"800",color:schedMode2===opt.id?pal.primary:pal.ink,fontSize:"0.88rem",marginBottom:"3px"}}>{opt.title}</div>
+                <div style={{fontSize:"0.74rem",color:pal.slate,lineHeight:1.5}}>{opt.desc}</div>
+              </div>
+            </button>
+          ))}
+        </div>
+        <Btn pal={pal} disabled={!schedMode2} onClick={()=>{}}>{"Next →"}</Btn>
+      </div>
+    );
+  }
+
+  // Mixed mode: first pick group subjects
+  if(schedMode2==="mixed" && !(data.groupSubjects)) {
+    const sel = data.groupSubjects||[];
+    return (
+      <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
+        <StepHdr pal={pal} icon="🔀" title="Shared Subjects" sub={"Which subjects do all your children do together?"} />
+        <div style={{fontSize:"0.75rem",color:pal.slate,marginBottom:"0.75rem",lineHeight:1.55}}>
+          {"Examples: Morning Time, History, Science, Read-Aloud, Art, Music, P&C. You'll set individual subjects per child next."}
+        </div>
+        <div style={{display:"flex",flexDirection:"column",gap:"0.35rem",marginBottom:"1rem"}}>
+          {allSubjOptions.map(s=>{
+            const isSel=(data.groupSubjects||[]).includes(s.id);
+            return (
+              <button key={s.id} onClick={()=>updGroupSubjs(s.id)}
+                style={{display:"flex",gap:"0.65rem",alignItems:"center",padding:"0.6rem 0.85rem",border:`2px solid ${isSel?pal.primary:pal.stone+"45"}`,borderRadius:"11px",background:isSel?pal.pale:"transparent",cursor:"pointer",transition:"all 0.12s"}}>
+                <span style={{fontSize:"1.1rem",width:"24px",textAlign:"center"}}>{s.icon||"📋"}</span>
+                <span style={{flex:1,fontWeight:isSel?"700":"400",color:isSel?pal.primary:pal.inkM,fontSize:"0.84rem"}}>{s.label}</span>
+                <div style={{width:"18px",height:"18px",borderRadius:"4px",border:`2px solid ${isSel?pal.primary:pal.stone}`,background:isSel?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                  {isSel&&<span style={{color:"#fff",fontSize:"0.7rem",fontWeight:"900"}}>{"✓"}</span>}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+        <Btn pal={pal} onClick={()=>upd("groupSubjects",(data.groupSubjects||[]).length>0?(data.groupSubjects||[]):[])}>{"Next →"}</Btn>
+      </div>
+    );
+  }
+
+  // Separate / mixed: per-child subject + session config
+  if((schedMode2==="separate"||schedMode2==="mixed") && childStep < children.length) {
+    const childSubjs = childCfg.subjects||[];
+    const alreadyGroup = data.groupSubjects||[];
+    const availForChild = schedMode2==="mixed"
+      ? allSubjOptions.filter(s=>!alreadyGroup.includes(s.id))
+      : allSubjOptions;
+    const cp = CHILD_COLOR_PALETTES.find(p=>p.id===(currentChild?.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+
+    const toggleChildSubj = (id) => {
+      const cur = childCfg.subjects||[];
+      updChildCfg(currentChild.id,"subjects",cur.includes(id)?cur.filter(x=>x!==id):[...cur,id]);
+    };
+
+    return (
+      <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
+        <div style={{display:"flex",alignItems:"center",gap:"0.65rem",marginBottom:"1rem",padding:"0.75rem 1rem",background:`linear-gradient(135deg,${cp.c1}20,${cp.c2}15)`,borderRadius:"14px",border:`2px solid ${cp.c1}30`}}>
+          <div style={{width:"44px",height:"44px",borderRadius:"12px",background:`linear-gradient(135deg,${cp.c1},${cp.c2})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.4rem",flexShrink:0}}>{currentChild?.avatar||"🌱"}</div>
+          <div>
+            <div style={{fontWeight:"900",color:pal.ink,fontSize:"0.95rem"}}>{currentChild?.name||"Child"}</div>
+            <div style={{fontSize:"0.72rem",color:pal.slate,marginTop:"1px"}}>{currentChild?.grade||""} {"\u00b7"} Child {childStep+1} of {children.length}</div>
+          </div>
+        </div>
+
+        {schedMode2==="mixed"&&alreadyGroup.length>0&&(
+          <div style={{background:pal.pale,borderRadius:"11px",padding:"0.6rem 0.85rem",marginBottom:"0.75rem",fontSize:"0.72rem",color:pal.primary,border:`1.5px solid ${pal.primary}20`}}>
+            {"✓ Shared subjects already included: "+alreadyGroup.map(id=>allSubjOptions.find(s=>s.id===id)?.label||id).join(", ")}
+          </div>
+        )}
+
+        <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.82rem",marginBottom:"0.5rem"}}>
+          {schedMode2==="mixed"?"Individual subjects for "+currentChild?.name:"Subjects for "+currentChild?.name}
+        </div>
+        <div style={{display:"flex",flexDirection:"column",gap:"0.32rem",marginBottom:"1rem"}}>
+          {availForChild.map(s=>{
+            const isSel=childSubjs.includes(s.id);
+            return (
+              <button key={s.id} onClick={()=>toggleChildSubj(s.id)}
+                style={{display:"flex",gap:"0.65rem",alignItems:"center",padding:"0.55rem 0.85rem",border:`2px solid ${isSel?cp.c1:pal.stone+"45"}`,borderRadius:"10px",background:isSel?cp.c1+"15":"transparent",cursor:"pointer",transition:"all 0.12s"}}>
+                <span style={{fontSize:"1.1rem",width:"24px",textAlign:"center"}}>{s.icon||"📋"}</span>
+                <span style={{flex:1,fontWeight:isSel?"700":"400",color:isSel?cp.c1:pal.inkM,fontSize:"0.83rem"}}>{s.label}</span>
+                <div style={{width:"18px",height:"18px",borderRadius:"4px",border:`2px solid ${isSel?cp.c1:pal.stone}`,background:isSel?cp.c1:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                  {isSel&&<span style={{color:"#fff",fontSize:"0.7rem",fontWeight:"900"}}>{"✓"}</span>}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.82rem",marginBottom:"0.45rem"}}>Session length for {currentChild?.name}</div>
+        <div style={{display:"flex",gap:"0.4rem",flexWrap:"wrap",marginBottom:"1.2rem"}}>
+          {SESSION_LENGTHS.map(l=>(
+            <button key={l} onClick={()=>updChildCfg(currentChild.id,"sessionLength",l)}
+              style={{padding:"0.42rem 0.8rem",border:`2px solid ${(childCfg.sessionLength||"45 min")===l?cp.c1:pal.stone+"50"}`,borderRadius:"20px",background:(childCfg.sessionLength||"45 min")===l?cp.c1+"18":"transparent",cursor:"pointer",fontWeight:(childCfg.sessionLength||"45 min")===l?"700":"400",color:(childCfg.sessionLength||"45 min")===l?cp.c1:pal.inkM,fontSize:"0.8rem",transition:"all 0.13s"}}>
+              {l}
+            </button>
+          ))}
+        </div>
+
+        <div style={{display:"flex",gap:"0.5rem"}}>
+          {childStep>0&&(
+            <button onClick={()=>setChildStep(s=>s-1)}
+              style={{padding:"0.65rem 1rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.84rem",cursor:"pointer"}}>
+              Back
+            </button>
+          )}
+          <Btn pal={pal} onClick={()=>{
+            if(childStep < children.length-1) { setChildStep(s=>s+1); }
+            else { onNext(); }
+          }}>
+            {childStep < children.length-1 ? "Next child →" : "Done — Next →"}
+          </Btn>
+        </div>
+      </div>
+    );
+  }
+
+  // Same schedule (or single child) — original flow
   return (
     <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
       <StepHdr pal={pal} icon="📅" title="Your Schedule" sub={"We'll use this to set up your weekly template."} />
@@ -1823,7 +2079,7 @@ function OnbSchedule({ pal, data, upd, onNext }) {
             <Input pal={pal} type="date" value={data.yearEnd||""} onChange={v=>upd("yearEnd",v)} />
           </div>
         </div>
-        <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"0.5rem"}}>Used to track your 180-day progress. You can update this anytime in Settings.</div>
+        <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"0.5rem"}}>Used to track your year progress. You can update this anytime in Settings.</div>
       </div>
 
       {/* Hours goal */}
@@ -1858,7 +2114,6 @@ function OnbSchedule({ pal, data, upd, onNext }) {
         ))}
       </div>
 
-      {/* Only show times if timed mode */}
       {data.scheduleMode==="timed" && (
         <div style={{animation:"fadeUp 0.2s ease"}}>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.75rem",marginBottom:"1rem"}}>
@@ -1875,13 +2130,40 @@ function OnbSchedule({ pal, data, upd, onNext }) {
           <div style={{display:"flex",flexDirection:"column",gap:"0.4rem",marginBottom:"1rem"}}>
             {BREAK_STYLES.map(b=>(
               <button key={b} onClick={()=>upd("breakStyle",b)} style={{padding:"0.65rem 1rem",border:`2px solid ${data.breakStyle===b?pal.primary:pal.stone+"50"}`,borderRadius:"12px",background:data.breakStyle===b?pal.pale:"transparent",cursor:"pointer",textAlign:"left",fontWeight:data.breakStyle===b?"700":"400",color:data.breakStyle===b?pal.primary:pal.inkM,fontSize:"0.84rem",transition:"all 0.13s"}}>
-                {b}
-              </button>
+              {b}
+            </button>
             ))}
           </div>
         </div>
       )}
-      <Btn pal={pal} onClick={onNext}>Next -></Btn>
+
+      {/* Morning gathering */}
+      <div style={{background:pal.pale,borderRadius:"13px",padding:"0.85rem 1rem",marginBottom:"1.2rem",border:`1.5px solid ${pal.primary}22`}}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:data.morningGathering?"0.65rem":"0"}}>
+          <div>
+            <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.86rem"}}>🌅 Morning gathering time?</div>
+            <div style={{fontSize:"0.72rem",color:pal.slate,marginTop:"2px"}}>A cozy start before individual subjects</div>
+          </div>
+          <button onClick={()=>upd("morningGathering",!data.morningGathering)} style={{width:"44px",height:"26px",borderRadius:"13px",border:"none",background:data.morningGathering?pal.primary:pal.stone+"60",cursor:"pointer",position:"relative",transition:"background 0.2s",flexShrink:0}}>
+            <div style={{position:"absolute",top:"3px",left:data.morningGathering?"21px":"3px",width:"20px",height:"20px",borderRadius:"50%",background:"#fff",transition:"left 0.2s"}}/>
+          </button>
+        </div>
+        {data.morningGathering && (
+          <div>
+            <Lbl pal={pal}>What do you call it?</Lbl>
+            <div style={{display:"flex",gap:"0.4rem",flexWrap:"wrap",marginBottom:"0.5rem"}}>
+              {["Morning Time","Morning Basket","Circle Time","Morning Meeting","Devotions"].map(n=>(
+                <button key={n} onClick={()=>upd("morningGatheringName",n)} style={{padding:"0.35rem 0.7rem",border:`1.5px solid ${data.morningGatheringName===n?pal.primary:pal.stone+"50"}`,borderRadius:"20px",background:data.morningGatheringName===n?pal.pale:"transparent",cursor:"pointer",fontSize:"0.74rem",fontWeight:data.morningGatheringName===n?"700":"400",color:data.morningGatheringName===n?pal.primary:pal.inkM,transition:"all 0.13s"}}>
+                  {n}
+                </button>
+              ))}
+            </div>
+            <Input pal={pal} value={data.morningGatheringName} onChange={v=>upd("morningGatheringName",v)} placeholder="Or type your own name..." />
+          </div>
+        )}
+      </div>
+
+      <Btn pal={pal} onClick={onNext}>{"Next →"}</Btn>
     </div>
   );
 }
@@ -2020,7 +2302,7 @@ function OnbCoop({ pal, data, upd, onNext }) {
         </div>
       )}
 
-      <Btn pal={pal} onClick={onNext}>{doesCoop?"Next ->":"Skip ->"}</Btn>
+      <Btn pal={pal} onClick={onNext}>{doesCoop?"Next →":"Skip →"}</Btn>
     </div>
   );
 }
@@ -2182,7 +2464,7 @@ function CurriculumAddWidget({pal, local, updL}){
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify({
-          model:"claude-sonnet-4-20250514",
+          model:"claude-sonnet-4-5-20251001",
           max_tokens:400,
           tools:[{type:"web_search_20250305",name:"web_search"}],
           messages:[{role:"user",content:"Please visit "+u+" and give me a 2-3 sentence summary of what this homeschool curriculum covers, its teaching philosophy, grade levels, and what makes it unique. Be concise and practical."}]
@@ -2357,7 +2639,104 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
               <Input pal={pal} value={local.schoolName||""} onChange={v=>updL("schoolName",v)} placeholder="e.g. Thornwood Academy" />
             </SCard>
 
-            {/* ── SUBJECTS EDITOR ── */}
+            {/* ── SCHEDULE TYPE (multi-child only) ── */}
+            {(local.children||[]).length>1&&(
+              <SCard pal={pal} title="Schedule Type" note="How do your children's days work?">
+                <div style={{display:"flex",flexDirection:"column",gap:"0.4rem",marginBottom:"0.75rem"}}>
+                  {[
+                    {id:"same",    icon:"👨‍👩‍👧‍👦", label:"Same schedule",      desc:"One shared plan for everyone"},
+                    {id:"mixed",   icon:"🔀",        label:"Mostly together",   desc:"Shared subjects + individual ones per child"},
+                    {id:"separate",icon:"📋",        label:"Separate schedules", desc:"Each child has their own daily plan"},
+                  ].map(opt=>{
+                    const sel=(local.scheduleMode2||"same")===opt.id;
+                    return (
+                      <button key={opt.id} onClick={()=>updL("scheduleMode2",opt.id)}
+                        style={{display:"flex",gap:"0.65rem",alignItems:"flex-start",padding:"0.65rem 0.85rem",border:`2px solid ${sel?pal.primary:pal.stone+"45"}`,borderRadius:"11px",background:sel?pal.pale:"transparent",cursor:"pointer",textAlign:"left",transition:"all 0.13s"}}>
+                        <span style={{fontSize:"1.2rem",flexShrink:0,marginTop:"1px"}}>{opt.icon}</span>
+                        <div style={{flex:1}}>
+                          <div style={{fontWeight:sel?"800":"500",color:sel?pal.primary:pal.inkM,fontSize:"0.84rem"}}>{opt.label}</div>
+                          <div style={{fontSize:"0.69rem",color:pal.slate,marginTop:"2px"}}>{opt.desc}</div>
+                        </div>
+                        <div style={{width:"16px",height:"16px",borderRadius:"50%",border:`2px solid ${sel?pal.primary:pal.stone}`,background:sel?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:"2px"}}>
+                          {sel&&<div style={{width:"6px",height:"6px",borderRadius:"50%",background:"#fff"}}/>}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Mixed: pick group subjects */}
+                {(local.scheduleMode2||"same")==="mixed"&&(
+                  <div style={{animation:"fadeUp 0.18s ease"}}>
+                    <div style={{fontSize:"0.72rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.4rem"}}>Shared (group) subjects</div>
+                    <div style={{display:"flex",flexDirection:"column",gap:"0.28rem",marginBottom:"0.75rem"}}>
+                      {[...SUBJECT_OPTIONS,...(local.customSubjects||[])].map(s=>{
+                        const sel=(local.groupSubjects||[]).includes(s.id);
+                        return (
+                          <button key={s.id} onClick={()=>{
+                            const cur=local.groupSubjects||[];
+                            updL("groupSubjects",sel?cur.filter(x=>x!==s.id):[...cur,s.id]);
+                          }} style={{display:"flex",gap:"0.55rem",alignItems:"center",padding:"0.45rem 0.7rem",border:`2px solid ${sel?pal.accent:pal.stone+"40"}`,borderRadius:"9px",background:sel?pal.paleMid:"transparent",cursor:"pointer",transition:"all 0.12s"}}>
+                            <span style={{fontSize:"0.95rem",width:"22px",textAlign:"center"}}>{s.icon||"📋"}</span>
+                            <span style={{flex:1,fontWeight:sel?"700":"400",color:sel?pal.accentD:pal.inkM,fontSize:"0.81rem"}}>{s.label}</span>
+                            <div style={{width:"15px",height:"15px",borderRadius:"3px",border:`2px solid ${sel?pal.accent:pal.stone}`,background:sel?pal.accent:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                              {sel&&<span style={{color:"#fff",fontSize:"0.6rem",fontWeight:"900"}}>{"✓"}</span>}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Separate / mixed: per-child subject config */}
+                {((local.scheduleMode2||"same")==="separate"||(local.scheduleMode2||"same")==="mixed")&&(
+                  <div style={{animation:"fadeUp 0.18s ease"}}>
+                    <div style={{fontSize:"0.72rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.5rem"}}>
+                      {(local.scheduleMode2||"same")==="mixed"?"Individual subjects per child":"Subjects per child"}
+                    </div>
+                    {(local.children||[]).map((c,ci)=>{
+                      const cp=CHILD_COLOR_PALETTES.find(p=>p.id===(c.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+                      const cfg=c.scheduleConfig||{};
+                      const childSubjs=cfg.subjects||[];
+                      const alreadyGroup=(local.scheduleMode2||"same")==="mixed"?(local.groupSubjects||[]):[];
+                      const available=[...SUBJECT_OPTIONS,...(local.customSubjects||[])].filter(s=>!alreadyGroup.includes(s.id));
+                      return (
+                        <div key={c.id} style={{marginBottom:"0.75rem",padding:"0.7rem 0.85rem",background:pal.parchm,borderRadius:"12px",border:`1.5px solid ${cp.c1}30`}}>
+                          <div style={{display:"flex",alignItems:"center",gap:"0.5rem",marginBottom:"0.5rem"}}>
+                            <div style={{width:"28px",height:"28px",borderRadius:"7px",background:`linear-gradient(135deg,${cp.c1},${cp.c2})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.95rem"}}>{c.avatar}</div>
+                            <span style={{fontWeight:"800",color:pal.ink,fontSize:"0.84rem"}}>{c.name}</span>
+                            <span style={{fontSize:"0.65rem",color:pal.slate,marginLeft:"auto"}}>{childSubjs.length} subjects</span>
+                          </div>
+                          <div style={{display:"flex",flexWrap:"wrap",gap:"0.3rem"}}>
+                            {available.map(s=>{
+                              const sel=childSubjs.includes(s.id);
+                              return (
+                                <button key={s.id} onClick={()=>{
+                                  const cur=cfg.subjects||[];
+                                  const updated=(local.children||[]).map(ch=>
+                                    ch.id===c.id?{...ch,scheduleConfig:{...(ch.scheduleConfig||{}),subjects:sel?cur.filter(x=>x!==s.id):[...cur,s.id]}}:ch
+                                  );
+                                  updL("children",updated);
+                                }} style={{padding:"0.22rem 0.55rem",border:`1.5px solid ${sel?cp.c1:pal.stone+"50"}`,borderRadius:"20px",background:sel?cp.c1+"18":"transparent",cursor:"pointer",fontSize:"0.71rem",fontWeight:sel?"700":"400",color:sel?cp.c1:pal.inkM,transition:"all 0.12s"}}>
+                                  {s.icon} {s.label}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {(local.scheduleMode2||"same")!=="same"&&(
+                  <div style={{fontSize:"0.69rem",color:pal.slate,lineHeight:1.5,marginTop:"0.25rem",fontStyle:"italic"}}>
+                    {"Changes take effect immediately in your Schedule screen."}
+                  </div>
+                )}
+              </SCard>
+            )}
             <SCard pal={pal} title="Subjects" note="These drive your schedule and portfolio">
               <div style={{fontSize:"0.72rem",color:pal.slate,marginBottom:"0.65rem",lineHeight:1.5}}>
                 Select all subjects your family covers. These appear in your daily schedule and portfolio tracking.
@@ -2519,6 +2898,31 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
               {/* Add custom curriculum inline */}
               <CurriculumAddWidget pal={pal} local={local} updL={updL}/>
             </SCard>
+            <SCard pal={pal} title="Goals" note="Optional — shapes nudges and AI suggestions">
+              <div style={{fontSize:"0.72rem",color:pal.slate,marginBottom:"0.65rem",lineHeight:1.5}}>
+                {"Select what matters most this year. These shape your daily nudges, AI lesson suggestions, and year-end narrative."}
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.38rem",marginBottom:"0.65rem"}}>
+                {[...GOALS,...(local.customGoals||[])].map(g=>{
+                  const sel=(local.goals||[]).includes(g.id);
+                  return (
+                    <button key={g.id} onClick={()=>{
+                      const cur=local.goals||[];
+                      updL("goals",sel?cur.filter(x=>x!==g.id):[...cur,g.id]);
+                    }} style={{display:"flex",alignItems:"center",gap:"0.45rem",padding:"0.5rem 0.65rem",border:`2px solid ${sel?pal.primary:pal.stone+"45"}`,borderRadius:"11px",background:sel?pal.pale:"transparent",cursor:"pointer",transition:"all 0.13s",textAlign:"left"}}>
+                      <span style={{fontSize:"1.1rem",flexShrink:0}}>{g.icon}</span>
+                      <span style={{fontSize:"0.74rem",fontWeight:sel?"700":"400",color:sel?pal.primary:pal.inkM,lineHeight:1.25}}>{g.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              {(local.goals||[]).length===0&&(
+                <div style={{fontSize:"0.72rem",color:pal.stone,fontStyle:"italic",textAlign:"center",padding:"0.25rem 0"}}>
+                  No goals selected — tap any to add them.
+                </div>
+              )}
+            </SCard>
+
             <SCard pal={pal} title="Co-op Frequency">
               <div style={{display:"flex",flexDirection:"column",gap:"0.38rem"}}>
                 {COOP_FREQ.map(c=>(
@@ -2657,14 +3061,38 @@ function TimeSelect({pal,value,onChange}){
 }
 
 /* --- SCHEDULE GENERATOR --- */
-function generateSchedule(family) {
-  const subjects = family.subjects || ["math","reading","language","science","history"];
-  const sessionMins = parseInt((family.sessionLength||"45 min").split(" ")[0]);
+function generateSchedule(family, childId) {
+  const schedMode = family.scheduleMode2 || "same"; // "same" | "separate" | "mixed"
   const customSubjs = family.customSubjects || [];
   const subjectMap = Object.fromEntries([...SUBJECT_OPTIONS, ...customSubjs].map(s=>[s.id,s]));
+
+  // Resolve which subjects and settings to use
+  let subjects, sessionMins, startHour, startMin;
+  if(schedMode==="separate" && childId) {
+    const ch = family.children.find(c=>c.id===childId);
+    const cfg = ch?.scheduleConfig||{};
+    subjects    = cfg.subjects || family.subjects || ["math","reading","language","science","history"];
+    sessionMins = parseInt((cfg.sessionLength||family.sessionLength||"45 min").split(" ")[0]);
+    startHour   = parseInt((cfg.startTime||family.startTime||"8:00").split(":")[0]);
+    startMin    = parseInt((cfg.startTime||family.startTime||"8:00").split(":")[1]||0);
+  } else if(schedMode==="mixed" && childId) {
+    const ch = family.children.find(c=>c.id===childId);
+    const cfg = ch?.scheduleConfig||{};
+    // Group subjects first, then child-specific
+    const groupSubjs  = family.groupSubjects || family.subjects || [];
+    const indivSubjs  = cfg.subjects || [];
+    subjects    = [...new Set([...groupSubjs, ...indivSubjs])];
+    sessionMins = parseInt((cfg.sessionLength||family.sessionLength||"45 min").split(" ")[0]);
+    startHour   = parseInt((family.startTime||"8:00").split(":")[0]);
+    startMin    = parseInt((family.startTime||"8:00").split(":")[1]||0);
+  } else {
+    subjects    = family.subjects || ["math","reading","language","science","history"];
+    sessionMins = parseInt((family.sessionLength||"45 min").split(" ")[0]);
+    startHour   = parseInt((family.startTime||"8:00").split(":")[0]);
+    startMin    = parseInt((family.startTime||"8:00").split(":")[1]||0);
+  }
+
   const isTimed = family.scheduleMode === "timed";
-  const startHour = parseInt((family.startTime||"8:00").split(":")[0]);
-  const startMin  = parseInt((family.startTime||"8:00").split(":")[1]||0);
   let blocks = [];
   let cursor = startHour * 60 + startMin;
   const toTime = mins => {
@@ -2672,10 +3100,12 @@ function generateSchedule(family) {
     const m = mins % 60;
     return `${h}:${m.toString().padStart(2,"0")}`;
   };
+
   if (family.morningGathering) {
-    blocks.push({t:isTimed?toTime(cursor):"", s:family.morningGatheringName||"Morning Time", i:"🌅", c:"all", dur:30});
+    blocks.push({t:isTimed?toTime(cursor):"", s:family.morningGatheringName||"Morning Time", i:"🌅", c:"all", dur:30, isGroup:true});
     if(isTimed) cursor += 30;
   }
+
   subjects.forEach((id, idx) => {
     const subj = subjectMap[id];
     if (!subj) return;
@@ -2686,7 +3116,10 @@ function generateSchedule(family) {
         cursor += 45;
       }
     }
-    blocks.push({t:isTimed?toTime(cursor):"", s:subj.label, i:subj.icon, c:"all", dur:sessionMins});
+    // Mark group subjects vs individual in mixed mode
+    const isGroup = schedMode==="mixed" && (family.groupSubjects||[]).includes(id);
+    const cId = schedMode==="separate"&&childId ? childId : "all";
+    blocks.push({t:isTimed?toTime(cursor):"", s:subj.label, i:subj.icon, c:cId, dur:sessionMins, isGroup});
     if(isTimed) {
       cursor += sessionMins;
       if ((idx+1) % 2 === 0 && idx < subjects.length-1) {
@@ -2702,19 +3135,15 @@ function generateSchedule(family) {
   // Apply schedule overrides: remove deleted, apply duration edits, add custom, reorder
   const overrides = family.scheduleOverrides;
   if(overrides) {
-    // Remove blocks marked for deletion
     if(overrides.removed?.length) {
       blocks = blocks.filter(b=>!overrides.removed.includes(b.s));
     }
-    // Apply duration edits
     if(overrides.durations) {
       blocks = blocks.map(b=>overrides.durations[b.s]?{...b,dur:overrides.durations[b.s]}:b);
     }
-    // Add custom blocks
     if(overrides.custom?.length) {
       blocks = [...blocks, ...overrides.custom];
     }
-    // Apply custom order if set
     if(overrides.order?.length) {
       const orderMap = Object.fromEntries(overrides.order.map((s,i)=>[s,i]));
       blocks.sort((a,b)=>{
@@ -2732,17 +3161,8 @@ function generateSchedule(family) {
     const todayDow = new Date().getDay();
     if(coopDow===todayDow) {
       const coopName = family.coopName||"Co-op";
-      const coopTime = family.coopTime||"";
-      // Don't duplicate if already in blocks
       if(!blocks.find(b=>b.s===coopName||b.s==="Co-op")) {
-        blocks.push({
-          t: coopTime||"",
-          s: coopName,
-          i: "🏫",
-          c: "all",
-          dur: 180,
-          isCoop: true,
-        });
+        blocks.push({t:family.coopTime||"", s:coopName, i:"🏫", c:"all", dur:180, isCoop:true});
       }
     }
   }
@@ -3472,7 +3892,8 @@ function printPortfolioPDF(family, entries, child, attendanceDays, stateInfo) {
   const yearStartNum= family.yearStart ? new Date(family.yearStart).getFullYear() : new Date().getFullYear();
   const yearEndNum  = family.yearEnd   ? new Date(family.yearEnd).getFullYear()   : yearStartNum+1;
   const today       = new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
-  const pct         = Math.min(100,Math.round(attendanceDays/180*100));
+  const stateReqDays= parseInt((getStateInfo(family.state||"").hours||"180").match(/\d+/)?.[0]||"180");
+  const pct         = Math.min(100,Math.round(attendanceDays/stateReqDays*100));
   const childName   = child?.name||"Student";
   const grade       = child?.grade||"";
 
@@ -3559,7 +3980,7 @@ function printPortfolioPDF(family, entries, child, attendanceDays, stateInfo) {
     +"<div class='section-title'>Attendance</div>"
     +"<div style='display:flex;justify-content:space-between;font-size:9pt;color:#555;margin-bottom:5px'>"
     +"<span><b style='font-size:14pt;color:#2a6a2a'>"+attendanceDays+"</b> days completed</span>"
-    +"<span style='color:#888'>"+pct+"% of 180 days</span>"
+    +"<span style='color:#888'>"+pct+"% of "+stateReqDays+" days</span>"
     +"</div>"
     +"<div class='progress-bar'><div class='progress-fill' style='width:"+pct+"%'></div></div>"
     +"<div style='margin-top:1rem;font-size:9pt;color:#888;text-align:center'>"+allDates.length+" school days logged &bull; "+Object.keys(byWeek).length+" weeks &bull; "+subjEntries.length+" portfolio entries</div>"
@@ -3751,7 +4172,7 @@ function printPortfolioPDF(family, entries, child, attendanceDays, stateInfo) {
       +"</tr>";
   });
   html += "</tbody></table>"
-    +"<div style='margin-top:8px;font-size:8pt;color:#888;text-align:center'>Shaded = days logged &bull; "+attendanceDays+" of 180 days ("+pct+"%)</div>"
+    +"<div style='margin-top:8px;font-size:8pt;color:#888;text-align:center'>Shaded = days logged &bull; "+attendanceDays+" of "+stateReqDays+" days ("+pct+"%)</div>"
     +"<div class='footer'><span>"+schoolName+" &bull; "+childName+"</span><span>Root &amp; Bloom</span></div>"
     +"</div>";
 
@@ -4099,6 +4520,166 @@ function getEOYWeeksLeft(family) {
 /* =======================================
    CELEBRATION MODAL — after onboarding
 ======================================= */
+/* =======================================
+   TOUR MODAL — 4 animated slides shown
+   once after onboarding completes.
+======================================= */
+function TourModal({pal, onDone}){
+  const [slide, setSlide] = useState(0);
+  const [dir,   setDir]   = useState(1); // 1=forward, -1=back
+  const [anim,  setAnim]  = useState(false);
+
+  const SLIDES = [
+    {
+      emoji:"🏡",
+      color:"#2a6a2a",
+      color2:"#4a9a4a",
+      title:"Your daily command center",
+      body:"Log today's school day right from the home screen. Tap 📝 Log Today — it walks you through every subject in under a minute.",
+      hint:"No jumping between screens. One tap and you're done.",
+    },
+    {
+      emoji:"📅",
+      color:"#1a5a8a",
+      color2:"#3a8ac8",
+      title:"Check off as you go",
+      body:"The Schedule screen shows your daily blocks. Tap each subject as you finish it. When everything is done, one button saves it all to your portfolio.",
+      hint:"You can customize the order and timing in ✏️ Edit.",
+    },
+    {
+      emoji:"🗂",
+      color:"#7a3a8a",
+      color2:"#b06ac0",
+      title:"Your living record",
+      body:"Every day you log becomes part of your portfolio — entries, photos, reading titles, co-op sessions. It builds your year automatically.",
+      hint:"Florida families: reading titles are tracked separately for your activity log.",
+    },
+    {
+      emoji:"🎓",
+      color:"#8a5a1a",
+      color2:"#c08a3a",
+      title:"Evaluation-ready all year",
+      body:"When it's time for your annual evaluation, your transcript, reading log, attendance record, and narrative are already built. Just tap Print.",
+      hint:"Find everything in More → Records.",
+    },
+  ];
+
+  const goTo = (idx) => {
+    if(idx===slide||anim) return;
+    setDir(idx>slide?1:-1);
+    setAnim(true);
+    setTimeout(()=>{ setSlide(idx); setAnim(false); },220);
+  };
+  const next = () => slide < SLIDES.length-1 ? goTo(slide+1) : onDone();
+  const prev = () => slide > 0 ? goTo(slide-1) : null;
+
+  const s = SLIDES[slide];
+
+  return (
+    <div style={{position:"fixed",inset:0,zIndex:500,background:"#0a0f0a",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}>
+
+      {/* Skip button */}
+      <button onClick={onDone} style={{position:"absolute",top:"1.1rem",right:"1.1rem",background:"rgba(255,255,255,0.12)",border:"none",borderRadius:"20px",padding:"0.3rem 0.85rem",color:"rgba(255,255,255,0.55)",fontSize:"0.75rem",fontWeight:"600",cursor:"pointer",zIndex:10}}>
+        Skip
+      </button>
+
+      {/* Slide */}
+      <div key={slide} style={{
+        width:"100%",maxWidth:"360px",padding:"0 1.5rem",
+        animation: anim ? (dir>0?"slideOutLeft 0.22s ease forwards":"slideOutRight 0.22s ease forwards")
+                        : (dir>0?"slideInRight 0.28s ease both":"slideInLeft 0.28s ease both"),
+        textAlign:"center",
+      }}>
+        {/* Big emoji in colored circle */}
+        <div style={{
+          width:"110px",height:"110px",borderRadius:"50%",
+          background:`radial-gradient(circle at 35% 35%, ${s.color2}, ${s.color})`,
+          display:"flex",alignItems:"center",justifyContent:"center",
+          fontSize:"3.5rem",margin:"0 auto 1.5rem",
+          boxShadow:`0 12px 40px ${s.color}60`,
+          animation:"grow 0.45s cubic-bezier(0.34,1.56,0.64,1) both",
+        }}>
+          {s.emoji}
+        </div>
+
+        {/* Title */}
+        <h2 style={{
+          fontFamily:"Georgia,serif",fontWeight:"900",
+          color:"#fff",fontSize:"1.45rem",
+          margin:"0 0 0.75rem",lineHeight:1.2,
+          animation:"fadeUp 0.4s ease 0.1s both",
+        }}>
+          {s.title}
+        </h2>
+
+        {/* Body */}
+        <p style={{
+          color:"rgba(255,255,255,0.78)",fontSize:"0.92rem",
+          lineHeight:1.65,margin:"0 0 1rem",
+          animation:"fadeUp 0.4s ease 0.18s both",
+        }}>
+          {s.body}
+        </p>
+
+        {/* Hint pill */}
+        <div style={{
+          display:"inline-flex",alignItems:"center",gap:"0.35rem",
+          background:`${s.color}35`,border:`1px solid ${s.color2}50`,
+          borderRadius:"20px",padding:"0.35rem 0.85rem",
+          animation:"fadeUp 0.4s ease 0.26s both",
+        }}>
+          <span style={{fontSize:"0.75rem"}}>{"💡"}</span>
+          <span style={{fontSize:"0.73rem",color:"rgba(255,255,255,0.65)",fontWeight:"500"}}>{s.hint}</span>
+        </div>
+      </div>
+
+      {/* Dot indicators */}
+      <div style={{display:"flex",gap:"0.45rem",marginTop:"2.5rem",marginBottom:"1.5rem"}}>
+        {SLIDES.map((_,i)=>(
+          <button key={i} onClick={()=>goTo(i)} style={{
+            width: i===slide?"22px":"8px",height:"8px",
+            borderRadius:"99px",border:"none",cursor:"pointer",
+            background: i===slide?"#fff":"rgba(255,255,255,0.25)",
+            transition:"all 0.3s ease",
+            padding:0,
+          }}/>
+        ))}
+      </div>
+
+      {/* Nav buttons */}
+      <div style={{display:"flex",gap:"0.75rem",width:"100%",maxWidth:"320px",padding:"0 1.5rem"}}>
+        {slide>0&&(
+          <button onClick={prev} style={{
+            flex:1,padding:"0.85rem",border:"2px solid rgba(255,255,255,0.2)",
+            borderRadius:"14px",background:"transparent",
+            color:"rgba(255,255,255,0.7)",fontWeight:"700",fontSize:"0.9rem",cursor:"pointer",
+          }}>
+            {"← Back"}
+          </button>
+        )}
+        <button onClick={next} style={{
+          flex:2,padding:"0.85rem",border:"none",borderRadius:"14px",
+          background:slide===SLIDES.length-1
+            ? `linear-gradient(135deg,${s.color},${s.color2})`
+            : `linear-gradient(135deg,${s.color},${s.color2})`,
+          color:"#fff",fontWeight:"900",fontSize:"0.95rem",cursor:"pointer",
+          boxShadow:`0 6px 24px ${s.color}50`,
+          transition:"box-shadow 0.3s",
+        }}>
+          {slide===SLIDES.length-1 ? "Let's start! 🌱" : "Next →"}
+        </button>
+      </div>
+
+      <style>{`
+        @keyframes slideInRight  { from{opacity:0;transform:translateX(60px)} to{opacity:1;transform:translateX(0)} }
+        @keyframes slideInLeft   { from{opacity:0;transform:translateX(-60px)} to{opacity:1;transform:translateX(0)} }
+        @keyframes slideOutLeft  { from{opacity:1;transform:translateX(0)} to{opacity:0;transform:translateX(-60px)} }
+        @keyframes slideOutRight { from{opacity:1;transform:translateX(0)} to{opacity:0;transform:translateX(60px)} }
+      `}</style>
+    </div>
+  );
+}
+
 function CelebrationModal({pal,data,onEnter}){
   const childNames = (data.children||[]).map(c=>c.name).filter(Boolean);
   const [confetti, setConfetti] = React.useState(true);
@@ -4170,7 +4751,7 @@ function EOYChecklistModal({pal,family,childIdx,setChildIdx,weeksLeft,portfolioE
   const info = getComplianceInfo(family.state||"", ch.grade||"5th");
   const next = nextGrade(ch.grade);
   const cp   = CHILD_COLOR_PALETTES.find(p=>p.id===(ch.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
-  const REQUIRED = 180;
+  const REQUIRED = parseInt((getStateInfo(family.state||"").hours||"180").match(/\d+/)?.[0]||"180");
 
   // ── Checklist tab state ──
   const CHECKLIST_ITEMS = [
@@ -4743,6 +5324,165 @@ const GOAL_NUDGES = {
   travel:      {nudge:"Explore a map, culture, or geography today.",      subjs:["Geography"],              tab:"schedule",  icon:"🗺"},
 };
 
+/* =======================================
+   OBSERVATION JOURNAL MODAL
+   Private per-child parent notes.
+   Quick capture, timestamped, never
+   shown in portfolio or reports.
+======================================= */
+function ObservationJournalModal({pal, family, childId, entries, onAdd, onDelete, onClose}){
+  const child = family.children.find(c=>c.id===childId)||family.children[0];
+  const ci    = family.children.findIndex(c=>c.id===childId);
+  const cp    = CHILD_COLOR_PALETTES.find(p=>p.id===(child?.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+
+  const [text,     setText]     = useState("");
+  const [delConf,  setDelConf]  = useState(null); // id to confirm delete
+  const inputRef = useRef(null);
+
+  const childEntries = entries.filter(e=>e.childId===childId)
+    .sort((a,b)=>b.ts-(a.ts||0));
+
+  const handleAdd = () => {
+    const t = text.trim();
+    if(!t) return;
+    const now = new Date();
+    onAdd({
+      id: uid(),
+      childId,
+      text: t,
+      ts: now.getTime(),
+      date: now.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}),
+      time: now.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"}),
+    });
+    setText("");
+    inputRef.current?.focus();
+  };
+
+  const PROMPTS = [
+    "Had a breakthrough with...",
+    "Struggled today with...",
+    "Asked a great question about...",
+    "Really excited about...",
+    "I noticed...",
+    "Something to follow up on...",
+  ];
+
+  return (
+    <div style={{position:"fixed",inset:0,background:"rgba(10,15,10,0.8)",backdropFilter:"blur(14px)",zIndex:250,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
+      <div style={{background:pal.linen,borderRadius:"28px 28px 0 0",width:"100%",maxWidth:"430px",maxHeight:"90vh",display:"flex",flexDirection:"column",boxShadow:"0 -16px 60px rgba(0,0,0,0.35)",animation:"slideUp 0.28s ease"}}>
+
+        {/* Handle */}
+        <div style={{padding:"0.7rem 0 0",display:"flex",justifyContent:"center",flexShrink:0}}>
+          <div style={{width:"36px",height:"4px",borderRadius:"99px",background:pal.stone}}/>
+        </div>
+
+        {/* Header */}
+        <div style={{background:`linear-gradient(135deg,${cp.c1},${cp.c2})`,padding:"0.9rem 1.2rem",flexShrink:0}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <div style={{display:"flex",alignItems:"center",gap:"0.65rem"}}>
+              <div style={{width:"40px",height:"40px",borderRadius:"11px",background:"rgba(255,255,255,0.22)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem"}}>
+                {child?.avatar||"🌱"}
+              </div>
+              <div>
+                <div style={{fontWeight:"900",color:"#fff",fontSize:"0.95rem"}}>{child?.name}</div>
+                <div style={{fontSize:"0.68rem",color:"rgba(255,255,255,0.72)"}}>
+                  {"📓 Parent observations · "+childEntries.length+" note"+(childEntries.length!==1?"s":"")}
+                </div>
+              </div>
+            </div>
+            <button onClick={onClose}
+              style={{width:"28px",height:"28px",borderRadius:"50%",background:"rgba(255,255,255,0.2)",border:"none",color:"#fff",cursor:"pointer",fontSize:"0.85rem",display:"flex",alignItems:"center",justifyContent:"center"}}>
+              {"✕"}
+            </button>
+          </div>
+        </div>
+
+        {/* Quick-add input */}
+        <div style={{padding:"0.85rem 1.1rem 0.7rem",borderBottom:`1px solid ${pal.stone}30`,flexShrink:0}}>
+          <div style={{display:"flex",gap:"0.5rem",alignItems:"flex-end"}}>
+            <textarea
+              ref={inputRef}
+              value={text}
+              onChange={e=>setText(e.target.value)}
+              onKeyDown={e=>{ if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();handleAdd();} }}
+              placeholder={"Quick note about "+child?.name+"... (Enter to save)"}
+              rows={2}
+              style={{flex:1,resize:"none",padding:"0.6rem 0.8rem",border:`2px solid ${cp.c1}50`,borderRadius:"12px",background:pal.parchm,fontSize:"0.83rem",fontFamily:"inherit",color:pal.ink,outline:"none",lineHeight:1.5}}
+              autoFocus
+            />
+            <button onClick={handleAdd} disabled={!text.trim()}
+              style={{width:"42px",height:"42px",borderRadius:"12px",border:"none",background:text.trim()?`linear-gradient(135deg,${cp.c1},${cp.c2})`:"#ccc",color:"#fff",cursor:text.trim()?"pointer":"default",fontSize:"1.1rem",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
+              {"✓"}
+            </button>
+          </div>
+
+          {/* Prompt chips */}
+          <div style={{display:"flex",gap:"0.3rem",flexWrap:"wrap",marginTop:"0.5rem"}}>
+            {PROMPTS.map(p=>(
+              <button key={p} onClick={()=>{setText(p);setTimeout(()=>inputRef.current?.focus(),50);}}
+                style={{padding:"0.18rem 0.6rem",border:`1px solid ${cp.c1}40`,borderRadius:"20px",background:"transparent",color:cp.c1,fontSize:"0.68rem",cursor:"pointer",fontWeight:"500"}}>
+                {p}
+              </button>
+            ))}
+          </div>
+
+          <div style={{fontSize:"0.63rem",color:pal.stone,marginTop:"0.4rem"}}>
+            {"🔒 Private — never shown in portfolio or reports"}
+          </div>
+        </div>
+
+        {/* Entries list */}
+        <div style={{flex:1,overflowY:"auto",padding:"0.75rem 1.1rem"}}>
+          {childEntries.length===0?(
+            <div style={{textAlign:"center",padding:"2rem 1rem"}}>
+              <div style={{fontSize:"2.5rem",marginBottom:"0.5rem"}}>📓</div>
+              <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.88rem",marginBottom:"0.3rem"}}>No notes yet</div>
+              <div style={{fontSize:"0.75rem",color:pal.slate,lineHeight:1.6}}>
+                {"Capture moments, breakthroughs, and observations about "+child?.name+". Just for you."}
+              </div>
+            </div>
+          ):(
+            <div style={{display:"flex",flexDirection:"column",gap:"0.6rem"}}>
+              {childEntries.map(entry=>(
+                <div key={entry.id} style={{background:"#fff",borderRadius:"14px",padding:"0.75rem 0.9rem",border:`1.5px solid ${pal.stone}20`,position:"relative"}}>
+                  {/* Date/time badge */}
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.4rem"}}>
+                    <span style={{fontSize:"0.63rem",color:pal.stone,fontWeight:"600"}}>
+                      {entry.date}{entry.time?" · "+entry.time:""}
+                    </span>
+                    {delConf===entry.id?(
+                      <div style={{display:"flex",gap:"0.3rem"}}>
+                        <button onClick={()=>setDelConf(null)}
+                          style={{padding:"0.12rem 0.5rem",border:`1px solid ${pal.stone}`,borderRadius:"8px",background:"transparent",color:pal.slate,fontSize:"0.65rem",cursor:"pointer"}}>
+                          Keep
+                        </button>
+                        <button onClick={()=>{onDelete(entry.id);setDelConf(null);}}
+                          style={{padding:"0.12rem 0.5rem",border:"none",borderRadius:"8px",background:"#e53e3e",color:"#fff",fontSize:"0.65rem",cursor:"pointer",fontWeight:"700"}}>
+                          Delete
+                        </button>
+                      </div>
+                    ):(
+                      <button onClick={()=>setDelConf(entry.id)}
+                        style={{width:"20px",height:"20px",borderRadius:"50%",border:`1px solid ${pal.stone}30`,background:"transparent",color:pal.stone,fontSize:"0.58rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                        {"✕"}
+                      </button>
+                    )}
+                  </div>
+                  {/* Note text */}
+                  <div style={{fontSize:"0.83rem",color:pal.ink,lineHeight:1.6,whiteSpace:"pre-wrap"}}>
+                    {entry.text}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          <div style={{height:"0.5rem"}}/>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const DISMISS_KEY = "rootbloom_goals_nudge_dismiss";
 
 function GoalsNudgeCard({pal,family,portfolioEntries,todayStr,onTabChange}){
@@ -4838,9 +5578,13 @@ function GoalsNudgeCard({pal,family,portfolioEntries,todayStr,onTabChange}){
   );
 }
 
-function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress }) {
-  const REQUIRED = 180;
-  const blocks = generateSchedule(family);
+function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress, onAddEntry, onCheckin, observationLog=[], onOpenJournal }) {
+  const stateInfo  = getStateInfo(family.state||"");
+  const stateHours = stateInfo.hours||"";
+  const dayMatch   = stateHours.match(/(\d+)\s*day/i);
+  const REQUIRED   = dayMatch ? parseInt(dayMatch[1]) : (stateInfo.attendance ? 180 : null);
+  const blocks = generateSchedule(family, family.scheduleMode2!=="same"?(child!=="all"?child:family.children?.[0]?.id):null);
+  const [showQuickLog, setShowQuickLog] = useState(false);
 
   // P&C week completion state
   const PC_KEY = "rootbloom_pc_done";
@@ -4858,7 +5602,15 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
     setPcDone(true);
   };
   const visible = blocks.filter(b=>child==="all"||b.c==="all"||b.c===child);
-  const pct = Math.min(100, Math.round((attendanceDays/REQUIRED)*100));
+  const pct = REQUIRED ? Math.min(100, Math.round((attendanceDays/REQUIRED)*100)) : null;
+  const onTrack = (() => {
+    if(!REQUIRED||!family.yearStart||!family.yearEnd) return pct!==null?(pct>=68):true;
+    const start=new Date(family.yearStart), end=new Date(family.yearEnd), now=new Date();
+    const totalDays=(end-start)/(24*60*60*1000);
+    const elapsed=Math.max(0,(now-start)/(24*60*60*1000));
+    const expectedPct=Math.min(100,Math.round((elapsed/totalDays)*100));
+    return pct>=expectedPct-10;
+  })();
   const todayStr = new Date().toDateString();
   const checkedInToday = lastCheckinDate === todayStr;
 
@@ -4900,9 +5652,101 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
       </div>
 
       <div style={{padding:"1rem"}}>
-        {/* Stats row - filtered by selected child */}
-        {child!=="all" && (()=>{
-          const ci = family.children.findIndex(c=>c.id===child);
+        <FirstVisitTip pal={pal} screen="home"/>
+
+        {/* ── Multi-child dashboard — shown when "All" selected and 2+ children ── */}
+        {child==="all" && family.children.length>1 && (()=>{
+          const todayDateStr = new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
+          const weekStart = new Date();
+          weekStart.setDate(weekStart.getDate() - (weekStart.getDay()===0?6:weekStart.getDay()-1));
+          const weekDates = Array.from({length:5},(_,i)=>{
+            const d=new Date(weekStart); d.setDate(weekStart.getDate()+i);
+            return d.toLocaleDateString("en-US",{month:"short",day:"numeric"});
+          });
+
+          return (
+            <div style={{marginBottom:"1rem"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.5rem"}}>
+                <span style={{fontWeight:"800",color:pal.inkM,fontSize:"0.78rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>{"Today's Roster"}</span>
+                <span style={{fontSize:"0.68rem",color:pal.slate}}>{new Date().toLocaleDateString("en-US",{weekday:"long"})}</span>
+              </div>
+              <div style={{display:"flex",flexDirection:"column",gap:"0.42rem"}}>
+                {family.children.map((c,ci)=>{
+                  const cp = CHILD_COLOR_PALETTES.find(p=>p.id===(c.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+                  const childEntries = portfolioEntries.filter(e=>e.childIdx===ci);
+                  const loggedToday = childEntries.some(e=>e.date===todayDateStr&&!e.isDay);
+                  const weekEntries = childEntries.filter(e=>weekDates.includes(e.date)&&!e.isDay).length;
+                  const lastEntry = childEntries[0];
+
+                  // Get child's subjects for mini progress dots
+                  const childSubjs = family.scheduleMode2==="separate"||family.scheduleMode2==="mixed"
+                    ? (c.scheduleConfig?.subjects||family.subjects||[])
+                    : (family.subjects||[]);
+                  const loggedSubjsToday = new Set(childEntries.filter(e=>e.date===todayDateStr&&!e.isDay).map(e=>e.subj));
+                  const subjDone = childSubjs.filter(id=>{
+                    const s=[...SUBJECT_OPTIONS,...(family.customSubjects||[])].find(x=>x.id===id);
+                    return s&&loggedSubjsToday.has(s.label);
+                  }).length;
+
+                  return (
+                    <button key={c.id} onClick={()=>setChild(c.id)}
+                      style={{display:"flex",gap:"0.75rem",alignItems:"center",padding:"0.75rem 0.9rem",background:loggedToday?`linear-gradient(135deg,${cp.c1}18,${cp.c2}10)`:`${pal.linen}`,borderRadius:"14px",border:`2px solid ${loggedToday?cp.c1+"50":pal.stone+"30"}`,cursor:"pointer",textAlign:"left",transition:"all 0.15s",width:"100%"}}>
+
+                      {/* Avatar */}
+                      <div style={{width:"44px",height:"44px",borderRadius:"12px",background:`linear-gradient(135deg,${cp.c1},${cp.c2})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.4rem",flexShrink:0,position:"relative"}}>
+                        {c.avatar}
+                        {loggedToday&&(
+                          <div style={{position:"absolute",bottom:"-3px",right:"-3px",width:"16px",height:"16px",borderRadius:"50%",background:pal.good,border:"2px solid #fff",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.5rem",color:"#fff",fontWeight:"900"}}>
+                            {"✓"}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Name + grade + last activity */}
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{display:"flex",alignItems:"baseline",gap:"0.4rem",marginBottom:"2px"}}>
+                          <span style={{fontWeight:"800",color:pal.ink,fontSize:"0.88rem"}}>{c.name}</span>
+                          <span style={{fontSize:"0.65rem",color:pal.slate,fontWeight:"500"}}>{c.grade}</span>
+                        </div>
+                        {loggedToday?(
+                          <div style={{fontSize:"0.68rem",color:pal.good,fontWeight:"600"}}>
+                            {"✓ Logged today"}
+                            {childSubjs.length>0&&" · "+subjDone+"/"+childSubjs.length+" subjects"}
+                          </div>
+                        ):(
+                          <div style={{fontSize:"0.68rem",color:pal.slate}}>
+                            {lastEntry
+                              ? "Last logged: "+lastEntry.date
+                              : "No entries yet"}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Week entries badge + journal button + arrow */}
+                      <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:"4px",flexShrink:0}}>
+                        <div style={{background:loggedToday?cp.c1:pal.parchm,borderRadius:"20px",padding:"0.18rem 0.55rem",display:"flex",alignItems:"center",gap:"0.25rem"}}>
+                          <span style={{fontSize:"0.68rem",fontWeight:"800",color:loggedToday?"#fff":pal.slate}}>{weekEntries}</span>
+                          <span style={{fontSize:"0.58rem",color:loggedToday?"rgba(255,255,255,0.8)":pal.stone,fontWeight:"600"}}>this wk</span>
+                        </div>
+                        <div style={{display:"flex",gap:"0.3rem",alignItems:"center"}}>
+                          <button onClick={e=>{e.stopPropagation();onOpenJournal&&onOpenJournal(c.id);}}
+                            style={{padding:"0.15rem 0.45rem",border:`1.5px solid ${pal.stone}40`,borderRadius:"8px",background:pal.parchm,color:pal.slate,fontSize:"0.65rem",cursor:"pointer",fontWeight:"600"}}>
+                            {"📓"}
+                          </button>
+                          <span style={{fontSize:"0.72rem",color:pal.stone}}>{"›"}</span>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* Stats row - filtered by selected child (or single-child families) */}
+        {(child!=="all" || family.children.length===1) && (()=>{
+          const ci = child==="all" ? 0 : family.children.findIndex(c=>c.id===child);
           const ch = family.children[ci];
           const cp = CHILD_COLOR_PALETTES.find(p=>p.id===(ch?.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
           const childEntries = portfolioEntries.filter(e=>e.childIdx===ci);
@@ -4911,7 +5755,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
               <div style={{width:"46px",height:"46px",borderRadius:"13px",background:`linear-gradient(135deg,${cp.c1},${cp.c2})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.6rem",flexShrink:0}}>{ch?.avatar}</div>
               <div style={{flex:1}}>
                 <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.92rem"}}>{ch?.name}</div>
-                <div style={{fontSize:"0.72rem",color:pal.slate}}>{ch?.grade} · {childEntries.length} portfolio {childEntries.length===1?"entry":"entries"}</div>
+                <div style={{fontSize:"0.72rem",color:pal.slate}}>{ch?.grade} {"\u00b7"} {childEntries.length} portfolio {childEntries.length===1?"entry":"entries"}</div>
               </div>
               <div style={{textAlign:"right"}}>
                 <div style={{fontWeight:"900",color:cp.c1,fontSize:"1.3rem",lineHeight:1}}>{childEntries.length}</div>
@@ -4923,8 +5767,10 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"0.55rem",marginBottom:"1rem"}}>
           {[
             {l:"Days",    v:attendanceDays,  c:pal.primary, bg:pal.pale},
-            {l:"Hours",   v:hoursEst!==null?hoursEst+"h":"—",    c:pal.mid,     bg:pal.paleMid},
-            {l:"On Track",v:pct+"%",         c:pct>=68?pal.good:pal.warn, bg:pct>=68?pal.goodBg:pal.warnBg},
+            {l:"Hours",   v:hoursEst!==null?hoursEst+"h":"—", c:pal.mid, bg:pal.paleMid},
+            REQUIRED
+              ? {l:"On Track", v:pct+"%", c:onTrack?pal.good:pal.warn, bg:onTrack?pal.goodBg:pal.warnBg}
+              : {l:"This Year", v:attendanceDays+" days", c:pal.good, bg:pal.goodBg},
           ].map(s=>(
             <div key={s.l} style={{background:s.bg,borderRadius:"15px",padding:"0.8rem 0.6rem",textAlign:"center",border:`1.5px solid ${s.c}22`}}>
               <div style={{fontWeight:"800",color:s.c,fontSize:"1.25rem",lineHeight:1}}>{s.v}</div>
@@ -4933,16 +5779,18 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
           ))}
         </div>
 
-        {/* Year progress bar */}
-        <div style={{background:pal.linen,borderRadius:"14px",padding:"0.75rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}35`}}>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"6px"}}>
-            <span style={{fontSize:"0.74rem",fontWeight:"700",color:pal.inkM}}>School Year</span>
-            <span style={{fontSize:"0.72rem",fontWeight:"800",color:pct>=68?pal.good:pal.warn}}>{attendanceDays} / {REQUIRED} days</span>
+        {/* Year progress bar — only show if state has day requirement */}
+        {REQUIRED&&(
+          <div style={{background:pal.linen,borderRadius:"14px",padding:"0.75rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}35`}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"6px"}}>
+              <span style={{fontSize:"0.74rem",fontWeight:"700",color:pal.inkM}}>School Year</span>
+              <span style={{fontSize:"0.72rem",fontWeight:"800",color:onTrack?pal.good:pal.warn}}>{attendanceDays} / {REQUIRED} days</span>
+            </div>
+            <div style={{height:"8px",borderRadius:"99px",background:pal.parchm,overflow:"hidden"}}>
+              <div style={{height:"100%",width:`${pct}%`,borderRadius:"99px",background:onTrack?`linear-gradient(90deg,${pal.good},${pal.mid})`:pal.accentGrad,transition:"width 0.5s ease"}}/>
+            </div>
           </div>
-          <div style={{height:"8px",borderRadius:"99px",background:pal.parchm,overflow:"hidden"}}>
-            <div style={{height:"100%",width:`${pct}%`,borderRadius:"99px",background:pct>=68?`linear-gradient(90deg,${pal.good},${pal.mid})`:pal.accentGrad,transition:"width 0.5s ease"}}/>
-          </div>
-        </div>
+        )}
 
         {/* ── Smart Today Card — single unified action ── */}
         {(()=>{
@@ -4950,21 +5798,29 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
           const schedDone = prog && prog.total>0 && prog.count>=prog.total;
           const inProgress = prog && prog.count>0 && !schedDone;
 
-          if(schedDone) {
+          if(schedDone || checkedInToday) {
             // State 3: All done for the day
             return (
-              <div style={{background:pal.goodBg,borderRadius:"16px",padding:"0.95rem 1.1rem",marginBottom:"1rem",border:`2px solid ${pal.good}40`,display:"flex",gap:"0.85rem",alignItems:"center"}}>
-                <div style={{width:"46px",height:"46px",borderRadius:"13px",background:pal.good,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.5rem",flexShrink:0}}>{"🌟"}</div>
-                <div style={{flex:1}}>
-                  <div style={{fontWeight:"800",color:pal.good,fontSize:"0.92rem"}}>{"Day complete!"}</div>
-                  <div style={{fontSize:"0.71rem",color:pal.inkM,marginTop:"2px"}}>
-                    {checkinStreak>0 ? "🔥 "+checkinStreak+" day streak — amazing!" : "Great work today."}
+              <div style={{background:pal.goodBg,borderRadius:"16px",padding:"0.95rem 1.1rem",marginBottom:"1rem",border:`2px solid ${pal.good}40`}}>
+                <div style={{display:"flex",gap:"0.85rem",alignItems:"center",marginBottom:"0.65rem"}}>
+                  <div style={{width:"46px",height:"46px",borderRadius:"13px",background:pal.good,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.5rem",flexShrink:0}}>{"🌟"}</div>
+                  <div style={{flex:1}}>
+                    <div style={{fontWeight:"800",color:pal.good,fontSize:"0.92rem"}}>{"Day logged!"}</div>
+                    <div style={{fontSize:"0.71rem",color:pal.inkM,marginTop:"2px"}}>
+                      {checkinStreak>0 ? "🔥 "+checkinStreak+" day streak — amazing!" : "Great work today."}
+                    </div>
                   </div>
                 </div>
-                <button onClick={()=>onTabChange("schedule")}
-                  style={{padding:"0.38rem 0.75rem",border:`2px solid ${pal.good}50`,borderRadius:"10px",background:"transparent",color:pal.good,fontSize:"0.72rem",fontWeight:"700",cursor:"pointer",flexShrink:0}}>
-                  View
-                </button>
+                <div style={{display:"flex",gap:"0.5rem"}}>
+                  <button onClick={()=>setShowQuickLog(true)}
+                    style={{flex:1,padding:"0.48rem",border:`2px solid ${pal.good}50`,borderRadius:"10px",background:"transparent",color:pal.good,fontSize:"0.74rem",fontWeight:"700",cursor:"pointer"}}>
+                    {"+ Add More"}
+                  </button>
+                  <button onClick={()=>onTabChange("schedule")}
+                    style={{flex:1,padding:"0.48rem",border:`2px solid ${pal.good}50`,borderRadius:"10px",background:"transparent",color:pal.good,fontSize:"0.74rem",fontWeight:"700",cursor:"pointer"}}>
+                    {"View Schedule"}
+                  </button>
+                </div>
               </div>
             );
           }
@@ -4998,19 +5854,27 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
 
           // State 1: Haven't started yet
           return (
-            <button onClick={()=>onTabChange("schedule")}
-              style={{width:"100%",background:pal.accentGrad,borderRadius:"16px",padding:"1rem 1.1rem",marginBottom:"1rem",cursor:"pointer",border:"none",display:"flex",justifyContent:"space-between",alignItems:"center",boxShadow:`0 5px 20px ${pal.accent}30`}}>
-              <div style={{display:"flex",alignItems:"center",gap:"0.75rem"}}>
+            <div style={{background:pal.accentGrad,borderRadius:"16px",padding:"1rem 1.1rem",marginBottom:"1rem",border:"none",boxShadow:`0 5px 20px ${pal.accent}30`}}>
+              <div style={{display:"flex",alignItems:"center",gap:"0.75rem",marginBottom:"0.75rem"}}>
                 <div style={{width:"44px",height:"44px",borderRadius:"12px",background:"rgba(255,255,255,0.18)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0}}>{"📋"}</div>
-                <div style={{textAlign:"left"}}>
+                <div style={{flex:1,textAlign:"left"}}>
                   <div style={{fontWeight:"800",color:"#fff",fontSize:"0.92rem",marginBottom:"2px"}}>{"Start today's school day"}</div>
                   <div style={{fontSize:"0.72rem",color:"rgba(255,255,255,0.75)"}}>
-                    {checkinStreak>0 ? "🔥 "+checkinStreak+" day streak — keep it going!" : "Check off subjects as you go"}
+                    {checkinStreak>0 ? "🔥 "+checkinStreak+" day streak — keep it going!" : "Log what you did or check off the schedule"}
                   </div>
                 </div>
               </div>
-              <div style={{width:"34px",height:"34px",borderRadius:"50%",background:"rgba(255,255,255,0.18)",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:"1rem",flexShrink:0}}>{"→"}</div>
-            </button>
+              <div style={{display:"flex",gap:"0.5rem"}}>
+                <button onClick={()=>setShowQuickLog(true)}
+                  style={{flex:2,padding:"0.58rem",border:"none",borderRadius:"11px",background:"rgba(255,255,255,0.92)",color:pal.primary,fontWeight:"800",fontSize:"0.82rem",cursor:"pointer"}}>
+                  {"📝 Log Today"}
+                </button>
+                <button onClick={()=>onTabChange("schedule")}
+                  style={{flex:1,padding:"0.58rem",border:"2px solid rgba(255,255,255,0.4)",borderRadius:"11px",background:"transparent",color:"#fff",fontWeight:"700",fontSize:"0.78rem",cursor:"pointer"}}>
+                  {"📅 Schedule"}
+                </button>
+              </div>
+            </div>
           );
         })()}
 
@@ -5133,18 +5997,27 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
 
         <div style={{height:"0.5rem"}}/>
       </div>
+      {showQuickLog&&(()=>{
+        const childIdx = Math.max(0,family.children.findIndex(c=>c.id===child));
+        const si = getStateInfo(family.state||"");
+        return <DailyPortfolioModal pal={pal} family={family} childIdx={childIdx} stateInfo={si}
+          onClose={()=>setShowQuickLog(false)}
+          onSave={(entries)=>{
+            entries.forEach(e=>onAddEntry&&onAddEntry(e));
+            onCheckin&&onCheckin();
+            setShowQuickLog(false);
+          }}/>;
+      })()}
     </div>
   );
-}
-
-/* ======= SKELETON SCREENS for other tabs ======= */
+} */
 
 /* =======================================
    SCHEDULE EDITOR MODAL
 ======================================= */
 function ScheduleEditorModal({pal,family,onSave,onClose}){
   // Build the current schedule to edit
-  const baseBlocks = generateSchedule({...family, scheduleOverrides:null, lifeReady:false});
+  const baseBlocks = generateSchedule({...family, scheduleOverrides:null, lifeReady:false}, family.scheduleMode2!=="same"?family.children?.[0]?.id:null);
 
   // Working copy of blocks for editing
   const [blocks, setBlocks] = useState(()=>{
@@ -5365,7 +6238,9 @@ function ScheduleScreen({pal,family,child,setChild,onMarkComplete,onProgressUpda
     saveSchedState(ns); return ns;
   });
 
-  const allBlocks = generateSchedule(family);
+  const schedMode2 = family.scheduleMode2||"same";
+  const activeChildId = child==="all" ? null : child;
+  const allBlocks = generateSchedule(family, schedMode2!=="same" ? activeChildId : null);
   const toggleBlock = (di, bi) => {
     const key = di+"_"+bi;
     setChecked(c=>({...c,[key]:!c[key]}));
@@ -5389,7 +6264,10 @@ function ScheduleScreen({pal,family,child,setChild,onMarkComplete,onProgressUpda
   };
 
   const visibleBlocks = allBlocks.filter((b,bi)=>!(daySubjects[selectedDay]||{})[bi]);
-  const filteredByChild = visibleBlocks.filter(b=>child==="all"||b.c==="all"||b.c===child);
+  // In separate/mixed mode, allBlocks is already per-child — show all; in same mode, filter by child
+  const filteredByChild = schedMode2==="same"
+    ? visibleBlocks.filter(b=>child==="all"||b.c==="all"||b.c===child)
+    : visibleBlocks;
   const checkedCount = allBlocks.filter((_,bi)=>!(daySubjects[selectedDay]||{})[bi] && checked[selectedDay+"_"+bi]).length;
   const allDone = checkedCount===filteredByChild.length && filteredByChild.length>0;
 
@@ -5402,13 +6280,19 @@ function ScheduleScreen({pal,family,child,setChild,onMarkComplete,onProgressUpda
   return (
     <div style={{animation:"fadeUp 0.22s ease"}}>
       <ScreenHdr pal={pal} title="Schedule" sub={new Date().toLocaleDateString("en-US",{month:"long",year:"numeric"})} icon="📅"/>
+      <FirstVisitTip pal={pal} screen="schedule"/>
       <div style={{padding:"0 1rem"}}>
         {/* Child filter + edit button */}
         <div style={{display:"flex",gap:"0.35rem",marginBottom:"0.9rem",alignItems:"center"}}>
           <div style={{display:"flex",gap:"0.35rem",flex:1,overflowX:"auto"}}>
-            <Chip pal={pal} label="All" active={child==="all"} onClick={()=>setChild("all")}/>
-            {family.children.map(c=><Chip key={c.id} pal={pal} label={c.avatar+" "+c.name} active={child===c.id} onClick={()=>setChild(c.id)}/>)}
+            {schedMode2==="same"&&<Chip pal={pal} label="All" active={child==="all"} onClick={()=>setChild("all")}/>}
+            {family.children.map(c=><Chip key={c.id} pal={pal} label={c.avatar+" "+c.name} active={child===c.id||(schedMode2!=="same"&&child==="all"&&c===family.children[0])} onClick={()=>setChild(c.id)}/>)}
           </div>
+          {schedMode2!=="same"&&(
+            <span style={{fontSize:"0.6rem",color:pal.slate,background:pal.parchm,padding:"0.18rem 0.5rem",borderRadius:"20px",border:`1px solid ${pal.stone}40`,flexShrink:0,whiteSpace:"nowrap"}}>
+              {schedMode2==="mixed"?"Mixed":"Per-child"}
+            </span>
+          )}
           <button onClick={()=>setShowEditor(true)}
             style={{padding:"0.32rem 0.7rem",border:`1.5px solid ${pal.stone}`,borderRadius:"9px",background:pal.linen,color:pal.inkM,fontSize:"0.72rem",fontWeight:"700",cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}}>
             {"✏️ Edit"}
@@ -5706,6 +6590,7 @@ function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab, portf
   return (
     <div style={{animation:"fadeUp 0.22s ease"}}>
       <ScreenHdr pal={pal} title="Learn" sub="Curriculum & Resources" icon="📚"/>
+      <FirstVisitTip pal={pal} screen="learn"/>
       <div style={{padding:"0 1rem"}}>
         {/* Child selector */}
         <div style={{display:"flex",gap:"0.35rem",marginBottom:"0.9rem",overflowX:"auto"}}>
@@ -6485,7 +7370,7 @@ function AIUnitBuilderModal({ pal, family, activeChild, onSave, onClose }) {
             <>
               <button onClick={onClose} style={{padding:"0.7rem 1rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem"}}>Cancel</button>
               <button onClick={()=>subject&&setStep(1)} disabled={!subject} style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:subject?pal.accentGrad:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:subject?"pointer":"not-allowed"}}>
-                Next ->
+                {"Next →"}
               </button>
             </>
           )}
@@ -6686,6 +7571,7 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
   return (
     <div style={{animation:"fadeUp 0.22s ease"}}>
       <ScreenHdr pal={pal} title="Portfolio" sub={activeCh?.name||"Select a child"} icon="🗂"/>
+      <FirstVisitTip pal={pal} screen="portfolio"/>
       <div style={{padding:"0 1rem"}}>
 
         {/* Child tabs */}
@@ -7057,8 +7943,8 @@ function YearOverview({pal,family,activeCh,cp,entries,attendanceDays,onBack}){
 
   const msPerWeek = 7*24*60*60*1000;
   const currentWeek = Math.floor((now-yearStart)/msPerWeek);
-  const REQUIRED = 180;
-  const pct = Math.min(100,Math.round((attendanceDays/REQUIRED)*100));
+  const REQUIRED = parseInt((getStateInfo(family.state||"").hours||"180").match(/\d+/)?.[0]||"180");
+  const pct = REQUIRED ? Math.min(100,Math.round((attendanceDays/REQUIRED)*100)) : null;
 
   // Subject breakdown
   const bySubj = {};
@@ -7085,15 +7971,21 @@ function YearOverview({pal,family,activeCh,cp,entries,attendanceDays,onBack}){
         <div style={{background:pal.linen,borderRadius:"14px",padding:"0.9rem 1rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.stone}30`}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:"0.5rem"}}>
             <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem"}}>School Year Progress</div>
-            <div style={{fontWeight:"900",color:cp.c1,fontSize:"1rem"}}>{pct}{"% done"}</div>
+            <div style={{fontWeight:"900",color:cp.c1,fontSize:"1rem"}}>{pct!==null?pct+"% done":attendanceDays+" days"}</div>
           </div>
-          <div style={{height:"10px",borderRadius:"99px",background:pal.parchm,overflow:"hidden",marginBottom:"0.45rem"}}>
-            <div style={{height:"100%",width:`${pct}%`,borderRadius:"99px",background:`linear-gradient(90deg,${cp.c1},${cp.c2})`,transition:"width 0.5s"}}/>
-          </div>
+          {pct!==null&&(
+            <div style={{height:"10px",borderRadius:"99px",background:pal.parchm,overflow:"hidden",marginBottom:"0.45rem"}}>
+              <div style={{height:"100%",width:`${pct}%`,borderRadius:"99px",background:`linear-gradient(90deg,${cp.c1},${cp.c2})`,transition:"width 0.5s"}}/>
+            </div>
+          )}
           <div style={{display:"flex",justifyContent:"space-between",fontSize:"0.69rem",color:pal.slate}}>
             <span><b style={{color:pal.ink}}>{attendanceDays}</b> days logged</span>
-            <span><b style={{color:pal.ink}}>{Math.max(0,REQUIRED-attendanceDays)}</b> days remaining</span>
-            <span><b style={{color:pal.ink}}>{REQUIRED}</b> required</span>
+            {REQUIRED?(<>
+              <span><b style={{color:pal.ink}}>{Math.max(0,REQUIRED-attendanceDays)}</b> days remaining</span>
+              <span><b style={{color:pal.ink}}>{REQUIRED}</b> required</span>
+            </>):(
+              <span style={{fontStyle:"italic"}}>{family.state||"Your state"} has no day requirement</span>
+            )}
           </div>
         </div>
 
@@ -8083,7 +8975,7 @@ function AttendanceScreen({pal,family,days,attendanceLog=[],portfolioEntries=[],
 
   // Build ledger sorted newest first
   const ledger = [...attendanceLog].sort((a,b)=>{
-    try{ return new Date(b.date+", 2025")-new Date(a.date+", 2025"); }catch{return 0;}
+    try{ return new Date(b.date+", "+new Date().getFullYear())-new Date(a.date+", "+new Date().getFullYear()); }catch{return 0;}
   });
 
   // Get portfolio dates not yet in log for sync
@@ -8148,6 +9040,7 @@ function AttendanceScreen({pal,family,days,attendanceLog=[],portfolioEntries=[],
   return (
     <div style={{animation:"fadeUp 0.22s ease"}}>
       <ScreenHdr pal={pal} title="Attendance" sub={(family.state||"Your state")+(family.yearStart?" \u00b7 "+new Date(family.yearStart).getFullYear()+(family.yearEnd?"\u2013"+new Date(family.yearEnd).getFullYear():""):"")} icon="📋"/>
+      <FirstVisitTip pal={pal} screen="attendance"/>
       <div style={{padding:"0 1rem"}}>
 
         {/* Pending schedule days banner */}
@@ -8557,6 +9450,7 @@ function CoopScreen({pal,family,coopLog,onLog,onUpdateFamily,onAddEntry}){
   return (
     <div style={{animation:"fadeUp 0.22s ease"}}>
       <ScreenHdr pal={pal} title="Co-op" sub="Sessions & Field Trips" icon="🏫"/>
+      <FirstVisitTip pal={pal} screen="coop"/>
       <div style={{padding:"0 1rem"}}>
 
         {/* Setup prompt — shown if co-op is on but not fully configured */}
@@ -9063,11 +9957,11 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
   if(!ch) return null;
 
   const cp = CHILD_COLOR_PALETTES.find(p=>p.id===(ch.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
-  const REQUIRED = 180;
+  const REQUIRED = parseInt((getStateInfo(family.state||"").hours||"180").match(/\d+/)?.[0]||"180");
   const schoolName = family.schoolName||(family.familyName+" Academy")||"Home School";
   const yearStart  = family.yearStart ? new Date(family.yearStart).toLocaleDateString("en-US",{month:"long",year:"numeric"}) : "—";
   const yearEnd    = family.yearEnd   ? new Date(family.yearEnd).toLocaleDateString("en-US",{month:"long",year:"numeric"})   : "—";
-  const pct = Math.min(100,Math.round((attendanceDays/REQUIRED)*100));
+  const pct = REQUIRED ? Math.min(100,Math.round((attendanceDays/REQUIRED)*100)) : null;
   const isHighSchool = gradeLevel(ch.grade)==="high";
 
   const childEntries = portfolioEntries.filter(e=>e.childIdx===activeChild);
@@ -9101,7 +9995,110 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
     try{ localStorage.setItem(GRADES_KEY, JSON.stringify(updated)); }catch(e){}
   };
 
-  const printRecord = () => window.print();
+  const printRecord = () => {
+    const win = window.open("","_blank","width=860,height=1000,scrollbars=yes");
+    if(!win) return;
+
+    // Build course rows
+    const courseRows = allSubjNames.map(subj=>{
+      const cnt = bySubject[subj]?.count||0;
+      const sg  = subjGrades[subj]||{};
+      if(isHighSchool){
+        return `<tr>
+          <td>${subj}</td>
+          <td style="text-align:center;font-weight:700;color:${sg.grade?"#2a6a2a":"#999"}">${sg.grade||"—"}</td>
+          <td style="text-align:center">${sg.credits||"—"}</td>
+          <td style="text-align:center;color:${cnt>0?"#2a6a2a":"#999"}">${cnt>0?"Active":"Planned"}</td>
+          <td style="text-align:right;color:#666">${cnt>0?cnt+" entries":"—"}</td>
+        </tr>`;
+      }
+      return `<tr>
+        <td>${subj}</td>
+        <td style="text-align:center;color:${cnt>0?"#2a6a2a":"#999"}">${cnt>0?"Active":"Planned"}</td>
+        <td style="text-align:right;color:#666">${cnt>0?cnt+" entries":"—"}</td>
+      </tr>`;
+    }).join("");
+
+    const attendanceRow = REQUIRED
+      ? `${attendanceDays} of ${REQUIRED} days (${pct}%)`
+      : `${attendanceDays} days logged (${family.state||"your state"} has no day requirement)`;
+
+    const gpaBlock = isHighSchool&&gpa
+      ? `<div style="margin-top:1rem;padding:0.75rem 1rem;background:#f0f8f0;border-radius:8px;border-left:4px solid #2a6a2a;display:inline-block">
+          <span style="font-size:1.1rem;font-weight:900;color:#2a6a2a">Cumulative GPA: ${gpa}</span>
+          <span style="color:#666;font-size:0.8rem;margin-left:0.5rem">(${totalCredits} credits)</span>
+        </div>`
+      : "";
+
+    const tableHeader = isHighSchool
+      ? `<tr style="background:#f5f5f5"><th>Subject</th><th>Grade</th><th>Credits</th><th>Status</th><th style="text-align:right">Entries</th></tr>`
+      : `<tr style="background:#f5f5f5"><th>Subject</th><th>Status</th><th style="text-align:right">Entries</th></tr>`;
+
+    win.document.write(`<!DOCTYPE html><html><head><title>Transcript — ${ch.name}</title>
+    <style>
+      *{box-sizing:border-box;margin:0;padding:0}
+      body{font-family:Georgia,serif;color:#1a1a1a;background:#fff;padding:2.5rem;max-width:760px;margin:0 auto;font-size:10pt;line-height:1.5}
+      h1{font-size:1.6rem;font-weight:900;color:#1a1a1a;margin-bottom:2px}
+      .school-header{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:1rem;border-bottom:3px solid #2a6a2a;margin-bottom:1.5rem}
+      .school-name{font-size:1.3rem;font-weight:900;color:#2a6a2a}
+      .school-sub{font-size:0.8rem;color:#666;margin-top:3px}
+      .badge{background:#2a6a2a;color:#fff;padding:0.3rem 0.75rem;border-radius:20px;font-size:0.75rem;font-weight:700}
+      .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:1.5rem}
+      .info-cell{padding:0.45rem 0.65rem;background:#f8f8f8;border-radius:6px;border-left:3px solid #2a6a2a}
+      .info-label{font-size:0.62rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px;font-family:Arial,sans-serif}
+      .info-value{font-weight:700;font-size:0.88rem;color:#1a1a1a}
+      .section-title{font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:#666;margin-bottom:0.5rem;font-family:Arial,sans-serif}
+      table{width:100%;border-collapse:collapse;margin-bottom:1rem;font-size:0.88rem}
+      th{padding:0.45rem 0.65rem;text-align:left;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.05em;color:#555;font-family:Arial,sans-serif;font-weight:700}
+      td{padding:0.45rem 0.65rem;border-bottom:1px solid #eee}
+      tr:last-child td{border-bottom:none}
+      .sig-block{display:flex;justify-content:space-between;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid #ccc}
+      .sig-line{border-top:1px solid #333;padding-top:4px;font-size:0.7rem;color:#666;font-family:Arial,sans-serif}
+      .sig-line.long{width:220px}
+      .sig-line.short{width:130px}
+      .print-btn{margin-top:1.5rem;padding:0.6rem 1.5rem;background:#2a6a2a;color:#fff;border:none;border-radius:8px;font-size:0.95rem;cursor:pointer;font-family:Arial,sans-serif;font-weight:700}
+      .footer{margin-top:2rem;padding-top:0.75rem;border-top:1px solid #eee;font-size:0.68rem;color:#aaa;text-align:center;font-family:Arial,sans-serif}
+      @media print{
+        body{padding:1.5rem}
+        .print-btn{display:none}
+        .footer{display:none}
+      }
+    </style></head><body>
+
+    <div class="school-header">
+      <div>
+        <div class="school-name">${schoolName}</div>
+        <div class="school-sub">${family.state||""} ${family.state&&family.parentName?" · ":""}${family.parentName||""}</div>
+      </div>
+      <div class="badge">Official Transcript</div>
+    </div>
+
+    <div class="section-title">Student Information</div>
+    <div class="info-grid">
+      <div class="info-cell"><div class="info-label">Student Name</div><div class="info-value">${ch.name}</div></div>
+      <div class="info-cell"><div class="info-label">Grade Level</div><div class="info-value">${ch.grade}</div></div>
+      <div class="info-cell"><div class="info-label">School Year</div><div class="info-value">${yearStart} — ${yearEnd}</div></div>
+      <div class="info-cell"><div class="info-label">State</div><div class="info-value">${family.state||"—"}</div></div>
+      <div class="info-cell"><div class="info-label">Attendance</div><div class="info-value">${attendanceRow}</div></div>
+      <div class="info-cell"><div class="info-label">Co-op Hours</div><div class="info-value">${childCoopHrs>0?childCoopHrs+"h logged":"—"}</div></div>
+    </div>
+
+    <div class="section-title">Course Record</div>
+    <table><thead>${tableHeader}</thead><tbody>${courseRows||`<tr><td colspan="5" style="color:#999;text-align:center;padding:1rem">No courses recorded yet.</td></tr>`}</tbody></table>
+
+    ${gpaBlock}
+
+    <div class="sig-block">
+      <div><div class="sig-line long">&nbsp;</div><div>Parent / Educator Signature</div></div>
+      <div><div class="sig-line short">&nbsp;</div><div>Date</div></div>
+    </div>
+
+    <div class="footer">Generated by Root &amp; Bloom · ${new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})}</div>
+
+    <button class="print-btn" onclick="window.print()">🖨 Print / Save as PDF</button>
+    </body></html>`);
+    win.document.close();
+  };
 
   // All subjects to show (active + any with entries)
   const allSubjNames = [...new Set([...activeSubjs.map(s=>s.label),...Object.keys(bySubject)])];
@@ -9119,6 +10116,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
   return (
     <div style={{animation:"fadeUp 0.22s ease"}}>
       <ScreenHdr pal={pal} title="Records" sub="Transcripts & Reports" icon="🎓"/>
+      <FirstVisitTip pal={pal} screen="transcripts"/>
       <div style={{padding:"0 1rem"}}>
 
         {/* Child tabs */}
@@ -9170,17 +10168,23 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
             ))}
           </div>
 
-          {/* Attendance bar */}
+          {/* Attendance bar — only show if state tracks days */}
           <div style={{background:pal.linen,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.stone}35`}}>
             <div style={{display:"flex",justifyContent:"space-between",marginBottom:"6px"}}>
-              <span style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem"}}>Year Progress</span>
-              <span style={{fontWeight:"800",color:pct>=68?pal.good:pal.warn,fontSize:"0.78rem"}}>{attendanceDays} / {REQUIRED} days</span>
+              <span style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem"}}>Attendance</span>
+              <span style={{fontWeight:"800",color:pct!==null?(pct>=68?pal.good:pal.warn):pal.good,fontSize:"0.78rem"}}>
+                {pct!==null?attendanceDays+" / "+REQUIRED+" days":attendanceDays+" days logged"}
+              </span>
             </div>
-            <div style={{height:"9px",borderRadius:"99px",background:pal.parchm,overflow:"hidden",marginBottom:"5px"}}>
-              <div style={{height:"100%",width:`${pct}%`,borderRadius:"99px",background:pct>=68?`linear-gradient(90deg,${pal.good},${pal.mid})`:pal.accentGrad,transition:"width 0.5s"}}/>
-            </div>
+            {pct!==null&&(
+              <div style={{height:"9px",borderRadius:"99px",background:pal.parchm,overflow:"hidden",marginBottom:"5px"}}>
+                <div style={{height:"100%",width:`${pct}%`,borderRadius:"99px",background:pct>=68?`linear-gradient(90deg,${pal.good},${pal.mid})`:pal.accentGrad,transition:"width 0.5s"}}/>
+              </div>
+            )}
             <div style={{display:"flex",justifyContent:"space-between",fontSize:"0.68rem",color:pal.slate}}>
-              <span>{yearStart}</span><span>{pct}{"% complete"}</span><span>{yearEnd}</span>
+              <span>{yearStart}</span>
+              <span>{pct!==null?pct+"% complete":(family.state||"Your state")+" — no day requirement"}</span>
+              <span>{yearEnd}</span>
             </div>
           </div>
 
@@ -9265,7 +10269,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
                 ["Grade",ch.grade],
                 ["School Year",yearStart+" — "+yearEnd],
                 ["State",family.state||"—"],
-                ["Days Completed",attendanceDays+" / "+REQUIRED+" ("+pct+"%)"],
+                ["Days Completed", REQUIRED ? attendanceDays+" / "+REQUIRED+" ("+pct+"%)" : attendanceDays+" logged"],
                 ["Co-op Hours",childCoopHrs>0?childCoopHrs+"h logged":"—"],
               ].map(([l,v])=>(
                 <div key={l} style={{padding:"0.42rem 0.6rem",background:pal.sand,borderRadius:"8px"}}>
@@ -9670,6 +10674,7 @@ function GoalsScreen({pal,family,portfolioEntries=[],onUpdateFamily}){
   return (
     <div style={{animation:"fadeUp 0.22s ease"}}>
       <ScreenHdr pal={pal} title="Goals" sub="Your family learning priorities" icon="🌟"/>
+      <FirstVisitTip pal={pal} screen="goals"/>
       <div style={{padding:"0 1rem"}}>
 
         {(family.goals||[]).length===0&&!editing?(
@@ -10322,8 +11327,14 @@ function SchedConfirmModal({ pal, family, days, onConfirm, onClose }) {
    Warm, practical, not stressful
 ======================================= */
 function CatchupModal({ pal, family, days, needed, onClose }) {
-  const remaining  = needed - days;
-  const weeksLeft  = 11; // approximate weeks remaining in year
+  const stateRequired = parseInt((getStateInfo(family.state||"").hours||"180").match(/\d+/)?.[0]||"180");
+  const NEEDED     = needed||stateRequired;
+  const remaining  = Math.max(0, NEEDED - days);
+  const weeksLeft  = (() => {
+    if(!family.yearEnd) return 11;
+    const end = new Date(family.yearEnd), now = new Date();
+    return Math.max(1, Math.ceil((end-now)/(7*24*60*60*1000)));
+  })();
   const daysPerWk  = Math.ceil(remaining / weeksLeft);
   const extraPerWk = Math.max(0, daysPerWk - 5);
   const [plan, setPlan] = useState(null); // null | "light" | "medium" | "steady"
@@ -10447,6 +11458,81 @@ function CatchupModal({ pal, family, days, needed, onClose }) {
 }
 
 
+/* =======================================
+   FIRST-VISIT CONTEXTUAL HINTS
+   Slim pill badge on first visit per
+   screen. Pulses once, tap to dismiss.
+======================================= */
+const TIPS = {
+  home:        {text:"Tap Log Today to start your first school day", pulse:"down"},
+  schedule:    {text:"Tap any block to check it off — finish the day with the button below", pulse:"down"},
+  portfolio:   {text:"Log Today walks through subjects step by step", pulse:"down"},
+  attendance:  {text:"Use Sync in the Daily Ledger to auto-fill from your portfolio", pulse:"down"},
+  learn:       {text:"Tap AI Build to generate a unit study for any topic", pulse:"down"},
+  transcripts: {text:"Print your official transcript anytime from the Transcript tab", pulse:"down"},
+  goals:       {text:"Goals shape your daily nudges and AI suggestions — totally optional", pulse:"down"},
+  coop:        {text:"Log Session saves directly to each child's portfolio", pulse:"down"},
+};
+const TIPS_KEY = "rootbloom_tips_seen";
+function getTipsSeen(){try{return new Set(JSON.parse(localStorage.getItem(TIPS_KEY)||"[]"));}catch(e){return new Set();}}
+function markTipSeen(id){try{const s=getTipsSeen();s.add(id);localStorage.setItem(TIPS_KEY,JSON.stringify([...s]));}catch(e){}}
+
+function FirstVisitTip({pal, screen}){
+  const tip = TIPS[screen];
+  const [visible, setVisible] = useState(()=>!getTipsSeen().has(screen));
+  const [pulsed,  setPulsed]  = useState(false);
+
+  useEffect(()=>{
+    if(!visible) return;
+    const t = setTimeout(()=>setPulsed(true), 400);
+    return ()=>clearTimeout(t);
+  },[visible]);
+
+  if(!tip||!visible) return null;
+  const dismiss = () => { markTipSeen(screen); setVisible(false); };
+
+  return (
+    <div style={{margin:"0 1rem 0.85rem",animation:"fadeUp 0.35s ease"}}>
+      <div onClick={dismiss} style={{
+        display:"flex",alignItems:"center",gap:"0.55rem",
+        background:pal.pale,
+        border:`1.5px solid ${pal.primary}35`,
+        borderRadius:"99px",
+        padding:"0.45rem 0.75rem 0.45rem 0.55rem",
+        cursor:"pointer",
+        boxShadow: pulsed ? `0 0 0 4px ${pal.primary}18` : "none",
+        animation: pulsed ? "tipPulse 1.2s ease 0.1s" : "none",
+        transition:"box-shadow 0.3s",
+        userSelect:"none",
+      }}>
+        <div style={{
+          width:"22px",height:"22px",borderRadius:"50%",
+          background:`linear-gradient(135deg,${pal.primary},${pal.mid})`,
+          display:"flex",alignItems:"center",justifyContent:"center",
+          fontSize:"0.75rem",flexShrink:0,
+        }}>
+          {"💡"}
+        </div>
+        <span style={{
+          flex:1,fontSize:"0.76rem",color:pal.inkM,
+          fontWeight:"600",lineHeight:1.35,
+        }}>
+          {tip.text}
+        </span>
+        <div style={{
+          width:"18px",height:"18px",borderRadius:"50%",
+          background:pal.stone+"40",
+          display:"flex",alignItems:"center",justifyContent:"center",
+          fontSize:"0.55rem",color:pal.slate,flexShrink:0,
+        }}>
+          {"✕"}
+        </div>
+      </div>
+      <style>{`@keyframes tipPulse{0%{box-shadow:0 0 0 0 ${pal.primary}40}50%{box-shadow:0 0 0 8px ${pal.primary}10}100%{box-shadow:0 0 0 0 transparent}}`}</style>
+    </div>
+  );
+}
+
 function ScreenHdr({pal,title,sub,icon}){
   return <div style={{background:pal.heroGrad,padding:"1.15rem 1.1rem 1.3rem",position:"relative",overflow:"hidden"}}><div style={{position:"absolute",right:"-25px",top:"-25px",width:"110px",height:"110px",borderRadius:"50%",background:"rgba(255,255,255,0.055)"}}/><div style={{position:"relative"}}><div style={{fontSize:"0.6rem",color:"rgba(255,255,255,0.45)",textTransform:"uppercase",letterSpacing:"0.12em",fontWeight:"600",marginBottom:"0.2rem"}}>{sub}</div><div style={{display:"flex",alignItems:"center",gap:"0.55rem"}}><span style={{fontSize:"1.35rem"}}>{icon}</span><span style={{fontWeight:"800",color:pal.onDark,fontSize:"1.25rem"}}>{title}</span></div></div></div>;
 }
@@ -10478,7 +11564,7 @@ function SCard({pal,title,note,action,children}){
   return <div style={{background:pal.linen,borderRadius:"16px",padding:"1rem 1.1rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.stone}50`}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.75rem"}}><span style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>{title}</span>{note&&<span style={{fontSize:"0.65rem",color:pal.slate}}>{note}</span>}{action&&<button onClick={action.fn} style={{fontSize:"0.72rem",color:pal.bad,background:"transparent",border:"none",cursor:"pointer",fontWeight:"600"}}>{action.label}</button>}</div>{children}</div>;
 }
 function Row({pal,title,action}){
-  return <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.55rem"}}><span style={{fontWeight:"800",color:pal.ink,fontSize:"0.88rem"}}>{title}</span>{action&&<span style={{fontSize:"0.74rem",fontWeight:"700",cursor:"pointer",color:pal.primary,opacity:0.8}}>{action} -></span>}</div>;
+  return <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.55rem"}}><span style={{fontWeight:"800",color:pal.ink,fontSize:"0.88rem"}}>{title}</span>{action&&<span style={{fontSize:"0.74rem",fontWeight:"700",cursor:"pointer",color:pal.primary,opacity:0.8}}>{action} →</span>}</div>;
 }
 
     ReactDOM.createRoot(document.getElementById('root')).render(<RootAndBloom />);
