@@ -6659,7 +6659,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
           )].length;
           const totalEntries = portfolioEntries.filter(e=>!e.isDay).length;
           const stats = [
-            {l:"Streak",     v:checkinStreak>0?"🔥 "+checkinStreak:"—", c:checkinStreak>2?pal.warn:pal.primary, bg:checkinStreak>2?"#fff8f0":pal.pale},
+            {l:"Streak",     v:checkinStreak>0?"🔥 "+checkinStreak+(checkinStreak===1?" day":" days"):"—", c:checkinStreak>2?pal.warn:pal.primary, bg:checkinStreak>2?"#fff8f0":pal.pale},
             {l:"This Week",  v:thisWeekDays,    c:pal.mid,   bg:pal.paleMid},
             {l:"Entries",    v:totalEntries,    c:pal.good,  bg:pal.goodBg},
           ];
@@ -8157,6 +8157,41 @@ function AIUnitBuilderModal({ pal, family, activeChild, onSave, onClose }) {
               <div style={{height:"0.5rem"}}/>
             </div>
           )}
+
+          {/* Goal tag — optional */}
+          {step>0&&currentSubj&&(()=>{
+            const activeGoalIds = family.goals||[];
+            const allGoalObjs = [...GOALS,...(family.customGoals||[])];
+            const activeGoals = activeGoalIds.map(id=>allGoalObjs.find(x=>x.id===id)).filter(Boolean);
+            if(activeGoals.length===0) return null;
+            // Suggest goals whose subjects include this subject, then rest
+            const nudgeMatches = activeGoals.filter(g=>{
+              const n = GOAL_NUDGES[g.id];
+              return n&&n.subjs&&n.subjs.includes(currentSubj.label);
+            });
+            const others = activeGoals.filter(g=>!nudgeMatches.find(m=>m.id===g.id));
+            const displayed = [...nudgeMatches,...others].slice(0,6);
+            const selected = goalMap[currentSubj.label];
+            return (
+              <div style={{marginTop:"0.25rem",marginBottom:"0.5rem"}}>
+                <Lbl pal={pal}>{"Tag a goal (optional)"}</Lbl>
+                <div style={{display:"flex",flexWrap:"wrap",gap:"0.35rem"}}>
+                  {displayed.map(g=>{
+                    const isSel = selected===g.id;
+                    const nudge = GOAL_NUDGES[g.id];
+                    return (
+                      <button key={g.id}
+                        onClick={()=>setGoalMap(m=>({...m,[currentSubj.label]:isSel?null:g.id}))}
+                        style={{display:"flex",alignItems:"center",gap:"0.3rem",padding:"0.3rem 0.65rem",border:`2px solid ${isSel?cp.c1:pal.stone+"50"}`,borderRadius:"20px",background:isSel?cp.c1+"18":"transparent",cursor:"pointer",transition:"all 0.12s"}}>
+                        <span style={{fontSize:"0.85rem"}}>{nudge?.icon||g.icon}</span>
+                        <span style={{fontSize:"0.72rem",fontWeight:isSel?"800":"500",color:isSel?cp.c1:pal.inkM}}>{g.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
         </div>
 
         {/* Footer buttons */}
@@ -8928,6 +8963,7 @@ function DailyPortfolioModal({pal,family,childIdx,stateInfo,onClose,onSave}){
   const [descMap,     setDescMap]    = useState({});
   const [photoMap,    setPhotoMap]   = useState({});
   const [readMap,     setReadMap]    = useState({});
+  const [goalMap,     setGoalMap]    = useState({});
   const [saved,       setSaved]      = useState(false);
 
   const galleryRef = useRef(null);
@@ -8983,6 +9019,7 @@ function DailyPortfolioModal({pal,family,childIdx,stateInfo,onClose,onSave}){
       const desc = (descMap[s.label]||"").trim();
       const photos = (photoMap[s.label]||[]).map(p=>p.dataUrl);
       const readingTitle = (readMap[s.label]||"").trim()||undefined;
+      const goalId = goalMap[s.label]||null;
       return {
         childIdx,
         subj: s.label,
@@ -8992,6 +9029,7 @@ function DailyPortfolioModal({pal,family,childIdx,stateInfo,onClose,onSave}){
         date: todayDate,
         photos,
         readingTitle,
+        goalId,
       };
     }).filter(e=>e.note.trim()||e.photos.length>0);
     if(entries.length===0){
@@ -11669,9 +11707,14 @@ function GoalsScreen({pal,family,portfolioEntries=[],onUpdateFamily}){
                   {activeGoals.map(g=>{
                     const nudge  = GOAL_NUDGES[g.id];
                     const relSubjs = nudge?.subjs||[];
-                    const count  = relSubjs.length>0
-                      ? subjEntries.filter(e=>relSubjs.includes(e.subj)).length
-                      : null;
+                    // Count entries tagged directly to this goal OR matched by subject
+                    const taggedCount = subjEntries.filter(e=>e.goalId===g.id).length;
+                    const subjCount   = relSubjs.length>0
+                      ? subjEntries.filter(e=>relSubjs.includes(e.subj)&&!e.goalId).length
+                      : 0;
+                    const count = taggedCount+subjCount > 0
+                      ? taggedCount+subjCount
+                      : relSubjs.length>0 ? 0 : null;
                     const hit = count!==null&&count>0;
                     return (
                       <div key={g.id} style={{background:pal.linen,borderRadius:"14px",padding:"0.85rem 1rem",border:`1.5px solid ${hit?pal.good+"40":pal.stone+"30"}`,display:"flex",gap:"0.75rem",alignItems:"flex-start"}}>
