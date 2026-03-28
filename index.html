@@ -4950,12 +4950,14 @@ function getLessonPlan(topic, grade) {
    PORTFOLIO PDF PRINT FUNCTION
    Opens a clean print window — not the app
 ======================================= */
-function printPortfolioPDF(family, entries, child, attendanceDays, stateInfo) {
+function printPortfolioPDF(family, entries, child, attendanceDays, stateInfo, dateOverride) {
   const schoolName = family.schoolName||(family.familyName+" Academy")||"Home School";
   const yearStartNum = family.yearStart ? new Date(family.yearStart).getFullYear() : new Date().getFullYear();
   const yearEndNum   = family.yearEnd   ? new Date(family.yearEnd).getFullYear()   : yearStartNum+1;
-  const today        = new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"});
-  const todayShort   = new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
+  const today        = dateOverride
+    ? new Date(dateOverride+", "+new Date().getFullYear()).toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"})
+    : new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"});
+  const todayShort   = dateOverride || new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
   const childName    = child?.name||"Student";
   const grade        = child?.grade||"";
   const avatar       = child?.avatar||"";
@@ -8332,6 +8334,7 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
   const [detailEntry,    setDetail]         = useState(null);
   const [expandedSubj,   setExpandedSubj]   = useState(null);
   const [showYearView,   setShowYearView]   = useState(false);
+  const [dayDetail,      setDayDetail]      = useState(null); // date string
 
   const stateInfo = getStateInfo(family.state||"");
   const activeCi  = family.children.findIndex(c=>c.id===child);
@@ -8481,6 +8484,45 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
         {/* ── PHOTOS CARD ── */}
         <PortfolioPhotosCard pal={pal} cp={cp} entries={photoEntries} onDetail={setDetail} onEdit={(e)=>setEditEntry(e)} onAdd={()=>setShowAdd(true)}/>
 
+        {/* ── PAST DAYS CARD ── */}
+        {(()=>{
+          const allDates = [...new Set(
+            childEntries.filter(e=>!e.isDay&&e.subj!=="Daily Notes").map(e=>e.date)
+          )].sort((a,b)=>{
+            try{
+              const yr = new Date().getFullYear();
+              return new Date(b+", "+yr) - new Date(a+", "+yr);
+            }catch{return 0;}
+          });
+          if(allDates.length===0) return null;
+          return (
+            <PortfolioCard pal={pal} icon="📅" title="Past Days" count={allDates.length}>
+              <div style={{display:"flex",flexDirection:"column",gap:"0.3rem",paddingTop:"0.1rem"}}>
+                {allDates.slice(0,10).map(date=>{
+                  const dayEntries = childEntries.filter(e=>e.date===date&&!e.isDay&&e.subj!=="Daily Notes");
+                  const hasPhotos  = dayEntries.some(e=>e.photos&&e.photos.length>0);
+                  return (
+                    <button key={date} onClick={()=>setDayDetail(date)}
+                      style={{display:"flex",gap:"0.6rem",alignItems:"center",padding:"0.5rem 0.6rem",borderRadius:"10px",background:"#fff",border:`1px solid ${pal.stone}20`,cursor:"pointer",width:"100%",textAlign:"left"}}>
+                      <div style={{width:"34px",height:"34px",borderRadius:"9px",background:`${cp.c1}15`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.75rem",fontWeight:"800",color:cp.c1,flexShrink:0}}>
+                        {date.split(" ")[1]}
+                      </div>
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.81rem"}}>{date}</div>
+                        <div style={{fontSize:"0.63rem",color:pal.slate,marginTop:"1px"}}>
+                          {dayEntries.length} subject{dayEntries.length!==1?"s":""}{hasPhotos?" · 📷":""}
+                        </div>
+                      </div>
+                      <span style={{fontSize:"0.75rem",color:pal.stone}}>{"›"}</span>
+                    </button>
+                  );
+                })}
+                {allDates.length>10&&<div style={{textAlign:"center",fontSize:"0.7rem",color:pal.slate,padding:"0.3rem 0"}}>+{allDates.length-10} more days in Year Overview</div>}
+              </div>
+            </PortfolioCard>
+          );
+        })()}
+
         {/* ── EXTRACURRICULARS CARD ── */}
         <PortfolioCard pal={pal} icon="🏆" title="Extracurriculars" count={extraEntries.length}>
           {extraEntries.length===0 ? (
@@ -8542,6 +8584,10 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
       {showAdd&&<AddEntryModal pal={pal} family={family} onClose={()=>setShowAdd(false)}
         onSave={e=>{onAddEntry&&onAddEntry(e);setShowAdd(false);}}
         stateInfo={stateInfo}/>}
+      {dayDetail&&<DayDetailModal pal={pal} family={family} date={dayDetail}
+        entries={childEntries} child={activeCh} attendanceDays={attendanceDays} stateInfo={stateInfo}
+        onClose={()=>setDayDetail(null)}
+        onEdit={e=>{setDayDetail(null);setEditEntry(e);}}/>}
       {editEntry&&<AddEntryModal pal={pal} family={family} initialData={editEntry}
         onClose={()=>setEditEntry(null)}
         onSave={updated=>{onEditEntry&&onEditEntry(editEntry.id,updated);setEditEntry(null);}}
@@ -9125,6 +9171,113 @@ function DailyPortfolioModal({pal,family,childIdx,stateInfo,onClose,onSave}){
 }
 
 /* ---- Entry Detail Modal ---- */
+/* ---- Day Detail Modal ---- */
+function DayDetailModal({pal, family, date, entries, child, attendanceDays, stateInfo, onClose, onEdit}) {
+  const cp = CHILD_COLOR_PALETTES.find(p=>p.id===(child?.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+  const dayEntries = entries.filter(e=>e.date===date&&!e.isDay&&e.subj!=="Daily Notes");
+  const dayNote    = entries.find(e=>e.date===date&&(e.isDay||e.subj==="Daily Notes"));
+  const allPhotos  = entries.filter(e=>e.date===date).flatMap(e=>e.photos||[]);
+
+  return (
+    <div style={{position:"fixed",inset:0,zIndex:300,background:"rgba(0,0,0,0.55)",display:"flex",alignItems:"flex-end"}} onClick={onClose}>
+      <div onClick={e=>e.stopPropagation()}
+        style={{width:"100%",maxHeight:"88vh",overflowY:"auto",background:pal.linen,borderRadius:"22px 22px 0 0",animation:"slideUp 0.22s ease"}}>
+
+        {/* Handle */}
+        <div style={{padding:"0.7rem 0 0",display:"flex",justifyContent:"center",flexShrink:0}}>
+          <div style={{width:"36px",height:"4px",borderRadius:"99px",background:pal.stone+"60"}}/>
+        </div>
+
+        {/* Header */}
+        <div style={{background:`linear-gradient(135deg,${cp.c1},${cp.c2})`,padding:"0.9rem 1.2rem",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div>
+            <div style={{fontWeight:"900",color:"#fff",fontSize:"1rem"}}>{date}</div>
+            <div style={{fontSize:"0.7rem",color:"rgba(255,255,255,0.75)",marginTop:"2px"}}>
+              {child?.avatar} {child?.name} {"·"} {dayEntries.length} subject{dayEntries.length!==1?"s":""}
+              {allPhotos.length>0?" · "+allPhotos.length+" photo"+(allPhotos.length!==1?"s":""):""}
+            </div>
+          </div>
+          <div style={{display:"flex",gap:"0.4rem",alignItems:"center"}}>
+            <button onClick={()=>printPortfolioPDF(family,entries,child,attendanceDays,stateInfo,date)}
+              style={{padding:"0.32rem 0.7rem",border:"none",borderRadius:"8px",background:"rgba(255,255,255,0.2)",color:"#fff",fontSize:"0.7rem",fontWeight:"700",cursor:"pointer"}}>
+              {"🖨 Print"}
+            </button>
+            <button onClick={onClose}
+              style={{padding:"0.32rem 0.6rem",border:"none",borderRadius:"8px",background:"rgba(255,255,255,0.15)",color:"#fff",fontSize:"0.7rem",fontWeight:"700",cursor:"pointer"}}>
+              {"✕"}
+            </button>
+          </div>
+        </div>
+
+        {/* Entry list */}
+        <div style={{padding:"0.85rem 1rem"}}>
+          {dayEntries.length===0&&!dayNote&&(
+            <div style={{textAlign:"center",padding:"1.5rem",color:pal.slate,fontSize:"0.83rem"}}>No entries logged for this day.</div>
+          )}
+          {dayEntries.map((e,i)=>{
+            const noteTxt  = (e.note||"").replace("AI Summary: ","").trim();
+            const titleTxt = (e.title||"").replace((e.subj||"")+" \u2014 ","").replace((e.subj||"")+" -- ","").trim();
+            const showTitle = titleTxt && titleTxt!==e.subj && titleTxt!==e.date;
+            return (
+              <div key={e.id||i} style={{background:"#fff",borderRadius:"13px",border:`1.5px solid ${pal.stone}20`,marginBottom:"0.5rem",overflow:"hidden"}}>
+                <div style={{padding:"0.7rem 0.85rem",display:"flex",gap:"0.6rem",alignItems:"flex-start"}}>
+                  <div style={{width:"36px",height:"36px",borderRadius:"9px",background:`${cp.c1}18`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1rem",flexShrink:0,overflow:"hidden",position:"relative"}}>
+                    {e.photos&&e.photos[0]
+                      ?<img src={e.photos[0]} alt="" style={{width:"100%",height:"100%",objectFit:"cover",position:"absolute",inset:0}}/>
+                      :<span>{e.thumb||"📋"}</span>}
+                  </div>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontWeight:"700",color:cp.c1,fontSize:"0.75rem",marginBottom:"2px"}}>{e.subj}</div>
+                    {showTitle&&<div style={{fontWeight:"600",color:pal.ink,fontSize:"0.83rem"}}>{titleTxt}</div>}
+                    {e.readingTitle&&<div style={{fontSize:"0.78rem",color:pal.primary,fontStyle:"italic"}}>{"📖 "+e.readingTitle}</div>}
+                    {noteTxt&&<div style={{fontSize:"0.78rem",color:pal.inkM,marginTop:"3px",lineHeight:1.55}}>{noteTxt}</div>}
+                    {!showTitle&&!noteTxt&&!e.readingTitle&&<div style={{fontSize:"0.75rem",color:pal.stone}}>No notes</div>}
+                  </div>
+                  <button onClick={()=>onEdit(e)}
+                    style={{padding:"0.22rem 0.55rem",border:`1.5px solid ${pal.stone}`,borderRadius:"7px",background:"transparent",color:pal.slate,fontSize:"0.65rem",fontWeight:"700",cursor:"pointer",flexShrink:0}}>
+                    Edit
+                  </button>
+                </div>
+                {/* Photos strip */}
+                {e.photos&&e.photos.length>0&&(
+                  <div style={{display:"flex",gap:"4px",padding:"0 0.85rem 0.7rem",overflowX:"auto"}}>
+                    {e.photos.slice(0,4).map((src,pi)=>(
+                      <div key={pi} style={{width:"56px",height:"56px",borderRadius:"7px",overflow:"hidden",flexShrink:0,border:`1px solid ${pal.stone}20`}}>
+                        <img src={src} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
+          {/* Parent note */}
+          {dayNote&&dayNote.note&&(
+            <div style={{background:pal.parchm,borderRadius:"11px",padding:"0.75rem 0.9rem",border:`1.5px solid ${pal.stone}30`,marginBottom:"0.5rem"}}>
+              <div style={{fontSize:"0.63rem",fontWeight:"700",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.35rem"}}>Parent Notes</div>
+              <div style={{fontSize:"0.82rem",color:pal.inkM,lineHeight:1.65}}>{(dayNote.note||"").replace("AI Summary: ","").trim()}</div>
+              <button onClick={()=>onEdit(dayNote)}
+                style={{marginTop:"0.5rem",padding:"0.22rem 0.55rem",border:`1.5px solid ${pal.stone}`,borderRadius:"7px",background:"transparent",color:pal.slate,fontSize:"0.65rem",fontWeight:"700",cursor:"pointer"}}>
+                Edit
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Print button at bottom */}
+        <div style={{padding:"0 1rem 1.5rem"}}>
+          <button onClick={()=>printPortfolioPDF(family,entries,child,attendanceDays,stateInfo,date)}
+            style={{width:"100%",padding:"0.8rem",border:"none",borderRadius:"13px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>
+            {"🖨 Print This Day"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
 function EntryDetailModal({pal,family,entry,onClose,onEdit}){
   if(!entry) return null;
   const ch = family.children[entry.childIdx];
