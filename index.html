@@ -297,6 +297,7 @@ function RootAndBloom() {
   const [childFilt,      setChildFilt]      = useState("all");
   const [lastCheckinDate,setLastCheckinDate]= useState(saved?.lastCheckinDate||null);
   const [checkinStreak,  setCheckinStreak]  = useState(saved?.checkinStreak||0);
+  const [checkinDates,   setCheckinDates]   = useState(saved?.checkinDates||{}); // {childId: dateString}
   const [showTheme,      setShowTheme]      = useState(false);
   const [showNav,        setShowNav]        = useState(false);
   const [showSwitcher,   setShowSwitcher]   = useState(false);
@@ -371,8 +372,8 @@ function RootAndBloom() {
 
   // Auto-save whenever key state changes
   useEffect(()=>{
-    savePersist({family,navIds,portfolio:portfolioEntries,coopLog,attendanceDays,attendanceLog,observationLog,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed});
-  },[family,navIds,portfolioEntries,coopLog,attendanceDays,attendanceLog,observationLog,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed]);
+    savePersist({family,navIds,portfolio:portfolioEntries,coopLog,attendanceDays,attendanceLog,observationLog,checkinDates,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed});
+  },[family,navIds,portfolioEntries,coopLog,attendanceDays,attendanceLog,observationLog,checkinDates,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed]);
 
   // Auto-show New Year prompt when yearEnd has passed
   useEffect(()=>{
@@ -430,6 +431,7 @@ function RootAndBloom() {
     setAttendanceLog([]);
     setCheckinStreak(0);
     setLastCheckinDate(null);
+    setCheckinDates({});
     setNewYearDismissed("newyear_"+family.yearEnd);
     setShowNewYear(false);
   };
@@ -443,6 +445,18 @@ function RootAndBloom() {
     const yStr = yesterday.toDateString();
     if (lastCheckinDate === yStr) setCheckinStreak(s=>s+1);
     else if (lastCheckinDate !== todayStr) setCheckinStreak(1);
+    setLastCheckinDate(todayStr);
+  };
+
+  // Per-child checkin — marks that specific child as logged today
+  const handleChildCheckin = (childId) => {
+    const todayStr = new Date().toDateString();
+    setCheckinDates(d=>({...d,[childId]:todayStr}));
+    // Also update family-level attendance/streak (once per day regardless of child)
+    setAttendanceDays(d=>d+(lastCheckinDate===todayStr?0:1));
+    const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
+    if(lastCheckinDate===yesterday.toDateString()) setCheckinStreak(s=>s+1);
+    else if(lastCheckinDate!==todayStr) setCheckinStreak(1);
     setLastCheckinDate(todayStr);
   };
   const mainScrollRef = React.useRef(null);
@@ -555,14 +569,8 @@ function RootAndBloom() {
         <div ref={mainScrollRef} style={{flex:1,overflowY:"auto",paddingBottom:"72px"}}>
           {activeTab==="home" && <HomeScreen pal={pal} family={family} child={childFilt} setChild={setChildFilt} onTheme={()=>setShowTheme(true)} attendanceDays={attendanceDays} checkinStreak={checkinStreak} lastCheckinDate={lastCheckinDate} portfolioEntries={portfolioEntries} onTabChange={setActiveTab} todayProgress={todayProgress}
             onAddEntry={addPortfolioEntry}
-            onCheckin={()=>{
-              const todayStr=new Date().toDateString();
-              setAttendanceDays(d=>d+(lastCheckinDate===todayStr?0:1));
-              const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
-              if(lastCheckinDate===yesterday.toDateString()) setCheckinStreak(s=>s+1);
-              else if(lastCheckinDate!==todayStr) setCheckinStreak(1);
-              setLastCheckinDate(todayStr);
-            }}
+            onCheckin={handleChildCheckin}
+            checkinDates={checkinDates}
             observationLog={observationLog}
             onOpenJournal={(childId)=>setShowJournal(childId)}
           />}
@@ -587,14 +595,7 @@ function RootAndBloom() {
           {activeTab==="learn"       && <LearnScreen       pal={pal} family={family} child={childFilt} setChild={setChildFilt} learnTab={learnTab} setLearnTab={setLearnTab} portfolioEntries={portfolioEntries} />}
           {activeTab==="portfolio"   && <PortfolioScreen   pal={pal} family={family} child={childFilt} setChild={setChildFilt} entries={portfolioEntries} onAddEntry={addPortfolioEntry} onEditEntry={editPortfolioEntry} attendanceDays={attendanceDays}
             lastCheckinDate={lastCheckinDate}
-            onCheckin={()=>{
-              const todayStr=new Date().toDateString();
-              setAttendanceDays(d=>d+(lastCheckinDate===todayStr?0:1));
-              const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
-              if(lastCheckinDate===yesterday.toDateString()) setCheckinStreak(s=>s+1);
-              else if(lastCheckinDate!==todayStr) setCheckinStreak(1);
-              setLastCheckinDate(todayStr);
-            }}/>}
+            onCheckin={()=>handleChildCheckin(childFilt!=="all"?childFilt:family.children?.[0]?.id)}/>}
           {activeTab==="attendance"  && <AttendanceScreen  pal={pal} family={family} days={attendanceDays} attendanceLog={attendanceLog} portfolioEntries={portfolioEntries} coopLog={coopLog}
             onAddDay={(entry)=>{
               setAttendanceLog(l=>[entry,...l.filter(x=>x.date!==entry.date)]);
@@ -5578,13 +5579,37 @@ function GoalsNudgeCard({pal,family,portfolioEntries,todayStr,onTabChange}){
   );
 }
 
-function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress, onAddEntry, onCheckin, observationLog=[], onOpenJournal }) {
+function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress, onAddEntry, onCheckin, checkinDates={}, observationLog=[], onOpenJournal }) {
   const stateInfo  = getStateInfo(family.state||"");
   const stateHours = stateInfo.hours||"";
   const dayMatch   = stateHours.match(/(\d+)\s*day/i);
   const REQUIRED   = dayMatch ? parseInt(dayMatch[1]) : (stateInfo.attendance ? 180 : null);
   const blocks = generateSchedule(family, family.scheduleMode2!=="same"?(child!=="all"?child:family.children?.[0]?.id):null);
   const [showQuickLog, setShowQuickLog] = useState(false);
+  const [logQueue,     setLogQueue]     = useState([]); // children yet to be logged in sequence
+  const todayStr = new Date().toDateString();
+
+  // Start logging — build queue of children who haven't been logged today
+  const startLog = () => {
+    const todayDateStr = new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
+    if(child!=="all"||family.children.length===1){
+      // Single child mode — log that child
+      setLogQueue([]);
+      setShowQuickLog(true);
+    } else {
+      // Multi-child — queue all children not yet logged today
+      const unlogged = family.children.filter(c=>checkinDates[c.id]!==todayStr);
+      if(unlogged.length===0){
+        // All already logged — still allow adding more
+        setLogQueue([]);
+        setShowQuickLog(true);
+      } else {
+        setLogQueue(unlogged.slice(1).map(c=>c.id));
+        setChild(unlogged[0].id);
+        setShowQuickLog(true);
+      }
+    }
+  };
 
   // P&C week completion state
   const PC_KEY = "rootbloom_pc_done";
@@ -5611,8 +5636,10 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
     const expectedPct=Math.min(100,Math.round((elapsed/totalDays)*100));
     return pct>=expectedPct-10;
   })();
-  const todayStr = new Date().toDateString();
-  const checkedInToday = lastCheckinDate === todayStr;
+  // checkedInToday: true if the currently viewed child (or any child in all mode) is logged today
+  const checkedInToday = child!=="all"
+    ? checkinDates[child]===todayStr
+    : family.children.some(c=>checkinDates[c.id]===todayStr) || lastCheckinDate===todayStr;
 
   // Build subject progress from portfolio entries
   const customSubjs = family.customSubjects || [];
@@ -5674,7 +5701,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
                 {family.children.map((c,ci)=>{
                   const cp = CHILD_COLOR_PALETTES.find(p=>p.id===(c.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
                   const childEntries = portfolioEntries.filter(e=>e.childIdx===ci);
-                  const loggedToday = childEntries.some(e=>e.date===todayDateStr&&!e.isDay);
+                  const loggedToday = checkinDates[c.id]===todayStr || childEntries.some(e=>e.date===todayDateStr&&!e.isDay);
                   const weekEntries = childEntries.filter(e=>weekDates.includes(e.date)&&!e.isDay).length;
                   const lastEntry = childEntries[0];
 
@@ -5812,7 +5839,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
                   </div>
                 </div>
                 <div style={{display:"flex",gap:"0.5rem"}}>
-                  <button onClick={()=>setShowQuickLog(true)}
+                  <button onClick={startLog}
                     style={{flex:1,padding:"0.48rem",border:`2px solid ${pal.good}50`,borderRadius:"10px",background:"transparent",color:pal.good,fontSize:"0.74rem",fontWeight:"700",cursor:"pointer"}}>
                     {"+ Add More"}
                   </button>
@@ -5865,7 +5892,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
                 </div>
               </div>
               <div style={{display:"flex",gap:"0.5rem"}}>
-                <button onClick={()=>setShowQuickLog(true)}
+                <button onClick={startLog}
                   style={{flex:2,padding:"0.58rem",border:"none",borderRadius:"11px",background:"rgba(255,255,255,0.92)",color:pal.primary,fontWeight:"800",fontSize:"0.82rem",cursor:"pointer"}}>
                   {"📝 Log Today"}
                 </button>
@@ -5999,13 +6026,23 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
       </div>
       {showQuickLog&&(()=>{
         const childIdx = Math.max(0,family.children.findIndex(c=>c.id===child));
+        const currentChild = family.children[childIdx];
         const si = getStateInfo(family.state||"");
         return <DailyPortfolioModal pal={pal} family={family} childIdx={childIdx} stateInfo={si}
-          onClose={()=>setShowQuickLog(false)}
+          onClose={()=>{ setShowQuickLog(false); setLogQueue([]); }}
           onSave={(entries)=>{
             entries.forEach(e=>onAddEntry&&onAddEntry(e));
-            onCheckin&&onCheckin();
-            setShowQuickLog(false);
+            // Mark this specific child as logged today
+            onCheckin&&onCheckin(currentChild?.id);
+            // If there are more children in the queue, advance to the next
+            if(logQueue.length>0){
+              const [nextChildId,...rest] = logQueue;
+              setLogQueue(rest);
+              setChild(nextChildId);
+              // Keep modal open — it will re-render for the next child
+            } else {
+              setShowQuickLog(false);
+            }
           }}/>;
       })()}
     </div>
@@ -7610,8 +7647,8 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
 
         {/* ── ACTION ROW ── */}
         {(()=>{
-          const todayStr = new Date().toDateString();
-          const loggedToday = lastCheckinDate===todayStr;
+          const todayDateStr = new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
+          const loggedToday = childEntries.some(e=>e.date===todayDateStr&&!e.isDay);
           return (
             <div style={{display:"flex",gap:"0.45rem",marginBottom:"1rem"}}>
               <button onClick={()=>setShowDailyLog(true)}
