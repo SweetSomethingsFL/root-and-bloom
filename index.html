@@ -7839,7 +7839,7 @@ function QuickCaptureModal({pal, family, activeChildId, onClose, onSave}) {
                       <span style={{fontSize:"0.85rem"}}>{s.icon}</span>
                       <span style={{fontSize:"0.72rem",fontWeight:sel?"800":"500",color:sel?cp.c1:offDay?pal.stone:pal.inkM}}>{s.label}</span>
                     </button>
-                    })}
+                  );})}
               </div>
             );
           })()}
@@ -9864,8 +9864,6 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
 
         {/* ── ADDITIONAL NOTES ── */}
         <AdditionalNotes pal={pal} family={family} child={activeCh}/>
-        </>
-        }
 
         {/* ── WORKSHEET REMINDER ── */}
         <div style={{background:"#fffbeb",border:"1.5px solid #f5c842",borderRadius:"13px",padding:"0.85rem 1rem",marginBottom:"1rem",display:"flex",gap:"0.6rem",alignItems:"flex-start"}}>
