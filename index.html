@@ -4,10 +4,63 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Root & Bloom" />
   <meta name="theme-color" content="#2a4a28" />
-  <title>Root & Bloom - Your homeschool, beautifully organized</title>
+  <meta name="description" content="Your homeschool, beautifully organized" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <title>Root & Bloom</title>
+  <script>
+    // Inline PWA manifest via blob URL
+    const manifest = {
+      name: "Root & Bloom",
+      short_name: "Root & Bloom",
+      description: "Your homeschool, beautifully organized",
+      start_url: "./",
+      display: "standalone",
+      orientation: "portrait-primary",
+      background_color: "#f5f0e8",
+      theme_color: "#2a4a28",
+      icons: [
+        {
+          src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='115' fill='%232a4a28'/%3E%3Ctext x='256' y='340' font-size='280' text-anchor='middle'%3E%F0%9F%8C%B1%3C/text%3E%3C/svg%3E",
+          sizes: "512x512",
+          type: "image/svg+xml",
+          purpose: "any maskable"
+        }
+      ]
+    };
+    const _mblob = new Blob([JSON.stringify(manifest)], {type:"application/json"});
+    const _murl  = URL.createObjectURL(_mblob);
+    const _mlink = document.createElement("link");
+    _mlink.rel = "manifest"; _mlink.href = _murl;
+    document.head.appendChild(_mlink);
+  </script>
+  <script>
+    if("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        const swCode = [
+          "const CACHE='rootbloom-v2';",
+          "self.addEventListener('install',e=>{self.skipWaiting();});",
+          "self.addEventListener('activate',e=>{",
+          "  e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));",
+          "  self.clients.claim();",
+          "});",
+          "self.addEventListener('fetch',e=>{",
+          "  if(e.request.method!=='GET')return;",
+          "  e.respondWith(fetch(e.request).then(r=>{",
+          "    const c=r.clone();",
+          "    caches.open(CACHE).then(ca=>ca.put(e.request,c)).catch(()=>{});",
+          "    return r;",
+          "  }).catch(()=>caches.match(e.request)));",
+          "});"
+        ].join("\n");
+        const swBlob = new Blob([swCode], {type:"text/javascript"});
+        const swURL  = URL.createObjectURL(swBlob);
+        navigator.serviceWorker.register(swURL, {scope:"./"}).catch(()=>{});
+      });
+    }
+  </script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -356,6 +409,7 @@ function RootAndBloom() {
   const [showSchedConfirm,  setShowSchedConfirm]  = useState(false);
   const [showCatchup,       setShowCatchup]       = useState(false);
   const [showAIChat,        setShowAIChat]        = useState(false);
+  const [showQuickCapture,  setShowQuickCapture]  = useState(false);
   const [showDaySummary,    setShowDaySummary]    = useState(false);
   const [showLifeReady,     setShowLifeReady]     = useState(false);
   const [showEOY,           setShowEOY]           = useState(false);
@@ -373,6 +427,7 @@ function RootAndBloom() {
   // Auto-save whenever key state changes
   useEffect(()=>{
     savePersist({family,navIds,portfolio:portfolioEntries,coopLog,attendanceDays,attendanceLog,observationLog,checkinDates,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed});
+    try{localStorage.removeItem("rootbloom_sched_v1");}catch(e){} // cleanup orphaned checklist state
   },[family,navIds,portfolioEntries,coopLog,attendanceDays,attendanceLog,observationLog,checkinDates,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed]);
 
   // Auto-show New Year prompt when yearEnd has passed
@@ -668,6 +723,15 @@ function RootAndBloom() {
               onTheme={()=>setShowTheme(true)} onNavEdit={()=>setShowNav(true)} onSettings={openSettings} onLifeReady={()=>setShowLifeReady(true)} />}
         </div>
 
+        {/* Floating Quick Capture Button */}
+        <button onClick={()=>setShowQuickCapture(true)} style={{position:"fixed",bottom:"80px",left:"calc(50% - 205px)",width:"52px",height:"52px",borderRadius:"50%",background:pal.heroGrad,border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.4rem",zIndex:49,boxShadow:`0 3px 14px ${pal.primary}55`,transition:"transform 0.15s"}}
+          onMouseDown={e=>e.currentTarget.style.transform="scale(0.9)"}
+          onMouseUp={e=>e.currentTarget.style.transform="scale(1)"}
+          onTouchStart={e=>e.currentTarget.style.transform="scale(0.9)"}
+          onTouchEnd={e=>e.currentTarget.style.transform="scale(1)"}>
+          ✏️
+        </button>
+
         {/* Floating AI Chat Button */}
         <button onClick={()=>setShowAIChat(true)} style={{position:"fixed",bottom:"80px",right:"calc(50% - 205px)",width:"52px",height:"52px",borderRadius:"50%",background:pal.accentGrad,border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.4rem",zIndex:49,boxShadow:`0 3px 14px ${pal.primary}55`,transition:"transform 0.15s"}}
           onMouseDown={e=>e.currentTarget.style.transform="scale(0.9)"}
@@ -697,7 +761,13 @@ function RootAndBloom() {
         </nav>
 
         {/* Modals */}
-        {showAIChat    && <AIChatModal     pal={pal} family={family} onClose={()=>setShowAIChat(false)} />}
+        {showAIChat    && <AIChatModal     pal={pal} family={family} activeChildId={childFilt} portfolioEntries={portfolioEntries} onClose={()=>setShowAIChat(false)} />}
+        {showQuickCapture && <QuickCaptureModal pal={pal} family={family} activeChildId={childFilt}
+          onClose={()=>setShowQuickCapture(false)}
+          onSave={(entries)=>{
+            entries.forEach(e=>addPortfolioEntry(e));
+            setShowQuickCapture(false);
+          }}/>}
         {showTheme    && <ThemeModal     pal={pal} paletteId={paletteId} setPaletteId={setPaletteId} customA={customA} customB={customB} setCustomA={setCustomA} setCustomB={setCustomB} onClose={()=>setShowTheme(false)} />}
         {showNav      && <NavModal       pal={pal} navIds={navIds} setNavIds={setNavIds} onClose={()=>setShowNav(false)} />}
         {showSwitcher && <ViewSwitcher   pal={pal} family={family} onParent={()=>setShowSwitcher(false)} onStudent={switchToStudent} />}
@@ -727,20 +797,7 @@ function RootAndBloom() {
           onStart={handleNewYear}
           onDismiss={()=>{setNewYearDismissed("newyear_"+family.yearEnd);setShowNewYear(false);}}/>}
         {showDaySummary && daySummaryData && <DaySummaryModal pal={pal} family={family} data={daySummaryData} portfolioEntries={portfolioEntries}
-          onSave={(entries)=>{
-            setPortfolioEntries(prev=>{
-              let updated = [...prev];
-              entries.forEach(e=>{
-                const newEntry = {id:uid(),...e};
-                // Dedup: remove existing same child+subj+date non-day entry before adding
-                if(e.subj && e.date && !e.isDay){
-                  updated = updated.filter(x=>!(x.childIdx===e.childIdx && x.subj===e.subj && x.date===e.date && !x.isDay));
-                }
-                updated = [newEntry, ...updated];
-              });
-              return updated;
-            });
-          }}
+          onSave={()=>{}} // entries already saved by Log Today — no duplicate save needed
           onClose={()=>{setShowDaySummary(false);setActiveTab("home");}}
           onFinish={(goTo)=>{setShowDaySummary(false);setActiveTab(goTo||"home");}} />}
         {showJournal!==null && family && (
@@ -1143,8 +1200,12 @@ function CoopQuickLogModal({ pal, family, onSave, onClose }) {
       subjects: subjList,
       hrs: parseFloat(hrs),
       subjectNotes,
+      coopKids: family.coopKids&&family.coopKids.length>0 ? family.coopKids : family.children.map(c=>c.id),
       notes: Object.fromEntries(
-        family.children.map(c=>[c.id,
+        (family.coopKids&&family.coopKids.length>0
+          ? family.children.filter(c=>family.coopKids.includes(c.id))
+          : family.children
+        ).map(c=>[c.id,
           subjList.map(s=>(subjectNotes[c.id]?.[s]||"")).filter(Boolean).join(" | ")
         ])
       ),
@@ -1216,7 +1277,10 @@ function CoopQuickLogModal({ pal, family, onSave, onClose }) {
             <div style={{fontSize:"0.76rem",color:pal.slate,lineHeight:1.55,marginBottom:"0.85rem"}}>
               Add notes for each subject — what did each child do or learn?
             </div>
-            {family.children.map(c=>{
+            {(family.coopKids&&family.coopKids.length>0
+              ? family.children.filter(c=>family.coopKids.includes(c.id))
+              : family.children
+            ).map(c=>{
               const cp=CHILD_COLOR_PALETTES.find(p=>p.id===(c.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
               return (
                 <div key={c.id} style={{marginBottom:"1rem"}}>
@@ -1282,7 +1346,7 @@ function CoopQuickLogModal({ pal, family, onSave, onClose }) {
                 {subjList.join(", ")} {"\u00b7"} {hrs}h
               </div>
               <div style={{background:pal.goodBg,borderRadius:"12px",padding:"0.65rem 0.85rem",border:`1.5px solid ${pal.good}30`,fontSize:"0.76rem",color:pal.good,fontWeight:"600"}}>
-                {"✓ Saved to co-op log and portfolio for "+family.children.map(c=>c.name).join(" & ")}
+                {"✓ Saved to co-op log and portfolio for "+(family.coopKids&&family.coopKids.length>0?family.children.filter(c=>family.coopKids.includes(c.id)):family.children).map(c=>c.name).join(" & ")}
               </div>
             </div>
           )}
@@ -2675,6 +2739,7 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
   };
 
   const STABS = [["family","👨👩👧👦 Family"],["children","🌱 Children"],["school","🏫 School"],["theme","🎨 Theme"],["nav","Nav"],["ai","🤖 AI"]];
+  const [schoolSubTab, setSchoolSubTab] = useState("school"); // school | schedule
 
   return (
     <div style={{minHeight:"100vh",background:pal.sand,display:"flex",flexDirection:"column",animation:"fadeIn 0.18s ease"}}>
@@ -2707,6 +2772,31 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
               <Lbl pal={pal}>State</Lbl>
               <Select pal={pal} value={local.state||"Tennessee"} onChange={v=>updL("state",v)} options={US_STATES} />
             </SCard>
+            {/* ── Year status quick look ── */}
+            {local.yearStart&&local.yearEnd&&(()=>{
+              const now = new Date();
+              const end = new Date(local.yearEnd);
+              const start = new Date(local.yearStart);
+              const daysLeft = Math.max(0, Math.ceil((end-now)/(24*60*60*1000)));
+              const totalDays = Math.ceil((end-start)/(24*60*60*1000));
+              const pct = Math.min(100,Math.round(((now-start)/(end-start))*100));
+              const isOver = now > end;
+              return (
+                <div style={{background:isOver?"#fff8e6":pal.goodBg,borderRadius:"13px",padding:"0.75rem 1rem",marginBottom:"0.85rem",border:`1.5px solid ${isOver?"#f5c842":pal.good}40`}}>
+                  <div style={{fontWeight:"700",color:isOver?"#7a5500":pal.good,fontSize:"0.8rem",marginBottom:"4px"}}>
+                    {isOver?"🔔 School year ended — ready to start a new one?":"📅 School year in progress"}
+                  </div>
+                  {!isOver&&<>
+                    <div style={{height:"5px",borderRadius:"99px",background:pal.parchm,overflow:"hidden",marginBottom:"4px"}}>
+                      <div style={{height:"100%",width:pct+"%",borderRadius:"99px",background:`linear-gradient(90deg,${pal.good},${pal.mid})`}}/>
+                    </div>
+                    <div style={{fontSize:"0.68rem",color:pal.slate}}>{daysLeft+" days remaining · "+pct+"% of year complete"}</div>
+                  </>}
+                  {isOver&&<div style={{fontSize:"0.68rem",color:"#7a5500",marginTop:"2px"}}>{"Update the dates below to start your new year, or use Settings → School to update subjects and curriculum."}</div>}
+                </div>
+              );
+            })()}
+
             <SCard pal={pal} title="School Year">
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.65rem",marginBottom:"0.65rem"}}>
                 <div><Lbl pal={pal}>Start date</Lbl><Input pal={pal} type="date" value={local.yearStart||""} onChange={v=>updL("yearStart",v)} /></div>
@@ -2759,10 +2849,29 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
 
         {tab==="school" && (
           <div style={{animation:"fadeUp 0.18s ease"}}>
+            {/* Sub-tab toggle */}
+            <div style={{display:"flex",background:pal.parchm,borderRadius:"11px",padding:"3px",gap:"2px",marginBottom:"1rem",border:`1px solid ${pal.stone}30`}}>
+              {[["school","🏫 School"],["schedule","📅 Schedule"]].map(([id,label])=>(
+                <button key={id} onClick={()=>setSchoolSubTab(id)}
+                  style={{flex:1,padding:"0.45rem 0.5rem",border:"none",borderRadius:"9px",background:schoolSubTab===id?pal.linen:"transparent",color:schoolSubTab===id?pal.primary:pal.slate,fontWeight:schoolSubTab===id?"800":"500",fontSize:"0.78rem",cursor:"pointer",transition:"all 0.12s"}}>
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            {/* School sub-tab */}
+            {schoolSubTab==="school"&&<>
             <SCard pal={pal} title="School Name">
               <Input pal={pal} value={local.schoolName||""} onChange={v=>updL("schoolName",v)} placeholder="e.g. Thornwood Academy" />
             </SCard>
 
+            <SCard pal={pal} title="School Name">
+              <Input pal={pal} value={local.schoolName||""} onChange={v=>updL("schoolName",v)} placeholder="e.g. Thornwood Academy" />
+            </SCard>
+
+            </> {/* end school name — brief intro */}
+            }
+            {schoolSubTab==="schedule"&&<>
             {/* ── SCHEDULE TYPE (multi-child only) ── */}
             {(local.children||[]).length>1&&(
               <SCard pal={pal} title="Schedule Type" note="How do your children's days work?">
@@ -2774,7 +2883,18 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                   ].map(opt=>{
                     const sel=(local.scheduleMode2||"same")===opt.id;
                     return (
-                      <button key={opt.id} onClick={()=>updL("scheduleMode2",opt.id)}
+                      <button key={opt.id} onClick={()=>{
+                          const prev = local.scheduleMode2||"same";
+                          updL("scheduleMode2",opt.id);
+                          // Migration: switching to "same" — seed family.subjects from first child if empty
+                          if(opt.id==="same" && prev!=="same"){
+                            const firstChild = (local.children||[])[0];
+                            const childSubjs = firstChild?.scheduleConfig?.subjects||[];
+                            if(childSubjs.length>0 && !(local.subjects||[]).length){
+                              updL("subjects", childSubjs);
+                            }
+                          }
+                        }}
                         style={{display:"flex",gap:"0.65rem",alignItems:"flex-start",padding:"0.65rem 0.85rem",border:`2px solid ${sel?pal.primary:pal.stone+"45"}`,borderRadius:"11px",background:sel?pal.pale:"transparent",cursor:"pointer",textAlign:"left",transition:"all 0.13s"}}>
                         <span style={{fontSize:"1.2rem",flexShrink:0,marginTop:"1px"}}>{opt.icon}</span>
                         <div style={{flex:1}}>
@@ -2973,6 +3093,7 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                 </div>
               )}
             </SCard>
+            </> {/* end schedule sub-tab */}
 
             <SCard pal={pal} title="Learning Philosophy">
               <div style={{fontSize:"0.72rem",color:pal.slate,marginBottom:"0.5rem"}}>Select all that apply</div>
@@ -3083,6 +3204,8 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                 ))}
               </div>
             </SCard>
+            </> {/* end school sub-tab */}
+            }
           </div>
         )}
 
@@ -4951,121 +5074,468 @@ function getLessonPlan(topic, grade) {
    Opens a clean print window — not the app
 ======================================= */
 function printPortfolioPDF(family, entries, child, attendanceDays, stateInfo, dateOverride) {
-  const schoolName = family.schoolName||(family.familyName+" Academy")||"Home School";
-  const yearStartNum = family.yearStart ? new Date(family.yearStart).getFullYear() : new Date().getFullYear();
-  const yearEndNum   = family.yearEnd   ? new Date(family.yearEnd).getFullYear()   : yearStartNum+1;
-  const today        = dateOverride
+  const schoolName  = family.schoolName||(family.familyName+" Academy")||"Home School";
+  const yearStartNum= family.yearStart ? new Date(family.yearStart).getFullYear() : new Date().getFullYear();
+  const yearEndNum  = family.yearEnd   ? new Date(family.yearEnd).getFullYear()   : yearStartNum+1;
+  const state       = family.state||"";
+  const childName   = child?.name||"Student";
+  const grade       = child?.grade||"";
+  const avatar      = child?.avatar||"";
+
+  const todayFull   = dateOverride
     ? new Date(dateOverride+", "+new Date().getFullYear()).toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"})
     : new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"});
-  const todayShort   = dateOverride || new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
-  const childName    = child?.name||"Student";
-  const grade        = child?.grade||"";
-  const avatar       = child?.avatar||"";
+  const todayShort  = dateOverride || new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
 
-  // Today's entries only
+  // State compliance info
+  const si       = getStateInfo(state);
+  const ci       = getComplianceInfo(state, grade);
+  const needsDays = si.attendance;
+  const needsHours= !!(ci.hours && ci.hours.includes("hour"));
+  const needsTest = ci.needsTest;
+  const needsReading = si.readingLog;
+  const stateReqDays = parseInt((si.hours||"180").match(/\d+/)?.[0]||"180");
+  const pct = needsDays ? Math.min(100,Math.round(attendanceDays/stateReqDays*100)) : null;
+
+  // Today's entries
   const todayEntries = entries.filter(e=>e.date===todayShort&&!e.isDay&&e.subj!=="Daily Notes");
   const todayNote    = entries.find(e=>e.date===todayShort&&(e.isDay||e.subj==="Daily Notes"));
-  const allPhotos    = entries.filter(e=>e.date===todayShort).flatMap(e=>e.photos||[]).slice(0,6);
+  const allPhotos    = entries.filter(e=>e.date===todayShort).flatMap(e=>e.photos||[]).slice(0,3);
+  const readingEntries = todayEntries.filter(e=>e.readingTitle||(e.subj==="Reading"||e.subj==="Reading/Language Arts"));
 
   const css = ""
     +"*{box-sizing:border-box;margin:0;padding:0}"
-    +"body{font-family:Georgia,serif;color:#1a1a1a;font-size:10.5pt;line-height:1.6;background:#fff}"
-    +".page{max-width:680px;margin:0 auto;padding:2rem 2.2rem}"
-    +".header{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:0.75rem;border-bottom:2px solid #2a6a2a;margin-bottom:1.2rem}"
-    +".school{font-size:8.5pt;color:#666;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:2px}"
-    +".student{font-size:15pt;font-weight:700;color:#1a1a1a}"
-    +".meta{font-size:9pt;color:#888;margin-top:2px}"
-    +".date-block{text-align:right}"
-    +".date-label{font-size:8.5pt;color:#888;text-transform:uppercase;letter-spacing:0.08em}"
-    +".date-val{font-size:11pt;font-weight:700;color:#2a6a2a;margin-top:1px}"
-    +".subj-row{display:flex;gap:0;margin-bottom:0;border-bottom:1px solid #f0f0f0}"
-    +".subj-row:last-child{border-bottom:none}"
-    +".subj-col{width:110px;flex-shrink:0;padding:9px 10px 9px 0;font-size:9pt;font-weight:700;color:#2a6a2a;padding-top:10px}"
-    +".content-col{flex:1;padding:9px 0}"
-    +".entry-title{font-size:10pt;font-weight:600;color:#1a1a1a}"
-    +".entry-note{font-size:9.5pt;color:#444;margin-top:2px;line-height:1.65}"
-    +".reading{font-size:9pt;color:#2a6a2a;font-style:italic;margin-top:3px}"
-    +".parent-note{margin-top:1rem;padding:10px 14px;background:#f8f8f8;border-left:3px solid #aaa;border-radius:0 4px 4px 0}"
-    +".parent-note-label{font-size:8pt;text-transform:uppercase;letter-spacing:0.08em;color:#888;margin-bottom:4px}"
-    +".parent-note-text{font-size:9.5pt;color:#444;line-height:1.65}"
-    +".photos{margin-top:1.1rem}"
-    +".photos-label{font-size:8pt;text-transform:uppercase;letter-spacing:0.08em;color:#888;margin-bottom:6px}"
-    +".photo-grid{display:flex;gap:8px;flex-wrap:wrap}"
-    +".photo-box{width:calc(33.3% - 6px);aspect-ratio:4/3;border-radius:5px;overflow:hidden;border:1px solid #e8e8e8;background:#f5f5f5;display:flex;align-items:center;justify-content:center}"
+    +"body{font-family:Arial,sans-serif;color:#1a1a1a;font-size:10pt;line-height:1.5;background:#fff}"
+    +".page{max-width:700px;margin:0 auto;padding:0}"
+    +"@media print{@page{margin:1cm;size:letter}body{font-size:9.5pt}}"
+
+    // Banner header
+    +".banner{background:#2a4a28;padding:18px 24px;display:flex;justify-content:space-between;align-items:center}"
+    +".banner-left .school{font-size:7.5pt;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:3px}"
+    +".banner-left .student{font-size:17pt;font-weight:700;color:#fff}"
+    +".banner-left .meta{font-size:8.5pt;color:rgba(255,255,255,0.65);margin-top:2px}"
+    +".date-chip{background:rgba(255,255,255,0.15);border-radius:8px;padding:8px 14px;text-align:center}"
+    +".date-chip .label{font-size:7pt;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.1em}"
+    +".date-chip .val{font-size:14pt;font-weight:700;color:#fff;margin-top:2px}"
+
+    // Body
+    +".body{padding:20px 24px}"
+
+    // Subject grid
+    +".subj-grid{display:grid;gap:10px;margin-bottom:16px}"
+    +".subj-box{background:#fff;border-radius:8px;border:1px solid #e2ddd8;padding:11px 14px}"
+    +".subj-tag{display:inline-block;background:#e8f0e8;color:#2a4a28;font-size:7pt;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;border-radius:4px;padding:2px 7px;margin-bottom:6px}"
+    +".subj-note{font-size:9.5pt;color:#333;line-height:1.6}"
+    +".subj-reading{font-size:8.5pt;color:#2a4a28;font-style:italic;margin-top:4px}"
+
+    // Photos
+    +".photos-section{margin-bottom:16px}"
+    +".photos-label{font-size:7.5pt;color:#888;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;font-weight:700}"
+    +".photo-row{display:flex;gap:10px}"
+    +".photo-box{flex:1;aspect-ratio:4/3;border-radius:6px;overflow:hidden;border:1px solid #e0e0e0;background:#f5f5f5;display:flex;align-items:center;justify-content:center}"
     +".photo-box img{width:100%;height:100%;object-fit:cover}"
     +".photo-placeholder{font-size:8pt;color:#ccc;text-align:center}"
-    +".empty{padding:2rem;text-align:center;color:#aaa;font-size:10pt;font-style:italic}"
-    +".footer{margin-top:1.5rem;padding-top:0.75rem;border-top:1px solid #e8e8e8;display:flex;justify-content:space-between;font-size:8pt;color:#bbb}"
-    +"@media print{.page{padding:1.5rem}@page{margin:1.2cm;size:letter}}";
+
+    // Parent note
+    +".parent-note{background:#f8f7f4;border-left:3px solid #aaa;border-radius:0 6px 6px 0;padding:10px 14px;margin-bottom:16px}"
+    +".parent-note-label{font-size:7pt;text-transform:uppercase;letter-spacing:0.1em;color:#888;font-weight:700;margin-bottom:4px}"
+    +".parent-note-text{font-size:9.5pt;color:#444;line-height:1.65}"
+
+    // Compliance bar
+    +".compliance{background:#f5f9f5;border-radius:8px;border:1px solid #d0e5d0;padding:12px 16px;margin-bottom:16px}"
+    +".compliance-title{font-size:7.5pt;color:#2a4a28;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px}"
+    +".compliance-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}"
+    +".compliance-item{display:flex;flex-direction:column;gap:2px}"
+    +".compliance-label{font-size:7pt;color:#888;text-transform:uppercase;letter-spacing:0.06em}"
+    +".compliance-val{font-size:9pt;color:#1a1a1a;font-weight:600}"
+    +".bar-wrap{margin:8px 0 4px;height:5px;background:#d0e5d0;border-radius:99px;overflow:hidden}"
+    +".bar-fill{height:100%;background:linear-gradient(90deg,#2a6a2a,#5a9a3a);border-radius:99px}"
+
+    // Reading log
+    +".reading-section{margin-bottom:16px}"
+    +".reading-box{background:#fff;border:1px solid #e2ddd8;border-radius:8px;padding:10px 14px}"
+    +".reading-item{display:flex;gap:8px;align-items:baseline;padding:4px 0;border-bottom:1px solid #f5f5f5}"
+    +".reading-item:last-child{border-bottom:none}"
+    +".reading-subj{font-size:7.5pt;color:#2a4a28;font-weight:700;min-width:90px}"
+    +".reading-title{font-size:9pt;color:#333;font-style:italic}"
+
+    // Footer
+    +".footer{padding:10px 24px 16px;display:flex;justify-content:space-between;font-size:7.5pt;color:#aaa;border-top:1px solid #e8e3db}"
+    +".footer-note{font-size:7pt;color:#bbb;font-style:italic}"
+    ;
+
+  // Figure out grid columns based on subject count
+  const cols = todayEntries.length <= 2 ? 1 : todayEntries.length <= 6 ? 2 : 3;
 
   let html = "<!DOCTYPE html><html lang='en'><head>"
-    +"<meta charset='utf-8'><title>Daily Log \u2014 "+childName+" \u2014 "+todayShort+"</title>"
-    +"<style>"+css+"</style></head><body>"
-    +"<div class='page'>"
+    +"<meta charset='utf-8'><title>"+childName+" Daily Log — "+todayShort+"</title>"
+    +"<style>"+css+"</style></head><body><div class='page'>"
 
-    // Header
-    +"<div class='header'>"
-    +"<div>"
+    // ── BANNER ──
+    +"<div class='banner'>"
+    +"<div class='banner-left'>"
     +"<div class='school'>"+schoolName+"</div>"
     +"<div class='student'>"+avatar+" "+childName+"</div>"
-    +"<div class='meta'>"+grade+" &bull; "+yearStartNum+"&ndash;"+yearEndNum+(family.state?" &bull; "+family.state:"")+"</div>"
+    +"<div class='meta'>"+grade+" &bull; "+state+" &bull; "+yearStartNum+"&ndash;"+yearEndNum+"</div>"
     +"</div>"
-    +"<div class='date-block'>"
-    +"<div class='date-label'>Daily Log</div>"
-    +"<div class='date-val'>"+todayShort+"</div>"
+    +"<div class='date-chip'>"
+    +"<div class='label'>Daily Activity Log</div>"
+    +"<div class='val'>"+todayShort+"</div>"
     +"</div>"
-    +"</div>";
+    +"</div>"
 
-  if(todayEntries.length===0&&!todayNote) {
-    html += "<div class='empty'>No entries logged for today yet.</div>";
+    +"<div class='body'>";
+
+  // ── SUBJECTS ──
+  if(todayEntries.length===0) {
+    html += "<div style='text-align:center;padding:2rem;color:#aaa;font-style:italic'>No entries logged for this day.</div>";
   } else {
-    // Subject rows
-    html += "<div style='border:1px solid #e8e8e8;border-radius:6px;overflow:hidden;margin-bottom:0'>";
-    todayEntries.forEach((e,i)=>{
+    html += "<div class='subj-grid' style='grid-template-columns:repeat("+cols+",1fr)'>";
+    todayEntries.forEach(e=>{
       const noteTxt  = (e.note||"").replace("AI Summary: ","").trim();
       const titleTxt = (e.title||"").replace((e.subj||"")+" \u2014 ","").replace((e.subj||"")+" -- ","").trim();
       const showTitle = titleTxt && titleTxt!==e.subj && titleTxt!==e.date;
-      html += "<div class='subj-row' style='background:"+(i%2===0?"#fff":"#fafafa")+"'>"
-        +"<div class='subj-col'>"+e.subj+"</div>"
-        +"<div class='content-col'>"
-        +(showTitle?"<div class='entry-title'>"+titleTxt+"</div>":"")
-        +(noteTxt?"<div class='entry-note'>"+noteTxt+"</div>":"")
-        +(e.readingTitle?"<div class='reading'>\uD83D\uDCD6 "+e.readingTitle+"</div>":"")
-        +(!showTitle&&!noteTxt&&!e.readingTitle?"<div class='entry-note' style='color:#ccc'>No notes</div>":"")
-        +"</div></div>";
+      html += "<div class='subj-box'>"
+        +"<div class='subj-tag'>"+e.subj+"</div>";
+      if(showTitle) html += "<div style='font-weight:600;font-size:9.5pt;color:#1a1a1a;margin-bottom:3px'>"+titleTxt+"</div>";
+      if(noteTxt)   html += "<div class='subj-note'>"+noteTxt+"</div>";
+      if(e.readingTitle) html += "<div class='subj-reading'>&#128214; "+e.readingTitle+"</div>";
+      if(!showTitle&&!noteTxt&&!e.readingTitle) html += "<div class='subj-note' style='color:#bbb'>No notes recorded</div>";
+      html += "</div>";
     });
     html += "</div>";
-
-    // Parent note
-    if(todayNote&&todayNote.note){
-      const noteClean=(todayNote.note||"").replace("AI Summary: ","").trim();
-      html += "<div class='parent-note'>"
-        +"<div class='parent-note-label'>Parent Notes</div>"
-        +"<div class='parent-note-text'>"+noteClean+"</div>"
-        +"</div>";
-    }
   }
 
-  // Photos
-  if(allPhotos.length>0){
-    html += "<div class='photos'>"
-      +"<div class='photos-label'>Work Samples</div>"
-      +"<div class='photo-grid'>";
-    allPhotos.forEach(p=>{
-      html += "<div class='photo-box'><img src='"+p+"' alt='work sample'/></div>";
+  // ── PARENT NOTE ──
+  if(todayNote&&todayNote.note){
+    const noteClean=(todayNote.note||"").replace("AI Summary: ","").trim();
+    html += "<div class='parent-note'>"
+      +"<div class='parent-note-label'>Parent Notes</div>"
+      +"<div class='parent-note-text'>"+noteClean+"</div>"
+      +"</div>";
+  }
+
+  // ── READING LOG (FL + PA require reading titles by name) ──
+  if(needsReading && readingEntries.some(e=>e.readingTitle)){
+    html += "<div class='reading-section'>"
+      +"<div class='photos-label'>Reading Log (required by "+state+")</div>"
+      +"<div class='reading-box'>";
+    readingEntries.filter(e=>e.readingTitle).forEach(e=>{
+      html += "<div class='reading-item'>"
+        +"<div class='reading-subj'>"+e.subj+"</div>"
+        +"<div class='reading-title'>"+e.readingTitle+"</div>"
+        +"</div>";
     });
     html += "</div></div>";
   }
 
+  // ── PHOTOS ──
+  html += "<div class='photos-section'>"
+    +"<div class='photos-label'>Work Samples / Documentation</div>"
+    +"<div class='photo-row'>";
+  for(let i=0;i<3;i++){
+    html += "<div class='photo-box'>";
+    if(allPhotos[i]){
+      html += "<img src='"+allPhotos[i]+"' alt='work sample "+(i+1)+"'/>";
+    } else {
+      html += "<div class='photo-placeholder'>Sample "+(i+1)+"<br><span style='font-size:7pt'>Attach work here</span></div>";
+    }
+    html += "</div>";
+  }
+  html += "</div></div>";
+
+  // ── STATE COMPLIANCE BOX ──
+  html += "<div class='compliance'>"
+    +"<div class='compliance-title'>"+state+" Compliance Summary &mdash; "+yearStartNum+"&ndash;"+yearEndNum+"</div>"
+    +"<div class='compliance-grid'>";
+
+  if(needsDays){
+    html += "<div class='compliance-item'>"
+      +"<div class='compliance-label'>Days Logged</div>"
+      +"<div class='compliance-val'>"+attendanceDays+" of "+stateReqDays+" required</div>"
+      +"<div class='bar-wrap'><div class='bar-fill' style='width:"+pct+"%'></div></div>"
+      +"</div>";
+  } else {
+    html += "<div class='compliance-item'>"
+      +"<div class='compliance-label'>Days Logged</div>"
+      +"<div class='compliance-val'>"+attendanceDays+" days this year</div>"
+      +"</div>";
+  }
+
+  html += "<div class='compliance-item'>"
+    +"<div class='compliance-label'>Portfolio Requirement</div>"
+    +"<div class='compliance-val'>"+ci.portfolio.slice(0,60)+(ci.portfolio.length>60?"...":"")+"</div>"
+    +"</div>";
+
+  html += "<div class='compliance-item'>"
+    +"<div class='compliance-label'>Annual Evaluation</div>"
+    +"<div class='compliance-val'>"+ci.testing.slice(0,60)+(ci.testing.length>60?"...":"")+"</div>"
+    +"</div>";
+
+  html += "<div class='compliance-item'>"
+    +"<div class='compliance-label'>Deadline</div>"
+    +"<div class='compliance-val'>"+ci.deadline+"</div>"
+    +"</div>";
+
+  if(ci.keepFor){
+    html += "<div class='compliance-item'>"
+      +"<div class='compliance-label'>Retain Records</div>"
+      +"<div class='compliance-val'>"+ci.keepFor+"</div>"
+      +"</div>";
+  }
+
+  html += "</div>"; // compliance-grid
+
+  // Grade-specific note
+  if(ci.gradeNote){
+    html += "<div style='margin-top:8px;font-size:8pt;color:#3a6a3a;line-height:1.5;padding-top:8px;border-top:1px solid #d0e5d0'>"
+      +"&#9432; "+ci.gradeNote
+      +"</div>";
+  }
+
+  html += "</div>"; // compliance box
+
+  // ── FOOTER ──
   html += "<div class='footer'>"
-    +"<span>"+schoolName+" &bull; "+childName+"</span>"
-    +"<span>"+today+"</span>"
+    +"<div>"
+    +"<div>"+schoolName+" &bull; "+childName+" &bull; "+grade+"</div>"
+    +"<div class='footer-note'>"+todayFull+" &bull; Generated by Root &amp; Bloom</div>"
+    +"</div>"
+    +"<div style='text-align:right'>"
+    +"<div>"+state+" Homeschool Record</div>"
+    +"<div class='footer-note'>Keep for: "+ci.keepFor+"</div>"
     +"</div>"
     +"</div>"
+
+    +"</div>" // body
+    +"</div>" // page
     +"<script>window.onload=function(){setTimeout(function(){window.print();},500);};<\/script>"
     +"</body></html>";
 
-  const w=window.open("","_blank","width=780,height=900,scrollbars=yes");
+  const w=window.open("","_blank","width=800,height=960,scrollbars=yes");
+  if(w){w.document.write(html);w.document.close();}
+  else{alert("Please allow popups to print your portfolio.");}
+}
+
+
+function printFullPortfolio(family, entries, child, attendanceDays, stateInfoUnused, aiSummary) {
+  const schoolName  = family.schoolName||(family.familyName+" Academy")||"Home School";
+  const yearStartNum= family.yearStart ? new Date(family.yearStart).getFullYear() : new Date().getFullYear();
+  const yearEndNum  = family.yearEnd   ? new Date(family.yearEnd).getFullYear()   : yearStartNum+1;
+  const today       = new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
+  const childName   = child?.name||"Student";
+  const grade       = child?.grade||"";
+  const avatar      = child?.avatar||"";
+  const state       = family.state||"";
+  const si          = getStateInfo(state);
+  const ci          = getComplianceInfo(state, grade);
+  const stateReqDays= parseInt((si.hours||"180").match(/\d+/)?.[0]||"180");
+  const pct         = Math.min(100,Math.round(attendanceDays/stateReqDays*100));
+
+  const subjEntries = entries.filter(e=>!e.isDay&&e.subj!=="Daily Notes")
+    .sort((a,b)=>{try{return new Date(a.date+", "+yearStartNum)-new Date(b.date+", "+yearStartNum);}catch{return 0;}});
+  const bySubject = {};
+  subjEntries.forEach(e=>{ if(!bySubject[e.subj]) bySubject[e.subj]=[]; bySubject[e.subj].push(e); });
+  const subjectList = Object.keys(bySubject).sort((a,b)=>bySubject[b].length-bySubject[a].length);
+  const readingTitles = [...new Set(subjEntries.filter(e=>e.readingTitle).map(e=>e.readingTitle))];
+  const allPhotos = subjEntries.flatMap(e=>e.photos||[]).slice(0,9);
+
+  const css = ""
+    +"*{box-sizing:border-box;margin:0;padding:0}"
+    +"body{font-family:Arial,sans-serif;color:#1a1a1a;font-size:10pt;line-height:1.5;background:#fff}"
+    +"@media print{@page{margin:1cm;size:letter}body{font-size:9.5pt}}"
+    +".banner{background:#2a4a28;padding:22px 28px;display:flex;justify-content:space-between;align-items:center}"
+    +".b-school{font-size:7.5pt;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:3px}"
+    +".b-student{font-size:22pt;font-weight:700;color:#fff}"
+    +".b-meta{font-size:9pt;color:rgba(255,255,255,0.65);margin-top:3px}"
+    +".b-chip{background:rgba(255,255,255,0.15);border-radius:10px;padding:10px 18px;text-align:center}"
+    +".b-chip-l{font-size:7pt;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.1em}"
+    +".b-chip-v{font-size:22pt;font-weight:700;color:#fff;margin-top:2px}"
+    +".body{padding:22px 28px;background:#faf8f4}"
+    +".section-label{font-size:7.5pt;color:#888;text-transform:uppercase;letter-spacing:0.1em;font-weight:700;margin-bottom:8px;margin-top:18px}"
+    +".section-label:first-child{margin-top:0}"
+    +".stat-row{display:flex;gap:10px;margin-bottom:18px}"
+    +".stat{text-align:center;flex:1;background:#fff;border-radius:8px;border:1px solid #e2ddd8;padding:12px 8px}"
+    +".stat-n{font-size:20pt;font-weight:700;color:#2a4a28}"
+    +".stat-l{font-size:7.5pt;color:#888;text-transform:uppercase;letter-spacing:0.05em;margin-top:2px}"
+    +".bar-wrap{height:5px;background:#d0e5d0;border-radius:99px;overflow:hidden;margin:6px 0 3px}"
+    +".bar-fill{height:100%;background:linear-gradient(90deg,#2a6a2a,#5a9a3a);border-radius:99px}"
+    // AI summary
+    +".ai-box{background:#fff;border-radius:10px;border:1.5px solid #c8dfc8;padding:14px 18px;margin-bottom:18px}"
+    +".ai-narrative{font-size:10pt;color:#1a1a1a;line-height:1.7;font-style:italic;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #e8e3db}"
+    +".ai-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}"
+    +".ai-col-title{font-size:7pt;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}"
+    +".ai-item{display:flex;gap:6px;font-size:9pt;color:#333;line-height:1.55;margin-bottom:5px;align-items:baseline}"
+    +".ai-bullet{font-weight:700;flex-shrink:0}"
+    +".ai-reading{font-size:8.5pt;color:#666;font-style:italic;margin-top:10px;padding-top:10px;border-top:1px solid #e8e3db}"
+    +".ai-parent{font-size:8pt;color:#2a4a28;font-weight:600;background:#f0f7f0;border-radius:6px;padding:7px 10px;margin-top:10px}"
+    // Subject sections
+    +".subj-section{background:#fff;border-radius:10px;border:1px solid #e2ddd8;padding:12px 16px;margin-bottom:10px}"
+    +".subj-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #f0ece6}"
+    +".subj-tag{background:#e8f0e8;color:#2a4a28;font-size:7pt;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;border-radius:4px;padding:3px 8px}"
+    +".subj-count{font-size:8pt;color:#888;margin-left:auto}"
+    +".entry-row{display:flex;gap:10px;padding:6px 0;border-bottom:1px solid #f8f5f1;align-items:flex-start}"
+    +".entry-row:last-child{border-bottom:none}"
+    +".entry-date{font-size:8pt;color:#888;min-width:46px;flex-shrink:0;padding-top:1px}"
+    +".entry-note{font-size:9pt;color:#333;line-height:1.55;flex:1}"
+    +".entry-reading{font-size:8pt;color:#2a4a28;font-style:italic;margin-top:2px}"
+    // Reading log
+    +".reading-box{background:#fff;border:1px solid #e2ddd8;border-radius:8px;padding:10px 16px;margin-bottom:10px}"
+    +".r-row{display:flex;gap:8px;padding:4px 0;border-bottom:1px solid #f5f5f5;align-items:baseline}"
+    +".r-row:last-child{border-bottom:none}"
+    +".r-n{font-size:8pt;color:#888;min-width:24px}"
+    +".r-title{font-size:9.5pt;color:#1a1a1a;font-style:italic}"
+    // Photos
+    +".photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}"
+    +".photo-box{aspect-ratio:4/3;border-radius:8px;overflow:hidden;border:1px solid #e0dbd4;background:#ede9e1;display:flex;align-items:center;justify-content:center}"
+    +".photo-box img{width:100%;height:100%;object-fit:cover}"
+    +".photo-ph{font-size:8pt;color:#c0bab2;text-align:center}"
+    // Compliance
+    +".compliance{background:#f5f9f5;border-radius:10px;border:1px solid #c8dfc8;padding:14px 18px;margin-bottom:18px}"
+    +".comp-title{font-size:7.5pt;color:#2a4a28;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px}"
+    +".comp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}"
+    +".comp-l{font-size:6.5pt;color:#888;text-transform:uppercase;letter-spacing:0.06em}"
+    +".comp-v{font-size:9pt;color:#1a1a1a;font-weight:600;margin-top:2px;line-height:1.4}"
+    +".comp-note{margin-top:10px;padding-top:10px;border-top:1px solid #d0e5d0;font-size:7.5pt;color:#3a6a3a;line-height:1.55}"
+    // Sig + footer
+    +".sig-row{display:flex;gap:24px;margin-top:20px;padding-top:16px;border-top:1.5px solid #ccc}"
+    +".sig-col{flex:1}"
+    +".sig-line{border-bottom:1.5px solid #999;height:30px;margin-bottom:4px}"
+    +".sig-label{font-size:7.5pt;color:#888}"
+    +".footer{padding:10px 28px 16px;display:flex;justify-content:space-between;font-size:7.5pt;color:#aaa;border-top:1px solid #e8e3db}"
+    +".f-note{font-size:7pt;color:#bbb;font-style:italic;margin-top:1px}"
+    ;
+
+  let html = "<!DOCTYPE html><html lang='en'><head>"
+    +"<meta charset='utf-8'><title>"+childName+" — Full Portfolio "+yearStartNum+"–"+yearEndNum+"</title>"
+    +"<style>"+css+"</style></head><body>"
+
+    // ── BANNER ──
+    +"<div class='banner'>"
+    +"<div><div class='b-school'>"+schoolName+" &bull; Annual Portfolio</div>"
+    +"<div class='b-student'>"+avatar+" "+childName+"</div>"
+    +"<div class='b-meta'>"+grade+" &bull; "+state+" &bull; "+yearStartNum+"&ndash;"+yearEndNum+"</div></div>"
+    +"<div class='b-chip'><div class='b-chip-l'>Days Logged</div><div class='b-chip-v'>"+attendanceDays+"</div></div>"
+    +"</div>"
+
+    +"<div class='body'>"
+
+    // ── YEAR STATS ──
+    +"<div class='stat-row'>"
+    +"<div class='stat'><div class='stat-n'>"+attendanceDays+"</div><div class='stat-l'>Days Logged</div>"
+    +(si.attendance?"<div class='bar-wrap'><div class='bar-fill' style='width:"+pct+"%'></div></div><div style='font-size:7pt;color:#888'>"+attendanceDays+"/"+stateReqDays+" required</div>":"")
+    +"</div>"
+    +"<div class='stat'><div class='stat-n'>"+subjEntries.length+"</div><div class='stat-l'>Portfolio Entries</div></div>"
+    +"<div class='stat'><div class='stat-n'>"+subjectList.length+"</div><div class='stat-l'>Subjects</div></div>"
+    +"<div class='stat'><div class='stat-n'>"+readingTitles.length+"</div><div class='stat-l'>Books Read</div></div>"
+    +"</div>";
+
+  // ── AI YEAR SUMMARY ──
+  if(aiSummary){
+    html += "<div class='section-label'>Year in Review</div>"
+      +"<div class='ai-box'>"
+      +"<div class='ai-narrative'>"+aiSummary.narrative+"</div>"
+      +"<div class='ai-cols'>"
+      +"<div>"
+      +"<div class='ai-col-title' style='color:#2a4a28'>Biggest Accomplishments</div>"
+      +(aiSummary.accomplishments||[]).map(a=>"<div class='ai-item'><span class='ai-bullet' style='color:#2a4a28'>&#10003;</span><span>"+a+"</span></div>").join("")
+      +"</div>"
+      +"<div>"
+      +"<div class='ai-col-title' style='color:#b07800'>Areas to Keep Building</div>"
+      +(aiSummary.growthAreas||[]).map(a=>"<div class='ai-item'><span class='ai-bullet' style='color:#b07800'>&rarr;</span><span>"+a+"</span></div>").join("")
+      +"</div>"
+      +"</div>"
+      +(aiSummary.readingHighlight?"<div class='ai-reading'>&#128214; "+aiSummary.readingHighlight+"</div>":"")
+      +(aiSummary.parentNote?"<div class='ai-parent'>"+aiSummary.parentNote+"</div>":"")
+      +"</div>";
+  }
+
+  // ── SUBJECTS ──
+  html += "<div class='section-label'>Portfolio by Subject</div>";
+  subjectList.forEach(subj=>{
+    const subjEs = bySubject[subj].slice().reverse();
+    html += "<div class='subj-section'>"
+      +"<div class='subj-header'>"
+      +"<div class='subj-tag'>"+subj+"</div>"
+      +"<div class='subj-count'>"+subjEs.length+" entries</div>"
+      +"</div>";
+    subjEs.slice(0,12).forEach(e=>{
+      const note = (e.note||"").replace("AI Summary: ","").trim();
+      const title = (e.title||"").replace(subj+" \u2014 ","").replace(subj+" -- ","").trim();
+      const showTitle = title && title!==subj && title!==e.date;
+      html += "<div class='entry-row'>"
+        +"<div class='entry-date'>"+e.date+"</div>"
+        +"<div class='entry-note'>"
+        +(showTitle?"<strong>"+title+"</strong><br>":"")
+        +note
+        +(e.readingTitle?"<div class='entry-reading'>&#128214; "+e.readingTitle+"</div>":"")
+        +"</div></div>";
+    });
+    if(subjEs.length>12){
+      html += "<div style='font-size:8pt;color:#888;padding:6px 0;text-align:center;font-style:italic'>+ "+(subjEs.length-12)+" more entries</div>";
+    }
+    html += "</div>";
+  });
+
+  // ── READING LOG ──
+  if(readingTitles.length>0){
+    html += "<div class='section-label'>"+state+" Reading Log — Titles by Name</div>"
+      +"<div class='reading-box'>";
+    readingTitles.forEach((t,i)=>{
+      html += "<div class='r-row'><div class='r-n'>"+(i+1)+".</div><div class='r-title'>"+t+"</div></div>";
+    });
+    html += "</div>";
+  }
+
+  // ── PHOTOS ──
+  if(allPhotos.length>0){
+    html += "<div class='section-label'>Work Samples</div>"
+      +"<div class='photo-grid'>";
+    for(let i=0;i<Math.min(9,allPhotos.length);i++){
+      html += "<div class='photo-box'><img src='"+allPhotos[i]+"' alt='work sample'/></div>";
+    }
+    html += "</div>";
+  } else {
+    html += "<div class='section-label'>Work Samples</div>"
+      +"<div class='photo-grid'>";
+    for(let i=0;i<3;i++){
+      html += "<div class='photo-box'><div class='photo-ph'>Sample "+(i+1)+"<br><span style='font-size:7pt'>Attach work here</span></div></div>";
+    }
+    html += "</div>";
+  }
+
+  // ── STATE COMPLIANCE ──
+  html += "<div class='compliance'>"
+    +"<div class='comp-title'>"+state+" Compliance Summary &mdash; "+yearStartNum+"&ndash;"+yearEndNum+"</div>"
+    +"<div class='comp-grid'>"
+    +"<div><div class='comp-l'>Days Logged</div><div class='comp-v'>"+attendanceDays+(si.attendance?" of "+stateReqDays+" required":"" )+"</div></div>"
+    +"<div><div class='comp-l'>Portfolio Requirement</div><div class='comp-v'>"+ci.portfolio.slice(0,70)+"</div></div>"
+    +"<div><div class='comp-l'>Annual Evaluation</div><div class='comp-v'>"+ci.testing.slice(0,70)+"</div></div>"
+    +"<div><div class='comp-l'>Deadline</div><div class='comp-v'>"+ci.deadline+"</div></div>"
+    +"<div><div class='comp-l'>Retain Records</div><div class='comp-v'>"+ci.keepFor+"</div></div>"
+    +"</div>"
+    +(ci.gradeNote?"<div class='comp-note'>&#9432; "+ci.gradeNote+"</div>":"")
+    +"</div>"
+
+    // ── SIGNATURE ──
+    +"<div class='sig-row'>"
+    +"<div class='sig-col'><div class='sig-line'></div><div class='sig-label'>Parent / Educator Signature</div></div>"
+    +"<div class='sig-col'><div class='sig-line'></div><div class='sig-label'>Evaluator Signature</div></div>"
+    +"<div class='sig-col'><div class='sig-line'></div><div class='sig-label'>Date</div></div>"
+    +"</div>"
+
+    +"</div>" // body
+
+    +"<div class='footer'>"
+    +"<div><div>"+schoolName+" &bull; "+childName+" &bull; "+grade+"</div>"
+    +"<div class='f-note'>Generated: "+today+" &bull; Root &amp; Bloom</div></div>"
+    +"<div style='text-align:right'><div>"+state+" Homeschool Portfolio "+yearStartNum+"&ndash;"+yearEndNum+"</div>"
+    +"<div class='f-note'>Retain for: "+ci.keepFor+"</div></div>"
+    +"</div>"
+    +"<script>window.onload=function(){setTimeout(function(){window.print();},600);};<\/script>"
+    +"</body></html>";
+
+  const w=window.open("","_blank","width=820,height=980,scrollbars=yes");
   if(w){w.document.write(html);w.document.close();}
   else{alert("Please allow popups to print your portfolio.");}
 }
@@ -5756,6 +6226,34 @@ function EOYChecklistModal({pal,family,childIdx,setChildIdx,weeksLeft,portfolioE
                 </div>
               </div>
             ))}
+            {/* ── Skills mastery summary ── */}
+            {(()=>{
+              const MASTERY_KEY = "rootbloom_mastery_"+ch.id+"_"+(family.yearEnd||"");
+              let masteryData = {};
+              try{ masteryData = JSON.parse(localStorage.getItem(MASTERY_KEY)||"{}"); }catch(e){}
+              const skills = EOY_SKILLS[ch.grade]||EOY_SKILLS["5th"]||[];
+              const totalSkills = skills.reduce((s,cat)=>s+cat.skills.length,0);
+              const masteredCount = Object.values(masteryData).filter(v=>v==="mastered").length;
+              const workingCount  = Object.values(masteryData).filter(v=>v==="working").length;
+              if(totalSkills===0) return null;
+              const pct = Math.round(masteredCount/totalSkills*100);
+              return (
+                <div style={{background:pal.linen,borderRadius:"13px",padding:"0.85rem 1rem",marginBottom:"0.65rem",border:`1.5px solid ${pal.stone}25`}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"6px"}}>
+                    <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.83rem"}}>{"🎯 Skills & Mastery"}</div>
+                    <span style={{fontWeight:"800",color:cp.c1,fontSize:"0.83rem"}}>{pct+"%"}</span>
+                  </div>
+                  <div style={{height:"5px",borderRadius:"99px",background:pal.parchm,overflow:"hidden",marginBottom:"6px"}}>
+                    <div style={{height:"100%",width:pct+"%",borderRadius:"99px",background:`linear-gradient(90deg,${cp.c1},${cp.c2})`,transition:"width 0.4s"}}/>
+                  </div>
+                  <div style={{fontSize:"0.68rem",color:pal.slate}}>
+                    {masteredCount+" of "+totalSkills+" mastered · "+workingCount+" in progress"}
+                    {masteredCount===0&&" · Track skills in Portfolio to see progress here"}
+                  </div>
+                </div>
+              );
+            })()}
+
             {allDone&&(
               <div style={{background:pal.goodBg,borderRadius:"14px",padding:"1rem",marginTop:"0.5rem",textAlign:"center",border:`2px solid ${pal.good}40`}}>
                 <div style={{fontSize:"2rem",marginBottom:"0.3rem"}}>{"🌟"}</div>
@@ -6819,6 +7317,32 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
           );
         })()}
 
+        {/* ── Consistency Nudge ── */}
+        {(()=>{
+          if(checkedInToday) return null; // logged today — no nudge needed
+          const lastDate = lastCheckinDate ? new Date(lastCheckinDate) : null;
+          if(!lastDate) return null; // brand new user — don't nudge yet
+          const daysSince = Math.floor((new Date() - lastDate) / (24*60*60*1000));
+          if(daysSince < 2) return null; // only 1 day gap — not worth mentioning
+          const msg = daysSince===2
+            ? {"Yesterday was a skip day — no worries! Ready to log today?"}
+            : daysSince<=4
+              ? {"It's been "+daysSince+" days — pick up where you left off 🌱"}
+              : {"Welcome back! It's been a while — even a quick log keeps the streak alive."};
+          return (
+            <div style={{background:"#fffbeb",borderRadius:"13px",padding:"0.7rem 1rem",marginBottom:"1rem",border:"1.5px solid #f5c842",display:"flex",gap:"0.65rem",alignItems:"center"}}>
+              <span style={{fontSize:"1.1rem",flexShrink:0}}>{"💛"}</span>
+              <div style={{flex:1}}>
+                <div style={{fontWeight:"700",color:"#7a5500",fontSize:"0.79rem"}}>{msg}</div>
+              </div>
+              <button onClick={startLog}
+                style={{padding:"0.3rem 0.7rem",border:"none",borderRadius:"9px",background:"#f5c842",color:"#5a3d00",fontWeight:"800",fontSize:"0.72rem",cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}}>
+                {"Log now"}
+              </button>
+            </div>
+          );
+        })()}
+
         {/* ── Goals Nudge Card ── */}
         <GoalsNudgeCard pal={pal} family={family} portfolioEntries={portfolioEntries} todayStr={todayStr} onTabChange={onTabChange}/>
 
@@ -7093,6 +7617,309 @@ function ScheduleEditorModal({pal,family,activeChildId,schedMode2,onSave,onClose
   );
 }
 
+/* =======================================
+   QUICK CAPTURE MODAL
+   Fast one-tap entry from anywhere
+======================================= */
+function QuickCaptureModal({pal, family, activeChildId, onClose, onSave}) {
+  const allSubjOptions = [...SUBJECT_OPTIONS, ...(family.customSubjects||[])];
+  const activeSubjIds  = family.subjects||[];
+  const activeSubjs    = activeSubjIds.map(id=>allSubjOptions.find(s=>s.id===id)).filter(Boolean);
+
+  // Default to active child or first child
+  const defaultCi = activeChildId && activeChildId!=="all"
+    ? Math.max(0, family.children.findIndex(c=>c.id===activeChildId))
+    : 0;
+
+  const [childIdx,  setChildIdx]  = useState(defaultCi);
+  const [subj,      setSubj]      = useState(activeSubjs[0]?.label||"");
+  const [note,      setNote]      = useState("");
+  const [photos,    setPhotos]    = useState([]);
+  const [saved,     setSaved]     = useState(false);
+  const noteRef   = useRef(null);
+  const galleryRef = useRef(null);
+
+  const activeCh = family.children[childIdx];
+  const cp = CHILD_COLOR_PALETTES.find(p=>p.id===(activeCh?.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+  const todayDate = new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
+
+  // Auto-focus note field on open
+  useEffect(()=>{ setTimeout(()=>noteRef.current?.focus(), 150); },[]);
+
+  const handlePhoto = (e) => {
+    Array.from(e.target.files).forEach(file=>{
+      const r = new FileReader();
+      r.onload = ev => setPhotos(p=>[...p,{dataUrl:ev.target.result}]);
+      r.readAsDataURL(file);
+    });
+    e.target.value="";
+  };
+
+  const handleSave = () => {
+    if(!subj) return;
+    const subjObj = allSubjOptions.find(s=>s.label===subj||s.id===subj);
+    const entry = {
+      childIdx,
+      subj,
+      title: note.trim() ? note.trim().slice(0,80) : subj+" — "+todayDate,
+      note:  note.trim(),
+      thumb: subjObj?.icon||"📋",
+      date:  todayDate,
+      photos: photos.map(p=>p.dataUrl),
+    };
+    onSave([entry]);
+    setSaved(true);
+    setTimeout(onClose, 900);
+  };
+
+  if(saved) return (
+    <div style={{position:"fixed",inset:0,zIndex:300,background:"rgba(0,0,0,0.45)",display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
+      <div style={{width:"100%",maxWidth:"430px",background:pal.goodBg,borderRadius:"22px 22px 0 0",padding:"2rem 1.5rem",textAlign:"center",border:`2px solid ${pal.good}40`,animation:"slideUp 0.22s ease"}}>
+        <div style={{fontSize:"2.5rem",marginBottom:"0.4rem"}}>{"✓"}</div>
+        <div style={{fontWeight:"800",color:pal.good,fontSize:"1rem"}}>{"Captured!"}</div>
+        <div style={{fontSize:"0.78rem",color:pal.inkM,marginTop:"4px"}}>{subj+" saved to "+activeCh?.name+"'s portfolio"}</div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{position:"fixed",inset:0,zIndex:300,background:"rgba(0,0,0,0.5)",backdropFilter:"blur(8px)",display:"flex",alignItems:"flex-end",justifyContent:"center"}} onClick={onClose}>
+      <div onClick={e=>e.stopPropagation()}
+        style={{width:"100%",maxWidth:"430px",background:pal.linen,borderRadius:"24px 24px 0 0",animation:"slideUp 0.24s ease",paddingBottom:"env(safe-area-inset-bottom)"}}>
+
+        {/* Handle */}
+        <div style={{padding:"0.65rem 0 0",display:"flex",justifyContent:"center"}}>
+          <div style={{width:"36px",height:"4px",borderRadius:"99px",background:pal.stone+"60"}}/>
+        </div>
+
+        {/* Header */}
+        <div style={{padding:"0.6rem 1.1rem 0.75rem",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+          <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.95rem"}}>{"✏️ Quick Capture"}</div>
+          <button onClick={onClose} style={{width:"26px",height:"26px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.85rem",display:"flex",alignItems:"center",justifyContent:"center"}}>{"✕"}</button>
+        </div>
+
+        <div style={{padding:"0 1.1rem 1.1rem"}}>
+          {/* Child selector — only if multi-child */}
+          {family.children.length>1&&(
+            <div style={{display:"flex",gap:"0.35rem",marginBottom:"0.75rem",overflowX:"auto"}}>
+              {family.children.map((c,i)=>{
+                const ccp = CHILD_COLOR_PALETTES.find(p=>p.id===(c.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+                const sel = i===childIdx;
+                return (
+                  <button key={c.id} onClick={()=>setChildIdx(i)}
+                    style={{display:"flex",alignItems:"center",gap:"0.3rem",padding:"0.3rem 0.65rem",border:`2px solid ${sel?ccp.c1:pal.stone+"40"}`,borderRadius:"20px",background:sel?ccp.c1+"18":"transparent",cursor:"pointer",flexShrink:0,transition:"all 0.12s"}}>
+                    <span style={{fontSize:"1rem"}}>{c.avatar}</span>
+                    <span style={{fontSize:"0.74rem",fontWeight:sel?"800":"500",color:sel?ccp.c1:pal.inkM}}>{c.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Subject chips */}
+          {(()=>{
+            const DOW_NAMES=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+            const todayDowName = DOW_NAMES[new Date().getDay()];
+            const subjectDays = family.subjectDays||{};
+            return (
+              <div style={{display:"flex",gap:"0.3rem",flexWrap:"wrap",marginBottom:"0.5rem"}}>
+                {activeSubjs.map(s=>{
+                  const sel = subj===s.label;
+                  const assigned = subjectDays[s.id];
+                  const offDay = assigned&&assigned.length>0&&!assigned.includes(todayDowName);
+                  return (
+                    <button key={s.id} onClick={()=>setSubj(s.label)}
+                      style={{display:"flex",alignItems:"center",gap:"0.25rem",padding:"0.28rem 0.6rem",border:`2px solid ${sel?cp.c1:offDay?pal.stone+"25":pal.stone+"40"}`,borderRadius:"20px",background:sel?cp.c1+"18":"transparent",cursor:"pointer",transition:"all 0.12s",flexShrink:0,opacity:offDay&&!sel?0.5:1}}>
+                      <span style={{fontSize:"0.85rem"}}>{s.icon}</span>
+                      <span style={{fontSize:"0.72rem",fontWeight:sel?"800":"500",color:sel?cp.c1:offDay?pal.stone:pal.inkM}}>{s.label}</span>
+                    </button>
+                    })}
+              </div>
+            );
+          })()}
+          {(()=>{
+            const DOW_NAMES=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+            const todayDowName = DOW_NAMES[new Date().getDay()];
+            const hasOffDay = (family.subjectDays||{}) && activeSubjs.some(s=>{
+              const a=(family.subjectDays||{})[s.id]; return a&&a.length>0&&!a.includes(todayDowName);
+            });
+            return hasOffDay?(
+              <div style={{fontSize:"0.62rem",color:pal.stone,marginBottom:"0.65rem",fontStyle:"italic"}}>{"Faded = not scheduled today — still capturable"}</div>
+            ):null;
+          })()}
+
+          {/* Note field */}
+          <textarea
+            ref={noteRef}
+            value={note}
+            onChange={e=>setNote(e.target.value)}
+            onKeyDown={e=>{ if(e.key==="Enter"&&e.metaKey) handleSave(); }}
+            placeholder={"What did "+activeCh?.name+" do? (optional — subject alone is enough)"}
+            rows={3}
+            style={{width:"100%",padding:"0.7rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"13px",fontSize:"0.84rem",fontFamily:"inherit",background:pal.parchm,color:pal.ink,resize:"none",outline:"none",lineHeight:1.6,marginBottom:"0.65rem",transition:"border-color 0.15s"}}
+            onFocus={e=>e.target.style.borderColor=cp.c1}
+            onBlur={e=>e.target.style.borderColor=pal.stone}
+          />
+
+          {/* Photos strip */}
+          {photos.length>0&&(
+            <div style={{display:"flex",gap:"0.35rem",marginBottom:"0.65rem",overflowX:"auto"}}>
+              {photos.map((p,i)=>(
+                <div key={i} style={{position:"relative",flexShrink:0}}>
+                  <img src={p.dataUrl} alt="" style={{width:"54px",height:"54px",borderRadius:"9px",objectFit:"cover",border:`1.5px solid ${pal.stone}30`}}/>
+                  <button onClick={()=>setPhotos(ps=>ps.filter((_,pi)=>pi!==i))}
+                    style={{position:"absolute",top:"2px",right:"2px",width:"18px",height:"18px",borderRadius:"50%",background:"rgba(0,0,0,0.55)",border:"none",color:"#fff",fontSize:"0.55rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                    {"✕"}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Action row */}
+          <div style={{display:"flex",gap:"0.5rem",alignItems:"center"}}>
+            <input ref={galleryRef} type="file" accept="image/*" multiple onChange={handlePhoto} style={{display:"none"}}/>
+            <button onClick={()=>galleryRef.current?.click()}
+              style={{width:"44px",height:"44px",borderRadius:"12px",border:`2px solid ${pal.stone+"50"}`,background:"transparent",color:pal.slate,fontSize:"1.1rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+              {"📷"}
+            </button>
+            <button onClick={handleSave} disabled={!subj}
+              style={{flex:1,padding:"0.75rem",border:"none",borderRadius:"13px",background:subj?`linear-gradient(135deg,${cp.c1},${cp.c2})`:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:subj?"pointer":"default",transition:"all 0.15s"}}>
+              {"Save ✓"}
+            </button>
+          </div>
+          <div style={{fontSize:"0.63rem",color:pal.stone,textAlign:"center",marginTop:"0.45rem"}}>{"Saves to "+activeCh?.name+"'s portfolio · "+todayDate}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+/* ---- Weekly Plan View ---- */
+function WeeklyPlanView({pal, family, child, portfolioEntries, lastCheckinDate, onSelectDay, onLogToday}) {
+  const today = new Date();
+  const todayDow = today.getDay();
+  const weekStart = new Date(today);
+  weekStart.setDate(today.getDate() - (todayDow===0?6:todayDow-1));
+
+  const DAYS = ["Mon","Tue","Wed","Thu","Fri"].map((l,i)=>{
+    const d = new Date(weekStart); d.setDate(weekStart.getDate()+i);
+    const dateStr  = d.toLocaleDateString("en-US",{month:"short",day:"numeric"});
+    const isToday  = d.toDateString()===today.toDateString();
+    const isPast   = d < today && !isToday;
+    const logged   = portfolioEntries.some(e=>e.date===dateStr&&!e.isDay);
+    return {l, d:d.getDate(), dateStr, isToday, isPast, logged, idx:i};
+  });
+
+  const schedMode2 = family.scheduleMode2||"same";
+  const DOW_NAMES  = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  const todayDowName = DOW_NAMES[today.getDay()];
+  const subjectDays  = family.subjectDays||{};
+
+  // Get blocks for each day — respect subjectDays offDay logic per day
+  const getBlocksForDay = (dayIdx) => {
+    const dayName = DOW_NAMES[dayIdx+1]; // Mon=1
+    const resolvedChildId = child==="all" ? family.children?.[0]?.id : child;
+    const blocks = generateSchedule(family, schedMode2!=="same" ? resolvedChildId : null);
+    const visible = schedMode2==="same"
+      ? blocks.filter(b=>child==="all"||b.c==="all"||b.c===child)
+      : blocks;
+    return visible.map(b=>{
+      const assigned = subjectDays[b.subjId];
+      const offDay = assigned&&assigned.length>0&&!assigned.includes(dayName);
+      return {...b, offDay};
+    });
+  };
+
+  // Collect all unique subject blocks across the week for the row labels
+  const allBlocks = getBlocksForDay(0); // Mon as canonical list
+
+  // Multi-child: collect per child
+  const isMulti = schedMode2!=="same" && family.children.length>1;
+  const displayChildren = isMulti
+    ? (child==="all" ? family.children : family.children.filter(c=>c.id===child))
+    : [null]; // null = single mode
+
+  return (
+    <div style={{animation:"fadeUp 0.18s ease"}}>
+      {/* Week header */}
+      <div style={{display:"grid",gridTemplateColumns:"72px repeat(5,1fr)",gap:"3px",marginBottom:"0.6rem"}}>
+        <div/>
+        {DAYS.map((d,i)=>(
+          <button key={i} onClick={()=>onSelectDay(i)}
+            style={{padding:"0.45rem 0",borderRadius:"10px",border:`2px solid ${d.isToday?pal.primary:pal.stone+"40"}`,background:d.isToday?pal.primary:"transparent",cursor:"pointer",textAlign:"center",transition:"all 0.14s"}}>
+            <div style={{fontSize:"0.55rem",fontWeight:"600",color:d.isToday?"rgba(255,255,255,0.75)":pal.slate}}>{d.l}</div>
+            <div style={{fontSize:"0.82rem",fontWeight:"800",color:d.isToday?"#fff":pal.inkM}}>{d.d}</div>
+            {d.logged
+              ? <div style={{fontSize:"0.6rem",color:d.isToday?"rgba(255,255,255,0.8)":pal.good}}>{"✓"}</div>
+              : d.isPast
+                ? <div style={{fontSize:"0.55rem",color:pal.stone}}>{"—"}</div>
+                : <div style={{height:"0.75rem"}}/>
+            }
+          </button>
+        ))}
+      </div>
+
+      {/* Subject grid */}
+      {allBlocks.filter(b=>!b.isCoop&&!b.lifeReady).map((block,bi)=>(
+        <div key={bi} style={{display:"grid",gridTemplateColumns:"72px repeat(5,1fr)",gap:"3px",marginBottom:"3px"}}>
+          {/* Row label */}
+          <div style={{display:"flex",alignItems:"center",gap:"0.3rem",padding:"0 4px",minWidth:0}}>
+            <span style={{fontSize:"0.9rem",flexShrink:0}}>{block.i}</span>
+            <span style={{fontSize:"0.6rem",fontWeight:"700",color:pal.inkM,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",lineHeight:1.2}}>{block.s}</span>
+          </div>
+          {/* Day cells */}
+          {DAYS.map((d,di)=>{
+            const dayBlocks = getBlocksForDay(di);
+            const match = dayBlocks.find(b=>b.s===block.s);
+            const off = !match || match.offDay;
+            return (
+              <div key={di} onClick={()=>onSelectDay(di)}
+                style={{height:"36px",borderRadius:"8px",background:off?pal.parchm:pal.pale,border:`1.5px solid ${d.isToday?(off?pal.stone+"30":pal.primary+"50"):pal.stone+"25"}`,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",transition:"all 0.12s"}}>
+                {!off&&<div style={{width:"8px",height:"8px",borderRadius:"50%",background:pal.primary+\"88\"}}/>}
+              </div>
+            );
+          })}
+        </div>
+      ))}
+
+      {/* Co-op row if applicable */}
+      {allBlocks.filter(b=>b.isCoop).map((block,bi)=>(
+        <div key={"coop"+bi} style={{display:"grid",gridTemplateColumns:"72px repeat(5,1fr)",gap:"3px",marginBottom:"3px"}}>
+          <div style={{display:"flex",alignItems:"center",gap:"0.3rem",padding:"0 4px"}}>
+            <span style={{fontSize:"0.9rem"}}>🏫</span>
+            <span style={{fontSize:"0.6rem",fontWeight:"700",color:pal.inkM,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>Co-op</span>
+          </div>
+          {DAYS.map((d,di)=>{
+            const dayBlocks = getBlocksForDay(di);
+            const match = dayBlocks.find(b=>b.isCoop);
+            const off = !match;
+            return (
+              <div key={di} style={{height:"36px",borderRadius:"8px",background:off?pal.parchm:"#fff8f0",border:`1.5px solid ${off?pal.stone+"25":"#f5a623"}`,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                {!off&&<span style={{fontSize:"0.75rem"}}>🏫</span>}
+              </div>
+            );
+          })}
+        </div>
+      ))}
+
+      {/* Log Today — only show if today is a weekday */}
+      {todayDow>=1&&todayDow<=5&&(
+        <div style={{marginTop:"0.75rem"}}>
+          <button onClick={onLogToday}
+            style={{width:"100%",padding:"0.8rem",border:"none",borderRadius:"13px",background:lastCheckinDate===today.toDateString()?pal.stone+"30":pal.accentGrad,color:lastCheckinDate===today.toDateString()?pal.stone:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:"pointer",transition:"all 0.3s"}}>
+            {lastCheckinDate===today.toDateString()?"📝 Log Again":"📝 Log Today"}
+          </button>
+        </div>
+      )}
+
+      <div style={{height:"1rem"}}/>
+    </div>
+  );
+}
+
+
 function ScheduleScreen({pal,family,child,setChild,onMarkComplete,onProgressUpdate,onUpdateFamily,lastCheckinDate}){
   const today = new Date();
   const todayDow = today.getDay();
@@ -7106,6 +7933,7 @@ function ScheduleScreen({pal,family,child,setChild,onMarkComplete,onProgressUpda
   const [selectedDay, setSelectedDay] = useState(Math.max(0,todayIdx));
   const [showEditor,  setShowEditor]  = useState(false);
   const [showQuickLog, setShowQuickLog] = useState(false);
+  const [viewMode,    setViewMode]    = useState("day"); // "day" | "week"
 
   const schedMode2   = family.scheduleMode2||"same";
   const activeChildId = child==="all" ? null : child;
@@ -7124,7 +7952,7 @@ function ScheduleScreen({pal,family,child,setChild,onMarkComplete,onProgressUpda
       <FirstVisitTip pal={pal} screen="schedule"/>
       <div style={{padding:"0 1rem"}}>
 
-        {/* Child filter + edit button */}
+        {/* Child filter + view toggle + edit button */}
         <div style={{display:"flex",gap:"0.35rem",marginBottom:"0.9rem",alignItems:"center"}}> 
           <div style={{display:"flex",gap:"0.35rem",flex:1,overflowX:"auto"}}>
             {schedMode2==="same"&&<Chip pal={pal} label="All" active={child==="all"} onClick={()=>setChild("all")}/>}
@@ -7135,12 +7963,34 @@ function ScheduleScreen({pal,family,child,setChild,onMarkComplete,onProgressUpda
               {schedMode2==="mixed"?"Mixed":"Per-child"}
             </span>
           )}
+          {/* Day / Week toggle */}
+          <div style={{display:"flex",background:pal.parchm,borderRadius:"8px",padding:"2px",flexShrink:0,border:`1px solid ${pal.stone}30`}}>
+            {[["day","Day"],["week","Week"]].map(([id,label])=>(
+              <button key={id} onClick={()=>setViewMode(id)}
+                style={{padding:"0.2rem 0.5rem",border:"none",borderRadius:"6px",background:viewMode===id?pal.linen:"transparent",color:viewMode===id?pal.primary:pal.slate,fontSize:"0.65rem",fontWeight:viewMode===id?"800":"500",cursor:"pointer",transition:"all 0.12s"}}>
+                {label}
+              </button>
+            ))}
+          </div>
           <button onClick={()=>setShowEditor(true)}
             style={{padding:"0.32rem 0.7rem",border:`1.5px solid ${pal.stone}`,borderRadius:"9px",background:pal.linen,color:pal.inkM,fontSize:"0.72rem",fontWeight:"700",cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}}>
             {"✏️ Edit"}
           </button>
         </div>
 
+        {/* Week view */}
+        {viewMode==="week"&&(
+          <WeeklyPlanView
+            pal={pal} family={family} child={child}
+            portfolioEntries={[]}
+            lastCheckinDate={lastCheckinDate}
+            onSelectDay={(i)=>{setSelectedDay(i);setViewMode("day");}}
+            onLogToday={()=>setShowQuickLog(true)}
+          />
+        )}
+
+        {/* Day view */}
+        {viewMode==="day"&&<>
         {/* Day strip */}
         <div style={{display:"flex",gap:"0.35rem",marginBottom:"1rem"}}>
           {DAYS.map((d,i)=>(
@@ -7198,6 +8048,7 @@ function ScheduleScreen({pal,family,child,setChild,onMarkComplete,onProgressUpda
         )}
 
         <div style={{height:"1rem"}}/>
+        </>}
       </div>
 
       {showEditor&&<ScheduleEditorModal pal={pal} family={family}
@@ -7674,7 +8525,7 @@ function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab, portf
    AI CHAT MODAL - persistent assistant
    Calls Claude API live for any request
 ======================================= */
-function AIChatModal({ pal, family, onClose }) {
+function AIChatModal({ pal, family, activeChildId, portfolioEntries=[], onClose }) {
   const [messages, setMessages] = useState([
     { role:"assistant", content:`Hi! I'm your Root & Bloom assistant 🌱\n\nI can help you create **worksheets**, **lesson plans**, **unit studies**, **discussion questions**, or anything else for your homeschool. Just tell me what you need!\n\nTry something like:\n* "Make a worksheet on fractions for 4th grade"\n* "Write a nature journal prompt for my 7-year-old"\n* "Plan a 3-day unit on the American Revolution"` }
   ]);
@@ -7684,6 +8535,18 @@ function AIChatModal({ pal, family, onClose }) {
   const inputRef  = useRef(null);
 
   const childNames = (family?.children||[]).map(c=>`${c.name} (${c.grade})`).join(", ");
+  // Per-child recent context
+  const activeChildObj = activeChildId && activeChildId!=="all"
+    ? family.children.find(c=>c.id===activeChildId)
+    : null;
+  const activeChildIdx = activeChildObj ? family.children.indexOf(activeChildObj) : -1;
+  const recentEntries = activeChildIdx>=0
+    ? portfolioEntries
+        .filter(e=>e.childIdx===activeChildIdx&&!e.isDay)
+        .slice(0,10)
+        .map(e=>`${e.date}: ${e.subj}${e.title&&e.title!==e.subj?" — "+e.title:""}${e.note?" ("+e.note.slice(0,60)+")":""}`)
+        .join("\n")
+    : "";
   const philosophies = Array.isArray(family?.curriculumStyle)
     ? family.curriculumStyle.join(", ")
     : (family?.curriculumStyle || "eclectic");
@@ -7722,7 +8585,9 @@ function AIChatModal({ pal, family, onClose }) {
             +"- Curriculum: "+curriculumContext(family)+"\n"
             +"- State: "+(family?.state||"not specified")+"\n"
             +"- Family goals: "+goalSummary(family)+"\n"
-            +"- Active subjects: "+((family?.subjects||[]).join(", ")||"not specified")+"\n\n"
+            +"- Active subjects: "+((family?.subjects||[]).join(", ")||"not specified")+"\n"
+            +(activeChildObj?"- Currently viewing: "+activeChildObj.name+" ("+activeChildObj.grade+")\n":"")
+            +(recentEntries?"- Recent work for "+activeChildObj.name+":\n"+recentEntries+"\n\n":"\n")
             +"Always shape your suggestions to reflect the family's goals. If they prioritize Faith & Character, weave in character development. If Strong Readers, emphasize reading-based learning. If STEM Focus, lean into experiments and inquiry. If Nature & Outdoors, suggest outdoor and nature-based activities.\n\n"
             +"When creating worksheets or lesson plans, format them clearly with headers and numbered items. Be warm, encouraging, and practical. Keep responses focused and useful.",
           messages:history
@@ -8230,43 +9095,67 @@ function AIUnitBuilderModal({ pal, family, activeChild, onSave, onClose }) {
    AI WORKSHEET MODAL - live Claude API
 ======================================= */
 function AIWorksheetModal({ pal, family, activeChild, wsType, onClose }) {
-  const [topic,   setTopic]   = useState("");
-  const [result,  setResult]  = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error,   setError]   = useState(null);
+  const [topic,      setTopic]    = useState("");
+  const [results,    setResults]  = useState({}); // {childId: result}
+  const [loading,    setLoading]  = useState(false);
+  const [error,      setError]    = useState(null);
+  const [activeTab,  setActiveTab]= useState(null); // childId of currently viewed result
+  // Multi-child selection — default to activeChild
+  const [selChildren, setSelChildren] = useState(
+    ()=> activeChild ? new Set([activeChild.id]) : new Set(family.children.slice(0,1).map(c=>c.id))
+  );
 
   const isCustom = wsType==="custom";
   const ws = isCustom ? {id:"custom",label:"Custom Worksheet",icon:""} : wsType;
+  const isMulti = family.children.length > 1;
+
+  const toggleChild = (id) => setSelChildren(prev=>{
+    const n = new Set(prev);
+    if(n.has(id) && n.size===1) return n; // keep at least one
+    n.has(id) ? n.delete(id) : n.add(id);
+    return n;
+  });
 
   const generate = async () => {
     if(!topic.trim()) return;
-    setLoading(true); setError(null);
-    const child  = activeChild;
-    const grade  = child?.grade||"elementary";
-    const goals  = goalSummary(family);
+    setLoading(true); setError(null); setResults({});
+    const goals      = goalSummary(family);
     const curriculum = curriculumContext(family);
-    const prompt = "Create a homeschool worksheet for a "+grade+" student.\n\n"
-      + "Worksheet type: "+ws.label+"\n"
-      + "Topic: "+topic+"\n"
-      + "Student name: "+(child?.name||"Student")+"\n"
-      + "Curriculum: "+curriculum+"\n"
-      + "Family goals: "+goals+"\n\n"
-      + "Let the family's goals subtly shape the content tone and examples where natural (e.g. if Faith & Character is a goal, use character-building scenarios; if Nature & Outdoors, use nature-based examples; if Strong Readers, include rich vocabulary).\n\n"
-      + "Respond in this exact JSON format (no markdown, no backticks, just raw JSON):\n"
-      + '{"title":"worksheet title","instructions":"one clear sentence of instructions",'
-      + '"items":[{"type":"prompt","content":"item text"},{"type":"prompt","content":"item text"},{"type":"prompt","content":"item text"},{"type":"prompt","content":"item text"},{"type":"prompt","content":"item text"}],'
-      + '"bonusChallenge":"one optional bonus challenge sentence"}'
-      + "\n\nMake items age-appropriate for "+grade+". For copywork: provide beautiful sentences to copy. For narration: provide open-ended reflection prompts. For math: provide practice problems. For spelling: provide 8 words with a sentence each. For quiz: provide 5 questions with blank answer lines. Keep items concise and clear."
-
+    const selectedKids = family.children.filter(c=>selChildren.has(c.id));
     try {
-      const raw = await callClaude(prompt);
-      const clean = raw.replace(/```json|```/g,"").trim();
-      setResult(JSON.parse(clean));
+      const allResults = await Promise.all(selectedKids.map(async child => {
+        const grade = child.grade||"elementary";
+        const prompt = "Create a homeschool worksheet for a "+grade+" student.\n\n"
+          + "Worksheet type: "+ws.label+"\n"
+          + "Topic: "+topic+"\n"
+          + "Student name: "+child.name+"\n"
+          + "Grade level: "+grade+"\n"
+          + "Curriculum: "+curriculum+"\n"
+          + "Family goals: "+goals+"\n\n"
+          + "IMPORTANT: This is differentiated for a "+grade+" student. Adjust difficulty, vocabulary, and complexity accordingly.\n"
+          + "Let the family's goals subtly shape the content tone and examples where natural.\n\n"
+          + "Respond in this exact JSON format (no markdown, no backticks, just raw JSON):\n"
+          + '{"title":"worksheet title","instructions":"one clear sentence of instructions",'
+          + '"items":[{"type":"prompt","content":"item text"},{"type":"prompt","content":"item text"},{"type":"prompt","content":"item text"},{"type":"prompt","content":"item text"},{"type":"prompt","content":"item text"}],'
+          + '"bonusChallenge":"one optional bonus challenge sentence"}'
+          + "\n\nMake items age-appropriate for "+grade+". For copywork: provide beautiful sentences to copy. For narration: provide open-ended reflection prompts. For math: provide practice problems. For spelling: provide 8 words with a sentence each. For quiz: provide 5 questions with blank answer lines. Keep items concise and clear.";
+        const raw = await callClaude(prompt);
+        const clean = raw.replace(/```json|```/g,"").trim();
+        return {childId: child.id, result: JSON.parse(clean)};
+      }));
+      const newResults = {};
+      allResults.forEach(({childId, result}) => { newResults[childId] = result; });
+      setResults(newResults);
+      setActiveTab(selectedKids[0]?.id||null);
     } catch(e) {
-      setError("Couldn't generate worksheet right now. Try again.");
+      setError("Couldn't generate worksheets right now. Try again.");
     }
     setLoading(false);
   };
+
+  const hasResults = Object.keys(results).length > 0;
+  const activeResult = activeTab ? results[activeTab] : null;
+  const activeKid = family.children.find(c=>c.id===activeTab);
 
   return (
     <div style={{position:"fixed",inset:0,background:"rgba(10,20,10,0.75)",backdropFilter:"blur(14px)",zIndex:200,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
@@ -8277,13 +9166,37 @@ function AIWorksheetModal({ pal, family, activeChild, wsType, onClose }) {
         <div style={{padding:"0.75rem 1.3rem",borderBottom:`1px solid ${pal.stone}45`,flexShrink:0,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <div>
             <div style={{fontWeight:"800",color:pal.ink,fontSize:"1rem"}}>{ws.icon} {ws.label}</div>
-            <div style={{fontSize:"0.74rem",color:pal.slate,marginTop:"2px"}}>{activeChild?.name||"Student"} - {activeChild?.grade||"All grades"}</div>
+            <div style={{fontSize:"0.74rem",color:pal.slate,marginTop:"2px"}}>
+              {isMulti
+                ? [...selChildren].map(id=>family.children.find(c=>c.id===id)?.name).filter(Boolean).join(", ")
+                : (activeChild?.name||"Student")+" · "+(activeChild?.grade||"All grades")}
+            </div>
           </div>
           <button onClick={onClose} style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.9rem",display:"flex",alignItems:"center",justifyContent:"center"}}>{"✕"}</button>
         </div>
 
         <div style={{flex:1,overflowY:"auto",padding:"1rem 1.3rem"}}>
-          {!result&&!loading&&(<>
+          {!hasResults&&!loading&&(<>
+            {isMulti&&(
+              <div style={{marginBottom:"0.85rem"}}>
+                <Lbl pal={pal}>Generate for</Lbl>
+                <div style={{display:"flex",flexWrap:"wrap",gap:"0.35rem"}}>
+                  {family.children.map(c=>{
+                    const sel = selChildren.has(c.id);
+                    const cp = CHILD_COLOR_PALETTES.find(p=>p.id===(c.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+                    return (
+                      <button key={c.id} onClick={()=>toggleChild(c.id)}
+                        style={{display:"flex",alignItems:"center",gap:"0.35rem",padding:"0.35rem 0.7rem",border:`2px solid ${sel?cp.c1:pal.stone+"50"}`,borderRadius:"20px",background:sel?cp.c1+"18":"transparent",cursor:"pointer",transition:"all 0.12s"}}>
+                        <span style={{fontSize:"0.95rem"}}>{c.avatar}</span>
+                        <span style={{fontSize:"0.75rem",fontWeight:sel?"800":"500",color:sel?cp.c1:pal.inkM}}>{c.name}</span>
+                        <span style={{fontSize:"0.62rem",color:sel?cp.c1:pal.stone}}>{c.grade}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                {selChildren.size>1&&<div style={{fontSize:"0.68rem",color:pal.primary,marginTop:"0.4rem",fontWeight:"600"}}>{"✨ Differentiated versions will be generated for each child"}</div>}
+              </div>
+            )}
             <Lbl pal={pal}>What topic?</Lbl>
             <Input pal={pal} value={topic} onChange={setTopic}
               placeholder={ws.id==="copywork"?"e.g. Famous quotes about nature":ws.id==="math"?"e.g. Adding fractions":"e.g. Ancient Egypt"}
@@ -8295,31 +9208,52 @@ function AIWorksheetModal({ pal, family, activeChild, wsType, onClose }) {
           {loading&&(
             <div style={{textAlign:"center",padding:"2rem 0"}}>
               <div style={{fontSize:"3rem",marginBottom:"0.75rem",animation:"pulse 1.2s ease infinite"}}>{ws.icon}</div>
-              <div style={{fontWeight:"800",color:pal.primary,fontSize:"0.95rem",marginBottom:"0.3rem"}}>Building your worksheet...</div>
-              <div style={{fontSize:"0.78rem",color:pal.slate}}>This takes about 10 seconds</div>
+              <div style={{fontWeight:"800",color:pal.primary,fontSize:"0.95rem",marginBottom:"0.3rem"}}>
+                {selChildren.size>1?"Building "+selChildren.size+" differentiated worksheets...":"Building your worksheet..."}
+              </div>
+              <div style={{fontSize:"0.78rem",color:pal.slate}}>
+                {selChildren.size>1?"Each one is tailored to that child's grade level":"This takes about 10 seconds"}
+              </div>
             </div>
           )}
 
-          {result&&(
+          {hasResults&&activeResult&&(
             <div style={{animation:"fadeUp 0.2s ease"}}>
+              {/* Child tabs if multi */}
+              {Object.keys(results).length>1&&(
+                <div style={{display:"flex",gap:"0.3rem",marginBottom:"0.85rem",overflowX:"auto"}}>
+                  {family.children.filter(c=>results[c.id]).map(c=>{
+                    const cp = CHILD_COLOR_PALETTES.find(p=>p.id===(c.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+                    const isSel = activeTab===c.id;
+                    return (
+                      <button key={c.id} onClick={()=>setActiveTab(c.id)}
+                        style={{display:"flex",alignItems:"center",gap:"0.3rem",padding:"0.35rem 0.7rem",border:`2px solid ${isSel?cp.c1:pal.stone+"40"}`,borderRadius:"20px",background:isSel?cp.c1+"18":"transparent",cursor:"pointer",flexShrink:0,transition:"all 0.12s"}}>
+                        <span>{c.avatar}</span>
+                        <span style={{fontSize:"0.74rem",fontWeight:isSel?"800":"500",color:isSel?cp.c1:pal.inkM}}>{c.name}</span>
+                        <span style={{fontSize:"0.6rem",color:isSel?cp.c1:pal.stone}}>{c.grade}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
               {/* Worksheet header */}
               <div style={{background:pal.parchm,borderRadius:"14px",padding:"0.9rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}45`}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"0.3rem"}}>
-                  <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.92rem",flex:1,paddingRight:"0.5rem"}}>{result.title}</div>
+                  <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.92rem",flex:1,paddingRight:"0.5rem"}}>{activeResult.title}</div>
                   <span style={{fontSize:"0.68rem",fontWeight:"700",color:pal.primary,background:pal.pale,borderRadius:"50px",padding:"0.12rem 0.5rem",flexShrink:0}}>{ws.label}</span>
                 </div>
                 <div style={{display:"flex",gap:"1rem",fontSize:"0.7rem",color:pal.slate}}>
-                  <span>Name: {activeChild?.name||"___________"}</span>
+                  <span>Name: {activeKid?.name||"___________"}</span>
                   <span>Date: ___________</span>
                 </div>
               </div>
               {/* Instructions */}
               <div style={{fontSize:"0.8rem",color:pal.inkM,lineHeight:1.65,marginBottom:"0.85rem",fontStyle:"italic",padding:"0 0.2rem"}}>
-                📌 {result.instructions}
+                📌 {activeResult.instructions}
               </div>
               {/* Items */}
               <div style={{display:"flex",flexDirection:"column",gap:"0.75rem",marginBottom:"0.85rem"}}>
-                {(result.items||[]).map((item,i)=>(
+                {(activeResult.items||[]).map((item,i)=>(
                   <div key={i} style={{background:pal.linen,borderRadius:"13px",padding:"0.8rem 0.95rem",border:`1.5px solid ${pal.stone}40`}}>
                     <div style={{display:"flex",gap:"0.6rem",alignItems:"flex-start"}}>
                       <div style={{width:"22px",height:"22px",borderRadius:"50%",background:pal.primary,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.7rem",fontWeight:"900",color:"#fff",flexShrink:0,marginTop:"1px"}}>{i+1}</div>
@@ -8333,10 +9267,10 @@ function AIWorksheetModal({ pal, family, activeChild, wsType, onClose }) {
                 ))}
               </div>
               {/* Bonus */}
-              {result.bonusChallenge&&(
+              {activeResult.bonusChallenge&&(
                 <div style={{background:pal.pale,borderRadius:"12px",padding:"0.75rem 0.9rem",border:`2px solid ${pal.primary}25`,marginBottom:"0.5rem"}}>
                   <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.75rem",marginBottom:"0.2rem"}}>* Bonus Challenge</div>
-                  <div style={{fontSize:"0.78rem",color:pal.inkM,lineHeight:1.55}}>{result.bonusChallenge}</div>
+                  <div style={{fontSize:"0.78rem",color:pal.inkM,lineHeight:1.55}}>{activeResult.bonusChallenge}</div>
                 </div>
               )}
             </div>
@@ -8344,23 +9278,164 @@ function AIWorksheetModal({ pal, family, activeChild, wsType, onClose }) {
         </div>
 
         <div style={{padding:"0.9rem 1.3rem",borderTop:`1px solid ${pal.stone}45`,display:"flex",gap:"0.6rem",flexShrink:0}}>
-          {!result&&!loading&&(
+          {!hasResults&&!loading&&(
             <>
               <button onClick={onClose} style={{padding:"0.7rem 1rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem"}}>Cancel</button>
               <button onClick={generate} disabled={!topic.trim()} style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:topic.trim()?pal.accentGrad:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:topic.trim()?"pointer":"not-allowed"}}>
-                 Generate
+                {selChildren.size>1?"Generate "+selChildren.size+" Worksheets":"Generate"}
               </button>
             </>
           )}
-          {result&&(
+          {hasResults&&(
             <>
-              <button onClick={()=>{setResult(null);setTopic("");}} style={{padding:"0.7rem 1rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem"}}>New</button>
+              <button onClick={()=>{setResults({});setTopic("");setActiveTab(null);}} style={{padding:"0.7rem 1rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem"}}>New</button>
               <button onClick={onClose} style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>
                 Done
               </button>
             </>
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+
+/* =======================================
+   MASTERY TRACKER
+   Per-child per-skill: null → working → mastered
+   Stored: rootbloom_mastery_{childId}_{yearEnd}
+======================================= */
+function MasteryCard({pal, family, child, cp}) {
+  const yearEnd = family.yearEnd||"";
+  const MASTERY_KEY = "rootbloom_mastery_"+child.id+"_"+yearEnd;
+  const [mastery, setMastery] = useState(()=>{
+    try{ return JSON.parse(localStorage.getItem(MASTERY_KEY)||"{}"); }catch(e){return {};}
+  });
+  const [expanded, setExpanded] = useState(false);
+  const [activeTab, setActiveTab] = useState(null); // category name
+
+  const skills = EOY_SKILLS[child.grade]||EOY_SKILLS["5th"]||[];
+
+  const cycle = (skill) => {
+    const cur = mastery[skill]||null;
+    const next = cur===null?"working":cur==="working"?"mastered":null;
+    const updated = {...mastery, [skill]:next};
+    if(next===null) delete updated[skill];
+    setMastery(updated);
+    try{ localStorage.setItem(MASTERY_KEY, JSON.stringify(updated)); }catch(e){}
+  };
+
+  const totalSkills   = skills.reduce((s,cat)=>s+cat.skills.length, 0);
+  const masteredCount = Object.values(mastery).filter(v=>v==="mastered").length;
+  const workingCount  = Object.values(mastery).filter(v=>v==="working").length;
+  const pct = totalSkills>0 ? Math.round(masteredCount/totalSkills*100) : 0;
+
+  const STATUS = {
+    null:     {label:"—",       bg:"transparent",       color:"#bbb",     border:"#e0e0e0"},
+    working:  {label:"Working", bg:"#fff8e6",           color:"#b07800",  border:"#f5c842"},
+    mastered: {label:"✓",      bg:cp.c1+"18",          color:cp.c1,      border:cp.c1+"50"},
+  };
+
+  if(!expanded) return (
+    <div style={{background:pal.linen,borderRadius:"16px",border:`1.5px solid ${pal.stone}25`,marginBottom:"1rem",overflow:"hidden"}}>
+      <button onClick={()=>setExpanded(true)}
+        style={{width:"100%",display:"flex",gap:"0.65rem",alignItems:"center",padding:"0.85rem 1rem",background:"transparent",border:"none",cursor:"pointer",textAlign:"left"}}>
+        <div style={{width:"40px",height:"40px",borderRadius:"11px",background:cp.c1+"18",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.2rem",flexShrink:0}}>{"🎯"}</div>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.85rem"}}>{"Skills & Mastery"}</div>
+          <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"2px"}}>
+            {masteredCount>0||workingCount>0
+              ? masteredCount+" mastered · "+workingCount+" in progress · "+totalSkills+" total"
+              : child.grade+" grade skills — tap to track"}
+          </div>
+        </div>
+        {masteredCount>0&&(
+          <div style={{background:cp.c1+"18",borderRadius:"20px",padding:"0.1rem 0.5rem",flexShrink:0}}>
+            <span style={{fontWeight:"800",color:cp.c1,fontSize:"0.74rem"}}>{pct+"%"}</span>
+          </div>
+        )}
+        <span style={{color:pal.slate,fontSize:"1rem",flexShrink:0}}>{"›"}</span>
+      </button>
+      {(masteredCount>0||workingCount>0)&&(
+        <div style={{padding:"0 1rem 0.75rem"}}>
+          <div style={{height:"6px",borderRadius:"99px",background:pal.parchm,overflow:"hidden"}}>
+            <div style={{height:"100%",width:pct+"%",borderRadius:"99px",background:`linear-gradient(90deg,${cp.c1},${cp.c2})`,transition:"width 0.4s ease"}}/>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  const displayCats = skills;
+  const currentCat  = activeTab||displayCats[0]?.cat;
+
+  return (
+    <div style={{background:pal.linen,borderRadius:"16px",border:`1.5px solid ${pal.stone}25`,marginBottom:"1rem",overflow:"hidden"}}>
+      {/* Header */}
+      <div style={{background:`linear-gradient(135deg,${cp.c1}22,${cp.c2}12)`,padding:"0.85rem 1rem",display:"flex",alignItems:"center",gap:"0.65rem",borderBottom:`1px solid ${pal.stone}20`}}>
+        <span style={{fontSize:"1.2rem"}}>{"🎯"}</span>
+        <div style={{flex:1}}>
+          <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.88rem"}}>{"Skills & Mastery"}</div>
+          <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"1px"}}>
+            {masteredCount+" of "+totalSkills+" mastered · "+workingCount+" in progress"}
+          </div>
+        </div>
+        <button onClick={()=>setExpanded(false)}
+          style={{width:"26px",height:"26px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.8rem",display:"flex",alignItems:"center",justifyContent:"center"}}>
+          {"✕"}
+        </button>
+      </div>
+
+      {/* Progress bar */}
+      <div style={{padding:"0.55rem 1rem 0"}}>
+        <div style={{display:"flex",justifyContent:"space-between",marginBottom:"4px"}}>
+          <span style={{fontSize:"0.65rem",color:pal.slate}}>{"Overall progress"}</span>
+          <span style={{fontSize:"0.65rem",fontWeight:"800",color:cp.c1}}>{pct+"%"}</span>
+        </div>
+        <div style={{height:"5px",borderRadius:"99px",background:pal.parchm,overflow:"hidden",marginBottom:"0.65rem"}}>
+          <div style={{height:"100%",width:pct+"%",borderRadius:"99px",background:`linear-gradient(90deg,${cp.c1},${cp.c2})`,transition:"width 0.4s"}}/>
+        </div>
+      </div>
+
+      {/* Category tabs */}
+      <div style={{display:"flex",gap:"0",overflowX:"auto",padding:"0 0.75rem",borderBottom:`1px solid ${pal.stone}20`}}>
+        {displayCats.map(cat=>(
+          <button key={cat.cat} onClick={()=>setActiveTab(cat.cat)}
+            style={{padding:"0.45rem 0.65rem",border:"none",borderBottom:`2px solid ${currentCat===cat.cat?cp.c1:"transparent"}`,background:"transparent",color:currentCat===cat.cat?cp.c1:pal.slate,fontWeight:currentCat===cat.cat?"800":"500",fontSize:"0.68rem",cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,transition:"all 0.12s"}}>
+            {cat.cat}
+          </button>
+        ))}
+      </div>
+
+      {/* Skills list */}
+      <div style={{padding:"0.65rem 0.85rem"}}>
+        <div style={{fontSize:"0.64rem",color:pal.slate,marginBottom:"0.5rem"}}>
+          {"Tap to cycle: — → Working → Mastered"}
+        </div>
+        {(displayCats.find(c=>c.cat===currentCat)||displayCats[0])?.skills.map((skill,i)=>{
+          const status = mastery[skill]||null;
+          const st = STATUS[status];
+          return (
+            <button key={i} onClick={()=>cycle(skill)}
+              style={{width:"100%",display:"flex",alignItems:"center",gap:"0.6rem",padding:"0.52rem 0.65rem",marginBottom:"0.28rem",borderRadius:"10px",border:`1.5px solid ${st.border}`,background:st.bg,cursor:"pointer",textAlign:"left",transition:"all 0.12s"}}>
+              <div style={{width:"32px",height:"22px",borderRadius:"6px",border:`1.5px solid ${st.border}`,background:st.bg,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                <span style={{fontSize:"0.7rem",fontWeight:"800",color:st.color}}>{st.label}</span>
+              </div>
+              <span style={{fontSize:"0.78rem",color:status==="mastered"?cp.c1:status==="working"?"#7a5500":pal.inkM,fontWeight:status?"600":"400",flex:1,textAlign:"left"}}>{skill}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Legend */}
+      <div style={{display:"flex",gap:"0.75rem",padding:"0.35rem 0.85rem 0.75rem",justifyContent:"center"}}>
+        {[["—","Not started","#bbb"],["Working","In progress","#b07800"],["✓","Mastered",cp.c1]].map(([sym,lbl,col])=>(
+          <div key={lbl} style={{display:"flex",alignItems:"center",gap:"0.25rem"}}>
+            <span style={{fontSize:"0.7rem",fontWeight:"700",color:col}}>{sym}</span>
+            <span style={{fontSize:"0.62rem",color:pal.slate}}>{lbl}</span>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -8375,6 +9450,9 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
   const [expandedSubj,   setExpandedSubj]   = useState(null);
   const [showYearView,   setShowYearView]   = useState(false);
   const [dayDetail,      setDayDetail]      = useState(null); // date string
+  const [searchQuery,    setSearchQuery]    = useState("");
+  const [showPrintMenu,  setShowPrintMenu]  = useState(false);
+  const [showFullYearPrint, setShowFullYearPrint] = useState(false);
 
   const stateInfo = getStateInfo(family.state||"");
   const activeCi  = family.children.findIndex(c=>c.id===child);
@@ -8454,14 +9532,97 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
                 style={{flex:1,padding:"0.65rem 0.5rem",border:`2px solid ${pal.stone}50`,borderRadius:"12px",background:"transparent",color:pal.inkM,fontWeight:"700",fontSize:"0.78rem",cursor:"pointer"}}>
                 Quick Add
               </button>
-              <button onClick={()=>printPortfolioPDF(family,childEntries,activeCh,attendanceDays,stateInfo)}
-            style={{padding:"0.65rem 0.75rem",border:"none",borderRadius:"12px",background:pal.primary,color:"#fff",fontWeight:"700",fontSize:"0.78rem",cursor:"pointer",flexShrink:0}}>
-            {"🖨"}
-          </button>
+              <div style={{position:"relative",flexShrink:0}}>
+                <button onClick={()=>setShowPrintMenu(p=>!p)}
+                  style={{padding:"0.65rem 0.75rem",border:"none",borderRadius:"12px",background:pal.primary,color:"#fff",fontWeight:"700",fontSize:"0.78rem",cursor:"pointer"}}>
+                  {"🖨"}
+                </button>
+                {showPrintMenu&&(
+                  <div style={{position:"absolute",top:"calc(100% + 6px)",right:0,background:"#fff",borderRadius:"12px",border:`1.5px solid ${pal.stone}30`,boxShadow:"0 4px 20px rgba(0,0,0,0.15)",zIndex:100,minWidth:"160px",overflow:"hidden"}}>
+                    <button onClick={()=>{printPortfolioPDF(family,childEntries,activeCh,attendanceDays,stateInfo);setShowPrintMenu(false);}}
+                      style={{width:"100%",padding:"0.65rem 0.9rem",border:"none",background:"transparent",color:pal.ink,fontSize:"0.78rem",fontWeight:"600",cursor:"pointer",textAlign:"left",display:"flex",gap:"0.5rem",alignItems:"center",borderBottom:`1px solid ${pal.stone}20`}}>
+                      <span>{"📄"}</span><span>{"Today's log"}</span>
+                    </button>
+                    <button onClick={()=>{setShowPrintMenu(false);setShowFullYearPrint(true);}}
+                      style={{width:"100%",padding:"0.65rem 0.9rem",border:"none",background:"transparent",color:pal.ink,fontSize:"0.78rem",fontWeight:"600",cursor:"pointer",textAlign:"left",display:"flex",gap:"0.5rem",alignItems:"center"}}>
+                      <span>{"📚"}</span><span>{"Full year portfolio"}</span>
+                    </button>
+                  </div>
+                )}
+              </div>
           <button onClick={()=>printEvaluatorLetter(family,activeCh,attendanceDays)}
             style={{padding:"0.65rem 0.65rem",border:`2px solid ${pal.primary}`,borderRadius:"12px",background:"transparent",color:pal.primary,fontWeight:"700",fontSize:"0.75rem",cursor:"pointer",flexShrink:0}}>
             {"📜"}
           </button>
+            </div>
+          );
+        })()}
+
+        {/* ── SEARCH ── */}
+        {subjEntries.length>10&&(
+          <div style={{position:"relative",marginBottom:"0.85rem"}}>
+            <span style={{position:"absolute",left:"0.75rem",top:"50%",transform:"translateY(-50%)",fontSize:"0.9rem",pointerEvents:"none"}}>🔍</span>
+            <input
+              value={searchQuery}
+              onChange={e=>setSearchQuery(e.target.value)}
+              placeholder={"Search entries, subjects, notes..."}
+              style={{width:"100%",padding:"0.6rem 2rem 0.6rem 2.2rem",border:`1.5px solid ${searchQuery?pal.primary:pal.stone+"50"}`,borderRadius:"12px",fontSize:"0.83rem",background:pal.linen,color:pal.ink,outline:"none",fontFamily:"inherit",transition:"border-color 0.15s"}}
+              onFocus={e=>e.target.style.borderColor=pal.primary}
+              onBlur={e=>e.target.style.borderColor=searchQuery?pal.primary:pal.stone+"50"}
+            />
+            {searchQuery&&(
+              <button onClick={()=>setSearchQuery("")}
+                style={{position:"absolute",right:"0.6rem",top:"50%",transform:"translateY(-50%)",background:"transparent",border:"none",cursor:"pointer",color:pal.slate,fontSize:"0.9rem",padding:"0.1rem 0.3rem"}}>
+                {"✕"}
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* ── SEARCH RESULTS ── */}
+        {searchQuery.trim()&&(()=>{
+          const q = searchQuery.trim().toLowerCase();
+          const results = subjEntries.filter(e=>
+            (e.subj||"").toLowerCase().includes(q) ||
+            (e.title||"").toLowerCase().includes(q) ||
+            (e.note||"").toLowerCase().includes(q) ||
+            (e.readingTitle||"").toLowerCase().includes(q) ||
+            (e.date||"").toLowerCase().includes(q)
+          ).slice(0,30);
+          return (
+            <div style={{marginBottom:"1rem"}}>
+              <div style={{fontSize:"0.72rem",color:pal.slate,marginBottom:"0.5rem",fontWeight:"600"}}>
+                {results.length===0?"No results for "+JSON.stringify(searchQuery):results.length+" result"+(results.length===1?"":"s")}
+              </div>
+              {results.length===0&&(
+                <div style={{textAlign:"center",padding:"1.5rem",background:pal.parchm,borderRadius:"13px",color:pal.slate,fontSize:"0.82rem"}}>
+                  {"Try searching a subject name, date, or keyword from your notes."}
+                </div>
+              )}
+              <div style={{display:"flex",flexDirection:"column",gap:"0.38rem"}}>
+                {results.map((e,i)=>{
+                  const noteTxt = (e.note||"").replace("AI Summary: ","").trim();
+                  return (
+                    <div key={e.id||i} onClick={()=>setDetail(e)}
+                      style={{background:"#fff",borderRadius:"13px",padding:"0.65rem 0.85rem",border:`1.5px solid ${pal.stone}20`,cursor:"pointer",display:"flex",gap:"0.6rem",alignItems:"center"}}>
+                      <div style={{width:"36px",height:"36px",borderRadius:"9px",background:`${cp.c1}15`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1rem",flexShrink:0,overflow:"hidden",position:"relative"}}>
+                        {e.photos&&e.photos[0]
+                          ?<img src={e.photos[0]} alt="" style={{width:"100%",height:"100%",objectFit:"cover",position:"absolute",inset:0}}/>
+                          :<span>{e.thumb||"📋"}</span>}
+                      </div>
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{display:"flex",alignItems:"center",gap:"0.35rem",marginBottom:"1px"}}>
+                          <span style={{fontSize:"0.65rem",fontWeight:"700",color:cp.c1,background:cp.c1+"15",padding:"0.1rem 0.4rem",borderRadius:"20px",flexShrink:0}}>{e.subj}</span>
+                          <span style={{fontSize:"0.62rem",color:pal.stone,flexShrink:0}}>{e.date}</span>
+                        </div>
+                        <div style={{fontWeight:"600",color:pal.ink,fontSize:"0.81rem",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.readingTitle||e.title}</div>
+                        {noteTxt&&<div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{noteTxt}</div>}
+                      </div>
+                      <span style={{color:pal.stone,fontSize:"0.8rem",flexShrink:0}}>{"›"}</span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           );
         })()}
@@ -8480,7 +9641,7 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
         </button>
 
         {/* ── SUBJECTS CARD ── */}
-        <PortfolioCard pal={pal} icon="📚" title="Subjects" count={subjEntries.length}>
+        {!searchQuery.trim()&&<PortfolioCard pal={pal} icon="📚" title="Subjects" count={subjEntries.length}>
           {subjectList.length===0 ? (
             <div style={{textAlign:"center",padding:"1.2rem 0.5rem"}}>
               <div style={{fontSize:"1.8rem",marginBottom:"0.35rem"}}>📖</div>
@@ -8492,10 +9653,9 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
               onToggle={()=>setExpandedSubj(expandedSubj===sd.subj?null:sd.subj)}
               onDetail={setDetail}/>
           ))}
-        </PortfolioCard>
+        </PortfolioCard>}
 
-        {/* ── BOOK LIST CARD ── */}
-        <PortfolioCard pal={pal} icon="📖" title="Book List" count={readingEntries.length}
+        {!searchQuery.trim()&&<PortfolioCard pal={pal} icon="📖" title="Book List" count={readingEntries.length}
           note="Reading titles logged">
           {readingEntries.length===0 ? (
             <div style={{padding:"0.85rem 0",textAlign:"center"}}>
@@ -8519,9 +9679,9 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
               ))}
             </div>
           )}
-        </PortfolioCard>
+        </PortfolioCard>}
 
-        {/* ── PHOTOS CARD ── */}
+        {!searchQuery.trim()&&<>{/* ── PHOTOS CARD ── */}
         <PortfolioPhotosCard pal={pal} cp={cp} entries={photoEntries} onDetail={setDetail} onEdit={(e)=>setEditEntry(e)} onAdd={()=>setShowAdd(true)}/>
 
         {/* ── PAST DAYS CARD ── */}
@@ -8563,6 +9723,9 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
           );
         })()}
 
+        {/* ── MASTERY TRACKER ── */}
+        {!searchQuery.trim()&&<MasteryCard pal={pal} family={family} child={activeCh} cp={cp}/>}
+
         {/* ── EXTRACURRICULARS CARD ── */}
         <PortfolioCard pal={pal} icon="🏆" title="Extracurriculars" count={extraEntries.length}>
           {extraEntries.length===0 ? (
@@ -8595,6 +9758,8 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
 
         {/* ── ADDITIONAL NOTES ── */}
         <AdditionalNotes pal={pal} family={family} child={activeCh}/>
+        </>
+        }
 
         {/* ── WORKSHEET REMINDER ── */}
         <div style={{background:"#fffbeb",border:"1.5px solid #f5c842",borderRadius:"13px",padding:"0.85rem 1rem",marginBottom:"1rem",display:"flex",gap:"0.6rem",alignItems:"flex-start"}}>
@@ -8636,8 +9801,195 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
         onClose={()=>setDetail(null)}
         onEdit={()=>{setEditEntry(detailEntry);setDetail(null);}}/>}
     </div>
+
+    {showFullYearPrint&&(
+      <FullYearPrintModal
+        pal={pal} family={family} child={activeCh} cp={cp}
+        entries={childEntries} attendanceDays={attendanceDays}
+        onClose={()=>setShowFullYearPrint(false)}
+      />
+    )}
   );
 }
+
+/* =======================================
+   FULL YEAR PRINT MODAL
+   Generates AI summary then opens print
+======================================= */
+function FullYearPrintModal({pal, family, child, cp, entries, attendanceDays, onClose}) {
+  const [aiSummary,    setAiSummary]    = useState(null);
+  const [loading,      setLoading]      = useState(false);
+  const [error,        setError]        = useState(null);
+  const [includeAI,    setIncludeAI]    = useState(true);
+
+  const subjEntries = entries.filter(e=>!e.isDay&&e.subj!=="Daily Notes");
+  const bySubject   = {};
+  subjEntries.forEach(e=>{ if(!bySubject[e.subj]) bySubject[e.subj]=[]; bySubject[e.subj].push(e); });
+  const subjectList = Object.keys(bySubject).sort((a,b)=>bySubject[b].length-bySubject[a].length);
+  const readingTitles = [...new Set(subjEntries.filter(e=>e.readingTitle).map(e=>e.readingTitle))];
+
+  const generateSummary = async () => {
+    setLoading(true); setError(null);
+    const goals      = goalSummary(family);
+    const curriculum = curriculumContext(family);
+    const subjBreakdown = subjectList.map(s=>s+" ("+bySubject[s].length+" entries)").join(", ");
+    const notesSample   = subjEntries
+      .filter(e=>(e.note||"").trim().length>20)
+      .slice(0,20)
+      .map(e=>e.subj+": "+((e.note||"").slice(0,120)))
+      .join(" | ");
+    const yearStart = family.yearStart ? new Date(family.yearStart).getFullYear() : new Date().getFullYear();
+    const yearEnd   = family.yearEnd   ? new Date(family.yearEnd).getFullYear()   : yearStart+1;
+
+    const prompt = "You are writing a warm, professional year-end summary for a homeschool portfolio.\n\n"
+      +"Student: "+child.name+", "+child.grade+"\n"
+      +"School year: "+yearStart+"–"+yearEnd+"\n"
+      +"School: "+(family.schoolName||family.familyName+" Academy")+"\n"
+      +"State: "+(family.state||"Not specified")+"\n"
+      +"Curriculum approach: "+curriculum+"\n"
+      +"Family goals: "+goals+"\n"
+      +"Subjects covered: "+subjBreakdown+"\n"
+      +"Total days logged: "+attendanceDays+"\n"
+      +"Reading titles: "+(readingTitles.slice(0,8).join(", ")||"not recorded")+"\n"
+      +"Sample of work logged: "+notesSample+"\n\n"
+      +"Write a JSON response ONLY (no markdown, no backticks) with exactly this shape:\n"
+      +'{"narrative":"2-3 warm encouraging sentences about the year overall (mention the child by name and at least 2 specific subjects)",'
+      +'"accomplishments":["specific accomplishment 1","specific accomplishment 2","specific accomplishment 3","specific accomplishment 4"],'
+      +'"growthAreas":["specific area to continue developing 1","area 2","area 3"],'
+      +'"readingHighlight":"one sentence about their reading life this year (mention specific titles if available)",'
+      +'"parentNote":"one sentence of encouragement for the parent educator"}';
+
+    try {
+      const raw = await callClaude(prompt);
+      const clean = raw.replace(/```json|```/g,"").trim();
+      setAiSummary(JSON.parse(clean));
+    } catch(e) {
+      setError("Could not generate summary — check your connection or try again.");
+    }
+    setLoading(false);
+  };
+
+  const handlePrint = () => {
+    printFullPortfolio(family, entries, child, attendanceDays, null, includeAI ? aiSummary : null);
+    onClose();
+  };
+
+  return (
+    <div style={{position:"fixed",inset:0,zIndex:400,background:"rgba(0,0,0,0.55)",backdropFilter:"blur(10px)",display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
+      <div style={{width:"100%",maxWidth:"430px",background:pal.linen,borderRadius:"24px 24px 0 0",animation:"slideUp 0.26s ease",maxHeight:"88vh",display:"flex",flexDirection:"column"}}>
+
+        {/* Handle + header */}
+        <div style={{padding:"0.65rem 0 0",display:"flex",justifyContent:"center",flexShrink:0}}>
+          <div style={{width:"36px",height:"4px",borderRadius:"99px",background:pal.stone+"60"}}/>
+        </div>
+        <div style={{padding:"0.75rem 1.2rem 0.8rem",borderBottom:`1px solid ${pal.stone}30`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+          <div>
+            <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.95rem"}}>{"📚 Full Year Portfolio"}</div>
+            <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"2px"}}>{child.name} {"·"} {child.grade} {"·"} {family.yearStart?new Date(family.yearStart).getFullYear():""}{"\u2013"}{family.yearEnd?new Date(family.yearEnd).getFullYear():""}</div>
+          </div>
+          <button onClick={onClose} style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.85rem"}}>{"✕"}</button>
+        </div>
+
+        {/* Body */}
+        <div style={{flex:1,overflowY:"auto",padding:"1rem 1.2rem"}}>
+
+          {/* Stats preview */}
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"0.5rem",marginBottom:"1rem"}}>
+            {[
+              {n:attendanceDays, l:"Days"},
+              {n:subjEntries.length, l:"Entries"},
+              {n:subjectList.length, l:"Subjects"},
+            ].map(({n,l})=>(
+              <div key={l} style={{background:cp.c1+"12",borderRadius:"10px",padding:"0.6rem 0.5rem",textAlign:"center",border:`1px solid ${cp.c1}20`}}>
+                <div style={{fontWeight:"800",color:cp.c1,fontSize:"1.1rem"}}>{n}</div>
+                <div style={{fontSize:"0.63rem",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.06em"}}>{l}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* AI Summary toggle */}
+          <div style={{background:pal.parchm,borderRadius:"13px",padding:"0.85rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}25`}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"0.6rem"}}>
+              <div>
+                <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.83rem"}}>{"✨ AI Year Summary"}</div>
+                <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"2px"}}>{"Accomplishments, growth areas, reading highlight"}</div>
+              </div>
+              <button onClick={()=>setIncludeAI(v=>!v)}
+                style={{width:"42px",height:"24px",borderRadius:"12px",border:"none",background:includeAI?cp.c1:pal.stone+"60",cursor:"pointer",position:"relative",transition:"background 0.2s",flexShrink:0}}>
+                <div style={{position:"absolute",top:"3px",left:includeAI?"21px":"3px",width:"18px",height:"18px",borderRadius:"50%",background:"#fff",transition:"left 0.2s"}}/>
+              </button>
+            </div>
+
+            {includeAI&&!aiSummary&&!loading&&(
+              <button onClick={generateSummary}
+                style={{width:"100%",padding:"0.6rem",border:"none",borderRadius:"10px",background:cp.c1,color:"#fff",fontWeight:"800",fontSize:"0.82rem",cursor:"pointer"}}>
+                {"Generate Year Summary"}
+              </button>
+            )}
+
+            {includeAI&&loading&&(
+              <div style={{display:"flex",alignItems:"center",gap:"0.5rem",padding:"0.4rem 0"}}>
+                {[0,1,2].map(i=><div key={i} style={{width:"7px",height:"7px",borderRadius:"50%",background:cp.c1,animation:`bounce 1s ease ${i*0.15}s infinite`}}/>)}
+                <span style={{fontSize:"0.75rem",color:pal.slate}}>{"Reviewing the year..."}</span>
+              </div>
+            )}
+
+            {includeAI&&error&&(
+              <div style={{fontSize:"0.74rem",color:"#a03030",padding:"0.4rem 0"}}>{error}
+                <button onClick={generateSummary} style={{marginLeft:"0.5rem",fontWeight:"700",color:cp.c1,background:"none",border:"none",cursor:"pointer",fontSize:"0.74rem"}}>{"Retry"}</button>
+              </div>
+            )}
+
+            {includeAI&&aiSummary&&(
+              <div style={{animation:"fadeUp 0.2s ease"}}>
+                <div style={{fontSize:"0.78rem",color:pal.ink,lineHeight:1.65,marginBottom:"0.65rem",fontStyle:"italic"}}>{aiSummary.narrative}</div>
+                <div style={{marginBottom:"0.5rem"}}>
+                  <div style={{fontSize:"0.65rem",fontWeight:"700",color:pal.primary,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.3rem"}}>{"Biggest Accomplishments"}</div>
+                  {aiSummary.accomplishments.map((a,i)=>(
+                    <div key={i} style={{display:"flex",gap:"0.4rem",fontSize:"0.75rem",color:pal.inkM,marginBottom:"0.2rem"}}>
+                      <span style={{color:cp.c1,fontWeight:"700",flexShrink:0}}>{"✓"}</span><span>{a}</span>
+                    </div>
+                  ))}
+                </div>
+                <div style={{marginBottom:"0.5rem"}}>
+                  <div style={{fontSize:"0.65rem",fontWeight:"700",color:"#b07800",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.3rem"}}>{"Areas to Continue Building"}</div>
+                  {aiSummary.growthAreas.map((a,i)=>(
+                    <div key={i} style={{display:"flex",gap:"0.4rem",fontSize:"0.75rem",color:pal.inkM,marginBottom:"0.2rem"}}>
+                      <span style={{color:"#b07800",flexShrink:0}}>{"→"}</span><span>{a}</span>
+                    </div>
+                  ))}
+                </div>
+                <div style={{fontSize:"0.72rem",color:pal.slate,fontStyle:"italic",borderTop:`1px solid ${pal.stone}30`,paddingTop:"0.45rem",marginTop:"0.1rem"}}>
+                  {aiSummary.readingHighlight}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* What's included */}
+          <div style={{fontSize:"0.7rem",color:pal.slate,lineHeight:1.7}}>
+            <div style={{fontWeight:"700",color:pal.inkM,marginBottom:"0.25rem"}}>{"What's included:"}</div>
+            {"Cover page with year stats · All subjects organized by section · Entry notes and reading titles · Work sample photos · State compliance block"}
+            {includeAI&&aiSummary?" · AI year summary and accomplishments":""}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div style={{padding:"0.85rem 1.2rem",borderTop:`1px solid ${pal.stone}30`,flexShrink:0,display:"flex",gap:"0.5rem"}}>
+          <button onClick={onClose}
+            style={{padding:"0.7rem 1rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,fontSize:"0.82rem",cursor:"pointer"}}>
+            {"Cancel"}
+          </button>
+          <button onClick={handlePrint}
+            style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.86rem",cursor:"pointer"}}>
+            {"🖨 Print / Save PDF"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
 /* ---- Portfolio Card wrapper ---- */
 function PortfolioCard({pal,icon,title,count,note,children}){
@@ -9410,6 +10762,107 @@ function EntryDetailModal({pal,family,entry,onClose,onEdit}){
 }
 
 
+
+
+function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose,onFinish}){
+  const blocks    = data.blocks || [];
+  const dateLabel = data.dateLabel || "Today";
+  const entries   = data.entries  || [];
+
+  // Subjects from either the blocks list or entries already saved by Log Today
+  const subjsDone = entries.length>0
+    ? [...new Set(entries.map(e=>e.subj).filter(Boolean))]
+    : [...new Set(blocks.filter(b=>b.s!=="Break"&&b.s!=="Lunch").map(b=>b.s))];
+
+  return (
+    <div style={{position:"fixed",inset:0,zIndex:300,background:pal.sand,display:"flex",flexDirection:"column",maxWidth:"430px",margin:"0 auto",animation:"fadeIn 0.25s ease"}}>
+
+      {/* Header */}
+      <div style={{background:pal.accentGrad,padding:"1.1rem 1.2rem 1rem",flexShrink:0}}>
+        <div style={{display:"flex",alignItems:"center",gap:"0.75rem"}}>
+          <div style={{fontSize:"2rem",animation:"grow 0.4s ease"}}>{"🌟"}</div>
+          <div style={{flex:1}}>
+            <div style={{fontWeight:"900",color:"#fff",fontSize:"1.05rem"}}>{"Day Complete!"}</div>
+            <div style={{fontSize:"0.74rem",color:"rgba(255,255,255,0.75)"}}>{"Great work — "+dateLabel}</div>
+          </div>
+          <button onClick={onClose}
+            style={{background:"rgba(255,255,255,0.18)",border:"none",borderRadius:"9px",padding:"0.3rem 0.65rem",color:"#fff",fontWeight:"700",fontSize:"0.75rem",cursor:"pointer"}}>
+            {"< "}Home
+          </button>
+        </div>
+      </div>
+
+      <div style={{flex:1,overflowY:"auto",padding:"1rem 1.1rem"}}>
+
+        {/* Subjects logged */}
+        {subjsDone.length>0&&(
+          <div style={{marginBottom:"1rem"}}>
+            <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.78rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.55rem"}}>{"Logged today"}</div>
+            <div style={{display:"flex",flexDirection:"column",gap:"0.38rem"}}>
+              {subjsDone.map((s,i)=>{
+                const block = blocks.find(b=>b.s===s);
+                const entry = entries.find(e=>e.subj===s);
+                const note  = (entry?.note||"").replace("AI Summary: ","").trim();
+                return (
+                  <div key={i} style={{background:pal.linen,borderRadius:"13px",padding:"0.7rem 0.9rem",display:"flex",gap:"0.7rem",alignItems:"center",border:`1.5px solid ${pal.good}30`}}>
+                    <div style={{width:"36px",height:"36px",borderRadius:"9px",background:pal.goodBg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.15rem",flexShrink:0}}>
+                      {block?.i||entry?.thumb||"📋"}
+                    </div>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.84rem"}}>{s}</div>
+                      {note&&<div style={{fontSize:"0.69rem",color:pal.slate,marginTop:"1px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{note}</div>}
+                    </div>
+                    <span style={{color:pal.good,fontSize:"1.1rem",flexShrink:0}}>{"✓"}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Attendance confirmed */}
+        <div style={{background:pal.goodBg,borderRadius:"12px",padding:"0.65rem 0.9rem",marginBottom:"1rem",border:`1.5px solid ${pal.good}30`,display:"flex",gap:"0.55rem",alignItems:"center"}}>
+          <span style={{fontSize:"1.1rem"}}>{"📅"}</span>
+          <div style={{fontSize:"0.78rem",color:pal.good,fontWeight:"700"}}>{"School day added to attendance record"}</div>
+        </div>
+
+        {/* Photos preview if any */}
+        {(()=>{
+          const allPhotos = entries.flatMap(e=>e.photos||[]).slice(0,4);
+          if(allPhotos.length===0) return null;
+          return (
+            <div style={{marginBottom:"1rem"}}>
+              <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.74rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.45rem"}}>
+                {"📷 "+allPhotos.length+" photo"+(allPhotos.length!==1?"s":"")+" saved"}
+              </div>
+              <div style={{display:"flex",gap:"0.35rem"}}>
+                {allPhotos.map((src,i)=>(
+                  <div key={i} style={{width:"60px",height:"60px",borderRadius:"9px",overflow:"hidden",border:`1.5px solid ${pal.stone}30`,flexShrink:0}}>
+                    <img src={src} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* Nav buttons */}
+        <div style={{display:"flex",flexDirection:"column",gap:"0.45rem",marginTop:"0.25rem"}}>
+          <button onClick={()=>onFinish?onFinish("portfolio"):onClose()}
+            style={{width:"100%",padding:"0.85rem",border:"none",borderRadius:"13px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.88rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.5rem"}}>
+            <span>{"🗂"}</span><span>{"View in Portfolio"}</span>
+          </button>
+          <button onClick={()=>onFinish?onFinish("home"):onClose()}
+            style={{width:"100%",padding:"0.75rem",border:`2px solid ${pal.stone}`,borderRadius:"13px",background:"transparent",color:pal.inkM,fontWeight:"700",fontSize:"0.84rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.5rem"}}>
+            <span>{"🏠"}</span><span>{"Back to Home"}</span>
+          </button>
+        </div>
+
+        <div style={{height:"0.5rem"}}/>
+      </div>
+    </div>
+  );
+}
 
 /* ---- State Reminder ---- */
 function StateReminder({pal,stateInfo,state}){
@@ -11112,7 +12565,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
 
         {/* View tabs */}
         <div style={{display:"flex",background:pal.parchm,borderRadius:"11px",padding:"3px",gap:"2px",marginBottom:"1rem"}}>
-          {[["overview","📋","Overview"],["transcript","📜","Transcript"],["reading","📖","Reading Log"],["narrative","📝","Narrative"]].map(([id,icon,l])=>(
+          {[["overview","📋","Overview"],["transcript","📜","Transcript"],["reading","📖","Reading Log"],["narrative","📝","Narrative"],...(family.children.length>1?[["compare","⚖️","Compare"]]:[])).map(([id,icon,l])=>(
             <button key={id} onClick={()=>setActiveView(id)}
               style={{flex:1,padding:"0.42rem 0.2rem",border:"none",borderRadius:"9px",background:activeView===id?pal.linen:"transparent",color:activeView===id?pal.ink:pal.slate,fontSize:"0.62rem",fontWeight:activeView===id?"700":"400",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:"1px"}}>
               <span style={{fontSize:"0.8rem"}}>{icon}</span>
@@ -11537,6 +12990,90 @@ function DailyLogSection({pal,cp,childEntries,subjEntries}){
           })}
         </div>
       )}
+
+        {/* ====== COMPARE ====== */}
+        {activeView==="compare"&&family.children.length>1&&(()=>{
+          const DOW_NAMES=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+          const weekStart2=new Date();
+          weekStart2.setDate(weekStart2.getDate()-(weekStart2.getDay()===0?6:weekStart2.getDay()-1));
+          weekStart2.setHours(0,0,0,0);
+          const yr=new Date().getFullYear();
+
+          return (
+            <div style={{animation:"fadeUp 0.18s ease"}}>
+              <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem",marginBottom:"0.85rem"}}>
+                {"Side-by-side comparison · "+family.children.length+" children"}
+              </div>
+
+              {/* Stats comparison table */}
+              <div style={{background:pal.linen,borderRadius:"16px",overflow:"hidden",border:`1.5px solid ${pal.stone}30`,marginBottom:"1rem"}}>
+                {/* Header row */}
+                <div style={{display:"grid",gridTemplateColumns:"120px "+family.children.map(()=>"1fr").join(" "),background:pal.parchm,borderBottom:`1px solid ${pal.stone}25`}}>
+                  <div style={{padding:"0.55rem 0.75rem",fontSize:"0.65rem",fontWeight:"700",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.08em"}}>Metric</div>
+                  {family.children.map((c,i)=>{
+                    const ccp=CHILD_COLOR_PALETTES.find(p=>p.id===(c.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+                    return (
+                      <div key={c.id} style={{padding:"0.55rem 0.5rem",textAlign:"center",borderLeft:`1px solid ${pal.stone}20`}}>
+                        <div style={{fontSize:"1.1rem"}}>{c.avatar}</div>
+                        <div style={{fontSize:"0.65rem",fontWeight:"800",color:ccp.c1}}>{c.name}</div>
+                        <div style={{fontSize:"0.58rem",color:pal.slate}}>{c.grade}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Data rows */}
+                {[
+                  {label:"Total Entries", fn:(i)=>portfolioEntries.filter(e=>e.childIdx===i&&!e.isDay).length},
+                  {label:"Subjects Logged", fn:(i)=>[...new Set(portfolioEntries.filter(e=>e.childIdx===i&&!e.isDay).map(e=>e.subj))].length},
+                  {label:"This Week", fn:(i)=>portfolioEntries.filter(e=>e.childIdx===i&&!e.isDay&&(()=>{try{return new Date(e.date+", "+yr)>=weekStart2;}catch{return false;}})()).length},
+                  {label:"Reading Titles", fn:(i)=>portfolioEntries.filter(e=>e.childIdx===i&&(e.readingTitle||e.subj==="Reading")&&(e.readingTitle||e.title)).length},
+                  {label:"Photos", fn:(i)=>portfolioEntries.filter(e=>e.childIdx===i&&e.photos&&e.photos.length>0).length},
+                ].map((row,ri)=>(
+                  <div key={ri} style={{display:"grid",gridTemplateColumns:"120px "+family.children.map(()=>"1fr").join(" "),borderTop:`1px solid ${pal.stone}15`,background:ri%2===0?"#fff":pal.parchm+"80"}}>
+                    <div style={{padding:"0.55rem 0.75rem",fontSize:"0.74rem",color:pal.inkM,fontWeight:"600"}}>{row.label}</div>
+                    {family.children.map((c,i)=>{
+                      const val = row.fn(i);
+                      const vals = family.children.map((_,j)=>row.fn(j));
+                      const max = Math.max(...vals);
+                      const isMax = val===max&&max>0;
+                      const ccp=CHILD_COLOR_PALETTES.find(p=>p.id===(c.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+                      return (
+                        <div key={c.id} style={{padding:"0.55rem 0.5rem",textAlign:"center",borderLeft:`1px solid ${pal.stone}15`}}>
+                          <span style={{fontSize:"0.88rem",fontWeight:"800",color:isMax?ccp.c1:pal.inkM}}>{val}</span>
+                          {isMax&&vals.filter(v=>v===max).length===1&&<span style={{fontSize:"0.6rem",marginLeft:"2px"}}>✓</span>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+
+              {/* Subject coverage comparison */}
+              <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem",marginBottom:"0.5rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>Subject Coverage</div>
+              <div style={{display:"flex",flexDirection:"column",gap:"0.35rem",marginBottom:"1rem"}}>
+                {[...new Set(portfolioEntries.filter(e=>!e.isDay).map(e=>e.subj))].map(subj=>(
+                  <div key={subj} style={{background:"#fff",borderRadius:"11px",padding:"0.55rem 0.75rem",border:`1px solid ${pal.stone}20`,display:"flex",gap:"0.5rem",alignItems:"center"}}>
+                    <div style={{fontSize:"0.78rem",fontWeight:"600",color:pal.inkM,width:"100px",flexShrink:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{subj}</div>
+                    <div style={{flex:1,display:"flex",gap:"0.3rem"}}>
+                      {family.children.map((c,i)=>{
+                        const cnt = portfolioEntries.filter(e=>e.childIdx===i&&e.subj===subj&&!e.isDay).length;
+                        const ccp=CHILD_COLOR_PALETTES.find(p=>p.id===(c.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+                        return cnt>0 ? (
+                          <div key={c.id} style={{display:"flex",alignItems:"center",gap:"0.2rem",padding:"0.15rem 0.45rem",background:ccp.c1+"18",borderRadius:"20px",border:`1px solid ${ccp.c1}30`}}>
+                            <span style={{fontSize:"0.75rem"}}>{c.avatar}</span>
+                            <span style={{fontSize:"0.65rem",fontWeight:"700",color:ccp.c1}}>{cnt}</span>
+                          </div>
+                        ) : null;
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
+
     </div>
   );
 }
@@ -11737,7 +13274,7 @@ function GoalsScreen({pal,family,portfolioEntries=[],onUpdateFamily}){
                             </div>
                           )}
                           {count===null&&(
-                            <div style={{fontSize:"0.68rem",color:pal.stone,marginTop:"2px",fontStyle:"italic"}}>Track manually</div>
+                            <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"2px",fontStyle:"italic"}}>{"Tag this goal when logging a subject to track progress"}</div>
                           )}
                         </div>
                         {hit&&<span style={{fontSize:"1.1rem",flexShrink:0,marginTop:"2px"}}>{"✓"}</span>}
@@ -11858,721 +13395,4 @@ function MoreScreen({pal,family,onNav,onTheme,onNavEdit,onSettings,onLifeReady})
    DAY SUMMARY MODAL
    Shown after marking a day complete
 ======================================= */
-function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose,onFinish}){
-  const [step,      setStep]     = useState(0); // 0=summary 1=notes 2=photos 3=done
-  const [notes,     setNotes]    = useState({}); // {childId_subj: text}
-  const [photos,    setPhotos]   = useState([]); // [{name,dataUrl}]
-  const [generating,setGenerating]=useState(false);
-  const [aiSummary, setAiSummary]=useState(null);
-  const [aiError,   setAiError]  = useState(null);
-  const fileInputRef = useRef(null);
 
-  const blocks    = data.blocks || [];
-  const dateLabel = data.dateLabel || "Today";
-  const subjsDone = [...new Set(blocks.filter(b=>b.s!=="Break"&&b.s!=="Lunch").map(b=>b.s))];
-
-  // note key per child+subject
-  const noteKey = (childId, subj) => childId+"__"+subj;
-  const getNote = (childId, subj) => notes[noteKey(childId,subj)]||"";
-  const setNote = (childId, subj, val) => setNotes(n=>({...n,[noteKey(childId,subj)]:val}));
-
-  const handlePhotoUpload = (e) => {
-    const files = Array.from(e.target.files);
-    files.forEach(file=>{
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        setPhotos(p=>[...p,{name:file.name,dataUrl:ev.target.result}]);
-      };
-      reader.readAsDataURL(file);
-    });
-  };
-
-  const removePhoto = (i) => setPhotos(p=>p.filter((_,pi)=>pi!==i));
-
-  const generateSummary = async () => {
-    setGenerating(true); setAiError(null);
-    // Build a subject-by-subject summary from per-subject notes
-    const notesList = family.children.map(ch=>{
-      const subjNotes = subjsDone.map(s=>{
-        const n = getNote(ch.id,s);
-        return n.trim() ? s+": "+n : "";
-      }).filter(Boolean).join("; ");
-      return subjNotes ? ch.name+" — "+subjNotes : "";
-    }).filter(Boolean).join(" | ");
-    const subjList = subjsDone.join(", ");
-    const schoolName = family.schoolName||(family.familyName+" Academy")||"Home School";
-    const prompt = "Write a warm, encouraging 2-3 sentence daily summary for a homeschool family."
-      + " Date: "+dateLabel+". School: "+schoolName+"."
-      + " Subjects completed: "+subjList+"."
-      + (notesList?" Notes per subject: "+notesList:"")
-      + " Write in a celebratory, warm tone. Mention specific subjects. Under 80 words.";
-    try {
-      const res = await fetch("https://api.anthropic.com/v1/messages",{
-        method:"POST",
-        headers:{"Content-Type":"application/json","x-api-key":AI_KEY,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-        body:JSON.stringify({model:"claude-sonnet-4-5-20251001",max_tokens:200,messages:[{role:"user",content:prompt}]})
-      });
-      const d = await res.json();
-      const text = d.content?.map(b=>b.text||"").join("")||"";
-      if(!text) throw new Error("empty");
-      setAiSummary(text);
-    } catch(e){
-      setAiError("Could not generate — check your connection.");
-    }
-    setGenerating(false);
-  };
-
-  const [savedEntries, setSavedEntries] = useState(null); // holds built entries after save
-
-  const [parentNote, setParentNote] = useState(""); // separate parent-only notes field
-
-  const buildEntries = () => {
-    const entries = [];
-    const today = new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
-    family.children.forEach((ch,ci)=>{
-      // One entry per subject with its own description note
-      subjsDone.forEach(subj=>{
-        const block = blocks.find(b=>b.s===subj);
-        const subjNote = getNote(ch.id, subj);
-        entries.push({
-          childIdx:ci,
-          title: subjNote.trim() ? subjNote.slice(0,80) : subj+" — "+dateLabel,
-          subj:subj,
-          date:today,
-          thumb:block?.i||"📋",
-          note:subjNote,
-          isSubject:true,
-        });
-      });
-      // Daily Notes entry — parent notes + AI summary ONLY (no subject notes)
-      const summaryNote = [
-        parentNote.trim(),
-        aiSummary?"AI Summary: "+aiSummary:""
-      ].filter(Boolean).join("\n\n");
-      entries.push({
-        childIdx:ci,
-        title:"Day Notes — "+dateLabel,
-        subj:"Daily Notes",
-        date:today,
-        thumb:"📝",
-        note:summaryNote,
-        subjects:subjsDone,
-        photos:photos.map(p=>p.dataUrl),
-        isDay:true,
-        aiSummary:aiSummary||"",
-      });
-    });
-    return entries;
-  };
-
-  const handleSave = () => {
-    // Build entries and store them — do NOT call onSave yet
-    // onSave fires when user taps a nav button on step 3
-    const entries = buildEntries();
-    setSavedEntries(entries);
-    onSave(entries); // persist to localStorage now
-    // Modal stays open — step 3 renders the confirmation
-  };
-
-  return (
-    <div style={{position:"fixed",inset:0,zIndex:300,background:pal.sand,display:"flex",flexDirection:"column",maxWidth:"430px",margin:"0 auto",animation:"fadeIn 0.25s ease"}}>
-      {/* Celebration header */}
-      <div style={{background:pal.accentGrad,padding:"1.1rem 1.2rem 1rem",flexShrink:0}}>
-        <div style={{display:"flex",alignItems:"center",gap:"0.75rem"}}>
-          <div style={{fontSize:"2rem",animation:"grow 0.4s ease"}}>🌟</div>
-          <div style={{flex:1}}>
-            <div style={{fontWeight:"900",color:"#fff",fontSize:"1.05rem"}}>Day Complete!</div>
-            <div style={{fontSize:"0.74rem",color:"rgba(255,255,255,0.75)"}}>{"Great work — " + dateLabel}</div>
-          </div>
-          <button onClick={onClose} style={{background:"rgba(255,255,255,0.18)",border:"none",borderRadius:"9px",padding:"0.3rem 0.65rem",color:"#fff",fontWeight:"700",fontSize:"0.75rem",cursor:"pointer"}}>{"< "}Home</button>
-        </div>
-      </div>
-
-      {/* Step progress */}
-      <div style={{display:"flex",gap:"3px",padding:"0.65rem 1.1rem 0",flexShrink:0}}>
-        {["Subjects","Subject Notes","Parent Notes","Photos","Done"].map((l,i)=>(
-          <div key={i} style={{flex:1,textAlign:"center"}}>
-            <div style={{height:"4px",borderRadius:"99px",background:i<=step?pal.primary:pal.stone+"40",marginBottom:"3px",transition:"background 0.3s"}}/>
-            <div style={{fontSize:"0.55rem",color:i<=step?pal.primary:pal.stone,fontWeight:i===step?"700":"400"}}>{l}</div>
-          </div>
-        ))}
-      </div>
-
-      <div key={step} style={{flex:1,overflowY:"auto",padding:"1rem 1.1rem"}}>
-
-        {/* Step 0: What you did */}
-        {step===0 && (
-          <div style={{animation:"fadeUp 0.2s ease"}}>
-            <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.65rem"}}>{"Completed today"}</div>
-            {subjsDone.length===0 ? (
-              <div style={{color:pal.slate,fontSize:"0.82rem",textAlign:"center",padding:"1rem"}}>No subjects logged.</div>
-            ) : subjsDone.map((s,i)=>{
-              const block = blocks.find(b=>b.s===s);
-              return (
-                <div key={i} style={{background:pal.linen,borderRadius:"13px",padding:"0.75rem 0.9rem",display:"flex",gap:"0.75rem",alignItems:"center",border:`1.5px solid ${pal.good}30`,marginBottom:"0.45rem"}}>
-                  <div style={{width:"38px",height:"38px",borderRadius:"10px",background:pal.goodBg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.2rem",flexShrink:0}}>{block?.i||"📋"}</div>
-                  <div style={{flex:1}}>
-                    <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.86rem"}}>{s}</div>
-                    {block?.dur&&<div style={{fontSize:"0.68rem",color:pal.slate}}>{block.dur} min</div>}
-                  </div>
-                  <span style={{color:pal.good,fontSize:"1.1rem"}}>✓</span>
-                </div>
-              );
-            })}
-            {/* AI Summary box */}
-            <div style={{background:pal.pale,borderRadius:"14px",padding:"0.9rem 1rem",marginTop:"0.75rem",border:`1.5px solid ${pal.primary}20`}}>
-              <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.78rem",marginBottom:"0.4rem"}}>✨ AI Day Summary</div>
-              {aiSummary ? (
-                <div style={{fontSize:"0.8rem",color:pal.ink,lineHeight:1.7}}>{aiSummary}</div>
-              ) : generating ? (
-                <div style={{display:"flex",gap:"4px",alignItems:"center",padding:"0.25rem 0"}}>
-                  {[0,1,2].map(i=><div key={i} style={{width:"6px",height:"6px",borderRadius:"50%",background:pal.primary,animation:`bounce 1s ease ${i*0.15}s infinite`}}/>)}
-                  <span style={{fontSize:"0.76rem",color:pal.slate,marginLeft:"0.4rem"}}>Writing your day summary...</span>
-                </div>
-              ) : (
-                <div>
-                  {aiError && <div style={{fontSize:"0.72rem",color:"#a03030",marginBottom:"0.4rem"}}>{aiError}</div>}
-                  <button onClick={generateSummary} style={{padding:"0.4rem 1rem",border:"none",borderRadius:"10px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.76rem",cursor:"pointer"}}>Generate Summary</button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Step 1: Student notes */}
-        {/* Step 1: Per-subject notes */}
-        {step===1 && (
-          <div style={{animation:"fadeUp 0.2s ease"}}>
-            <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.2rem"}}>{"What did you work on?"}</div>
-            <div style={{fontSize:"0.74rem",color:pal.slate,marginBottom:"1rem"}}>{"Write a quick description for each subject. These go straight into the portfolio."}</div>
-            {family.children.map((c)=>{
-              const cp = CHILD_COLOR_PALETTES.find(p=>p.id===(c.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
-              return (
-                <div key={c.id} style={{marginBottom:"1.25rem"}}>
-                  {family.children.length>1&&(
-                    <div style={{display:"flex",alignItems:"center",gap:"0.5rem",marginBottom:"0.65rem",paddingBottom:"0.5rem",borderBottom:`2px solid ${cp.c1}30`}}>
-                      <div style={{width:"30px",height:"30px",borderRadius:"8px",background:`linear-gradient(135deg,${cp.c1},${cp.c2})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1rem",flexShrink:0}}>{c.avatar}</div>
-                      <span style={{fontWeight:"800",color:pal.ink,fontSize:"0.88rem"}}>{c.name}</span>
-                    </div>
-                  )}
-                  {subjsDone.map((subj,si)=>{
-                    const block = blocks.find(b=>b.s===subj);
-                    const val = getNote(c.id, subj);
-                    return (
-                      <div key={subj} style={{marginBottom:"0.75rem"}}>
-                        <div style={{display:"flex",alignItems:"center",gap:"0.4rem",marginBottom:"0.3rem"}}>
-                          <span style={{fontSize:"1rem"}}>{block?.i||"📋"}</span>
-                          <span style={{fontWeight:"700",color:pal.inkM,fontSize:"0.82rem"}}>{subj}</span>
-                        </div>
-                        <textarea
-                          value={val}
-                          onChange={e=>setNote(c.id,subj,e.target.value)}
-                          placeholder={"What did "+c.name+" do in "+subj+" today?"}
-                          rows={2}
-                          style={{width:"100%",padding:"0.6rem 0.8rem",border:`2px solid ${val.trim()?cp.c1+"60":pal.stone}`,borderRadius:"11px",fontSize:"0.81rem",fontFamily:"inherit",background:pal.parchm,color:pal.ink,resize:"none",outline:"none",lineHeight:1.55,transition:"border-color 0.15s"}}
-                          onFocus={e=>e.target.style.borderColor=cp.c1}
-                          onBlur={e=>e.target.style.borderColor=val.trim()?cp.c1+"60":pal.stone}/>
-                      </div>
-                    );
-                  })}
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Step 2: Parent Notes */}
-        {step===2 && (
-          <div style={{animation:"fadeUp 0.2s ease"}}>
-            <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.2rem"}}>{"Parent notes"}</div>
-            <div style={{fontSize:"0.74rem",color:pal.slate,marginBottom:"0.85rem",lineHeight:1.55}}>
-              {"Your private teaching notes — what worked well, what to revisit, observations about your student's progress. These go in the portfolio as parent notes and won't duplicate the subject descriptions."}
-            </div>
-            <textarea
-              value={parentNote}
-              onChange={e=>setParentNote(e.target.value)}
-              placeholder={"e.g. Raeley struggled with long division today — try using graph paper next time. She loved the science experiment and asked great questions. Consider spending more time on reading fluency this week."}
-              rows={6}
-              style={{width:"100%",padding:"0.75rem 0.9rem",border:`2px solid ${pal.stone}`,borderRadius:"13px",fontSize:"0.82rem",fontFamily:"inherit",background:pal.parchm,color:pal.ink,resize:"none",outline:"none",lineHeight:1.6}}
-              onFocus={e=>e.target.style.borderColor=pal.primary}
-              onBlur={e=>e.target.style.borderColor=pal.stone}/>
-            <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"0.45rem",fontStyle:"italic"}}>Optional — skip if nothing to note today.</div>
-          </div>
-        )}
-
-        {/* Step 3: Photos */}
-        {step===3 && (
-          <div style={{animation:"fadeUp 0.2s ease"}}>
-            <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.2rem"}}>Add photos</div>
-            <div style={{fontSize:"0.74rem",color:pal.slate,marginBottom:"0.85rem"}}>Capture work, projects, or moments from today.</div>
-            <input type="file" ref={fileInputRef} accept="image/*" multiple onChange={handlePhotoUpload} style={{display:"none"}}/>
-            <button onClick={()=>fileInputRef.current?.click()}
-              style={{width:"100%",padding:"1.1rem",border:`2px dashed ${pal.primary}50`,borderRadius:"16px",background:"transparent",color:pal.primary,fontWeight:"700",fontSize:"0.86rem",cursor:"pointer",marginBottom:"0.85rem",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.5rem"}}>
-              <span style={{fontSize:"1.4rem"}}>{"📷"}</span><span>Choose Photos</span>
-            </button>
-            {photos.length>0 && (
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.55rem"}}>
-                {photos.map((p,i)=>(
-                  <div key={i} style={{position:"relative",borderRadius:"12px",overflow:"hidden",border:`1.5px solid ${pal.stone}40`}}>
-                    <img src={p.dataUrl} alt={p.name} style={{width:"100%",height:"110px",objectFit:"cover",display:"block"}}/>
-                    <button onClick={()=>removePhoto(i)}
-                      style={{position:"absolute",top:"5px",right:"5px",width:"22px",height:"22px",borderRadius:"50%",background:"rgba(0,0,0,0.55)",border:"none",color:"#fff",fontSize:"0.7rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>{"x"}</button>
-                  </div>
-                ))}
-              </div>
-            )}
-            {photos.length===0 && <div style={{textAlign:"center",padding:"1rem",color:pal.stone,fontSize:"0.78rem",fontStyle:"italic"}}>No photos yet — totally optional!</div>}
-          </div>
-        )}
-
-        {/* Step 4: Done — celebration + preview */}
-        {step===4 && (
-          <div style={{animation:"fadeUp 0.2s ease"}}>
-            {/* Celebration banner */}
-            <div style={{background:pal.accentGrad,borderRadius:"18px",padding:"1.3rem 1.2rem",marginBottom:"1rem",textAlign:"center",position:"relative",overflow:"hidden"}}>
-              <div style={{position:"absolute",right:"-20px",top:"-20px",width:"80px",height:"80px",borderRadius:"50%",background:"rgba(255,255,255,0.1)"}}/>
-              <div style={{fontSize:"3rem",marginBottom:"0.4rem",animation:"grow 0.4s ease"}}>{"🌱"}</div>
-              <div style={{fontWeight:"900",color:"#fff",fontSize:"1.15rem",marginBottom:"0.2rem"}}>{"Day saved to portfolio!"}</div>
-              <div style={{fontSize:"0.78rem",color:"rgba(255,255,255,0.78)"}}>{dateLabel} {"\u00b7"} {subjsDone.length} subject{subjsDone.length!==1?"s":""} {"\u00b7"} {family.children.length} student{family.children.length!==1?"s":""}</div>
-            </div>
-
-            {/* What was saved */}
-            <div style={{background:pal.linen,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.stone}35`}}>
-              <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.74rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.55rem"}}>What was saved</div>
-
-              {/* Subject entries */}
-              <div style={{display:"flex",flexWrap:"wrap",gap:"0.38rem",marginBottom:"0.6rem"}}>
-                {subjsDone.map((s,i)=>{
-                  const block=blocks.find(b=>b.s===s);
-                  return <span key={i} style={{padding:"0.2rem 0.6rem",background:pal.pale,borderRadius:"20px",fontSize:"0.72rem",fontWeight:"700",color:pal.primary,display:"flex",gap:"0.25rem",alignItems:"center"}}><span>{block?.i||"📋"}</span><span>{s}</span></span>;
-                })}
-              </div>
-
-              {/* Per-subject notes preview */}
-              {family.children.map(c=>{
-                const hasNotes = subjsDone.some(s=>getNote(c.id,s).trim());
-                if(!hasNotes) return null;
-                return (
-                  <div key={c.id} style={{marginBottom:"0.5rem"}}>
-                    {family.children.length>1&&(
-                      <div style={{fontSize:"0.68rem",fontWeight:"800",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.05em",marginBottom:"0.3rem"}}>{c.avatar} {c.name}</div>
-                    )}
-                    {subjsDone.map(s=>{
-                      const n = getNote(c.id,s);
-                      if(!n.trim()) return null;
-                      const block = blocks.find(b=>b.s===s);
-                      return (
-                        <div key={s} style={{padding:"0.38rem 0.6rem",background:pal.sand,borderRadius:"8px",marginBottom:"0.25rem",display:"flex",gap:"0.45rem",alignItems:"flex-start"}}>
-                          <span style={{fontSize:"0.85rem",flexShrink:0,marginTop:"1px"}}>{block?.i||"📋"}</span>
-                          <div style={{flex:1}}>
-                            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.7rem"}}>{s}</div>
-                            <div style={{fontSize:"0.71rem",color:pal.slate,lineHeight:1.5}}>{n.slice(0,80)}{n.length>80?"...":""}</div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              })}
-
-              {/* Photos */}
-              {photos.length>0&&(
-                <div style={{marginTop:"0.4rem"}}>
-                  <div style={{fontSize:"0.68rem",color:pal.slate,marginBottom:"0.35rem",fontWeight:"600"}}>📷 {photos.length} photo{photos.length!==1?"s":""} attached</div>
-                  <div style={{display:"flex",gap:"0.3rem",flexWrap:"wrap"}}>
-                    {photos.slice(0,4).map((p,i)=>(
-                      <img key={i} src={p.dataUrl} alt="" style={{width:"50px",height:"50px",borderRadius:"8px",objectFit:"cover",border:`1.5px solid ${pal.stone}40`}}/>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* AI Summary */}
-              {aiSummary&&(
-                <div style={{marginTop:"0.6rem",padding:"0.55rem 0.7rem",background:pal.pale,borderRadius:"10px",border:`1.5px solid ${pal.primary}20`}}>
-                  <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.68rem",marginBottom:"0.25rem"}}>✨ AI Summary saved</div>
-                  <div style={{fontSize:"0.75rem",color:pal.ink,lineHeight:1.65}}>{aiSummary}</div>
-                </div>
-              )}
-            </div>
-
-            {/* Attendance note */}
-            <div style={{background:pal.goodBg,borderRadius:"12px",padding:"0.6rem 0.85rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.good}30`,display:"flex",gap:"0.5rem",alignItems:"center"}}>
-              <span style={{fontSize:"1rem"}}>📅</span>
-              <div style={{fontSize:"0.76rem",color:pal.good,fontWeight:"700"}}>Added to attendance record</div>
-            </div>
-
-            {/* Navigation options */}
-            <div style={{display:"flex",flexDirection:"column",gap:"0.45rem"}}>
-              <button onClick={()=>onFinish?onFinish("portfolio"):onClose()}
-                style={{width:"100%",padding:"0.82rem",border:"none",borderRadius:"13px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.88rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.5rem"}}>
-                <span>🗂</span><span>View in Portfolio</span>
-              </button>
-              <button onClick={()=>onFinish?onFinish("home"):onClose()}
-                style={{width:"100%",padding:"0.75rem",border:`2px solid ${pal.stone}`,borderRadius:"13px",background:"transparent",color:pal.inkM,fontWeight:"700",fontSize:"0.84rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.5rem"}}>
-                <span>🏠</span><span>Back to Home</span>
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Footer buttons */}
-      {step<4 && (
-        <div style={{padding:"0.9rem 1.1rem",borderTop:`1px solid ${pal.stone}40`,background:pal.linen,flexShrink:0,display:"flex",gap:"0.55rem"}}>
-          {step>0 && <button onClick={()=>setStep(s=>s-1)} style={{padding:"0.7rem 0.9rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem",fontWeight:"600"}}>Back</button>}
-          <button onClick={()=>{
-            if(step===3){handleSave();setStep(4);}
-            else setStep(s=>s+1);
-          }} style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>
-            {step===0?"Add subject notes →":step===1?"Parent notes →":step===2?"Add photos →":"Save to portfolio ✓"}
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function ThemeModal({ pal, paletteId, setPaletteId, customA, customB, setCustomA, setCustomB, onClose }) {
-  const [la,setLa]=useState(customA), [lb,setLb]=useState(customB);
-  const preview=paletteId==="custom"?buildTheme(la,lb):pal;
-  return (
-    <BottomSheet pal={pal} onClose={onClose} title="Choose Your Theme" sub="Pick colors that feel like your family">
-      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"0.45rem",marginBottom:"1rem"}}>
-        {PRESET_PALETTES.map(p=>{const sel=paletteId===p.id;return(
-          <button key={p.id} onClick={()=>setPaletteId(p.id)} style={{padding:"0.55rem 0.4rem",borderRadius:"12px",border:`2px solid ${sel?pal.primary:pal.stone+"50"}`,background:sel?pal.pale:"transparent",cursor:"pointer",textAlign:"center"}}>
-            {p.isCustom?<div style={{height:"22px",borderRadius:"6px",background:`linear-gradient(90deg,${la},${lb})`,marginBottom:"0.25rem"}}/>:<div style={{height:"22px",borderRadius:"6px",background:`linear-gradient(90deg,${p.a},${lerpHex(p.a,p.b,0.5)},${p.b})`,marginBottom:"0.25rem"}}/>}
-            <div style={{fontSize:"0.63rem",fontWeight:sel?"800":"500",color:sel?pal.primary:pal.inkM}}>{p.emoji} {p.name}</div>
-          </button>
-        );})}
-      </div>
-      {paletteId==="custom"&&<div style={{background:pal.pale,borderRadius:"12px",padding:"0.85rem",marginBottom:"1rem",border:`2px solid ${pal.accent}20`}}>
-        <div style={{display:"flex",gap:"0.85rem",alignItems:"center",marginBottom:"0.6rem"}}>
-          {[["Deep",la,setLa],["Bloom",lb,setLb]].map(([l,v,set])=><div key={l} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:"0.3rem"}}>
-            <input type="color" value={v} onChange={e=>set(e.target.value)} style={{width:"48px",height:"48px",borderRadius:"11px",border:`2px solid ${pal.stone}`,cursor:"pointer",padding:"2px"}}/>
-            <div style={{fontSize:"0.65rem",color:pal.slate,fontWeight:"600"}}>{l}</div>
-          </div>)}
-          <div style={{flex:1,height:"36px",borderRadius:"9px",background:`linear-gradient(90deg,${la},${lerpHex(la,lb,0.5)},${lb})`}}/>
-        </div>
-      </div>}
-      <div style={{background:preview.heroGrad,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-        <div><div style={{fontSize:"0.6rem",color:"rgba(255,255,255,0.5)",letterSpacing:"0.1em",fontWeight:"700",textTransform:"uppercase"}}>Preview</div><div style={{fontWeight:"800",color:"rgba(255,255,255,0.9)",fontSize:"0.92rem"}}>Good morning 🌱</div></div>
-        <div style={{height:"30px",padding:"0 0.75rem",borderRadius:"99px",background:preview.accentGrad,display:"flex",alignItems:"center"}}><span style={{fontSize:"0.7rem",fontWeight:"800",color:preview.onDark}}> Check-In</span></div>
-      </div>
-      <button onClick={()=>{if(paletteId==="custom"){setCustomA(la);setCustomB(lb);}onClose();}} style={{width:"100%",padding:"0.8rem",border:"none",borderRadius:"13px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>Apply Theme</button>
-    </BottomSheet>
-  );
-}
-
-function NavModal({ pal, navIds, setNavIds, onClose }) {
-  const [local,setLocal]=useState(navIds);
-  const toggle=id=>{
-    const s=ALL_SECTIONS.find(x=>x.id===id);
-    if(s?.locked)return;
-    if(local.includes(id)){if(local.length<=3)return;setLocal(l=>l.filter(x=>x!==id));}
-    else{if(local.length>=5)return;setLocal(l=>[...l,id]);}
-  };
-  return (
-    <BottomSheet pal={pal} onClose={onClose} title="Customize Your Nav" sub={local.length + " tabs - 3-5 - Home, Schedule & Portfolio always stay"}>
-      <div style={{display:"flex",flexDirection:"column",gap:"0.42rem",marginBottom:"1rem"}}>
-        {ALL_SECTIONS.filter(s=>s.id!=="more").map(s=>{
-          const on=local.includes(s.id),atMax=local.length>=5&&!on;
-          return <button key={s.id} onClick={()=>toggle(s.id)} style={{display:"flex",gap:"0.65rem",alignItems:"center",padding:"0.7rem 0.9rem",border:`2px solid ${on?pal.primary:pal.stone+"50"}`,borderRadius:"12px",background:on?pal.pale:"transparent",cursor:s.locked||atMax?"default":"pointer",opacity:atMax&&!on?0.35:1,transition:"all 0.13s",textAlign:"left"}}>
-            <span style={{fontSize:"1.2rem",width:"28px",textAlign:"center"}}>{s.icon}</span>
-            <span style={{flex:1,fontWeight:on?"700":"400",color:on?pal.primary:pal.inkM,fontSize:"0.84rem"}}>{s.label}</span>
-            {s.locked?<span style={{fontSize:"0.7rem",color:pal.slate}}>🔒</span>:<div style={{width:"19px",height:"19px",borderRadius:"5px",border:`2px solid ${on?pal.primary:pal.stone}`,background:on?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center"}}>{on&&<span style={{color:pal.onDark,fontSize:"0.8rem",fontWeight:"900"}}>✓</span>}</div>}
-          </button>;
-        })}
-      </div>
-      <div style={{background:pal.linen,borderRadius:"12px",border:`1.5px solid ${pal.stone}45`,padding:"0.65rem",marginBottom:"1rem"}}>
-        <div style={{fontSize:"0.65rem",color:pal.slate,textAlign:"center",marginBottom:"0.5rem",fontWeight:"600",textTransform:"uppercase",letterSpacing:"0.07em"}}>Preview</div>
-        <div style={{display:"flex",justifyContent:"center"}}>{local.map(id=>{const s=ALL_SECTIONS.find(x=>x.id===id);return <div key={id} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:"2px",padding:"0.35rem 0"}}><span style={{fontSize:"1.1rem"}}>{s?.icon}</span><span style={{fontSize:"0.57rem",color:pal.primary,fontWeight:"700"}}>{s?.label}</span></div>;})}</div>
-      </div>
-      <button onClick={()=>{setNavIds(local);onClose();}} style={{width:"100%",padding:"0.8rem",border:"none",borderRadius:"13px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>Save Nav</button>
-    </BottomSheet>
-  );
-}
-
-/* =======================================
-   SCHEDULE -> ATTENDANCE CONFIRM MODAL
-======================================= */
-function SchedConfirmModal({ pal, family, days, onConfirm, onClose }) {
-  const todayStr = new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"});
-  return (
-    <BottomSheet pal={pal} onClose={onClose} title="Log Today to Attendance?" sub={todayStr}>
-      <div style={{background:pal.pale,borderRadius:"16px",padding:"1rem 1.1rem",marginBottom:"1rem",border:`2px solid ${pal.primary}20`}}>
-        <div style={{display:"flex",gap:"0.75rem",alignItems:"center",marginBottom:"0.8rem"}}>
-          <div style={{width:"44px",height:"44px",borderRadius:"12px",background:pal.primary,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.4rem",flexShrink:0}}>📅</div>
-          <div>
-            <div style={{fontWeight:"800",color:pal.primary,fontSize:"0.92rem"}}>Schedule complete for today</div>
-            <div style={{fontSize:"0.74rem",color:pal.slate,marginTop:"2px"}}>Ready to count as a school day?</div>
-          </div>
-        </div>
-        {[
-          {icon:"📚",label:"6 subjects completed"},
-          {icon:"📋",label:"Counts toward your 180 days"},
-          {icon:"🗂",label:"Check-in notes saved to portfolio"},
-        ].map((r,i)=>(
-          <div key={i} style={{display:"flex",gap:"0.55rem",alignItems:"center",padding:"0.38rem 0",borderTop:i>0?`1px solid ${pal.stone}30`:"none"}}>
-            <span style={{fontSize:"1rem",width:"22px",textAlign:"center",flexShrink:0}}>{r.icon}</span>
-            <span style={{fontSize:"0.78rem",color:pal.inkM}}>{r.label}</span>
-          </div>
-        ))}
-      </div>
-      <div style={{display:"flex",gap:"0.6rem"}}>
-        <button onClick={onClose} style={{padding:"0.7rem 1rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem"}}>Not yet</button>
-        <button onClick={onConfirm} style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>{"✓ Yes, log it!"}</button>
-      </div>
-    </BottomSheet>
-  );
-}
-
-/* =======================================
-   CATCH-UP RESCHEDULER MODAL
-   Warm, practical, not stressful
-======================================= */
-function CatchupModal({ pal, family, days, needed, onClose }) {
-  const stateRequired = parseInt((getStateInfo(family.state||"").hours||"180").match(/\d+/)?.[0]||"180");
-  const NEEDED     = needed||stateRequired;
-  const remaining  = Math.max(0, NEEDED - days);
-  const weeksLeft  = (() => {
-    if(!family.yearEnd) return 11;
-    const end = new Date(family.yearEnd), now = new Date();
-    return Math.max(1, Math.ceil((end-now)/(7*24*60*60*1000)));
-  })();
-  const daysPerWk  = Math.ceil(remaining / weeksLeft);
-  const extraPerWk = Math.max(0, daysPerWk - 5);
-  const [plan, setPlan] = useState(null); // null | "light" | "medium" | "steady"
-
-  const PLANS = [
-    {
-      id:"steady",
-      icon:"🌿",
-      title:"Steady & Consistent",
-      desc:`School 5 days/week with no breaks - you'll finish right on time.`,
-      wks:weeksLeft, extra:0, color:pal.good, bg:pal.goodBg,
-      steps:[
-        "Keep your current daily schedule going",
-        "Aim for zero unplanned absences this term",
-        "Use make-up Saturdays only if needed",
-      ],
-    },
-    {
-      id:"medium",
-      icon:"",
-      title:"Light Catch-Up",
-      desc:`Add one extra morning session per week - gentle but effective.`,
-      wks:weeksLeft-1, extra:1, color:pal.warn, bg:pal.warnBg,
-      steps:[
-        "Add a 2-hour Friday afternoon session each week",
-        "Use summer week if needed as backup",
-        "Keep weekends free - you've earned it",
-      ],
-    },
-    {
-      id:"light",
-      icon:"!",
-      title:"Sprint to Finish",
-      desc:`School 6 days/week for a few weeks - done early with time to spare.`,
-      wks:weeksLeft-2, extra:2, color:pal.primary, bg:pal.pale,
-      steps:[
-        "Add Saturday school for 4-5 weeks",
-        "Double up one subject block daily",
-        "Build in a free week as reward at the end",
-      ],
-    },
-  ];
-
-  const selected = plan ? PLANS.find(p=>p.id===plan) : null;
-
-  return (
-    <BottomSheet pal={pal} onClose={onClose} title="📅 Your Catch-Up Plan" sub={remaining + " days to go - " + weeksLeft + " weeks left"} tall>
-      {/* Warm opener */}
-      <div style={{background:pal.pale,borderRadius:"14px",padding:"0.9rem 1.1rem",marginBottom:"1.1rem",border:`2px solid ${pal.primary}18`}}>
-        <div style={{fontWeight:"800",color:pal.primary,fontSize:"0.9rem",marginBottom:"0.25rem"}}>
-          {"You're doing better than you think 💚"}
-        </div>
-        <div style={{fontSize:"0.78rem",color:pal.inkM,lineHeight:1.7}}>
-          {days} {" days logged is real, meaningful schoolwork. You have "} {weeksLeft} {" weeks left and "} {remaining} {" days to go - that's completely achievable with any of these paths."}
-        </div>
-      </div>
-
-      {/* Plan picker */}
-      {!plan && (<>
-        <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.8rem",textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"0.65rem"}}>Choose your path</div>
-        <div style={{display:"flex",flexDirection:"column",gap:"0.6rem",marginBottom:"1rem"}}>
-          {PLANS.map(p=>(
-            <button key={p.id} onClick={()=>setPlan(p.id)} style={{padding:"0.9rem 1rem",border:`2px solid ${p.color}25`,borderRadius:"16px",background:p.bg,cursor:"pointer",textAlign:"left",display:"flex",gap:"0.8rem",alignItems:"flex-start",transition:"all 0.14s"}}>
-              <span style={{fontSize:"1.6rem",flexShrink:0,marginTop:"2px"}}>{p.icon}</span>
-              <div style={{flex:1}}>
-                <div style={{fontWeight:"800",color:p.color,fontSize:"0.88rem",marginBottom:"0.2rem"}}>{p.title}</div>
-                <div style={{fontSize:"0.75rem",color:pal.inkM,lineHeight:1.55}}>{p.desc}</div>
-              </div>
-              <span style={{color:p.color,fontSize:"1.1rem",flexShrink:0,marginTop:"4px"}}>></span>
-            </button>
-          ))}
-        </div>
-      </>)}
-
-      {/* Selected plan detail */}
-      {selected && (
-        <div style={{animation:"fadeUp 0.2s ease"}}>
-          <button onClick={()=>setPlan(null)} style={{display:"flex",alignItems:"center",gap:"0.35rem",background:"transparent",border:"none",color:pal.primary,cursor:"pointer",fontSize:"0.78rem",fontWeight:"700",marginBottom:"0.85rem",padding:0}}>
-            Back to plans
-          </button>
-          <div style={{background:selected.bg,borderRadius:"18px",padding:"1.1rem 1.2rem",marginBottom:"1rem",border:`2px solid ${selected.color}22`}}>
-            <div style={{display:"flex",gap:"0.75rem",alignItems:"center",marginBottom:"0.75rem"}}>
-              <span style={{fontSize:"2rem"}}>{selected.icon}</span>
-              <div>
-                <div style={{fontWeight:"900",color:selected.color,fontSize:"1rem"}}>{selected.title}</div>
-                <div style={{fontSize:"0.73rem",color:pal.slate,marginTop:"1px"}}>Finish in ~{selected.wks} weeks</div>
-              </div>
-            </div>
-            {selected.steps.map((s,i)=>(
-              <div key={i} style={{display:"flex",gap:"0.6rem",alignItems:"flex-start",padding:"0.42rem 0",borderTop:i>0?`1px solid ${selected.color}18`:"none"}}>
-                <div style={{width:"20px",height:"20px",borderRadius:"50%",background:selected.color,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.65rem",fontWeight:"900",color:"#fff",flexShrink:0,marginTop:"1px"}}>{i+1}</div>
-                <span style={{fontSize:"0.8rem",color:pal.inkM,lineHeight:1.55}}>{s}</span>
-              </div>
-            ))}
-          </div>
-          {/* Weekly schedule preview */}
-          <div style={{background:pal.linen,borderRadius:"14px",padding:"0.9rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}45`}}>
-            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem",marginBottom:"0.6rem"}}>Sample week</div>
-            <div style={{display:"flex",gap:"0.3rem"}}>
-              {["M","T","W","T","F","S"].map((d,i)=>{
-                const active = i < (5 + selected.extra);
-                return (
-                  <div key={i} style={{flex:1,textAlign:"center"}}>
-                    <div style={{width:"100%",aspectRatio:"1",borderRadius:"8px",background:active?pal.accentGrad:pal.parchm,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.7rem",fontWeight:"800",color:active?"#fff":pal.stone,marginBottom:"3px"}}>{active?"v":"-"}</div>
-                    <div style={{fontSize:"0.58rem",color:active?pal.primary:pal.stone,fontWeight:active?"700":"400"}}>{d}</div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-          <div style={{fontSize:"0.74rem",color:pal.slate,lineHeight:1.7,marginBottom:"1rem",textAlign:"center",fontStyle:"italic"}}>
-            {"Remember: consistency beats intensity. Even if you miss a day, you'll still be making progress."}
-          </div>
-          <button onClick={onClose} style={{width:"100%",padding:"0.85rem",border:"none",borderRadius:"14px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>
-            {"Got it - let's do this! 🌱"}
-          </button>
-        </div>
-      )}
-    </BottomSheet>
-  );
-}
-
-
-/* =======================================
-   FIRST-VISIT CONTEXTUAL HINTS
-   Slim pill badge on first visit per
-   screen. Pulses once, tap to dismiss.
-======================================= */
-const TIPS = {
-  home:        {text:"Tap Log Today to start your first school day", pulse:"down"},
-  schedule:    {text:"Tap any block to check it off — finish the day with the button below", pulse:"down"},
-  portfolio:   {text:"Log Today walks through subjects step by step", pulse:"down"},
-  attendance:  {text:"Use Sync in the Daily Ledger to auto-fill from your portfolio", pulse:"down"},
-  learn:       {text:"Tap AI Build to generate a unit study for any topic", pulse:"down"},
-  transcripts: {text:"Print your official transcript anytime from the Transcript tab", pulse:"down"},
-  goals:       {text:"Goals shape your daily nudges and AI suggestions — totally optional", pulse:"down"},
-  coop:        {text:"Log Session saves directly to each child's portfolio", pulse:"down"},
-};
-const TIPS_KEY = "rootbloom_tips_seen";
-function getTipsSeen(){try{return new Set(JSON.parse(localStorage.getItem(TIPS_KEY)||"[]"));}catch(e){return new Set();}}
-function markTipSeen(id){try{const s=getTipsSeen();s.add(id);localStorage.setItem(TIPS_KEY,JSON.stringify([...s]));}catch(e){}}
-
-function FirstVisitTip({pal, screen}){
-  const tip = TIPS[screen];
-  const [visible, setVisible] = useState(()=>!getTipsSeen().has(screen));
-  const [pulsed,  setPulsed]  = useState(false);
-
-  useEffect(()=>{
-    if(!visible) return;
-    const t = setTimeout(()=>setPulsed(true), 400);
-    return ()=>clearTimeout(t);
-  },[visible]);
-
-  if(!tip||!visible) return null;
-  const dismiss = () => { markTipSeen(screen); setVisible(false); };
-
-  return (
-    <div style={{margin:"0 1rem 0.85rem",animation:"fadeUp 0.35s ease"}}>
-      <div onClick={dismiss} style={{
-        display:"flex",alignItems:"center",gap:"0.55rem",
-        background:pal.pale,
-        border:`1.5px solid ${pal.primary}35`,
-        borderRadius:"99px",
-        padding:"0.45rem 0.75rem 0.45rem 0.55rem",
-        cursor:"pointer",
-        boxShadow: pulsed ? `0 0 0 4px ${pal.primary}18` : "none",
-        animation: pulsed ? "tipPulse 1.2s ease 0.1s" : "none",
-        transition:"box-shadow 0.3s",
-        userSelect:"none",
-      }}>
-        <div style={{
-          width:"22px",height:"22px",borderRadius:"50%",
-          background:`linear-gradient(135deg,${pal.primary},${pal.mid})`,
-          display:"flex",alignItems:"center",justifyContent:"center",
-          fontSize:"0.75rem",flexShrink:0,
-        }}>
-          {"💡"}
-        </div>
-        <span style={{
-          flex:1,fontSize:"0.76rem",color:pal.inkM,
-          fontWeight:"600",lineHeight:1.35,
-        }}>
-          {tip.text}
-        </span>
-        <div style={{
-          width:"18px",height:"18px",borderRadius:"50%",
-          background:pal.stone+"40",
-          display:"flex",alignItems:"center",justifyContent:"center",
-          fontSize:"0.55rem",color:pal.slate,flexShrink:0,
-        }}>
-          {"✕"}
-        </div>
-      </div>
-      <style>{`@keyframes tipPulse{0%{box-shadow:0 0 0 0 ${pal.primary}40}50%{box-shadow:0 0 0 8px ${pal.primary}10}100%{box-shadow:0 0 0 0 transparent}}`}</style>
-    </div>
-  );
-}
-
-function ScreenHdr({pal,title,sub,icon}){
-  return <div style={{background:pal.heroGrad,padding:"1.15rem 1.1rem 1.3rem",position:"relative",overflow:"hidden"}}><div style={{position:"absolute",right:"-25px",top:"-25px",width:"110px",height:"110px",borderRadius:"50%",background:"rgba(255,255,255,0.055)"}}/><div style={{position:"relative"}}><div style={{fontSize:"0.6rem",color:"rgba(255,255,255,0.45)",textTransform:"uppercase",letterSpacing:"0.12em",fontWeight:"600",marginBottom:"0.2rem"}}>{sub}</div><div style={{display:"flex",alignItems:"center",gap:"0.55rem"}}><span style={{fontSize:"1.35rem"}}>{icon}</span><span style={{fontWeight:"800",color:pal.onDark,fontSize:"1.25rem"}}>{title}</span></div></div></div>;
-}
-function BottomSheet({children,onClose,title,sub,pal,tall}){
-  return <div style={{position:"fixed",inset:0,background:"rgba(15,10,4,0.72)",backdropFilter:"blur(12px)",zIndex:200,display:"flex",alignItems:"flex-end",justifyContent:"center"}}><div style={{background:pal.linen,borderRadius:"28px 28px 0 0",width:"100%",maxWidth:"430px",boxShadow:"0 -14px 60px rgba(0,0,0,0.32)",animation:"slideUp 0.28s ease",maxHeight:tall?"88vh":"82vh",display:"flex",flexDirection:"column"}}><div style={{padding:"0.7rem 0 0",display:"flex",justifyContent:"center",flexShrink:0}}><div style={{width:"36px",height:"4px",borderRadius:"99px",background:pal.stone}}/></div><div style={{padding:"0.75rem 1.3rem 0.75rem",borderBottom:`1px solid ${pal.stone}45`,flexShrink:0,display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}><div><div style={{fontWeight:"800",color:pal.ink,fontSize:"1rem"}}>{title}</div>{sub&&<div style={{fontSize:"0.74rem",color:pal.slate,marginTop:"2px"}}>{sub}</div>}</div><button onClick={onClose} style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.9rem",flexShrink:0,marginLeft:"0.75rem"}}>{"✕"}</button></div><div style={{flex:1,overflowY:"auto",padding:"1rem 1.3rem 1.3rem"}}>{children}</div></div></div>;
-}
-function Chip({pal,label,active,onClick,dark,small}){
-  return <button onClick={onClick} style={{padding:small?"0.2rem 0.55rem":"0.25rem 0.7rem",border:`2px solid ${active?(dark?"rgba(255,255,255,0.55)":pal.primary):(dark?"rgba(255,255,255,0.2)":pal.stone+"70")}`,borderRadius:"50px",background:active?(dark?"rgba(255,255,255,0.18)":pal.pale):"transparent",color:active?(dark?"#fff":pal.primary):(dark?"rgba(255,255,255,0.55)":pal.slate),fontSize:small?"0.7rem":"0.75rem",fontWeight:active?"700":"500",cursor:"pointer",whiteSpace:"nowrap",flexShrink:0}}>{label}</button>;
-}
-function Btn({pal,children,onClick,disabled,style={}}){
-  return <button onClick={onClick} disabled={disabled} style={{width:"100%",padding:"0.9rem",border:"none",borderRadius:"14px",background:disabled?"#ccc":pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.92rem",cursor:disabled?"not-allowed":"pointer",opacity:disabled?0.5:1,...style}}>{children}</button>;
-}
-function Input({pal,value,onChange,placeholder,type="text"}){
-  return <input type={type} value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder} style={{width:"100%",padding:"0.62rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.85rem",background:pal.parchm,color:pal.ink,outline:"none",transition:"border-color 0.18s"}} onFocus={e=>e.target.style.borderColor=pal.primary} onBlur={e=>e.target.style.borderColor=pal.stone}/>;
-}
-function Select({pal,value,onChange,options}){
-  return <select value={value} onChange={e=>onChange(e.target.value)} style={{width:"100%",padding:"0.62rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.85rem",background:pal.parchm,color:pal.ink,outline:"none",cursor:"pointer"}}>{options.map(o=><option key={o} value={o}>{o}</option>)}</select>;
-}
-function Lbl({pal,children}){
-  return <div style={{fontSize:"0.72rem",fontWeight:"700",color:pal.inkM,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"0.38rem"}}>{children}</div>;
-}
-function PillBtn({pal,label,active,onClick}){
-  return <button onClick={onClick} style={{padding:"0.3rem 0.75rem",border:`2px solid ${active?pal.primary:pal.stone+"60"}`,borderRadius:"50px",background:active?pal.pale:"transparent",color:active?pal.primary:pal.inkM,fontSize:"0.78rem",fontWeight:active?"700":"400",cursor:"pointer",whiteSpace:"nowrap",transition:"all 0.13s"}}>{label}</button>;
-}
-function StepHdr({pal,icon,title,sub}){
-  return <div style={{marginBottom:"1.2rem"}}><div style={{fontSize:"2rem",marginBottom:"0.4rem"}}>{icon}</div><h2 style={{fontFamily:"Georgia",fontSize:"1.4rem",fontWeight:"800",color:pal.ink,margin:"0 0 0.3rem",lineHeight:1.2}}>{title}</h2><p style={{fontSize:"0.82rem",color:pal.slate,margin:0,lineHeight:1.6}}>{sub}</p></div>;
-}
-function SCard({pal,title,note,action,children}){
-  return <div style={{background:pal.linen,borderRadius:"16px",padding:"1rem 1.1rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.stone}50`}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.75rem"}}><span style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>{title}</span>{note&&<span style={{fontSize:"0.65rem",color:pal.slate}}>{note}</span>}{action&&<button onClick={action.fn} style={{fontSize:"0.72rem",color:pal.bad,background:"transparent",border:"none",cursor:"pointer",fontWeight:"600"}}>{action.label}</button>}</div>{children}</div>;
-}
-function Row({pal,title,action}){
-  return <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.55rem"}}><span style={{fontWeight:"800",color:pal.ink,fontSize:"0.88rem"}}>{title}</span>{action&&<span style={{fontSize:"0.74rem",fontWeight:"700",cursor:"pointer",color:pal.primary,opacity:0.8}}>{action} →</span>}</div>;
-}
-
-    ReactDOM.createRoot(document.getElementById('root')).render(<RootAndBloom />);
-  </script>
-</body>
-</html>
