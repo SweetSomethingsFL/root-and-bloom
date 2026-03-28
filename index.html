@@ -645,7 +645,7 @@ function RootAndBloom() {
             onCatchup={()=>setShowCatchup(true)} />}
           {activeTab==="goals"       && <GoalsScreen       pal={pal} family={family} portfolioEntries={portfolioEntries} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} />}
           {activeTab==="coop"        && <CoopScreen        pal={pal} family={family} coopLog={coopLog} onLog={e=>setCoopLog(l=>[e,...l])} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} onAddEntry={addPortfolioEntry} />}
-          {activeTab==="transcripts" && <TranscriptsScreen pal={pal} family={family} portfolioEntries={portfolioEntries} attendanceDays={attendanceDays} coopLog={coopLog} />}
+          {activeTab==="transcripts" && <TranscriptsScreen pal={pal} family={family} portfolioEntries={portfolioEntries} attendanceDays={attendanceDays} coopLog={coopLog} observationLog={observationLog} />}
           {showLifeReady && family && <LifeReadyScreen pal={pal} family={family} onBack={()=>setShowLifeReady(false)}/>}
           {activeTab==="preparedcapable" && family?.lifeReady && <LifeReadyScreen pal={pal} family={family} onBack={()=>setActiveTab("home")}/>}
           {activeTab==="preparedcapable" && !family?.lifeReady && (
@@ -6010,7 +6010,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
       })()}
     </div>
   );
-} */
+}
 
 /* =======================================
    SCHEDULE EDITOR MODAL
@@ -9949,7 +9949,7 @@ function LifeReadyScreen({pal,family,onBack}){
   );
 }
 
-function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coopLog=[]}){
+function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coopLog=[],observationLog=[]}){
   const [activeChild, setActiveChild] = useState(0);
   const [activeView,  setActiveView]  = useState("overview"); // overview | transcript | reading | narrative
 
@@ -10411,7 +10411,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
               <div style={{fontSize:"0.72rem",fontWeight:"700",color:pal.inkM,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.2rem"}}>Student</div>
               <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.92rem"}}>{ch.name} {"\u00b7"} {ch.grade}</div>
             </div>
-            <NarrativeEditor pal={pal} ch={ch} family={family} bySubject={bySubject} attendanceDays={attendanceDays} schoolName={schoolName} cp={cp}/>
+            <NarrativeEditor pal={pal} ch={ch} family={family} bySubject={bySubject} attendanceDays={attendanceDays} schoolName={schoolName} cp={cp} observationLog={observationLog}/>
           </div>
           <div style={{height:"0.5rem"}}/>
         </>)}
@@ -10558,7 +10558,7 @@ function DailyLogSection({pal,cp,childEntries,subjEntries}){
 }
 
 /* ---- Narrative Editor (inline within TranscriptsScreen) ---- */
-function NarrativeEditor({pal,ch,family,bySubject,attendanceDays,schoolName,cp,compact=false}){
+function NarrativeEditor({pal,ch,family,bySubject,attendanceDays,schoolName,cp,compact=false,observationLog=[]}){
   const LS_KEY = "rootbloom_narrative_"+ch.id;
   const [text, setText] = useState(()=>{ try{return localStorage.getItem(LS_KEY)||"";}catch(e){return "";} });
   const [generating, setGenerating] = useState(false);
@@ -10577,7 +10577,6 @@ function NarrativeEditor({pal,ch,family,bySubject,attendanceDays,schoolName,cp,c
     const goals       = goalSummary(family);
     const curriculum  = curriculumContext(family);
     const allGoalObjs = [...GOALS,...(family.customGoals||[])];
-    // Map goals to entry counts for context
     const goalProgress = (family.goals||[]).map(id=>{
       const g = allGoalObjs.find(x=>x.id===id);
       const nudge = GOAL_NUDGES[id];
@@ -10587,6 +10586,15 @@ function NarrativeEditor({pal,ch,family,bySubject,attendanceDays,schoolName,cp,c
         : null;
       return g.label+(cnt!==null?" ("+cnt+" related entries)":"");
     }).filter(Boolean).join(", ");
+
+    // Pull this child's observation notes — most recent 8, condensed
+    const childObs = observationLog
+      .filter(e=>e.childId===ch.id)
+      .sort((a,b)=>(b.ts||0)-(a.ts||0))
+      .slice(0,8)
+      .map(e=>"\u2022 "+e.text.slice(0,120)+(e.text.length>120?"...":""))
+      .join("\n");
+
     const prompt = "Write a warm, professional annual narrative report for a homeschool portfolio."
       + " Student: "+ch.name+", "+ch.grade+" grade."
       + " School: "+schoolName+". State: "+(family.state||"")+"."
@@ -10596,12 +10604,13 @@ function NarrativeEditor({pal,ch,family,bySubject,attendanceDays,schoolName,cp,c
       + " Days completed: "+attendanceDays+"."
       + " Family goals this year: "+goals+"."
       + (goalProgress?" Goal progress: "+goalProgress+".":"")
+      + (childObs?"\n\nParent observations recorded throughout the year (use these to make the narrative specific and personal):\n"+childObs+"\n\n":"")
       + " Write 3 paragraphs:"
       + " 1) Overview of the year — approach, rhythm, and how the family's goals shaped their homeschool."
-      + " 2) Academic highlights — growth in key subjects, notable entries, reading, and specific achievements."
-      + " 3) Character and personal development — tie back to their stated goals, highlight growth beyond academics."
-      + " Weave the family goals naturally into the narrative — don't just list them, show how the year reflected them."
-      + " Warm, specific, parent-voice. Suitable for state review. Under 280 words.";
+      + " 2) Academic highlights — growth in key subjects, notable entries, reading, and specific achievements. Draw from the parent observations where relevant."
+      + " 3) Character and personal development — tie back to stated goals, highlight growth beyond academics. Reference specific moments from the observations if available."
+      + " Weave the parent observations naturally — make it feel like the parent wrote this from memory, not like a data report."
+      + " Warm, specific, parent-voice. Suitable for state review. Under 300 words.";
     try {
       const text = await callClaude(prompt);
       save(text);
@@ -10617,7 +10626,14 @@ function NarrativeEditor({pal,ch,family,bySubject,attendanceDays,schoolName,cp,c
   return (
     <div>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.5rem"}}>
-        <div style={{fontSize:"0.72rem",fontWeight:"700",color:pal.inkM,textTransform:"uppercase",letterSpacing:"0.06em"}}>Annual Narrative</div>
+        <div>
+          <div style={{fontSize:"0.72rem",fontWeight:"700",color:pal.inkM,textTransform:"uppercase",letterSpacing:"0.06em"}}>Annual Narrative</div>
+          {observationLog.filter(e=>e.childId===ch.id).length>0&&(
+            <div style={{fontSize:"0.64rem",color:pal.good,marginTop:"2px",fontWeight:"600"}}>
+              {"📓 "+observationLog.filter(e=>e.childId===ch.id).length+" parent observations will be included"}
+            </div>
+          )}
+        </div>
         <div style={{display:"flex",gap:"0.4rem",alignItems:"center"}}>
           <span style={{fontSize:"0.65rem",color:pal.slate}}>{wordCount} words</span>
           {!compact&&<button onClick={generate} disabled={generating} style={{padding:"0.28rem 0.65rem",borderRadius:"8px",border:"none",background:generating?"#ccc":pal.accentGrad,color:"#fff",fontWeight:"700",fontSize:"0.7rem",cursor:generating?"default":"pointer"}}>
