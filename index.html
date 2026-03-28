@@ -6086,6 +6086,9 @@ function CelebrationModal({pal,data,onEnter}){
 ======================================= */
 function EOYChecklistModal({pal,family,childIdx,setChildIdx,weeksLeft,portfolioEntries=[],attendanceDays=0,onClose,onGradeUp}){
   const [tab, setTab] = useState("checklist"); // checklist | reflect | promote
+  const [eoyAI,     setEoyAI]     = useState(null);
+  const [eoyAILoad, setEoyAILoad] = useState(false);
+  const [eoyAIErr,  setEoyAIErr]  = useState(null);
 
   const ch = family.children[childIdx]||family.children[0];
   if(!ch) return null;
@@ -6135,6 +6138,56 @@ function EOYChecklistModal({pal,family,childIdx,setChildIdx,weeksLeft,portfolioE
 
   // Goals recap — map each goal to entry counts
   const allGoalObjs = [...GOALS,...(family.customGoals||[])];
+  const generateEoyAI = async () => {
+    setEoyAILoad(true); setEoyAIErr(null);
+    const childEntries = portfolioEntries.filter(e=>e.childIdx===(family.children.indexOf(ch)));
+    const subjEs = childEntries.filter(e=>!e.isDay&&e.subj!=="Daily Notes");
+    const bySubj = {};
+    subjEs.forEach(e=>{ if(!bySubj[e.subj]) bySubj[e.subj]=[]; bySubj[e.subj].push(e); });
+    const subjBreakdown = Object.keys(bySubj).map(s=>s+" ("+bySubj[s].length+")").join(", ");
+    const readingTitles = [...new Set(subjEs.filter(e=>e.readingTitle).map(e=>e.readingTitle))];
+    const notesSample   = subjEs.filter(e=>(e.note||"").trim().length>20).slice(0,20)
+      .map(e=>e.subj+": "+((e.note||"").slice(0,120))).join(" | ");
+    const yearStart = family.yearStart ? new Date(family.yearStart).getFullYear() : new Date().getFullYear();
+    const yearEnd   = family.yearEnd   ? new Date(family.yearEnd).getFullYear()   : yearStart+1;
+    const prompt = "You are writing a warm, professional year-end summary for a homeschool portfolio.
+"
+      +"Student: "+ch.name+", "+ch.grade+"
+"
+      +"School year: "+yearStart+"–"+yearEnd+"
+"
+      +"School: "+(family.schoolName||family.familyName+" Academy")+"
+"
+      +"State: "+(family.state||"Not specified")+"
+"
+      +"Curriculum: "+curriculumContext(family)+"
+"
+      +"Goals: "+goalSummary(family)+"
+"
+      +"Subjects: "+subjBreakdown+"
+"
+      +"Days logged: "+attendanceDays+"
+"
+      +"Reading: "+(readingTitles.slice(0,8).join(", ")||"not recorded")+"
+"
+      +"Work samples: "+notesSample+"
+
+"
+      +"Respond ONLY in this JSON format (no markdown, no backticks):
+"
+      +'{"narrative":"2-3 warm sentences about the year (mention child by name, 2+ subjects)",'
+      +'"accomplishments":["accomplishment 1","accomplishment 2","accomplishment 3","accomplishment 4"],'
+      +'"growthAreas":["area 1","area 2","area 3"],'
+      +'"readingHighlight":"one sentence about reading life this year",'
+      +'"parentNote":"one sentence of encouragement for the parent educator"}';
+    try {
+      const raw = await callClaude(prompt);
+      const clean = raw.replace(/```json|```/g,"").trim();
+      setEoyAI(JSON.parse(clean));
+    } catch(e) { setEoyAIErr("Could not generate — try again."); }
+    setEoyAILoad(false);
+  };
+
   const goalRecap = (family.goals||[]).map(id=>{
     const g = allGoalObjs.find(x=>x.id===id);
     const nudge = GOAL_NUDGES[id];
@@ -6255,10 +6308,20 @@ function EOYChecklistModal({pal,family,childIdx,setChildIdx,weeksLeft,portfolioE
                 <div style={{fontSize:"2rem",marginBottom:"0.3rem"}}>{"🌟"}</div>
                 <div style={{fontWeight:"900",color:pal.good,fontSize:"0.95rem",marginBottom:"0.2rem"}}>Portfolio Complete!</div>
                 <div style={{fontSize:"0.76rem",color:pal.inkM,marginBottom:"0.65rem"}}>Switch to {"\""}Year Review{"\""}  to see how far you{"'"}ve come.</div>
-                <button onClick={()=>printEvaluatorLetter(family,ch,attendanceDays)}
-                  style={{padding:"0.5rem 1rem",border:"none",borderRadius:"10px",background:pal.accentGrad,color:pal.onDark,fontWeight:"700",fontSize:"0.78rem",cursor:"pointer"}}>
-                  {"📜 Print Evaluator Letter"}
-                </button>
+                <div style={{display:"flex",gap:"0.5rem",flexWrap:"wrap",justifyContent:"center"}}>
+                  <button onClick={()=>printEvaluatorLetter(family,ch,attendanceDays)}
+                    style={{padding:"0.5rem 1rem",border:"none",borderRadius:"10px",background:pal.accentGrad,color:pal.onDark,fontWeight:"700",fontSize:"0.78rem",cursor:"pointer"}}>
+                    {"📜 Evaluator Letter"}
+                  </button>
+                  <button onClick={()=>{
+                    const ci = family.children.indexOf(ch);
+                    const childEntries = portfolioEntries.filter(e=>e.childIdx===ci);
+                    printFullPortfolio(family, childEntries, ch, attendanceDays, null, eoyAI||null);
+                  }}
+                    style={{padding:"0.5rem 1rem",border:`2px solid ${pal.primary}`,borderRadius:"10px",background:"transparent",color:pal.primary,fontWeight:"700",fontSize:"0.78rem",cursor:"pointer"}}>
+                    {"📚 Full Portfolio"}
+                  </button>
+                </div>
               </div>
             )}
           </>)}
@@ -6360,8 +6423,63 @@ function EOYChecklistModal({pal,family,childIdx,setChildIdx,weeksLeft,portfolioE
             )}
 
             {/* ── Year reflection notes ── */}
+            {/* ── AI Year Summary ── */}
             <div style={{background:pal.linen,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.stone}30`}}>
-              <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.84rem",marginBottom:"0.3rem"}}>Year Reflection</div>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"0.5rem"}}>
+                <div>
+                  <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.84rem"}}>{"✨ AI Year Summary"}</div>
+                  <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"2px"}}>{"Accomplishments, growth areas, reading highlight"}</div>
+                </div>
+                {!eoyAI&&!eoyAILoad&&(
+                  <button onClick={generateEoyAI}
+                    style={{padding:"0.35rem 0.85rem",border:"none",borderRadius:"9px",background:cp.c1,color:"#fff",fontWeight:"800",fontSize:"0.73rem",cursor:"pointer",flexShrink:0}}>
+                    {"Generate"}
+                  </button>
+                )}
+                {eoyAI&&(
+                  <button onClick={()=>{setEoyAI(null);setEoyAIErr(null);}}
+                    style={{padding:"0.3rem 0.65rem",border:`1px solid ${pal.stone}`,borderRadius:"9px",background:"transparent",color:pal.slate,fontSize:"0.68rem",cursor:"pointer",flexShrink:0}}>
+                    {"Redo"}
+                  </button>
+                )}
+              </div>
+              {eoyAILoad&&(
+                <div style={{display:"flex",alignItems:"center",gap:"0.5rem",padding:"0.35rem 0"}}>
+                  {[0,1,2].map(i=><div key={i} style={{width:"7px",height:"7px",borderRadius:"50%",background:cp.c1,animation:`bounce 1s ease ${i*0.15}s infinite`}}/>)}
+                  <span style={{fontSize:"0.74rem",color:pal.slate}}>{"Reviewing the year..."}</span>
+                </div>
+              )}
+              {eoyAIErr&&<div style={{fontSize:"0.74rem",color:"#a03030",marginBottom:"0.3rem"}}>{eoyAIErr} <button onClick={generateEoyAI} style={{fontWeight:"700",color:cp.c1,background:"none",border:"none",cursor:"pointer",fontSize:"0.74rem"}}>{"Retry"}</button></div>}
+              {eoyAI&&(
+                <div style={{animation:"fadeUp 0.2s ease"}}>
+                  <div style={{fontSize:"0.79rem",color:pal.ink,lineHeight:1.7,fontStyle:"italic",marginBottom:"0.6rem",paddingBottom:"0.6rem",borderBottom:`1px solid ${pal.stone}25`}}>{eoyAI.narrative}</div>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.7rem",marginBottom:"0.5rem"}}>
+                    <div>
+                      <div style={{fontSize:"0.63rem",fontWeight:"800",color:cp.c1,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"0.28rem"}}>{"Biggest Wins"}</div>
+                      {(eoyAI.accomplishments||[]).map((a,i)=>(
+                        <div key={i} style={{display:"flex",gap:"0.32rem",fontSize:"0.74rem",color:pal.inkM,marginBottom:"0.2rem",alignItems:"baseline"}}>
+                          <span style={{color:cp.c1,fontWeight:"700",flexShrink:0}}>{"✓"}</span><span>{a}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div>
+                      <div style={{fontSize:"0.63rem",fontWeight:"800",color:"#b07800",textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"0.28rem"}}>{"Keep Building"}</div>
+                      {(eoyAI.growthAreas||[]).map((a,i)=>(
+                        <div key={i} style={{display:"flex",gap:"0.32rem",fontSize:"0.74rem",color:pal.inkM,marginBottom:"0.2rem",alignItems:"baseline"}}>
+                          <span style={{color:"#b07800",flexShrink:0}}>{"→"}</span><span>{a}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  {eoyAI.readingHighlight&&<div style={{fontSize:"0.71rem",color:pal.slate,fontStyle:"italic",borderTop:`1px solid ${pal.stone}20`,paddingTop:"0.4rem"}}>{"📖 "}{eoyAI.readingHighlight}</div>}
+                  {eoyAI.parentNote&&<div style={{marginTop:"0.4rem",padding:"0.45rem 0.7rem",background:cp.c1+"12",borderRadius:"8px",fontSize:"0.71rem",color:cp.c1,fontWeight:"600"}}>{eoyAI.parentNote}</div>}
+                </div>
+              )}
+              {!eoyAI&&!eoyAILoad&&<div style={{fontSize:"0.71rem",color:pal.stone,textAlign:"center",padding:"0.4rem 0",fontStyle:"italic"}}>{"Tap Generate to see "}{ch.name}{"'s biggest wins and areas to focus on next year."}</div>}
+            </div>
+
+            <div style={{background:pal.linen,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.stone}30`}}>
+              <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.84rem",marginBottom:"0.3rem"}}>Your Reflection</div>
               <div style={{fontSize:"0.72rem",color:pal.slate,marginBottom:"0.65rem",lineHeight:1.5}}>
                 What went well this year? What would you do differently? Notes for next year.
               </div>
