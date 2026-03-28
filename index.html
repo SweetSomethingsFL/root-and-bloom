@@ -584,6 +584,12 @@ function RootAndBloom() {
               if(lastCheckinDate===yesterday.toDateString()) setCheckinStreak(s=>s+1);
               else if(lastCheckinDate!==todayStr) setCheckinStreak(1);
               setLastCheckinDate(todayStr);
+              // Save portfolio entries if Log Today was used from Schedule screen
+              if(data.entries&&data.entries.length>0){
+                data.entries.forEach(e=>addPortfolioEntry&&addPortfolioEntry(e));
+                const resolvedChildId = childFilt!=="all"?childFilt:family.children?.[0]?.id;
+                handleChildCheckin(resolvedChildId);
+              }
               setDaySummaryData(data);
               setShowDaySummary(true);
             }}
@@ -3134,7 +3140,13 @@ function generateSchedule(family, childId) {
   });
 
   // Apply schedule overrides: remove deleted, apply duration edits, add custom, reorder
-  const overrides = family.scheduleOverrides;
+  // In per-child mode, child-specific overrides take priority over family-level overrides
+  let overrides = family.scheduleOverrides;
+  if((schedMode==="separate"||schedMode==="mixed") && childId) {
+    const ch = family.children.find(c=>c.id===childId);
+    const childOverrides = ch?.scheduleConfig?.overrides;
+    if(childOverrides) overrides = childOverrides;
+  }
   if(overrides) {
     if(overrides.removed?.length) {
       blocks = blocks.filter(b=>!overrides.removed.includes(b.s));
@@ -6052,13 +6064,25 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
 /* =======================================
    SCHEDULE EDITOR MODAL
 ======================================= */
-function ScheduleEditorModal({pal,family,onSave,onClose}){
-  // Build the current schedule to edit
-  const baseBlocks = generateSchedule({...family, scheduleOverrides:null, lifeReady:false}, family.scheduleMode2!=="same"?family.children?.[0]?.id:null);
+function ScheduleEditorModal({pal,family,activeChildId,schedMode2,onSave,onClose}){
+  // Determine if editing per-child or shared schedule
+  const isPerChild = (schedMode2||"same")!=="same" && !!activeChildId;
+  const editChild = isPerChild ? family.children.find(c=>c.id===activeChildId) : null;
+
+  // Build base blocks (no overrides) for the right context
+  const baseBlocks = generateSchedule(
+    {...family, scheduleOverrides:null, lifeReady:false},
+    isPerChild ? activeChildId : null
+  );
+
+  // Load correct overrides — per-child config or shared family overrides
+  const currentOverrides = isPerChild
+    ? (editChild?.scheduleConfig?.overrides || {})
+    : (family.scheduleOverrides || {});
 
   // Working copy of blocks for editing
   const [blocks, setBlocks] = useState(()=>{
-    const overrides = family.scheduleOverrides||{};
+    const overrides = currentOverrides;
     return baseBlocks
       .filter(b=>!(overrides.removed||[]).includes(b.s))
       .map(b=>({...b, dur:overrides.durations?.[b.s]||b.dur}))
@@ -6100,7 +6124,7 @@ function ScheduleEditorModal({pal,family,onSave,onClose}){
     const custom = blocks.filter(b=>b._custom);
     // Order of all blocks
     const order = blocks.map(b=>b.s);
-    onSave({removed, durations, custom, order});
+    onSave({removed, durations, custom, order}, isPerChild ? activeChildId : null);
   };
 
   const totalMins = blocks.reduce((s,b)=>s+b.dur,0);
@@ -6120,13 +6144,13 @@ function ScheduleEditorModal({pal,family,onSave,onClose}){
         <div style={{background:pal.heroGrad,padding:"0.9rem 1.2rem",flexShrink:0}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
             <div>
-              <div style={{fontWeight:"900",color:"#fff",fontSize:"1rem"}}>{"✏️ Edit Schedule"}</div>
+              <div style={{fontWeight:"900",color:"#fff",fontSize:"1rem"}}>{"✏️ Edit Schedule"}{isPerChild&&editChild?(" — "+editChild.avatar+" "+editChild.name):""}</div>
               <div style={{fontSize:"0.72rem",color:"rgba(255,255,255,0.72)",marginTop:"2px"}}>
                 {blocks.length} blocks {"\u00b7"} {hrs>0?hrs+"h ":""}{mins>0?mins+"m":""} total
               </div>
             </div>
             <div style={{display:"flex",gap:"0.4rem",alignItems:"center"}}>
-              <button onClick={()=>{if(window.confirm("Reset to default schedule?"))onSave({removed:[],durations:{},custom:[],order:[]});}}
+              <button onClick={()=>{if(window.confirm("Reset to default schedule?"))onSave({removed:[],durations:{},custom:[],order:[]},isPerChild?activeChildId:null);}}
                 style={{padding:"0.28rem 0.6rem",border:"none",borderRadius:"8px",background:"rgba(255,255,255,0.15)",color:"#fff",fontSize:"0.68rem",fontWeight:"700",cursor:"pointer"}}>
                 Reset
               </button>
@@ -6249,78 +6273,28 @@ function ScheduleScreen({pal,family,child,setChild,onMarkComplete,onProgressUpda
   });
   const todayIdx = DAYS.findIndex(d=>d.isToday);
   const [selectedDay, setSelectedDay] = useState(Math.max(0,todayIdx));
-  const [showEditor, setShowEditor] = useState(false);
+  const [showEditor,  setShowEditor]  = useState(false);
+  const [showQuickLog, setShowQuickLog] = useState(false);
 
-  // Persist checked + skipped state in localStorage so partial progress saves across navigation
-  const SCHED_KEY = "rootbloom_sched_v1";
-  const loadSchedState = () => { try{const s=localStorage.getItem(SCHED_KEY);return s?JSON.parse(s):{checked:{},skipped:{},notes:{}};}catch(e){return{checked:{},skipped:{},notes:{}};}};
-  const [schedState, setSchedState] = useState(()=>loadSchedState());
-  const saveSchedState = (ns) => { try{localStorage.setItem(SCHED_KEY,JSON.stringify(ns));}catch(e){} };
-  const [expandedNoteKey, setExpandedNoteKey] = useState(null); // which block has note open
-
-  const checked = schedState.checked || {};
-  const daySubjects = schedState.skipped || {};
-
-  const setChecked = (updFn) => setSchedState(prev=>{
-    const ns = {...prev, checked:{...updFn(prev.checked||{})}};
-    saveSchedState(ns); return ns;
-  });
-  const setSubjectNote = (key, val) => setSchedState(prev=>{
-    const ns = {...prev, notes:{...(prev.notes||{}),[key]:val}};
-    saveSchedState(ns); return ns;
-  });
-  const subjectNotes = schedState.notes || {};
-  const setDaySubjects = (updFn) => setSchedState(prev=>{
-    const ns = {...prev, skipped:{...updFn(prev.skipped||{})}};
-    saveSchedState(ns); return ns;
-  });
-
-  const schedMode2 = family.scheduleMode2||"same";
+  const schedMode2   = family.scheduleMode2||"same";
   const activeChildId = child==="all" ? null : child;
-  const allBlocks = generateSchedule(family, schedMode2!=="same" ? activeChildId : null);
-  const toggleBlock = (di, bi) => {
-    const key = di+"_"+bi;
-    setChecked(c=>({...c,[key]:!c[key]}));
-  };
-  const skipBlock = (e, di, bi) => {
-    e.stopPropagation();
-    setDaySubjects(prev=>{
-      const dayMap = prev[di]||{};
-      return {...prev,[di]:{...dayMap,[bi]:!dayMap[bi]}};
-    });
-  };
-  const checkAll = (di) => {
-    const updates = {};
-    allBlocks.forEach((b,bi)=>{ if(!(daySubjects[di]||{})[bi]) updates[di+"_"+bi]=true; });
-    setChecked(c=>({...c,...updates}));
-  };
-  const uncheckAll = (di) => {
-    const updates = {};
-    allBlocks.forEach((_,bi)=>{ updates[di+"_"+bi]=false; });
-    setChecked(c=>({...c,...updates}));
-  };
+  const allBlocks    = generateSchedule(family, schedMode2!=="same" ? activeChildId : null);
 
-  const visibleBlocks = allBlocks.filter((b,bi)=>!(daySubjects[selectedDay]||{})[bi]);
-  // In separate/mixed mode, allBlocks is already per-child — show all; in same mode, filter by child
-  const filteredByChild = schedMode2==="same"
-    ? visibleBlocks.filter(b=>child==="all"||b.c==="all"||b.c===child)
-    : visibleBlocks;
-  const checkedCount = allBlocks.filter((_,bi)=>!(daySubjects[selectedDay]||{})[bi] && checked[selectedDay+"_"+bi]).length;
-  const allDone = checkedCount===filteredByChild.length && filteredByChild.length>0;
+  const visibleBlocks = schedMode2==="same"
+    ? allBlocks.filter(b=>child==="all"||b.c==="all"||b.c===child)
+    : allBlocks;
 
-  // Report progress to parent (home screen)
-  useEffect(()=>{
-    if(onProgressUpdate && DAYS[selectedDay]?.isToday) {
-      onProgressUpdate(checkedCount, filteredByChild.length);
-    }
-  },[checkedCount, filteredByChild.length, selectedDay]);
+  const isToday = !!DAYS[selectedDay]?.isToday;
+  const loggedToday = lastCheckinDate===today.toDateString();
+
   return (
     <div style={{animation:"fadeUp 0.22s ease"}}>
-      <ScreenHdr pal={pal} title="Schedule" sub={new Date().toLocaleDateString("en-US",{month:"long",year:"numeric"})} icon="📅"/>
+      <ScreenHdr pal={pal} title="Schedule" sub={new Date().toLocaleDateString("en-US",{month:"long",year:"numeric"})} icon={"📅"}/>
       <FirstVisitTip pal={pal} screen="schedule"/>
       <div style={{padding:"0 1rem"}}>
+
         {/* Child filter + edit button */}
-        <div style={{display:"flex",gap:"0.35rem",marginBottom:"0.9rem",alignItems:"center"}}>
+        <div style={{display:"flex",gap:"0.35rem",marginBottom:"0.9rem",alignItems:"center"}}> 
           <div style={{display:"flex",gap:"0.35rem",flex:1,overflowX:"auto"}}>
             {schedMode2==="same"&&<Chip pal={pal} label="All" active={child==="all"} onClick={()=>setChild("all")}/>}
             {family.children.map(c=><Chip key={c.id} pal={pal} label={c.avatar+" "+c.name} active={child===c.id||(schedMode2!=="same"&&child==="all"&&c===family.children[0])} onClick={()=>setChild(c.id)}/>)}
@@ -6335,7 +6309,8 @@ function ScheduleScreen({pal,family,child,setChild,onMarkComplete,onProgressUpda
             {"✏️ Edit"}
           </button>
         </div>
-        {/* Day strip - real dates */}
+
+        {/* Day strip */}
         <div style={{display:"flex",gap:"0.35rem",marginBottom:"1rem"}}>
           {DAYS.map((d,i)=>(
             <button key={i} onClick={()=>setSelectedDay(i)} style={{flex:1,padding:"0.55rem 0",borderRadius:"12px",border:`2px solid ${i===selectedDay?pal.primary:d.isToday?pal.primary+"40":pal.stone+"55"}`,background:i===selectedDay?pal.primary:"transparent",cursor:"pointer",textAlign:"center",transition:"all 0.14s"}}>
@@ -6345,140 +6320,91 @@ function ScheduleScreen({pal,family,child,setChild,onMarkComplete,onProgressUpda
           ))}
         </div>
 
-        {/* Today tip - only show on today */}
-        {DAYS[selectedDay]?.isToday && (()=>{
-          const loggedViaPortfolio = lastCheckinDate===new Date().toDateString() && !allDone;
-          return (
-            <div style={{background:loggedViaPortfolio?pal.goodBg:pal.pale,borderRadius:"13px",padding:"0.65rem 1rem",marginBottom:"0.85rem",border:`2px solid ${loggedViaPortfolio?pal.good+"40":pal.primary+"22"}`,display:"flex",gap:"0.65rem",alignItems:"center"}}>
-              <span style={{fontSize:"1.1rem",flexShrink:0}}>{loggedViaPortfolio?"✓":"🌱"}</span>
-              <div style={{flex:1}}>
-                {loggedViaPortfolio?(
-                  <>
-                    <div style={{fontWeight:"700",color:pal.good,fontSize:"0.78rem"}}>Already logged via Portfolio</div>
-                    <div style={{fontSize:"0.7rem",color:pal.inkM,marginTop:"1px"}}>You can still check off subjects here if you want to track them — or skip to the next day.</div>
-                  </>
-                ):(
-                  <>
-                    <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.78rem"}}>{"Today's checklist"}</div>
-                    <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>Tap items to check them off. Skip any you are not doing today.</div>
-                  </>
-                )}
-              </div>
+        {/* Logged-today banner */}
+        {isToday&&loggedToday&&(
+          <div style={{background:pal.goodBg,borderRadius:"13px",padding:"0.65rem 1rem",marginBottom:"0.85rem",border:`2px solid ${pal.good}40`,display:"flex",gap:"0.65rem",alignItems:"center"}}>
+            <span style={{fontSize:"1.1rem"}}>{"✓"}</span>
+            <div>
+              <div style={{fontWeight:"700",color:pal.good,fontSize:"0.78rem"}}>{"Today's school day logged"}</div>
+              <div style={{fontSize:"0.7rem",color:pal.inkM,marginTop:"1px"}}>{"Portfolio updated. Great work today!"}</div>
             </div>
-          );
-        })()}
-
-        {/* Block list */}
-        {filteredByChild.length===0 && (
-          <div style={{textAlign:"center",padding:"2rem 1rem",color:pal.slate,fontSize:"0.82rem"}}>No subjects for this day yet.</div>
+          </div>
         )}
-        {allBlocks.map((b, bi)=>{
-          const skipped = (daySubjects[selectedDay]||{})[bi];
-          const blockKey = selectedDay+"_"+bi;
-          const done = !!checked[blockKey];
-          const hiddenByChild = !(child==="all"||b.c==="all"||b.c===child);
-          if(hiddenByChild) return null;
-          const noteKey = selectedDay+"_"+bi+"_note";
-          const noteOpen = expandedNoteKey===blockKey;
-          const hasNote  = !!(subjectNotes[noteKey]&&subjectNotes[noteKey].trim());
-          return (
-            <div key={bi} style={{marginBottom:"0.5rem",opacity:skipped?0.38:1,transition:"opacity 0.2s"}}>
-              <div style={{background:done?pal.pale:pal.linen,borderRadius:noteOpen?"14px 14px 0 0":"14px",border:`2px solid ${done?pal.primary+"40":pal.stone+"18"}`,position:"relative",overflow:"hidden",transition:"all 0.14s"}}>
-                <div style={{position:"absolute",left:0,top:0,bottom:0,width:"4px",background:done?pal.accentGrad:skipped?pal.stone+"40":pal.stone+"60"}}/>
-                <div onClick={()=>!skipped&&toggleBlock(selectedDay,bi)}
-                  style={{padding:"0.85rem 1rem",display:"flex",gap:"0.85rem",alignItems:"center",cursor:skipped?"default":"pointer"}}>
-                  <div style={{width:"40px",height:"40px",borderRadius:"11px",background:b.lifeReady?(done?LR_COLOR+"33":LR_COLOR+"18"):(done?pal.primary+"22":pal.pale),display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.25rem",flexShrink:0,border:b.lifeReady?`2px solid ${LR_COLOR}40`:"none"}}>{b.i}</div>
-                  <div style={{flex:1}}>
-                    <div style={{fontWeight:"700",color:done?(b.lifeReady?LR_COLOR:pal.primary):skipped?pal.stone:pal.ink,fontSize:"0.88rem",textDecoration:done?"line-through":skipped?"line-through":"none"}}>{b.s}</div>
-                    <div style={{fontSize:"0.72rem",color:b.lifeReady?LR_COLOR:pal.slate,fontWeight:b.lifeReady?"600":"400"}}>{b.t?h12(b.t)+" · ":""}{b.dur} min{b.isLesson?" · Lesson":b.isPractice?" · Practice":""}</div>
-                    {hasNote&&!noteOpen&&<div style={{fontSize:"0.65rem",color:pal.primary,marginTop:"2px",fontStyle:"italic",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>📝 {subjectNotes[noteKey]}</div>}
-                  </div>
-                  <button onClick={e=>{e.stopPropagation();skipBlock(e,selectedDay,bi);}}
-                    style={{padding:"0.18rem 0.5rem",borderRadius:"8px",border:`1.5px solid ${skipped?pal.warn:pal.stone+"60"}`,background:"transparent",color:skipped?pal.warn:pal.stone,fontSize:"0.62rem",fontWeight:"700",cursor:"pointer",flexShrink:0}}>
-                    {skipped?"restore":"skip"}
-                  </button>
-                  {/* Note button */}
-                  {!skipped&&<button onClick={e=>{e.stopPropagation();setExpandedNoteKey(noteOpen?null:blockKey);}}
-                    style={{padding:"0.18rem 0.45rem",borderRadius:"8px",border:`1.5px solid ${hasNote?pal.primary:pal.stone+"60"}`,background:hasNote?pal.pale:"transparent",color:hasNote?pal.primary:pal.stone,fontSize:"0.7rem",cursor:"pointer",flexShrink:0}}>
-                    📝
-                  </button>}
-                  <div style={{width:"22px",height:"22px",borderRadius:"6px",border:`2.5px solid ${done?pal.primary:pal.stone}`,background:done?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.14s"}}>
-                    {done&&<span style={{color:"#fff",fontSize:"0.75rem",fontWeight:"900"}}>✓</span>}
+
+        {/* Block list — read-only plan */}
+        {visibleBlocks.length===0&&(
+          <div style={{textAlign:"center",padding:"2rem 1rem",color:pal.slate,fontSize:"0.82rem"}}>No subjects planned for this day.</div>
+        )}
+        {visibleBlocks.map((b,bi)=>(
+          <div key={bi} style={{marginBottom:"0.45rem"}}>
+            <div style={{background:pal.linen,borderRadius:"14px",border:`1.5px solid ${pal.stone}20`,position:"relative",overflow:"hidden"}}>
+              <div style={{position:"absolute",left:0,top:0,bottom:0,width:"4px",background:b.lifeReady?LR_COLOR:b.isGroup?pal.mid:pal.stone+"60"}}/>
+              <div style={{padding:"0.8rem 1rem",display:"flex",gap:"0.85rem",alignItems:"center"}}>
+                <div style={{width:"38px",height:"38px",borderRadius:"10px",background:b.lifeReady?LR_COLOR+"18":pal.pale,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.2rem",flexShrink:0,border:b.lifeReady?`2px solid ${LR_COLOR}40`:"none"}}>
+                  {b.i}
+                </div>
+                <div style={{flex:1}}>
+                  <div style={{fontWeight:"700",color:b.lifeReady?LR_COLOR:pal.ink,fontSize:"0.88rem"}}>{b.s}</div>
+                  <div style={{fontSize:"0.72rem",color:b.lifeReady?LR_COLOR:pal.slate,fontWeight:b.lifeReady?"600":"400"}}>
+                    {b.t?h12(b.t)+" \u00b7 ":""}{b.dur} min{b.isLesson?" \u00b7 Lesson":b.isPractice?" \u00b7 Practice":""}
+                    {b.isGroup&&<span style={{marginLeft:"0.35rem",color:pal.mid,fontWeight:"700",fontSize:"0.65rem"}}>GROUP</span>}
                   </div>
                 </div>
-                {/* Inline note field */}
-                {noteOpen&&(
-                  <div style={{padding:"0 1rem 0.75rem 1rem",borderTop:`1px solid ${pal.stone}20`}}>
-                    <textarea value={subjectNotes[noteKey]||""} onChange={e=>setSubjectNote(noteKey,e.target.value)}
-                      rows={2} placeholder={"Notes for "+b.s+"... what did they learn, struggles, highlights?"}
-                      autoFocus
-                      style={{width:"100%",padding:"0.55rem 0.75rem",border:`1.5px solid ${pal.primary}50`,borderRadius:"10px",fontSize:"0.8rem",fontFamily:"inherit",background:pal.parchm,color:pal.ink,resize:"none",outline:"none",lineHeight:1.55,marginTop:"0.65rem"}}/>
-                  </div>
-                )}
               </div>
             </div>
-          );
-        })}
-
-        {/* Progress bar */}
-        {filteredByChild.length>0&&(
-          <div style={{background:pal.linen,borderRadius:"12px",padding:"0.75rem 1rem",marginTop:"0.35rem",marginBottom:"0.75rem",border:`1.5px solid ${pal.stone}35`}}>
-            <div style={{display:"flex",justifyContent:"space-between",marginBottom:"6px"}}>
-              <span style={{fontSize:"0.75rem",fontWeight:"600",color:pal.inkM}}>{DAYS[selectedDay]?.isToday?"Today":"This day"}</span>
-              <span style={{fontSize:"0.75rem",fontWeight:"800",color:allDone?pal.good:pal.primary}}>{checkedCount} / {filteredByChild.length} done</span>
-            </div>
-            <div style={{height:"7px",borderRadius:"99px",background:pal.parchm,overflow:"hidden"}}>
-              <div style={{height:"100%",width:`${filteredByChild.length?Math.round(checkedCount/filteredByChild.length*100):0}%`,borderRadius:"99px",background:allDone?`linear-gradient(90deg,${pal.good},${pal.mid})`:pal.accentGrad,transition:"width 0.3s ease"}}/>
-            </div>
           </div>
+        ))}
+
+        <div style={{height:"0.5rem"}}/>
+
+        {/* Log Today button — only on today */}
+        {isToday&&(
+          <button onClick={()=>setShowQuickLog(true)}
+            style={{width:"100%",padding:"0.9rem",border:"none",borderRadius:"14px",background:loggedToday?pal.stone+"30":pal.accentGrad,color:loggedToday?pal.stone:"#fff",fontWeight:"800",fontSize:"0.92rem",cursor:"pointer",marginBottom:"0.75rem",boxShadow:loggedToday?"none":`0 6px 24px ${pal.accent}50`,transition:"all 0.3s"}}>
+            {loggedToday?"📝 Log Again":"📝 Log Today"}
+          </button>
         )}
 
-        {/* Check all / uncheck all row */}
-        {filteredByChild.length>0 && (
-          <div style={{display:"flex",gap:"0.5rem",marginBottom:"0.65rem"}}>
-            <button onClick={()=>checkAll(selectedDay)}
-              style={{flex:1,padding:"0.6rem",border:`2px solid ${pal.primary}`,borderRadius:"11px",background:"transparent",color:pal.primary,fontWeight:"700",fontSize:"0.78rem",cursor:"pointer"}}>
-              Check All Done
-            </button>
-            <button onClick={()=>uncheckAll(selectedDay)}
-              style={{padding:"0.6rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.78rem",cursor:"pointer"}}>
-              Clear
-            </button>
-          </div>
-        )}
-
-        {/* Live progress banner - always visible */}
-        <div style={{background:checkedCount>0?pal.goodBg:pal.parchm,borderRadius:"14px",padding:"0.75rem 1rem",marginBottom:"0.65rem",border:`1.5px solid ${checkedCount>0?pal.good+"40":pal.stone+"35"}`,transition:"all 0.3s"}}>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"5px"}}>
-            <span style={{fontSize:"0.8rem",color:checkedCount>0?pal.good:pal.inkM,fontWeight:"700"}}>{checkedCount} of {filteredByChild.length} done</span>
-            <span style={{fontSize:"0.72rem",color:pal.slate}}>{"Saves automatically"}</span>
-          </div>
-          <div style={{height:"6px",borderRadius:"99px",background:pal.parchm,overflow:"hidden"}}>
-            <div style={{height:"100%",width:`${filteredByChild.length?Math.round(checkedCount/filteredByChild.length*100):0}%`,borderRadius:"99px",background:allDone?`linear-gradient(90deg,${pal.good},${pal.mid})`:pal.accentGrad,transition:"width 0.4s ease"}}/>
-          </div>
-        </div>
-
-        {/* Mark complete - glows when all done */}
-        <button
-          onClick={()=>{
-            if(!allDone) return;
-            const completedBlocks = allBlocks.filter((_,bi)=>!(daySubjects[selectedDay]||{})[bi]&&checked[selectedDay+"_"+bi]);
-            onMarkComplete({
-              blocks:completedBlocks,
-              date:DAYS[selectedDay]?.date||new Date().toDateString(),
-              dateLabel:DAYS[selectedDay]?DAYS[selectedDay].l+" "+DAYS[selectedDay].d:new Date().toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}),
-              checkedCount,
-              total:filteredByChild.length,
-            });
-          }}
-          style={{width:"100%",marginBottom:"0.75rem",padding:"0.9rem",border:"none",borderRadius:"14px",background:allDone?pal.accentGrad:pal.stone+"30",color:allDone?pal.onDark:pal.stone,fontWeight:"800",fontSize:"0.88rem",cursor:allDone?"pointer":"default",transition:"all 0.3s",boxShadow:allDone?`0 6px 24px ${pal.accent}50`:"none"}}>
-          {allDone ? "🌟 Day complete — see summary" : "Check off subjects above to finish the day"}
-        </button>
         <div style={{height:"1rem"}}/>
       </div>
+
       {showEditor&&<ScheduleEditorModal pal={pal} family={family}
-        onSave={overrides=>{onUpdateFamily&&onUpdateFamily({scheduleOverrides:overrides});setShowEditor(false);}}
+        activeChildId={schedMode2!=="same"?(child==="all"?family.children?.[0]?.id:child):null}
+        schedMode2={schedMode2}
+        onSave={(overrides,childId)=>{
+          if(childId){
+            const updatedChildren = family.children.map(c=>
+              c.id===childId ? {...c, scheduleConfig:{...(c.scheduleConfig||{}), overrides}} : c
+            );
+            onUpdateFamily&&onUpdateFamily({children:updatedChildren});
+          } else {
+            onUpdateFamily&&onUpdateFamily({scheduleOverrides:overrides});
+          }
+          setShowEditor(false);
+        }}
         onClose={()=>setShowEditor(false)}/>}
+
+      {showQuickLog&&(()=>{
+        const resolvedChildId = child==="all" ? family.children?.[0]?.id : child;
+        const childIdx = Math.max(0, family.children.findIndex(c=>c.id===resolvedChildId));
+        const si = getStateInfo(family.state||"");
+        return <DailyPortfolioModal pal={pal} family={family} childIdx={childIdx} stateInfo={si}
+          onClose={()=>setShowQuickLog(false)}
+          onSave={(entries)=>{
+            entries.forEach(e=>onProgressUpdate&&null); // entries passed up via onMarkComplete
+            const todayStr = new Date().toDateString();
+            // Fire onMarkComplete so DaySummaryModal appears (attendance + celebration)
+            onMarkComplete({
+              blocks: visibleBlocks,
+              date: todayStr,
+              dateLabel: new Date().toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}),
+              checkedCount: visibleBlocks.length,
+              total: visibleBlocks.length,
+              entries,
+            });
+            setShowQuickLog(false);
+          }}/>;
+      })()}
     </div>
   );
 }
