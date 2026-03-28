@@ -12,11 +12,13 @@
   <title>Root & Bloom</title>
   <script>
     // Inline PWA manifest via blob URL
+    const _pageUrl = location.href.split("?")[0].split("#")[0];
     const manifest = {
       name: "Root & Bloom",
       short_name: "Root & Bloom",
       description: "Your homeschool, beautifully organized",
-      start_url: "./",
+      start_url: _pageUrl,
+      scope: _pageUrl,
       display: "standalone",
       orientation: "portrait-primary",
       background_color: "#f5f0e8",
@@ -2865,12 +2867,6 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
               <Input pal={pal} value={local.schoolName||""} onChange={v=>updL("schoolName",v)} placeholder="e.g. Thornwood Academy" />
             </SCard>
 
-            <SCard pal={pal} title="School Name">
-              <Input pal={pal} value={local.schoolName||""} onChange={v=>updL("schoolName",v)} placeholder="e.g. Thornwood Academy" />
-            </SCard>
-
-            </> {/* end school name — brief intro */}
-            }
             {schoolSubTab==="schedule"&&<>
             {/* ── SCHEDULE TYPE (multi-child only) ── */}
             {(local.children||[]).length>1&&(
