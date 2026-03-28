@@ -6155,31 +6155,18 @@ function EOYChecklistModal({pal,family,childIdx,setChildIdx,weeksLeft,portfolioE
       .map(e=>e.subj+": "+((e.note||"").slice(0,120))).join(" | ");
     const yearStart = family.yearStart ? new Date(family.yearStart).getFullYear() : new Date().getFullYear();
     const yearEnd   = family.yearEnd   ? new Date(family.yearEnd).getFullYear()   : yearStart+1;
-    const prompt = "You are writing a warm, professional year-end summary for a homeschool portfolio.
-"
-      +"Student: "+ch.name+", "+ch.grade+"
-"
-      +"School year: "+yearStart+"–"+yearEnd+"
-"
-      +"School: "+(family.schoolName||family.familyName+" Academy")+"
-"
-      +"State: "+(family.state||"Not specified")+"
-"
-      +"Curriculum: "+curriculumContext(family)+"
-"
-      +"Goals: "+goalSummary(family)+"
-"
-      +"Subjects: "+subjBreakdown+"
-"
-      +"Days logged: "+attendanceDays+"
-"
-      +"Reading: "+(readingTitles.slice(0,8).join(", ")||"not recorded")+"
-"
-      +"Work samples: "+notesSample+"
-
-"
-      +"Respond ONLY in this JSON format (no markdown, no backticks):
-"
+    const prompt = "You are writing a warm, professional year-end summary for a homeschool portfolio.\n"
+      +"Student: "+ch.name+", "+ch.grade+"\n"
+      +"School year: "+yearStart+"–"+yearEnd+"\n"
+      +"School: "+(family.schoolName||family.familyName+" Academy")+"\n"
+      +"State: "+(family.state||"Not specified")+"\n"
+      +"Curriculum: "+curriculumContext(family)+"\n"
+      +"Goals: "+goalSummary(family)+"\n"
+      +"Subjects: "+subjBreakdown+"\n"
+      +"Days logged: "+attendanceDays+"\n"
+      +"Reading: "+(readingTitles.slice(0,8).join(", ")||"not recorded")+"\n"
+      +"Work samples: "+notesSample+"\n\n"
+      +"Respond ONLY in this JSON format (no markdown, no backticks):\n"
       +'{"narrative":"2-3 warm sentences about the year (mention child by name, 2+ subjects)",'
       +'"accomplishments":["accomplishment 1","accomplishment 2","accomplishment 3","accomplishment 4"],'
       +'"growthAreas":["area 1","area 2","area 3"],'
