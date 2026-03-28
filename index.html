@@ -12669,7 +12669,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
 
         {/* View tabs */}
         <div style={{display:"flex",background:pal.parchm,borderRadius:"11px",padding:"3px",gap:"2px",marginBottom:"1rem"}}>
-          {[["overview","📋","Overview"],["transcript","📜","Transcript"],["reading","📖","Reading Log"],["narrative","📝","Narrative"],...(family.children.length>1?[["compare","⚖️","Compare"]]:[])).map(([id,icon,l])=>(
+          {(family.children.length>1?[["overview","📋","Overview"],["transcript","📜","Transcript"],["reading","📖","Reading Log"],["narrative","📝","Narrative"],["compare","⚖️","Compare"]]:[["overview","📋","Overview"],["transcript","📜","Transcript"],["reading","📖","Reading Log"],["narrative","📝","Narrative"]]).map(([id,icon,l])=>(
             <button key={id} onClick={()=>setActiveView(id)}
               style={{flex:1,padding:"0.42rem 0.2rem",border:"none",borderRadius:"9px",background:activeView===id?pal.linen:"transparent",color:activeView===id?pal.ink:pal.slate,fontSize:"0.62rem",fontWeight:activeView===id?"700":"400",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:"1px"}}>
               <span style={{fontSize:"0.8rem"}}>{icon}</span>
