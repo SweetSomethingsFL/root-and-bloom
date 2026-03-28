@@ -1517,6 +1517,30 @@ function OnbPhilosophy({ pal, data, upd, onNext }) {
           );
         })}
       </div>
+      {/* Rotate subjects by day toggle */}
+      <div style={{background:pal.pale,borderRadius:"13px",padding:"0.85rem 1rem",marginBottom:"1.2rem",border:`1.5px solid ${pal.primary}22`}}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:data.rotateDays?("0.75rem"):"0"}}>
+          <div>
+            <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.86rem"}}>{"📅 Rotate subjects by day?"}</div>
+            <div style={{fontSize:"0.72rem",color:pal.slate,marginTop:"2px"}}>{"e.g. Science on Tue/Thu, History on Mon/Wed"}</div>
+          </div>
+          <button onClick={()=>upd("rotateDays",!data.rotateDays)} style={{width:"44px",height:"26px",borderRadius:"13px",border:"none",background:data.rotateDays?pal.primary:pal.stone+"60",cursor:"pointer",position:"relative",transition:"background 0.2s",flexShrink:0}}>
+            <div style={{position:"absolute",top:"3px",left:data.rotateDays?"21px":"3px",width:"20px",height:"20px",borderRadius:"50%",background:"#fff",transition:"left 0.2s"}}/>
+          </button>
+        </div>
+        {data.rotateDays&&sel.length>0&&(
+          <SubjectDayPicker
+            pal={pal}
+            subjects={sel}
+            customSubjects={data.customSubjects}
+            subjectDays={data.subjectDays||{}}
+            onChange={days=>upd("subjectDays",days)}
+          />
+        )}
+        {data.rotateDays&&sel.length===0&&(
+          <div style={{fontSize:"0.72rem",color:pal.slate}}>{"Select subjects above first."}</div>
+        )}
+      </div>
       <Btn pal={pal} disabled={sel.length===0} onClick={onNext}>{"Next →"}</Btn>
     </div>
   );
@@ -1704,6 +1728,72 @@ function OnbCurrBrands({ pal, data, upd, onNext }) {
   );
 }
 
+
+/* ---- Subject Day Picker (onboarding + settings) ---- */
+function SubjectDayPicker({pal, subjects, customSubjects, subjectDays, onChange}) {
+  // subjects: array of subject ids currently selected
+  // subjectDays: {subjId: ["Mon","Tue",...]} or {}
+  // onChange: (newSubjectDays) => void
+  const DAYS = ["Mon","Tue","Wed","Thu","Fri"];
+  const allSubjs = [...SUBJECT_OPTIONS, ...(customSubjects||[])];
+
+  const toggleDay = (subjId, day) => {
+    const cur = subjectDays[subjId] || [];
+    const next = cur.includes(day) ? cur.filter(d=>d!==day) : [...cur, day];
+    onChange({...subjectDays, [subjId]: next});
+  };
+
+  const setAll = (subjId) => {
+    onChange({...subjectDays, [subjId]: [...DAYS]});
+  };
+
+  const clearDays = (subjId) => {
+    const next = {...subjectDays};
+    delete next[subjId];
+    onChange(next);
+  };
+
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:"0.55rem"}}>
+      {subjects.map(id=>{
+        const subj = allSubjs.find(s=>s.id===id);
+        if(!subj) return null;
+        const days = subjectDays[id] || [];
+        const isEveryDay = days.length===0;
+        return (
+          <div key={id} style={{background:"#fff",borderRadius:"13px",padding:"0.65rem 0.85rem",border:`1.5px solid ${pal.stone}25`}}>
+            <div style={{display:"flex",alignItems:"center",gap:"0.5rem",marginBottom:"0.5rem"}}>
+              <span style={{fontSize:"1rem"}}>{subj.icon}</span>
+              <span style={{fontWeight:"700",color:pal.ink,fontSize:"0.84rem",flex:1}}>{subj.label}</span>
+              {isEveryDay
+                ? <span style={{fontSize:"0.62rem",color:pal.slate,background:pal.parchm,padding:"0.15rem 0.45rem",borderRadius:"20px",border:`1px solid ${pal.stone}40`}}>every day</span>
+                : <button onClick={()=>clearDays(id)} style={{fontSize:"0.62rem",color:pal.slate,background:"transparent",border:`1px solid ${pal.stone}40`,borderRadius:"20px",padding:"0.15rem 0.45rem",cursor:"pointer"}}>clear</button>
+              }
+            </div>
+            <div style={{display:"flex",gap:"0.3rem"}}>
+              {DAYS.map(day=>{
+                const on = days.includes(day);
+                return (
+                  <button key={day} onClick={()=>toggleDay(id,day)}
+                    style={{flex:1,padding:"0.35rem 0",border:`2px solid ${on?pal.primary:pal.stone+"50"}`,borderRadius:"8px",background:on?pal.primary:"transparent",color:on?"#fff":pal.slate,fontWeight:on?"800":"500",fontSize:"0.68rem",cursor:"pointer",transition:"all 0.12s"}}>
+                    {day[0]}
+                  </button>
+                );
+              })}
+            </div>
+            {days.length>0&&days.length<5&&(
+              <button onClick={()=>setAll(id)}
+                style={{marginTop:"0.4rem",width:"100%",padding:"0.28rem",border:`1px dashed ${pal.stone}`,borderRadius:"7px",background:"transparent",color:pal.slate,fontSize:"0.63rem",cursor:"pointer"}}>
+                {"every day instead"}
+              </button>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 /* --- STEP 4: Subjects --- */
 function OnbSubjects({ pal, data, upd, onNext }) {
   const [customInput, setCustomInput] = React.useState("");
@@ -1793,6 +1883,33 @@ function OnbSubjects({ pal, data, upd, onNext }) {
           </div>
         )}
       </div>
+
+      {/* Rotate subjects by day */}
+      <div style={{background:pal.pale,borderRadius:"13px",padding:"0.85rem 1rem",marginBottom:"1.2rem",border:`1.5px solid ${pal.primary}22`}}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:data.rotateDays?"0.75rem":"0"}}>
+          <div>
+            <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.86rem"}}>{"📅 Rotate subjects by day?"}</div>
+            <div style={{fontSize:"0.72rem",color:pal.slate,marginTop:"2px"}}>{"e.g. Science on Tue/Thu, History on Mon/Wed"}</div>
+          </div>
+          <button onClick={()=>upd("rotateDays",!data.rotateDays)}
+            style={{width:"44px",height:"26px",borderRadius:"13px",border:"none",background:data.rotateDays?pal.primary:pal.stone+"60",cursor:"pointer",position:"relative",transition:"background 0.2s",flexShrink:0}}>
+            <div style={{position:"absolute",top:"3px",left:data.rotateDays?"21px":"3px",width:"20px",height:"20px",borderRadius:"50%",background:"#fff",transition:"left 0.2s"}}/>
+          </button>
+        </div>
+        {data.rotateDays&&sel.length>0&&(
+          <SubjectDayPicker
+            pal={pal}
+            subjects={sel}
+            customSubjects={data.customSubjects}
+            subjectDays={data.subjectDays||{}}
+            onChange={days=>upd("subjectDays",days)}
+          />
+        )}
+        {data.rotateDays&&sel.length===0&&(
+          <div style={{fontSize:"0.72rem",color:pal.slate}}>{"Select subjects above first."}</div>
+        )}
+      </div>
+
       <Btn pal={pal} disabled={sel.length===0} onClick={onNext}>{"Next →"}</Btn>
     </div>
   );
@@ -2804,6 +2921,33 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                 )}
               </div>
             </SCard>
+            <SCard pal={pal} title="Subject Days" note="Which days does each subject run?">
+              <div style={{fontSize:"0.72rem",color:pal.slate,marginBottom:"0.75rem",lineHeight:1.5}}>
+                {"Leave a subject unassigned to show it every day. Tap days to assign. Off-day subjects appear grayed out on the schedule but can still be logged."}
+              </div>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"0.75rem"}}>
+                <span style={{fontSize:"0.8rem",fontWeight:"600",color:pal.inkM}}>{"Rotate subjects by day"}</span>
+                <button onClick={()=>updL("rotateDays",!local.rotateDays)}
+                  style={{width:"44px",height:"26px",borderRadius:"13px",border:"none",background:local.rotateDays?pal.primary:pal.stone+"60",cursor:"pointer",position:"relative",transition:"background 0.2s",flexShrink:0}}>
+                  <div style={{position:"absolute",top:"3px",left:local.rotateDays?"21px":"3px",width:"20px",height:"20px",borderRadius:"50%",background:"#fff",transition:"left 0.2s",boxShadow:"0 1px 3px rgba(0,0,0,0.2)"}}/>
+                </button>
+              </div>
+              {local.rotateDays&&(local.subjects||[]).length>0&&(
+                <SubjectDayPicker
+                  pal={pal}
+                  subjects={local.subjects||[]}
+                  customSubjects={local.customSubjects}
+                  subjectDays={local.subjectDays||{}}
+                  onChange={days=>updL("subjectDays",days)}
+                />
+              )}
+              {local.rotateDays&&(local.subjects||[]).length===0&&(
+                <div style={{fontSize:"0.72rem",color:pal.slate}}>{"Add subjects in the Subjects card above first."}</div>
+              )}
+              {!local.rotateDays&&(
+                <div style={{fontSize:"0.72rem",color:pal.slate,fontStyle:"italic"}}>{"All subjects show every school day."}</div>
+              )}
+            </SCard>
             <SCard pal={pal} title="Morning Time">
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:local.morningGathering?"0.75rem":"0"}}>
                 <div>
@@ -3113,6 +3257,11 @@ function generateSchedule(family, childId) {
     if(isTimed) cursor += 30;
   }
 
+  // Day-of-week for subjectDays filtering
+  const DOW_NAMES = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  const todayDowName = DOW_NAMES[new Date().getDay()];
+  const subjectDays = family.subjectDays || {};
+
   subjects.forEach((id, idx) => {
     const subj = subjectMap[id];
     if (!subj) return;
@@ -3126,7 +3275,10 @@ function generateSchedule(family, childId) {
     // Mark group subjects vs individual in mixed mode
     const isGroup = schedMode==="mixed" && (family.groupSubjects||[]).includes(id);
     const cId = schedMode==="separate"&&childId ? childId : "all";
-    blocks.push({t:isTimed?toTime(cursor):"", s:subj.label, i:subj.icon, c:cId, dur:sessionMins, isGroup});
+    // offDay: subject has assigned days but today is not one of them
+    const assignedDays = subjectDays[id];
+    const offDay = assignedDays && assignedDays.length>0 && !assignedDays.includes(todayDowName);
+    blocks.push({t:isTimed?toTime(cursor):"", s:subj.label, i:subj.icon, c:cId, dur:sessionMins, isGroup, offDay, subjId:id});
     if(isTimed) {
       cursor += sessionMins;
       if ((idx+1) % 2 === 0 && idx < subjects.length-1) {
@@ -6336,18 +6488,19 @@ function ScheduleScreen({pal,family,child,setChild,onMarkComplete,onProgressUpda
           <div style={{textAlign:"center",padding:"2rem 1rem",color:pal.slate,fontSize:"0.82rem"}}>No subjects planned for this day.</div>
         )}
         {visibleBlocks.map((b,bi)=>(
-          <div key={bi} style={{marginBottom:"0.45rem"}}>
-            <div style={{background:pal.linen,borderRadius:"14px",border:`1.5px solid ${pal.stone}20`,position:"relative",overflow:"hidden"}}>
-              <div style={{position:"absolute",left:0,top:0,bottom:0,width:"4px",background:b.lifeReady?LR_COLOR:b.isGroup?pal.mid:pal.stone+"60"}}/>
+          <div key={bi} style={{marginBottom:"0.45rem",opacity:b.offDay?0.45:1,transition:"opacity 0.15s"}}>
+            <div style={{background:b.offDay?pal.parchm:pal.linen,borderRadius:"14px",border:`1.5px solid ${b.offDay?pal.stone+"30":pal.stone+"20"}`,position:"relative",overflow:"hidden"}}>
+              <div style={{position:"absolute",left:0,top:0,bottom:0,width:"4px",background:b.offDay?pal.stone+"40":b.lifeReady?LR_COLOR:b.isGroup?pal.mid:pal.stone+"60"}}/>
               <div style={{padding:"0.8rem 1rem",display:"flex",gap:"0.85rem",alignItems:"center"}}>
-                <div style={{width:"38px",height:"38px",borderRadius:"10px",background:b.lifeReady?LR_COLOR+"18":pal.pale,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.2rem",flexShrink:0,border:b.lifeReady?`2px solid ${LR_COLOR}40`:"none"}}>
+                <div style={{width:"38px",height:"38px",borderRadius:"10px",background:b.offDay?pal.stone+"12":b.lifeReady?LR_COLOR+"18":pal.pale,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.2rem",flexShrink:0,border:b.lifeReady&&!b.offDay?`2px solid ${LR_COLOR}40`:"none"}}>
                   {b.i}
                 </div>
                 <div style={{flex:1}}>
-                  <div style={{fontWeight:"700",color:b.lifeReady?LR_COLOR:pal.ink,fontSize:"0.88rem"}}>{b.s}</div>
-                  <div style={{fontSize:"0.72rem",color:b.lifeReady?LR_COLOR:pal.slate,fontWeight:b.lifeReady?"600":"400"}}>
-                    {b.t?h12(b.t)+" \u00b7 ":""}{b.dur} min{b.isLesson?" \u00b7 Lesson":b.isPractice?" \u00b7 Practice":""}
-                    {b.isGroup&&<span style={{marginLeft:"0.35rem",color:pal.mid,fontWeight:"700",fontSize:"0.65rem"}}>GROUP</span>}
+                  <div style={{fontWeight:"700",color:b.offDay?pal.stone:b.lifeReady?LR_COLOR:pal.ink,fontSize:"0.88rem"}}>{b.s}</div>
+                  <div style={{fontSize:"0.72rem",color:b.offDay?pal.stone:b.lifeReady?LR_COLOR:pal.slate,fontWeight:b.lifeReady&&!b.offDay?"600":"400"}}>
+                    {b.t?h12(b.t)+"· ":""}{b.dur} min{b.isLesson?"· Lesson":b.isPractice?"· Practice":""}
+                    {b.isGroup&&!b.offDay&&<span style={{marginLeft:"0.35rem",color:pal.mid,fontWeight:"700",fontSize:"0.65rem"}}>GROUP</span>}
+                    {b.offDay&&<span style={{marginLeft:"0.35rem",color:pal.stone,fontWeight:"600",fontSize:"0.63rem"}}>not scheduled today</span>}
                   </div>
                 </div>
               </div>
