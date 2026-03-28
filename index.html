@@ -7431,10 +7431,10 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
           const daysSince = Math.floor((new Date() - lastDate) / (24*60*60*1000));
           if(daysSince < 2) return null; // only 1 day gap — not worth mentioning
           const msg = daysSince===2
-            ? {"Yesterday was a skip day — no worries! Ready to log today?"}
+            ? "Yesterday was a skip day — no worries! Ready to log today?"
             : daysSince<=4
-              ? {"It's been "+daysSince+" days — pick up where you left off 🌱"}
-              : {"Welcome back! It's been a while — even a quick log keeps the streak alive."};
+              ? "It's been "+daysSince+" days — pick up where you left off 🌱"
+              : "Welcome back! It's been a while — even a quick log keeps the streak alive.";
           return (
             <div style={{background:"#fffbeb",borderRadius:"13px",padding:"0.7rem 1rem",marginBottom:"1rem",border:"1.5px solid #f5c842",display:"flex",gap:"0.65rem",alignItems:"center"}}>
               <span style={{fontSize:"1.1rem",flexShrink:0}}>{"💛"}</span>
