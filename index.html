@@ -9787,7 +9787,7 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
           )}
         </PortfolioCard>}
 
-        {!searchQuery.trim()&&<>{/* ── PHOTOS CARD ── */}
+        {!searchQuery.trim()&&(<>{/* ── PHOTOS CARD ── */}
         <PortfolioPhotosCard pal={pal} cp={cp} entries={photoEntries} onDetail={setDetail} onEdit={(e)=>setEditEntry(e)} onAdd={()=>setShowAdd(true)}/>
 
         {/* ── PAST DAYS CARD ── */}
@@ -9864,6 +9864,7 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
 
         {/* ── ADDITIONAL NOTES ── */}
         <AdditionalNotes pal={pal} family={family} child={activeCh}/>
+        </>)}
 
         {/* ── WORKSHEET REMINDER ── */}
         <div style={{background:"#fffbeb",border:"1.5px solid #f5c842",borderRadius:"13px",padding:"0.85rem 1rem",marginBottom:"1rem",display:"flex",gap:"0.6rem",alignItems:"flex-start"}}>
