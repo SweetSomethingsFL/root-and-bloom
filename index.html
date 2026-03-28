@@ -9905,15 +9905,14 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
       {detailEntry&&<EntryDetailModal pal={pal} family={family} entry={detailEntry}
         onClose={()=>setDetail(null)}
         onEdit={()=>{setEditEntry(detailEntry);setDetail(null);}}/>}
+      {showFullYearPrint&&(
+        <FullYearPrintModal
+          pal={pal} family={family} child={activeCh} cp={cp}
+          entries={childEntries} attendanceDays={attendanceDays}
+          onClose={()=>setShowFullYearPrint(false)}
+        />
+      )}
     </div>
-
-    {showFullYearPrint&&(
-      <FullYearPrintModal
-        pal={pal} family={family} child={activeCh} cp={cp}
-        entries={childEntries} attendanceDays={attendanceDays}
-        onClose={()=>setShowFullYearPrint(false)}
-      />
-    )}
   );
 }
 
