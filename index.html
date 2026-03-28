@@ -7983,7 +7983,7 @@ function WeeklyPlanView({pal, family, child, portfolioEntries, lastCheckinDate, 
             return (
               <div key={di} onClick={()=>onSelectDay(di)}
                 style={{height:"36px",borderRadius:"8px",background:off?pal.parchm:pal.pale,border:`1.5px solid ${d.isToday?(off?pal.stone+"30":pal.primary+"50"):pal.stone+"25"}`,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",transition:"all 0.12s"}}>
-                {!off&&<div style={{width:"8px",height:"8px",borderRadius:"50%",background:pal.primary+\"88\"}}/>}
+                {!off&&<div style={{width:"8px",height:"8px",borderRadius:"50%",background:pal.primary+"88"}}/>}
               </div>
             );
           })}
