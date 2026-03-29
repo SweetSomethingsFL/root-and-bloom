@@ -1351,10 +1351,10 @@ function OnboardingFlow({ pal, onComplete }) {
     paletteId:"sage",
   });
   const upd = (k,v) => setData(d=>({...d,[k]:v}));
-  const STEPS = ["Welcome","Your Children","Learning Style","Curriculum","Subjects","Lesson Goals","Schedule","Co-op","Goals","Life & Extras","Life Ready"];
-  const pct = Math.round((step/10)*100);
+  const STEPS = ["Welcome","Your Children","Learning Style","Curriculum","Subjects","Lesson Goals","Weekly Schedule","Schedule","Co-op","Goals","Life & Extras","Life Ready"];
+  const pct = Math.round((step/11)*100);
 
-  const STEP_ICONS = ["🌱","👨👩👧👦","📚","📖","🔬","🎯","📅","🏫","🌟","🌿","🛡"];
+  const STEP_ICONS = ["🌱","👨👩👧👦","📚","📖","🔬","🎯","📆","📅","🏫","🌟","🌿","🛡"];
 
   return (
     <div style={{minHeight:"100vh",background:pal.sand,display:"flex",flexDirection:"column"}}>
@@ -1364,7 +1364,7 @@ function OnboardingFlow({ pal, onComplete }) {
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.55rem"}}>
             <button onClick={()=>setStep(s=>Math.max(0,s-1))} style={{background:"rgba(255,255,255,0.14)",border:"none",color:"#fff",borderRadius:"50%",width:"28px",height:"28px",cursor:"pointer",fontSize:"0.9rem",display:"flex",alignItems:"center",justifyContent:"center"}}>Back</button>
             <span style={{fontSize:"0.7rem",color:"rgba(255,255,255,0.55)",fontWeight:"700",letterSpacing:"0.08em",textTransform:"uppercase"}}>{STEP_ICONS[step]} {STEPS[step]}</span>
-            <span style={{fontSize:"0.68rem",color:"rgba(255,255,255,0.4)",fontWeight:"600"}}>{step + " of 10"}</span>
+            <span style={{fontSize:"0.68rem",color:"rgba(255,255,255,0.4)",fontWeight:"600"}}>{step + " of 11"}</span>
           </div>
           <div style={{height:"4px",borderRadius:"99px",background:"rgba(255,255,255,0.15)",overflow:"hidden"}}>
             <div style={{height:"100%",width:`${pct}%`,borderRadius:"99px",background:pal.accentGrad,transition:"width 0.35s ease"}}/>
@@ -1378,12 +1378,13 @@ function OnboardingFlow({ pal, onComplete }) {
         {step===2 && <OnbPhilosophy   pal={pal} data={data} upd={upd} onNext={()=>setStep(3)} />}
         {step===3 && <OnbCurrBrands   pal={pal} data={data} upd={upd} onNext={()=>setStep(4)} />}
         {step===4 && <OnbSubjects     pal={pal} data={data} upd={upd} onNext={()=>setStep(5)} />}
-        {step===5 && <OnbLessonGoals  pal={pal} data={data} upd={upd} onNext={()=>setStep(6)} />}
-        {step===6 && <OnbSchedule     pal={pal} data={data} upd={upd} onNext={()=>setStep(7)} />}
-        {step===7 && <OnbCoop         pal={pal} data={data} upd={upd} onNext={()=>setStep(8)} />}
-        {step===8 && <OnbGoals        pal={pal} data={data} upd={upd} onNext={()=>setStep(9)} />}
-        {step===9 && <OnbExtras       pal={pal} data={data} upd={upd} onNext={()=>setStep(10)} />}
-        {step===10 && <OnbLifeReady   pal={pal} data={data} upd={upd} onNext={()=>onComplete(data)} />}
+        {step===5 && <OnbLessonGoals    pal={pal} data={data} upd={upd} onNext={()=>setStep(6)} />}
+        {step===6 && <OnbWeeklySchedule pal={pal} data={data} upd={upd} onNext={()=>setStep(7)} />}
+        {step===7 && <OnbSchedule       pal={pal} data={data} upd={upd} onNext={()=>setStep(8)} />}
+        {step===8 && <OnbCoop           pal={pal} data={data} upd={upd} onNext={()=>setStep(9)} />}
+        {step===9 && <OnbGoals          pal={pal} data={data} upd={upd} onNext={()=>setStep(10)} />}
+        {step===10 && <OnbExtras        pal={pal} data={data} upd={upd} onNext={()=>setStep(11)} />}
+        {step===11 && <OnbLifeReady     pal={pal} data={data} upd={upd} onNext={()=>onComplete(data)} />}
       </div>
     </div>
   );
@@ -2027,6 +2028,157 @@ function OnbLessonGoals({ pal, data, upd, onNext }) {
           {"Skip \u2192"}
         </button>
         <Btn pal={pal} onClick={save} style={{flex:2}}>{"Save goals \u2192"}</Btn>
+      </div>
+    </div>
+  );
+}
+
+/* --- STEP 6: Weekly Schedule — which subjects on which days --- */
+function OnbWeeklySchedule({ pal, data, upd, onNext }) {
+  const customSubjs = data.customSubjects||[];
+  const allSubjMap  = Object.fromEntries([...SUBJECT_OPTIONS,...customSubjs].map(s=>[s.id,s]));
+  const activeSubjs = (data.subjects||[]).map(id=>allSubjMap[id]).filter(Boolean);
+
+  const DOW_LABELS  = ["Mon","Tue","Wed","Thu","Fri"];
+  const DOW_FULL    = ["Monday","Tuesday","Wednesday","Thursday","Friday"];
+  const coopDow     = ["Monday","Tuesday","Wednesday","Thursday","Friday"].indexOf(data.coopDay??""  );
+
+  // weeklySchedule: {0:[subjId,...], 1:[...], 2:[...], 3:[...], 4:[...]}
+  // null entry means "not a school day" (different from empty array = school day, no subjects yet)
+  const [sched, setSched] = React.useState(()=>{
+    if(data.weeklySchedule) return data.weeklySchedule;
+    // Default: all subjects every day (except co-op day)
+    const init = {};
+    for(let d=0;d<5;d++){
+      if(d===coopDow) { init[d]=null; continue; }
+      init[d] = activeSubjs.map(s=>s.id);
+    }
+    return init;
+  });
+
+  const [activeDay, setActiveDay] = React.useState(
+    coopDow===0 ? 1 : 0  // start on first non-coop day
+  );
+
+  const toggleSubj = (dow, subjId) => {
+    setSched(prev=>{
+      const cur = prev[dow]||[];
+      const next = cur.includes(subjId) ? cur.filter(x=>x!==subjId) : [...cur, subjId];
+      return {...prev, [dow]: next};
+    });
+  };
+
+  const toggleDay = (dow) => {
+    if(dow===coopDow) return; // can't toggle co-op day
+    setSched(prev=>{
+      // null = no school, array = school day
+      if(prev[dow]===null) return {...prev, [dow]: activeSubjs.map(s=>s.id)};
+      return {...prev, [dow]: null};
+    });
+  };
+
+  const save = () => {
+    upd("weeklySchedule", sched);
+    onNext();
+  };
+
+  if(activeSubjs.length===0) { onNext(); return null; }
+
+  const activeDaySubjs = sched[activeDay];
+  const isDayOff       = activeDaySubjs===null;
+  const isCoop         = activeDay===coopDow;
+
+  return (
+    <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
+      <StepHdr pal={pal} icon="📆" title="Weekly Schedule"
+        sub="Which subjects do you cover each day? Tap a day to set it up. You can always adjust this later." />
+
+      {/* Day tabs */}
+      <div style={{display:"flex",gap:"0.3rem",marginBottom:"1rem"}}>
+        {DOW_LABELS.map((d,i)=>{
+          const isActive   = activeDay===i;
+          const isCopDay   = i===coopDow;
+          const isOff      = sched[i]===null && !isCopDay;
+          const subjCount  = Array.isArray(sched[i]) ? sched[i].length : 0;
+          return (
+            <button key={i} onClick={()=>setActiveDay(i)}
+              style={{flex:1,padding:"0.55rem 0.2rem",borderRadius:"12px",border:`2px solid ${isActive?pal.primary:isCopDay?"#f5c842":isOff?pal.stone+"40":pal.stone+"50"}`,background:isActive?pal.pale:isCopDay?"#fff8e6":isOff?"transparent":"transparent",cursor:"pointer",textAlign:"center",transition:"all 0.13s"}}>
+              <div style={{fontSize:"0.65rem",fontWeight:"800",color:isActive?pal.primary:isCopDay?"#b07800":isOff?pal.stone:pal.inkM,textTransform:"uppercase",letterSpacing:"0.05em"}}>{d}</div>
+              <div style={{fontSize:"0.58rem",color:isActive?pal.primary:isCopDay?"#b07800":isOff?pal.stone:pal.slate,marginTop:"2px",fontWeight:"600"}}>
+                {isCopDay?"Co-op":isOff?"Off":subjCount+" subj"}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Day panel */}
+      {isCoop ? (
+        <div style={{background:"#fff8e6",borderRadius:"16px",padding:"1.2rem 1rem",border:"1.5px solid #f5c84250",textAlign:"center"}}>
+          <div style={{fontSize:"1.8rem",marginBottom:"0.4rem"}}>{"🏫"}</div>
+          <div style={{fontWeight:"800",color:"#7a5500",fontSize:"0.88rem",marginBottom:"0.25rem"}}>{DOW_FULL[activeDay]} is your Co-op day</div>
+          <div style={{fontSize:"0.74rem",color:"#b07800",lineHeight:1.6}}>Co-op subjects are set up in the next step. Regular subjects are paused on this day.</div>
+        </div>
+      ) : (
+        <div style={{background:pal.linen,borderRadius:"16px",padding:"0.9rem 1rem",border:`1.5px solid ${pal.stone}30`}}>
+          {/* Day on/off toggle */}
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:isDayOff?"0":"0.75rem",paddingBottom:isDayOff?"0":"0.75rem",borderBottom:isDayOff?"none":`1px solid ${pal.stone}20`}}>
+            <div>
+              <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem"}}>{DOW_FULL[activeDay]}</div>
+              <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>{isDayOff?"No school this day":"Select which subjects"}</div>
+            </div>
+            <button onClick={()=>toggleDay(activeDay)}
+              style={{width:"44px",height:"26px",borderRadius:"13px",border:"none",background:isDayOff?pal.stone+"60":pal.primary,cursor:"pointer",position:"relative",transition:"background 0.2s",flexShrink:0}}>
+              <div style={{position:"absolute",top:"3px",left:isDayOff?"3px":"21px",width:"20px",height:"20px",borderRadius:"50%",background:"#fff",transition:"left 0.2s"}}/>
+            </button>
+          </div>
+
+          {!isDayOff && (
+            <div style={{display:"flex",flexDirection:"column",gap:"0.32rem"}}>
+              {activeSubjs.map(s=>{
+                const sel = (sched[activeDay]||[]).includes(s.id);
+                return (
+                  <button key={s.id} onClick={()=>toggleSubj(activeDay, s.id)}
+                    style={{display:"flex",gap:"0.65rem",alignItems:"center",padding:"0.55rem 0.75rem",border:`2px solid ${sel?pal.primary:pal.stone+"45"}`,borderRadius:"11px",background:sel?pal.pale:"#fff",cursor:"pointer",textAlign:"left",transition:"all 0.12s"}}>
+                    <span style={{fontSize:"1.1rem",width:"22px",textAlign:"center",flexShrink:0}}>{s.icon}</span>
+                    <span style={{flex:1,fontWeight:sel?"700":"400",color:sel?pal.primary:pal.inkM,fontSize:"0.84rem"}}>{s.label}</span>
+                    <div style={{width:"20px",height:"20px",borderRadius:"5px",border:`2px solid ${sel?pal.primary:pal.stone}`,background:sel?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.12s"}}>
+                      {sel&&<span style={{color:"#fff",fontSize:"0.72rem",fontWeight:"900"}}>{"✓"}</span>}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Week summary */}
+      <div style={{background:pal.parchm,borderRadius:"12px",padding:"0.65rem 0.85rem",marginTop:"0.85rem",marginBottom:"1.1rem",border:`1px solid ${pal.stone}25`}}>
+        <div style={{fontSize:"0.64rem",fontWeight:"800",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.35rem"}}>Your week at a glance</div>
+        <div style={{display:"flex",gap:"0.5rem",flexWrap:"wrap"}}>
+          {DOW_LABELS.map((d,i)=>{
+            const isCopDay = i===coopDow;
+            const isOff    = sched[i]===null && !isCopDay;
+            const count    = Array.isArray(sched[i]) ? sched[i].length : 0;
+            return (
+              <div key={i} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:"2px",cursor:"pointer"}} onClick={()=>setActiveDay(i)}>
+                <div style={{fontSize:"0.6rem",fontWeight:"700",color:isCopDay?"#b07800":isOff?pal.stone:pal.inkM}}>{d}</div>
+                <div style={{width:"36px",height:"36px",borderRadius:"9px",background:isCopDay?"#fff8e6":isOff?pal.parchm:pal.pale,border:`1.5px solid ${activeDay===i?pal.primary:isCopDay?"#f5c842":isOff?pal.stone+"30":pal.stone+"40"}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.68rem",fontWeight:"800",color:isCopDay?"#b07800":isOff?pal.stone:pal.primary}}>
+                  {isCopDay?"🏫":isOff?"—":count}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div style={{display:"flex",gap:"0.5rem"}}>
+        <button onClick={onNext}
+          style={{flex:1,padding:"0.72rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.86rem",cursor:"pointer"}}>
+          {"Skip \u2192"}
+        </button>
+        <Btn pal={pal} onClick={save} style={{flex:2}}>{"Save schedule \u2192"}</Btn>
       </div>
     </div>
   );
@@ -3004,6 +3156,97 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
               </div>
             </SCard>
 
+            <SCard pal={pal} title="Weekly Schedule" note="Which subjects on which days">
+              {(()=>{
+                const csj2   = local.customSubjects||[];
+                const smap3  = Object.fromEntries([...SUBJECT_OPTIONS,...csj2].map(s=>[s.id,s]));
+                const asj3   = (local.subjects||[]).map(id=>smap3[id]).filter(Boolean);
+                const cdow3  = ["Monday","Tuesday","Wednesday","Thursday","Friday"].indexOf(local.coopDay??"");
+                const DOW3   = ["Mon","Tue","Wed","Thu","Fri"];
+                const DOW3F  = ["Monday","Tuesday","Wednesday","Thursday","Friday"];
+                const [aday3,setAday3] = React.useState(cdow3===0?1:0);
+
+                const ws3 = local.weeklySchedule || (() => {
+                  const init = {};
+                  for(let d=0;d<5;d++) init[d] = d===cdow3?null:asj3.map(s=>s.id);
+                  return init;
+                })();
+
+                const setWs3 = (fn) => {
+                  const next = typeof fn==="function" ? fn(local.weeklySchedule||ws3) : fn;
+                  updL("weeklySchedule", next);
+                };
+
+                const togSubj3 = (dow,id) => setWs3(prev=>{
+                  const cur=prev[dow]||[];
+                  return {...prev,[dow]:cur.includes(id)?cur.filter(x=>x!==id):[...cur,id]};
+                });
+                const togDay3 = (dow) => {
+                  if(dow===cdow3) return;
+                  setWs3(prev=>({...prev,[dow]:prev[dow]===null?asj3.map(s=>s.id):null}));
+                };
+
+                const wsCur = local.weeklySchedule||ws3;
+                const isDOff3  = wsCur[aday3]===null&&aday3!==cdow3;
+                const isCoop3  = aday3===cdow3;
+                const daySjs3  = wsCur[aday3]||[];
+
+                return (
+                  <div>
+                    {/* Day tabs */}
+                    <div style={{display:"flex",gap:"0.25rem",marginBottom:"0.65rem"}}>
+                      {DOW3.map((d,i)=>{
+                        const isAct=aday3===i, isCp=i===cdow3, isOff=wsCur[i]===null&&!isCp;
+                        const cnt=Array.isArray(wsCur[i])?wsCur[i].length:0;
+                        return (
+                          <button key={i} onClick={()=>setAday3(i)}
+                            style={{flex:1,padding:"0.4rem 0.1rem",borderRadius:"9px",border:`1.5px solid ${isAct?pal.primary:isCp?"#f5c842":isOff?pal.stone+"30":pal.stone+"45"}`,background:isAct?pal.pale:isCp?"#fff8e6":"transparent",cursor:"pointer",textAlign:"center"}}>
+                            <div style={{fontSize:"0.6rem",fontWeight:"800",color:isAct?pal.primary:isCp?"#b07800":isOff?pal.stone:pal.inkM,textTransform:"uppercase"}}>{d}</div>
+                            <div style={{fontSize:"0.55rem",color:isAct?pal.primary:isCp?"#b07800":isOff?pal.stone:pal.slate,marginTop:"1px",fontWeight:"600"}}>
+                              {isCp?"coop":isOff?"off":cnt+"s"}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {/* Day panel */}
+                    {isCoop3 ? (
+                      <div style={{background:"#fff8e6",borderRadius:"11px",padding:"0.65rem 0.85rem",border:"1.5px solid #f5c84240",fontSize:"0.74rem",color:"#b07800",fontWeight:"600"}}>
+                        {"🏫 Co-op day — regular subjects paused"}
+                      </div>
+                    ) : (
+                      <div style={{background:pal.parchm,borderRadius:"11px",padding:"0.55rem 0.75rem"}}>
+                        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:isDOff3?"0":"0.55rem"}}>
+                          <span style={{fontSize:"0.76rem",fontWeight:"700",color:pal.inkM}}>{DOW3F[aday3]}</span>
+                          <button onClick={()=>togDay3(aday3)}
+                            style={{width:"38px",height:"22px",borderRadius:"11px",border:"none",background:isDOff3?pal.stone+"60":pal.primary,cursor:"pointer",position:"relative",transition:"background 0.2s",flexShrink:0}}>
+                            <div style={{position:"absolute",top:"2px",left:isDOff3?"2px":"18px",width:"18px",height:"18px",borderRadius:"50%",background:"#fff",transition:"left 0.2s"}}/>
+                          </button>
+                        </div>
+                        {!isDOff3&&(
+                          <div style={{display:"flex",flexDirection:"column",gap:"0.25rem"}}>
+                            {asj3.map(s=>{
+                              const sel=daySjs3.includes(s.id);
+                              return (
+                                <button key={s.id} onClick={()=>togSubj3(aday3,s.id)}
+                                  style={{display:"flex",gap:"0.5rem",alignItems:"center",padding:"0.4rem 0.55rem",border:`1.5px solid ${sel?pal.primary:pal.stone+"40"}`,borderRadius:"8px",background:sel?pal.pale:"#fff",cursor:"pointer",textAlign:"left",transition:"all 0.12s"}}>
+                                  <span style={{fontSize:"0.9rem",width:"18px",textAlign:"center",flexShrink:0}}>{s.icon}</span>
+                                  <span style={{flex:1,fontWeight:sel?"700":"400",color:sel?pal.primary:pal.inkM,fontSize:"0.78rem"}}>{s.label}</span>
+                                  <div style={{width:"16px",height:"16px",borderRadius:"4px",border:`2px solid ${sel?pal.primary:pal.stone}`,background:sel?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                                    {sel&&<span style={{color:"#fff",fontSize:"0.6rem",fontWeight:"900"}}>{"✓"}</span>}
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+            </SCard>
+
             <SCard pal={pal} title="Morning Time">
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:local.morningGathering?"0.75rem":"0"}}>
                 <div>
@@ -3310,6 +3553,23 @@ function generateSchedule(family, childId) {
     sessionMins = parseInt((family.sessionLength||"45 min").split(" ")[0]);
     startHour   = parseInt((family.startTime||"8:00").split(":")[0]);
     startMin    = parseInt((family.startTime||"8:00").split(":")[1]||0);
+  }
+
+  // Per-day subject filter: if weeklySchedule set, use only today's subjects
+  if(family.weeklySchedule) {
+    const todayJs = new Date().getDay(); // 0=Sun,1=Mon...6=Sat
+    // Convert JS dow to our Mon-based 0-4 index
+    const todayIdx = todayJs===0 ? null : todayJs===6 ? null : todayJs-1; // null=weekend
+    if(todayIdx!==null) {
+      const daySubjs = family.weeklySchedule[todayIdx];
+      if(daySubjs===null) {
+        // Day marked as off — return empty (caller handles co-op separately)
+        subjects = [];
+      } else if(Array.isArray(daySubjs) && daySubjs.length>0) {
+        subjects = daySubjs; // use only today's subjects (already IDs)
+      }
+      // if daySubjs is undefined (not set yet), keep the full subjects list
+    }
   }
 
   const isTimed = family.scheduleMode === "timed";
@@ -6170,6 +6430,47 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
         <GoalsNudgeCard pal={pal} family={family} portfolioEntries={portfolioEntries} todayStr={todayStr} onTabChange={onTabChange}/>
 
         {/* Today schedule preview */}
+        {(()=>{
+          // Check if today is a co-op day or day-off per weeklySchedule
+          const todayJs2 = new Date().getDay();
+          const todayIdx2 = todayJs2===0||todayJs2===6 ? null : todayJs2-1;
+          const ws2 = family.weeklySchedule;
+          const todayDaySubjs = (ws2&&todayIdx2!==null) ? ws2[todayIdx2] : undefined;
+          const isTodayCoop2 = family.coopDay && ["Monday","Tuesday","Wednesday","Thursday","Friday"][todayIdx2??-1]===family.coopDay;
+          const isTodayOff   = todayDaySubjs===null && !isTodayCoop2;
+          if(isTodayOff) {
+            return (
+              <div style={{background:pal.parchm,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}30`,display:"flex",gap:"0.6rem",alignItems:"center"}}>
+                <span style={{fontSize:"1.2rem"}}>{"🛋"}</span>
+                <div>
+                  <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.84rem"}}>{"No school today"}</div>
+                  <div style={{fontSize:"0.72rem",color:pal.slate,marginTop:"2px"}}>{"Rest day — nothing scheduled."}</div>
+                </div>
+              </div>
+            );
+          }
+          if(isTodayCoop2) {
+            const coopSubjsList = family.coopClasses||[];
+            return (
+              <div style={{background:"#fff8e6",borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:"1.5px solid #f5c84250"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.45rem"}}>
+                  <span style={{fontWeight:"800",color:"#7a5500",fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>{"Co-op Day 🏫"}</span>
+                  <button onClick={()=>onTabChange("schedule")} style={{fontSize:"0.72rem",color:"#b07800",fontWeight:"700",background:"transparent",border:"none",cursor:"pointer"}}>{"Schedule →"}</button>
+                </div>
+                {coopSubjsList.length>0 ? (
+                  <div style={{display:"flex",flexWrap:"wrap",gap:"0.3rem"}}>
+                    {coopSubjsList.slice(0,6).map(s=>(
+                      <span key={s} style={{padding:"0.22rem 0.6rem",background:"rgba(245,200,66,0.15)",borderRadius:"20px",fontSize:"0.74rem",fontWeight:"700",color:"#7a5500",border:"1px solid #f5c84240"}}>{s}</span>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{fontSize:"0.74rem",color:"#b07800"}}>{"Co-op classes set up in Settings → School."}</div>
+                )}
+              </div>
+            );
+          }
+          return null;
+        })()}
         {visible.length > 0 && (<>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.5rem"}}>
             <span style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>{"Today's Plan"}</span>
