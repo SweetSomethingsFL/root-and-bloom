@@ -640,7 +640,7 @@ function RootAndBloom() {
               setShowSchedConfirm(false);
             }}
             onCatchup={()=>setShowCatchup(true)} />}
-          {activeTab==="goals"       && <GoalsScreen       pal={pal} family={family} portfolioEntries={portfolioEntries} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} />}
+          {activeTab==="goals"       && <GoalsScreen       pal={pal} family={family} portfolioEntries={portfolioEntries} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} onAddEntry={addPortfolioEntry}/>}
           {activeTab==="coop"        && <CoopScreen        pal={pal} family={family} coopLog={coopLog} onLog={e=>setCoopLog(l=>[e,...l])} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} onAddEntry={addPortfolioEntry} />}
           {activeTab==="transcripts" && <TranscriptsScreen pal={pal} family={family} portfolioEntries={portfolioEntries} attendanceDays={attendanceDays} coopLog={coopLog} observationLog={observationLog} />}
           {showLifeReady && family && <LifeReadyScreen pal={pal} family={family} onBack={()=>setShowLifeReady(false)}/>}
@@ -734,6 +734,7 @@ function RootAndBloom() {
           onStart={handleNewYear}
           onDismiss={()=>{setNewYearDismissed("newyear_"+family.yearEnd);setShowNewYear(false);}}/>}
         {showDaySummary && daySummaryData && <DaySummaryModal pal={pal} family={family} data={daySummaryData} portfolioEntries={portfolioEntries}
+          onCoopLog={e=>setCoopLog(l=>[{...e},...l])}
           onSave={(entries)=>{
             setPortfolioEntries(prev=>{
               let updated = [...prev];
@@ -1350,10 +1351,10 @@ function OnboardingFlow({ pal, onComplete }) {
     paletteId:"sage",
   });
   const upd = (k,v) => setData(d=>({...d,[k]:v}));
-  const STEPS = ["Welcome","Your Children","Learning Style","Curriculum","Subjects","Schedule","Co-op","Goals","Life & Extras","Life Ready"];
-  const pct = Math.round((step/9)*100);
+  const STEPS = ["Welcome","Your Children","Learning Style","Curriculum","Subjects","Lesson Goals","Schedule","Co-op","Goals","Life & Extras","Life Ready"];
+  const pct = Math.round((step/10)*100);
 
-  const STEP_ICONS = ["🌱","👨👩👧👦","📚","📖","🔬","📅","🏫","🌟","🌿","🛡"];
+  const STEP_ICONS = ["🌱","👨👩👧👦","📚","📖","🔬","🎯","📅","🏫","🌟","🌿","🛡"];
 
   return (
     <div style={{minHeight:"100vh",background:pal.sand,display:"flex",flexDirection:"column"}}>
@@ -1363,7 +1364,7 @@ function OnboardingFlow({ pal, onComplete }) {
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.55rem"}}>
             <button onClick={()=>setStep(s=>Math.max(0,s-1))} style={{background:"rgba(255,255,255,0.14)",border:"none",color:"#fff",borderRadius:"50%",width:"28px",height:"28px",cursor:"pointer",fontSize:"0.9rem",display:"flex",alignItems:"center",justifyContent:"center"}}>Back</button>
             <span style={{fontSize:"0.7rem",color:"rgba(255,255,255,0.55)",fontWeight:"700",letterSpacing:"0.08em",textTransform:"uppercase"}}>{STEP_ICONS[step]} {STEPS[step]}</span>
-            <span style={{fontSize:"0.68rem",color:"rgba(255,255,255,0.4)",fontWeight:"600"}}>{step + " of 9"}</span>
+            <span style={{fontSize:"0.68rem",color:"rgba(255,255,255,0.4)",fontWeight:"600"}}>{step + " of 10"}</span>
           </div>
           <div style={{height:"4px",borderRadius:"99px",background:"rgba(255,255,255,0.15)",overflow:"hidden"}}>
             <div style={{height:"100%",width:`${pct}%`,borderRadius:"99px",background:pal.accentGrad,transition:"width 0.35s ease"}}/>
@@ -1377,11 +1378,12 @@ function OnboardingFlow({ pal, onComplete }) {
         {step===2 && <OnbPhilosophy   pal={pal} data={data} upd={upd} onNext={()=>setStep(3)} />}
         {step===3 && <OnbCurrBrands   pal={pal} data={data} upd={upd} onNext={()=>setStep(4)} />}
         {step===4 && <OnbSubjects     pal={pal} data={data} upd={upd} onNext={()=>setStep(5)} />}
-        {step===5 && <OnbSchedule     pal={pal} data={data} upd={upd} onNext={()=>setStep(6)} />}
-        {step===6 && <OnbCoop         pal={pal} data={data} upd={upd} onNext={()=>setStep(7)} />}
-        {step===7 && <OnbGoals        pal={pal} data={data} upd={upd} onNext={()=>setStep(8)} />}
-        {step===8 && <OnbExtras       pal={pal} data={data} upd={upd} onNext={()=>setStep(9)} />}
-        {step===9 && <OnbLifeReady    pal={pal} data={data} upd={upd} onNext={()=>onComplete(data)} />}
+        {step===5 && <OnbLessonGoals  pal={pal} data={data} upd={upd} onNext={()=>setStep(6)} />}
+        {step===6 && <OnbSchedule     pal={pal} data={data} upd={upd} onNext={()=>setStep(7)} />}
+        {step===7 && <OnbCoop         pal={pal} data={data} upd={upd} onNext={()=>setStep(8)} />}
+        {step===8 && <OnbGoals        pal={pal} data={data} upd={upd} onNext={()=>setStep(9)} />}
+        {step===9 && <OnbExtras       pal={pal} data={data} upd={upd} onNext={()=>setStep(10)} />}
+        {step===10 && <OnbLifeReady   pal={pal} data={data} upd={upd} onNext={()=>onComplete(data)} />}
       </div>
     </div>
   );
@@ -1915,6 +1917,116 @@ function OnbLifeReady({ pal, data, upd, onNext }) {
         <Btn pal={pal} onClick={onNext}>
           {opted?"Finish Setup 🌱":"Skip for now ->"}
         </Btn>
+      </div>
+    </div>
+  );
+}
+
+/* --- STEP 5: Lesson Goals --- */
+function OnbLessonGoals({ pal, data, upd, onNext }) {
+  // lessonGoals = {subjId: {0:n, 1:n, 2:n, 3:n, 4:n}} 0=Mon...4=Fri
+  const customSubjs = data.customSubjects||[];
+  const allSubjMap  = Object.fromEntries([...SUBJECT_OPTIONS,...customSubjs].map(s=>[s.id,s]));
+  const activeSubjs = (data.subjects||[]).map(id=>allSubjMap[id]).filter(Boolean);
+  const coopDay     = data.coopDay; // e.g. "Friday"
+  const DOW_NAMES   = ["Mon","Tue","Wed","Thu","Fri"];
+  const DOW_MAP     = {"Monday":0,"Tuesday":1,"Wednesday":2,"Thursday":3,"Friday":4};
+  const coopDow     = DOW_MAP[coopDay]??-1;
+
+  // Initialise goals from existing data or sensible defaults
+  const [goals, setGoals] = React.useState(()=>{
+    const existing = data.lessonGoals||{};
+    const init = {};
+    activeSubjs.forEach(s=>{
+      init[s.id] = existing[s.id]||{0:1,1:1,2:1,3:1,4:1};
+    });
+    return init;
+  });
+
+  const cycle = (subjId, dow) => {
+    setGoals(prev=>{
+      const cur = (prev[subjId]||{})[dow]||0;
+      const next = cur>=3 ? 0 : cur+1;
+      return {...prev,[subjId]:{...(prev[subjId]||{}),[dow]:next}};
+    });
+  };
+
+  const weeklyTotal = (subjId) =>
+    [0,1,2,3,4].reduce((s,d)=>{
+      if(d===coopDow) return s;
+      return s+(goals[subjId]?.[d]||0);
+    },0);
+
+  const save = () => {
+    upd("lessonGoals", goals);
+    onNext();
+  };
+
+  if(activeSubjs.length===0) {
+    onNext();
+    return null;
+  }
+
+  return (
+    <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
+      <StepHdr pal={pal} icon="🎯" title="Lesson Goals"
+        sub="How many lessons of each subject do you aim to do each day? Tap a number to cycle 0-1-2-3. This helps track your week." />
+
+      <div style={{background:pal.pale,borderRadius:"12px",padding:"0.7rem 0.9rem",marginBottom:"1rem",border:`1.5px solid ${pal.primary}20`,fontSize:"0.74rem",color:pal.inkM,lineHeight:1.6}}>
+        {"Tip: 0 means that subject is not planned for that day. Tap each number to cycle through 0 \u2192 1 \u2192 2 \u2192 3."}
+        {coopDay&&<span>{" Co-op days ("}{coopDay}{") are marked automatically."}</span>}
+      </div>
+
+      {/* Day headers */}
+      <div style={{display:"grid",gridTemplateColumns:"1fr repeat(5,36px)",gap:"0.3rem",marginBottom:"0.4rem",alignItems:"center"}}>
+        <div/>
+        {DOW_NAMES.map((d,i)=>(
+          <div key={d} style={{textAlign:"center",fontSize:"0.62rem",fontWeight:"800",color:i===coopDow?"#b07800":pal.slate,textTransform:"uppercase",letterSpacing:"0.05em"}}>{d}</div>
+        ))}
+      </div>
+
+      {/* Per-subject rows */}
+      <div style={{display:"flex",flexDirection:"column",gap:"0.45rem",marginBottom:"1.2rem"}}>
+        {activeSubjs.map(s=>{
+          const total = weeklyTotal(s.id);
+          return (
+            <div key={s.id} style={{background:pal.linen,borderRadius:"12px",padding:"0.55rem 0.6rem",border:`1.5px solid ${pal.stone}30`}}>
+              <div style={{display:"grid",gridTemplateColumns:"1fr repeat(5,36px)",gap:"0.3rem",alignItems:"center"}}>
+                <div style={{display:"flex",alignItems:"center",gap:"0.35rem",minWidth:0}}>
+                  <span style={{fontSize:"1rem",flexShrink:0}}>{s.icon}</span>
+                  <div style={{minWidth:0}}>
+                    <div style={{fontSize:"0.75rem",fontWeight:"700",color:pal.ink,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s.label}</div>
+                    <div style={{fontSize:"0.6rem",color:pal.slate}}>{total>0?total+"/wk":"not scheduled"}</div>
+                  </div>
+                </div>
+                {[0,1,2,3,4].map(dow=>{
+                  const isCoop = dow===coopDow;
+                  const val = isCoop ? null : (goals[s.id]?.[dow]||0);
+                  return (
+                    <div key={dow} style={{display:"flex",alignItems:"center",justifyContent:"center"}}>
+                      {isCoop ? (
+                        <div style={{width:"30px",height:"30px",borderRadius:"8px",background:"#fff8e6",border:"1.5px solid #f5c84240",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.55rem",color:"#b07800",fontWeight:"700",textAlign:"center",lineHeight:1.2}}>co{"\u00b7"}op</div>
+                      ) : (
+                        <button onClick={()=>cycle(s.id,dow)}
+                          style={{width:"30px",height:"30px",borderRadius:"8px",border:`2px solid ${val>0?pal.primary:pal.stone+"50"}`,background:val>0?pal.pale:"transparent",cursor:"pointer",fontWeight:"800",fontSize:"0.82rem",color:val>0?pal.primary:pal.stone,display:"flex",alignItems:"center",justifyContent:"center",padding:0,transition:"all 0.12s"}}>
+                          {val}
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div style={{display:"flex",gap:"0.5rem"}}>
+        <button onClick={onNext}
+          style={{flex:1,padding:"0.72rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.86rem",cursor:"pointer"}}>
+          {"Skip \u2192"}
+        </button>
+        <Btn pal={pal} onClick={save} style={{flex:2}}>{"Save goals \u2192"}</Btn>
       </div>
     </div>
   );
@@ -2778,6 +2890,58 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                   </div>
                 )}
               </SCard>
+
+            <SCard pal={pal} title="Lesson Goals" note="Tap a number to cycle 0\u20131\u20132\u20133 per day">
+              {(()=>{
+                const customSjs = local.customSubjects||[];
+                const sMap2 = Object.fromEntries([...SUBJECT_OPTIONS,...customSjs].map(s=>[s.id,s]));
+                const activeSjs = (local.subjects||[]).map(id=>sMap2[id]).filter(Boolean);
+                const coopDowL = {"Monday":0,"Tuesday":1,"Wednesday":2,"Thursday":3,"Friday":4}[local.coopDay]??-1;
+                const DOW_NAMES2 = ["Mon","Tue","Wed","Thu","Fri"];
+                if(activeSjs.length===0) return <div style={{fontSize:"0.78rem",color:pal.slate}}>Add subjects first.</div>;
+                const cycleGoal = (subjId, dow) => {
+                  const cur = ((local.lessonGoals||{})[subjId]||{})[dow]||0;
+                  const next = cur>=3?0:cur+1;
+                  updL("lessonGoals",{...(local.lessonGoals||{}),[subjId]:{...((local.lessonGoals||{})[subjId]||{}),[dow]:next}});
+                };
+                return (
+                  <div>
+                    <div style={{display:"grid",gridTemplateColumns:"1fr repeat(5,32px)",gap:"0.25rem",marginBottom:"0.35rem",alignItems:"center"}}>
+                      <div/>
+                      {DOW_NAMES2.map((d,i)=>(
+                        <div key={d} style={{textAlign:"center",fontSize:"0.58rem",fontWeight:"800",color:i===coopDowL?"#b07800":pal.slate,textTransform:"uppercase"}}>{d}</div>
+                      ))}
+                    </div>
+                    <div style={{display:"flex",flexDirection:"column",gap:"0.35rem"}}>
+                      {activeSjs.map(s=>(
+                        <div key={s.id} style={{display:"grid",gridTemplateColumns:"1fr repeat(5,32px)",gap:"0.25rem",alignItems:"center",background:pal.parchm,borderRadius:"9px",padding:"0.42rem 0.5rem"}}>
+                          <div style={{display:"flex",alignItems:"center",gap:"0.3rem",minWidth:0}}>
+                            <span style={{fontSize:"0.9rem",flexShrink:0}}>{s.icon}</span>
+                            <span style={{fontSize:"0.72rem",fontWeight:"600",color:pal.inkM,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s.label}</span>
+                          </div>
+                          {[0,1,2,3,4].map(dow=>{
+                            const isCoop=dow===coopDowL;
+                            const val=isCoop?null:((local.lessonGoals||{})[s.id]?.[dow]||0);
+                            return (
+                              <div key={dow} style={{display:"flex",alignItems:"center",justifyContent:"center"}}>
+                                {isCoop?(
+                                  <div style={{width:"28px",height:"28px",borderRadius:"7px",background:"#fff8e6",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.5rem",color:"#b07800",fontWeight:"700",lineHeight:1.1,textAlign:"center"}}>{"co\u00b7op"}</div>
+                                ):(
+                                  <button onClick={()=>cycleGoal(s.id,dow)}
+                                    style={{width:"28px",height:"28px",borderRadius:"7px",border:`2px solid ${val>0?pal.primary:pal.stone+"50"}`,background:val>0?pal.pale:"transparent",cursor:"pointer",fontWeight:"800",fontSize:"0.8rem",color:val>0?pal.primary:pal.stone,display:"flex",alignItems:"center",justifyContent:"center",padding:0}}>
+                                    {val}
+                                  </button>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+            </SCard>
 
             <SCard pal={pal} title="Subjects" note="These drive your schedule and portfolio">
               <div style={{fontSize:"0.72rem",color:pal.slate,marginBottom:"0.65rem",lineHeight:1.5}}>
@@ -6025,39 +6189,60 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
           </div>
         </>)}
 
-        {/* ── What did we miss this week? ── */}
+        {/* ── This Week: lesson progress ── */}
         {(()=>{
-          const activeSubjIds = family.subjects||[];
-          const customSubjs2  = family.customSubjects||[];
-          const allSubjMap2   = Object.fromEntries([...SUBJECT_OPTIONS,...customSubjs2].map(s=>[s.id,s]));
+          const lessonGoals  = family.lessonGoals||{};
+          const hasGoals     = Object.keys(lessonGoals).length>0;
+          const activeSubjIds= family.subjects||[];
+          const customSubjs2 = family.customSubjects||[];
+          const allSubjMap2  = Object.fromEntries([...SUBJECT_OPTIONS,...customSubjs2].map(s=>[s.id,s]));
           const activeSubjList2 = activeSubjIds.map(id=>allSubjMap2[id]).filter(Boolean);
           if(activeSubjList2.length===0) return null;
+          if(portfolioEntries.length===0) return null;
 
-          // Build set of subjects logged this week
+          // Week boundaries
           const weekStart2 = new Date();
           weekStart2.setDate(weekStart2.getDate()-(weekStart2.getDay()===0?6:weekStart2.getDay()-1));
           weekStart2.setHours(0,0,0,0);
-          const todayDateStr2 = new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
           const yr2 = new Date().getFullYear();
+          const todayDow = new Date().getDay(); // 0=Sun,1=Mon...6=Sat
 
           // Filter entries by active child
           const ci2 = child==="all" ? -1 : family.children.findIndex(c=>c.id===child);
-          const relevantEntries = ci2 >= 0
+          const relevantEntries = (ci2>=0
             ? portfolioEntries.filter(e=>e.childIdx===ci2&&!e.isDay)
-            : portfolioEntries.filter(e=>!e.isDay);
+            : portfolioEntries.filter(e=>!e.isDay)
+          ).filter(e=>{ try{ return new Date(e.date+", "+yr2)>=weekStart2; }catch{ return false; } });
 
-          const loggedThisWeek = new Set(
-            relevantEntries.filter(e=>{
-              try{ return new Date(e.date+", "+yr2) >= weekStart2; }catch{ return false; }
-            }).map(e=>e.subj)
-          );
+          // Compute weekly target per subject from lessonGoals {subjId: {dow: count}}
+          // dow 0=Mon ... 4=Fri in our system
+          const getWeeklyTarget = (subjId) => {
+            if(!hasGoals||!lessonGoals[subjId]) return null;
+            const dayMap = lessonGoals[subjId];
+            // Only count days that have already passed this week (Mon=1...today)
+            // For "target by end of week" sum all 5 days
+            return [0,1,2,3,4].reduce((sum,d)=>sum+(dayMap[d]||0),0);
+          };
 
-          const missed   = activeSubjList2.filter(s=>!loggedThisWeek.has(s.label));
-          const done     = activeSubjList2.filter(s=>loggedThisWeek.has(s.label));
-          const allCaught= missed.length===0;
+          // Compute lessons logged per subject this week
+          const loggedPerSubj = {};
+          relevantEntries.forEach(e=>{
+            if(!e.subj) return;
+            loggedPerSubj[e.subj] = (loggedPerSubj[e.subj]||0) + (e.lessonCount||1);
+          });
 
-          // Only show if we have portfolio entries (otherwise meaningless)
-          if(portfolioEntries.length===0) return null;
+          // Build subject cards
+          const cards = activeSubjList2.map(s=>{
+            const logged = loggedPerSubj[s.label]||0;
+            const target = getWeeklyTarget(s.id);
+            const touched = logged>0;
+            const onTrack = target===null ? touched : logged>=target;
+            const pct     = target ? Math.min(100,Math.round(logged/target*100)) : (touched?100:0);
+            return {s, logged, target, touched, onTrack, pct};
+          });
+
+          const allOnTrack = cards.every(c=>c.onTrack);
+          const hasAnyData = cards.some(c=>c.touched);
 
           return (
             <>
@@ -6065,48 +6250,49 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
                 <span style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>
                   {"This Week"}
                 </span>
-                <button onClick={()=>onTabChange("portfolio")} style={{fontSize:"0.72rem",color:pal.primary,fontWeight:"700",background:"transparent",border:"none",cursor:"pointer"}}>Portfolio →</button>
+                <button onClick={()=>onTabChange("portfolio")} style={{fontSize:"0.72rem",color:pal.primary,fontWeight:"700",background:"transparent",border:"none",cursor:"pointer"}}>Portfolio {"→"}</button>
               </div>
-              <div style={{background:pal.linen,borderRadius:"16px",padding:"0.9rem 1rem",border:`1.5px solid ${allCaught?pal.good+"50":pal.stone+"45"}`,marginBottom:"1rem"}}>
-                {allCaught ? (
-                  <div style={{display:"flex",gap:"0.65rem",alignItems:"center"}}>
+              <div style={{background:pal.linen,borderRadius:"16px",padding:"0.9rem 1rem",border:`1.5px solid ${allOnTrack&&hasAnyData?pal.good+"50":pal.stone+"45"}`,marginBottom:"1rem"}}>
+                {allOnTrack&&hasAnyData?(
+                  <div style={{display:"flex",gap:"0.65rem",alignItems:"center",marginBottom:"0.75rem"}}>
                     <div style={{width:"38px",height:"38px",borderRadius:"10px",background:pal.goodBg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.2rem",flexShrink:0}}>{"🌟"}</div>
                     <div>
-                      <div style={{fontWeight:"700",color:pal.good,fontSize:"0.85rem"}}>{"All subjects covered this week!"}</div>
-                      <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"2px"}}>{"Every subject has at least one entry. Great consistency."}</div>
+                      <div style={{fontWeight:"700",color:pal.good,fontSize:"0.85rem"}}>
+                        {hasGoals?"All lesson goals hit this week!":"All subjects covered this week!"}
+                      </div>
+                      <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"2px"}}>
+                        {hasGoals?"Every subject is on track. Keep it up!":"Every subject has at least one entry."}
+                      </div>
                     </div>
                   </div>
-                ) : (
-                  <>
-                    {missed.length>0&&(
-                      <div style={{marginBottom:done.length>0?"0.75rem":"0"}}>
-                        <div style={{fontSize:"0.64rem",fontWeight:"800",color:"#b07800",textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"0.4rem"}}>{"Not yet this week"}</div>
-                        <div style={{display:"flex",flexWrap:"wrap",gap:"0.3rem"}}>
-                          {missed.map(s=>(
-                            <button key={s.id} onClick={startLog}
-                              style={{display:"flex",alignItems:"center",gap:"0.3rem",padding:"0.28rem 0.65rem",background:"#fff8e6",borderRadius:"20px",border:"1.5px solid #f5c842",cursor:"pointer"}}>
-                              <span style={{fontSize:"0.85rem"}}>{s.icon}</span>
-                              <span style={{fontSize:"0.74rem",fontWeight:"700",color:"#7a5500"}}>{s.label}</span>
-                            </button>
-                          ))}
-                        </div>
+                ):null}
+                <div style={{display:"flex",flexDirection:"column",gap:"0.45rem"}}>
+                  {cards.map(({s,logged,target,touched,onTrack,pct})=>(
+                    <div key={s.id}
+                      onClick={!onTrack?startLog:undefined}
+                      style={{background:onTrack?"#fff":touched?"#fff":"#fff8e6",borderRadius:"11px",padding:"0.55rem 0.7rem",border:`1.5px solid ${onTrack?pal.good+"40":touched?pal.stone+"30":"#f5c842"}`,cursor:!onTrack?"pointer":"default",transition:"all 0.12s"}}>
+                      <div style={{display:"flex",alignItems:"center",gap:"0.5rem",marginBottom:target!==null?"0.3rem":"0"}}>
+                        <span style={{fontSize:"1rem",flexShrink:0}}>{s.icon}</span>
+                        <span style={{flex:1,fontWeight:"700",color:onTrack?pal.good:touched?pal.inkM:"#7a5500",fontSize:"0.8rem"}}>{s.label}</span>
+                        <span style={{fontSize:"0.74rem",fontWeight:"800",color:onTrack?pal.good:touched?pal.primary:"#b07800"}}>
+                          {target!==null
+                            ? logged+"/"+target+" lessons"
+                            : touched?"✓ logged":"Not yet"}
+                        </span>
+                        {onTrack&&<span style={{fontSize:"0.75rem",color:pal.good}}>{"✓"}</span>}
                       </div>
-                    )}
-                    {done.length>0&&(
-                      <div>
-                        <div style={{fontSize:"0.64rem",fontWeight:"800",color:pal.good,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"0.4rem"}}>{"Done ✓"}</div>
-                        <div style={{display:"flex",flexWrap:"wrap",gap:"0.3rem"}}>
-                          {done.map(s=>(
-                            <div key={s.id} style={{display:"flex",alignItems:"center",gap:"0.3rem",padding:"0.28rem 0.65rem",background:pal.goodBg,borderRadius:"20px",border:`1.5px solid ${pal.good}40`}}>
-                              <span style={{fontSize:"0.85rem"}}>{s.icon}</span>
-                              <span style={{fontSize:"0.74rem",fontWeight:"600",color:pal.good}}>{s.label}</span>
-                              <span style={{fontSize:"0.65rem",color:pal.good,fontWeight:"800"}}>{"✓"}</span>
-                            </div>
-                          ))}
+                      {target!==null&&(
+                        <div style={{height:"4px",borderRadius:"99px",background:pal.stone+"30",overflow:"hidden"}}>
+                          <div style={{height:"100%",width:pct+"%",borderRadius:"99px",background:onTrack?pal.good:pct>50?pal.primary:"#f5c842",transition:"width 0.4s"}}/>
                         </div>
-                      </div>
-                    )}
-                  </>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                {!hasGoals&&(
+                  <div style={{marginTop:"0.55rem",fontSize:"0.68rem",color:pal.slate,fontStyle:"italic",textAlign:"center"}}>
+                    {"Set lesson goals in Settings to track progress here."}
+                  </div>
                 )}
               </div>
             </>
@@ -7827,6 +8013,7 @@ function AIWorksheetModal({ pal, family, activeChild, wsType, onClose }) {
 function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEditEntry,attendanceDays=0,lastCheckinDate,onCheckin}){
   const [showDailyLog,   setShowDailyLog]   = useState(false);
   const [showAdd,        setShowAdd]        = useState(false);
+  const [showAddExtra,   setShowAddExtra]   = useState(false);
   const [editEntry,      setEditEntry]      = useState(null);
   const [detailEntry,    setDetail]         = useState(null);
   const [expandedSubj,   setExpandedSubj]   = useState(null);
@@ -7835,6 +8022,8 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
   const [searchQuery,    setSearchQuery]    = useState("");
   const [showPrintMenu,  setShowPrintMenu]  = useState(false);
   const [showFullYearPrint, setShowFullYearPrint] = useState(false);
+  const [printDate,         setPrintDate]         = useState(""); // date string for prior-day print
+  const [showDatePicker,    setShowDatePicker]     = useState(false);
 
   const stateInfo = getStateInfo(family.state||"");
   const activeCi  = family.children.findIndex(c=>c.id===child);
@@ -7920,11 +8109,29 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
                   {"🖨"}
                 </button>
                 {showPrintMenu&&(
-                  <div style={{position:"absolute",top:"calc(100% + 6px)",right:0,background:"#fff",borderRadius:"12px",border:`1.5px solid ${pal.stone}30`,boxShadow:"0 4px 20px rgba(0,0,0,0.15)",zIndex:100,minWidth:"160px",overflow:"hidden"}}>
+                  <div style={{position:"absolute",top:"calc(100% + 6px)",right:0,background:"#fff",borderRadius:"12px",border:`1.5px solid ${pal.stone}30`,boxShadow:"0 4px 20px rgba(0,0,0,0.15)",zIndex:100,minWidth:"200px",overflow:"hidden"}}>
                     <button onClick={()=>{printPortfolioPDF(family,childEntries,activeCh,attendanceDays,stateInfo);setShowPrintMenu(false);}}
                       style={{width:"100%",padding:"0.65rem 0.9rem",border:"none",background:"transparent",color:pal.ink,fontSize:"0.78rem",fontWeight:"600",cursor:"pointer",textAlign:"left",display:"flex",gap:"0.5rem",alignItems:"center",borderBottom:`1px solid ${pal.stone}20`}}>
                       <span>{"📄"}</span><span>{"Today's log"}</span>
                     </button>
+                    {(()=>{
+                      const loggedDates = [...new Set(childEntries.filter(e=>!e.isDay&&e.date).map(e=>e.date))].slice(0,60);
+                      return loggedDates.length>0?(
+                        <div style={{borderBottom:`1px solid ${pal.stone}20`}}>
+                          <div style={{padding:"0.45rem 0.9rem 0.25rem",fontSize:"0.64rem",fontWeight:"800",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.06em"}}>Prior days</div>
+                          <div style={{maxHeight:"160px",overflowY:"auto"}}>
+                            {loggedDates.map(dateStr=>(
+                              <button key={dateStr} onClick={()=>{
+                                printPortfolioPDF(family,childEntries,activeCh,attendanceDays,stateInfo,dateStr);
+                                setShowPrintMenu(false);
+                              }} style={{width:"100%",padding:"0.5rem 0.9rem",border:"none",background:"transparent",color:pal.ink,fontSize:"0.78rem",fontWeight:"500",cursor:"pointer",textAlign:"left",display:"flex",gap:"0.5rem",alignItems:"center"}}>
+                                <span>{"📄"}</span><span>{dateStr}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ):null;
+                    })()}
                     <button onClick={()=>{setShowPrintMenu(false);setShowFullYearPrint(true);}}
                       style={{width:"100%",padding:"0.65rem 0.9rem",border:"none",background:"transparent",color:pal.ink,fontSize:"0.78rem",fontWeight:"600",cursor:"pointer",textAlign:"left",display:"flex",gap:"0.5rem",alignItems:"center"}}>
                       <span>{"📚"}</span><span>{"Full year portfolio"}</span>
@@ -8029,7 +8236,7 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
             </div>
           ) : (
             <div style={{display:"flex",flexDirection:"column",gap:"0.3rem",paddingTop:"0.1rem"}}>
-              {readingEntries.slice().reverse().map((e,i)=>(
+              {readingEntries.map((e,i)=>(
                 <div key={e.id||i}
                   style={{display:"flex",gap:"0.55rem",alignItems:"center",padding:"0.45rem 0.6rem",borderRadius:"10px",background:"#fff",border:`1px solid ${pal.stone}20`}}>
                   <span style={{fontSize:"1rem",flexShrink:0}}>{"📖"}</span>
@@ -8055,13 +8262,17 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
           {extraEntries.length===0 ? (
             <div style={{padding:"0.5rem 0",textAlign:"center"}}>
               <div style={{fontSize:"0.78rem",color:pal.slate,marginBottom:"0.65rem"}}>Sports, music, co-op, field trips {"\u2014"} log them here.</div>
-              <button onClick={()=>setShowAdd(true)}
+              <button onClick={()=>setShowAddExtra(true)}
                 style={{padding:"0.42rem 1rem",border:`1.5px solid ${pal.primary}`,borderRadius:"10px",background:"transparent",color:pal.primary,fontSize:"0.76rem",fontWeight:"700",cursor:"pointer"}}>
                 + Add Extracurricular
               </button>
             </div>
           ) : (
             <div style={{display:"flex",flexDirection:"column",gap:"0.3rem",paddingTop:"0.1rem"}}>
+              <button onClick={()=>setShowAddExtra(true)}
+                style={{padding:"0.32rem 0.75rem",border:`1.5px solid ${pal.primary}`,borderRadius:"20px",background:"transparent",color:pal.primary,fontSize:"0.72rem",fontWeight:"700",cursor:"pointer",marginBottom:"0.5rem",display:"inline-block"}}>
+                + Add
+              </button>
               {extraEntries.slice().reverse().map((e,i)=>(
                 <div key={e.id||i}
                   style={{display:"flex",gap:"0.55rem",alignItems:"center",padding:"0.45rem 0.6rem",borderRadius:"10px",background:"#fff",border:`1px solid ${pal.stone}20`}}>
@@ -8113,6 +8324,9 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
       {showAdd&&<AddEntryModal pal={pal} family={family} onClose={()=>setShowAdd(false)}
         onSave={e=>{onAddEntry&&onAddEntry(e);setShowAdd(false);}}
         stateInfo={stateInfo}/>}
+      {showAddExtra&&<AddExtraModal pal={pal} family={family}
+        onClose={()=>setShowAddExtra(false)}
+        onSave={entries=>{entries.forEach(e=>onAddEntry&&onAddEntry(e));setShowAddExtra(false);}}/>}
       {editEntry&&<AddEntryModal pal={pal} family={family} initialData={editEntry}
         onClose={()=>setEditEntry(null)}
         onSave={updated=>{onEditEntry&&onEditEntry(editEntry.id,updated);setEditEntry(null);}}
@@ -9218,6 +9432,229 @@ function AdditionalNotes({pal,family,child}){
 }
 
 
+
+/* =======================================
+   ADD EXTRACURRICULAR MODAL
+   Purpose-built for activities outside
+   the regular academic schedule.
+======================================= */
+function AddExtraModal({pal, family, onClose, onSave}) {
+  const fileRef = useRef(null);
+  const CHILD_COLORS2 = ["#e8943a","#4aabcf","#9b6fc8","#44aa66","#e85a7a"];
+
+  // Which children participated
+  const [selChildren, setSelChildren] = useState(
+    new Set(family.children.map((_,i)=>i))
+  );
+  const toggleChild = (i) => setSelChildren(prev=>{
+    const n = new Set(prev);
+    if(n.has(i) && n.size>1) n.delete(i); else n.add(i);
+    return n;
+  });
+
+  // Activity details
+  const [activity,  setActivity]  = useState("");
+  const [category,  setCategory]  = useState("");
+  const [duration,  setDuration]  = useState("");
+  const [note,      setNote]      = useState("");
+  const [photos,    setPhotos]    = useState([]);
+
+  // Build activity list from family extracurriculars + presets
+  const familyExtras = [
+    ...(family.extracurriculars||[]).filter(e=>e!=="None right now"),
+    ...(family.customExtracurriculars||[]),
+  ];
+  const PRESET_CATEGORIES = [
+    {label:"Sports",       icon:"🏃"},
+    {label:"Music",        icon:"🎵"},
+    {label:"Art",          icon:"🎨"},
+    {label:"Dance",        icon:"💃"},
+    {label:"Theater",      icon:"🎭"},
+    {label:"Scouting",     icon:"⚜️"},
+    {label:"Martial Arts", icon:"🥋"},
+    {label:"Club",         icon:"🏅"},
+    {label:"Field Trip",   icon:"🚌"},
+    {label:"Volunteer",    icon:"🤎"},
+    {label:"Other",        icon:"⭐"},
+  ];
+  const allCategories = [
+    ...familyExtras.map(e=>({label:e, icon:"🏆"})),
+    ...PRESET_CATEGORIES.filter(p=>!familyExtras.includes(p.label)),
+  ];
+
+  const handlePhoto = (e) => {
+    Array.from(e.target.files).forEach(file=>{
+      const reader = new FileReader();
+      reader.onload = ev => setPhotos(p=>[...p,{name:file.name,dataUrl:ev.target.result}]);
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const canSave = activity.trim().length > 0;
+
+  const handleSave = () => {
+    const today = new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
+    const cat = category||activity;
+    const entries = [...selChildren].map(ci=>{
+      const icon = allCategories.find(c=>c.label===cat)?.icon||"🏆";
+      return {
+        childIdx: ci,
+        title: activity.trim(),
+        subj: "Extracurricular",
+        date: today,
+        thumb: icon,
+        note: note.trim(),
+        duration: duration||null,
+        category: cat,
+        photos: photos.map(p=>p.dataUrl),
+        isExtra: true,
+      };
+    });
+    onSave(entries);
+  };
+
+  return (
+    <div style={{position:"fixed",inset:0,background:"rgba(15,10,4,0.75)",backdropFilter:"blur(12px)",zIndex:200,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
+      <div style={{background:pal.linen,borderRadius:"28px 28px 0 0",width:"100%",maxWidth:"430px",maxHeight:"90vh",display:"flex",flexDirection:"column",animation:"slideUp 0.26s ease"}}>
+
+        {/* Handle */}
+        <div style={{padding:"0.7rem 0 0",display:"flex",justifyContent:"center",flexShrink:0}}>
+          <div style={{width:"36px",height:"4px",borderRadius:"99px",background:pal.stone}}/>
+        </div>
+
+        {/* Header */}
+        <div style={{background:pal.heroGrad,padding:"0.9rem 1.2rem",flexShrink:0,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div>
+            <div style={{fontWeight:"900",color:"#fff",fontSize:"0.95rem"}}>{"🏆 Log Extracurricular"}</div>
+            <div style={{fontSize:"0.7rem",color:"rgba(255,255,255,0.7)",marginTop:"2px"}}>Sports, music, clubs, field trips, and more</div>
+          </div>
+          <button onClick={onClose}
+            style={{background:"rgba(255,255,255,0.18)",border:"none",borderRadius:"9px",padding:"0.3rem 0.65rem",color:"#fff",fontWeight:"700",fontSize:"0.75rem",cursor:"pointer"}}>
+            {"✕"}
+          </button>
+        </div>
+
+        <div style={{flex:1,overflowY:"auto",padding:"1rem 1.2rem"}}>
+
+          {/* Who participated */}
+          {family.children.length>1&&(
+            <div style={{marginBottom:"1rem"}}>
+              <div style={{fontSize:"0.74rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.45rem"}}>Who participated?</div>
+              <div style={{display:"flex",gap:"0.4rem",flexWrap:"wrap"}}>
+                {family.children.map((c,i)=>{
+                  const cc=CHILD_COLORS2[i%CHILD_COLORS2.length];
+                  const sel=selChildren.has(i);
+                  return (
+                    <button key={c.id} onClick={()=>toggleChild(i)}
+                      style={{display:"flex",alignItems:"center",gap:"0.35rem",padding:"0.32rem 0.75rem",borderRadius:"20px",border:`2px solid ${sel?cc:pal.stone+"50"}`,background:sel?cc+"22":"transparent",cursor:"pointer",transition:"all 0.12s"}}>
+                      <span style={{fontSize:"1rem"}}>{c.avatar}</span>
+                      <span style={{fontSize:"0.78rem",fontWeight:sel?"700":"400",color:sel?cc:pal.slate}}>{c.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Category chips */}
+          <div style={{marginBottom:"0.85rem"}}>
+            <div style={{fontSize:"0.74rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.45rem"}}>Category</div>
+            <div style={{display:"flex",flexWrap:"wrap",gap:"0.35rem"}}>
+              {allCategories.map(c=>{
+                const sel=category===c.label;
+                return (
+                  <button key={c.label} onClick={()=>setCategory(sel?"":c.label)}
+                    style={{display:"flex",alignItems:"center",gap:"0.28rem",padding:"0.28rem 0.65rem",borderRadius:"20px",border:`2px solid ${sel?pal.primary:pal.stone+"50"}`,background:sel?pal.pale:"transparent",cursor:"pointer",transition:"all 0.12s"}}>
+                    <span style={{fontSize:"0.85rem"}}>{c.icon}</span>
+                    <span style={{fontSize:"0.74rem",fontWeight:sel?"700":"400",color:sel?pal.primary:pal.inkM}}>{c.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Activity name */}
+          <div style={{marginBottom:"0.85rem"}}>
+            <div style={{fontSize:"0.74rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.35rem"}}>
+              {"Activity / Event *"}
+            </div>
+            <input
+              value={activity}
+              onChange={e=>setActivity(e.target.value)}
+              placeholder={"e.g. Soccer practice, Piano recital, Museum field trip..."}
+              autoFocus
+              style={{width:"100%",padding:"0.62rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.83rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit"}}
+              onFocus={e=>e.target.style.borderColor=pal.primary}
+              onBlur={e=>e.target.style.borderColor=pal.stone}
+            />
+          </div>
+
+          {/* Duration */}
+          <div style={{marginBottom:"0.85rem"}}>
+            <div style={{fontSize:"0.74rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.35rem"}}>Duration (optional)</div>
+            <div style={{display:"flex",gap:"0.35rem",flexWrap:"wrap"}}>
+              {["30 min","45 min","1 hour","1.5 hrs","2 hrs","2.5 hrs","3 hrs","All day"].map(d=>(
+                <button key={d} onClick={()=>setDuration(duration===d?"":d)}
+                  style={{padding:"0.28rem 0.65rem",borderRadius:"20px",border:`2px solid ${duration===d?pal.primary:pal.stone+"50"}`,background:duration===d?pal.pale:"transparent",cursor:"pointer",fontSize:"0.74rem",fontWeight:duration===d?"700":"400",color:duration===d?pal.primary:pal.inkM,transition:"all 0.12s"}}>
+                  {d}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Notes */}
+          <div style={{marginBottom:"0.85rem"}}>
+            <div style={{fontSize:"0.74rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.35rem"}}>Notes (optional)</div>
+            <textarea
+              value={note}
+              onChange={e=>setNote(e.target.value)}
+              placeholder={"e.g. Scored first goal! Piano exam passed with distinction. Really enjoyed the science museum."}
+              rows={3}
+              style={{width:"100%",padding:"0.62rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.82rem",fontFamily:"inherit",background:pal.parchm,color:pal.ink,resize:"none",outline:"none",lineHeight:1.55}}
+              onFocus={e=>e.target.style.borderColor=pal.primary}
+              onBlur={e=>e.target.style.borderColor=pal.stone}
+            />
+          </div>
+
+          {/* Photos */}
+          <div style={{marginBottom:"0.5rem"}}>
+            <div style={{fontSize:"0.74rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.35rem"}}>Photos (optional)</div>
+            <input type="file" ref={fileRef} accept="image/*" multiple onChange={handlePhoto} style={{display:"none"}}/>
+            <button onClick={()=>fileRef.current?.click()}
+              style={{padding:"0.45rem 1rem",border:`2px dashed ${pal.primary}50`,borderRadius:"11px",background:"transparent",color:pal.primary,fontWeight:"700",fontSize:"0.78rem",cursor:"pointer",marginBottom:"0.55rem",display:"flex",alignItems:"center",gap:"0.4rem"}}>
+              <span>{"📷"}</span><span>Add photos</span>
+            </button>
+            {photos.length>0&&(
+              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"0.4rem"}}>
+                {photos.map((p,i)=>(
+                  <div key={i} style={{position:"relative",borderRadius:"10px",overflow:"hidden",border:`1.5px solid ${pal.stone}35`}}>
+                    <img src={p.dataUrl} alt="" style={{width:"100%",height:"72px",objectFit:"cover",display:"block"}}/>
+                    <button onClick={()=>setPhotos(ps=>ps.filter((_,pi)=>pi!==i))}
+                      style={{position:"absolute",top:"3px",right:"3px",width:"20px",height:"20px",borderRadius:"50%",background:"rgba(0,0,0,0.55)",border:"none",color:"#fff",fontSize:"0.65rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                      {"✕"}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div style={{padding:"0.9rem 1.2rem",borderTop:`1px solid ${pal.stone}40`,background:pal.linen,flexShrink:0,display:"flex",gap:"0.5rem"}}>
+          <button onClick={onClose}
+            style={{padding:"0.7rem 1rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem"}}>
+            Cancel
+          </button>
+          <button onClick={handleSave} disabled={!canSave}
+            style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:canSave?pal.accentGrad:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:canSave?"pointer":"default"}}>
+            {"Save to Portfolio ✓"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function AddEntryModal({pal,family,onClose,onSave,initialData=null,stateInfo=null}){
   const isEdit = initialData!==null;
@@ -11074,7 +11511,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
                 <div style={{fontSize:"0.7rem",color:pal.slate,fontWeight:"600"}}>{readingEntries.length} title{readingEntries.length!==1?"s":""}</div>
               </div>
               <div style={{background:pal.linen,borderRadius:"14px",border:`1.5px solid ${pal.stone}30`,overflow:"hidden",marginBottom:"1rem"}}>
-                {readingEntries.slice().reverse().map((e,i)=>(
+                {readingEntries.map((e,i)=>(
                   <div key={e.id||i} style={{display:"flex",gap:"0.65rem",alignItems:"flex-start",padding:"0.65rem 0.85rem",borderTop:i>0?`1px solid ${pal.stone}20`:"none"}}>
                     <span style={{fontSize:"1rem",flexShrink:0,marginTop:"1px"}}>{"📖"}</span>
                     <div style={{flex:1,minWidth:0}}>
@@ -11434,7 +11871,7 @@ function NarrativeEditor({pal,ch,family,bySubject,attendanceDays,schoolName,cp,c
 /* =======================================
    GOALS SCREEN
 ======================================= */
-function GoalsScreen({pal,family,portfolioEntries=[],onUpdateFamily}){
+function GoalsScreen({pal,family,portfolioEntries=[],onUpdateFamily,onAddEntry}){
   const [editing,     setEditing]     = useState(false);
   const [draftGoals,  setDraftGoals]  = useState(family.goals||[]);
   const [customInput, setCustomInput] = useState("");
@@ -11442,6 +11879,33 @@ function GoalsScreen({pal,family,portfolioEntries=[],onUpdateFamily}){
   const allGoalObjs  = [...GOALS,...(family.customGoals||[])];
   const activeGoals  = (family.goals||[]).map(id=>allGoalObjs.find(x=>x.id===id)).filter(Boolean);
   const subjEntries  = portfolioEntries.filter(e=>!e.isDay&&e.subj!=="Daily Notes");
+
+  const [quickNoteId,  setQuickNoteId]  = useState(null); // goal id currently open
+  const [quickNoteText,setQuickNoteText]= useState("");
+  const [quickSaved,   setQuickSaved]   = useState(null); // id of last saved goal (for flash)
+
+  const openQuickNote  = (id) => { setQuickNoteId(id); setQuickNoteText(""); };
+  const closeQuickNote = ()   => { setQuickNoteId(null); setQuickNoteText(""); };
+  const saveQuickNote  = (g)  => {
+    const text = quickNoteText.trim();
+    if(!text || !onAddEntry) return;
+    const today = new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
+    family.children.forEach((_,ci)=>{
+      onAddEntry({
+        childIdx: ci,
+        title: text.slice(0,80),
+        subj: "Goals",
+        date: today,
+        thumb: g.icon||"🌟",
+        note: text,
+        goalId: g.id,
+        isSubject: true,
+      });
+    });
+    setQuickSaved(g.id);
+    closeQuickNote();
+    setTimeout(()=>setQuickSaved(null), 2500);
+  };
 
   const toggleDraft = id => setDraftGoals(g=>g.includes(id)?g.filter(x=>x!==id):[...g,id]);
   const addCustom = () => {
@@ -11584,13 +12048,49 @@ function GoalsScreen({pal,family,portfolioEntries=[],onUpdateFamily}){
                         </div>
                       )}
 
-                      {/* Warm message */}
-                      <div style={{background:tc.bg,borderRadius:"10px",padding:"0.55rem 0.75rem",border:`1px solid ${tc.border}`,display:"flex",gap:"0.45rem",alignItems:"flex-start"}}>
-                        <span style={{fontSize:"0.8rem",flexShrink:0,marginTop:"1px"}}>
-                          {warmth.tone==="good"?"🌱":warmth.tone==="gentle"?"💛":"🌿"}
-                        </span>
-                        <div style={{fontSize:"0.74rem",color:tc.text,lineHeight:1.55}}>{warmth.msg}</div>
-                      </div>
+                      {/* Warm message + inline quick-log */}
+                      {quickSaved===g.id&&(
+                        <div style={{background:pal.goodBg,borderRadius:"10px",padding:"0.5rem 0.75rem",border:`1px solid ${pal.good}40`,display:"flex",gap:"0.4rem",alignItems:"center",marginBottom:"0.4rem",animation:"fadeUp 0.2s ease"}}>
+                          <span style={{fontSize:"0.85rem"}}>{"🌱"}</span>
+                          <div style={{fontSize:"0.74rem",color:pal.good,fontWeight:"700"}}>{"Logged! Great work."}</div>
+                        </div>
+                      )}
+                      {quickNoteId===g.id ? (
+                        <div style={{background:tc.bg,borderRadius:"10px",border:`1.5px solid ${pal.primary}40`,overflow:"hidden",animation:"fadeUp 0.15s ease"}}>
+                          <textarea
+                            autoFocus
+                            value={quickNoteText}
+                            onChange={e=>setQuickNoteText(e.target.value)}
+                            placeholder={"What happened toward "+g.label+" today? Even one sentence helps."}
+                            rows={3}
+                            style={{width:"100%",padding:"0.65rem 0.75rem",border:"none",borderBottom:`1px solid ${pal.stone}30`,background:"transparent",fontSize:"0.8rem",fontFamily:"inherit",color:pal.ink,resize:"none",outline:"none",lineHeight:1.55}}
+                          />
+                          <div style={{display:"flex",gap:"0.4rem",padding:"0.45rem 0.55rem",background:"rgba(255,255,255,0.5)"}}>
+                            <button onClick={closeQuickNote}
+                              style={{padding:"0.38rem 0.75rem",border:`1.5px solid ${pal.stone}`,borderRadius:"9px",background:"transparent",color:pal.slate,fontSize:"0.76rem",fontWeight:"600",cursor:"pointer"}}>
+                              Cancel
+                            </button>
+                            <button onClick={()=>saveQuickNote(g)}
+                              disabled={!quickNoteText.trim()}
+                              style={{flex:1,padding:"0.38rem 0.75rem",border:"none",borderRadius:"9px",background:quickNoteText.trim()?pal.accentGrad:"#ccc",color:"#fff",fontSize:"0.78rem",fontWeight:"800",cursor:quickNoteText.trim()?"pointer":"default"}}>
+                              {"Save to portfolio ✓"}
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <button onClick={()=>openQuickNote(g.id)}
+                          style={{width:"100%",background:tc.bg,borderRadius:"10px",padding:"0.55rem 0.75rem",border:`1px solid ${tc.border}`,display:"flex",gap:"0.45rem",alignItems:"flex-start",cursor:"pointer",textAlign:"left",transition:"border-color 0.15s"}}
+                          onMouseEnter={e=>e.currentTarget.style.borderColor=pal.primary+"60"}
+                          onMouseLeave={e=>e.currentTarget.style.borderColor=tc.border}>
+                          <span style={{fontSize:"0.8rem",flexShrink:0,marginTop:"1px"}}>
+                            {warmth.tone==="good"?"🌱":warmth.tone==="gentle"?"💛":"🌿"}
+                          </span>
+                          <div style={{flex:1}}>
+                            <div style={{fontSize:"0.74rem",color:tc.text,lineHeight:1.55}}>{warmth.msg}</div>
+                            <div style={{fontSize:"0.65rem",color:pal.primary,fontWeight:"700",marginTop:"0.25rem"}}>{"+ Add a note \u2192"}</div>
+                          </div>
+                        </button>
+                      )}
                     </div>
                   );
                 })}
@@ -11707,150 +12207,263 @@ function MoreScreen({pal,family,onNav,onTheme,onNavEdit,onSettings,onLifeReady})
    DAY SUMMARY MODAL
    Shown after marking a day complete
 ======================================= */
-function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose,onFinish}){
-  const [step,      setStep]     = useState(0); // 0=summary 1=notes 2=photos 3=done
-  const [notes,     setNotes]    = useState({}); // {childId_subj: text}
-  const [photos,    setPhotos]   = useState([]); // [{name,dataUrl}]
-  const [generating,setGenerating]=useState(false);
-  const [aiSummary, setAiSummary]=useState(null);
-  const [aiError,   setAiError]  = useState(null);
+function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose,onFinish,onCoopLog}){
+  // Steps: 0=coop-check 1=subjects 2=subject-notes 3=parent-notes 4=photos 5=goals 6=done
+  const [step,        setStep]       = useState(0);
+  const [isCoop,      setIsCoop]     = useState(false);
+  const [coopSubjs,   setCoopSubjs]  = useState(new Set());
+  const [coopHrs,     setCoopHrs]    = useState("2");
+  const [coopNotes,   setCoopNotes]  = useState({}); // {childId_subj: note}
+  const [notes,       setNotes]      = useState({}); // {childId_subj: text}
+  const [parentNote,  setParentNote] = useState("");
+  const [photos,      setPhotos]     = useState([]); // [{name,dataUrl,assign}]
+  const [goalsHit,    setGoalsHit]   = useState(new Set());
+  const [generating,  setGenerating] = useState(false);
+  const [aiSummary,   setAiSummary]  = useState(null);
+  const [aiError,     setAiError]    = useState(null);
+  const [savedEntries,setSavedEntries]= useState(null);
+  const [lessonCounts,setLessonCounts]= useState({}); // {subj: count}
   const fileInputRef = useRef(null);
+
+  const getLessonCount = (subj) => lessonCounts[subj]||1;
+  const setLessonCount = (subj,n) => setLessonCounts(c=>({...c,[subj]:n}));
 
   const blocks    = data.blocks || [];
   const dateLabel = data.dateLabel || "Today";
   const subjsDone = [...new Set(blocks.filter(b=>b.s!=="Break"&&b.s!=="Lunch").map(b=>b.s))];
+  const coopClasses = (family.coopClasses||[]).length>0
+    ? family.coopClasses
+    : ["Bible / Faith","Art","Science","History","Literature","Math","Music","PE","Other"];
+  const allGoalObjs = [...GOALS,...(family.customGoals||[])];
+  const familyGoals = (family.goals||[]).map(id=>allGoalObjs.find(g=>g.id===id)).filter(Boolean);
 
-  // note key per child+subject
-  const noteKey = (childId, subj) => childId+"__"+subj;
-  const getNote = (childId, subj) => notes[noteKey(childId,subj)]||"";
-  const setNote = (childId, subj, val) => setNotes(n=>({...n,[noteKey(childId,subj)]:val}));
+  // Steps to show — always show coop check; skip goals step if family has no goals set
+  const STEPS = familyGoals.length>0
+    ? ["Co-op?","Subjects","Subject Notes","Parent Notes","Photos","Goals","Done"]
+    : ["Co-op?","Subjects","Subject Notes","Parent Notes","Photos","Done"];
+  const LAST_SAVE_STEP = STEPS.length - 2; // the step right before Done
+  const DONE_STEP      = STEPS.length - 1;
+
+  const noteKey  = (childId, subj) => childId+"__"+subj;
+  const getNote  = (childId, subj) => notes[noteKey(childId,subj)]||"";
+  const setNote  = (childId, subj, val) => setNotes(n=>({...n,[noteKey(childId,subj)]:val}));
+  const getCoopNote = (childId, subj) => coopNotes[noteKey(childId,subj)]||"";
+  const setCoopNote = (childId, subj, val) => setCoopNotes(n=>({...n,[noteKey(childId,subj)]:val}));
+
+  const toggleCoopSubj = (s) => setCoopSubjs(prev=>{
+    const n=new Set(prev); n.has(s)?n.delete(s):n.add(s); return n;
+  });
+  const toggleGoal = (id) => setGoalsHit(prev=>{
+    const n=new Set(prev); n.has(id)?n.delete(id):n.add(id); return n;
+  });
 
   const handlePhotoUpload = (e) => {
-    const files = Array.from(e.target.files);
-    files.forEach(file=>{
+    const defaultAssign = family.children.length===1 ? family.children[0].id : "all";
+    Array.from(e.target.files).forEach(file=>{
       const reader = new FileReader();
-      reader.onload = (ev) => {
-        setPhotos(p=>[...p,{name:file.name,dataUrl:ev.target.result}]);
-      };
+      reader.onload = ev => setPhotos(p=>[...p,{name:file.name,dataUrl:ev.target.result,assign:defaultAssign}]);
       reader.readAsDataURL(file);
     });
   };
-
-  const removePhoto = (i) => setPhotos(p=>p.filter((_,pi)=>pi!==i));
+  const removePhoto    = (i) => setPhotos(p=>p.filter((_,pi)=>pi!==i));
+  const setPhotoAssign = (i,assign) => setPhotos(p=>p.map((ph,pi)=>pi===i?{...ph,assign}:ph));
 
   const generateSummary = async () => {
     setGenerating(true); setAiError(null);
-    // Build a subject-by-subject summary from per-subject notes
     const notesList = family.children.map(ch=>{
       const subjNotes = subjsDone.map(s=>{
-        const n = getNote(ch.id,s);
-        return n.trim() ? s+": "+n : "";
+        const n=getNote(ch.id,s);
+        return n.trim()?s+": "+n:"";
       }).filter(Boolean).join("; ");
-      return subjNotes ? ch.name+" — "+subjNotes : "";
-    }).filter(Boolean).join(" | ");
-    const subjList = subjsDone.join(", ");
-    const schoolName = family.schoolName||(family.familyName+" Academy")||"Home School";
-    const prompt = "Write a warm, encouraging 2-3 sentence daily summary for a homeschool family."
-      + " Date: "+dateLabel+". School: "+schoolName+"."
-      + " Subjects completed: "+subjList+"."
-      + (notesList?" Notes per subject: "+notesList:"")
-      + " Write in a celebratory, warm tone. Mention specific subjects. Under 80 words.";
+      return ch.name+(subjNotes?": "+subjNotes:"");
+    }).join(" | ");
+    const prompt = "Write a warm 2-sentence homeschool day summary. Date: "+dateLabel+". Subjects: "+subjsDone.join(", ")+". Family: "+family.familyName+". Notes: "+notesList+(parentNote?". Parent note: "+parentNote:"")+". Be specific and encouraging. No emojis. Plain text only.";
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages",{
-        method:"POST",
-        headers:{"Content-Type":"application/json","x-api-key":AI_KEY,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-        body:JSON.stringify({model:"claude-sonnet-4-5-20251001",max_tokens:200,messages:[{role:"user",content:prompt}]})
-      });
-      const d = await res.json();
-      const text = d.content?.map(b=>b.text||"").join("")||"";
-      if(!text) throw new Error("empty");
-      setAiSummary(text);
-    } catch(e){
-      setAiError("Could not generate — check your connection.");
+      const raw = await callClaude(prompt);
+      setAiSummary(raw.trim());
+    } catch(e) {
+      setAiError(e.message==="NO_KEY"?"Add an API key in Settings → AI to use this feature.":e.message==="RATE_LIMIT"?"Monthly AI limit reached.":"Could not generate — try again.");
     }
     setGenerating(false);
   };
 
-  const [savedEntries, setSavedEntries] = useState(null); // holds built entries after save
-
-  const [parentNote, setParentNote] = useState(""); // separate parent-only notes field
-
   const buildEntries = () => {
     const entries = [];
     const today = new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
-    family.children.forEach((ch,ci)=>{
-      // One entry per subject with its own description note
-      subjsDone.forEach(subj=>{
-        const block = blocks.find(b=>b.s===subj);
-        const subjNote = getNote(ch.id, subj);
+    if(isCoop) {
+      // Co-op entries — one per subject per child
+      const subjList = [...coopSubjs];
+      family.children.forEach((ch,ci)=>{
+        subjList.forEach(subj=>{
+          const n = getCoopNote(ch.id, subj);
+          entries.push({
+            childIdx:ci, title:n.trim()?n.slice(0,80):"Co-op: "+subj,
+            subj, date:today, thumb:"🏫", note:n, isSubject:true, isCoop:true,
+          });
+        });
+        // Day entry for co-op
+        const summaryNote = [parentNote.trim(), aiSummary?"AI Summary: "+aiSummary:""].filter(Boolean).join("\n\n");
         entries.push({
-          childIdx:ci,
-          title: subjNote.trim() ? subjNote.slice(0,80) : subj+" — "+dateLabel,
-          subj:subj,
-          date:today,
-          thumb:block?.i||"📋",
-          note:subjNote,
-          isSubject:true,
+          childIdx:ci, title:"Co-op Day — "+dateLabel, subj:"Daily Notes", date:today,
+          thumb:"🏫", note:summaryNote, subjects:subjList,
+          photos:photos.filter(p=>p.assign==="all"||p.assign===ch.id).map(p=>p.dataUrl),
+          isDay:true, isCoop:true, coopHrs:parseFloat(coopHrs), aiSummary:aiSummary||"",
+          goalsHit:[...goalsHit],
         });
       });
-      // Daily Notes entry — parent notes + AI summary ONLY (no subject notes)
-      const summaryNote = [
-        parentNote.trim(),
-        aiSummary?"AI Summary: "+aiSummary:""
-      ].filter(Boolean).join("\n\n");
-      entries.push({
-        childIdx:ci,
-        title:"Day Notes — "+dateLabel,
-        subj:"Daily Notes",
-        date:today,
-        thumb:"📝",
-        note:summaryNote,
-        subjects:subjsDone,
-        photos:photos.map(p=>p.dataUrl),
-        isDay:true,
-        aiSummary:aiSummary||"",
+    } else {
+      // Regular schedule entries
+      family.children.forEach((ch,ci)=>{
+        subjsDone.forEach(subj=>{
+          const block = blocks.find(b=>b.s===subj);
+          const subjNote = getNote(ch.id, subj);
+          entries.push({
+            childIdx:ci,
+            title: subjNote.trim() ? subjNote.slice(0,80) : subj+" — "+dateLabel,
+            subj, date:today, thumb:block?.i||"📋", note:subjNote, isSubject:true,
+            lessonCount: getLessonCount(subj),
+          });
+        });
+        const summaryNote = [parentNote.trim(), aiSummary?"AI Summary: "+aiSummary:""].filter(Boolean).join("\n\n");
+        entries.push({
+          childIdx:ci, title:"Day Notes — "+dateLabel, subj:"Daily Notes", date:today,
+          thumb:"📝", note:summaryNote, subjects:subjsDone,
+          photos:photos.filter(p=>p.assign==="all"||p.assign===ch.id).map(p=>p.dataUrl),
+          isDay:true, aiSummary:aiSummary||"", goalsHit:[...goalsHit],
+        });
       });
-    });
+    }
     return entries;
   };
 
   const handleSave = () => {
-    // Build entries and store them — do NOT call onSave yet
-    // onSave fires when user taps a nav button on step 3
     const entries = buildEntries();
     setSavedEntries(entries);
-    onSave(entries); // persist to localStorage now
-    // Modal stays open — step 3 renders the confirmation
+    onSave(entries);
+    // Log co-op session separately if applicable
+    if(isCoop && onCoopLog) {
+      onCoopLog({
+        session:[...coopSubjs].join(", ")||"Co-op",
+        subjects:[...coopSubjs],
+        hrs:parseFloat(coopHrs),
+        date:new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"}),
+      });
+    }
   };
+
+  const advance = () => {
+    // Skip step 1 (subjects list) if coop — coop has its own subject picker on step 0
+    if(step===0 && isCoop) { setStep(2); return; } // jump to notes
+    if(step===LAST_SAVE_STEP) { handleSave(); setStep(DONE_STEP); return; }
+    setStep(s=>s+1);
+  };
+  const retreat = () => {
+    if(step===2 && isCoop) { setStep(0); return; } // jump back past subjects
+    setStep(s=>Math.max(0,s-1));
+  };
+
+  const stepLabel = STEPS[step]||"";
+  const CHILD_COLORS2 = ["#e8943a","#4aabcf","#9b6fc8","#44aa66","#e85a7a"];
 
   return (
     <div style={{position:"fixed",inset:0,zIndex:300,background:pal.sand,display:"flex",flexDirection:"column",maxWidth:"430px",margin:"0 auto",animation:"fadeIn 0.25s ease"}}>
-      {/* Celebration header */}
+      {/* Header */}
       <div style={{background:pal.accentGrad,padding:"1.1rem 1.2rem 1rem",flexShrink:0}}>
         <div style={{display:"flex",alignItems:"center",gap:"0.75rem"}}>
-          <div style={{fontSize:"2rem",animation:"grow 0.4s ease"}}>🌟</div>
+          <div style={{fontSize:"2rem",animation:"grow 0.4s ease"}}>{"🌟"}</div>
           <div style={{flex:1}}>
             <div style={{fontWeight:"900",color:"#fff",fontSize:"1.05rem"}}>Day Complete!</div>
-            <div style={{fontSize:"0.74rem",color:"rgba(255,255,255,0.75)"}}>{"Great work — " + dateLabel}</div>
+            <div style={{fontSize:"0.74rem",color:"rgba(255,255,255,0.75)"}}>{dateLabel}</div>
           </div>
           <button onClick={onClose} style={{background:"rgba(255,255,255,0.18)",border:"none",borderRadius:"9px",padding:"0.3rem 0.65rem",color:"#fff",fontWeight:"700",fontSize:"0.75rem",cursor:"pointer"}}>{"< "}Home</button>
         </div>
       </div>
 
-      {/* Step progress */}
+      {/* Step progress dots */}
       <div style={{display:"flex",gap:"3px",padding:"0.65rem 1.1rem 0",flexShrink:0}}>
-        {["Subjects","Subject Notes","Parent Notes","Photos","Done"].map((l,i)=>(
+        {STEPS.map((l,i)=>(
           <div key={i} style={{flex:1,textAlign:"center"}}>
             <div style={{height:"4px",borderRadius:"99px",background:i<=step?pal.primary:pal.stone+"40",marginBottom:"3px",transition:"background 0.3s"}}/>
-            <div style={{fontSize:"0.55rem",color:i<=step?pal.primary:pal.stone,fontWeight:i===step?"700":"400"}}>{l}</div>
+            <div style={{fontSize:"0.52rem",color:i<=step?pal.primary:pal.stone,fontWeight:i===step?"700":"400"}}>{l}</div>
           </div>
         ))}
       </div>
 
       <div key={step} style={{flex:1,overflowY:"auto",padding:"1rem 1.1rem"}}>
 
-        {/* Step 0: What you did */}
+        {/* ── Step 0: Co-op check ── */}
         {step===0 && (
+          <div style={{animation:"fadeUp 0.2s ease"}}>
+            <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.85rem",marginBottom:"0.25rem"}}>Was today a co-op day?</div>
+            <div style={{fontSize:"0.74rem",color:pal.slate,marginBottom:"1rem",lineHeight:1.5}}>
+              If you attended co-op, we will log it separately from your regular schedule.
+            </div>
+            <div style={{display:"flex",gap:"0.65rem",marginBottom:"1.2rem"}}>
+              <button onClick={()=>setIsCoop(false)}
+                style={{flex:1,padding:"1rem 0.75rem",borderRadius:"16px",border:`2px solid ${!isCoop?pal.primary:pal.stone+"50"}`,background:!isCoop?pal.pale:"transparent",cursor:"pointer",textAlign:"center",transition:"all 0.15s"}}>
+                <div style={{fontSize:"1.6rem",marginBottom:"0.25rem"}}>{"📅"}</div>
+                <div style={{fontWeight:"800",color:!isCoop?pal.primary:pal.inkM,fontSize:"0.84rem"}}>Regular day</div>
+                <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"2px"}}>Schedule subjects</div>
+              </button>
+              <button onClick={()=>setIsCoop(true)}
+                style={{flex:1,padding:"1rem 0.75rem",borderRadius:"16px",border:`2px solid ${isCoop?pal.primary:pal.stone+"50"}`,background:isCoop?pal.pale:"transparent",cursor:"pointer",textAlign:"center",transition:"all 0.15s"}}>
+                <div style={{fontSize:"1.6rem",marginBottom:"0.25rem"}}>{"🏫"}</div>
+                <div style={{fontWeight:"800",color:isCoop?pal.primary:pal.inkM,fontSize:"0.84rem"}}>Co-op day</div>
+                <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"2px"}}>Log co-op session</div>
+              </button>
+            </div>
+
+            {/* Co-op details — shown inline when isCoop */}
+            {isCoop&&(
+              <div style={{animation:"fadeUp 0.18s ease"}}>
+                <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem",marginBottom:"0.45rem"}}>Which subjects did you cover?</div>
+                <div style={{display:"flex",flexDirection:"column",gap:"0.3rem",marginBottom:"1rem"}}>
+                  {coopClasses.map(s=>{
+                    const sel=coopSubjs.has(s);
+                    return (
+                      <button key={s} onClick={()=>toggleCoopSubj(s)}
+                        style={{display:"flex",gap:"0.6rem",alignItems:"center",padding:"0.55rem 0.85rem",border:`2px solid ${sel?pal.primary:pal.stone+"50"}`,borderRadius:"11px",background:sel?pal.pale:"transparent",cursor:"pointer",textAlign:"left",transition:"all 0.12s"}}>
+                        <div style={{width:"18px",height:"18px",borderRadius:"4px",border:`2px solid ${sel?pal.primary:pal.stone}`,background:sel?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                          {sel&&<span style={{color:"#fff",fontSize:"0.6rem",fontWeight:"900"}}>{"✓"}</span>}
+                        </div>
+                        <span style={{fontWeight:sel?"700":"400",color:sel?pal.primary:pal.inkM,fontSize:"0.83rem"}}>{s}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem",marginBottom:"0.45rem"}}>Hours</div>
+                <div style={{display:"flex",gap:"0.35rem",flexWrap:"wrap"}}>
+                  {["1","1.5","2","2.5","3","3.5","4"].map(h=>(
+                    <button key={h} onClick={()=>setCoopHrs(h)}
+                      style={{padding:"0.45rem 0.75rem",borderRadius:"10px",border:`2px solid ${coopHrs===h?pal.primary:pal.stone+"50"}`,background:coopHrs===h?pal.pale:"transparent",cursor:"pointer",fontWeight:coopHrs===h?"800":"400",color:coopHrs===h?pal.primary:pal.inkM,fontSize:"0.8rem"}}>
+                      {h}h
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Regular day — show completed subjects summary */}
+            {!isCoop&&(
+              <div style={{animation:"fadeUp 0.18s ease"}}>
+                <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem",marginBottom:"0.5rem"}}>Subjects completed</div>
+                {subjsDone.length===0 ? (
+                  <div style={{color:pal.slate,fontSize:"0.82rem",padding:"0.5rem 0"}}>No subjects checked off.</div>
+                ) : (
+                  <div style={{display:"flex",flexWrap:"wrap",gap:"0.35rem"}}>
+                    {subjsDone.map((s,i)=>{
+                      const block=blocks.find(b=>b.s===s);
+                      return <span key={i} style={{display:"flex",alignItems:"center",gap:"0.3rem",padding:"0.28rem 0.65rem",background:pal.goodBg,borderRadius:"20px",border:`1.5px solid ${pal.good}40`,fontSize:"0.76rem",fontWeight:"700",color:pal.good}}><span>{block?.i||"📋"}</span><span>{s}</span><span>{"✓"}</span></span>;
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Step 1: Subjects overview (regular day only) ── */}
+        {step===1 && !isCoop && (
           <div style={{animation:"fadeUp 0.2s ease"}}>
             <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.65rem"}}>{"Completed today"}</div>
             {subjsDone.length===0 ? (
@@ -11864,13 +12477,13 @@ function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose,onFini
                     <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.86rem"}}>{s}</div>
                     {block?.dur&&<div style={{fontSize:"0.68rem",color:pal.slate}}>{block.dur} min</div>}
                   </div>
-                  <span style={{color:pal.good,fontSize:"1.1rem"}}>✓</span>
+                  <span style={{color:pal.good,fontSize:"1.1rem"}}>{"✓"}</span>
                 </div>
               );
             })}
             {/* AI Summary box */}
             <div style={{background:pal.pale,borderRadius:"14px",padding:"0.9rem 1rem",marginTop:"0.75rem",border:`1.5px solid ${pal.primary}20`}}>
-              <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.78rem",marginBottom:"0.4rem"}}>✨ AI Day Summary</div>
+              <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.78rem",marginBottom:"0.4rem"}}>{"✨ AI Day Summary"}</div>
               {aiSummary ? (
                 <div style={{fontSize:"0.8rem",color:pal.ink,lineHeight:1.7}}>{aiSummary}</div>
               ) : generating ? (
@@ -11888,59 +12501,79 @@ function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose,onFini
           </div>
         )}
 
-        {/* Step 1: Student notes */}
-        {/* Step 1: Per-subject notes */}
-        {step===1 && (
+        {/* ── Step 2: Subject notes (per child, per subject) ── */}
+        {step===2 && (
           <div style={{animation:"fadeUp 0.2s ease"}}>
-            <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.2rem"}}>{"What did you work on?"}</div>
-            <div style={{fontSize:"0.74rem",color:pal.slate,marginBottom:"1rem"}}>{"Write a quick description for each subject. These go straight into the portfolio."}</div>
-            {family.children.map((c)=>{
-              const cp = CHILD_COLOR_PALETTES.find(p=>p.id===(c.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+            <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.2rem"}}>
+              {isCoop?"Co-op notes":"Subject notes"}
+            </div>
+            <div style={{fontSize:"0.74rem",color:pal.slate,marginBottom:"0.85rem",lineHeight:1.55}}>
+              {isCoop
+                ? "Jot down what each child did in each subject. Optional but great for the portfolio."
+                : "What did each child do in each subject? Even a few words goes a long way."}
+            </div>
+            {family.children.map((ch,ci)=>{
+              const cp=CHILD_COLOR_PALETTES.find(p=>p.id===(ch.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+              const subjList = isCoop ? [...coopSubjs] : subjsDone;
               return (
-                <div key={c.id} style={{marginBottom:"1.25rem"}}>
+                <div key={ch.id} style={{marginBottom:"1.1rem"}}>
                   {family.children.length>1&&(
-                    <div style={{display:"flex",alignItems:"center",gap:"0.5rem",marginBottom:"0.65rem",paddingBottom:"0.5rem",borderBottom:`2px solid ${cp.c1}30`}}>
-                      <div style={{width:"30px",height:"30px",borderRadius:"8px",background:`linear-gradient(135deg,${cp.c1},${cp.c2})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1rem",flexShrink:0}}>{c.avatar}</div>
-                      <span style={{fontWeight:"800",color:pal.ink,fontSize:"0.88rem"}}>{c.name}</span>
+                    <div style={{display:"flex",alignItems:"center",gap:"0.5rem",marginBottom:"0.55rem",padding:"0.5rem 0.75rem",background:`linear-gradient(135deg,${cp.c1}18,${cp.c2}12)`,borderRadius:"12px",border:`1.5px solid ${cp.c1}30`}}>
+                      <div style={{width:"30px",height:"30px",borderRadius:"8px",background:`linear-gradient(135deg,${cp.c1},${cp.c2})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1rem"}}>{ch.avatar}</div>
+                      <span style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem"}}>{ch.name}</span>
                     </div>
                   )}
-                  {subjsDone.map((subj,si)=>{
-                    const block = blocks.find(b=>b.s===subj);
-                    const val = getNote(c.id, subj);
+                  {subjList.map(subj=>{
+                    const val = isCoop?getCoopNote(ch.id,subj):getNote(ch.id,subj);
+                    const setter = isCoop?setCoopNote:setNote;
                     return (
-                      <div key={subj} style={{marginBottom:"0.75rem"}}>
-                        <div style={{display:"flex",alignItems:"center",gap:"0.4rem",marginBottom:"0.3rem"}}>
-                          <span style={{fontSize:"1rem"}}>{block?.i||"📋"}</span>
-                          <span style={{fontWeight:"700",color:pal.inkM,fontSize:"0.82rem"}}>{subj}</span>
+                      <div key={subj} style={{marginBottom:"0.6rem"}}>
+                        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"0.25rem"}}>
+                          <div style={{fontSize:"0.72rem",fontWeight:"700",color:pal.inkM}}>{"📋 "+subj}</div>
+                          {!isCoop&&(
+                            <div style={{display:"flex",gap:"0.25rem",alignItems:"center"}}>
+                              <span style={{fontSize:"0.6rem",color:pal.slate,fontWeight:"600",marginRight:"2px"}}>Lessons:</span>
+                              {[1,2,3,4].map(n=>{
+                                const sel=getLessonCount(subj)===n;
+                                return (
+                                  <button key={n} onClick={()=>setLessonCount(subj,n)}
+                                    style={{width:"24px",height:"24px",borderRadius:"6px",border:`2px solid ${sel?pal.primary:pal.stone+"60"}`,background:sel?pal.primary:"transparent",color:sel?"#fff":pal.inkM,fontSize:"0.7rem",fontWeight:"800",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",padding:0,transition:"all 0.12s"}}>
+                                    {n}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
                         </div>
                         <textarea
                           value={val}
-                          onChange={e=>setNote(c.id,subj,e.target.value)}
-                          placeholder={"What did "+c.name+" do in "+subj+" today?"}
+                          onChange={e=>setter(ch.id,subj,e.target.value)}
+                          placeholder={"What did "+ch.name+" do in "+subj+"?"}
                           rows={2}
-                          style={{width:"100%",padding:"0.6rem 0.8rem",border:`2px solid ${val.trim()?cp.c1+"60":pal.stone}`,borderRadius:"11px",fontSize:"0.81rem",fontFamily:"inherit",background:pal.parchm,color:pal.ink,resize:"none",outline:"none",lineHeight:1.55,transition:"border-color 0.15s"}}
+                          style={{width:"100%",padding:"0.55rem 0.7rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.8rem",fontFamily:"inherit",background:pal.parchm,color:pal.ink,resize:"none",outline:"none",lineHeight:1.5}}
                           onFocus={e=>e.target.style.borderColor=cp.c1}
-                          onBlur={e=>e.target.style.borderColor=val.trim()?cp.c1+"60":pal.stone}/>
+                          onBlur={e=>e.target.style.borderColor=pal.stone}/>
                       </div>
                     );
                   })}
+                  {subjList.length===0&&<div style={{fontSize:"0.76rem",color:pal.stone,fontStyle:"italic"}}>No subjects selected.</div>}
                 </div>
               );
             })}
           </div>
         )}
 
-        {/* Step 2: Parent Notes */}
-        {step===2 && (
+        {/* ── Step 3: Parent notes ── */}
+        {step===3 && (
           <div style={{animation:"fadeUp 0.2s ease"}}>
             <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.2rem"}}>{"Parent notes"}</div>
             <div style={{fontSize:"0.74rem",color:pal.slate,marginBottom:"0.85rem",lineHeight:1.55}}>
-              {"Your private teaching notes — what worked well, what to revisit, observations about your student's progress. These go in the portfolio as parent notes and won't duplicate the subject descriptions."}
+              {"Your private teaching notes — what worked well, what to revisit, observations. These go in the portfolio as parent notes."}
             </div>
             <textarea
               value={parentNote}
               onChange={e=>setParentNote(e.target.value)}
-              placeholder={"e.g. Raeley struggled with long division today — try using graph paper next time. She loved the science experiment and asked great questions. Consider spending more time on reading fluency this week."}
+              placeholder={"e.g. Raeley struggled with long division today — try graph paper next time. She loved the science experiment. Consider more reading fluency this week."}
               rows={6}
               style={{width:"100%",padding:"0.75rem 0.9rem",border:`2px solid ${pal.stone}`,borderRadius:"13px",fontSize:"0.82rem",fontFamily:"inherit",background:pal.parchm,color:pal.ink,resize:"none",outline:"none",lineHeight:1.6}}
               onFocus={e=>e.target.style.borderColor=pal.primary}
@@ -11949,23 +12582,48 @@ function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose,onFini
           </div>
         )}
 
-        {/* Step 3: Photos */}
-        {step===3 && (
+        {/* ── Step 4: Photos ── */}
+        {step===4 && (
           <div style={{animation:"fadeUp 0.2s ease"}}>
             <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.2rem"}}>Add photos</div>
-            <div style={{fontSize:"0.74rem",color:pal.slate,marginBottom:"0.85rem"}}>Capture work, projects, or moments from today.</div>
+            <div style={{fontSize:"0.74rem",color:pal.slate,marginBottom:"0.85rem"}}>
+              {family.children.length>1
+                ? "Upload photos then choose which child each one belongs to."
+                : "Capture work, projects, or moments from today."}
+            </div>
             <input type="file" ref={fileInputRef} accept="image/*" multiple onChange={handlePhotoUpload} style={{display:"none"}}/>
             <button onClick={()=>fileInputRef.current?.click()}
               style={{width:"100%",padding:"1.1rem",border:`2px dashed ${pal.primary}50`,borderRadius:"16px",background:"transparent",color:pal.primary,fontWeight:"700",fontSize:"0.86rem",cursor:"pointer",marginBottom:"0.85rem",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.5rem"}}>
               <span style={{fontSize:"1.4rem"}}>{"📷"}</span><span>Choose Photos</span>
             </button>
             {photos.length>0 && (
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.55rem"}}>
+              <div style={{display:"flex",flexDirection:"column",gap:"0.65rem"}}>
                 {photos.map((p,i)=>(
-                  <div key={i} style={{position:"relative",borderRadius:"12px",overflow:"hidden",border:`1.5px solid ${pal.stone}40`}}>
-                    <img src={p.dataUrl} alt={p.name} style={{width:"100%",height:"110px",objectFit:"cover",display:"block"}}/>
-                    <button onClick={()=>removePhoto(i)}
-                      style={{position:"absolute",top:"5px",right:"5px",width:"22px",height:"22px",borderRadius:"50%",background:"rgba(0,0,0,0.55)",border:"none",color:"#fff",fontSize:"0.7rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>{"x"}</button>
+                  <div key={i} style={{borderRadius:"14px",overflow:"hidden",border:`1.5px solid ${pal.stone}40`,background:"#fff"}}>
+                    <div style={{position:"relative"}}>
+                      <img src={p.dataUrl} alt={p.name} style={{width:"100%",height:"130px",objectFit:"cover",display:"block"}}/>
+                      <button onClick={()=>removePhoto(i)}
+                        style={{position:"absolute",top:"6px",right:"6px",width:"24px",height:"24px",borderRadius:"50%",background:"rgba(0,0,0,0.6)",border:"none",color:"#fff",fontSize:"0.75rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>{"x"}</button>
+                    </div>
+                    {family.children.length>1&&(
+                      <div style={{padding:"0.5rem 0.65rem",display:"flex",gap:"0.3rem",flexWrap:"wrap",alignItems:"center"}}>
+                        <span style={{fontSize:"0.62rem",color:pal.slate,fontWeight:"700",marginRight:"2px"}}>For:</span>
+                        <button onClick={()=>setPhotoAssign(i,"all")}
+                          style={{padding:"0.2rem 0.55rem",borderRadius:"20px",border:`2px solid ${p.assign==="all"?pal.primary:pal.stone+"60"}`,background:p.assign==="all"?pal.pale:"transparent",color:p.assign==="all"?pal.primary:pal.slate,fontSize:"0.68rem",fontWeight:p.assign==="all"?"800":"500",cursor:"pointer"}}>
+                          {"Both"}
+                        </button>
+                        {family.children.map((ch,ci)=>{
+                          const cc=CHILD_COLORS2[ci%CHILD_COLORS2.length];
+                          const sel=p.assign===ch.id;
+                          return (
+                            <button key={ch.id} onClick={()=>setPhotoAssign(i,ch.id)}
+                              style={{padding:"0.2rem 0.55rem",borderRadius:"20px",border:`2px solid ${sel?cc:pal.stone+"60"}`,background:sel?cc+"22":"transparent",color:sel?cc:pal.slate,fontSize:"0.68rem",fontWeight:sel?"800":"500",cursor:"pointer",display:"flex",alignItems:"center",gap:"0.2rem"}}>
+                              <span>{ch.avatar}</span><span>{ch.name}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -11974,60 +12632,74 @@ function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose,onFini
           </div>
         )}
 
-        {/* Step 4: Done — celebration + preview */}
-        {step===4 && (
+        {/* ── Step 5: Goals (only if family has goals) ── */}
+        {step===5 && familyGoals.length>0 && (
           <div style={{animation:"fadeUp 0.2s ease"}}>
-            {/* Celebration banner */}
+            <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.2rem"}}>Goals hit today?</div>
+            <div style={{fontSize:"0.74rem",color:pal.slate,marginBottom:"0.85rem",lineHeight:1.55}}>
+              Tap any goals that came alive today. This helps track progress toward what matters most.
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.5rem"}}>
+              {familyGoals.map(g=>{
+                const sel=goalsHit.has(g.id);
+                return (
+                  <button key={g.id} onClick={()=>toggleGoal(g.id)}
+                    style={{padding:"0.85rem 0.7rem",border:`2px solid ${sel?pal.primary:pal.stone+"45"}`,borderRadius:"14px",background:sel?pal.pale:"transparent",cursor:"pointer",textAlign:"center",display:"flex",flexDirection:"column",alignItems:"center",gap:"0.35rem",transition:"all 0.14s"}}>
+                    <span style={{fontSize:"1.5rem"}}>{g.icon}</span>
+                    <span style={{fontSize:"0.74rem",fontWeight:sel?"800":"500",color:sel?pal.primary:pal.inkM,lineHeight:1.25}}>{g.label}</span>
+                    {sel&&<span style={{fontSize:"0.62rem",color:pal.good,fontWeight:"900"}}>{"✓ Hit it!"}</span>}
+                  </button>
+                );
+              })}
+            </div>
+            {goalsHit.size===0&&(
+              <div style={{textAlign:"center",marginTop:"0.85rem",fontSize:"0.74rem",color:pal.stone,fontStyle:"italic"}}>
+                {"Tap any that apply — or skip if none fit today."}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Done step ── */}
+        {step===DONE_STEP && (
+          <div style={{animation:"fadeUp 0.2s ease"}}>
             <div style={{background:pal.accentGrad,borderRadius:"18px",padding:"1.3rem 1.2rem",marginBottom:"1rem",textAlign:"center",position:"relative",overflow:"hidden"}}>
               <div style={{position:"absolute",right:"-20px",top:"-20px",width:"80px",height:"80px",borderRadius:"50%",background:"rgba(255,255,255,0.1)"}}/>
               <div style={{fontSize:"3rem",marginBottom:"0.4rem",animation:"grow 0.4s ease"}}>{"🌱"}</div>
-              <div style={{fontWeight:"900",color:"#fff",fontSize:"1.15rem",marginBottom:"0.2rem"}}>{"Day saved to portfolio!"}</div>
-              <div style={{fontSize:"0.78rem",color:"rgba(255,255,255,0.78)"}}>{dateLabel} {"\u00b7"} {subjsDone.length} subject{subjsDone.length!==1?"s":""} {"\u00b7"} {family.children.length} student{family.children.length!==1?"s":""}</div>
+              <div style={{fontWeight:"900",color:"#fff",fontSize:"1.15rem",marginBottom:"0.2rem"}}>
+                {isCoop?"Co-op logged!":"Day saved to portfolio!"}
+              </div>
+              <div style={{fontSize:"0.78rem",color:"rgba(255,255,255,0.78)"}}>
+                {dateLabel}
+                {isCoop?" \u00b7 Co-op \u00b7 "+coopHrs+"h":" \u00b7 "+subjsDone.length+" subject"+(subjsDone.length!==1?"s":"")}
+                {" \u00b7 "+family.children.length+" student"+(family.children.length!==1?"s":"")}
+              </div>
             </div>
 
-            {/* What was saved */}
+            {/* Summary */}
             <div style={{background:pal.linen,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.stone}35`}}>
               <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.74rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.55rem"}}>What was saved</div>
-
-              {/* Subject entries */}
               <div style={{display:"flex",flexWrap:"wrap",gap:"0.38rem",marginBottom:"0.6rem"}}>
-                {subjsDone.map((s,i)=>{
+                {(isCoop?[...coopSubjs]:subjsDone).map((s,i)=>{
                   const block=blocks.find(b=>b.s===s);
-                  return <span key={i} style={{padding:"0.2rem 0.6rem",background:pal.pale,borderRadius:"20px",fontSize:"0.72rem",fontWeight:"700",color:pal.primary,display:"flex",gap:"0.25rem",alignItems:"center"}}><span>{block?.i||"📋"}</span><span>{s}</span></span>;
+                  return <span key={i} style={{padding:"0.2rem 0.6rem",background:pal.pale,borderRadius:"20px",fontSize:"0.72rem",fontWeight:"700",color:pal.primary,display:"flex",gap:"0.25rem",alignItems:"center"}}><span>{isCoop?"🏫":block?.i||"📋"}</span><span>{s}</span></span>;
                 })}
               </div>
-
-              {/* Per-subject notes preview */}
-              {family.children.map(c=>{
-                const hasNotes = subjsDone.some(s=>getNote(c.id,s).trim());
-                if(!hasNotes) return null;
-                return (
-                  <div key={c.id} style={{marginBottom:"0.5rem"}}>
-                    {family.children.length>1&&(
-                      <div style={{fontSize:"0.68rem",fontWeight:"800",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.05em",marginBottom:"0.3rem"}}>{c.avatar} {c.name}</div>
-                    )}
-                    {subjsDone.map(s=>{
-                      const n = getNote(c.id,s);
-                      if(!n.trim()) return null;
-                      const block = blocks.find(b=>b.s===s);
-                      return (
-                        <div key={s} style={{padding:"0.38rem 0.6rem",background:pal.sand,borderRadius:"8px",marginBottom:"0.25rem",display:"flex",gap:"0.45rem",alignItems:"flex-start"}}>
-                          <span style={{fontSize:"0.85rem",flexShrink:0,marginTop:"1px"}}>{block?.i||"📋"}</span>
-                          <div style={{flex:1}}>
-                            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.7rem"}}>{s}</div>
-                            <div style={{fontSize:"0.71rem",color:pal.slate,lineHeight:1.5}}>{n.slice(0,80)}{n.length>80?"...":""}</div>
-                          </div>
-                        </div>
-                      );
+              {goalsHit.size>0&&(
+                <div style={{marginTop:"0.4rem",paddingTop:"0.45rem",borderTop:`1px solid ${pal.stone}20`}}>
+                  <div style={{fontSize:"0.68rem",fontWeight:"700",color:pal.primary,marginBottom:"0.3rem"}}>{"🌟 Goals hit"}</div>
+                  <div style={{display:"flex",flexWrap:"wrap",gap:"0.3rem"}}>
+                    {[...goalsHit].map(id=>{
+                      const g=familyGoals.find(x=>x.id===id);
+                      if(!g) return null;
+                      return <span key={id} style={{padding:"0.18rem 0.55rem",background:pal.goodBg,borderRadius:"20px",fontSize:"0.7rem",fontWeight:"700",color:pal.good}}>{g.icon} {g.label}</span>;
                     })}
                   </div>
-                );
-              })}
-
-              {/* Photos */}
+                </div>
+              )}
               {photos.length>0&&(
                 <div style={{marginTop:"0.4rem"}}>
-                  <div style={{fontSize:"0.68rem",color:pal.slate,marginBottom:"0.35rem",fontWeight:"600"}}>📷 {photos.length} photo{photos.length!==1?"s":""} attached</div>
+                  <div style={{fontSize:"0.68rem",color:pal.slate,marginBottom:"0.3rem",fontWeight:"600"}}>{"📷 "+photos.length+" photo"+(photos.length!==1?"s":"")+" attached"}</div>
                   <div style={{display:"flex",gap:"0.3rem",flexWrap:"wrap"}}>
                     {photos.slice(0,4).map((p,i)=>(
                       <img key={i} src={p.dataUrl} alt="" style={{width:"50px",height:"50px",borderRadius:"8px",objectFit:"cover",border:`1.5px solid ${pal.stone}40`}}/>
@@ -12035,31 +12707,21 @@ function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose,onFini
                   </div>
                 </div>
               )}
-
-              {/* AI Summary */}
-              {aiSummary&&(
-                <div style={{marginTop:"0.6rem",padding:"0.55rem 0.7rem",background:pal.pale,borderRadius:"10px",border:`1.5px solid ${pal.primary}20`}}>
-                  <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.68rem",marginBottom:"0.25rem"}}>✨ AI Summary saved</div>
-                  <div style={{fontSize:"0.75rem",color:pal.ink,lineHeight:1.65}}>{aiSummary}</div>
-                </div>
-              )}
             </div>
 
-            {/* Attendance note */}
             <div style={{background:pal.goodBg,borderRadius:"12px",padding:"0.6rem 0.85rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.good}30`,display:"flex",gap:"0.5rem",alignItems:"center"}}>
-              <span style={{fontSize:"1rem"}}>📅</span>
+              <span style={{fontSize:"1rem"}}>{"📅"}</span>
               <div style={{fontSize:"0.76rem",color:pal.good,fontWeight:"700"}}>Added to attendance record</div>
             </div>
 
-            {/* Navigation options */}
             <div style={{display:"flex",flexDirection:"column",gap:"0.45rem"}}>
               <button onClick={()=>onFinish?onFinish("portfolio"):onClose()}
                 style={{width:"100%",padding:"0.82rem",border:"none",borderRadius:"13px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.88rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.5rem"}}>
-                <span>🗂</span><span>View in Portfolio</span>
+                <span>{"🗂"}</span><span>View in Portfolio</span>
               </button>
               <button onClick={()=>onFinish?onFinish("home"):onClose()}
                 style={{width:"100%",padding:"0.75rem",border:`2px solid ${pal.stone}`,borderRadius:"13px",background:"transparent",color:pal.inkM,fontWeight:"700",fontSize:"0.84rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.5rem"}}>
-                <span>🏠</span><span>Back to Home</span>
+                <span>{"🏠"}</span><span>Back to Home</span>
               </button>
             </div>
           </div>
@@ -12067,20 +12729,24 @@ function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose,onFini
       </div>
 
       {/* Footer buttons */}
-      {step<4 && (
-        <div style={{padding:"0.9rem 1.1rem",borderTop:`1px solid ${pal.stone}40`,background:pal.linen,flexShrink:0,display:"flex",gap:"0.55rem"}}>
-          {step>0 && <button onClick={()=>setStep(s=>s-1)} style={{padding:"0.7rem 0.9rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem",fontWeight:"600"}}>Back</button>}
-          <button onClick={()=>{
-            if(step===3){handleSave();setStep(4);}
-            else setStep(s=>s+1);
-          }} style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>
-            {step===0?"Add subject notes →":step===1?"Parent notes →":step===2?"Add photos →":"Save to portfolio ✓"}
+      {step<DONE_STEP && (
+        <div style={{padding:"0.9rem 1.1rem",borderTop:`1px solid ${pal.stone}40`,background:pal.linen,flexShrink:0,display:"flex",gap:"0.55rem"}}> 
+          {step>0 && <button onClick={retreat} style={{padding:"0.7rem 0.9rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem",fontWeight:"600"}}>Back</button>}
+          <button onClick={advance}
+            disabled={isCoop && step===0 && coopSubjs.size===0}
+            style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:isCoop&&step===0&&coopSubjs.size===0?"#ccc":pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.88rem",cursor:isCoop&&step===0&&coopSubjs.size===0?"default":"pointer"}}>
+            {step===LAST_SAVE_STEP
+              ? "Save to portfolio \u2713"
+              : step===0&&isCoop&&coopSubjs.size===0
+                ? "Select at least one subject"
+                : "Next \u2192"}
           </button>
         </div>
       )}
     </div>
   );
 }
+
 
 function ThemeModal({ pal, paletteId, setPaletteId, customA, customB, setCustomA, setCustomB, onClose }) {
   const [la,setLa]=useState(customA), [lb,setLb]=useState(customB);
