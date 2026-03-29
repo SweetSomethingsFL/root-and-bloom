@@ -11431,13 +11431,13 @@ function NarrativeEditor({pal,ch,family,bySubject,attendanceDays,schoolName,cp,c
    GOALS SCREEN
 ======================================= */
 function GoalsScreen({pal,family,portfolioEntries=[],onUpdateFamily}){
-  const [editing, setEditing] = useState(false);
-  const [draftGoals, setDraftGoals] = useState(family.goals||[]);
+  const [editing,     setEditing]     = useState(false);
+  const [draftGoals,  setDraftGoals]  = useState(family.goals||[]);
   const [customInput, setCustomInput] = useState("");
 
-  const allGoalObjs = [...GOALS,...(family.customGoals||[])];
-  const activeGoals = (family.goals||[]).map(id=>allGoalObjs.find(x=>x.id===id)).filter(Boolean);
-  const subjEntries = portfolioEntries.filter(e=>!e.isDay&&e.subj!=="Daily Notes");
+  const allGoalObjs  = [...GOALS,...(family.customGoals||[])];
+  const activeGoals  = (family.goals||[]).map(id=>allGoalObjs.find(x=>x.id===id)).filter(Boolean);
+  const subjEntries  = portfolioEntries.filter(e=>!e.isDay&&e.subj!=="Daily Notes");
 
   const toggleDraft = id => setDraftGoals(g=>g.includes(id)?g.filter(x=>x!==id):[...g,id]);
   const addCustom = () => {
@@ -11451,13 +11451,66 @@ function GoalsScreen({pal,family,portfolioEntries=[],onUpdateFamily}){
     setDraftGoals(g=>[...g,id]);
     setCustomInput("");
   };
-  const saveEdits = () => {
-    onUpdateFamily({goals:draftGoals});
-    setEditing(false);
+  const saveEdits = () => { onUpdateFamily({goals:draftGoals}); setEditing(false); };
+  const cancelEdits = () => { setDraftGoals(family.goals||[]); setEditing(false); };
+
+  // For each goal: find related entries, most recent, warmth message
+  const getGoalData = (g) => {
+    const nudge    = GOAL_NUDGES[g.id];
+    const relSubjs = nudge?.subjs||[];
+    const related  = relSubjs.length>0
+      ? subjEntries.filter(e=>relSubjs.includes(e.subj)||(e.goalId===g.id))
+      : subjEntries.filter(e=>e.goalId===g.id);
+    const total    = related.length;
+
+    // Most recent entry
+    const recent   = related[0]||null; // entries are newest-first
+    const recentNote = recent
+      ? ((recent.readingTitle||recent.title||recent.subj||"").replace((recent.subj||"")+" \u2014 ","").trim()||recent.subj)
+      : null;
+
+    // How long since last entry (in days)
+    const daysSince = recent ? (()=>{
+      try {
+        const yr = new Date().getFullYear();
+        const d  = new Date(recent.date+", "+yr);
+        const diff = Math.floor((new Date()-d)/(24*60*60*1000));
+        return diff < 0 ? 0 : diff; // handle future dates gracefully
+      } catch(e){ return null; }
+    })() : null;
+
+    // Warm message based on recency
+    let warmth = null;
+    if(total===0){
+      warmth = {msg: "Nothing logged yet toward this goal \u2014 every small step counts.", tone:"quiet"};
+    } else if(daysSince===0){
+      warmth = {msg: "Logged today \u2014 great work keeping this front of mind.", tone:"good"};
+    } else if(daysSince===1){
+      warmth = {msg: "Logged yesterday. You\u2019re building something real here.", tone:"good"};
+    } else if(daysSince<=5){
+      warmth = {msg: "Active this week. "+child_name(family)+" is making steady progress.", tone:"good"};
+    } else if(daysSince<=14){
+      warmth = {msg: "It\u2019s been about "+daysSince+" days \u2014 anything worth logging from this week?", tone:"gentle"};
+    } else if(daysSince<=30){
+      warmth = {msg: "This goal has been quiet lately. Even one entry this week would keep it alive.", tone:"gentle"};
+    } else {
+      warmth = {msg: "It\u2019s been a while \u2014 no pressure, but this goal is still here when you\u2019re ready.", tone:"quiet"};
+    }
+
+    return {total, recent, recentNote, daysSince, warmth};
   };
-  const cancelEdits = () => {
-    setDraftGoals(family.goals||[]);
-    setEditing(false);
+
+  const child_name = (fam) => {
+    const kids = fam.children||[];
+    if(kids.length===1) return kids[0].name;
+    if(kids.length===2) return kids[0].name+" and "+kids[1].name;
+    return "your kids";
+  };
+
+  const toneColor = {
+    good:   {bg:pal.goodBg,   text:pal.good,    border:pal.good+"30"},
+    gentle: {bg:"#fffbeb",    text:"#7a5500",   border:"#f5c84230"},
+    quiet:  {bg:pal.parchm,   text:pal.slate,   border:pal.stone+"25"},
   };
 
   return (
@@ -11467,126 +11520,134 @@ function GoalsScreen({pal,family,portfolioEntries=[],onUpdateFamily}){
       <div style={{padding:"0 1rem"}}>
 
         {(family.goals||[]).length===0&&!editing?(
-          /* Empty state */
           <div style={{background:pal.linen,borderRadius:"18px",padding:"2rem 1.5rem",textAlign:"center",border:`1.5px solid ${pal.stone}30`,marginBottom:"1rem"}}>
-            <div style={{fontSize:"2.5rem",marginBottom:"0.5rem"}}>🌟</div>
-            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.9rem",marginBottom:"0.3rem"}}>No goals set yet</div>
+            <div style={{fontSize:"2rem",marginBottom:"0.5rem"}}>🌟</div>
+            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.9rem",marginBottom:"0.3rem"}}>{"No goals set yet"}</div>
             <div style={{fontSize:"0.76rem",color:pal.slate,lineHeight:1.6,marginBottom:"0.85rem"}}>
-              {"Goals shape your daily nudges, AI suggestions, and year-end review. They're completely optional."}
+              {"Goals shape your daily nudges, AI suggestions, and year-end review. They\u2019re completely optional."}
             </div>
             <button onClick={()=>setEditing(true)}
               style={{padding:"0.6rem 1.4rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.84rem",cursor:"pointer"}}>
-              + Set Goals
+              {"+ Set Goals"}
             </button>
           </div>
         ):(
           <>
-            {/* Goal progress cards */}
             {!editing&&(
               <>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.65rem"}}>
-                  <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem"}}>{activeGoals.length} Goal{activeGoals.length!==1?"s":""} This Year</div>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.85rem"}}>
+                  <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem"}}>
+                    {activeGoals.length}{" goal"}{activeGoals.length!==1?"s":""}{" this year"}
+                  </div>
                   <button onClick={()=>setEditing(true)}
                     style={{padding:"0.28rem 0.7rem",border:`1.5px solid ${pal.stone}`,borderRadius:"9px",background:"transparent",color:pal.inkM,fontSize:"0.72rem",fontWeight:"700",cursor:"pointer"}}>
-                    Edit
+                    {"Edit"}
                   </button>
                 </div>
 
-                <div style={{display:"flex",flexDirection:"column",gap:"0.5rem",marginBottom:"1rem"}}>
-                  {activeGoals.map(g=>{
-                    const nudge  = GOAL_NUDGES[g.id];
-                    const relSubjs = nudge?.subjs||[];
-                    const count  = relSubjs.length>0
-                      ? subjEntries.filter(e=>relSubjs.includes(e.subj)).length
-                      : null;
-                    const hit = count!==null&&count>0;
-                    return (
-                      <div key={g.id} style={{background:pal.linen,borderRadius:"14px",padding:"0.85rem 1rem",border:`1.5px solid ${hit?pal.good+"40":pal.stone+"30"}`,display:"flex",gap:"0.75rem",alignItems:"flex-start"}}>
-                        <div style={{width:"42px",height:"42px",borderRadius:"11px",background:hit?pal.goodBg:pal.pale,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0}}>
+                {activeGoals.map(g=>{
+                  const nudge = GOAL_NUDGES[g.id];
+                  const {total, recent, recentNote, daysSince, warmth} = getGoalData(g);
+                  const tc = toneColor[warmth.tone];
+
+                  return (
+                    <div key={g.id} style={{background:pal.linen,borderRadius:"16px",padding:"1rem",border:`1.5px solid ${pal.stone}25`,marginBottom:"0.75rem"}}>
+                      {/* Goal header */}
+                      <div style={{display:"flex",gap:"0.75rem",alignItems:"flex-start",marginBottom:"0.75rem"}}>
+                        <div style={{width:"42px",height:"42px",borderRadius:"12px",background:total>0?pal.pale:pal.parchm,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.2rem",flexShrink:0}}>
                           {nudge?.icon||g.icon}
                         </div>
                         <div style={{flex:1,minWidth:0}}>
-                          <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem"}}>{g.label}</div>
-                          {nudge&&(
-                            <div style={{fontSize:"0.71rem",color:pal.slate,marginTop:"2px",lineHeight:1.5}}>{nudge.nudge}</div>
-                          )}
-                          {count!==null&&(
-                            <div style={{marginTop:"0.4rem",display:"flex",alignItems:"center",gap:"0.4rem"}}>
-                              <div style={{flex:1,height:"5px",borderRadius:"99px",background:pal.parchm,overflow:"hidden"}}>
-                                <div style={{height:"100%",width:`${Math.min(100,count*5)}%`,borderRadius:"99px",background:hit?`linear-gradient(90deg,${pal.good},${pal.mid})`:pal.stone+"40",transition:"width 0.4s"}}/>
-                              </div>
-                              <span style={{fontSize:"0.66rem",fontWeight:"800",color:hit?pal.good:pal.stone,flexShrink:0}}>
-                                {count} {count===1?"entry":"entries"}
-                              </span>
-                            </div>
-                          )}
-                          {count===null&&(
-                            <div style={{fontSize:"0.68rem",color:pal.stone,marginTop:"2px",fontStyle:"italic"}}>Track manually</div>
-                          )}
+                          <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.88rem"}}>{g.label}</div>
+                          {nudge&&<div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"2px",lineHeight:1.5}}>{nudge.nudge}</div>}
                         </div>
-                        {hit&&<span style={{fontSize:"1.1rem",flexShrink:0,marginTop:"2px"}}>{"✓"}</span>}
+                        {total>0&&(
+                          <div style={{textAlign:"center",flexShrink:0}}>
+                            <div style={{fontWeight:"900",color:pal.primary,fontSize:"1.2rem",lineHeight:1}}>{total}</div>
+                            <div style={{fontSize:"0.6rem",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.06em"}}>{"entries"}</div>
+                          </div>
+                        )}
                       </div>
-                    );
-                  })}
-                </div>
+
+                      {/* Most recent entry */}
+                      {recent&&recentNote&&(
+                        <div style={{background:"#fff",borderRadius:"10px",padding:"0.55rem 0.75rem",marginBottom:"0.6rem",border:`1px solid ${pal.stone}20`}}>
+                          <div style={{fontSize:"0.63rem",color:pal.stone,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"2px",fontWeight:"700"}}>{"Most recent"}</div>
+                          <div style={{fontSize:"0.81rem",color:pal.ink,fontWeight:"600",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{recentNote}</div>
+                          <div style={{fontSize:"0.67rem",color:pal.slate,marginTop:"1px"}}>
+                            {recent.subj}{recent.date?" \u00b7 "+recent.date:""}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Warm message */}
+                      <div style={{background:tc.bg,borderRadius:"10px",padding:"0.55rem 0.75rem",border:`1px solid ${tc.border}`,display:"flex",gap:"0.45rem",alignItems:"flex-start"}}>
+                        <span style={{fontSize:"0.8rem",flexShrink:0,marginTop:"1px"}}>
+                          {warmth.tone==="good"?"🌱":warmth.tone==="gentle"?"💛":"🌿"}
+                        </span>
+                        <div style={{fontSize:"0.74rem",color:tc.text,lineHeight:1.55}}>{warmth.msg}</div>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* Year perspective footer */}
+                {activeGoals.length>0&&(()=>{
+                  const totalEntries = subjEntries.length;
+                  const taggedEntries = subjEntries.filter(e=>e.goalId).length;
+                  const yr = family.yearStart ? new Date(family.yearStart).getFullYear() : new Date().getFullYear();
+                  return (
+                    <div style={{background:pal.parchm,borderRadius:"14px",padding:"0.85rem 1rem",marginTop:"0.25rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}25`,textAlign:"center"}}>
+                      <div style={{fontSize:"0.72rem",color:pal.slate,lineHeight:1.7}}>
+                        <span style={{fontWeight:"700",color:pal.ink,fontSize:"1rem"}}>{totalEntries}</span>
+                        {" portfolio entries this school year"}
+                        {taggedEntries>0&&(
+                          <>{" \u00b7 "}<span style={{fontWeight:"700",color:pal.primary}}>{taggedEntries}</span>{" tagged to a goal"}</>
+                        )}
+                        <div style={{marginTop:"4px",fontStyle:"italic",fontSize:"0.69rem"}}>
+                          {"Every entry is evidence that learning happened. That\u2019s what matters."}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
               </>
             )}
 
             {/* Edit mode */}
             {editing&&(
-              <div style={{animation:"fadeUp 0.18s ease"}}>
-                <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem",marginBottom:"0.4rem"}}>Edit Goals</div>
-                <div style={{fontSize:"0.74rem",color:pal.slate,marginBottom:"0.75rem",lineHeight:1.5}}>
-                  {"Tap to toggle. Goals shape your daily nudges and AI suggestions. Totally optional."}
-                </div>
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.45rem",marginBottom:"0.75rem"}}>
-                  {[...GOALS,...(family.customGoals||[])].map(g=>{
-                    const sel=draftGoals.includes(g.id);
+              <div>
+                <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem",marginBottom:"0.65rem"}}>{"Choose your goals"}</div>
+                <div style={{display:"flex",flexWrap:"wrap",gap:"0.4rem",marginBottom:"1rem"}}>
+                  {allGoalObjs.map(g=>{
+                    const sel = draftGoals.includes(g.id);
                     return (
                       <button key={g.id} onClick={()=>toggleDraft(g.id)}
-                        style={{padding:"0.75rem 0.65rem",border:`2px solid ${sel?pal.primary:pal.stone+"45"}`,borderRadius:"13px",background:sel?pal.pale:"transparent",cursor:"pointer",textAlign:"center",display:"flex",flexDirection:"column",alignItems:"center",gap:"0.28rem",transition:"all 0.13s"}}>
-                        <span style={{fontSize:"1.35rem"}}>{g.icon}</span>
-                        <span style={{fontSize:"0.72rem",fontWeight:sel?"800":"500",color:sel?pal.primary:pal.inkM,lineHeight:1.25}}>{g.label}</span>
+                        style={{display:"flex",alignItems:"center",gap:"0.3rem",padding:"0.38rem 0.75rem",borderRadius:"20px",border:`2px solid ${sel?pal.primary:pal.stone+"50"}`,background:sel?pal.pale:"transparent",color:sel?pal.primary:pal.inkM,fontWeight:sel?"700":"400",fontSize:"0.78rem",cursor:"pointer",transition:"all 0.12s"}}>
+                        <span style={{fontSize:"0.85rem"}}>{g.icon}</span>
+                        <span>{g.label}</span>
                       </button>
                     );
                   })}
                 </div>
-                <div style={{display:"flex",gap:"0.4rem",marginBottom:"0.75rem"}}>
+                <div style={{display:"flex",gap:"0.5rem",marginBottom:"0.75rem"}}>
                   <input value={customInput} onChange={e=>setCustomInput(e.target.value)}
                     onKeyDown={e=>e.key==="Enter"&&addCustom()}
-                    placeholder="Add your own goal..."
-                    style={{flex:1,padding:"0.55rem 0.75rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.81rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit"}}
-                    onFocus={e=>e.target.style.borderColor=pal.primary}
-                    onBlur={e=>e.target.style.borderColor=pal.stone}/>
-                  <button onClick={addCustom} disabled={!customInput.trim()}
-                    style={{padding:"0.55rem 0.85rem",border:"none",borderRadius:"10px",background:customInput.trim()?pal.accentGrad:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.78rem",cursor:customInput.trim()?"pointer":"default",flexShrink:0}}>
-                    Add
-                  </button>
+                    placeholder="Add a custom goal..."
+                    style={{flex:1,padding:"0.55rem 0.75rem",border:`1.5px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.82rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit"}}/>
+                  <button onClick={addCustom}
+                    style={{padding:"0.55rem 0.9rem",border:"none",borderRadius:"10px",background:pal.primary,color:"#fff",fontWeight:"700",fontSize:"0.8rem",cursor:"pointer"}}>{"+"}</button>
                 </div>
                 <div style={{display:"flex",gap:"0.5rem"}}>
                   <button onClick={cancelEdits}
-                    style={{padding:"0.65rem 1rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.84rem",cursor:"pointer"}}>
-                    Cancel
-                  </button>
+                    style={{flex:1,padding:"0.65rem",border:`1.5px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.82rem",cursor:"pointer"}}>{"Cancel"}</button>
                   <button onClick={saveEdits}
-                    style={{flex:1,padding:"0.65rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.86rem",cursor:"pointer"}}>
-                    Save Goals
-                  </button>
+                    style={{flex:2,padding:"0.65rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.84rem",cursor:"pointer"}}>{"Save Goals"}</button>
                 </div>
               </div>
             )}
           </>
         )}
-
-        {/* Info note */}
-        {!editing&&(
-          <div style={{background:pal.parchm,borderRadius:"12px",padding:"0.65rem 0.85rem",marginBottom:"1rem",fontSize:"0.72rem",color:pal.slate,lineHeight:1.6}}>
-            {"🌟 Goals shape your daily nudges, AI suggestions, and year-end reflection report."}
-            <span style={{display:"block",marginTop:"0.3rem",color:pal.stone}}>{"💡 Tip: you can add Goals to your bottom nav bar in Settings → Nav."}</span>
-          </div>
-        )}
-
-        <div style={{height:"0.5rem"}}/>
       </div>
     </div>
   );
