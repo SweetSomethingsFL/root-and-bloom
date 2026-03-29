@@ -11,6 +11,541 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <title>Root & Bloom</title>
   <script>
+
+function printPortfolioPDF(family, entries, child, attendanceDays, stateInfo, dateOverride) {
+  const schoolName  = family.schoolName||(family.familyName+" Academy")||"Home School";
+  const yearStartNum= family.yearStart ? new Date(family.yearStart).getFullYear() : new Date().getFullYear();
+  const yearEndNum  = family.yearEnd   ? new Date(family.yearEnd).getFullYear()   : yearStartNum+1;
+  const state       = family.state||"";
+  const childName   = child?.name||"Student";
+  const grade       = child?.grade||"";
+  const avatar      = child?.avatar||"";
+
+  const todayFull   = dateOverride
+    ? new Date(dateOverride+", "+new Date().getFullYear()).toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"})
+    : new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"});
+  const todayShort  = dateOverride || new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
+
+  // State compliance info
+  const si       = getStateInfo(state);
+  const ci       = getComplianceInfo(state, grade);
+  const needsDays = si.attendance;
+  const needsHours= !!(ci.hours && ci.hours.includes("hour"));
+  const needsTest = ci.needsTest;
+  const needsReading = si.readingLog;
+  const stateReqDays = parseInt((si.hours||"180").match(/\d+/)?.[0]||"180");
+  const pct = needsDays ? Math.min(100,Math.round(attendanceDays/stateReqDays*100)) : null;
+
+  // Today's entries
+  const todayEntries = entries.filter(e=>e.date===todayShort&&!e.isDay&&e.subj!=="Daily Notes");
+  const todayNote    = entries.find(e=>e.date===todayShort&&(e.isDay||e.subj==="Daily Notes"));
+  const allPhotos    = entries.filter(e=>e.date===todayShort).flatMap(e=>e.photos||[]).slice(0,3);
+  const readingEntries = todayEntries.filter(e=>e.readingTitle||(e.subj==="Reading"||e.subj==="Reading/Language Arts"));
+
+  const css = ""
+    +"*{box-sizing:border-box;margin:0;padding:0}"
+    +"body{font-family:Arial,sans-serif;color:#1a1a1a;font-size:10pt;line-height:1.5;background:#fff}"
+    +".page{max-width:700px;margin:0 auto;padding:0}"
+    +"@media print{@page{margin:1cm;size:letter}body{font-size:9.5pt}}"
+
+    // Banner header
+    +".banner{background:#2a4a28;padding:18px 24px;display:flex;justify-content:space-between;align-items:center}"
+    +".banner-left .school{font-size:7.5pt;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:3px}"
+    +".banner-left .student{font-size:17pt;font-weight:700;color:#fff}"
+    +".banner-left .meta{font-size:8.5pt;color:rgba(255,255,255,0.65);margin-top:2px}"
+    +".date-chip{background:rgba(255,255,255,0.15);border-radius:8px;padding:8px 14px;text-align:center}"
+    +".date-chip .label{font-size:7pt;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.1em}"
+    +".date-chip .val{font-size:14pt;font-weight:700;color:#fff;margin-top:2px}"
+
+    // Body
+    +".body{padding:20px 24px}"
+
+    // Subject grid
+    +".subj-grid{display:grid;gap:10px;margin-bottom:16px}"
+    +".subj-box{background:#fff;border-radius:8px;border:1px solid #e2ddd8;padding:11px 14px}"
+    +".subj-tag{display:inline-block;background:#e8f0e8;color:#2a4a28;font-size:7pt;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;border-radius:4px;padding:2px 7px;margin-bottom:6px}"
+    +".subj-note{font-size:9.5pt;color:#333;line-height:1.6}"
+    +".subj-reading{font-size:8.5pt;color:#2a4a28;font-style:italic;margin-top:4px}"
+
+    // Photos
+    +".photos-section{margin-bottom:16px}"
+    +".photos-label{font-size:7.5pt;color:#888;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;font-weight:700}"
+    +".photo-row{display:flex;gap:10px}"
+    +".photo-box{flex:1;aspect-ratio:4/3;border-radius:6px;overflow:hidden;border:1px solid #e0e0e0;background:#f5f5f5;display:flex;align-items:center;justify-content:center}"
+    +".photo-box img{width:100%;height:100%;object-fit:cover}"
+    +".photo-placeholder{font-size:8pt;color:#ccc;text-align:center}"
+
+    // Parent note
+    +".parent-note{background:#f8f7f4;border-left:3px solid #aaa;border-radius:0 6px 6px 0;padding:10px 14px;margin-bottom:16px}"
+    +".parent-note-label{font-size:7pt;text-transform:uppercase;letter-spacing:0.1em;color:#888;font-weight:700;margin-bottom:4px}"
+    +".parent-note-text{font-size:9.5pt;color:#444;line-height:1.65}"
+
+    // Compliance bar
+    +".compliance{background:#f5f9f5;border-radius:8px;border:1px solid #d0e5d0;padding:12px 16px;margin-bottom:16px}"
+    +".compliance-title{font-size:7.5pt;color:#2a4a28;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px}"
+    +".compliance-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}"
+    +".compliance-item{display:flex;flex-direction:column;gap:2px}"
+    +".compliance-label{font-size:7pt;color:#888;text-transform:uppercase;letter-spacing:0.06em}"
+    +".compliance-val{font-size:9pt;color:#1a1a1a;font-weight:600}"
+    +".bar-wrap{margin:8px 0 4px;height:5px;background:#d0e5d0;border-radius:99px;overflow:hidden}"
+    +".bar-fill{height:100%;background:linear-gradient(90deg,#2a6a2a,#5a9a3a);border-radius:99px}"
+
+    // Reading log
+    +".reading-section{margin-bottom:16px}"
+    +".reading-box{background:#fff;border:1px solid #e2ddd8;border-radius:8px;padding:10px 14px}"
+    +".reading-item{display:flex;gap:8px;align-items:baseline;padding:4px 0;border-bottom:1px solid #f5f5f5}"
+    +".reading-item:last-child{border-bottom:none}"
+    +".reading-subj{font-size:7.5pt;color:#2a4a28;font-weight:700;min-width:90px}"
+    +".reading-title{font-size:9pt;color:#333;font-style:italic}"
+
+    // Footer
+    +".footer{padding:10px 24px 16px;display:flex;justify-content:space-between;font-size:7.5pt;color:#aaa;border-top:1px solid #e8e3db}"
+    +".footer-note{font-size:7pt;color:#bbb;font-style:italic}"
+    ;
+
+  // Figure out grid columns based on subject count
+  const cols = todayEntries.length <= 2 ? 1 : todayEntries.length <= 6 ? 2 : 3;
+
+  let html = "<!DOCTYPE html><html lang='en'><head>"
+    +"<meta charset='utf-8'><title>"+childName+" Daily Log — "+todayShort+"</title>"
+    +"<style>"+css+"</style></head><body><div class='page'>"
+
+    // ── BANNER ──
+    +"<div class='banner'>"
+    +"<div class='banner-left'>"
+    +"<div class='school'>"+schoolName+"</div>"
+    +"<div class='student'>"+avatar+" "+childName+"</div>"
+    +"<div class='meta'>"+grade+" &bull; "+state+" &bull; "+yearStartNum+"&ndash;"+yearEndNum+"</div>"
+    +"</div>"
+    +"<div class='date-chip'>"
+    +"<div class='label'>Daily Activity Log</div>"
+    +"<div class='val'>"+todayShort+"</div>"
+    +"</div>"
+    +"</div>"
+
+    +"<div class='body'>";
+
+  // ── SUBJECTS ──
+  if(todayEntries.length===0) {
+    html += "<div style='text-align:center;padding:2rem;color:#aaa;font-style:italic'>No entries logged for this day.</div>";
+  } else {
+    html += "<div class='subj-grid' style='grid-template-columns:repeat("+cols+",1fr)'>";
+    todayEntries.forEach(e=>{
+      const noteTxt  = (e.note||"").replace("AI Summary: ","").trim();
+      const titleTxt = (e.title||"").replace((e.subj||"")+" \u2014 ","").replace((e.subj||"")+" -- ","").trim();
+      const showTitle = titleTxt && titleTxt!==e.subj && titleTxt!==e.date;
+      html += "<div class='subj-box'>"
+        +"<div class='subj-tag'>"+e.subj+"</div>";
+      if(showTitle) html += "<div style='font-weight:600;font-size:9.5pt;color:#1a1a1a;margin-bottom:3px'>"+titleTxt+"</div>";
+      if(noteTxt)   html += "<div class='subj-note'>"+noteTxt+"</div>";
+      if(e.readingTitle) html += "<div class='subj-reading'>&#128214; "+e.readingTitle+"</div>";
+      if(!showTitle&&!noteTxt&&!e.readingTitle) html += "<div class='subj-note' style='color:#bbb'>No notes recorded</div>";
+      html += "</div>";
+    });
+    html += "</div>";
+  }
+
+  // ── PARENT NOTE ──
+  if(todayNote&&todayNote.note){
+    const noteClean=(todayNote.note||"").replace("AI Summary: ","").trim();
+    html += "<div class='parent-note'>"
+      +"<div class='parent-note-label'>Parent Notes</div>"
+      +"<div class='parent-note-text'>"+noteClean+"</div>"
+      +"</div>";
+  }
+
+  // ── READING LOG (FL + PA require reading titles by name) ──
+  if(needsReading && readingEntries.some(e=>e.readingTitle)){
+    html += "<div class='reading-section'>"
+      +"<div class='photos-label'>Reading Log (required by "+state+")</div>"
+      +"<div class='reading-box'>";
+    readingEntries.filter(e=>e.readingTitle).forEach(e=>{
+      html += "<div class='reading-item'>"
+        +"<div class='reading-subj'>"+e.subj+"</div>"
+        +"<div class='reading-title'>"+e.readingTitle+"</div>"
+        +"</div>";
+    });
+    html += "</div></div>";
+  }
+
+  // ── PHOTOS ──
+  html += "<div class='photos-section'>"
+    +"<div class='photos-label'>Work Samples / Documentation</div>"
+    +"<div class='photo-row'>";
+  for(let i=0;i<3;i++){
+    html += "<div class='photo-box'>";
+    if(allPhotos[i]){
+      html += "<img src='"+allPhotos[i]+"' alt='work sample "+(i+1)+"'/>";
+    } else {
+      html += "<div class='photo-placeholder'>Sample "+(i+1)+"<br><span style='font-size:7pt'>Attach work here</span></div>";
+    }
+    html += "</div>";
+  }
+  html += "</div></div>";
+
+  // ── STATE COMPLIANCE BOX ──
+  html += "<div class='compliance'>"
+    +"<div class='compliance-title'>"+state+" Compliance Summary &mdash; "+yearStartNum+"&ndash;"+yearEndNum+"</div>"
+    +"<div class='compliance-grid'>";
+
+  if(needsDays){
+    html += "<div class='compliance-item'>"
+      +"<div class='compliance-label'>Days Logged</div>"
+      +"<div class='compliance-val'>"+attendanceDays+" of "+stateReqDays+" required</div>"
+      +"<div class='bar-wrap'><div class='bar-fill' style='width:"+pct+"%'></div></div>"
+      +"</div>";
+  } else {
+    html += "<div class='compliance-item'>"
+      +"<div class='compliance-label'>Days Logged</div>"
+      +"<div class='compliance-val'>"+attendanceDays+" days this year</div>"
+      +"</div>";
+  }
+
+  html += "<div class='compliance-item'>"
+    +"<div class='compliance-label'>Portfolio Requirement</div>"
+    +"<div class='compliance-val'>"+ci.portfolio.slice(0,60)+(ci.portfolio.length>60?"...":"")+"</div>"
+    +"</div>";
+
+  html += "<div class='compliance-item'>"
+    +"<div class='compliance-label'>Annual Evaluation</div>"
+    +"<div class='compliance-val'>"+ci.testing.slice(0,60)+(ci.testing.length>60?"...":"")+"</div>"
+    +"</div>";
+
+  html += "<div class='compliance-item'>"
+    +"<div class='compliance-label'>Deadline</div>"
+    +"<div class='compliance-val'>"+ci.deadline+"</div>"
+    +"</div>";
+
+  if(ci.keepFor){
+    html += "<div class='compliance-item'>"
+      +"<div class='compliance-label'>Retain Records</div>"
+      +"<div class='compliance-val'>"+ci.keepFor+"</div>"
+      +"</div>";
+  }
+
+  html += "</div>"; // compliance-grid
+
+  // Grade-specific note
+  if(ci.gradeNote){
+    html += "<div style='margin-top:8px;font-size:8pt;color:#3a6a3a;line-height:1.5;padding-top:8px;border-top:1px solid #d0e5d0'>"
+      +"&#9432; "+ci.gradeNote
+      +"</div>";
+  }
+
+  html += "</div>"; // compliance box
+
+  // ── FOOTER ──
+  html += "<div class='footer'>"
+    +"<div>"
+    +"<div>"+schoolName+" &bull; "+childName+" &bull; "+grade+"</div>"
+    +"<div class='footer-note'>"+todayFull+" &bull; Generated by Root &amp; Bloom</div>"
+    +"</div>"
+    +"<div style='text-align:right'>"
+    +"<div>"+state+" Homeschool Record</div>"
+    +"<div class='footer-note'>Keep for: "+ci.keepFor+"</div>"
+    +"</div>"
+    +"</div>"
+
+    +"</div>" // body
+    +"</div>" // page
+    +"<script>window.onload=function(){setTimeout(function(){window.print();},500);};<\/script>"
+    +"</body></html>";
+
+  const w=window.open("","_blank","width=800,height=960,scrollbars=yes");
+  if(w){w.document.write(html);w.document.close();}
+  else{alert("Please allow popups to print your portfolio.");}
+}
+
+
+function printFullPortfolio(family, entries, child, attendanceDays, stateInfoUnused, aiSummary) {
+  const schoolName  = family.schoolName||(family.familyName+" Academy")||"Home School";
+  const yearStartNum= family.yearStart ? new Date(family.yearStart).getFullYear() : new Date().getFullYear();
+  const yearEndNum  = family.yearEnd   ? new Date(family.yearEnd).getFullYear()   : yearStartNum+1;
+  const today       = new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
+  const childName   = child?.name||"Student";
+  const grade       = child?.grade||"";
+  const avatar      = child?.avatar||"";
+  const state       = family.state||"";
+  const si          = getStateInfo(state);
+  const ci          = getComplianceInfo(state, grade);
+  const stateReqDays= parseInt((si.hours||"180").match(/\d+/)?.[0]||"180");
+  const pct         = Math.min(100,Math.round(attendanceDays/stateReqDays*100));
+
+  const subjEntries = entries.filter(e=>!e.isDay&&e.subj!=="Daily Notes")
+    .sort((a,b)=>{try{return new Date(a.date+", "+yearStartNum)-new Date(b.date+", "+yearStartNum);}catch{return 0;}});
+  const bySubject = {};
+  subjEntries.forEach(e=>{ if(!bySubject[e.subj]) bySubject[e.subj]=[]; bySubject[e.subj].push(e); });
+  const subjectList = Object.keys(bySubject).sort((a,b)=>bySubject[b].length-bySubject[a].length);
+  const readingTitles = [...new Set(subjEntries.filter(e=>e.readingTitle).map(e=>e.readingTitle))];
+  const allPhotos = subjEntries.flatMap(e=>e.photos||[]).slice(0,9);
+
+  const css = ""
+    +"*{box-sizing:border-box;margin:0;padding:0}"
+    +"body{font-family:Arial,sans-serif;color:#1a1a1a;font-size:10pt;line-height:1.5;background:#fff}"
+    +"@media print{@page{margin:1cm;size:letter}body{font-size:9.5pt}}"
+    +".banner{background:#2a4a28;padding:22px 28px;display:flex;justify-content:space-between;align-items:center}"
+    +".b-school{font-size:7.5pt;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:3px}"
+    +".b-student{font-size:22pt;font-weight:700;color:#fff}"
+    +".b-meta{font-size:9pt;color:rgba(255,255,255,0.65);margin-top:3px}"
+    +".b-chip{background:rgba(255,255,255,0.15);border-radius:10px;padding:10px 18px;text-align:center}"
+    +".b-chip-l{font-size:7pt;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.1em}"
+    +".b-chip-v{font-size:22pt;font-weight:700;color:#fff;margin-top:2px}"
+    +".body{padding:22px 28px;background:#faf8f4}"
+    +".section-label{font-size:7.5pt;color:#888;text-transform:uppercase;letter-spacing:0.1em;font-weight:700;margin-bottom:8px;margin-top:18px}"
+    +".section-label:first-child{margin-top:0}"
+    +".stat-row{display:flex;gap:10px;margin-bottom:18px}"
+    +".stat{text-align:center;flex:1;background:#fff;border-radius:8px;border:1px solid #e2ddd8;padding:12px 8px}"
+    +".stat-n{font-size:20pt;font-weight:700;color:#2a4a28}"
+    +".stat-l{font-size:7.5pt;color:#888;text-transform:uppercase;letter-spacing:0.05em;margin-top:2px}"
+    +".bar-wrap{height:5px;background:#d0e5d0;border-radius:99px;overflow:hidden;margin:6px 0 3px}"
+    +".bar-fill{height:100%;background:linear-gradient(90deg,#2a6a2a,#5a9a3a);border-radius:99px}"
+    // AI summary
+    +".ai-box{background:#fff;border-radius:10px;border:1.5px solid #c8dfc8;padding:14px 18px;margin-bottom:18px}"
+    +".ai-narrative{font-size:10pt;color:#1a1a1a;line-height:1.7;font-style:italic;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #e8e3db}"
+    +".ai-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}"
+    +".ai-col-title{font-size:7pt;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}"
+    +".ai-item{display:flex;gap:6px;font-size:9pt;color:#333;line-height:1.55;margin-bottom:5px;align-items:baseline}"
+    +".ai-bullet{font-weight:700;flex-shrink:0}"
+    +".ai-reading{font-size:8.5pt;color:#666;font-style:italic;margin-top:10px;padding-top:10px;border-top:1px solid #e8e3db}"
+    +".ai-parent{font-size:8pt;color:#2a4a28;font-weight:600;background:#f0f7f0;border-radius:6px;padding:7px 10px;margin-top:10px}"
+    // Subject sections
+    +".subj-section{background:#fff;border-radius:10px;border:1px solid #e2ddd8;padding:12px 16px;margin-bottom:10px}"
+    +".subj-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #f0ece6}"
+    +".subj-tag{background:#e8f0e8;color:#2a4a28;font-size:7pt;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;border-radius:4px;padding:3px 8px}"
+    +".subj-count{font-size:8pt;color:#888;margin-left:auto}"
+    +".entry-row{display:flex;gap:10px;padding:6px 0;border-bottom:1px solid #f8f5f1;align-items:flex-start}"
+    +".entry-row:last-child{border-bottom:none}"
+    +".entry-date{font-size:8pt;color:#888;min-width:46px;flex-shrink:0;padding-top:1px}"
+    +".entry-note{font-size:9pt;color:#333;line-height:1.55;flex:1}"
+    +".entry-reading{font-size:8pt;color:#2a4a28;font-style:italic;margin-top:2px}"
+    // Reading log
+    +".reading-box{background:#fff;border:1px solid #e2ddd8;border-radius:8px;padding:10px 16px;margin-bottom:10px}"
+    +".r-row{display:flex;gap:8px;padding:4px 0;border-bottom:1px solid #f5f5f5;align-items:baseline}"
+    +".r-row:last-child{border-bottom:none}"
+    +".r-n{font-size:8pt;color:#888;min-width:24px}"
+    +".r-title{font-size:9.5pt;color:#1a1a1a;font-style:italic}"
+    // Photos
+    +".photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}"
+    +".photo-box{aspect-ratio:4/3;border-radius:8px;overflow:hidden;border:1px solid #e0dbd4;background:#ede9e1;display:flex;align-items:center;justify-content:center}"
+    +".photo-box img{width:100%;height:100%;object-fit:cover}"
+    +".photo-ph{font-size:8pt;color:#c0bab2;text-align:center}"
+    // Compliance
+    +".compliance{background:#f5f9f5;border-radius:10px;border:1px solid #c8dfc8;padding:14px 18px;margin-bottom:18px}"
+    +".comp-title{font-size:7.5pt;color:#2a4a28;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px}"
+    +".comp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}"
+    +".comp-l{font-size:6.5pt;color:#888;text-transform:uppercase;letter-spacing:0.06em}"
+    +".comp-v{font-size:9pt;color:#1a1a1a;font-weight:600;margin-top:2px;line-height:1.4}"
+    +".comp-note{margin-top:10px;padding-top:10px;border-top:1px solid #d0e5d0;font-size:7.5pt;color:#3a6a3a;line-height:1.55}"
+    // Sig + footer
+    +".sig-row{display:flex;gap:24px;margin-top:20px;padding-top:16px;border-top:1.5px solid #ccc}"
+    +".sig-col{flex:1}"
+    +".sig-line{border-bottom:1.5px solid #999;height:30px;margin-bottom:4px}"
+    +".sig-label{font-size:7.5pt;color:#888}"
+    +".footer{padding:10px 28px 16px;display:flex;justify-content:space-between;font-size:7.5pt;color:#aaa;border-top:1px solid #e8e3db}"
+    +".f-note{font-size:7pt;color:#bbb;font-style:italic;margin-top:1px}"
+    ;
+
+  let html = "<!DOCTYPE html><html lang='en'><head>"
+    +"<meta charset='utf-8'><title>"+childName+" — Full Portfolio "+yearStartNum+"–"+yearEndNum+"</title>"
+    +"<style>"+css+"</style></head><body>"
+
+    // ── BANNER ──
+    +"<div class='banner'>"
+    +"<div><div class='b-school'>"+schoolName+" &bull; Annual Portfolio</div>"
+    +"<div class='b-student'>"+avatar+" "+childName+"</div>"
+    +"<div class='b-meta'>"+grade+" &bull; "+state+" &bull; "+yearStartNum+"&ndash;"+yearEndNum+"</div></div>"
+    +"<div class='b-chip'><div class='b-chip-l'>Days Logged</div><div class='b-chip-v'>"+attendanceDays+"</div></div>"
+    +"</div>"
+
+    +"<div class='body'>"
+
+    // ── YEAR STATS ──
+    +"<div class='stat-row'>"
+    +"<div class='stat'><div class='stat-n'>"+attendanceDays+"</div><div class='stat-l'>Days Logged</div>"
+    +(si.attendance?"<div class='bar-wrap'><div class='bar-fill' style='width:"+pct+"%'></div></div><div style='font-size:7pt;color:#888'>"+attendanceDays+"/"+stateReqDays+" required</div>":"")
+    +"</div>"
+    +"<div class='stat'><div class='stat-n'>"+subjEntries.length+"</div><div class='stat-l'>Portfolio Entries</div></div>"
+    +"<div class='stat'><div class='stat-n'>"+subjectList.length+"</div><div class='stat-l'>Subjects</div></div>"
+    +"<div class='stat'><div class='stat-n'>"+readingTitles.length+"</div><div class='stat-l'>Books Read</div></div>"
+    +"</div>";
+
+  // ── AI YEAR SUMMARY ──
+  if(aiSummary){
+    html += "<div class='section-label'>Year in Review</div>"
+      +"<div class='ai-box'>"
+      +"<div class='ai-narrative'>"+aiSummary.narrative+"</div>"
+      +"<div class='ai-cols'>"
+      +"<div>"
+      +"<div class='ai-col-title' style='color:#2a4a28'>Biggest Accomplishments</div>"
+      +(aiSummary.accomplishments||[]).map(a=>"<div class='ai-item'><span class='ai-bullet' style='color:#2a4a28'>&#10003;</span><span>"+a+"</span></div>").join("")
+      +"</div>"
+      +"<div>"
+      +"<div class='ai-col-title' style='color:#b07800'>Areas to Keep Building</div>"
+      +(aiSummary.growthAreas||[]).map(a=>"<div class='ai-item'><span class='ai-bullet' style='color:#b07800'>&rarr;</span><span>"+a+"</span></div>").join("")
+      +"</div>"
+      +"</div>"
+      +(aiSummary.readingHighlight?"<div class='ai-reading'>&#128214; "+aiSummary.readingHighlight+"</div>":"")
+      +(aiSummary.parentNote?"<div class='ai-parent'>"+aiSummary.parentNote+"</div>":"")
+      +"</div>";
+  }
+
+  // ── SUBJECTS ──
+  html += "<div class='section-label'>Portfolio by Subject</div>";
+  subjectList.forEach(subj=>{
+    const subjEs = bySubject[subj].slice().reverse();
+    html += "<div class='subj-section'>"
+      +"<div class='subj-header'>"
+      +"<div class='subj-tag'>"+subj+"</div>"
+      +"<div class='subj-count'>"+subjEs.length+" entries</div>"
+      +"</div>";
+    subjEs.slice(0,12).forEach(e=>{
+      const note = (e.note||"").replace("AI Summary: ","").trim();
+      const title = (e.title||"").replace(subj+" \u2014 ","").replace(subj+" -- ","").trim();
+      const showTitle = title && title!==subj && title!==e.date;
+      html += "<div class='entry-row'>"
+        +"<div class='entry-date'>"+e.date+"</div>"
+        +"<div class='entry-note'>"
+        +(showTitle?"<strong>"+title+"</strong><br>":"")
+        +note
+        +(e.readingTitle?"<div class='entry-reading'>&#128214; "+e.readingTitle+"</div>":"")
+        +"</div></div>";
+    });
+    if(subjEs.length>12){
+      html += "<div style='font-size:8pt;color:#888;padding:6px 0;text-align:center;font-style:italic'>+ "+(subjEs.length-12)+" more entries</div>";
+    }
+    html += "</div>";
+  });
+
+  // ── READING LOG ──
+  if(readingTitles.length>0){
+    html += "<div class='section-label'>"+state+" Reading Log — Titles by Name</div>"
+      +"<div class='reading-box'>";
+    readingTitles.forEach((t,i)=>{
+      html += "<div class='r-row'><div class='r-n'>"+(i+1)+".</div><div class='r-title'>"+t+"</div></div>";
+    });
+    html += "</div>";
+  }
+
+  // ── PHOTOS ──
+  if(allPhotos.length>0){
+    html += "<div class='section-label'>Work Samples</div>"
+      +"<div class='photo-grid'>";
+    for(let i=0;i<Math.min(9,allPhotos.length);i++){
+      html += "<div class='photo-box'><img src='"+allPhotos[i]+"' alt='work sample'/></div>";
+    }
+    html += "</div>";
+  } else {
+    html += "<div class='section-label'>Work Samples</div>"
+      +"<div class='photo-grid'>";
+    for(let i=0;i<3;i++){
+      html += "<div class='photo-box'><div class='photo-ph'>Sample "+(i+1)+"<br><span style='font-size:7pt'>Attach work here</span></div></div>";
+    }
+    html += "</div>";
+  }
+
+  // ── STATE COMPLIANCE ──
+  html += "<div class='compliance'>"
+    +"<div class='comp-title'>"+state+" Compliance Summary &mdash; "+yearStartNum+"&ndash;"+yearEndNum+"</div>"
+    +"<div class='comp-grid'>"
+    +"<div><div class='comp-l'>Days Logged</div><div class='comp-v'>"+attendanceDays+(si.attendance?" of "+stateReqDays+" required":"" )+"</div></div>"
+    +"<div><div class='comp-l'>Portfolio Requirement</div><div class='comp-v'>"+ci.portfolio.slice(0,70)+"</div></div>"
+    +"<div><div class='comp-l'>Annual Evaluation</div><div class='comp-v'>"+ci.testing.slice(0,70)+"</div></div>"
+    +"<div><div class='comp-l'>Deadline</div><div class='comp-v'>"+ci.deadline+"</div></div>"
+    +"<div><div class='comp-l'>Retain Records</div><div class='comp-v'>"+ci.keepFor+"</div></div>"
+    +"</div>"
+    +(ci.gradeNote?"<div class='comp-note'>&#9432; "+ci.gradeNote+"</div>":"")
+    +"</div>"
+
+    // ── SIGNATURE ──
+    +"<div class='sig-row'>"
+    +"<div class='sig-col'><div class='sig-line'></div><div class='sig-label'>Parent / Educator Signature</div></div>"
+    +"<div class='sig-col'><div class='sig-line'></div><div class='sig-label'>Evaluator Signature</div></div>"
+    +"<div class='sig-col'><div class='sig-line'></div><div class='sig-label'>Date</div></div>"
+    +"</div>"
+
+    +"</div>" // body
+
+    +"<div class='footer'>"
+    +"<div><div>"+schoolName+" &bull; "+childName+" &bull; "+grade+"</div>"
+    +"<div class='f-note'>Generated: "+today+" &bull; Root &amp; Bloom</div></div>"
+    +"<div style='text-align:right'><div>"+state+" Homeschool Portfolio "+yearStartNum+"&ndash;"+yearEndNum+"</div>"
+    +"<div class='f-note'>Retain for: "+ci.keepFor+"</div></div>"
+    +"</div>"
+    +"<script>window.onload=function(){setTimeout(function(){window.print();},600);};<\/script>"
+    +"</body></html>";
+
+  const w=window.open("","_blank","width=820,height=980,scrollbars=yes");
+  if(w){w.document.write(html);w.document.close();}
+  else{alert("Please allow popups to print your portfolio.");}
+}
+
+
+/* ---- Print Evaluator Letter separately ---- */
+function printEvaluatorLetter(family, child, attendanceDays) {
+  const schoolName = family.schoolName||(family.familyName+" Academy")||"Home School";
+  const yearStart  = family.yearStart ? new Date(family.yearStart).getFullYear() : new Date().getFullYear();
+  const yearEnd    = family.yearEnd   ? new Date(family.yearEnd).getFullYear()   : yearStart+1;
+  const today      = new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
+
+  const css = ""
+    +"*{box-sizing:border-box;margin:0;padding:0}"
+    +"body{font-family:Georgia,serif;color:#222;background:#fff;font-size:11pt;line-height:1.7}"
+    +".wrap{max-width:680px;margin:2rem auto;padding:2.5rem}"
+    +"@media print{.wrap{margin:0;padding:2rem}@page{margin:2cm}}";
+
+  const html = "<!DOCTYPE html><html><head>"
+    +"<meta charset='utf-8'>"
+    +"<title>Annual Evaluation Letter &mdash; "+(child?.name||"Student")+"</title>"
+    +"<style>"+css+"</style>"
+    +"</head><body><div class='wrap'>"
+
+    +"<div style='text-align:center;margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:2px solid #2a6a2a'>"
+    +"<div style='font-family:Arial,sans-serif;font-size:8.5pt;text-transform:uppercase;letter-spacing:0.1em;color:#888;margin-bottom:6px'>Florida Home Education Program</div>"
+    +"<div style='font-size:20pt;font-weight:bold;color:#2a6a2a;margin-bottom:4px'>Annual Educational Evaluation</div>"
+    +"<div style='font-family:Arial,sans-serif;font-size:9pt;color:#888'>Pursuant to Florida Statute 1002.41(1)(f)</div>"
+    +"</div>"
+
+    +"<div style='background:#f5f9f5;border:1px solid #b8d8b8;border-radius:6px;padding:1rem 1.2rem;margin-bottom:1.5rem;font-family:Arial,sans-serif;font-size:10pt;line-height:1.9'>"
+    +"<b>Student:</b> "+(child?.name||"")
+    +"&nbsp;&nbsp;&nbsp;<b>Grade:</b> "+(child?.grade||"")
+    +"&nbsp;&nbsp;&nbsp;<b>School Year:</b> "+yearStart+"&ndash;"+yearEnd+"<br>"
+    +"<b>School:</b> "+schoolName
+    +"&nbsp;&nbsp;&nbsp;<b>County:</b> ___________________________"
+    +"&nbsp;&nbsp;&nbsp;<b>Date:</b> "+today
+    +"</div>"
+
+    +"<p style='margin-bottom:1.5rem;line-height:1.8'>I, the undersigned Florida-certified teacher, have reviewed the educational portfolio "
+    +"of the above-named student and conducted a discussion with the student as required by "
+    +"Florida Statute 1002.41(1)(f). Based on this evaluation, I have determined that the student "
+    +"has demonstrated educational progress <b>at a level commensurate with his/her ability</b> "
+    +"during the "+yearStart+"&ndash;"+yearEnd+" school year.</p>"
+
+    +"<div style='display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-bottom:1.5rem;font-family:Arial,sans-serif;font-size:10pt'>"
+    +"<div><div style='border-bottom:1.5px solid #444;height:36px;margin-bottom:6px'></div><div style='color:#666;font-size:8pt'>Evaluator Full Name (print clearly)</div></div>"
+    +"<div><div style='border-bottom:1.5px solid #444;height:36px;margin-bottom:6px'></div><div style='color:#666;font-size:8pt'>FL Teaching Certificate Number</div></div>"
+    +"<div><div style='border-bottom:1.5px solid #444;height:36px;margin-bottom:6px'></div><div style='color:#666;font-size:8pt'>Evaluator Signature</div></div>"
+    +"<div><div style='border-bottom:1.5px solid #444;height:36px;margin-bottom:6px'></div><div style='color:#666;font-size:8pt'>Date of Evaluation</div></div>"
+    +"<div style='grid-column:span 2'><div style='border-bottom:1.5px solid #444;height:36px;margin-bottom:6px'></div><div style='color:#666;font-size:8pt'>Evaluator Email / Phone (optional — for your records)</div></div>"
+    +"</div>"
+
+    +"<div style='background:#fffbea;border:1px solid #e8d870;border-radius:6px;padding:0.85rem 1rem;font-family:Arial,sans-serif;font-size:9pt;color:#555;line-height:1.65;margin-bottom:1.5rem'>"
+    +"<b>Parent instructions:</b> Once signed, mail or deliver a copy to the district school superintendent's "
+    +"office in your county of residence. Keep a copy with your portfolio for 2 years. "
+    +"Due by the anniversary of your Letter of Intent filing date."
+    +"</div>"
+
+    +"<div style='text-align:center;font-family:Arial,sans-serif;font-size:8pt;color:#aaa;padding-top:1rem;border-top:1px solid #e0e0e0'>"
+    +"Generated by Root &amp; Bloom &bull; "+schoolName+" &bull; "+yearStart+"&ndash;"+yearEnd
+    +"</div>"
+
+    +"</div>"
+    +"<script>window.onload=function(){setTimeout(function(){window.print();},500);};</"+"script>"
+    +"</body></html>";
+
+  const w = window.open("","_blank","width=760,height=900,scrollbars=yes");
+  if(w){ w.document.write(html); w.document.close(); }
+  else { alert("Please allow popups for this site to print the evaluator letter."); }
+}
     // Inline PWA manifest via blob URL
     const _pageUrl = location.href.split("?")[0].split("#")[0];
     const manifest = {
@@ -74,143 +609,9 @@
 </head>
 <body>
   <div id="root"></div>
-  <script type="text/babel" data-presets="react">
-    const { useState, useMemo, useCallback, useRef, useEffect } = React;
+  
+  <script>
 
-/* -----------------------------------------
-   THEME ENGINE (same as v2)
------------------------------------------ */
-function lerpHex(a, b, t) {
-  const ah=a.replace("#",""), bh=b.replace("#","");
-  const ar=parseInt(ah.slice(0,2),16),ag=parseInt(ah.slice(2,4),16),ab=parseInt(ah.slice(4,6),16);
-  const br=parseInt(bh.slice(0,2),16),bg=parseInt(bh.slice(2,4),16),bb=parseInt(bh.slice(4,6),16);
-  return `#${Math.round(ar+(br-ar)*t).toString(16).padStart(2,"0")}${Math.round(ag+(bg-ag)*t).toString(16).padStart(2,"0")}${Math.round(ab+(bb-ab)*t).toString(16).padStart(2,"0")}`;
-}
-const lighten = (hex,a) => lerpHex(hex,"#ffffff",a);
-const darken  = (hex,a) => lerpHex(hex,"#000000",a);
-
-function buildTheme(a,b) {
-  const mid=lerpHex(a,b,0.45), light=lerpHex(a,b,0.75);
-  return {
-    deep:darken(a,0.15), primary:a, mid, accent:b,
-    accentD:darken(b,0.25), pale:lighten(b,0.70), paleMid:lighten(b,0.50),
-    sand:lerpHex(lighten(a,0.88),"#fdf8ef",0.5),
-    linen:lerpHex(lighten(b,0.92),"#ffffff",0.4),
-    parchm:lerpHex(lighten(a,0.82),"#f5ead6",0.5),
-    stone:lerpHex(lighten(a,0.55),"#c0b8a8",0.5),
-    navGrad:`linear-gradient(160deg,${darken(a,0.15)},${a},${mid})`,
-    heroGrad:`linear-gradient(160deg,${darken(a,0.12)},${mid})`,
-    accentGrad:`linear-gradient(135deg,${mid},${b})`,
-    shimmer:`linear-gradient(90deg,${lighten(b,0.55)},${lighten(a,0.65)},${lighten(b,0.55)})`,
-    onDark:"#ffffff", onLight:darken(a,0.55),
-    ink:"#1a1408", inkM:"#4a3c2a",
-    slate:lerpHex(darken(a,0.05),"#8a7a62",0.55),
-    good:lerpHex(b,"#44aa66",0.4), warn:"#c47818", bad:"#a03030",
-    goodBg:lighten(lerpHex(b,"#44aa66",0.4),0.75),
-    warnBg:"#fef0d0", badBg:"#faeae4",
-  };
-}
-
-const PRESET_PALETTES = [
-  {id:"sage",    name:"Sage",    emoji:"🌱", a:"#2a4a28", b:"#a8c890"},
-  {id:"forest",  name:"Forest",  emoji:"🌲", a:"#1e4d2b", b:"#7ecb9a"},
-  {id:"desert",  name:"Desert",  emoji:"🌵", a:"#7a3e1a", b:"#e8b870"},
-  {id:"ocean",   name:"Ocean",   emoji:"🌊", a:"#0d3d5e", b:"#7ec8d8"},
-  {id:"lavender",name:"Lavender",emoji:"💜", a:"#3d2060", b:"#c8a8e8"},
-  {id:"rose",    name:"Rose",    emoji:"🌹", a:"#6a1a2e", b:"#e8a0b0"},
-  {id:"harvest", name:"Harvest", emoji:"🍂", a:"#5a2e08", b:"#e8c070"},
-  {id:"slate",   name:"Slate",   emoji:"🪨", a:"#1e2a38", b:"#90aac0"},
-  {id:"custom",  name:"Custom",  emoji:"", a:"#1e4d2b", b:"#7ecb9a", isCustom:true},
-];
-
-/* --- CONSTANTS --- */
-const LEARNING_PHILOSOPHIES = [
-  {id:"classical",   label:"Classical",        icon:"🏛", desc:"Trivium - grammar, logic, rhetoric"},
-  {id:"charlotte",   label:"Charlotte Mason",  icon:"🌿", desc:"Living books, nature study, narration"},
-  {id:"classical_c", label:"Classical Conv.",  icon:"🔁", desc:"Memory work & weekly co-op"},
-  {id:"traditional", label:"Traditional",      icon:"📐", desc:"Textbook-based, structured learning"},
-  {id:"unit",        label:"Unit Studies",     icon:"🔭", desc:"Deep dives into one topic at a time"},
-  {id:"waldorf",     label:"Waldorf",          icon:"🎨", desc:"Arts-based, whole-child approach"},
-  {id:"montessori",  label:"Montessori",       icon:"🌸", desc:"Self-directed, hands-on learning"},
-  {id:"eclectic",    label:"Eclectic",         icon:"🧩", desc:"Mix of whatever works best for us"},
-  {id:"unschooling", label:"Unschooling",      icon:"🌱", desc:"Child-led, interest-based"},
-  {id:"ai",          label:"Let Root & Bloom Decide",   icon:"", desc:"Let Root & Bloom build our curriculum"},
-];
-
-const CURRICULUM_BRANDS = [
-  // --- Faith-Based ---
-  {id:"tgatb",    label:"The Good and the Beautiful",  icon:"📖", desc:"Charlotte Mason-inspired, faith-based", url:"https://www.goodandbeautiful.com"},
-  {id:"abeka",    label:"Abeka",                       icon:"📚", desc:"Traditional Christian textbooks",       url:"https://www.abeka.com"},
-  {id:"mfw",      label:"My Father’s World",      icon:"🌿", desc:"Faith-based unit studies",              url:"https://www.mfwbooks.com"},
-  {id:"sonlight", label:"Sonlight",                    icon:"🌎", desc:"Literature-rich, global perspective",   url:"https://www.sonlight.com"},
-  {id:"bju",      label:"BJU Press",                   icon:"🎓", desc:"Comprehensive Christian curriculum",    url:"https://www.bjupress.com"},
-  {id:"winterpromise", label:"Winter Promise",         icon:"❄️", desc:"Unit studies with a cozy approach",    url:"https://www.winterpromise.com"},
-  {id:"notgrass", label:"Notgrass History",            icon:"🏛", desc:"History-centered, faith-based",        url:"https://www.notgrass.com"},
-  // --- Classical ---
-  {id:"classicalconv", label:"Classical Conversations",icon:"🏛", desc:"Community-based classical education",  url:"https://www.classicalconversations.com"},
-  {id:"welltr",   label:"The Well-Trained Mind",       icon:"📜", desc:"Susan Wise Bauer classical approach",  url:"https://www.welltrainedmind.com"},
-  {id:"veritas",  label:"Veritas Press",               icon:"📜", desc:"Classical Christian curriculum",       url:"https://www.veritaspress.com"},
-  {id:"memoria",  label:"Memoria Press",               icon:"🦉", desc:"Classical education with Latin",       url:"https://www.memoriapress.com"},
-  {id:"trivium",  label:"Trivium Pursuit",             icon:"📐", desc:"Classical trivium approach",           url:"https://www.triviumpursuit.com"},
-  // --- Charlotte Mason ---
-  {id:"ambleside",label:"Ambleside Online",            icon:"🌸", desc:"Free Charlotte Mason curriculum",      url:"https://www.amblesideonline.org"},
-  {id:"simplycharlotte", label:"Simply Charlotte Mason",icon:"🌼", desc:"Charlotte Mason resources & guides",  url:"https://simplycharlottemason.com"},
-  // --- Math Focused ---
-  {id:"saxon",    label:"Saxon Math",                  icon:"➕", desc:"Incremental, mastery-based math",      url:"https://www.hmhco.com/programs/saxon-math"},
-  {id:"mathu",    label:"Math-U-See",                  icon:"🔢", desc:"Manipulative-based math program",      url:"https://www.mathusee.com"},
-  {id:"rightstart",label:"RightStart Math",            icon:"🧮", desc:"Visual, activity-based math",         url:"https://www.rightstartmath.com"},
-  {id:"ctc",      label:"CTC Math",                    icon:"💻", desc:"Online video-based math",              url:"https://www.ctcmath.com"},
-  {id:"beast",    label:"Beast Academy",               icon:"🐉", desc:"Advanced math comics for kids",        url:"https://www.beastacademy.com"},
-  {id:"aaa",      label:"AAA Math",                    icon:"🔣", desc:"Free online math practice",            url:"https://www.aaamath.com"},
-  // --- Language Arts / Reading ---
-  {id:"aas",      label:"All About Spelling",          icon:"🔤", desc:"Orton-Gillingham spelling program",    url:"https://www.allaboutlearningpress.com"},
-  {id:"aar",      label:"All About Reading",           icon:"📖", desc:"Multisensory reading program",         url:"https://www.allaboutlearningpress.com"},
-  {id:"rodd",     label:"Rodd Rumford Reading",        icon:"📗", desc:"Phonics-based reading approach",       url:"https://www.roddrumford.com"},
-  {id:"explode",  label:"Explode the Code",            icon:"💥", desc:"Phonics workbook series",              url:"https://www.explodethecode.com"},
-  {id:"fll",      label:"First Language Lessons",      icon:"📝", desc:"Grammar and composition for young kids",url:"https://www.welltrainedmind.com"},
-  {id:"iewa",     label:"Institute for Excellence in Writing", icon:"✍️", desc:"Writing curriculum",          url:"https://www.iew.com"},
-  {id:"writeshop",label:"WriteShop",                   icon:"✏️", desc:"Step-by-step writing program",        url:"https://www.writeshop.com"},
-  // --- Science ---
-  {id:"apologia", label:"Apologia Science",            icon:"🔬", desc:"Faith-based, award-winning science",  url:"https://www.apologia.com"},
-  {id:"noeo",     label:"NOEO Science",                icon:"🧪", desc:"Charlotte Mason science curriculum",   url:"https://www.noeo.com"},
-  {id:"campfire", label:"Camp Fire Science",           icon:"🔥", desc:"Outdoor and nature-based science",    url:"https://www.campfiresciencecurriculum.com"},
-  // --- History / Social Studies ---
-  {id:"moh",      label:"Mystery of History",          icon:"🏺", desc:"Chronological world history",         url:"https://www.mysteryofhistory.com"},
-  {id:"sotw",     label:"Story of the World",          icon:"🌍", desc:"Susan Wise Bauer narrative history",  url:"https://www.welltrainedmind.com"},
-  {id:"beautiful", label:"Beautiful Feet Books",       icon:"📚", desc:"Literature-based history",            url:"https://www.bfbooks.com"},
-  // --- All-In-One / Online ---
-  {id:"aop",      label:"Alpha Omega / Monarch",       icon:"🔤", desc:"Worktexts and digital learning",      url:"https://www.aop.com"},
-  {id:"acellus",  label:"Acellus / Power Homeschool",  icon:"💻", desc:"Video-based online school",           url:"https://www.powerhomeschool.org"},
-  {id:"time4",    label:"Time4Learning",               icon:"⏰", desc:"Online all-in-one curriculum",        url:"https://www.time4learning.com"},
-  {id:"calvert",  label:"Calvert Education",           icon:"🎒", desc:"Structured all-in-one program",       url:"https://www.calverteducation.com"},
-  {id:"k12",      label:"K12 / Stride",                icon:"🏫", desc:"Online public school option",         url:"https://www.k12.com"},
-  {id:"connections", label:"Connections Academy",      icon:"🖥", desc:"Online public charter school",        url:"https://www.connectionsacademy.com"},
-  {id:"oak",      label:"Oak Meadow",                  icon:"🌳", desc:"Waldorf-inspired, nature-focused",    url:"https://www.oakmeadow.com"},
-  {id:"tsc",      label:"The Scholars Community",      icon:"👩‍🏫", desc:"Tutored online homeschool",          url:"https://thescholarscommunity.com"},
-  // --- Separators ---
-  {id:"none",     label:"No Boxed Curriculum",         icon:"🆓", desc:"We build our own from scratch",       url:""},
-];
-
-const SUBJECT_OPTIONS = [
-  {id:"bible",    label:"Bible / Faith",     icon:"+"},
-  {id:"math",     label:"Math",              icon:"📐"},
-  {id:"reading",  label:"Reading",           icon:"📖"},
-  {id:"language", label:"Language Arts",     icon:""},
-  {id:"science",  label:"Science",           icon:"🔬"},
-  {id:"history",  label:"History",           icon:"🏛"},
-  {id:"geography",label:"Geography",         icon:"🌍"},
-  {id:"art",      label:"Art",               icon:"🎨"},
-  {id:"music",    label:"Music",             icon:"🎵"},
-  {id:"pe",       label:"PE / Movement",     icon:""},
-  {id:"latin",    label:"Latin",             icon:"📜"},
-  {id:"foreign",  label:"Foreign Language",  icon:"🗣"},
-  {id:"nature",   label:"Nature Study",      icon:"🌿"},
-  {id:"lifeskill",label:"Life Skills",       icon:"🏠"},
-  {id:"typing",   label:"Typing / Tech",     icon:"💻"},
-];
-const SESSION_LENGTHS = ["20 min","30 min","45 min","60 min","90 min"];
-
-/* ---- LIFE READY ---- */
 const LR_NAME  = "Prepared & Capable";
 const LR_ICON  = "🛡";
 const LR_COLOR = "#8b2500";
@@ -5024,596 +5425,6 @@ const LR_LESSON_PLANS = {
 
 };
 
-function getLessonPlan(topic, grade) {
-  if(LR_LESSON_PLANS[topic]) {
-    const plan = LR_LESSON_PLANS[topic];
-    let hook = plan.hook || "";
-    if(plan.gradeHooks) {
-      const g = grade||"5th";
-      const low  = ["Pre-K","K","1st","2nd"];
-      const high = ["9th","10th","11th","12th"];
-      hook = low.includes(g) ? plan.gradeHooks.low
-           : high.includes(g) ? plan.gradeHooks.high
-           : plan.gradeHooks.mid;
-    }
-    return {...plan, hook};
-  }
-  const tier = getLRGradeTier(grade||"5th");
-  const hooks = {
-    early:  "Here is something fun to think about: what do you already know about "+topic+"? You might know more than you think!",
-    middle: "Before we start — what do you already know about "+topic+"? Take a guess. There are no wrong answers.",
-    upper:  "Quick thought before we begin: when do you think someone might actually need to know about "+topic+"? Think of a real situation.",
-    high:   "Here is a question worth sitting with: how would knowing "+topic+" make you more independent or better prepared for real life?",
-  };
-  const challenges = {
-    early:  "Find one way to try or practice this topic this week. Ask a parent to do it with you.",
-    middle: "Find one real-life way to use or observe this skill before next week.",
-    upper:  "Apply this skill once in real life this week. Notice what you learn from actually doing it.",
-    high:   "Use this skill or knowledge in a real situation this week. Be ready to share what happened.",
-  };
-  return {
-    hook: hooks[tier],
-    materials: ["Pen and paper for notes","Any household items relevant to this topic"],
-    steps: [
-      "Start by talking about what this topic is and why real people find it useful.",
-      "Can you think of a time this skill would have helped someone you know?",
-      "Look it up together: find one real story or example related to this topic.",
-      "Try one hands-on way to practice or explore what you learned.",
-      "Wrap up: each person shares one thing they will remember from today."
-    ],
-    discussion: [
-      "How does knowing this make you safer, smarter, or more capable?",
-      "Who else in your life might benefit from learning this too?"
-    ],
-    challenge: challenges[tier],
-  };
-}
-
-
-/* =======================================
-   PORTFOLIO PDF PRINT FUNCTION
-   Opens a clean print window — not the app
-======================================= */
-function printPortfolioPDF(family, entries, child, attendanceDays, stateInfo, dateOverride) {
-  const schoolName  = family.schoolName||(family.familyName+" Academy")||"Home School";
-  const yearStartNum= family.yearStart ? new Date(family.yearStart).getFullYear() : new Date().getFullYear();
-  const yearEndNum  = family.yearEnd   ? new Date(family.yearEnd).getFullYear()   : yearStartNum+1;
-  const state       = family.state||"";
-  const childName   = child?.name||"Student";
-  const grade       = child?.grade||"";
-  const avatar      = child?.avatar||"";
-
-  const todayFull   = dateOverride
-    ? new Date(dateOverride+", "+new Date().getFullYear()).toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"})
-    : new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"});
-  const todayShort  = dateOverride || new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
-
-  // State compliance info
-  const si       = getStateInfo(state);
-  const ci       = getComplianceInfo(state, grade);
-  const needsDays = si.attendance;
-  const needsHours= !!(ci.hours && ci.hours.includes("hour"));
-  const needsTest = ci.needsTest;
-  const needsReading = si.readingLog;
-  const stateReqDays = parseInt((si.hours||"180").match(/\d+/)?.[0]||"180");
-  const pct = needsDays ? Math.min(100,Math.round(attendanceDays/stateReqDays*100)) : null;
-
-  // Today's entries
-  const todayEntries = entries.filter(e=>e.date===todayShort&&!e.isDay&&e.subj!=="Daily Notes");
-  const todayNote    = entries.find(e=>e.date===todayShort&&(e.isDay||e.subj==="Daily Notes"));
-  const allPhotos    = entries.filter(e=>e.date===todayShort).flatMap(e=>e.photos||[]).slice(0,3);
-  const readingEntries = todayEntries.filter(e=>e.readingTitle||(e.subj==="Reading"||e.subj==="Reading/Language Arts"));
-
-  const css = ""
-    +"*{box-sizing:border-box;margin:0;padding:0}"
-    +"body{font-family:Arial,sans-serif;color:#1a1a1a;font-size:10pt;line-height:1.5;background:#fff}"
-    +".page{max-width:700px;margin:0 auto;padding:0}"
-    +"@media print{@page{margin:1cm;size:letter}body{font-size:9.5pt}}"
-
-    // Banner header
-    +".banner{background:#2a4a28;padding:18px 24px;display:flex;justify-content:space-between;align-items:center}"
-    +".banner-left .school{font-size:7.5pt;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:3px}"
-    +".banner-left .student{font-size:17pt;font-weight:700;color:#fff}"
-    +".banner-left .meta{font-size:8.5pt;color:rgba(255,255,255,0.65);margin-top:2px}"
-    +".date-chip{background:rgba(255,255,255,0.15);border-radius:8px;padding:8px 14px;text-align:center}"
-    +".date-chip .label{font-size:7pt;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.1em}"
-    +".date-chip .val{font-size:14pt;font-weight:700;color:#fff;margin-top:2px}"
-
-    // Body
-    +".body{padding:20px 24px}"
-
-    // Subject grid
-    +".subj-grid{display:grid;gap:10px;margin-bottom:16px}"
-    +".subj-box{background:#fff;border-radius:8px;border:1px solid #e2ddd8;padding:11px 14px}"
-    +".subj-tag{display:inline-block;background:#e8f0e8;color:#2a4a28;font-size:7pt;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;border-radius:4px;padding:2px 7px;margin-bottom:6px}"
-    +".subj-note{font-size:9.5pt;color:#333;line-height:1.6}"
-    +".subj-reading{font-size:8.5pt;color:#2a4a28;font-style:italic;margin-top:4px}"
-
-    // Photos
-    +".photos-section{margin-bottom:16px}"
-    +".photos-label{font-size:7.5pt;color:#888;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;font-weight:700}"
-    +".photo-row{display:flex;gap:10px}"
-    +".photo-box{flex:1;aspect-ratio:4/3;border-radius:6px;overflow:hidden;border:1px solid #e0e0e0;background:#f5f5f5;display:flex;align-items:center;justify-content:center}"
-    +".photo-box img{width:100%;height:100%;object-fit:cover}"
-    +".photo-placeholder{font-size:8pt;color:#ccc;text-align:center}"
-
-    // Parent note
-    +".parent-note{background:#f8f7f4;border-left:3px solid #aaa;border-radius:0 6px 6px 0;padding:10px 14px;margin-bottom:16px}"
-    +".parent-note-label{font-size:7pt;text-transform:uppercase;letter-spacing:0.1em;color:#888;font-weight:700;margin-bottom:4px}"
-    +".parent-note-text{font-size:9.5pt;color:#444;line-height:1.65}"
-
-    // Compliance bar
-    +".compliance{background:#f5f9f5;border-radius:8px;border:1px solid #d0e5d0;padding:12px 16px;margin-bottom:16px}"
-    +".compliance-title{font-size:7.5pt;color:#2a4a28;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px}"
-    +".compliance-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}"
-    +".compliance-item{display:flex;flex-direction:column;gap:2px}"
-    +".compliance-label{font-size:7pt;color:#888;text-transform:uppercase;letter-spacing:0.06em}"
-    +".compliance-val{font-size:9pt;color:#1a1a1a;font-weight:600}"
-    +".bar-wrap{margin:8px 0 4px;height:5px;background:#d0e5d0;border-radius:99px;overflow:hidden}"
-    +".bar-fill{height:100%;background:linear-gradient(90deg,#2a6a2a,#5a9a3a);border-radius:99px}"
-
-    // Reading log
-    +".reading-section{margin-bottom:16px}"
-    +".reading-box{background:#fff;border:1px solid #e2ddd8;border-radius:8px;padding:10px 14px}"
-    +".reading-item{display:flex;gap:8px;align-items:baseline;padding:4px 0;border-bottom:1px solid #f5f5f5}"
-    +".reading-item:last-child{border-bottom:none}"
-    +".reading-subj{font-size:7.5pt;color:#2a4a28;font-weight:700;min-width:90px}"
-    +".reading-title{font-size:9pt;color:#333;font-style:italic}"
-
-    // Footer
-    +".footer{padding:10px 24px 16px;display:flex;justify-content:space-between;font-size:7.5pt;color:#aaa;border-top:1px solid #e8e3db}"
-    +".footer-note{font-size:7pt;color:#bbb;font-style:italic}"
-    ;
-
-  // Figure out grid columns based on subject count
-  const cols = todayEntries.length <= 2 ? 1 : todayEntries.length <= 6 ? 2 : 3;
-
-  let html = "<!DOCTYPE html><html lang='en'><head>"
-    +"<meta charset='utf-8'><title>"+childName+" Daily Log — "+todayShort+"</title>"
-    +"<style>"+css+"</style></head><body><div class='page'>"
-
-    // ── BANNER ──
-    +"<div class='banner'>"
-    +"<div class='banner-left'>"
-    +"<div class='school'>"+schoolName+"</div>"
-    +"<div class='student'>"+avatar+" "+childName+"</div>"
-    +"<div class='meta'>"+grade+" &bull; "+state+" &bull; "+yearStartNum+"&ndash;"+yearEndNum+"</div>"
-    +"</div>"
-    +"<div class='date-chip'>"
-    +"<div class='label'>Daily Activity Log</div>"
-    +"<div class='val'>"+todayShort+"</div>"
-    +"</div>"
-    +"</div>"
-
-    +"<div class='body'>";
-
-  // ── SUBJECTS ──
-  if(todayEntries.length===0) {
-    html += "<div style='text-align:center;padding:2rem;color:#aaa;font-style:italic'>No entries logged for this day.</div>";
-  } else {
-    html += "<div class='subj-grid' style='grid-template-columns:repeat("+cols+",1fr)'>";
-    todayEntries.forEach(e=>{
-      const noteTxt  = (e.note||"").replace("AI Summary: ","").trim();
-      const titleTxt = (e.title||"").replace((e.subj||"")+" \u2014 ","").replace((e.subj||"")+" -- ","").trim();
-      const showTitle = titleTxt && titleTxt!==e.subj && titleTxt!==e.date;
-      html += "<div class='subj-box'>"
-        +"<div class='subj-tag'>"+e.subj+"</div>";
-      if(showTitle) html += "<div style='font-weight:600;font-size:9.5pt;color:#1a1a1a;margin-bottom:3px'>"+titleTxt+"</div>";
-      if(noteTxt)   html += "<div class='subj-note'>"+noteTxt+"</div>";
-      if(e.readingTitle) html += "<div class='subj-reading'>&#128214; "+e.readingTitle+"</div>";
-      if(!showTitle&&!noteTxt&&!e.readingTitle) html += "<div class='subj-note' style='color:#bbb'>No notes recorded</div>";
-      html += "</div>";
-    });
-    html += "</div>";
-  }
-
-  // ── PARENT NOTE ──
-  if(todayNote&&todayNote.note){
-    const noteClean=(todayNote.note||"").replace("AI Summary: ","").trim();
-    html += "<div class='parent-note'>"
-      +"<div class='parent-note-label'>Parent Notes</div>"
-      +"<div class='parent-note-text'>"+noteClean+"</div>"
-      +"</div>";
-  }
-
-  // ── READING LOG (FL + PA require reading titles by name) ──
-  if(needsReading && readingEntries.some(e=>e.readingTitle)){
-    html += "<div class='reading-section'>"
-      +"<div class='photos-label'>Reading Log (required by "+state+")</div>"
-      +"<div class='reading-box'>";
-    readingEntries.filter(e=>e.readingTitle).forEach(e=>{
-      html += "<div class='reading-item'>"
-        +"<div class='reading-subj'>"+e.subj+"</div>"
-        +"<div class='reading-title'>"+e.readingTitle+"</div>"
-        +"</div>";
-    });
-    html += "</div></div>";
-  }
-
-  // ── PHOTOS ──
-  html += "<div class='photos-section'>"
-    +"<div class='photos-label'>Work Samples / Documentation</div>"
-    +"<div class='photo-row'>";
-  for(let i=0;i<3;i++){
-    html += "<div class='photo-box'>";
-    if(allPhotos[i]){
-      html += "<img src='"+allPhotos[i]+"' alt='work sample "+(i+1)+"'/>";
-    } else {
-      html += "<div class='photo-placeholder'>Sample "+(i+1)+"<br><span style='font-size:7pt'>Attach work here</span></div>";
-    }
-    html += "</div>";
-  }
-  html += "</div></div>";
-
-  // ── STATE COMPLIANCE BOX ──
-  html += "<div class='compliance'>"
-    +"<div class='compliance-title'>"+state+" Compliance Summary &mdash; "+yearStartNum+"&ndash;"+yearEndNum+"</div>"
-    +"<div class='compliance-grid'>";
-
-  if(needsDays){
-    html += "<div class='compliance-item'>"
-      +"<div class='compliance-label'>Days Logged</div>"
-      +"<div class='compliance-val'>"+attendanceDays+" of "+stateReqDays+" required</div>"
-      +"<div class='bar-wrap'><div class='bar-fill' style='width:"+pct+"%'></div></div>"
-      +"</div>";
-  } else {
-    html += "<div class='compliance-item'>"
-      +"<div class='compliance-label'>Days Logged</div>"
-      +"<div class='compliance-val'>"+attendanceDays+" days this year</div>"
-      +"</div>";
-  }
-
-  html += "<div class='compliance-item'>"
-    +"<div class='compliance-label'>Portfolio Requirement</div>"
-    +"<div class='compliance-val'>"+ci.portfolio.slice(0,60)+(ci.portfolio.length>60?"...":"")+"</div>"
-    +"</div>";
-
-  html += "<div class='compliance-item'>"
-    +"<div class='compliance-label'>Annual Evaluation</div>"
-    +"<div class='compliance-val'>"+ci.testing.slice(0,60)+(ci.testing.length>60?"...":"")+"</div>"
-    +"</div>";
-
-  html += "<div class='compliance-item'>"
-    +"<div class='compliance-label'>Deadline</div>"
-    +"<div class='compliance-val'>"+ci.deadline+"</div>"
-    +"</div>";
-
-  if(ci.keepFor){
-    html += "<div class='compliance-item'>"
-      +"<div class='compliance-label'>Retain Records</div>"
-      +"<div class='compliance-val'>"+ci.keepFor+"</div>"
-      +"</div>";
-  }
-
-  html += "</div>"; // compliance-grid
-
-  // Grade-specific note
-  if(ci.gradeNote){
-    html += "<div style='margin-top:8px;font-size:8pt;color:#3a6a3a;line-height:1.5;padding-top:8px;border-top:1px solid #d0e5d0'>"
-      +"&#9432; "+ci.gradeNote
-      +"</div>";
-  }
-
-  html += "</div>"; // compliance box
-
-  // ── FOOTER ──
-  html += "<div class='footer'>"
-    +"<div>"
-    +"<div>"+schoolName+" &bull; "+childName+" &bull; "+grade+"</div>"
-    +"<div class='footer-note'>"+todayFull+" &bull; Generated by Root &amp; Bloom</div>"
-    +"</div>"
-    +"<div style='text-align:right'>"
-    +"<div>"+state+" Homeschool Record</div>"
-    +"<div class='footer-note'>Keep for: "+ci.keepFor+"</div>"
-    +"</div>"
-    +"</div>"
-
-    +"</div>" // body
-    +"</div>" // page
-    +"<script>window.onload=function(){setTimeout(function(){window.print();},500);};<\/script>"
-    +"</body></html>";
-
-  const w=window.open("","_blank","width=800,height=960,scrollbars=yes");
-  if(w){w.document.write(html);w.document.close();}
-  else{alert("Please allow popups to print your portfolio.");}
-}
-
-
-function printFullPortfolio(family, entries, child, attendanceDays, stateInfoUnused, aiSummary) {
-  const schoolName  = family.schoolName||(family.familyName+" Academy")||"Home School";
-  const yearStartNum= family.yearStart ? new Date(family.yearStart).getFullYear() : new Date().getFullYear();
-  const yearEndNum  = family.yearEnd   ? new Date(family.yearEnd).getFullYear()   : yearStartNum+1;
-  const today       = new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
-  const childName   = child?.name||"Student";
-  const grade       = child?.grade||"";
-  const avatar      = child?.avatar||"";
-  const state       = family.state||"";
-  const si          = getStateInfo(state);
-  const ci          = getComplianceInfo(state, grade);
-  const stateReqDays= parseInt((si.hours||"180").match(/\d+/)?.[0]||"180");
-  const pct         = Math.min(100,Math.round(attendanceDays/stateReqDays*100));
-
-  const subjEntries = entries.filter(e=>!e.isDay&&e.subj!=="Daily Notes")
-    .sort((a,b)=>{try{return new Date(a.date+", "+yearStartNum)-new Date(b.date+", "+yearStartNum);}catch{return 0;}});
-  const bySubject = {};
-  subjEntries.forEach(e=>{ if(!bySubject[e.subj]) bySubject[e.subj]=[]; bySubject[e.subj].push(e); });
-  const subjectList = Object.keys(bySubject).sort((a,b)=>bySubject[b].length-bySubject[a].length);
-  const readingTitles = [...new Set(subjEntries.filter(e=>e.readingTitle).map(e=>e.readingTitle))];
-  const allPhotos = subjEntries.flatMap(e=>e.photos||[]).slice(0,9);
-
-  const css = ""
-    +"*{box-sizing:border-box;margin:0;padding:0}"
-    +"body{font-family:Arial,sans-serif;color:#1a1a1a;font-size:10pt;line-height:1.5;background:#fff}"
-    +"@media print{@page{margin:1cm;size:letter}body{font-size:9.5pt}}"
-    +".banner{background:#2a4a28;padding:22px 28px;display:flex;justify-content:space-between;align-items:center}"
-    +".b-school{font-size:7.5pt;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:3px}"
-    +".b-student{font-size:22pt;font-weight:700;color:#fff}"
-    +".b-meta{font-size:9pt;color:rgba(255,255,255,0.65);margin-top:3px}"
-    +".b-chip{background:rgba(255,255,255,0.15);border-radius:10px;padding:10px 18px;text-align:center}"
-    +".b-chip-l{font-size:7pt;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.1em}"
-    +".b-chip-v{font-size:22pt;font-weight:700;color:#fff;margin-top:2px}"
-    +".body{padding:22px 28px;background:#faf8f4}"
-    +".section-label{font-size:7.5pt;color:#888;text-transform:uppercase;letter-spacing:0.1em;font-weight:700;margin-bottom:8px;margin-top:18px}"
-    +".section-label:first-child{margin-top:0}"
-    +".stat-row{display:flex;gap:10px;margin-bottom:18px}"
-    +".stat{text-align:center;flex:1;background:#fff;border-radius:8px;border:1px solid #e2ddd8;padding:12px 8px}"
-    +".stat-n{font-size:20pt;font-weight:700;color:#2a4a28}"
-    +".stat-l{font-size:7.5pt;color:#888;text-transform:uppercase;letter-spacing:0.05em;margin-top:2px}"
-    +".bar-wrap{height:5px;background:#d0e5d0;border-radius:99px;overflow:hidden;margin:6px 0 3px}"
-    +".bar-fill{height:100%;background:linear-gradient(90deg,#2a6a2a,#5a9a3a);border-radius:99px}"
-    // AI summary
-    +".ai-box{background:#fff;border-radius:10px;border:1.5px solid #c8dfc8;padding:14px 18px;margin-bottom:18px}"
-    +".ai-narrative{font-size:10pt;color:#1a1a1a;line-height:1.7;font-style:italic;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #e8e3db}"
-    +".ai-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}"
-    +".ai-col-title{font-size:7pt;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}"
-    +".ai-item{display:flex;gap:6px;font-size:9pt;color:#333;line-height:1.55;margin-bottom:5px;align-items:baseline}"
-    +".ai-bullet{font-weight:700;flex-shrink:0}"
-    +".ai-reading{font-size:8.5pt;color:#666;font-style:italic;margin-top:10px;padding-top:10px;border-top:1px solid #e8e3db}"
-    +".ai-parent{font-size:8pt;color:#2a4a28;font-weight:600;background:#f0f7f0;border-radius:6px;padding:7px 10px;margin-top:10px}"
-    // Subject sections
-    +".subj-section{background:#fff;border-radius:10px;border:1px solid #e2ddd8;padding:12px 16px;margin-bottom:10px}"
-    +".subj-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #f0ece6}"
-    +".subj-tag{background:#e8f0e8;color:#2a4a28;font-size:7pt;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;border-radius:4px;padding:3px 8px}"
-    +".subj-count{font-size:8pt;color:#888;margin-left:auto}"
-    +".entry-row{display:flex;gap:10px;padding:6px 0;border-bottom:1px solid #f8f5f1;align-items:flex-start}"
-    +".entry-row:last-child{border-bottom:none}"
-    +".entry-date{font-size:8pt;color:#888;min-width:46px;flex-shrink:0;padding-top:1px}"
-    +".entry-note{font-size:9pt;color:#333;line-height:1.55;flex:1}"
-    +".entry-reading{font-size:8pt;color:#2a4a28;font-style:italic;margin-top:2px}"
-    // Reading log
-    +".reading-box{background:#fff;border:1px solid #e2ddd8;border-radius:8px;padding:10px 16px;margin-bottom:10px}"
-    +".r-row{display:flex;gap:8px;padding:4px 0;border-bottom:1px solid #f5f5f5;align-items:baseline}"
-    +".r-row:last-child{border-bottom:none}"
-    +".r-n{font-size:8pt;color:#888;min-width:24px}"
-    +".r-title{font-size:9.5pt;color:#1a1a1a;font-style:italic}"
-    // Photos
-    +".photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}"
-    +".photo-box{aspect-ratio:4/3;border-radius:8px;overflow:hidden;border:1px solid #e0dbd4;background:#ede9e1;display:flex;align-items:center;justify-content:center}"
-    +".photo-box img{width:100%;height:100%;object-fit:cover}"
-    +".photo-ph{font-size:8pt;color:#c0bab2;text-align:center}"
-    // Compliance
-    +".compliance{background:#f5f9f5;border-radius:10px;border:1px solid #c8dfc8;padding:14px 18px;margin-bottom:18px}"
-    +".comp-title{font-size:7.5pt;color:#2a4a28;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px}"
-    +".comp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}"
-    +".comp-l{font-size:6.5pt;color:#888;text-transform:uppercase;letter-spacing:0.06em}"
-    +".comp-v{font-size:9pt;color:#1a1a1a;font-weight:600;margin-top:2px;line-height:1.4}"
-    +".comp-note{margin-top:10px;padding-top:10px;border-top:1px solid #d0e5d0;font-size:7.5pt;color:#3a6a3a;line-height:1.55}"
-    // Sig + footer
-    +".sig-row{display:flex;gap:24px;margin-top:20px;padding-top:16px;border-top:1.5px solid #ccc}"
-    +".sig-col{flex:1}"
-    +".sig-line{border-bottom:1.5px solid #999;height:30px;margin-bottom:4px}"
-    +".sig-label{font-size:7.5pt;color:#888}"
-    +".footer{padding:10px 28px 16px;display:flex;justify-content:space-between;font-size:7.5pt;color:#aaa;border-top:1px solid #e8e3db}"
-    +".f-note{font-size:7pt;color:#bbb;font-style:italic;margin-top:1px}"
-    ;
-
-  let html = "<!DOCTYPE html><html lang='en'><head>"
-    +"<meta charset='utf-8'><title>"+childName+" — Full Portfolio "+yearStartNum+"–"+yearEndNum+"</title>"
-    +"<style>"+css+"</style></head><body>"
-
-    // ── BANNER ──
-    +"<div class='banner'>"
-    +"<div><div class='b-school'>"+schoolName+" &bull; Annual Portfolio</div>"
-    +"<div class='b-student'>"+avatar+" "+childName+"</div>"
-    +"<div class='b-meta'>"+grade+" &bull; "+state+" &bull; "+yearStartNum+"&ndash;"+yearEndNum+"</div></div>"
-    +"<div class='b-chip'><div class='b-chip-l'>Days Logged</div><div class='b-chip-v'>"+attendanceDays+"</div></div>"
-    +"</div>"
-
-    +"<div class='body'>"
-
-    // ── YEAR STATS ──
-    +"<div class='stat-row'>"
-    +"<div class='stat'><div class='stat-n'>"+attendanceDays+"</div><div class='stat-l'>Days Logged</div>"
-    +(si.attendance?"<div class='bar-wrap'><div class='bar-fill' style='width:"+pct+"%'></div></div><div style='font-size:7pt;color:#888'>"+attendanceDays+"/"+stateReqDays+" required</div>":"")
-    +"</div>"
-    +"<div class='stat'><div class='stat-n'>"+subjEntries.length+"</div><div class='stat-l'>Portfolio Entries</div></div>"
-    +"<div class='stat'><div class='stat-n'>"+subjectList.length+"</div><div class='stat-l'>Subjects</div></div>"
-    +"<div class='stat'><div class='stat-n'>"+readingTitles.length+"</div><div class='stat-l'>Books Read</div></div>"
-    +"</div>";
-
-  // ── AI YEAR SUMMARY ──
-  if(aiSummary){
-    html += "<div class='section-label'>Year in Review</div>"
-      +"<div class='ai-box'>"
-      +"<div class='ai-narrative'>"+aiSummary.narrative+"</div>"
-      +"<div class='ai-cols'>"
-      +"<div>"
-      +"<div class='ai-col-title' style='color:#2a4a28'>Biggest Accomplishments</div>"
-      +(aiSummary.accomplishments||[]).map(a=>"<div class='ai-item'><span class='ai-bullet' style='color:#2a4a28'>&#10003;</span><span>"+a+"</span></div>").join("")
-      +"</div>"
-      +"<div>"
-      +"<div class='ai-col-title' style='color:#b07800'>Areas to Keep Building</div>"
-      +(aiSummary.growthAreas||[]).map(a=>"<div class='ai-item'><span class='ai-bullet' style='color:#b07800'>&rarr;</span><span>"+a+"</span></div>").join("")
-      +"</div>"
-      +"</div>"
-      +(aiSummary.readingHighlight?"<div class='ai-reading'>&#128214; "+aiSummary.readingHighlight+"</div>":"")
-      +(aiSummary.parentNote?"<div class='ai-parent'>"+aiSummary.parentNote+"</div>":"")
-      +"</div>";
-  }
-
-  // ── SUBJECTS ──
-  html += "<div class='section-label'>Portfolio by Subject</div>";
-  subjectList.forEach(subj=>{
-    const subjEs = bySubject[subj].slice().reverse();
-    html += "<div class='subj-section'>"
-      +"<div class='subj-header'>"
-      +"<div class='subj-tag'>"+subj+"</div>"
-      +"<div class='subj-count'>"+subjEs.length+" entries</div>"
-      +"</div>";
-    subjEs.slice(0,12).forEach(e=>{
-      const note = (e.note||"").replace("AI Summary: ","").trim();
-      const title = (e.title||"").replace(subj+" \u2014 ","").replace(subj+" -- ","").trim();
-      const showTitle = title && title!==subj && title!==e.date;
-      html += "<div class='entry-row'>"
-        +"<div class='entry-date'>"+e.date+"</div>"
-        +"<div class='entry-note'>"
-        +(showTitle?"<strong>"+title+"</strong><br>":"")
-        +note
-        +(e.readingTitle?"<div class='entry-reading'>&#128214; "+e.readingTitle+"</div>":"")
-        +"</div></div>";
-    });
-    if(subjEs.length>12){
-      html += "<div style='font-size:8pt;color:#888;padding:6px 0;text-align:center;font-style:italic'>+ "+(subjEs.length-12)+" more entries</div>";
-    }
-    html += "</div>";
-  });
-
-  // ── READING LOG ──
-  if(readingTitles.length>0){
-    html += "<div class='section-label'>"+state+" Reading Log — Titles by Name</div>"
-      +"<div class='reading-box'>";
-    readingTitles.forEach((t,i)=>{
-      html += "<div class='r-row'><div class='r-n'>"+(i+1)+".</div><div class='r-title'>"+t+"</div></div>";
-    });
-    html += "</div>";
-  }
-
-  // ── PHOTOS ──
-  if(allPhotos.length>0){
-    html += "<div class='section-label'>Work Samples</div>"
-      +"<div class='photo-grid'>";
-    for(let i=0;i<Math.min(9,allPhotos.length);i++){
-      html += "<div class='photo-box'><img src='"+allPhotos[i]+"' alt='work sample'/></div>";
-    }
-    html += "</div>";
-  } else {
-    html += "<div class='section-label'>Work Samples</div>"
-      +"<div class='photo-grid'>";
-    for(let i=0;i<3;i++){
-      html += "<div class='photo-box'><div class='photo-ph'>Sample "+(i+1)+"<br><span style='font-size:7pt'>Attach work here</span></div></div>";
-    }
-    html += "</div>";
-  }
-
-  // ── STATE COMPLIANCE ──
-  html += "<div class='compliance'>"
-    +"<div class='comp-title'>"+state+" Compliance Summary &mdash; "+yearStartNum+"&ndash;"+yearEndNum+"</div>"
-    +"<div class='comp-grid'>"
-    +"<div><div class='comp-l'>Days Logged</div><div class='comp-v'>"+attendanceDays+(si.attendance?" of "+stateReqDays+" required":"" )+"</div></div>"
-    +"<div><div class='comp-l'>Portfolio Requirement</div><div class='comp-v'>"+ci.portfolio.slice(0,70)+"</div></div>"
-    +"<div><div class='comp-l'>Annual Evaluation</div><div class='comp-v'>"+ci.testing.slice(0,70)+"</div></div>"
-    +"<div><div class='comp-l'>Deadline</div><div class='comp-v'>"+ci.deadline+"</div></div>"
-    +"<div><div class='comp-l'>Retain Records</div><div class='comp-v'>"+ci.keepFor+"</div></div>"
-    +"</div>"
-    +(ci.gradeNote?"<div class='comp-note'>&#9432; "+ci.gradeNote+"</div>":"")
-    +"</div>"
-
-    // ── SIGNATURE ──
-    +"<div class='sig-row'>"
-    +"<div class='sig-col'><div class='sig-line'></div><div class='sig-label'>Parent / Educator Signature</div></div>"
-    +"<div class='sig-col'><div class='sig-line'></div><div class='sig-label'>Evaluator Signature</div></div>"
-    +"<div class='sig-col'><div class='sig-line'></div><div class='sig-label'>Date</div></div>"
-    +"</div>"
-
-    +"</div>" // body
-
-    +"<div class='footer'>"
-    +"<div><div>"+schoolName+" &bull; "+childName+" &bull; "+grade+"</div>"
-    +"<div class='f-note'>Generated: "+today+" &bull; Root &amp; Bloom</div></div>"
-    +"<div style='text-align:right'><div>"+state+" Homeschool Portfolio "+yearStartNum+"&ndash;"+yearEndNum+"</div>"
-    +"<div class='f-note'>Retain for: "+ci.keepFor+"</div></div>"
-    +"</div>"
-    +"<script>window.onload=function(){setTimeout(function(){window.print();},600);};<\/script>"
-    +"</body></html>";
-
-  const w=window.open("","_blank","width=820,height=980,scrollbars=yes");
-  if(w){w.document.write(html);w.document.close();}
-  else{alert("Please allow popups to print your portfolio.");}
-}
-
-
-/* ---- Print Evaluator Letter separately ---- */
-function printEvaluatorLetter(family, child, attendanceDays) {
-  const schoolName = family.schoolName||(family.familyName+" Academy")||"Home School";
-  const yearStart  = family.yearStart ? new Date(family.yearStart).getFullYear() : new Date().getFullYear();
-  const yearEnd    = family.yearEnd   ? new Date(family.yearEnd).getFullYear()   : yearStart+1;
-  const today      = new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
-
-  const css = ""
-    +"*{box-sizing:border-box;margin:0;padding:0}"
-    +"body{font-family:Georgia,serif;color:#222;background:#fff;font-size:11pt;line-height:1.7}"
-    +".wrap{max-width:680px;margin:2rem auto;padding:2.5rem}"
-    +"@media print{.wrap{margin:0;padding:2rem}@page{margin:2cm}}";
-
-  const html = "<!DOCTYPE html><html><head>"
-    +"<meta charset='utf-8'>"
-    +"<title>Annual Evaluation Letter &mdash; "+(child?.name||"Student")+"</title>"
-    +"<style>"+css+"</style>"
-    +"</head><body><div class='wrap'>"
-
-    +"<div style='text-align:center;margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:2px solid #2a6a2a'>"
-    +"<div style='font-family:Arial,sans-serif;font-size:8.5pt;text-transform:uppercase;letter-spacing:0.1em;color:#888;margin-bottom:6px'>Florida Home Education Program</div>"
-    +"<div style='font-size:20pt;font-weight:bold;color:#2a6a2a;margin-bottom:4px'>Annual Educational Evaluation</div>"
-    +"<div style='font-family:Arial,sans-serif;font-size:9pt;color:#888'>Pursuant to Florida Statute 1002.41(1)(f)</div>"
-    +"</div>"
-
-    +"<div style='background:#f5f9f5;border:1px solid #b8d8b8;border-radius:6px;padding:1rem 1.2rem;margin-bottom:1.5rem;font-family:Arial,sans-serif;font-size:10pt;line-height:1.9'>"
-    +"<b>Student:</b> "+(child?.name||"")
-    +"&nbsp;&nbsp;&nbsp;<b>Grade:</b> "+(child?.grade||"")
-    +"&nbsp;&nbsp;&nbsp;<b>School Year:</b> "+yearStart+"&ndash;"+yearEnd+"<br>"
-    +"<b>School:</b> "+schoolName
-    +"&nbsp;&nbsp;&nbsp;<b>County:</b> ___________________________"
-    +"&nbsp;&nbsp;&nbsp;<b>Date:</b> "+today
-    +"</div>"
-
-    +"<p style='margin-bottom:1.5rem;line-height:1.8'>I, the undersigned Florida-certified teacher, have reviewed the educational portfolio "
-    +"of the above-named student and conducted a discussion with the student as required by "
-    +"Florida Statute 1002.41(1)(f). Based on this evaluation, I have determined that the student "
-    +"has demonstrated educational progress <b>at a level commensurate with his/her ability</b> "
-    +"during the "+yearStart+"&ndash;"+yearEnd+" school year.</p>"
-
-    +"<div style='display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-bottom:1.5rem;font-family:Arial,sans-serif;font-size:10pt'>"
-    +"<div><div style='border-bottom:1.5px solid #444;height:36px;margin-bottom:6px'></div><div style='color:#666;font-size:8pt'>Evaluator Full Name (print clearly)</div></div>"
-    +"<div><div style='border-bottom:1.5px solid #444;height:36px;margin-bottom:6px'></div><div style='color:#666;font-size:8pt'>FL Teaching Certificate Number</div></div>"
-    +"<div><div style='border-bottom:1.5px solid #444;height:36px;margin-bottom:6px'></div><div style='color:#666;font-size:8pt'>Evaluator Signature</div></div>"
-    +"<div><div style='border-bottom:1.5px solid #444;height:36px;margin-bottom:6px'></div><div style='color:#666;font-size:8pt'>Date of Evaluation</div></div>"
-    +"<div style='grid-column:span 2'><div style='border-bottom:1.5px solid #444;height:36px;margin-bottom:6px'></div><div style='color:#666;font-size:8pt'>Evaluator Email / Phone (optional — for your records)</div></div>"
-    +"</div>"
-
-    +"<div style='background:#fffbea;border:1px solid #e8d870;border-radius:6px;padding:0.85rem 1rem;font-family:Arial,sans-serif;font-size:9pt;color:#555;line-height:1.65;margin-bottom:1.5rem'>"
-    +"<b>Parent instructions:</b> Once signed, mail or deliver a copy to the district school superintendent's "
-    +"office in your county of residence. Keep a copy with your portfolio for 2 years. "
-    +"Due by the anniversary of your Letter of Intent filing date."
-    +"</div>"
-
-    +"<div style='text-align:center;font-family:Arial,sans-serif;font-size:8pt;color:#aaa;padding-top:1rem;border-top:1px solid #e0e0e0'>"
-    +"Generated by Root &amp; Bloom &bull; "+schoolName+" &bull; "+yearStart+"&ndash;"+yearEnd
-    +"</div>"
-
-    +"</div>"
-    +"<script>window.onload=function(){setTimeout(function(){window.print();},500);};</"+"script>"
-    +"</body></html>";
-
-  const w = window.open("","_blank","width=760,height=900,scrollbars=yes");
-  if(w){ w.document.write(html); w.document.close(); }
-  else { alert("Please allow popups for this site to print the evaluator letter."); }
-}
-
-
-/* =======================================
-   50-STATE COMPLIANCE DATABASE
-   Tier 1 = very low, Tier 4 = high regulation
-======================================= */
 const STATE_COMPLIANCE = {
   "Alabama":        {tier:1,notify:"Annual notice",hours:"180 days",portfolio:"Attendance + subjects taught",testing:"Not required",deadline:"Annual",subjects:["Physical Education"],keepFor:"Not specified",readingLog:false,workSamples:false,attendance:true,quarterly:false},
   "Alaska":         {tier:1,notify:"None required",hours:"None",portfolio:"Not required — recommended",testing:"Not required",deadline:"None",subjects:[],keepFor:"Recommended: keep permanently",readingLog:false,workSamples:false,attendance:false,quarterly:false},
@@ -5667,6 +5478,200 @@ const STATE_COMPLIANCE = {
   "Wyoming":        {tier:1,notify:"Annual NOI",hours:"175 days",portfolio:"Not required",testing:"Not required",deadline:"Annual",subjects:[],keepFor:"Recommended",readingLog:false,workSamples:false,attendance:false,quarterly:false},
 };
 
+  </script>
+<script type="text/babel" data-presets="react">
+    const { useState, useMemo, useCallback, useRef, useEffect } = React;
+
+/* -----------------------------------------
+   THEME ENGINE (same as v2)
+----------------------------------------- */
+function lerpHex(a, b, t) {
+  const ah=a.replace("#",""), bh=b.replace("#","");
+  const ar=parseInt(ah.slice(0,2),16),ag=parseInt(ah.slice(2,4),16),ab=parseInt(ah.slice(4,6),16);
+  const br=parseInt(bh.slice(0,2),16),bg=parseInt(bh.slice(2,4),16),bb=parseInt(bh.slice(4,6),16);
+  return `#${Math.round(ar+(br-ar)*t).toString(16).padStart(2,"0")}${Math.round(ag+(bg-ag)*t).toString(16).padStart(2,"0")}${Math.round(ab+(bb-ab)*t).toString(16).padStart(2,"0")}`;
+}
+const lighten = (hex,a) => lerpHex(hex,"#ffffff",a);
+const darken  = (hex,a) => lerpHex(hex,"#000000",a);
+
+function buildTheme(a,b) {
+  const mid=lerpHex(a,b,0.45), light=lerpHex(a,b,0.75);
+  return {
+    deep:darken(a,0.15), primary:a, mid, accent:b,
+    accentD:darken(b,0.25), pale:lighten(b,0.70), paleMid:lighten(b,0.50),
+    sand:lerpHex(lighten(a,0.88),"#fdf8ef",0.5),
+    linen:lerpHex(lighten(b,0.92),"#ffffff",0.4),
+    parchm:lerpHex(lighten(a,0.82),"#f5ead6",0.5),
+    stone:lerpHex(lighten(a,0.55),"#c0b8a8",0.5),
+    navGrad:`linear-gradient(160deg,${darken(a,0.15)},${a},${mid})`,
+    heroGrad:`linear-gradient(160deg,${darken(a,0.12)},${mid})`,
+    accentGrad:`linear-gradient(135deg,${mid},${b})`,
+    shimmer:`linear-gradient(90deg,${lighten(b,0.55)},${lighten(a,0.65)},${lighten(b,0.55)})`,
+    onDark:"#ffffff", onLight:darken(a,0.55),
+    ink:"#1a1408", inkM:"#4a3c2a",
+    slate:lerpHex(darken(a,0.05),"#8a7a62",0.55),
+    good:lerpHex(b,"#44aa66",0.4), warn:"#c47818", bad:"#a03030",
+    goodBg:lighten(lerpHex(b,"#44aa66",0.4),0.75),
+    warnBg:"#fef0d0", badBg:"#faeae4",
+  };
+}
+
+const PRESET_PALETTES = [
+  {id:"sage",    name:"Sage",    emoji:"🌱", a:"#2a4a28", b:"#a8c890"},
+  {id:"forest",  name:"Forest",  emoji:"🌲", a:"#1e4d2b", b:"#7ecb9a"},
+  {id:"desert",  name:"Desert",  emoji:"🌵", a:"#7a3e1a", b:"#e8b870"},
+  {id:"ocean",   name:"Ocean",   emoji:"🌊", a:"#0d3d5e", b:"#7ec8d8"},
+  {id:"lavender",name:"Lavender",emoji:"💜", a:"#3d2060", b:"#c8a8e8"},
+  {id:"rose",    name:"Rose",    emoji:"🌹", a:"#6a1a2e", b:"#e8a0b0"},
+  {id:"harvest", name:"Harvest", emoji:"🍂", a:"#5a2e08", b:"#e8c070"},
+  {id:"slate",   name:"Slate",   emoji:"🪨", a:"#1e2a38", b:"#90aac0"},
+  {id:"custom",  name:"Custom",  emoji:"", a:"#1e4d2b", b:"#7ecb9a", isCustom:true},
+];
+
+/* --- CONSTANTS --- */
+const LEARNING_PHILOSOPHIES = [
+  {id:"classical",   label:"Classical",        icon:"🏛", desc:"Trivium - grammar, logic, rhetoric"},
+  {id:"charlotte",   label:"Charlotte Mason",  icon:"🌿", desc:"Living books, nature study, narration"},
+  {id:"classical_c", label:"Classical Conv.",  icon:"🔁", desc:"Memory work & weekly co-op"},
+  {id:"traditional", label:"Traditional",      icon:"📐", desc:"Textbook-based, structured learning"},
+  {id:"unit",        label:"Unit Studies",     icon:"🔭", desc:"Deep dives into one topic at a time"},
+  {id:"waldorf",     label:"Waldorf",          icon:"🎨", desc:"Arts-based, whole-child approach"},
+  {id:"montessori",  label:"Montessori",       icon:"🌸", desc:"Self-directed, hands-on learning"},
+  {id:"eclectic",    label:"Eclectic",         icon:"🧩", desc:"Mix of whatever works best for us"},
+  {id:"unschooling", label:"Unschooling",      icon:"🌱", desc:"Child-led, interest-based"},
+  {id:"ai",          label:"Let Root & Bloom Decide",   icon:"", desc:"Let Root & Bloom build our curriculum"},
+];
+
+const CURRICULUM_BRANDS = [
+  // --- Faith-Based ---
+  {id:"tgatb",    label:"The Good and the Beautiful",  icon:"📖", desc:"Charlotte Mason-inspired, faith-based", url:"https://www.goodandbeautiful.com"},
+  {id:"abeka",    label:"Abeka",                       icon:"📚", desc:"Traditional Christian textbooks",       url:"https://www.abeka.com"},
+  {id:"mfw",      label:"My Father’s World",      icon:"🌿", desc:"Faith-based unit studies",              url:"https://www.mfwbooks.com"},
+  {id:"sonlight", label:"Sonlight",                    icon:"🌎", desc:"Literature-rich, global perspective",   url:"https://www.sonlight.com"},
+  {id:"bju",      label:"BJU Press",                   icon:"🎓", desc:"Comprehensive Christian curriculum",    url:"https://www.bjupress.com"},
+  {id:"winterpromise", label:"Winter Promise",         icon:"❄️", desc:"Unit studies with a cozy approach",    url:"https://www.winterpromise.com"},
+  {id:"notgrass", label:"Notgrass History",            icon:"🏛", desc:"History-centered, faith-based",        url:"https://www.notgrass.com"},
+  // --- Classical ---
+  {id:"classicalconv", label:"Classical Conversations",icon:"🏛", desc:"Community-based classical education",  url:"https://www.classicalconversations.com"},
+  {id:"welltr",   label:"The Well-Trained Mind",       icon:"📜", desc:"Susan Wise Bauer classical approach",  url:"https://www.welltrainedmind.com"},
+  {id:"veritas",  label:"Veritas Press",               icon:"📜", desc:"Classical Christian curriculum",       url:"https://www.veritaspress.com"},
+  {id:"memoria",  label:"Memoria Press",               icon:"🦉", desc:"Classical education with Latin",       url:"https://www.memoriapress.com"},
+  {id:"trivium",  label:"Trivium Pursuit",             icon:"📐", desc:"Classical trivium approach",           url:"https://www.triviumpursuit.com"},
+  // --- Charlotte Mason ---
+  {id:"ambleside",label:"Ambleside Online",            icon:"🌸", desc:"Free Charlotte Mason curriculum",      url:"https://www.amblesideonline.org"},
+  {id:"simplycharlotte", label:"Simply Charlotte Mason",icon:"🌼", desc:"Charlotte Mason resources & guides",  url:"https://simplycharlottemason.com"},
+  // --- Math Focused ---
+  {id:"saxon",    label:"Saxon Math",                  icon:"➕", desc:"Incremental, mastery-based math",      url:"https://www.hmhco.com/programs/saxon-math"},
+  {id:"mathu",    label:"Math-U-See",                  icon:"🔢", desc:"Manipulative-based math program",      url:"https://www.mathusee.com"},
+  {id:"rightstart",label:"RightStart Math",            icon:"🧮", desc:"Visual, activity-based math",         url:"https://www.rightstartmath.com"},
+  {id:"ctc",      label:"CTC Math",                    icon:"💻", desc:"Online video-based math",              url:"https://www.ctcmath.com"},
+  {id:"beast",    label:"Beast Academy",               icon:"🐉", desc:"Advanced math comics for kids",        url:"https://www.beastacademy.com"},
+  {id:"aaa",      label:"AAA Math",                    icon:"🔣", desc:"Free online math practice",            url:"https://www.aaamath.com"},
+  // --- Language Arts / Reading ---
+  {id:"aas",      label:"All About Spelling",          icon:"🔤", desc:"Orton-Gillingham spelling program",    url:"https://www.allaboutlearningpress.com"},
+  {id:"aar",      label:"All About Reading",           icon:"📖", desc:"Multisensory reading program",         url:"https://www.allaboutlearningpress.com"},
+  {id:"rodd",     label:"Rodd Rumford Reading",        icon:"📗", desc:"Phonics-based reading approach",       url:"https://www.roddrumford.com"},
+  {id:"explode",  label:"Explode the Code",            icon:"💥", desc:"Phonics workbook series",              url:"https://www.explodethecode.com"},
+  {id:"fll",      label:"First Language Lessons",      icon:"📝", desc:"Grammar and composition for young kids",url:"https://www.welltrainedmind.com"},
+  {id:"iewa",     label:"Institute for Excellence in Writing", icon:"✍️", desc:"Writing curriculum",          url:"https://www.iew.com"},
+  {id:"writeshop",label:"WriteShop",                   icon:"✏️", desc:"Step-by-step writing program",        url:"https://www.writeshop.com"},
+  // --- Science ---
+  {id:"apologia", label:"Apologia Science",            icon:"🔬", desc:"Faith-based, award-winning science",  url:"https://www.apologia.com"},
+  {id:"noeo",     label:"NOEO Science",                icon:"🧪", desc:"Charlotte Mason science curriculum",   url:"https://www.noeo.com"},
+  {id:"campfire", label:"Camp Fire Science",           icon:"🔥", desc:"Outdoor and nature-based science",    url:"https://www.campfiresciencecurriculum.com"},
+  // --- History / Social Studies ---
+  {id:"moh",      label:"Mystery of History",          icon:"🏺", desc:"Chronological world history",         url:"https://www.mysteryofhistory.com"},
+  {id:"sotw",     label:"Story of the World",          icon:"🌍", desc:"Susan Wise Bauer narrative history",  url:"https://www.welltrainedmind.com"},
+  {id:"beautiful", label:"Beautiful Feet Books",       icon:"📚", desc:"Literature-based history",            url:"https://www.bfbooks.com"},
+  // --- All-In-One / Online ---
+  {id:"aop",      label:"Alpha Omega / Monarch",       icon:"🔤", desc:"Worktexts and digital learning",      url:"https://www.aop.com"},
+  {id:"acellus",  label:"Acellus / Power Homeschool",  icon:"💻", desc:"Video-based online school",           url:"https://www.powerhomeschool.org"},
+  {id:"time4",    label:"Time4Learning",               icon:"⏰", desc:"Online all-in-one curriculum",        url:"https://www.time4learning.com"},
+  {id:"calvert",  label:"Calvert Education",           icon:"🎒", desc:"Structured all-in-one program",       url:"https://www.calverteducation.com"},
+  {id:"k12",      label:"K12 / Stride",                icon:"🏫", desc:"Online public school option",         url:"https://www.k12.com"},
+  {id:"connections", label:"Connections Academy",      icon:"🖥", desc:"Online public charter school",        url:"https://www.connectionsacademy.com"},
+  {id:"oak",      label:"Oak Meadow",                  icon:"🌳", desc:"Waldorf-inspired, nature-focused",    url:"https://www.oakmeadow.com"},
+  {id:"tsc",      label:"The Scholars Community",      icon:"👩‍🏫", desc:"Tutored online homeschool",          url:"https://thescholarscommunity.com"},
+  // --- Separators ---
+  {id:"none",     label:"No Boxed Curriculum",         icon:"🆓", desc:"We build our own from scratch",       url:""},
+];
+
+const SUBJECT_OPTIONS = [
+  {id:"bible",    label:"Bible / Faith",     icon:"+"},
+  {id:"math",     label:"Math",              icon:"📐"},
+  {id:"reading",  label:"Reading",           icon:"📖"},
+  {id:"language", label:"Language Arts",     icon:""},
+  {id:"science",  label:"Science",           icon:"🔬"},
+  {id:"history",  label:"History",           icon:"🏛"},
+  {id:"geography",label:"Geography",         icon:"🌍"},
+  {id:"art",      label:"Art",               icon:"🎨"},
+  {id:"music",    label:"Music",             icon:"🎵"},
+  {id:"pe",       label:"PE / Movement",     icon:""},
+  {id:"latin",    label:"Latin",             icon:"📜"},
+  {id:"foreign",  label:"Foreign Language",  icon:"🗣"},
+  {id:"nature",   label:"Nature Study",      icon:"🌿"},
+  {id:"lifeskill",label:"Life Skills",       icon:"🏠"},
+  {id:"typing",   label:"Typing / Tech",     icon:"💻"},
+];
+const SESSION_LENGTHS = ["20 min","30 min","45 min","60 min","90 min"];
+
+/* ---- LIFE READY ---- */
+function getLessonPlan(topic, grade) {
+  if(LR_LESSON_PLANS[topic]) {
+    const plan = LR_LESSON_PLANS[topic];
+    let hook = plan.hook || "";
+    if(plan.gradeHooks) {
+      const g = grade||"5th";
+      const low  = ["Pre-K","K","1st","2nd"];
+      const high = ["9th","10th","11th","12th"];
+      hook = low.includes(g) ? plan.gradeHooks.low
+           : high.includes(g) ? plan.gradeHooks.high
+           : plan.gradeHooks.mid;
+    }
+    return {...plan, hook};
+  }
+  const tier = getLRGradeTier(grade||"5th");
+  const hooks = {
+    early:  "Here is something fun to think about: what do you already know about "+topic+"? You might know more than you think!",
+    middle: "Before we start — what do you already know about "+topic+"? Take a guess. There are no wrong answers.",
+    upper:  "Quick thought before we begin: when do you think someone might actually need to know about "+topic+"? Think of a real situation.",
+    high:   "Here is a question worth sitting with: how would knowing "+topic+" make you more independent or better prepared for real life?",
+  };
+  const challenges = {
+    early:  "Find one way to try or practice this topic this week. Ask a parent to do it with you.",
+    middle: "Find one real-life way to use or observe this skill before next week.",
+    upper:  "Apply this skill once in real life this week. Notice what you learn from actually doing it.",
+    high:   "Use this skill or knowledge in a real situation this week. Be ready to share what happened.",
+  };
+  return {
+    hook: hooks[tier],
+    materials: ["Pen and paper for notes","Any household items relevant to this topic"],
+    steps: [
+      "Start by talking about what this topic is and why real people find it useful.",
+      "Can you think of a time this skill would have helped someone you know?",
+      "Look it up together: find one real story or example related to this topic.",
+      "Try one hands-on way to practice or explore what you learned.",
+      "Wrap up: each person shares one thing they will remember from today."
+    ],
+    discussion: [
+      "How does knowing this make you safer, smarter, or more capable?",
+      "Who else in your life might benefit from learning this too?"
+    ],
+    challenge: challenges[tier],
+  };
+}
+
+
+/* =======================================
+   PORTFOLIO PDF PRINT FUNCTION
+   Opens a clean print window — not the app
+======================================= */
+
+
+/* =======================================
+   50-STATE COMPLIANCE DATABASE
+   Tier 1 = very low, Tier 4 = high regulation
+======================================= */
 function getStateInfo(state) {
   return STATE_COMPLIANCE[state] || {
     tier:2, notify:"Check your state DOE", hours:"Check your state",
