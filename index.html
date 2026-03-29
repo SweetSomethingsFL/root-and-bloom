@@ -701,7 +701,102 @@ function RootAndBloom() {
         </nav>
 
         {/* Modals */}
-        {showQuickCapture && <QuickCaptureModal pal={pal} family={family} activeChildId={childFilt}
+        {/* ── Next Child Transition Prompt ── */}
+      {nextChildPrompt&&(()=>{
+        const nextChild = family.children.find(c=>c.id===nextChildPrompt.nextChildId);
+        if(!nextChild) return null;
+        const nextCp = CHILD_COLOR_PALETTES.find(p=>p.id===(nextChild.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+        // Subjects from prev child's entries (for carry-over)
+        const prevSubjs = [...new Set(nextChildPrompt.prevEntries.filter(e=>!e.isDay).map(e=>e.subj))];
+        const remaining = nextChildPrompt.queue.length;
+        return (
+          <div style={{position:"fixed",inset:0,zIndex:300,background:"rgba(0,0,0,0.55)",backdropFilter:"blur(10px)",display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
+            <div style={{width:"100%",maxWidth:"430px",background:pal.linen,borderRadius:"24px 24px 0 0",animation:"slideUp 0.28s ease",paddingBottom:"env(safe-area-inset-bottom)"}}>
+              <div style={{padding:"0.65rem 0 0",display:"flex",justifyContent:"center"}}>
+                <div style={{width:"36px",height:"4px",borderRadius:"99px",background:pal.stone+"60"}}/>
+              </div>
+              <div style={{padding:"1rem 1.2rem 0.5rem",textAlign:"center"}}>
+                <div style={{fontSize:"2.2rem",marginBottom:"0.3rem",animation:"grow 0.35s ease"}}>{"✅"}</div>
+                <div style={{fontWeight:"800",color:pal.good,fontSize:"1rem",marginBottom:"0.15rem"}}>
+                  {family.children.find(c=>c.id!==nextChildPrompt.nextChildId&&!nextChildPrompt.queue.includes(c.id))?.name||"Done"}{" logged!"}
+                </div>
+                <div style={{fontSize:"0.76rem",color:pal.slate}}>
+                  {remaining>0
+                    ? "Up next: "+nextChild.name+" · then "+(remaining)+" more"
+                    : "Up next: "+nextChild.name+" (last one!)"}
+                </div>
+              </div>
+
+              <div style={{padding:"0.75rem 1.2rem"}}>
+                {/* Carry-over option */}
+                {prevSubjs.length>0&&(
+                  <div style={{background:pal.parchm,borderRadius:"13px",padding:"0.75rem 1rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.stone}30`}}>
+                    <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem",marginBottom:"0.5rem"}}>
+                      {"📋 Carry subjects over to "+nextChild.name+"?"}
+                    </div>
+                    <div style={{fontSize:"0.7rem",color:pal.slate,marginBottom:"0.6rem"}}>
+                      {"Select any subjects to pre-fill — you can still edit notes"}
+                    </div>
+                    <div style={{display:"flex",flexWrap:"wrap",gap:"0.3rem"}}>
+                      {prevSubjs.map(s=>{
+                        const sel = carryOverSubjs.includes(s);
+                        return (
+                          <button key={s} onClick={()=>setCarryOverSubjs(prev=>sel?prev.filter(x=>x!==s):[...prev,s])}
+                            style={{padding:"0.28rem 0.65rem",borderRadius:"20px",border:`2px solid ${sel?nextCp.c1:pal.stone+"50"}`,background:sel?nextCp.c1+"18":"transparent",color:sel?nextCp.c1:pal.inkM,fontWeight:sel?"700":"400",fontSize:"0.76rem",cursor:"pointer",transition:"all 0.12s"}}>
+                            {s}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {prevSubjs.length>1&&(
+                      <button onClick={()=>setCarryOverSubjs(carryOverSubjs.length===prevSubjs.length?[]:prevSubjs)}
+                        style={{marginTop:"0.45rem",fontSize:"0.68rem",color:nextCp.c1,background:"none",border:"none",cursor:"pointer",fontWeight:"700"}}>
+                        {carryOverSubjs.length===prevSubjs.length?"Clear all":"Select all"}
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {/* Action buttons */}
+                <button onClick={()=>{
+                    setNextChildPrompt(null);
+                    setLogQueue(nextChildPrompt.queue);
+                    setChild(nextChildPrompt.nextChildId);
+                    setCarryOverSubjs(prev=>prev); // keep selection
+                    setShowQuickLog(true);
+                  }}
+                  style={{width:"100%",padding:"0.85rem",border:"none",borderRadius:"13px",background:`linear-gradient(135deg,${nextCp.c1},${nextCp.c2})`,color:"#fff",fontWeight:"800",fontSize:"0.9rem",cursor:"pointer",marginBottom:"0.45rem",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.5rem"}}>
+                  <span>{nextChild.avatar}</span>
+                  <span>{"Log "+nextChild.name+"’s day"}</span>
+                </button>
+                <div style={{display:"flex",gap:"0.4rem"}}>
+                  {nextChildPrompt.queue.length>0&&(
+                    <button onClick={()=>{
+                        // Skip this child, move to next in queue
+                        const [skip,...rest] = nextChildPrompt.queue.length>0?[nextChildPrompt.nextChildId,...nextChildPrompt.queue]:[nextChildPrompt.nextChildId];
+                        if(rest.length>0){
+                          setNextChildPrompt({nextChildId:rest[0],prevEntries:nextChildPrompt.prevEntries,queue:rest.slice(1)});
+                        } else {
+                          setNextChildPrompt(null);
+                        }
+                        setCarryOverSubjs([]);
+                      }}
+                      style={{flex:1,padding:"0.65rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.78rem",cursor:"pointer"}}>
+                      {"Skip "+nextChild.name}
+                    </button>
+                  )}
+                  <button onClick={()=>{setNextChildPrompt(null);setCarryOverSubjs([]);}}
+                    style={{flex:1,padding:"0.65rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.78rem",cursor:"pointer"}}>
+                    {"Done for today"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {showQuickCapture && <QuickCaptureModal pal={pal} family={family} activeChildId={childFilt}
           onClose={()=>setShowQuickCapture(false)}
           onSave={(entries)=>{
             entries.forEach(e=>addPortfolioEntry(e));
@@ -5709,6 +5804,8 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
   const blocks = generateSchedule(family, family.scheduleMode2!=="same"?(child!=="all"?child:family.children?.[0]?.id):null);
   const [showQuickLog, setShowQuickLog] = useState(false);
   const [logQueue,     setLogQueue]     = useState([]); // children yet to be logged in sequence
+  const [nextChildPrompt, setNextChildPrompt] = useState(null); // {nextChildId, prevEntries, queue}
+  const [carryOverSubjs,  setCarryOverSubjs]  = useState([]);
   const todayStr = new Date().toDateString();
 
   // Start logging — build queue of children who haven't been logged today
@@ -6180,18 +6277,17 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
           onClose={()=>{ setShowQuickLog(false); setLogQueue([]); }}
           onSave={(entries)=>{
             entries.forEach(e=>onAddEntry&&onAddEntry(e));
-            // Mark this specific child as logged today
             onCheckin&&onCheckin(currentChild?.id);
-            // If there are more children in the queue, advance to the next
             if(logQueue.length>0){
               const [nextChildId,...rest] = logQueue;
-              setLogQueue(rest);
-              setChild(nextChildId);
-              // Keep modal open — it will re-render for the next child
+              // Show transition screen instead of jumping directly
+              setShowQuickLog(false);
+              setNextChildPrompt({nextChildId, prevEntries:entries, queue:rest});
+              setCarryOverSubjs([]); // reset carryover selection
             } else {
               setShowQuickLog(false);
             }
-          }}/>;
+          }} prevCarryOver={carryOverSubjs.length>0?carryOverSubjs:null}/>;
       })()}
     </div>
   );
@@ -8666,7 +8762,7 @@ function YearOverview({pal,family,activeCh,cp,entries,attendanceDays,onBack}){
 }
 
 /* ---- Daily Portfolio Log Modal (step-through per subject) ---- */
-function DailyPortfolioModal({pal,family,childIdx,stateInfo,onClose,onSave}){
+function DailyPortfolioModal({pal,family,childIdx,stateInfo,onClose,onSave,prevCarryOver=null}){
   const activeCh = family.children[childIdx];
   const cp = CHILD_COLOR_PALETTES.find(p=>p.id===(activeCh?.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
 
@@ -8678,7 +8774,14 @@ function DailyPortfolioModal({pal,family,childIdx,stateInfo,onClose,onSave}){
   // Step 0 = pick date + subjects for today; steps 1..N = one per subject; final = done
   const [step,        setStep]       = useState(0);
   const [todayDate,   setTodayDate]  = useState(new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"}));
-  const [selectedSubjs, setSelSubjs] = useState(new Set(activeSubjList.map(s=>s.label)));
+  const [selectedSubjs, setSelSubjs] = useState(()=>{
+    const base = new Set(activeSubjList.map(s=>s.label));
+    if(prevCarryOver&&prevCarryOver.length>0){
+      // Add carried-over subjects (they may be from a different child's subject list)
+      prevCarryOver.forEach(s=>base.add(s));
+    }
+    return base;
+  });
   const [descMap,     setDescMap]    = useState({});
   const [photoMap,    setPhotoMap]   = useState({});
   const [readMap,     setReadMap]    = useState({});
@@ -8790,7 +8893,7 @@ function DailyPortfolioModal({pal,family,childIdx,stateInfo,onClose,onSave}){
               {step===0 ? "What did we do today?" : currentSubj?.icon+" "+currentSubj?.label}
             </div>
             <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"1px"}}>
-              {step===0 ? activeCh?.avatar+" "+activeCh?.name : "Step "+(step)+" of "+totalSteps+" \u2022 "+activeCh?.name}
+              {step===0 ? activeCh?.avatar+" "+activeCh?.name+(prevCarryOver&&prevCarryOver.length>0?" • subjects carried over ✓":"") : "Step "+(step)+" of "+totalSteps+" • "+activeCh?.name}
             </div>
           </div>
           <button onClick={onClose} style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.9rem"}}>{"x"}</button>
