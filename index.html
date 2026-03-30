@@ -957,8 +957,66 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
                 </button>
               </div>
 
+              {/* This Week progress */}
+              {(()=>{
+                const lessonGoals3 = family.lessonGoals||{};
+                const hasGoals3    = Object.keys(lessonGoals3).length>0;
+                const customSjs3   = family.customSubjects||[];
+                const sMap3        = Object.fromEntries([...SUBJECT_OPTIONS,...customSjs3].map(s=>[s.id,s]));
+                const activeSjs3   = (family.subjects||[]).map(id=>sMap3[id]).filter(Boolean);
+                if(activeSjs3.length===0) return null;
+                const yr3 = new Date().getFullYear();
+                const ws3 = new Date();
+                ws3.setDate(ws3.getDate()-(ws3.getDay()===0?6:ws3.getDay()-1));
+                ws3.setHours(0,0,0,0);
+                const weekEntries3 = myEntries.filter(e=>{
+                  if(e.isDay) return false;
+                  try{ return new Date(e.date+", "+yr3)>=ws3; }catch{return false;}
+                });
+                const loggedPerSubj3 = {};
+                weekEntries3.forEach(e=>{ if(e.subj) loggedPerSubj3[e.subj]=(loggedPerSubj3[e.subj]||0)+(e.lessonCount||1); });
+                const cards3 = activeSjs3.map(s=>{
+                  const logged3 = loggedPerSubj3[s.label]||0;
+                  const target3 = hasGoals3&&lessonGoals3[s.id]
+                    ? [0,1,2,3,4].reduce((sum,d)=>sum+(lessonGoals3[s.id][d]||0),0)
+                    : null;
+                  const pct3 = target3 ? Math.min(100,Math.round(logged3/target3*100)) : (logged3>0?100:0);
+                  const done3 = target3!==null ? logged3>=target3 : logged3>0;
+                  return {s, logged3, target3, pct3, done3};
+                });
+                const allDone3 = cards3.every(c=>c.done3);
+                return (
+                  <div style={{background:SK.card,borderRadius:"20px",padding:"1rem 1.1rem",marginBottom:"0.9rem",boxShadow:"0 2px 14px rgba(0,0,0,0.07)"}}>
+                    <div style={{fontWeight:"900",color:SK.ink,fontSize:"0.92rem",marginBottom:allDone3?"0.4rem":"0.7rem"}}>
+                      {allDone3 ? "This Week \u2014 Amazing! \uD83C\uDF1F" : "This Week"}
+                    </div>
+                    {allDone3&&(
+                      <div style={{fontSize:"0.73rem",color:SK.grass,fontWeight:"700",marginBottom:"0.6rem"}}>{"All subjects on track \u2014 keep going!"}</div>
+                    )}
+                    <div style={{display:"flex",flexDirection:"column",gap:"0.45rem"}}>
+                      {cards3.map(({s,logged3,target3,pct3,done3})=>(
+                        <div key={s.id}>
+                          <div style={{display:"flex",alignItems:"center",gap:"0.45rem",marginBottom:"0.22rem"}}>
+                            <span style={{fontSize:"0.9rem",flexShrink:0}}>{s.icon}</span>
+                            <span style={{flex:1,fontWeight:"700",color:done3?SK.grass:SK.ink,fontSize:"0.78rem"}}>{s.label}</span>
+                            <span style={{fontSize:"0.72rem",fontWeight:"800",color:done3?SK.grass:c1}}>
+                              {target3!==null ? logged3+"/"+target3 : (logged3>0?"done":"not yet")}
+                            </span>
+                          </div>
+                          {target3!==null&&(
+                            <div style={{height:"7px",borderRadius:"99px",background:"#ece5dc",overflow:"hidden"}}>
+                              <div style={{height:"100%",width:pct3+"%",borderRadius:"99px",background:done3?SK.grass:c1,transition:"width 0.5s"}}/>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+
               {/* Today peek */}
-              <div style={{fontWeight:"800",color:SK.ink,fontSize:"0.92rem",marginBottom:"0.6rem"}}>📅 Todays Plan</div>
+              <div style={{fontWeight:"800",color:SK.ink,fontSize:"0.92rem",marginBottom:"0.6rem"}}>{"📅 Today\u2019s Plan"}</div>
               {SCHEDULE.slice(0,4).map((b,i)=>(
                 <div key={i} style={{background:SK.card,borderRadius:"14px",padding:"0.65rem 0.9rem",display:"flex",gap:"0.65rem",alignItems:"center",marginBottom:"0.42rem",boxShadow:"0 1px 7px rgba(0,0,0,0.05)"}}>
                   <div style={{width:"34px",height:"34px",borderRadius:"9px",background:SK.skyL,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1rem",flexShrink:0}}>{b.i}</div>
@@ -7311,6 +7369,185 @@ function ScheduleScreen({pal,family,child,setChild,onMarkComplete,onProgressUpda
       {showEditor&&<ScheduleEditorModal pal={pal} family={family}
         onSave={overrides=>{onUpdateFamily&&onUpdateFamily({scheduleOverrides:overrides});setShowEditor(false);}}
         onClose={()=>setShowEditor(false)}/>}
+
+      <ScheduleQuickEditors pal={pal} family={family} onUpdateFamily={onUpdateFamily}/>
+    </div>
+  );
+}
+
+/* ---- Schedule Quick Editors (Lesson Goals + Weekly Schedule inline cards) ---- */
+function ScheduleQuickEditors({pal, family, onUpdateFamily}) {
+  const [openCard, setOpenCard] = useState(null); // "goals" | "schedule" | null
+  const customSjs = family.customSubjects||[];
+  const sMap = Object.fromEntries([...SUBJECT_OPTIONS,...customSjs].map(s=>[s.id,s]));
+  const activeSjs = (family.subjects||[]).map(id=>sMap[id]).filter(Boolean);
+  const coopDowIdx = ["Monday","Tuesday","Wednesday","Thursday","Friday"].indexOf(family.coopDay??"");
+  const DOW_NAMES = ["Mon","Tue","Wed","Thu","Fri"];
+  const DOW_FULL  = ["Monday","Tuesday","Wednesday","Thursday","Friday"];
+
+  // Lesson goals state
+  const [lgLocal, setLgLocal] = useState(family.lessonGoals||{});
+  const cycleGoal = (subjId, dow) => {
+    const cur = (lgLocal[subjId]||{})[dow]||0;
+    const next = cur>=3?0:cur+1;
+    const updated = {...lgLocal,[subjId]:{...(lgLocal[subjId]||{}),[dow]:next}};
+    setLgLocal(updated);
+    onUpdateFamily&&onUpdateFamily({lessonGoals:updated});
+  };
+
+  // Weekly schedule state
+  const initWs = () => {
+    if(family.weeklySchedule) return family.weeklySchedule;
+    const init = {};
+    for(let d=0;d<5;d++) init[d] = d===coopDowIdx?null:activeSjs.map(s=>s.id);
+    return init;
+  };
+  const [wsLocal, setWsLocal] = useState(initWs);
+  const [activeDay, setActiveDay] = useState(coopDowIdx===0?1:0);
+
+  const updateWs = (fn) => {
+    const next = typeof fn==="function"?fn(wsLocal):fn;
+    setWsLocal(next);
+    onUpdateFamily&&onUpdateFamily({weeklySchedule:next});
+  };
+  const togSubj = (dow,id) => updateWs(prev=>{
+    const cur=prev[dow]||[];
+    return {...prev,[dow]:cur.includes(id)?cur.filter(x=>x!==id):[...cur,id]};
+  });
+  const togDay = (dow) => {
+    if(dow===coopDowIdx) return;
+    updateWs(prev=>({...prev,[dow]:prev[dow]===null?activeSjs.map(s=>s.id):null}));
+  };
+
+  const isOff = wsLocal[activeDay]===null && activeDay!==coopDowIdx;
+  const isCoop = activeDay===coopDowIdx;
+  const daySjs = wsLocal[activeDay]||[];
+
+  if(activeSjs.length===0) return null;
+
+  const cardStyle = (id) => ({
+    background:pal.linen,borderRadius:"14px",marginBottom:"0.75rem",
+    border:`1.5px solid ${openCard===id?pal.primary+"50":pal.stone+"35"}`,overflow:"hidden",
+  });
+  const hdrStyle = (id) => ({
+    display:"flex",justifyContent:"space-between",alignItems:"center",
+    padding:"0.75rem 1rem",cursor:"pointer",
+    background:openCard===id?pal.pale:"transparent",
+  });
+
+  return (
+    <div style={{padding:"0 1rem",marginTop:"0.5rem"}}>
+      <div style={{fontSize:"0.68rem",fontWeight:"700",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.6rem"}}>{"Quick Settings"}</div>
+
+      {/* Lesson Goals card */}
+      <div style={cardStyle("goals")}>
+        <div style={hdrStyle("goals")} onClick={()=>setOpenCard(openCard==="goals"?null:"goals")}>
+          <div>
+            <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.82rem"}}>{"🎯 Lesson Goals"}</div>
+            <div style={{fontSize:"0.65rem",color:pal.slate,marginTop:"1px"}}>{"Tap a number to cycle 0\u20133 per day"}</div>
+          </div>
+          <span style={{color:pal.slate,fontSize:"1rem",transform:openCard==="goals"?"rotate(90deg)":"none",transition:"transform 0.2s"}}>{"›"}</span>
+        </div>
+        {openCard==="goals"&&(
+          <div style={{padding:"0 0.85rem 0.85rem",animation:"fadeUp 0.16s ease"}}>
+            <div style={{display:"grid",gridTemplateColumns:"1fr repeat(5,32px)",gap:"0.25rem",marginBottom:"0.35rem",alignItems:"center"}}>
+              <div/>
+              {DOW_NAMES.map((d,i)=>(
+                <div key={d} style={{textAlign:"center",fontSize:"0.58rem",fontWeight:"800",color:i===coopDowIdx?"#b07800":pal.slate,textTransform:"uppercase"}}>{d}</div>
+              ))}
+            </div>
+            <div style={{display:"flex",flexDirection:"column",gap:"0.35rem"}}>
+              {activeSjs.map(s=>(
+                <div key={s.id} style={{display:"grid",gridTemplateColumns:"1fr repeat(5,32px)",gap:"0.25rem",alignItems:"center",background:pal.parchm,borderRadius:"9px",padding:"0.42rem 0.5rem"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:"0.3rem",minWidth:0}}>
+                    <span style={{fontSize:"0.9rem",flexShrink:0}}>{s.icon}</span>
+                    <span style={{fontSize:"0.72rem",fontWeight:"600",color:pal.inkM,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s.label}</span>
+                  </div>
+                  {[0,1,2,3,4].map(dow=>{
+                    const ic=dow===coopDowIdx;
+                    const val=ic?null:((lgLocal[s.id]||{})[dow]||0);
+                    return (
+                      <div key={dow} style={{display:"flex",alignItems:"center",justifyContent:"center"}}>
+                        {ic?(
+                          <div style={{width:"28px",height:"28px",borderRadius:"7px",background:"#fff8e6",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.5rem",color:"#b07800",fontWeight:"700",lineHeight:1.1,textAlign:"center"}}>{"co\u00b7op"}</div>
+                        ):(
+                          <button onClick={()=>cycleGoal(s.id,dow)}
+                            style={{width:"28px",height:"28px",borderRadius:"7px",border:`2px solid ${val>0?pal.primary:pal.stone+"50"}`,background:val>0?pal.pale:"transparent",cursor:"pointer",fontWeight:"800",fontSize:"0.8rem",color:val>0?pal.primary:pal.stone,display:"flex",alignItems:"center",justifyContent:"center",padding:0}}>
+                            {val}
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Weekly Schedule card */}
+      <div style={cardStyle("schedule")}>
+        <div style={hdrStyle("schedule")} onClick={()=>setOpenCard(openCard==="schedule"?null:"schedule")}>
+          <div>
+            <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.82rem"}}>{"📅 Weekly Schedule"}</div>
+            <div style={{fontSize:"0.65rem",color:pal.slate,marginTop:"1px"}}>{"Which subjects on which days"}</div>
+          </div>
+          <span style={{color:pal.slate,fontSize:"1rem",transform:openCard==="schedule"?"rotate(90deg)":"none",transition:"transform 0.2s"}}>{"›"}</span>
+        </div>
+        {openCard==="schedule"&&(
+          <div style={{padding:"0 0.85rem 0.85rem",animation:"fadeUp 0.16s ease"}}>
+            <div style={{display:"flex",gap:"0.25rem",marginBottom:"0.65rem"}}>
+              {DOW_NAMES.map((d,i)=>{
+                const isAct=activeDay===i, isCp=i===coopDowIdx, isOff2=wsLocal[i]===null&&!isCp;
+                const cnt=Array.isArray(wsLocal[i])?wsLocal[i].length:0;
+                return (
+                  <button key={i} onClick={()=>setActiveDay(i)}
+                    style={{flex:1,padding:"0.4rem 0.1rem",borderRadius:"9px",border:`1.5px solid ${isAct?pal.primary:isCp?"#f5c842":isOff2?pal.stone+"30":pal.stone+"45"}`,background:isAct?pal.pale:isCp?"#fff8e6":"transparent",cursor:"pointer",textAlign:"center"}}>
+                    <div style={{fontSize:"0.6rem",fontWeight:"800",color:isAct?pal.primary:isCp?"#b07800":isOff2?pal.stone:pal.inkM,textTransform:"uppercase"}}>{d}</div>
+                    <div style={{fontSize:"0.55rem",color:isAct?pal.primary:isCp?"#b07800":isOff2?pal.stone:pal.slate,marginTop:"1px",fontWeight:"600"}}>
+                      {isCp?"coop":isOff2?"off":cnt+"s"}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+            {isCoop?(
+              <div style={{background:"#fff8e6",borderRadius:"11px",padding:"0.65rem 0.85rem",border:"1.5px solid #f5c84240",fontSize:"0.74rem",color:"#b07800",fontWeight:"600"}}>
+                {"🏫 Co-op day \u2014 regular subjects paused"}
+              </div>
+            ):(
+              <div style={{background:pal.parchm,borderRadius:"11px",padding:"0.55rem 0.75rem"}}>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:isOff?"0":"0.55rem"}}>
+                  <span style={{fontSize:"0.76rem",fontWeight:"700",color:pal.inkM}}>{DOW_FULL[activeDay]}</span>
+                  <button onClick={()=>togDay(activeDay)}
+                    style={{width:"38px",height:"22px",borderRadius:"11px",border:"none",background:isOff?pal.stone+"60":pal.primary,cursor:"pointer",position:"relative",transition:"background 0.2s",flexShrink:0}}>
+                    <div style={{position:"absolute",top:"2px",left:isOff?"2px":"18px",width:"18px",height:"18px",borderRadius:"50%",background:"#fff",transition:"left 0.2s"}}/>
+                  </button>
+                </div>
+                {!isOff&&(
+                  <div style={{display:"flex",flexDirection:"column",gap:"0.25rem"}}>
+                    {activeSjs.map(s=>{
+                      const sel=daySjs.includes(s.id);
+                      return (
+                        <button key={s.id} onClick={()=>togSubj(activeDay,s.id)}
+                          style={{display:"flex",gap:"0.5rem",alignItems:"center",padding:"0.4rem 0.55rem",border:`1.5px solid ${sel?pal.primary:pal.stone+"40"}`,borderRadius:"8px",background:sel?pal.pale:"#fff",cursor:"pointer",textAlign:"left",transition:"all 0.12s"}}>
+                          <span style={{fontSize:"0.9rem",width:"18px",textAlign:"center",flexShrink:0}}>{s.icon}</span>
+                          <span style={{flex:1,fontWeight:sel?"700":"400",color:sel?pal.primary:pal.inkM,fontSize:"0.78rem"}}>{s.label}</span>
+                          <div style={{width:"16px",height:"16px",borderRadius:"4px",border:`2px solid ${sel?pal.primary:pal.stone}`,background:sel?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                            {sel&&<span style={{color:"#fff",fontSize:"0.6rem",fontWeight:"900"}}>{"✓"}</span>}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+      <div style={{height:"0.5rem"}}/>
     </div>
   );
 }
