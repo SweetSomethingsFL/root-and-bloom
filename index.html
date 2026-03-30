@@ -541,6 +541,8 @@ function RootAndBloom() {
           entries={portfolioEntries.filter((_,i)=> family.children.findIndex(c=>c.id===activeStudent.id) === portfolioEntries.find(e=>e.id===_.id)?.childIdx)}
           allEntries={portfolioEntries}
           onAddEntry={addPortfolioEntry}
+          checkinStreak={checkinStreak}
+          checkinDates={checkinDates}
           onCoopLog={e=>setCoopLog(l=>[{...e,date:new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"})},...l])}
           onBack={backToParent}
         />
@@ -708,6 +710,11 @@ function RootAndBloom() {
 
       {showQuickCapture && <QuickCaptureModal pal={pal} family={family} activeChildId={childFilt}
           onClose={()=>setShowQuickCapture(false)}
+          attendanceLog={attendanceLog}
+          onAttendanceAdd={(entry)=>{
+            setAttendanceLog(l=>[entry,...l.filter(x=>x.date!==entry.date)]);
+            if(!["Excused Absence","Holiday"].includes(entry.type)) setAttendanceDays(d=>d+1);
+          }}
           onSave={(entries)=>{
             entries.forEach(e=>addPortfolioEntry(e));
             setShowQuickCapture(false);
@@ -873,14 +880,23 @@ const CHILD_COLOR_PALETTES = [
 /* =======================================
    STUDENT PORTAL - its own complete world
 ======================================= */
-function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onCoopLog, onBack }) {
-  const [sTab,     setSTab]     = useState("home");
-  const [noteText, setNoteText] = useState("");
-  const [noteSaved,setNoteSaved]= useState(false);
-  const [points,   setPoints]   = useState(142);
-  const [streak,   setStreak]   = useState(7);
-  const [showCoopPopup, setShowCoopPopup] = useState(isCoop && (family.coopFreq||'') !== "We don't do co-op" && (family.coopFreq||'') !== '');
-  const [coopDone, setCoopDone] = useState(false);
+function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onCoopLog, onBack, checkinStreak=0, checkinDates={} }) {
+  const [sTab,         setSTab]         = useState("home");
+  const [noteText,     setNoteText]     = useState("");
+  const [noteSaved,    setNoteSaved]    = useState(false);
+  const [showCoopPopup,setShowCoopPopup]= useState(isCoop && (family.coopFreq||'') !== "We don't do co-op" && (family.coopFreq||'') !== '');
+  const [coopDone,     setCoopDone]     = useState(false);
+  // Subject check-off — persisted per child per day
+  const SCHED_SK_KEY = "rootbloom_sk_checked_"+child.id;
+  const todayStr2 = new Date().toDateString();
+  const loadChecked = () => { try{ const s=localStorage.getItem(SCHED_SK_KEY); const p=s?JSON.parse(s):{}; return p.date===todayStr2?(p.checked||{}):{};  }catch{return {};} };
+  const [checked, setChecked] = useState(loadChecked);
+  const saveChecked = (next) => { try{ localStorage.setItem(SCHED_SK_KEY,JSON.stringify({date:todayStr2,checked:next})); }catch{} };
+  // Reading modal
+  const [readingPrompt, setReadingPrompt] = useState(null); // {blockIdx, subjLabel, subjIcon} | null
+  const [readingTitle2, setReadingTitle2] = useState("");
+  // Goals tab logged state
+  const [goalsLoggedToday, setGoalsLoggedToday] = useState(new Set());
 
   const childIdx  = family.children.findIndex(c=>c.id===child.id);
   const myEntries = allEntries.filter(e=>e.childIdx===childIdx);
@@ -888,18 +904,111 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
   const [c1,c2]   = [colorPalette.c1, colorPalette.c2];
   const heroGrad  = `linear-gradient(135deg,${c1},${c2})`;
 
+  // Compute real streak from portfolio entries for this child
+  const realStreak = (() => {
+    const yr = new Date().getFullYear();
+    const dateset = new Set(
+      myEntries.filter(e=>!e.isDay&&e.date).map(e=>e.date)
+    );
+    let streak = 0;
+    const d = new Date(); d.setHours(0,0,0,0);
+    // Start from today or yesterday (allow today not yet logged)
+    const todayStr = d.toLocaleDateString("en-US",{month:"short",day:"numeric"});
+    if(!dateset.has(todayStr)) d.setDate(d.getDate()-1);
+    while(true){
+      const ds = d.toLocaleDateString("en-US",{month:"short",day:"numeric"});
+      if(!dateset.has(ds)) break;
+      streak++;
+      d.setDate(d.getDate()-1);
+      if(streak>365) break;
+    }
+    return streak;
+  })();
+
+  // Real points = entries * 10
+  const realPoints = myEntries.filter(e=>!e.isDay).length * 10;
+
+  // This week's logged days (Mon-Fri)
+  const weekDots = (() => {
+    const yr = new Date().getFullYear();
+    const now = new Date(); now.setHours(0,0,0,0);
+    const dow = now.getDay();
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate()-(dow===0?6:dow-1));
+    const datesWithEntries = new Set(myEntries.filter(e=>!e.isDay&&e.date).map(e=>e.date));
+    return ["M","T","W","T","F"].map((_,i)=>{
+      const d = new Date(weekStart); d.setDate(weekStart.getDate()+i);
+      const ds = d.toLocaleDateString("en-US",{month:"short",day:"numeric"});
+      const isPast = d<=now;
+      const isToday = d.toDateString()===now.toDateString();
+      const done = datesWithEntries.has(ds);
+      return {done, isPast, isToday};
+    });
+  })();
+
   const greetKid  = () => { const h=new Date().getHours(); return h<12?"Good morning":h<17?"Good afternoon":"Good evening"; };
 
   const saveNote = () => {
     if(!noteText.trim()) return;
     onAddEntry({childIdx, title:noteText.slice(0,42), subj:"Daily Note", date:new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"}), thumb:"", note:noteText});
-    setNoteText(""); setNoteSaved(true); setPoints(p=>p+10); setStreak(s=>s);
+    setNoteText(""); setNoteSaved(true);
     setTimeout(()=>setNoteSaved(false),2400);
   };
 
   const SCHEDULE = generateSchedule(family);
+  const familyGoalObjs = [...GOALS,...(family.customGoals||[])].filter(g=>(family.goals||[]).includes(g.id));
+  const todayDateStr2 = new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
 
-  const STABS = [{id:"home",icon:"🏠",l:"Home"},{id:"today",icon:"📅",l:"Today"},{id:"mywork",icon:"*",l:"My Work"},{id:"streak",icon:"🔥",l:"Streak"}];
+  const checkSubject = (bi, b) => {
+    if(checked[bi]) return; // already checked
+    const next = {...checked,[bi]:true};
+    setChecked(next);
+    saveChecked(next);
+    const isRead = b.s.toLowerCase().includes("read");
+    if(isRead) {
+      setReadingTitle2("");
+      setReadingPrompt({blockIdx:bi, subjLabel:b.s, subjIcon:b.i||"📖"});
+    } else {
+      onAddEntry&&onAddEntry({
+        childIdx, subj:b.s, title:b.s+" \u2014 "+todayDateStr2,
+        note:"", thumb:b.i||"📋", date:todayDateStr2,
+        isSubject:true, lessonCount:1,
+      });
+    }
+  };
+
+  const saveReadingEntry = () => {
+    if(!readingPrompt) return;
+    onAddEntry&&onAddEntry({
+      childIdx, subj:readingPrompt.subjLabel,
+      title:readingPrompt.subjLabel+" \u2014 "+todayDateStr2,
+      note:"", thumb:readingPrompt.subjIcon, date:todayDateStr2,
+      isSubject:true, lessonCount:1,
+      readingTitle:readingTitle2.trim()||undefined,
+    });
+    setReadingPrompt(null);
+    setReadingTitle2("");
+  };
+
+  const logGoal = (g) => {
+    if(goalsLoggedToday.has(g.id)) return;
+    onAddEntry&&onAddEntry({
+      childIdx, subj:"Daily Note",
+      title:g.icon+" "+g.label+" \u2014 "+todayDateStr2,
+      note:"", thumb:g.icon, date:todayDateStr2,
+      goalId:g.id,
+    });
+    setGoalsLoggedToday(prev=>{ const n=new Set(prev); n.add(g.id); return n; });
+  };
+
+  const hasGoals = familyGoalObjs.length>0;
+  const STABS = [
+    {id:"home",icon:"🏠",l:"Home"},
+    {id:"today",icon:"📅",l:"Today"},
+    {id:"mywork",icon:"⭐",l:"My Work"},
+    ...(hasGoals?[{id:"goals",icon:"🎯",l:"Goals"}]:[]),
+    {id:"streak",icon:"🔥",l:"Streak"},
+  ];
 
   return (
     <div style={{minHeight:"100vh",background:SK.cream,fontFamily:"'Comic Sans MS','Chalkboard SE',cursive",display:"flex",flexDirection:"column"}}>
@@ -911,8 +1020,8 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
           <span style={{fontWeight:"800",color:"#fff",fontSize:"0.88rem"}}>{child.name}{"'s Space"}</span>
         </div>
         <div style={{background:"rgba(255,255,255,0.22)",borderRadius:"9px",padding:"0.2rem 0.55rem",display:"flex",alignItems:"center",gap:"0.3rem"}}>
-          <span style={{fontSize:"0.85rem"}}>*</span>
-          <span style={{fontWeight:"800",color:"#fff",fontSize:"0.78rem"}}>{points}</span>
+          <span style={{fontSize:"0.85rem"}}>{"⭐"}</span>
+          <span style={{fontWeight:"800",color:"#fff",fontSize:"0.78rem"}}>{realPoints}</span>
         </div>
       </div>
 
@@ -935,10 +1044,10 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
               <div style={{background:SK.card,borderRadius:"22px",padding:"0.9rem 1.1rem",boxShadow:"0 4px 22px rgba(0,0,0,0.11)",display:"flex",gap:"0.9rem",alignItems:"center"}}>
                 <div style={{width:"52px",height:"52px",borderRadius:"14px",background:`linear-gradient(135deg,${SK.orange},${SK.sun})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.9rem",flexShrink:0,animation:"wiggle 3s ease infinite"}}>🔥</div>
                 <div style={{flex:1}}>
-                  <div style={{fontWeight:"900",color:SK.ink,fontSize:"1rem"}}>{streak} day streak! 🎉</div>
-                  <div style={{fontSize:"0.72rem",color:SK.lite,marginTop:"1px"}}>{"You've checked in"} {streak} {" days in a row"}</div>
+                  <div style={{fontWeight:"900",color:SK.ink,fontSize:"1rem"}}>{realStreak>0 ? realStreak+" day streak! 🎉" : "Start your streak today!"}</div>
+                  <div style={{fontSize:"0.72rem",color:SK.lite,marginTop:"1px"}}>{realStreak>0 ? realStreak+" days of learning in a row" : "Log something to get going"}</div>
                 </div>
-                <div style={{fontWeight:"900",color:SK.orange,fontSize:"1.6rem",lineHeight:1}}>{streak}</div>
+                <div style={{fontWeight:"900",color:SK.orange,fontSize:"1.6rem",lineHeight:1}}>{realStreak}</div>
               </div>
             </div>
 
@@ -1030,27 +1139,43 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
         {/* -- TODAY TAB -- */}
         {sTab==="today" && (
           <div style={{animation:"fadeUp 0.22s ease",padding:"1.2rem 1rem"}}>
-            <div style={{fontWeight:"900",color:SK.ink,fontSize:"1.2rem",marginBottom:"1rem"}}>📅 My Schedule Today</div>
-            {SCHEDULE.map((b,i)=>(
-              <div key={i} style={{background:SK.card,borderRadius:"18px",padding:"0.9rem 1rem",display:"flex",gap:"0.8rem",alignItems:"center",marginBottom:"0.55rem",boxShadow:"0 2px 10px rgba(0,0,0,0.06)",border:`2px solid ${SK.skyL}`}}>
-                <div style={{width:"44px",height:"44px",borderRadius:"12px",background:`linear-gradient(135deg,${c1}88,${c2}66)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0}}>{b.i}</div>
-                <div style={{flex:1}}>
-                  <div style={{fontWeight:"800",color:SK.ink,fontSize:"0.9rem"}}>{b.s}</div>
-                  <div style={{fontSize:"0.72rem",color:SK.lite}}>{b.dur} min{b.t?" - "+b.t:""}</div>
-                </div>
-                <div style={{width:"30px",height:"30px",borderRadius:"50%",border:`2.5px solid #ddd`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.85rem",color:"#ccc",cursor:"pointer",flexShrink:0,transition:"all 0.14s"}}
-                  onClick={e=>{e.currentTarget.style.background=c1;e.currentTarget.style.borderColor=c1;e.currentTarget.style.color="#fff";e.currentTarget.textContent="✓";}}>
-                  ✓
-                </div>
+            <div style={{fontWeight:"900",color:SK.ink,fontSize:"1.2rem",marginBottom:"0.3rem"}}>{"📅 My Schedule Today"}</div>
+            <div style={{fontSize:"0.72rem",color:SK.lite,marginBottom:"1rem"}}>{"Tap the circle when you finish a subject!"}</div>
+            {SCHEDULE.length===0&&(
+              <div style={{background:SK.card,borderRadius:"18px",padding:"1.5rem",textAlign:"center",boxShadow:"0 2px 10px rgba(0,0,0,0.06)"}}>
+                <div style={{fontSize:"2rem",marginBottom:"0.4rem"}}>{"🛋"}</div>
+                <div style={{fontWeight:"700",color:SK.ink,fontSize:"0.9rem"}}>{"No school today!"}</div>
               </div>
-            ))}
+            )}
+            {SCHEDULE.map((b,i)=>{
+              const done = !!checked[i];
+              return (
+                <div key={i} style={{background:SK.card,borderRadius:"18px",padding:"0.9rem 1rem",display:"flex",gap:"0.8rem",alignItems:"center",marginBottom:"0.55rem",boxShadow:"0 2px 10px rgba(0,0,0,0.06)",border:`2px solid ${done?c1+"50":SK.skyL}`,opacity:done?0.75:1,transition:"all 0.2s"}}>
+                  <div style={{width:"44px",height:"44px",borderRadius:"12px",background:done?`linear-gradient(135deg,${c1},${c2})`:`linear-gradient(135deg,${c1}22,${c2}11)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0,transition:"background 0.2s"}}>{b.i}</div>
+                  <div style={{flex:1}}>
+                    <div style={{fontWeight:"800",color:done?c1:SK.ink,fontSize:"0.9rem",textDecoration:done?"line-through":"none"}}>{b.s}</div>
+                    <div style={{fontSize:"0.72rem",color:SK.lite}}>{b.dur+" min"+(b.t?" \u00b7 "+b.t:"")}</div>
+                  </div>
+                  <div onClick={()=>checkSubject(i,b)}
+                    style={{width:"32px",height:"32px",borderRadius:"50%",border:`2.5px solid ${done?c1:"#ddd"}`,background:done?`linear-gradient(135deg,${c1},${c2})`:"transparent",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1rem",color:done?"#fff":"#ccc",cursor:done?"default":"pointer",flexShrink:0,transition:"all 0.2s"}}>
+                    {done?"✓":""}
+                  </div>
+                </div>
+              );
+            })}
+            {Object.keys(checked).length>0&&Object.keys(checked).length===SCHEDULE.length&&SCHEDULE.length>0&&(
+              <div style={{background:`linear-gradient(135deg,${c1}22,${c2}11)`,borderRadius:"18px",padding:"1rem",textAlign:"center",marginTop:"0.5rem",border:`2px solid ${c1}40`}}>
+                <div style={{fontSize:"2rem",marginBottom:"0.3rem"}}>{"🌟"}</div>
+                <div style={{fontWeight:"900",color:c1,fontSize:"0.95rem"}}>{"All done! Amazing work today!"}</div>
+              </div>
+            )}
           </div>
         )}
 
         {/* -- MY WORK TAB -- */}
         {sTab==="mywork" && (
           <div style={{animation:"fadeUp 0.22s ease",padding:"1.2rem 1rem"}}>
-            <div style={{fontWeight:"900",color:SK.ink,fontSize:"1.2rem",marginBottom:"1rem"}}>* My Work</div>
+            <div style={{fontWeight:"900",color:SK.ink,fontSize:"1.2rem",marginBottom:"1rem"}}>{"⭐ My Work"}</div>
             {myEntries.length===0 ? (
               <div style={{background:SK.card,borderRadius:"22px",padding:"2.2rem 1.5rem",textAlign:"center",boxShadow:"0 2px 14px rgba(0,0,0,0.07)"}}>
                 <div style={{fontSize:"3.5rem",marginBottom:"0.75rem",animation:"bounce 2s ease infinite"}}>🌱</div>
@@ -1073,28 +1198,80 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
           </div>
         )}
 
+        {/* -- GOALS TAB -- */}
+        {sTab==="goals" && (
+          <div style={{animation:"fadeUp 0.22s ease",padding:"1.2rem 1rem"}}>
+            <div style={{fontWeight:"900",color:SK.ink,fontSize:"1.2rem",marginBottom:"0.3rem"}}>{"🎯 My Goals"}</div>
+            <div style={{fontSize:"0.72rem",color:SK.lite,marginBottom:"1rem",lineHeight:1.5}}>{"Tap a goal you worked on today to log it!"}</div>
+            {familyGoalObjs.length===0?(
+              <div style={{background:SK.card,borderRadius:"18px",padding:"1.5rem",textAlign:"center",boxShadow:"0 2px 10px rgba(0,0,0,0.06)"}}>
+                <div style={{fontSize:"0.8rem",color:SK.lite}}>{"No goals set yet."}</div>
+              </div>
+            ):(
+              <div style={{display:"flex",flexDirection:"column",gap:"0.55rem"}}>
+                {familyGoalObjs.map(g=>{
+                  const done = goalsLoggedToday.has(g.id);
+                  return (
+                    <div key={g.id} onClick={()=>!done&&logGoal(g)}
+                      style={{background:SK.card,borderRadius:"18px",padding:"0.9rem 1rem",display:"flex",gap:"0.85rem",alignItems:"center",boxShadow:"0 2px 10px rgba(0,0,0,0.06)",border:`2px solid ${done?c1+"60":SK.skyL}`,cursor:done?"default":"pointer",transition:"all 0.2s",opacity:done?0.8:1}}>
+                      <div style={{width:"46px",height:"46px",borderRadius:"13px",background:done?`linear-gradient(135deg,${c1},${c2})`:`linear-gradient(135deg,${c1}22,${c2}11)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.5rem",flexShrink:0,transition:"background 0.2s"}}>{g.icon}</div>
+                      <div style={{flex:1}}>
+                        <div style={{fontWeight:"800",color:done?c1:SK.ink,fontSize:"0.88rem"}}>{g.label}</div>
+                        <div style={{fontSize:"0.68rem",color:SK.lite,marginTop:"2px"}}>{done?"Logged today! +10 pts":"Tap to log this goal today"}</div>
+                      </div>
+                      {done?(
+                        <div style={{width:"28px",height:"28px",borderRadius:"50%",background:`linear-gradient(135deg,${c1},${c2})`,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:"0.85rem",flexShrink:0}}>{"✓"}</div>
+                      ):(
+                        <div style={{width:"28px",height:"28px",borderRadius:"50%",border:"2.5px solid #ddd",flexShrink:0}}/>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            {goalsLoggedToday.size>0&&(
+              <div style={{background:`linear-gradient(135deg,${c1}15,${c2}10)`,borderRadius:"16px",padding:"0.85rem 1rem",marginTop:"0.9rem",textAlign:"center",border:`1.5px solid ${c1}30`}}>
+                <div style={{fontWeight:"800",color:c1,fontSize:"0.85rem"}}>{"🌟 "+goalsLoggedToday.size+" goal"+(goalsLoggedToday.size>1?"s":"")+" logged today!"}</div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* -- STREAK TAB -- */}
         {sTab==="streak" && (
           <div style={{animation:"fadeUp 0.22s ease",padding:"1.2rem 1rem"}}>
             <div style={{fontWeight:"900",color:SK.ink,fontSize:"1.2rem",marginBottom:"1rem"}}>{"🔥 Streak & Points"}</div>
             <div style={{background:`linear-gradient(135deg,${SK.orange},${SK.sun})`,borderRadius:"24px",padding:"1.6rem 1.2rem",textAlign:"center",marginBottom:"0.9rem",boxShadow:`0 6px 28px ${SK.orange}45`}}>
               <div style={{fontSize:"4.5rem",lineHeight:1,marginBottom:"0.3rem",animation:"bounce 1.8s ease infinite"}}>🔥</div>
-              <div style={{fontWeight:"900",color:"#fff",fontSize:"3.2rem",lineHeight:1}}>{streak}</div>
-              <div style={{fontWeight:"700",color:"rgba(255,255,255,0.82)",fontSize:"1rem",marginTop:"0.2rem"}}>day streak</div>
+              <div style={{fontWeight:"900",color:"#fff",fontSize:"3.2rem",lineHeight:1}}>{realStreak}</div>
+              <div style={{fontWeight:"700",color:"rgba(255,255,255,0.82)",fontSize:"1rem",marginTop:"0.2rem"}}>{realStreak===1?"day streak":"day streak"}</div>
             </div>
             <div style={{background:SK.card,borderRadius:"20px",padding:"1.1rem",marginBottom:"0.9rem",boxShadow:"0 2px 14px rgba(0,0,0,0.07)",display:"flex",alignItems:"center",gap:"1rem"}}>
-              <div style={{width:"54px",height:"54px",borderRadius:"14px",background:`linear-gradient(135deg,${SK.sun},${SK.orange}88)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"2rem"}}>*</div>
-              <div><div style={{fontWeight:"900",color:SK.ink,fontSize:"1.05rem"}}>{points} points total</div><div style={{fontSize:"0.72rem",color:SK.lite}}>+10 pts for every daily note</div></div>
+              <div style={{width:"54px",height:"54px",borderRadius:"14px",background:`linear-gradient(135deg,${SK.sun},${SK.orange}88)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"2rem"}}>{"⭐"}</div>
+              <div>
+                <div style={{fontWeight:"900",color:SK.ink,fontSize:"1.05rem"}}>{realPoints+" points total"}</div>
+                <div style={{fontSize:"0.72rem",color:SK.lite}}>{"10 pts for every logged lesson"}</div>
+              </div>
             </div>
             <div style={{background:SK.card,borderRadius:"20px",padding:"1.1rem",boxShadow:"0 2px 14px rgba(0,0,0,0.07)"}}>
-              <div style={{fontWeight:"800",color:SK.ink,fontSize:"0.88rem",marginBottom:"0.75rem"}}>This week</div>
+              <div style={{fontWeight:"800",color:SK.ink,fontSize:"0.88rem",marginBottom:"0.75rem"}}>{"This week"}</div>
               <div style={{display:"flex",gap:"0.5rem",justifyContent:"space-around"}}>
-                {["M","T","W","T","F"].map((d,i)=>(
-                  <div key={i} style={{textAlign:"center"}}>
-                    <div style={{width:"40px",height:"40px",borderRadius:"50%",background:i<4?`linear-gradient(135deg,${c1},${c2})`:"#ece5dc",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.1rem",marginBottom:"4px"}}>{i<4?"":"[]"}</div>
-                    <div style={{fontSize:"0.62rem",color:i<4?SK.grass:SK.lite,fontWeight:"700"}}>{d}</div>
-                  </div>
-                ))}
+                {["M","T","W","T","F"].map((d,i)=>{
+                  const dot = weekDots[i];
+                  const bg = dot.done
+                    ? `linear-gradient(135deg,${c1},${c2})`
+                    : dot.isToday
+                      ? SK.skyL
+                      : dot.isPast ? "#ece5dc" : "#f5f0ea";
+                  const emoji = dot.done ? "✓" : dot.isToday ? "→" : "";
+                  const col = dot.done ? SK.grass : dot.isPast ? SK.lite : SK.lite;
+                  return (
+                    <div key={i} style={{textAlign:"center"}}>
+                      <div style={{width:"40px",height:"40px",borderRadius:"50%",background:bg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.1rem",marginBottom:"4px",color:dot.done?"#fff":SK.lite,fontWeight:"900"}}>{emoji}</div>
+                      <div style={{fontSize:"0.62rem",color:col,fontWeight:"700"}}>{d}</div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -1120,11 +1297,45 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
         })}
       </nav>
 
+      {/* Reading title prompt */}
+      {readingPrompt&&(
+        <div style={{position:"fixed",inset:0,background:"rgba(10,20,10,0.72)",backdropFilter:"blur(12px)",zIndex:300,display:"flex",alignItems:"flex-end",justifyContent:"center",fontFamily:"'Comic Sans MS','Chalkboard SE',cursive"}}>
+          <div style={{background:SK.cream,borderRadius:"28px 28px 0 0",width:"100%",maxWidth:"430px",padding:"1.5rem 1.4rem 2.2rem",animation:"slideUp 0.28s ease"}}>
+            <div style={{width:"36px",height:"4px",borderRadius:"99px",background:"#ddd",margin:"0 auto 1.2rem"}}/>
+            <div style={{textAlign:"center",marginBottom:"1.1rem"}}>
+              <div style={{fontSize:"2.5rem",marginBottom:"0.4rem"}}>{readingPrompt.subjIcon}</div>
+              <div style={{fontWeight:"900",color:SK.ink,fontSize:"1.1rem",marginBottom:"0.2rem"}}>{"Great job reading! 📖"}</div>
+              <div style={{fontSize:"0.8rem",color:SK.lite,lineHeight:1.6}}>{"What were you reading? (You can skip this)"}</div>
+            </div>
+            <input value={readingTitle2} onChange={e=>setReadingTitle2(e.target.value)}
+              placeholder={"e.g. Charlotte\u2019s Web, Chapter 3"}
+              autoFocus
+              style={{width:"100%",padding:"0.85rem",border:`2.5px solid ${readingTitle2.length>0?c1:"#ece5dc"}`,borderRadius:"14px",fontSize:"0.9rem",fontFamily:"inherit",background:SK.skyL,color:SK.ink,outline:"none",marginBottom:"0.75rem"}}
+              onFocus={e=>e.target.style.borderColor=c1}
+              onBlur={e=>{ if(!readingTitle2.length) e.target.style.borderColor="#ece5dc"; }}
+            />
+            <button onClick={saveReadingEntry}
+              style={{width:"100%",padding:"0.85rem",border:"none",borderRadius:"14px",background:`linear-gradient(135deg,${c1},${c2})`,color:"#fff",fontWeight:"900",fontSize:"0.92rem",cursor:"pointer",marginBottom:"0.5rem"}}>
+              {"Save it! ✓"}
+            </button>
+            <button onClick={()=>{ saveReadingEntry(); }}
+              style={{width:"100%",padding:"0.45rem",border:"none",background:"transparent",color:SK.lite,fontSize:"0.76rem",cursor:"pointer"}}>
+              {"Skip — just mark it done"}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Co-op day auto-popup */}
       {showCoopPopup && !coopDone && (
         <CoopDayPopup
           child={child} heroGrad={heroGrad} c1={c1} c2={c2}
-          onLog={note=>{ onCoopLog({childId:child.id,note,session:"Co-op"}); setCoopDone(true); setShowCoopPopup(false); setPoints(p=>p+25); }}
+          onLog={note=>{
+            onCoopLog&&onCoopLog({childId:child.id,note,session:"Co-op"});
+            onAddEntry&&onAddEntry({childIdx,subj:"Co-op",title:"Co-op \u2014 "+todayDateStr2,note,thumb:"🏫",date:todayDateStr2,isCoop:true});
+            setCoopDone(true);
+            setShowCoopPopup(false);
+          }}
           onDismiss={()=>setShowCoopPopup(false)}
         />
       )}
@@ -9078,7 +9289,7 @@ function MasteryCard({pal, family, child, cp}) {
 /* =======================================
    QUICK CAPTURE MODAL
 ======================================= */
-function QuickCaptureModal({pal, family, activeChildId, onClose, onSave}) {
+function QuickCaptureModal({pal, family, activeChildId, onClose, onSave, attendanceLog=[], onAttendanceAdd}) {
   const allSubjOptions = [...SUBJECT_OPTIONS, ...(family.customSubjects||[])];
   const activeSubjIds  = family.subjects||[];
   const activeSubjs    = activeSubjIds.map(id=>allSubjOptions.find(s=>s.id===id)).filter(Boolean);
@@ -9098,6 +9309,7 @@ function QuickCaptureModal({pal, family, activeChildId, onClose, onSave}) {
   const [readingTitle, setReadingTitle] = useState("");
   const [goalsHit,     setGoalsHit]     = useState(new Set());
   const [showGoals,    setShowGoals]    = useState(false);
+  const [savedEntryDate, setSavedEntryDate] = useState(null);
   const noteRef    = useRef(null);
   const galleryRef = useRef(null);
   const activeCh   = family.children[childIdx];
@@ -9131,7 +9343,7 @@ function QuickCaptureModal({pal, family, activeChildId, onClose, onSave}) {
     const entryDate = new Date(captureDate).toLocaleDateString("en-US",{month:"short",day:"numeric"});
     const entry = {
       childIdx, subj,
-      title: note.trim() ? note.trim().slice(0,80) : subj+" \u2014 "+entryDate,
+      title: note.trim() ? note.trim().slice(0,80) : subj+"\u2014"+entryDate,
       note: note.trim(),
       thumb: subjObj?.icon||"📋",
       date: entryDate,
@@ -9142,16 +9354,46 @@ function QuickCaptureModal({pal, family, activeChildId, onClose, onSave}) {
     if(isReading && readingTitle.trim()) entry.readingTitle = readingTitle.trim();
     if(goalsHit.size>0) entry.goalsHit = [...goalsHit];
     onSave([entry]);
+    setSavedEntryDate(entryDate);
     setSaved(true);
-    setTimeout(onClose, 900);
   };
+
+  // Check if the saved date already has an attendance record
+  const alreadyInAttendance = savedEntryDate
+    ? attendanceLog.some(e=>e.date===savedEntryDate)
+    : false;
 
   if(saved) return (
     <div style={{position:"fixed",inset:0,zIndex:300,background:"rgba(0,0,0,0.45)",display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
-      <div style={{width:"100%",maxWidth:"430px",background:pal.goodBg,borderRadius:"22px 22px 0 0",padding:"2rem 1.5rem",textAlign:"center",animation:"slideUp 0.22s ease"}}>
-        <div style={{fontSize:"2.5rem",marginBottom:"0.4rem"}}>{"✓"}</div>
-        <div style={{fontWeight:"800",color:pal.good,fontSize:"1rem"}}>{"Captured!"}</div>
-        <div style={{fontSize:"0.78rem",color:pal.inkM,marginTop:"4px"}}>{subj+" saved to "+activeCh?.name+"\u2019s portfolio \u00b7 "+displayDate}</div>
+      <div style={{width:"100%",maxWidth:"430px",background:pal.goodBg,borderRadius:"22px 22px 0 0",padding:"1.6rem 1.5rem",animation:"slideUp 0.22s ease"}}>
+        <div style={{textAlign:"center",marginBottom:alreadyInAttendance?"1rem":"0"}}>
+          <div style={{fontSize:"2.5rem",marginBottom:"0.4rem"}}>{"✓"}</div>
+          <div style={{fontWeight:"800",color:pal.good,fontSize:"1rem"}}>{"Captured!"}</div>
+          <div style={{fontSize:"0.78rem",color:pal.inkM,marginTop:"4px"}}>{subj+" saved to "+activeCh?.name+"\u2019s portfolio \u00b7 "+displayDate+(lessonCount>1?" \u00b7 "+lessonCount+" lessons":"")}</div>
+        </div>
+        {!alreadyInAttendance&&onAttendanceAdd&&savedEntryDate&&(
+          <div style={{background:"#fff",borderRadius:"14px",padding:"0.85rem 1rem",marginTop:"0.85rem",border:`1.5px solid ${pal.primary}25`}}>
+            <div style={{fontSize:"0.78rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.5rem"}}>{"📋 Add to attendance record?"}</div>
+            <div style={{fontSize:"0.7rem",color:pal.slate,marginBottom:"0.65rem",lineHeight:1.5}}>{savedEntryDate+" isn\u2019t in your attendance log yet."}</div>
+            <div style={{display:"flex",gap:"0.45rem"}}>
+              <button onClick={()=>{
+                onAttendanceAdd({date:savedEntryDate,type:"School Day",note:"Added from Quick Capture"});
+                onClose();
+              }} style={{flex:1,padding:"0.52rem",border:"none",borderRadius:"10px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.78rem",cursor:"pointer"}}>
+                {"Yes, add it"}
+              </button>
+              <button onClick={onClose}
+                style={{padding:"0.52rem 0.85rem",border:`1.5px solid ${pal.stone}`,borderRadius:"10px",background:"transparent",color:pal.slate,fontSize:"0.78rem",cursor:"pointer"}}>
+                {"Skip"}
+              </button>
+            </div>
+          </div>
+        )}
+        {(alreadyInAttendance||!onAttendanceAdd)&&(
+          <div style={{marginTop:"0.5rem",textAlign:"center"}}>
+            <button onClick={onClose} style={{fontSize:"0.74rem",color:pal.primary,background:"transparent",border:"none",cursor:"pointer",fontWeight:"700"}}>{"Done"}</button>
+          </div>
+        )}
       </div>
     </div>
   );
