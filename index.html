@@ -639,7 +639,14 @@ function RootAndBloom() {
               }
               setShowSchedConfirm(false);
             }}
-            onCatchup={()=>setShowCatchup(true)} />}
+            onCatchup={()=>setShowCatchup(true)}
+            onLogPastDay={(dateStr)=>{
+              const parsed = new Date(dateStr);
+              const label = parsed.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
+              const dateShort = parsed.toLocaleDateString("en-US",{month:"short",day:"numeric"});
+              setDaySummaryData({blocks:[],dateLabel:label,dateOverride:dateShort});
+              setShowDaySummary(true);
+            }} />}
           {activeTab==="goals"       && <GoalsScreen       pal={pal} family={family} portfolioEntries={portfolioEntries} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} onAddEntry={addPortfolioEntry}/>}
           {activeTab==="coop"        && <CoopScreen        pal={pal} family={family} coopLog={coopLog} onLog={e=>setCoopLog(l=>[e,...l])} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} onAddEntry={addPortfolioEntry} />}
           {activeTab==="transcripts" && <TranscriptsScreen pal={pal} family={family} portfolioEntries={portfolioEntries} attendanceDays={attendanceDays} coopLog={coopLog} observationLog={observationLog} />}
@@ -733,7 +740,7 @@ function RootAndBloom() {
         {showNewYear && family && <NewYearModal pal={pal} family={family}
           onStart={handleNewYear}
           onDismiss={()=>{setNewYearDismissed("newyear_"+family.yearEnd);setShowNewYear(false);}}/>}
-        {showDaySummary && daySummaryData && <DaySummaryModal pal={pal} family={family} data={daySummaryData} portfolioEntries={portfolioEntries}
+        {showDaySummary && daySummaryData && <DaySummaryModal pal={pal} family={family} data={daySummaryData} portfolioEntries={portfolioEntries} dateOverride={daySummaryData.dateOverride||null}
           onCoopLog={e=>setCoopLog(l=>[{...e},...l])}
           onSave={(entries)=>{
             setPortfolioEntries(prev=>{
@@ -8750,20 +8757,40 @@ function QuickCaptureModal({pal, family, activeChildId, onClose, onSave}) {
   const allSubjOptions = [...SUBJECT_OPTIONS, ...(family.customSubjects||[])];
   const activeSubjIds  = family.subjects||[];
   const activeSubjs    = activeSubjIds.map(id=>allSubjOptions.find(s=>s.id===id)).filter(Boolean);
+  const allGoalObjs    = [...GOALS,...(family.customGoals||[])];
+  const familyGoals    = (family.goals||[]).map(id=>allGoalObjs.find(g=>g.id===id)).filter(Boolean);
   const defaultCi = activeChildId && activeChildId!=="all"
     ? Math.max(0, family.children.findIndex(c=>c.id===activeChildId))
     : 0;
-  const [childIdx,  setChildIdx]  = useState(defaultCi);
-  const [subj,      setSubj]      = useState(activeSubjs[0]?.label||"");
-  const [note,      setNote]      = useState("");
-  const [photos,    setPhotos]    = useState([]);
-  const [saved,     setSaved]     = useState(false);
+  const todayIso  = new Date().toISOString().slice(0,10);
+  const [childIdx,     setChildIdx]     = useState(defaultCi);
+  const [subj,         setSubj]         = useState(activeSubjs[0]?.label||"");
+  const [note,         setNote]         = useState("");
+  const [photos,       setPhotos]       = useState([]);
+  const [saved,        setSaved]        = useState(false);
+  const [captureDate,  setCaptureDate]  = useState(todayIso);
+  const [lessonCount,  setLessonCount]  = useState(1);
+  const [readingTitle, setReadingTitle] = useState("");
+  const [goalsHit,     setGoalsHit]     = useState(new Set());
+  const [showGoals,    setShowGoals]    = useState(false);
   const noteRef    = useRef(null);
   const galleryRef = useRef(null);
   const activeCh   = family.children[childIdx];
   const cp = CHILD_COLOR_PALETTES.find(p=>p.id===(activeCh?.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
-  const todayDate  = new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
+  const isReading  = subj.toLowerCase().includes("read");
+  const dateLabel  = captureDate===todayIso
+    ? new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"})
+    : new Date(captureDate+", "+new Date().getFullYear()).toLocaleDateString("en-US",{month:"short",day:"numeric"});
+  const displayDate = captureDate===todayIso
+    ? new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"})
+    : new Date(captureDate).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
+
   useEffect(()=>{ setTimeout(()=>noteRef.current?.focus(), 150); },[]);
+
+  const toggleGoal = (id) => setGoalsHit(prev=>{
+    const n=new Set(prev); n.has(id)?n.delete(id):n.add(id); return n;
+  });
+
   const handlePhoto = (e) => {
     Array.from(e.target.files).forEach(file=>{
       const r=new FileReader();
@@ -8772,33 +8799,63 @@ function QuickCaptureModal({pal, family, activeChildId, onClose, onSave}) {
     });
     e.target.value="";
   };
+
   const handleSave = () => {
     if(!subj) return;
     const subjObj = allSubjOptions.find(s=>s.label===subj||s.id===subj);
-    onSave([{childIdx, subj, title:note.trim()?note.trim().slice(0,80):subj+" \u2014 "+todayDate, note:note.trim(), thumb:subjObj?.icon||"📋", date:todayDate, photos:photos.map(p=>p.dataUrl)}]);
+    const entryDate = new Date(captureDate).toLocaleDateString("en-US",{month:"short",day:"numeric"});
+    const entry = {
+      childIdx, subj,
+      title: note.trim() ? note.trim().slice(0,80) : subj+" \u2014 "+entryDate,
+      note: note.trim(),
+      thumb: subjObj?.icon||"📋",
+      date: entryDate,
+      photos: photos.map(p=>p.dataUrl),
+      lessonCount,
+      isSubject: true,
+    };
+    if(isReading && readingTitle.trim()) entry.readingTitle = readingTitle.trim();
+    if(goalsHit.size>0) entry.goalsHit = [...goalsHit];
+    onSave([entry]);
     setSaved(true);
     setTimeout(onClose, 900);
   };
+
   if(saved) return (
     <div style={{position:"fixed",inset:0,zIndex:300,background:"rgba(0,0,0,0.45)",display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
       <div style={{width:"100%",maxWidth:"430px",background:pal.goodBg,borderRadius:"22px 22px 0 0",padding:"2rem 1.5rem",textAlign:"center",animation:"slideUp 0.22s ease"}}>
         <div style={{fontSize:"2.5rem",marginBottom:"0.4rem"}}>{"✓"}</div>
         <div style={{fontWeight:"800",color:pal.good,fontSize:"1rem"}}>{"Captured!"}</div>
-        <div style={{fontSize:"0.78rem",color:pal.inkM,marginTop:"4px"}}>{subj+" saved to "+activeCh?.name+"\u2019s portfolio"}</div>
+        <div style={{fontSize:"0.78rem",color:pal.inkM,marginTop:"4px"}}>{subj+" saved to "+activeCh?.name+"\u2019s portfolio \u00b7 "+displayDate}</div>
       </div>
     </div>
   );
+
   return (
     <div style={{position:"fixed",inset:0,zIndex:300,background:"rgba(0,0,0,0.5)",backdropFilter:"blur(8px)",display:"flex",alignItems:"flex-end",justifyContent:"center"}} onClick={onClose}>
-      <div onClick={e=>e.stopPropagation()} style={{width:"100%",maxWidth:"430px",background:pal.linen,borderRadius:"24px 24px 0 0",animation:"slideUp 0.24s ease",paddingBottom:"env(safe-area-inset-bottom)"}}>
-        <div style={{padding:"0.65rem 0 0",display:"flex",justifyContent:"center"}}>
+      <div onClick={e=>e.stopPropagation()} style={{width:"100%",maxWidth:"430px",background:pal.linen,borderRadius:"24px 24px 0 0",animation:"slideUp 0.24s ease",paddingBottom:"env(safe-area-inset-bottom)",maxHeight:"90vh",display:"flex",flexDirection:"column"}}>
+        <div style={{padding:"0.65rem 0 0",display:"flex",justifyContent:"center",flexShrink:0}}>
           <div style={{width:"36px",height:"4px",borderRadius:"99px",background:pal.stone+"60"}}/>
         </div>
-        <div style={{padding:"0.6rem 1.1rem 0.75rem",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+        <div style={{padding:"0.6rem 1.1rem 0.6rem",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0}}>
           <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.95rem"}}>{"✏️ Quick Capture"}</div>
           <button onClick={onClose} style={{width:"26px",height:"26px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.85rem",display:"flex",alignItems:"center",justifyContent:"center"}}>{"✕"}</button>
         </div>
-        <div style={{padding:"0 1.1rem 1.1rem"}}>
+
+        <div style={{flex:1,overflowY:"auto",padding:"0 1.1rem 1.1rem"}}>
+
+          {/* Date row */}
+          <div style={{display:"flex",alignItems:"center",gap:"0.5rem",marginBottom:"0.75rem",background:pal.parchm,borderRadius:"10px",padding:"0.4rem 0.65rem",border:`1.5px solid ${pal.stone}40`}}>
+            <span style={{fontSize:"0.8rem"}}>{"📅"}</span>
+            <span style={{fontSize:"0.75rem",color:pal.inkM,fontWeight:"600",flex:1}}>
+              {captureDate===todayIso ? "Today" : displayDate}
+            </span>
+            <input type="date" value={captureDate} max={todayIso}
+              onChange={e=>setCaptureDate(e.target.value)}
+              style={{border:"none",background:"transparent",fontSize:"0.72rem",color:pal.primary,fontWeight:"700",cursor:"pointer",outline:"none",fontFamily:"inherit"}}/>
+          </div>
+
+          {/* Child picker */}
           {family.children.length>1&&(
             <div style={{display:"flex",gap:"0.35rem",marginBottom:"0.75rem",overflowX:"auto"}}>
               {family.children.map((c,i)=>{
@@ -8814,6 +8871,8 @@ function QuickCaptureModal({pal, family, activeChildId, onClose, onSave}) {
               })}
             </div>
           )}
+
+          {/* Subject chips */}
           <div style={{display:"flex",gap:"0.3rem",flexWrap:"wrap",marginBottom:"0.75rem"}}>
             {activeSubjs.map(s=>{
               const sel=subj===s.label;
@@ -8826,6 +8885,36 @@ function QuickCaptureModal({pal, family, activeChildId, onClose, onSave}) {
               );
             })}
           </div>
+
+          {/* Lesson count */}
+          <div style={{marginBottom:"0.65rem"}}>
+            <div style={{fontSize:"0.7rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.35rem"}}>{"Lessons completed"}</div>
+            <div style={{display:"flex",gap:"0.35rem"}}>
+              {[1,2,3,4].map(n=>{
+                const sel=lessonCount===n;
+                return (
+                  <button key={n} onClick={()=>setLessonCount(n)}
+                    style={{flex:1,padding:"0.35rem 0",border:`2px solid ${sel?cp.c1:pal.stone+"40"}`,borderRadius:"9px",background:sel?cp.c1+"18":"transparent",color:sel?cp.c1:pal.inkM,fontWeight:sel?"800":"500",fontSize:"0.82rem",cursor:"pointer"}}>
+                    {n}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Reading title — conditional */}
+          {isReading&&(
+            <div style={{marginBottom:"0.65rem"}}>
+              <div style={{fontSize:"0.7rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.35rem"}}>{"📖 Book / title read"}</div>
+              <input value={readingTitle} onChange={e=>setReadingTitle(e.target.value)}
+                placeholder={"e.g. Charlotte\u2019s Web, Ch. 4"}
+                style={{width:"100%",padding:"0.5rem 0.7rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.82rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit"}}
+                onFocus={e=>e.target.style.borderColor=cp.c1}
+                onBlur={e=>e.target.style.borderColor=pal.stone}/>
+            </div>
+          )}
+
+          {/* Notes */}
           <textarea ref={noteRef} value={note} onChange={e=>setNote(e.target.value)}
             onKeyDown={e=>{if(e.key==="Enter"&&e.metaKey) handleSave();}}
             placeholder={"What did "+activeCh?.name+" do? (optional)"}
@@ -8833,6 +8922,34 @@ function QuickCaptureModal({pal, family, activeChildId, onClose, onSave}) {
             style={{width:"100%",padding:"0.7rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"13px",fontSize:"0.84rem",fontFamily:"inherit",background:pal.parchm,color:pal.ink,resize:"none",outline:"none",lineHeight:1.6,marginBottom:"0.65rem"}}
             onFocus={e=>e.target.style.borderColor=cp.c1}
             onBlur={e=>e.target.style.borderColor=pal.stone}/>
+
+          {/* Goals hit — collapsible */}
+          {familyGoals.length>0&&(
+            <div style={{marginBottom:"0.65rem"}}>
+              <button onClick={()=>setShowGoals(g=>!g)}
+                style={{display:"flex",alignItems:"center",gap:"0.4rem",background:"transparent",border:"none",cursor:"pointer",padding:"0",marginBottom:showGoals?"0.45rem":"0"}}>
+                <span style={{fontSize:"0.7rem",fontWeight:"700",color:pal.inkM}}>{"🎯 Goals hit today"}</span>
+                {goalsHit.size>0&&<span style={{fontSize:"0.65rem",fontWeight:"800",color:cp.c1,background:cp.c1+"18",padding:"0.1rem 0.4rem",borderRadius:"99px"}}>{goalsHit.size}</span>}
+                <span style={{fontSize:"0.65rem",color:pal.slate}}>{showGoals?"▲":"▼"}</span>
+              </button>
+              {showGoals&&(
+                <div style={{display:"flex",gap:"0.3rem",flexWrap:"wrap"}}>
+                  {familyGoals.map(g=>{
+                    const sel=goalsHit.has(g.id);
+                    return (
+                      <button key={g.id} onClick={()=>toggleGoal(g.id)}
+                        style={{display:"flex",alignItems:"center",gap:"0.25rem",padding:"0.25rem 0.55rem",border:`2px solid ${sel?cp.c1:pal.stone+"40"}`,borderRadius:"20px",background:sel?cp.c1+"18":"transparent",cursor:"pointer"}}>
+                        <span style={{fontSize:"0.8rem"}}>{g.icon||"🌿"}</span>
+                        <span style={{fontSize:"0.68rem",fontWeight:sel?"800":"500",color:sel?cp.c1:pal.inkM}}>{g.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Photos */}
           {photos.length>0&&(
             <div style={{display:"flex",gap:"0.35rem",marginBottom:"0.65rem",overflowX:"auto"}}>
               {photos.map((p,i)=>(
@@ -8844,6 +8961,8 @@ function QuickCaptureModal({pal, family, activeChildId, onClose, onSave}) {
               ))}
             </div>
           )}
+
+          {/* Bottom action row */}
           <div style={{display:"flex",gap:"0.5rem",alignItems:"center"}}>
             <input ref={galleryRef} type="file" accept="image/*" multiple onChange={handlePhoto} style={{display:"none"}}/>
             <button onClick={()=>galleryRef.current?.click()}
@@ -8851,7 +8970,9 @@ function QuickCaptureModal({pal, family, activeChildId, onClose, onSave}) {
             <button onClick={handleSave} disabled={!subj}
               style={{flex:1,padding:"0.75rem",border:"none",borderRadius:"13px",background:subj?`linear-gradient(135deg,${cp.c1},${cp.c2})`:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:subj?"pointer":"default"}}>{"Save ✓"}</button>
           </div>
-          <div style={{fontSize:"0.63rem",color:pal.stone,textAlign:"center",marginTop:"0.45rem"}}>{"Saves to "+activeCh?.name+"\u2019s portfolio \u00b7 "+todayDate}</div>
+          <div style={{fontSize:"0.63rem",color:pal.stone,textAlign:"center",marginTop:"0.45rem"}}>
+            {"Saves to "+activeCh?.name+"\u2019s portfolio \u00b7 "+displayDate+(lessonCount>1?" \u00b7 "+lessonCount+" lessons":"")}
+          </div>
         </div>
       </div>
     </div>
@@ -10375,7 +10496,7 @@ function WeeklyPacket({pal,family,child,entries,onBack}){
     </div>
   );
 }
-function AttendanceScreen({pal,family,days,attendanceLog=[],portfolioEntries=[],coopLog=[],onAddDay,onRemoveDay,onSyncPortfolio,pending,onConfirmPull,onCatchup}){
+function AttendanceScreen({pal,family,days,attendanceLog=[],portfolioEntries=[],coopLog=[],onAddDay,onRemoveDay,onSyncPortfolio,pending,onConfirmPull,onCatchup,onLogPastDay}){
   const stateInfo  = getStateInfo(family.state||"");
   const REQUIRED   = parseInt((stateInfo.hours||"180").match(/\d+/)?.[0]||"180");
   const remaining  = Math.max(0,REQUIRED-days);
@@ -10389,8 +10510,10 @@ function AttendanceScreen({pal,family,days,attendanceLog=[],portfolioEntries=[],
     return pct>=expectedPct-10;
   })();
 
-  const [view,     setView]     = useState("overview"); // overview | ledger
-  const [showAdd,  setShowAdd]  = useState(false);
+  const [view,       setView]       = useState("overview"); // overview | ledger
+  const [showAdd,    setShowAdd]    = useState(false);
+  const [showLogPast,setShowLogPast]= useState(false);
+  const [logPastDate,setLogPastDate]= useState(new Date().toISOString().slice(0,10));
   const [syncMsg,  setSyncMsg]  = useState(null);
   const [addDate,  setAddDate]  = useState(new Date().toISOString().slice(0,10));
   const [addType,  setAddType]  = useState("School Day");
@@ -10634,11 +10757,40 @@ function AttendanceScreen({pal,family,days,attendanceLog=[],portfolioEntries=[],
         {view==="ledger"&&(<>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.65rem"}}>
             <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem"}}>Daily Log</div>
-            <button onClick={()=>setShowAdd(true)}
-              style={{padding:"0.32rem 0.8rem",border:"none",borderRadius:"9px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.76rem",cursor:"pointer"}}>
-              + Log Day
-            </button>
+            <div style={{display:"flex",gap:"0.4rem"}}>
+              {onLogPastDay&&(
+                <button onClick={()=>setShowLogPast(p=>!p)}
+                  style={{padding:"0.32rem 0.75rem",border:`2px solid ${pal.primary}`,borderRadius:"9px",background:"transparent",color:pal.primary,fontWeight:"800",fontSize:"0.76rem",cursor:"pointer"}}>
+                  {"📝 Log Past Day"}
+                </button>
+              )}
+              <button onClick={()=>setShowAdd(true)}
+                style={{padding:"0.32rem 0.8rem",border:"none",borderRadius:"9px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.76rem",cursor:"pointer"}}>
+                + Log Day
+              </button>
+            </div>
           </div>
+
+          {showLogPast&&onLogPastDay&&(
+            <div style={{background:pal.pale,borderRadius:"14px",padding:"0.9rem 1rem",marginBottom:"0.85rem",border:`2px solid ${pal.primary}30`,animation:"fadeUp 0.18s ease"}}>
+              <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.84rem",marginBottom:"0.5rem"}}>{"📝 Log a missed day"}</div>
+              <div style={{fontSize:"0.74rem",color:pal.inkM,lineHeight:1.55,marginBottom:"0.65rem"}}>{"Pick any past date and walk through the full day log — subjects, notes, photos, and goals."}</div>
+              <div style={{display:"flex",gap:"0.5rem",alignItems:"center"}}>
+                <input type="date" value={logPastDate} onChange={e=>setLogPastDate(e.target.value)}
+                  max={new Date().toISOString().slice(0,10)}
+                  style={{flex:1,padding:"0.5rem 0.6rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.81rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit"}}
+                  onFocus={e=>e.target.style.borderColor=pal.primary} onBlur={e=>e.target.style.borderColor=pal.stone}/>
+                <button onClick={()=>{setShowLogPast(false);onLogPastDay(logPastDate);}}
+                  style={{padding:"0.5rem 1rem",border:"none",borderRadius:"10px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.82rem",cursor:"pointer",flexShrink:0}}>
+                  {"Start →"}
+                </button>
+                <button onClick={()=>setShowLogPast(false)}
+                  style={{padding:"0.5rem 0.75rem",border:`1.5px solid ${pal.stone}`,borderRadius:"10px",background:"transparent",color:pal.slate,fontSize:"0.8rem",cursor:"pointer",flexShrink:0}}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Add day form */}
           {showAdd&&(
@@ -10691,7 +10843,10 @@ function AttendanceScreen({pal,family,days,attendanceLog=[],portfolioEntries=[],
             </div>
           ):(
             <div style={{display:"flex",flexDirection:"column",gap:"0.35rem",marginBottom:"1rem"}}>
-              {ledger.map((entry,i)=>(
+              {ledger.map((entry,i)=>{
+                const hasPortfolio = portfolioEntries.some(e=>e.date===entry.date&&!e.isDay);
+                const isoDate = (()=>{try{const d=new Date(entry.date+", "+new Date().getFullYear());return d.toISOString().slice(0,10);}catch{return "";}})();
+                return (
                 <div key={entry.date+i} style={{display:"flex",gap:"0.6rem",alignItems:"center",padding:"0.6rem 0.85rem",background:pal.linen,borderRadius:"11px",border:`1px solid ${pal.stone}25`}}>
                   <span style={{fontSize:"1.1rem",flexShrink:0}}>{TYPE_ICONS[entry.type]||"📋"}</span>
                   <div style={{flex:1,minWidth:0}}>
@@ -10701,12 +10856,22 @@ function AttendanceScreen({pal,family,days,attendanceLog=[],portfolioEntries=[],
                       {entry.subjects?.length>0&&" \u00b7 "+entry.subjects.slice(0,3).join(", ")}
                     </div>
                   </div>
+                  {!hasPortfolio&&onLogPastDay&&isoDate&&(
+                    <button onClick={()=>onLogPastDay(isoDate)}
+                      style={{padding:"0.25rem 0.55rem",border:`1.5px solid ${pal.primary}`,borderRadius:"8px",background:"transparent",color:pal.primary,fontSize:"0.65rem",fontWeight:"800",cursor:"pointer",flexShrink:0}}>
+                      {"📝 Log"}
+                    </button>
+                  )}
+                  {hasPortfolio&&(
+                    <span style={{fontSize:"0.65rem",color:pal.good,fontWeight:"700",flexShrink:0}}>{"✓ logged"}</span>
+                  )}
                   <button onClick={()=>onRemoveDay(entry.date)}
                     style={{width:"22px",height:"22px",borderRadius:"50%",background:pal.parchm,border:`1px solid ${pal.stone}`,color:pal.slate,fontSize:"0.65rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
                     {"✕"}
                   </button>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
 
@@ -12508,7 +12673,7 @@ function MoreScreen({pal,family,onNav,onTheme,onNavEdit,onSettings,onLifeReady})
    DAY SUMMARY MODAL
    Shown after marking a day complete
 ======================================= */
-function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose,onFinish,onCoopLog}){
+function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose,onFinish,onCoopLog,dateOverride}){
   // Steps: 0=coop-check 1=subjects 2=subject-notes 3=parent-notes 4=photos 5=goals 6=done
   const [step,        setStep]       = useState(0);
   const [isCoop,      setIsCoop]     = useState(false);
@@ -12590,7 +12755,7 @@ function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose,onFini
 
   const buildEntries = () => {
     const entries = [];
-    const today = new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
+    const today = dateOverride || new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
     if(isCoop) {
       // Co-op entries — one per subject per child
       const subjList = [...coopSubjs];
@@ -12647,7 +12812,7 @@ function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose,onFini
         session:[...coopSubjs].join(", ")||"Co-op",
         subjects:[...coopSubjs],
         hrs:parseFloat(coopHrs),
-        date:new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"}),
+        date:dateOverride||new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"}),
       });
     }
   };
