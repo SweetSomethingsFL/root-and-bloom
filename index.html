@@ -564,6 +564,7 @@ function RootAndBloom() {
         {/* Main content */}
         <div ref={mainScrollRef} style={{flex:1,overflowY:"auto",paddingBottom:"72px"}}>
           {activeTab==="home" && <HomeScreen pal={pal} family={family} child={childFilt} setChild={setChildFilt} onTheme={()=>setShowTheme(true)} attendanceDays={attendanceDays} checkinStreak={checkinStreak} lastCheckinDate={lastCheckinDate} portfolioEntries={portfolioEntries} onTabChange={setActiveTab} todayProgress={todayProgress}
+            attendanceLog={attendanceLog}
             onAddEntry={addPortfolioEntry}
             onCheckin={handleChildCheckin}
             checkinDates={checkinDates}
@@ -6079,7 +6080,7 @@ function GoalsNudgeCard({pal,family,portfolioEntries,todayStr,onTabChange}){
   );
 }
 
-function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress, onAddEntry, onCheckin, checkinDates={}, observationLog=[], onOpenJournal }) {
+function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress, onAddEntry, onCheckin, checkinDates={}, observationLog=[], onOpenJournal, attendanceLog=[] }) {
   const stateInfo  = getStateInfo(family.state||"");
   const stateHours = stateInfo.hours||"";
   const dayMatch   = stateHours.match(/(\d+)\s*day/i);
@@ -6427,6 +6428,93 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
               </div>
               <button onClick={startLog}
                 style={{padding:"0.3rem 0.7rem",border:"none",borderRadius:"9px",background:"#f5c842",color:"#5a3d00",fontWeight:"800",fontSize:"0.72rem",cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}}>
+                {"Log now"}
+              </button>
+            </div>
+          );
+        })()}
+
+        {/* ── Missed Day Nudge ── */}
+        {(()=>{
+          if(!attendanceLog||attendanceLog.length===0) return null;
+          const yr = new Date().getFullYear();
+          const weekStart3 = new Date();
+          weekStart3.setDate(weekStart3.getDate()-(weekStart3.getDay()===0?6:weekStart3.getDay()-1));
+          weekStart3.setHours(0,0,0,0);
+          const today3 = new Date(); today3.setHours(23,59,59,999);
+          const loggedPortfolioDates = new Set(portfolioEntries.filter(e=>e.date).map(e=>e.date));
+          // Find attendance days this week (school days only) with no portfolio entries
+          const missedDays = attendanceLog.filter(e=>{
+            if(!["School Day","Field Trip"].includes(e.type)) return false;
+            try{
+              const d=new Date(e.date+", "+yr);
+              return d>=weekStart3 && d<today3 && !loggedPortfolioDates.has(e.date);
+            }catch{return false;}
+          }).map(e=>e.date);
+          if(missedDays.length===0) return null;
+          const label = missedDays.length===1
+            ? missedDays[0]+" isn\u2019t logged yet"
+            : missedDays.length+" days this week aren\u2019t logged yet";
+          return (
+            <div style={{background:"#fff8e6",borderRadius:"13px",padding:"0.7rem 1rem",marginBottom:"1rem",border:"1.5px solid #f5c842",display:"flex",gap:"0.65rem",alignItems:"center"}}>
+              <span style={{fontSize:"1.1rem",flexShrink:0}}>{"📅"}</span>
+              <div style={{flex:1}}>
+                <div style={{fontWeight:"700",color:"#7a5500",fontSize:"0.79rem"}}>{label}</div>
+                <div style={{fontSize:"0.68rem",color:"#b07800",marginTop:"2px"}}>{"Go to Attendance to log the details."}</div>
+              </div>
+              <button onClick={()=>onTabChange("attendance")}
+                style={{padding:"0.3rem 0.7rem",border:"none",borderRadius:"9px",background:"#f5c842",color:"#5a3d00",fontWeight:"800",fontSize:"0.72rem",cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}}>
+                {"Log it"}
+              </button>
+            </div>
+          );
+        })()}
+
+        {/* ── Behind This Week Nudge ── */}
+        {(()=>{
+          const lessonGoals2 = family.lessonGoals||{};
+          if(Object.keys(lessonGoals2).length===0) return null;
+          const activeSubjIds2 = family.subjects||[];
+          const customSubjs3   = family.customSubjects||[];
+          const allSubjMap3    = Object.fromEntries([...SUBJECT_OPTIONS,...customSubjs3].map(s=>[s.id,s]));
+          const yr3 = new Date().getFullYear();
+          const weekStart4 = new Date();
+          weekStart4.setDate(weekStart4.getDate()-(weekStart4.getDay()===0?6:weekStart4.getDay()-1));
+          weekStart4.setHours(0,0,0,0);
+          const todayDow2 = new Date().getDay(); // 0=Sun ... 6=Sat
+          // Days elapsed this week Mon=0...today (capped at Fri=4)
+          const daysElapsed = todayDow2===0 ? 0 : Math.min(todayDow2-1, 4); // Mon-based, 0=Mon
+          const ci3 = child==="all" ? -1 : family.children.findIndex(c=>c.id===child);
+          const weekEntries3 = (ci3>=0
+            ? portfolioEntries.filter(e=>e.childIdx===ci3&&!e.isDay)
+            : portfolioEntries.filter(e=>!e.isDay)
+          ).filter(e=>{ try{ return new Date(e.date+", "+yr3)>=weekStart4; }catch{return false;} });
+          const loggedPerSubj3 = {};
+          weekEntries3.forEach(e=>{ if(e.subj) loggedPerSubj3[e.subj]=(loggedPerSubj3[e.subj]||0)+(e.lessonCount||1); });
+          // Compute target through today (days 0..daysElapsed)
+          const behindSubjs = activeSubjIds2.map(id=>allSubjMap3[id]).filter(Boolean).filter(s=>{
+            const dayMap = lessonGoals2[s.id];
+            if(!dayMap) return false;
+            const targetSoFar = [0,1,2,3,4].slice(0,daysElapsed+1).reduce((sum,d)=>sum+(dayMap[d]||0),0);
+            if(targetSoFar===0) return false;
+            const logged = loggedPerSubj3[s.label]||0;
+            return logged < targetSoFar;
+          });
+          if(behindSubjs.length===0) return null;
+          const names = behindSubjs.map(s=>s.icon+" "+s.label).join(", ");
+          return (
+            <div style={{background:pal.pale,borderRadius:"13px",padding:"0.7rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.primary}30`,display:"flex",gap:"0.65rem",alignItems:"center"}}>
+              <span style={{fontSize:"1.1rem",flexShrink:0}}>{"📚"}</span>
+              <div style={{flex:1}}>
+                <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.79rem"}}>
+                  {behindSubjs.length===1 ? names+" is behind this week" : "A few subjects are behind this week"}
+                </div>
+                <div style={{fontSize:"0.68rem",color:pal.inkM,marginTop:"2px",lineHeight:1.4}}>
+                  {behindSubjs.length>1 ? names : "Tap to log a lesson and catch up."}
+                </div>
+              </div>
+              <button onClick={startLog}
+                style={{padding:"0.3rem 0.7rem",border:"none",borderRadius:"9px",background:pal.primary,color:"#fff",fontWeight:"800",fontSize:"0.72rem",cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}}>
                 {"Log now"}
               </button>
             </div>
@@ -9164,7 +9252,7 @@ function PortfolioSubjectRow({sd,cp,pal,family,expanded,onToggle,onDetail}){
               </div>
               <div style={{flex:1,minWidth:0}}>
                 <div style={{fontWeight:"600",color:pal.ink,fontSize:"0.79rem",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.readingTitle||e.title}</div>
-                {e.note&&e.note.trim()&&<div style={{fontSize:"0.62rem",color:pal.slate,marginTop:"1px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.note.slice(0,60)}</div>}
+                {e.note&&e.note.trim()&&!e.isSubject&&<div style={{fontSize:"0.62rem",color:pal.slate,marginTop:"1px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.note.slice(0,60)}</div>}
               </div>
               <div style={{fontSize:"0.61rem",color:pal.stone,flexShrink:0}}>{e.date}</div>
               <span style={{color:pal.stone,fontSize:"0.8rem",flexShrink:0}}>{"›"}</span>
@@ -9713,7 +9801,7 @@ function EntryDetailModal({pal,family,entry,onClose,onEdit}){
         )}
 
         {/* Notes */}
-        {entry.note&&entry.note.trim()&&!entry.isSubject&&(
+        {entry.note&&entry.note.trim()&&(
           <div style={{marginBottom:"0.75rem"}}>
             <div style={{fontSize:"0.62rem",fontWeight:"700",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.35rem"}}>Notes</div>
             <div style={{fontSize:"0.84rem",color:pal.inkM,lineHeight:1.75,background:pal.parchm,borderRadius:"11px",padding:"0.75rem 0.9rem",whiteSpace:"pre-wrap"}}>{entry.note.replace("AI Summary: ","").trim()}</div>
@@ -12763,7 +12851,7 @@ function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose,onFini
         subjList.forEach(subj=>{
           const n = getCoopNote(ch.id, subj);
           entries.push({
-            childIdx:ci, title:n.trim()?n.slice(0,80):"Co-op: "+subj,
+            childIdx:ci, title:"Co-op: "+subj,
             subj, date:today, thumb:"🏫", note:n, isSubject:true, isCoop:true,
           });
         });
@@ -12785,7 +12873,7 @@ function DaySummaryModal({pal,family,data,portfolioEntries,onSave,onClose,onFini
           const subjNote = getNote(ch.id, subj);
           entries.push({
             childIdx:ci,
-            title: subjNote.trim() ? subjNote.slice(0,80) : subj+" — "+dateLabel,
+            title: subj+" \u2014 "+dateLabel,
             subj, date:today, thumb:block?.i||"📋", note:subjNote, isSubject:true,
             lessonCount: getLessonCount(subj),
           });
