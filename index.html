@@ -5035,11 +5035,7 @@ function printEvaluatorLetter(family, child, attendanceDays) {
   const w = window.open("","_blank","width=760,height=900,scrollbars=yes");
   if(w){ w.document.write(html); w.document.close(); }
   else { alert("Please allow popups for this site to print the evaluator letter."); }
-}
 
-
-const GRADES_MID  = ["6th","7th","8th"];
-const GRADES_HIGH = ["9th","10th","11th","12th"];
 
 function gradeLevel(grade) {
   if(GRADES_ELEM.includes(grade)) return "elementary";
