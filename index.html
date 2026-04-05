@@ -17718,11 +17718,11 @@ function AddExtraModal({pal, family, onClose, onSave}) {
 
   // Which children participated
   const [selChildren, setSelChildren] = useState(
-    new Set(family.children.map((_,i)=&gt;i))
+    new Set(family.children.map((_,i)=>i))
   );
-  const toggleChild = (i) =&gt; setSelChildren(prev=&gt;{
+  const toggleChild = (i) => setSelChildren(prev=>{
     const n = new Set(prev);
-    if(n.has(i) &amp;&amp; n.size&gt;1) n.delete(i); else n.add(i);
+    if(n.has(i) && n.size>1) n.delete(i); else n.add(i);
     return n;
   });
 
@@ -17737,7 +17737,7 @@ function AddExtraModal({pal, family, onClose, onSave}) {
 
   // Build activity list from family extracurriculars + presets
   const familyExtras = [
-    ...(family.extracurriculars||[]).filter(e=&gt;e!=="None right now"),
+    ...(family.extracurriculars||[]).filter(e=>e!=="None right now"),
     ...(family.customExtracurriculars||[]),
   ];
   const PRESET_CATEGORIES = [
@@ -17754,27 +17754,27 @@ function AddExtraModal({pal, family, onClose, onSave}) {
     {label:"Other",        icon:"⭐"},
   ];
   const allCategories = [
-    ...familyExtras.map(e=&gt;({label:e, icon:"🏆"})),
-    ...PRESET_CATEGORIES.filter(p=&gt;!familyExtras.includes(p.label)),
+    ...familyExtras.map(e=>({label:e, icon:"🏆"})),
+    ...PRESET_CATEGORIES.filter(p=>!familyExtras.includes(p.label)),
   ];
 
-  const handlePhoto = (e) =&gt; {
-    Array.from(e.target.files).forEach(file=&gt;{
+  const handlePhoto = (e) => {
+    Array.from(e.target.files).forEach(file=>{
       const reader = new FileReader();
-      reader.onload = ev =&gt; setPhotos(p=&gt;[...p,{name:file.name,dataUrl:ev.target.result}]);
+      reader.onload = ev => setPhotos(p=>[...p,{name:file.name,dataUrl:ev.target.result}]);
       reader.readAsDataURL(file);
     });
   };
 
-  const canSave = activity.trim().length &gt; 0;
+  const canSave = activity.trim().length > 0;
 
-  const handleSave = () =&gt; {
+  const handleSave = () => {
     const today = entryDate
       ? new Date(entryDate+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric"})
       : new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
     const cat = category||activity;
-    const entries = [...selChildren].map(ci=&gt;{
-      const icon = allCategories.find(c=&gt;c.label===cat)?.icon||"🏆";
+    const entries = [...selChildren].map(ci=>{
+      const icon = allCategories.find(c=>c.label===cat)?.icon||"🏆";
       return {
         childIdx: ci,
         title: activity.trim(),
@@ -17784,7 +17784,7 @@ function AddExtraModal({pal, family, onClose, onSave}) {
         note: note.trim(),
         duration: duration||null,
         category: cat,
-        photos: photos.map(p=&gt;p.dataUrl),
+        photos: photos.map(p=>p.dataUrl),
         isExtra: true,
       };
     });
@@ -17792,155 +17792,155 @@ function AddExtraModal({pal, family, onClose, onSave}) {
   };
 
   return (
-    &lt;div style={{position:"fixed",inset:0,background:"rgba(15,10,4,0.75)",backdropFilter:"blur(12px)",zIndex:200,display:"flex",alignItems:"flex-end",justifyContent:"center"}}&gt;
-      &lt;div style={{background:pal.linen,borderRadius:"28px 28px 0 0",width:"100%",maxWidth:"430px",maxHeight:"90vh",display:"flex",flexDirection:"column",animation:"slideUp 0.26s ease"}}&gt;
+    <div style={{position:"fixed",inset:0,background:"rgba(15,10,4,0.75)",backdropFilter:"blur(12px)",zIndex:200,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
+      <div style={{background:pal.linen,borderRadius:"28px 28px 0 0",width:"100%",maxWidth:"430px",maxHeight:"90vh",display:"flex",flexDirection:"column",animation:"slideUp 0.26s ease"}}>
 
         {/* Handle */}
-        &lt;div style={{padding:"0.7rem 0 0",display:"flex",justifyContent:"center",flexShrink:0}}&gt;
-          &lt;div style={{width:"36px",height:"4px",borderRadius:"99px",background:pal.stone}}/&gt;
-        &lt;/div&gt;
+        <div style={{padding:"0.7rem 0 0",display:"flex",justifyContent:"center",flexShrink:0}}>
+          <div style={{width:"36px",height:"4px",borderRadius:"99px",background:pal.stone}}/>
+        </div>
 
         {/* Header */}
-        &lt;div style={{background:pal.heroGrad,padding:"0.9rem 1.2rem",flexShrink:0,display:"flex",justifyContent:"space-between",alignItems:"center"}}&gt;
-          &lt;div&gt;
-            &lt;div style={{fontWeight:"900",color:"#fff",fontSize:"0.95rem"}}&gt;{"🏆 Log Extracurricular"}&lt;/div&gt;
-            &lt;div style={{fontSize:"0.7rem",color:"rgba(255,255,255,0.7)",marginTop:"2px"}}&gt;Sports, music, clubs, field trips, and more&lt;/div&gt;
-          &lt;/div&gt;
-          &lt;button onClick={onClose}
-            style={{background:"rgba(255,255,255,0.18)",border:"none",borderRadius:"9px",padding:"0.3rem 0.65rem",color:"#fff",fontWeight:"700",fontSize:"0.75rem",cursor:"pointer"}}&gt;
+        <div style={{background:pal.heroGrad,padding:"0.9rem 1.2rem",flexShrink:0,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div>
+            <div style={{fontWeight:"900",color:"#fff",fontSize:"0.95rem"}}>{"🏆 Log Extracurricular"}</div>
+            <div style={{fontSize:"0.7rem",color:"rgba(255,255,255,0.7)",marginTop:"2px"}}>Sports, music, clubs, field trips, and more</div>
+          </div>
+          <button onClick={onClose}
+            style={{background:"rgba(255,255,255,0.18)",border:"none",borderRadius:"9px",padding:"0.3rem 0.65rem",color:"#fff",fontWeight:"700",fontSize:"0.75rem",cursor:"pointer"}}>
             {"✕"}
-          &lt;/button&gt;
-        &lt;/div&gt;
+          </button>
+        </div>
 
-        &lt;div style={{flex:1,overflowY:"auto",padding:"1rem 1.2rem"}}&gt;
+        <div style={{flex:1,overflowY:"auto",padding:"1rem 1.2rem"}}>
 
           {/* Who participated */}
-          {family.children.length&gt;1&amp;&amp;(
-            &lt;div style={{marginBottom:"1rem"}}&gt;
-              &lt;div style={{fontSize:"0.74rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.45rem"}}&gt;Who participated?&lt;/div&gt;
-              &lt;div style={{display:"flex",gap:"0.4rem",flexWrap:"wrap"}}&gt;
-                {family.children.map((c,i)=&gt;{
+          {family.children.length>1&&(
+            <div style={{marginBottom:"1rem"}}>
+              <div style={{fontSize:"0.74rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.45rem"}}>Who participated?</div>
+              <div style={{display:"flex",gap:"0.4rem",flexWrap:"wrap"}}>
+                {family.children.map((c,i)=>{
                   const cc=CHILD_COLORS2[i%CHILD_COLORS2.length];
                   const sel=selChildren.has(i);
                   return (
-                    &lt;button key={c.id} onClick={()=&gt;toggleChild(i)}
-                      style={{display:"flex",alignItems:"center",gap:"0.35rem",padding:"0.32rem 0.75rem",borderRadius:"20px",border:`2px solid ${sel?cc:pal.stone+"50"}`,background:sel?cc+"22":"transparent",cursor:"pointer",transition:"all 0.12s"}}&gt;
-                      &lt;span style={{fontSize:"1rem"}}&gt;{c.avatar}&lt;/span&gt;
-                      &lt;span style={{fontSize:"0.78rem",fontWeight:sel?"700":"400",color:sel?cc:pal.slate}}&gt;{c.name}&lt;/span&gt;
-                    &lt;/button&gt;
+                    <button key={c.id} onClick={()=>toggleChild(i)}
+                      style={{display:"flex",alignItems:"center",gap:"0.35rem",padding:"0.32rem 0.75rem",borderRadius:"20px",border:`2px solid ${sel?cc:pal.stone+"50"}`,background:sel?cc+"22":"transparent",cursor:"pointer",transition:"all 0.12s"}}>
+                      <span style={{fontSize:"1rem"}}>{c.avatar}</span>
+                      <span style={{fontSize:"0.78rem",fontWeight:sel?"700":"400",color:sel?cc:pal.slate}}>{c.name}</span>
+                    </button>
                   );
                 })}
-              &lt;/div&gt;
-            &lt;/div&gt;
+              </div>
+            </div>
           )}
 
           {/* Category chips */}
-          &lt;div style={{marginBottom:"0.85rem"}}&gt;
-            &lt;div style={{fontSize:"0.74rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.45rem"}}&gt;Category&lt;/div&gt;
-            &lt;div style={{display:"flex",flexWrap:"wrap",gap:"0.35rem"}}&gt;
-              {allCategories.map(c=&gt;{
+          <div style={{marginBottom:"0.85rem"}}>
+            <div style={{fontSize:"0.74rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.45rem"}}>Category</div>
+            <div style={{display:"flex",flexWrap:"wrap",gap:"0.35rem"}}>
+              {allCategories.map(c=>{
                 const sel=category===c.label;
                 return (
-                  &lt;button key={c.label} onClick={()=&gt;setCategory(sel?"":c.label)}
-                    style={{display:"flex",alignItems:"center",gap:"0.28rem",padding:"0.28rem 0.65rem",borderRadius:"20px",border:`2px solid ${sel?pal.primary:pal.stone+"50"}`,background:sel?pal.pale:"transparent",cursor:"pointer",transition:"all 0.12s"}}&gt;
-                    &lt;span style={{fontSize:"0.85rem"}}&gt;{c.icon}&lt;/span&gt;
-                    &lt;span style={{fontSize:"0.74rem",fontWeight:sel?"700":"400",color:sel?pal.primary:pal.inkM}}&gt;{c.label}&lt;/span&gt;
-                  &lt;/button&gt;
+                  <button key={c.label} onClick={()=>setCategory(sel?"":c.label)}
+                    style={{display:"flex",alignItems:"center",gap:"0.28rem",padding:"0.28rem 0.65rem",borderRadius:"20px",border:`2px solid ${sel?pal.primary:pal.stone+"50"}`,background:sel?pal.pale:"transparent",cursor:"pointer",transition:"all 0.12s"}}>
+                    <span style={{fontSize:"0.85rem"}}>{c.icon}</span>
+                    <span style={{fontSize:"0.74rem",fontWeight:sel?"700":"400",color:sel?pal.primary:pal.inkM}}>{c.label}</span>
+                  </button>
                 );
               })}
-            &lt;/div&gt;
-          &lt;/div&gt;
+            </div>
+          </div>
 
           {/* Activity name */}
-          &lt;div style={{marginBottom:"0.85rem"}}&gt;
-            &lt;div style={{fontSize:"0.74rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.35rem"}}&gt;
+          <div style={{marginBottom:"0.85rem"}}>
+            <div style={{fontSize:"0.74rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.35rem"}}>
               {"Activity / Event *"}
-            &lt;/div&gt;
-            &lt;input
+            </div>
+            <input
               value={activity}
-              onChange={e=&gt;setActivity(e.target.value)}
+              onChange={e=>setActivity(e.target.value)}
               placeholder={"e.g. Soccer practice, Piano recital, Museum field trip..."}
               autoFocus
               style={{width:"100%",padding:"0.62rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.83rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit"}}
-              onFocus={e=&gt;e.target.style.borderColor=pal.primary}
-              onBlur={e=&gt;e.target.style.borderColor=pal.stone}
-            /&gt;
-          &lt;/div&gt;
+              onFocus={e=>e.target.style.borderColor=pal.primary}
+              onBlur={e=>e.target.style.borderColor=pal.stone}
+            />
+          </div>
 
           {/* Duration */}
-          &lt;div style={{marginBottom:"0.85rem"}}&gt;
-            &lt;div style={{fontSize:"0.74rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.35rem"}}&gt;Duration (optional)&lt;/div&gt;
-            &lt;div style={{display:"flex",gap:"0.35rem",flexWrap:"wrap"}}&gt;
-              {["30 min","45 min","1 hour","1.5 hrs","2 hrs","2.5 hrs","3 hrs","All day"].map(d=&gt;(
-                &lt;button key={d} onClick={()=&gt;setDuration(duration===d?"":d)}
-                  style={{padding:"0.28rem 0.65rem",borderRadius:"20px",border:`2px solid ${duration===d?pal.primary:pal.stone+"50"}`,background:duration===d?pal.pale:"transparent",cursor:"pointer",fontSize:"0.74rem",fontWeight:duration===d?"700":"400",color:duration===d?pal.primary:pal.inkM,transition:"all 0.12s"}}&gt;
+          <div style={{marginBottom:"0.85rem"}}>
+            <div style={{fontSize:"0.74rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.35rem"}}>Duration (optional)</div>
+            <div style={{display:"flex",gap:"0.35rem",flexWrap:"wrap"}}>
+              {["30 min","45 min","1 hour","1.5 hrs","2 hrs","2.5 hrs","3 hrs","All day"].map(d=>(
+                <button key={d} onClick={()=>setDuration(duration===d?"":d)}
+                  style={{padding:"0.28rem 0.65rem",borderRadius:"20px",border:`2px solid ${duration===d?pal.primary:pal.stone+"50"}`,background:duration===d?pal.pale:"transparent",cursor:"pointer",fontSize:"0.74rem",fontWeight:duration===d?"700":"400",color:duration===d?pal.primary:pal.inkM,transition:"all 0.12s"}}>
                   {d}
-                &lt;/button&gt;
+                </button>
               ))}
-            &lt;/div&gt;
-          &lt;/div&gt;
+            </div>
+          </div>
 
           {/* Date */}
-          &lt;div style={{marginBottom:"0.85rem"}}&gt;
-            &lt;div style={{fontSize:"0.74rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.35rem"}}&gt;Date&lt;/div&gt;
-            &lt;input type="date" value={entryDate} onChange={e=&gt;setEntryDate(e.target.value)}
+          <div style={{marginBottom:"0.85rem"}}>
+            <div style={{fontSize:"0.74rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.35rem"}}>Date</div>
+            <input type="date" value={entryDate} onChange={e=>setEntryDate(e.target.value)}
               style={{width:"100%",padding:"0.55rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.83rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit"}}
-              onFocus={e=&gt;e.target.style.borderColor=pal.primary}
-              onBlur={e=&gt;e.target.style.borderColor=pal.stone}
-            /&gt;
-          &lt;/div&gt;
+              onFocus={e=>e.target.style.borderColor=pal.primary}
+              onBlur={e=>e.target.style.borderColor=pal.stone}
+            />
+          </div>
 
           {/* Notes */}
-          &lt;div style={{marginBottom:"0.85rem"}}&gt;
-            &lt;div style={{fontSize:"0.74rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.35rem"}}&gt;Notes (optional)&lt;/div&gt;
-            &lt;textarea
+          <div style={{marginBottom:"0.85rem"}}>
+            <div style={{fontSize:"0.74rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.35rem"}}>Notes (optional)</div>
+            <textarea
               value={note}
-              onChange={e=&gt;setNote(e.target.value)}
+              onChange={e=>setNote(e.target.value)}
               placeholder={"e.g. Scored first goal! Piano exam passed with distinction. Really enjoyed the science museum."}
               rows={3}
               style={{width:"100%",padding:"0.62rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.82rem",fontFamily:"inherit",background:pal.parchm,color:pal.ink,resize:"none",outline:"none",lineHeight:1.55}}
-              onFocus={e=&gt;e.target.style.borderColor=pal.primary}
-              onBlur={e=&gt;e.target.style.borderColor=pal.stone}
-            /&gt;
-          &lt;/div&gt;
+              onFocus={e=>e.target.style.borderColor=pal.primary}
+              onBlur={e=>e.target.style.borderColor=pal.stone}
+            />
+          </div>
 
           {/* Photos */}
-          &lt;div style={{marginBottom:"0.5rem"}}&gt;
-            &lt;div style={{fontSize:"0.74rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.35rem"}}&gt;Photos (optional)&lt;/div&gt;
-            &lt;input type="file" ref={fileRef} accept="image/*" multiple onChange={handlePhoto} style={{display:"none"}}/&gt;
-            &lt;button onClick={()=&gt;fileRef.current?.click()}
-              style={{padding:"0.45rem 1rem",border:`2px dashed ${pal.primary}50`,borderRadius:"11px",background:"transparent",color:pal.primary,fontWeight:"700",fontSize:"0.78rem",cursor:"pointer",marginBottom:"0.55rem",display:"flex",alignItems:"center",gap:"0.4rem"}}&gt;
-              &lt;span&gt;{"📷"}&lt;/span&gt;&lt;span&gt;Add photos&lt;/span&gt;
-            &lt;/button&gt;
-            {photos.length&gt;0&amp;&amp;(
-              &lt;div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"0.4rem"}}&gt;
-                {photos.map((p,i)=&gt;(
-                  &lt;div key={i} style={{position:"relative",borderRadius:"10px",overflow:"hidden",border:`1.5px solid ${pal.stone}35`}}&gt;
-                    &lt;img src={p.dataUrl} alt="" style={{width:"100%",height:"72px",objectFit:"cover",display:"block"}}/&gt;
-                    &lt;button onClick={()=&gt;setPhotos(ps=&gt;ps.filter((_,pi)=&gt;pi!==i))}
-                      style={{position:"absolute",top:"3px",right:"3px",width:"20px",height:"20px",borderRadius:"50%",background:"rgba(0,0,0,0.55)",border:"none",color:"#fff",fontSize:"0.65rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}&gt;
+          <div style={{marginBottom:"0.5rem"}}>
+            <div style={{fontSize:"0.74rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.35rem"}}>Photos (optional)</div>
+            <input type="file" ref={fileRef} accept="image/*" multiple onChange={handlePhoto} style={{display:"none"}}/>
+            <button onClick={()=>fileRef.current?.click()}
+              style={{padding:"0.45rem 1rem",border:`2px dashed ${pal.primary}50`,borderRadius:"11px",background:"transparent",color:pal.primary,fontWeight:"700",fontSize:"0.78rem",cursor:"pointer",marginBottom:"0.55rem",display:"flex",alignItems:"center",gap:"0.4rem"}}>
+              <span>{"📷"}</span><span>Add photos</span>
+            </button>
+            {photos.length>0&&(
+              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"0.4rem"}}>
+                {photos.map((p,i)=>(
+                  <div key={i} style={{position:"relative",borderRadius:"10px",overflow:"hidden",border:`1.5px solid ${pal.stone}35`}}>
+                    <img src={p.dataUrl} alt="" style={{width:"100%",height:"72px",objectFit:"cover",display:"block"}}/>
+                    <button onClick={()=>setPhotos(ps=>ps.filter((_,pi)=>pi!==i))}
+                      style={{position:"absolute",top:"3px",right:"3px",width:"20px",height:"20px",borderRadius:"50%",background:"rgba(0,0,0,0.55)",border:"none",color:"#fff",fontSize:"0.65rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
                       {"✕"}
-                    &lt;/button&gt;
-                  &lt;/div&gt;
+                    </button>
+                  </div>
                 ))}
-              &lt;/div&gt;
+              </div>
             )}
-          &lt;/div&gt;
-        &lt;/div&gt;
+          </div>
+        </div>
 
         {/* Footer */}
-        &lt;div style={{padding:"0.9rem 1.2rem",borderTop:`1px solid ${pal.stone}40`,background:pal.linen,flexShrink:0,display:"flex",gap:"0.5rem"}}&gt;
-          &lt;button onClick={onClose}
-            style={{padding:"0.7rem 1rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem"}}&gt;
+        <div style={{padding:"0.9rem 1.2rem",borderTop:`1px solid ${pal.stone}40`,background:pal.linen,flexShrink:0,display:"flex",gap:"0.5rem"}}>
+          <button onClick={onClose}
+            style={{padding:"0.7rem 1rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem"}}>
             Cancel
-          &lt;/button&gt;
-          &lt;button onClick={handleSave} disabled={!canSave}
-            style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:canSave?pal.accentGrad:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:canSave?"pointer":"default"}}&gt;
+          </button>
+          <button onClick={handleSave} disabled={!canSave}
+            style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:canSave?pal.accentGrad:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:canSave?"pointer":"default"}}>
             {"Save to Portfolio ✓"}
-          &lt;/button&gt;
-        &lt;/div&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
