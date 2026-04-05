@@ -5038,15 +5038,7 @@ function printEvaluatorLetter(family, child, attendanceDays) {
 }
 
 
-const GRADES_MID  = ["6th","7th","8th"];
-const GRADES_HIGH = ["9th","10th","11th","12th"];
-
-function gradeLevel(grade) {
-  if(GRADES_ELEM.includes(grade)) return "elementary";
-  if(GRADES_MID.includes(grade))  return "middle";
-  if(GRADES_HIGH.includes(grade)) return "high";
-  return "elementary";
-}
+// GRADES_MID, GRADES_HIGH, gradeLevel() defined in state-requirements.js
 
 function gradeNum(grade) {
   const map = {"Pre-K":-1,"K":0,"1st":1,"2nd":2,"3rd":3,"4th":4,"5th":5,"6th":6,"7th":7,"8th":8,"9th":9,"10th":10,"11th":11,"12th":12};
