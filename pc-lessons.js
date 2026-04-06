@@ -139,6 +139,874 @@ const LS_KEY = "rootbloom_v1";
 
 const LR_LESSON_PLANS = {
 
+  "Neighborhood watch — what is it?": {
+    gradeHooks: {
+      low: "Neighborhood watch means neighbors look out for each other and report anything that seems wrong.",
+      mid: "Neighborhood watch programs formalize community safety by training residents to observe and report suspicious activity.",
+      high: "Neighborhood watch programs, their effectiveness, relationship to law enforcement, and critiques around racial profiling are important civic topics."
+    },
+    materials: ["Paper for notes"],
+    steps: [
+      "Ask: have you ever seen a Neighborhood Watch sign? What do you think it means?",
+      "Explain: neighbors agree to pay attention to their surroundings and report anything unusual to each other or to police.",
+      "Discuss what \u2018suspicious\u2019 means: not people who look different, but unusual behaviors like someone trying door handles or watching a house for hours.",
+      "Key principle: observe and report — never confront. Call non-emergency police or 911 for serious concerns.",
+      "Talk about how knowing your neighbors makes the whole system work better."
+    ],
+    discussion: [
+      {q:"What should you do if you see something that seems suspicious in your neighborhood?", answers:["Tell a trusted adult. They can decide whether to call the non-emergency police line or 911. Never confront anyone yourself."]},
+      {q:"Why is it important that neighborhood watch focuses on behaviors, not appearances?", answers:["Judging people by how they look rather than what they are doing leads to bias and harms innocent people. Suspicious behavior is the signal, not appearance."]}
+    ],
+    challenge: "Look up whether your neighborhood has an active Neighborhood Watch. If not, research how to start one.",
+    tuesday:   { low: {title:"Safety walk", activity:"Walk around your block with a parent. What do you notice? Are there good sightlines between homes? Are any areas poorly lit?"}, mid: {title:"Non-emergency vs 911", activity:"Research when to call 911 vs the non-emergency police line. Find your local non-emergency number and add it to your contact list."}, mid: {title:"Crime prevention research", activity:"Research whether neighborhood watch programs statistically reduce crime. What does the research say about their effectiveness?"}, high: {title:"Racial bias critique", activity:"Research critiques of neighborhood watch programs regarding racial profiling. How have some programs led to harm? What guidelines reduce bias?"} },
+    wednesday: { low: {title:"Safe routes map", activity:"Draw your route to the nearest park or store. Mark well-lit areas, neighbor homes you trust, and any spots that feel less safe."}, mid: {title:"Block communication tree", activity:"Design a communication tree for 10 homes on your block. Each home contacts 2 others. Test it with a non-emergency message."}, high: {title:"CPTED principles", activity:"Research Crime Prevention Through Environmental Design (CPTED). How do lighting, landscaping, and sightlines reduce crime opportunities?"} },
+    thursday:  { low: {title:"Neighbor introduction", activity:"With a parent, introduce yourself to one neighbor you don\u2019t know. Learn their name. Add them to your mental map of helpful neighbors."}, mid: {title:"Nextdoor research", activity:"Research the Nextdoor app and similar platforms. How do digital tools support neighborhood watch? What are the privacy concerns?"}, high: {title:"Community policing", activity:"Research community policing models. How do police departments that use community policing differ in their approach from traditional models?"} }
+  },
+
+  "Reading a thermometer — inside and outside": {
+    gradeHooks: {
+      low: "A thermometer tells us the temperature. We use it to know how hot or cold it is inside and outside!",
+      mid: "Reading thermometers accurately, understanding Fahrenheit and Celsius, and knowing temperature safety thresholds are practical life skills.",
+      high: "Temperature measurement, conversion between scales, and understanding what temperature ranges mean for health and safety are foundational science skills."
+    },
+    materials: ["A thermometer (indoor/outdoor or fever thermometer)"],
+    steps: [
+      "Show a thermometer. Ask: what does it measure?",
+      "Read the current temperature together. Is it in Fahrenheit or Celsius?",
+      "Discuss useful benchmarks: water freezes at 32\u00b0F / 0\u00b0C, body temp is 98.6\u00b0F / 37\u00b0C, comfortable room temp is 68\u201372\u00b0F.",
+      "Talk about safety thresholds: heat stroke risk above 104\u00b0F body temp, hypothermia risk below 95\u00b0F.",
+      "Check both an indoor and outdoor thermometer and compare."
+    ],
+    discussion: [
+      {q:"Why do we have two temperature scales — Fahrenheit and Celsius?", answers:["Fahrenheit was developed in the 1700s and is still used in the US. Celsius is used by most of the world and is based on water\u2019s freezing and boiling points."]},
+      {q:"At what temperature does the body become dangerously hot?", answers:["A fever of 104\u00b0F or higher in children is serious and requires medical attention. Heat stroke (a medical emergency) occurs when body temp reaches 104\u00b0F or above."]}
+    ],
+    challenge: "Check and record the outdoor temperature every day for one week at the same time. Make a simple chart and look for trends.",
+    tuesday:   { low: {title:"Temperature matching", activity:"Match temperatures to activities: 28\u00b0F (wear a coat!), 72\u00b0F (nice day), 95\u00b0F (heat advisory), 32\u00b0F (freezing). Draw an outfit for each."}, mid: {title:"Conversion practice", activity:"Practice converting between Fahrenheit and Celsius using the formula: C = (F-32) x 5/9. Convert 10 different temperatures."}, high: {title:"Kelvin and absolute zero", activity:"Research the Kelvin scale and absolute zero. Why do scientists use Kelvin instead of Celsius? What is the coldest possible temperature?"} },
+    wednesday: { low: {title:"Fever check", activity:"Learn to use a fever thermometer correctly. Practice the correct technique (under arm, oral) and know the fever threshold: 100.4\u00b0F."}, mid: {title:"Heat index and wind chill", activity:"Research heat index and wind chill. Why does 90\u00b0F feel much hotter when it\u2019s humid? Why does 30\u00b0F feel colder with wind?"}, high: {title:"Temperature and weather systems", activity:"Research how temperature differentials drive weather: sea breezes, thunderstorm formation, and the jet stream."} },
+    thursday:  { low: {title:"Temperature journal", activity:"Keep a 5-day temperature log: record indoor temp, outdoor temp, and weather description each morning."}, mid: {title:"Florida temperature data", activity:"Look up average high and low temperatures for your city each month. Graph the data and identify Florida\u2019s warmest and coolest months."}, high: {title:"Urban heat island effect", activity:"Research the urban heat island effect. Why are cities warmer than surrounding rural areas and what solutions are being implemented?"} }
+  },
+
+  "Splinters and minor wound care": {
+    gradeHooks: {
+      low: "Splinters are little pieces of wood that get stuck in our skin. We can take them out carefully with tweezers!",
+      mid: "Splinter removal requires proper technique to avoid breaking the splinter and introducing infection.",
+      high: "Foreign body removal, wound contamination risk, and infection prevention are foundational first aid competencies."
+    },
+    materials: ["Tweezers", "Needle (for demonstration)", "Antiseptic wipe", "Magnifying glass (optional)"],
+    steps: [
+      "Ask: have you ever had a splinter? How did it get out?",
+      "Explain: a splinter left in the skin can cause infection. It needs to come out.",
+      "Steps: clean the area, sterilize tweezers with antiseptic, grip the splinter at the end closest to the surface, pull straight out in the same direction it went in.",
+      "If the splinter is deep: use a sterilized needle tip to gently expose the end, then grip with tweezers.",
+      "After removal: clean the wound, apply antibiotic ointment, cover with a bandage."
+    ],
+    discussion: [
+      {q:"Why do we pull a splinter out in the same direction it entered?", answers:["Pulling at an angle can break it. Coming straight out the way it went in keeps it in one piece."]},
+      {q:"What are signs that a splinter area has become infected?", answers:["Increasing redness, warmth, swelling, pus, or red streaks moving away from the wound. See a doctor immediately if red streaks appear."]}
+    ],
+    challenge: "Sterilize a pair of tweezers and practice picking up a small piece of toothpick from a plate with precision.",
+    tuesday:   { low: {title:"Tweezers practice", activity:"Practice picking up small objects (uncooked grains of rice, toothpick pieces) with tweezers. How precise can you be?"}, mid: {title:"Wound care review", activity:"Create a flowchart for minor wound care: splinter \u2192 clean \u2192 sterilize tools \u2192 remove \u2192 clean wound \u2192 cover \u2192 monitor for infection."}, high: {title:"Foreign body response", activity:"Research how the immune system responds to a foreign body like a splinter. What causes the redness and swelling and what happens if it\u2019s not removed?"} },
+    wednesday: { low: {title:"First aid kit check", activity:"Find the tweezers in your first aid kit. Are they sharp and functional? Clean and sterilize them."}, mid: {title:"Infection signs research", activity:"Research the 5 classic signs of infection: redness, warmth, swelling, pain, and pus. What causes each sign biologically?"}, high: {title:"Tetanus risk", activity:"Research tetanus and why puncture wounds and splinters are a concern. When does a wound require a tetanus booster?"} },
+    thursday:  { low: {title:"Scenario role play", activity:"Act out: you have a splinter in your finger. Walk through every step from clean hands to finished bandage."}, mid: {title:"Sterilization methods", activity:"Research 3 ways to sterilize wound care tools: alcohol, flame, boiling. What are the pros and cons of each?"}, high: {title:"Clinical foreign body removal", activity:"Research how hospitals remove deeply embedded foreign bodies that can\u2019t be removed with tweezers. What imaging is used and what are the risks of leaving them in place?"} }
+  },
+
+  "Family fire drill — timed practice": {
+    gradeHooks: {
+      low: "A fire drill is when we practice getting out of our house fast in case of a real fire. Practice makes it faster!",
+      mid: "Regular timed fire drills build the muscle memory needed to evacuate quickly and safely under stress.",
+      high: "Emergency evacuation psychology, the role of practiced procedures in high-stress situations, and escape time analysis are important safety science topics."
+    },
+    materials: ["Timer or phone stopwatch", "Paper for logging results"],
+    steps: [
+      "Explain: in a real fire, you may have less than 3 minutes to escape. Practice makes it automatic.",
+      "Review the plan: alarm sounds \u2192 feel door \u2192 low crawl if smoky \u2192 exit \u2192 meeting spot \u2192 count heads \u2192 call 911.",
+      "Run the drill without warning. Start the timer when the alarm sounds.",
+      "Record the time. Walk back through any steps that took too long.",
+      "Run it again and try to beat the first time."
+    ],
+    discussion: [
+      {q:"Why do we practice fire drills when there is no fire?", answers:["When a real fire happens, there is no time to think. Practiced habits take over. Practice makes the right actions automatic under panic."]},
+      {q:"What should you do if your exit route is blocked by smoke or fire?", answers:["Go to an alternate exit. If no exit is available, close the door, signal from a window, and call 911."]}
+    ],
+    challenge: "Run a fire drill once a month for 3 months. Record times and look for improvement. Share the results with your family.",
+    tuesday:   { low: {title:"Exit route drawing", activity:"Draw your home\u2019s floor plan with the primary and alternate exit routes for each room marked in green and red."}, mid: {title:"Time analysis", activity:"Research: how quickly does fire spread in a home? How much time does a smoke alarm typically give you? What is the average escape time with vs without practice?"}, high: {title:"Evacuation psychology", activity:"Research decision paralysis in emergencies. Why do people sometimes fail to evacuate even when they should? How does practice counter this?"} },
+    wednesday: { low: {title:"Night drill", activity:"Conduct a drill starting from a sleeping position — with eyes closed until the alarm sounds. How does darkness change the challenge?"}, mid: {title:"Smoke crawling practice", activity:"Practice low-crawling across a room. Why is air cleaner near the floor in a fire? How low should you stay?"}, high: {title:"Fire fatality analysis", activity:"Research NFPA data on home fire fatalities. What time of day do most fatal fires occur? What are the most common contributing factors?"} },
+    thursday:  { low: {title:"Meeting spot practice", activity:"Time how long it takes every family member to reach the meeting spot from their bedroom. Who was fastest? What slowed others down?"}, mid: {title:"Accountability system", activity:"Design a family accountability system for the meeting spot: who checks on whom, how you count heads, and what to tell the firefighters."}, high: {title:"Building codes and fire safety", activity:"Research minimum fire safety requirements in residential building codes: smoke alarms, carbon monoxide alarms, egress windows. Are older homes grandfathered in?"} }
+  },
+
+  "What is a weather alert?": {
+    gradeHooks: {
+      low: "Weather alerts are warnings that tell us dangerous weather is coming. We pay attention and know what to do!",
+      mid: "Understanding the difference between weather watches, warnings, and advisories enables timely and appropriate safety responses.",
+      high: "Emergency weather communication systems, the psychology of warning compliance, and meteorological risk assessment are important topics."
+    },
+    materials: ["Phone with weather app or NOAA weather radio"],
+    steps: [
+      "Ask: have you ever heard a loud alert on a phone or TV? What was it for?",
+      "Explain the alert levels: advisory (be aware), watch (be ready), warning (act now).",
+      "Go through common Florida alerts: hurricane warning, tornado warning, flash flood warning, heat advisory.",
+      "Demonstrate: open a weather app and find the alert settings. Make sure Wireless Emergency Alerts are enabled.",
+      "Discuss: what do you do for each alert type? (Shelter, evacuate, stay hydrated, stay off roads)"
+    ],
+    discussion: [
+      {q:"What is the difference between a tornado watch and a tornado warning?", answers:["Watch: conditions are right for tornadoes, stay alert. Warning: a tornado has been spotted or detected by radar, take shelter immediately."]},
+      {q:"Where should your family go during a tornado warning?", answers:["Interior room on the lowest floor, away from windows. In Florida, a bathroom or closet in the center of the house. Never a mobile home."]}
+    ],
+    challenge: "Enable Wireless Emergency Alerts on every phone in your home. Review the alert response plan for Florida\u2019s 3 most common weather emergencies.",
+    tuesday:   { low: {title:"Alert matching game", activity:"Make cards: Advisory, Watch, Warning, and response actions. Match each to the right action level."}, mid: {title:"NOAA weather radio setup", activity:"Research NOAA All Hazards Weather Radio. Program one for your county, or download the NOAA app. Set up alerts for your area."}, high: {title:"False alarm effect", activity:"Research the \u2018cry wolf\u2019 effect in emergency warnings. How do false alarms affect public compliance with future warnings? What have warning systems done to address this?"} },
+    wednesday: { low: {title:"Shelter in place setup", activity:"Identify the safest room in your home for tornado shelter. Stock it with: flashlight, water, phone charger, shoes."}, mid: {title:"Florida weather hazards", activity:"Research Florida\u2019s top 5 weather hazards ranked by fatalities. What alert type corresponds to each?"}, high: {title:"Wireless Emergency Alerts system", activity:"Research how Wireless Emergency Alerts (WEA) work technically. How does the cell broadcast system reach all phones in an area simultaneously?"} },
+    thursday:  { low: {title:"Weather response poster", activity:"Make a family weather response poster: one row for each alert level, with what it means and what to do."}, mid: {title:"Evacuation zone lookup", activity:"Find your home\u2019s hurricane evacuation zone on your county\u2019s official website. What zone are you in and what does it mean?"}, high: {title:"Climate attribution", activity:"Research weather attribution science. How do scientists determine if a specific extreme weather event was made more likely or intense by climate change?"} }
+  },
+
+  "Composting basics — browns and greens": {
+    gradeHooks: {
+      low: "Composting turns food scraps and yard waste into rich soil for our garden. Bugs and worms do a lot of the work!",
+      mid: "Composting requires balancing carbon-rich browns and nitrogen-rich greens, maintaining moisture, and managing airflow.",
+      high: "Composting chemistry, microbial ecology, and the role of compost in carbon sequestration and soil health are environmental science topics."
+    },
+    materials: ["Kitchen scraps (vegetable peels, coffee grounds)", "Dry leaves or cardboard", "Container or outdoor space"],
+    steps: [
+      "Ask: what happens to food that gets thrown away? (Landfill, methane gas, pollution)",
+      "Explain composting: food scraps and yard waste break down into nutrient-rich soil amendment.",
+      "Introduce browns and greens: browns (carbon) = dry leaves, cardboard, paper. Greens (nitrogen) = vegetable scraps, grass, coffee grounds.",
+      "The ratio: roughly 3 parts brown to 1 part green by volume.",
+      "Set up a small compost bin or pile. Add your first layer: browns first, then greens, then a little water."
+    ],
+    discussion: [
+      {q:"Why doesn\u2019t meat or dairy go in a home compost pile?", answers:["It attracts pests, creates bad odors, and can harbor pathogens. Vegetable matter and plant-based scraps decompose cleanly."]},
+      {q:"How does compost help your garden?", answers:["It adds nutrients, improves soil structure, helps soil retain water, and introduces beneficial microorganisms."]}
+    ],
+    challenge: "Start a compost collection for one week. Keep a bucket for vegetable scraps. How much did your family produce? Add it to your pile.",
+    tuesday:   { low: {title:"Browns vs greens sort", activity:"Go through recycling and yard waste. Sort items into browns and greens piles. What does your family produce more of?"}, mid: {title:"Decomposition timeline", activity:"Research how long common items take to decompose: apple core, cardboard, newspaper, banana peel, meat (in a landfill). Compare compost vs landfill rates."}, high: {title:"Compost microbiology", activity:"Research the microbial stages of composting: mesophilic, thermophilic, and curing phases. What organisms are active at each stage and what temperatures are reached?"} },
+    wednesday: { low: {title:"Worm observation", activity:"Find worms in your yard or garden. Watch how they move through soil. Discuss their role in decomposition."}, mid: {title:"Vermicomposting", activity:"Research vermicomposting (worm bins). How is it different from regular composting? What type of worms are used and why?"}, high: {title:"Compost and carbon sequestration", activity:"Research how compost applications to soil affect carbon sequestration. How much CO2 can healthy agricultural soil store per acre per year?"} },
+    thursday:  { low: {title:"Compost check", activity:"Check your compost pile. Is it too dry? Add water. Too wet? Add more browns. Look for any signs of breakdown."}, mid: {title:"Finished compost", activity:"Research what finished compost looks like, smells like, and how long it takes. How do you know when it\u2019s ready to use?"}, high: {title:"Industrial composting", activity:"Research municipal composting programs. How do they differ from home composting and what materials can they accept that home composters cannot?"} }
+  },
+
+  "Boiling water — when and why": {
+    gradeHooks: {
+      low: "Sometimes we boil water to make it safe to drink. Boiling kills the tiny germs that can make us sick!",
+      mid: "Boiling is one of the most reliable water purification methods. Understanding when and how to do it correctly is an emergency preparedness skill.",
+      high: "Waterborne pathogens, boiling thresholds, altitude effects, and comparing purification methods are important public health and survival topics."
+    },
+    materials: ["Pot", "Stove access (supervised)", "Clean container for storage"],
+    steps: [
+      "Ask: why might tap water ever be unsafe to drink?",
+      "Explain: pipes can break, floods can contaminate water supplies. During a boil water advisory, you must boil before drinking.",
+      "How to boil water safely: bring to a full rolling boil for at least 1 minute (3 minutes above 6,500 feet altitude).",
+      "Let it cool before drinking. Store in a clean, covered container.",
+      "Discuss: boiling kills bacteria, viruses, and parasites but does NOT remove chemicals or heavy metals."
+    ],
+    discussion: [
+      {q:"Does boiling water make it safe from all contaminants?", answers:["No. Boiling kills biological threats (bacteria, viruses, parasites) but does not remove chemicals, heavy metals, or salt."]},
+      {q:"How would you know if your tap water had a boil advisory?", answers:["Local news, emergency text alerts, water company website, neighbors. Keep a battery-powered radio for exactly this type of local emergency."]}
+    ],
+    challenge: "With supervision, boil a pot of water using correct technique. Time the rolling boil. Let it cool and store it in a clean container.",
+    tuesday:   { low: {title:"Boiling point experiment", activity:"With supervision, watch water come to a boil. Observe: bubbles start small, grow, then reach a full rolling boil. Note the time it takes."}, mid: {title:"Purification methods comparison", activity:"Compare boiling, iodine tablets, UV purifiers, and ceramic filters. What pathogens does each remove? What are the pros and cons?"}, high: {title:"Waterborne disease research", activity:"Research the 3 most common waterborne pathogens globally: Cryptosporidium, Giardia, and Cholera. How does each spread and what treatment is most effective?"} },
+    wednesday: { low: {title:"Boil advisory response", activity:"Role play: a boil advisory is issued for your area. What do you do? Walk through every step: boiling, cooling, storing, and using for cooking and brushing teeth."}, mid: {title:"Altitude and boiling point", activity:"Research why water boils at a lower temperature at altitude. How does this affect purification time and cooking?"}, high: {title:"Flint water crisis", activity:"Research the Flint, Michigan water crisis. What went wrong, how long did it take to be addressed, and what were the health consequences for residents?"} },
+    thursday:  { low: {title:"Water storage after boiling", activity:"Practice: boil water, let cool, pour into a clean container, label with date and time. Discuss how long boiled water stays safe stored this way."}, mid: {title:"72-hour water plan", activity:"Calculate how much water your family would need for 72 hours if tap water was unsafe. Include drinking, cooking, and basic hygiene."}, high: {title:"Water security globally", activity:"Research global access to safe drinking water. What percentage of people lack access? What are the primary causes and what organizations are addressing them?"} }
+  },
+
+  "Measuring with a ruler — home repairs": {
+    gradeHooks: {
+      low: "A ruler or tape measure helps us know exactly how long something is. Measuring carefully means things fit right!",
+      mid: "Accurate measurement is the foundation of all home repair and construction. Understanding fractions on a ruler is an essential practical math skill.",
+      high: "Measurement precision, tolerance, and the connection between accurate measuring and engineering outcomes are practical and mathematical topics."
+    },
+    materials: ["Ruler and/or tape measure", "Objects around the house to measure"],
+    steps: [
+      "Pick up a tape measure. Identify the inches, feet markers, and fractional markings (1/2, 1/4, 1/8 inch).",
+      "Practice: measure the width of a door, the height of a table, the length of a windowsill.",
+      "Discuss the carpenter\u2019s rule: \u2018measure twice, cut once.\u2019 Why does this matter?",
+      "Practice measuring to the nearest 1/4 inch. Read the measurement aloud.",
+      "Discuss: when would you need to measure in centimeters vs inches?"
+    ],
+    discussion: [
+      {q:"Why do we say \u2018measure twice, cut once\u2019?", answers:["Cutting is permanent. If you cut too short, the piece is ruined. One extra check before cutting prevents wasted material and time."]},
+      {q:"What could go wrong in a home repair if your measurements are off by even half an inch?", answers:["A shelf might not fit, a door might not close, a piece of trim might leave a gap. Precision matters in construction."]}
+    ],
+    challenge: "Measure 10 different objects or spaces in your home. Record each measurement to the nearest 1/8 inch. Check your work with a parent.",
+    tuesday:   { low: {title:"Measurement scavenger hunt", activity:"Find: the longest object in the room, the shortest, and one that is exactly 12 inches. Measure and record each."}, mid: {title:"Fraction ruler reading", activity:"Draw a 12-inch ruler on paper. Mark every 1/2, 1/4, and 1/8 inch. Practice reading 10 specific measurements."}, high: {title:"Tolerance in engineering", activity:"Research the concept of tolerance in manufacturing. What does \u00b10.005 inches mean and why does it matter in precision parts?"} },
+    wednesday: { low: {title:"Simple project measuring", activity:"Measure the width and height of one window in your home. If you were buying curtains, what size would you need?"}, mid: {title:"Metric vs imperial", activity:"Research why the US uses imperial measurements while most of the world uses metric. What industries use metric in the US even though it isn\u2019t standard?"}, high: {title:"Mars Climate Orbiter", activity:"Research the Mars Climate Orbiter mission failure in 1999. What measurement error caused the crash and what does it tell us about unit consistency?"} },
+    thursday:  { low: {title:"Blueprint reading intro", activity:"Find a simple furniture assembly instruction sheet. Practice reading the measurements listed. Could you build it from the diagram?"}, mid: {title:"Home measurement project", activity:"Measure one room completely: length, width, height, and each window and door. Create a simple scale floor plan."}, high: {title:"Surveying basics", activity:"Research how land surveyors measure property boundaries. What tools are used and how accurate are modern surveys?"} }
+  },
+
+  "Banking basics — what is a savings account?": {
+    gradeHooks: {
+      low: "A savings account is like a safe place at the bank that holds our money and even grows it a little!",
+      mid: "Savings accounts earn interest, are protected by FDIC insurance, and are the foundation of personal financial security.",
+      high: "Banking fundamentals, interest rates, FDIC insurance limits, and the variety of savings vehicles are important personal finance topics."
+    },
+    materials: ["Paper for calculating"],
+    steps: [
+      "Ask: where do you think money goes when a bank \u2018holds\u2019 it for you?",
+      "Explain: a savings account is safe storage for money that also earns interest.",
+      "Define interest: the bank pays you a small percentage of your balance for letting them use your money.",
+      "Simple interest example: $100 at 2% interest earns $2 in a year. Not much, but it adds up.",
+      "Discuss FDIC: the government insures bank accounts up to $250,000 so your money is protected even if the bank fails."
+    ],
+    discussion: [
+      {q:"Why is keeping money in a bank safer than keeping it at home?", answers:["Banks are insured (FDIC), have security systems, and your money is protected from theft, fire, or disaster. Cash at home has none of those protections."]},
+      {q:"What is the difference between a checking account and a savings account?", answers:["Checking is for daily spending (debit card access). Savings is for storing money long-term and earns more interest. Savings accounts often limit withdrawals."]}
+    ],
+    challenge: "If you had $500 in a savings account earning 3% interest, how much would you have after 1 year? After 5 years (using simple interest)?",
+    tuesday:   { low: {title:"Bank visit or virtual tour", activity:"Visit a bank or look at a bank\u2019s website together. What services do they offer? What does a teller do?"}, mid: {title:"Interest calculation practice", activity:"Calculate simple interest for 5 different scenarios: different amounts, rates, and time periods. Use the formula I = P x R x T."}, high: {title:"Compound interest deep dive", activity:"Research compound interest. Use an online calculator to compare $1,000 at 5% simple interest vs 5% compound interest over 30 years. What is the difference?"} },
+    wednesday: { low: {title:"Savings account shopping", activity:"Research 3 banks or credit unions that offer youth savings accounts. Compare interest rates and any minimum balance requirements."}, mid: {title:"FDIC research", activity:"Research FDIC insurance. When was it created, why, and what does it protect? What happened to uninsured deposits during bank failures before 1933?"}, high: {title:"High-yield savings accounts", activity:"Research high-yield savings accounts and money market accounts. How do their interest rates compare to traditional savings accounts? What are the tradeoffs?"} },
+    thursday:  { low: {title:"Savings goal tracker", activity:"Set a savings goal and calculate how long it will take at your current savings rate. Make a visual progress tracker."}, mid: {title:"Credit unions vs banks", activity:"Research the difference between a bank and a credit union. Who owns each? How do interest rates typically compare?"}, high: {title:"Fractional reserve banking", activity:"Research how fractional reserve banking works. When you deposit $100, how does the bank use it? What is the reserve requirement?"} }
+  },
+
+  "Orienting a map to the real world": {
+    gradeHooks: {
+      low: "When we turn our map so North matches the real North, everything on the map lines up with what we see around us!",
+      mid: "Map orientation is the skill of aligning a map with the physical environment using a compass or landmarks. It transforms a map from a picture into a navigation tool.",
+      high: "Map orientation, resection, triangulation, and dead reckoning are advanced navigation skills used in orienteering, military, and wilderness contexts."
+    },
+    materials: ["Printed map of your neighborhood or a park", "Compass or compass app"],
+    steps: [
+      "Take your neighborhood map outside. Hold it flat.",
+      "Use a compass to find North. Rotate the map until the North arrow matches actual North.",
+      "Now look up from the map. Does your street run the way it does on the map? Do nearby landmarks match?",
+      "Practice: find 3 landmarks visible from where you stand. Confirm each appears in the correct position on the map.",
+      "Walk 100 steps in one direction. Re-orient the map at the new position."
+    ],
+    discussion: [
+      {q:"Why is an un-oriented map confusing to navigate with?", answers:["If the map isn\u2019t aligned with reality, left and right don\u2019t match. You might walk East when you mean to go West."]},
+      {q:"What can you use to orient a map if you don\u2019t have a compass?", answers:["The sun (rises East, sets West), known landmarks, street signs, or a phone\u2019s GPS arrow."]}
+    ],
+    challenge: "Take your neighborhood map to 3 different spots and re-orient it at each one. Identify one landmark from each position.",
+    tuesday:   { low: {title:"Landmark matching", activity:"Orient your map and find 5 real landmarks that match symbols on the map. Point to each on the map and then in real life."}, mid: {title:"Triangulation basics", activity:"Research triangulation. If you can identify 3 landmarks on a map and in real life, how can you determine exactly where you are standing?"}, high: {title:"Resection technique", activity:"Research the map resection technique. Practice it with a topographic map and compass: identify 3 mapped features and find your position."} },
+    wednesday: { low: {title:"Neighborhood walk with map", activity:"Take a 15-minute walk using your oriented map as a guide. Check your position at every intersection."}, mid: {title:"GPS and map integration", activity:"Use a GPS app and a paper map simultaneously. How do the two tools complement each other? When would you rely on each?"}, high: {title:"Military land navigation", activity:"Research basic military land navigation techniques. What is a pace count and how is it used to track distance traveled?"} },
+    thursday:  { low: {title:"Map accuracy check", activity:"Walk your neighborhood and update your hand-drawn map with anything that was wrong or missing. How accurate was your original?"}, mid: {title:"Park navigation challenge", activity:"Plan and execute a navigation challenge at a local park using only a printed trail map and compass. No GPS allowed."}, high: {title:"Orienteering competition", activity:"Research local orienteering events or clubs. What level of navigation skill do beginner courses require? Could your family participate?"} }
+  },
+
+  "Making a neighborhood safety map": {
+    gradeHooks: {
+      low: "A safety map shows safe places to go if we need help in our neighborhood — like a neighbor\u2019s house or a fire station.",
+      mid: "A neighborhood safety map identifies trusted homes, emergency facilities, safe routes, and potential hazards for use during emergencies.",
+      high: "Community safety mapping, spatial risk assessment, and participatory mapping are tools used in emergency preparedness and urban planning."
+    },
+    materials: ["Large paper", "Pencils and colored markers"],
+    steps: [
+      "Ask: if you were walking home and something felt wrong, where would you go?",
+      "Explain: a safety map shows you \u2018safe havens\u2019 before you need them, so you know instantly in an emergency.",
+      "Draw your neighborhood and mark: trusted neighbors\u2019 homes, fire station, police station, school, library, and any places that feel unsafe.",
+      "Plan two safe walking routes from school or the park to your home.",
+      "Share the map with the whole family so everyone knows the safe spots."
+    ],
+    discussion: [
+      {q:"What makes a neighbor\u2019s home a \u2018safe haven\u2019?", answers:["You know the people, they know you, they have agreed to help if you ever need it, and an adult is usually home."]},
+      {q:"Why plan two routes instead of one?", answers:["One route might be blocked by an accident, construction, or an unsafe situation. Having an alternate means you\u2019re never stuck."]}
+    ],
+    challenge: "Identify and personally introduce yourself to two \u2018safe haven\u2019 neighbors. Add them to your map with their house number.",
+    tuesday:   { low: {title:"Safe haven identification", activity:"Identify 3 homes in your neighborhood where you know the adults and would feel safe going. Mark them on your map with a green star."}, mid: {title:"Emergency facility locations", activity:"Look up the locations of the nearest fire station, hospital, police station, and Red Cross shelter. Add them to your map with distances."}, high: {title:"FEMA risk mapping", activity:"Research FEMA\u2019s flood maps and hazard maps. Look up your address on the FEMA flood map portal. What flood zone are you in?"} },
+    wednesday: { low: {title:"Route testing", activity:"Walk both of your safe routes home. Time each one. Note landmarks that help you remember the way."}, mid: {title:"Hazard identification", activity:"Walk your neighborhood and identify physical hazards: poorly lit areas, blind corners, busy intersections, areas with no sidewalk. Mark them on the map."}, high: {title:"Participatory mapping research", activity:"Research community participatory mapping projects. How are they used in disaster preparedness, public health, and community organizing?"} },
+    thursday:  { low: {title:"Family map review", activity:"Present your safety map to the whole family. Walk them through each safe haven and route. Make sure everyone knows the plan."}, mid: {title:"Emergency rendezvous points", activity:"Mark 3 emergency rendezvous points on your map: one at school, one midway, one near home. These are where family members meet if separated."}, high: {title:"GIS and community safety", activity:"Research how GIS (Geographic Information Systems) is used by cities to map crime patterns, emergency response times, and community vulnerability. What data is used?"} }
+  },
+
+  "Wind chill and heat index — what they mean": {
+    gradeHooks: {
+      low: "Sometimes it feels colder or hotter than the thermometer says. Wind and humidity change how our bodies feel the temperature!",
+      mid: "Wind chill and heat index are calculated values that describe how weather actually feels to a human body, not just the air temperature.",
+      high: "The physics of wind chill (convective heat loss) and heat index (evaporative cooling impairment) have important implications for outdoor safety."
+    },
+    materials: ["Thermometer", "Weather app showing feels-like temperature"],
+    steps: [
+      "Ask: have you ever been outside when it felt much colder than the thermometer said? What was happening?",
+      "Explain wind chill: wind carries heat away from your body faster. The faster the wind, the colder it feels.",
+      "Explain heat index: when humidity is high, sweat can\u2019t evaporate well. Your body can\u2019t cool itself, so it feels hotter.",
+      "Find today\u2019s temperature and the \u2018feels like\u2019 temperature on a weather app. Compare them.",
+      "Discuss safety: heat index above 103\u00b0F is dangerous. Wind chill below 0\u00b0F risks frostbite within 30 minutes."
+    ],
+    discussion: [
+      {q:"Why does sweat help cool us down, and why does humidity make that harder?", answers:["Sweat evaporates from skin, carrying heat with it. High humidity means the air is already full of water vapor, so evaporation slows and your body retains heat."]},
+      {q:"At what heat index should outdoor activities be limited or cancelled?", answers:["Above 103\u00b0F, heat exhaustion risk is high. Above 125\u00b0F, heat stroke (life-threatening) can occur quickly."]}
+    ],
+    challenge: "Check the heat index every day for one week. Record the actual temperature vs feels-like temperature each day. What was the biggest difference?",
+    tuesday:   { low: {title:"Hot or cold dressing guide", activity:"For each scenario, draw the right outfit: 72\u00b0F with high humidity, 45\u00b0F with 20 mph wind, 95\u00b0F heat index, 20\u00b0F wind chill."}, mid: {title:"Wind chill chart reading", activity:"Find a NOAA wind chill chart online. Practice reading it: at 20\u00b0F with 15 mph wind, what is the wind chill? At what combination does frostbite risk begin?"}, high: {title:"Convective heat loss physics", activity:"Research Newton\u2019s Law of Cooling and how wind increases convective heat transfer. Write the equation and explain what each variable represents."} },
+    wednesday: { low: {title:"Humidity experiment", activity:"Wet your arm and wave it in the air. Then wet it again and hold still. Which feels cooler? Discuss why: evaporation and air movement."}, mid: {title:"Heat index formula", activity:"Research the Heat Index formula (Rothfusz regression equation). Apply it to calculate the heat index for 90\u00b0F with 80% humidity."}, high: {title:"Wet bulb temperature", activity:"Research wet bulb temperature and wet bulb globe temperature (WBGT). Why is WBGT used to make decisions about outdoor athletic events?"} },
+    thursday:  { low: {title:"Weather safety rules", activity:"Make a weather safety chart: at these conditions, we do this. Include: high heat index (shade, water, rest), wind chill (layers, limit exposure), thunderstorm (go inside)."}, mid: {title:"Florida heat safety", activity:"Research Florida-specific heat safety guidelines. What does the Florida Department of Health recommend during heat advisories?"}, high: {title:"Urban heat islands and heat index", activity:"Research how urban heat islands amplify heat index effects in cities. What design interventions (green roofs, tree canopy, cool pavements) reduce urban heat?"} }
+  },
+
+  "Foods that last a long time": {
+    gradeHooks: {
+      low: "Some foods stay good for a really long time without a fridge! Knowing which ones helps us be ready for emergencies.",
+      mid: "Long shelf life foods form the foundation of emergency food storage. Understanding why they last and how to use them is a preparedness skill.",
+      high: "Food preservation science, water activity, oxygen, and microbial inhibition explain why certain foods have dramatically longer shelf lives."
+    },
+    materials: ["Pantry items to examine", "Paper for making a list"],
+    steps: [
+      "Tour your pantry. Find 5 foods that last more than a year without refrigeration.",
+      "Explain why they last: low moisture content, sealed from oxygen, or high salt/sugar content inhibits microbial growth.",
+      "Rank foods by shelf life: white rice (25 yr), honey (indefinite), canned goods (2\u20135 yr), dried beans (8\u201310 yr), pasta (2\u20133 yr).",
+      "Discuss the difference between best-by dates (quality) and safety dates (when food becomes dangerous).",
+      "Plan a 3-day emergency menu using only shelf-stable foods in your pantry."
+    ],
+    discussion: [
+      {q:"Why does honey never expire?", answers:["Honey has extremely low water content and contains hydrogen peroxide. Bacteria cannot survive in it. Properly sealed honey has been found edible in ancient Egyptian tombs."]},
+      {q:"What is the difference between a best-by date and a use-by date?", answers:["Best-by = quality peak (still safe after). Use-by = safety date (especially important for perishables like deli meat and dairy)."]}
+    ],
+    challenge: "Inventory every shelf-stable food in your home. Organize by expiration date. Write a 3-day menu using only those foods.",
+    tuesday:   { low: {title:"Long shelf life ranking", activity:"Draw a timeline from 0 to 25 years. Place 10 common foods on the timeline based on their shelf life."}, mid: {title:"Canned food science", activity:"Research the canning process. How does heating and sealing remove oxygen and kill pathogens? What is botulism and how does canning prevent it?"}, high: {title:"Water activity and preservation", activity:"Research water activity (Aw) in food preservation. What Aw level prevents microbial growth? How do different preservation methods lower Aw?"} },
+    wednesday: { low: {title:"Emergency menu planning", activity:"Plan breakfast, lunch, and dinner for 3 days using only shelf-stable foods. Make sure each meal is nutritious and realistic."}, mid: {title:"Freeze-dried vs dehydrated", activity:"Research freeze-drying vs dehydration. How does each preserve food? Which retains more nutrients and why?"}, high: {title:"MRE research", activity:"Research military MREs (Meals Ready to Eat). What is their shelf life, caloric content, and how are they engineered for field conditions?"} },
+    thursday:  { low: {title:"Shelf-stable recipe", activity:"Cook a meal using only shelf-stable ingredients from your pantry. How did it taste? What would make it better?"}, mid: {title:"Rotation system setup", activity:"Set up a FIFO rotation system for your family\u2019s shelf-stable foods. Label shelves and create a simple log."}, high: {title:"Food security and shelf life", activity:"Research how long shelf-life foods are used in humanitarian aid. What are the caloric and nutritional requirements for emergency food rations and how are they met?"} }
+  },
+
+  "Safe storage of cleaning products": {
+    gradeHooks: {
+      low: "Cleaning products can be dangerous if we swallow them or mix them together. They must be stored safely away from kids.",
+      mid: "Household chemical safety includes proper storage, hazard labeling, and knowing which combinations create toxic reactions.",
+      high: "Chemical hazard identification, SDS (Safety Data Sheets), toxic gas generation from mixing household chemicals, and poison prevention are important safety topics."
+    },
+    materials: ["Cleaning products under your sink or in storage to examine (supervised)"],
+    steps: [
+      "Open a cabinet with cleaning products together. Identify each one.",
+      "Look at the warning labels: what symbols or words indicate danger? (Poison, Warning, Danger, Caution)",
+      "Discuss the two biggest rules: keep them away from children, never mix different cleaning products.",
+      "Explain why mixing is dangerous: bleach + ammonia = toxic chloramine gas. Bleach + vinegar = chlorine gas.",
+      "Check storage: are all caps tight? Are they in original containers with labels intact? Are they in a locked or high cabinet?"
+    ],
+    discussion: [
+      {q:"Why should cleaning products always be kept in their original containers?", answers:["The label has safety information, first aid instructions, and emergency contact numbers. Unlabeled containers can be mistaken for something else."]},
+      {q:"What should you do if you accidentally mix two cleaning products and they start to react?", answers:["Leave the area immediately, get fresh air, call Poison Control (1-800-222-1222) or 911 if anyone feels sick."]}
+    ],
+    challenge: "Audit all cleaning products in your home. Check: original containers? Labels readable? Caps tight? Out of reach of young children? Note any issues.",
+    tuesday:   { low: {title:"Label reading", activity:"Read the warning label on 3 cleaning products. Find: active ingredient, hazard warnings, first aid instructions, and what to do if swallowed."}, mid: {title:"Dangerous combinations chart", activity:"Research 5 cleaning product combinations that create toxic gases. Make a chart: products + what gas is produced + symptoms."}, high: {title:"SDS sheets", activity:"Research Safety Data Sheets (SDS). Find the SDS for bleach online. Identify the sections covering hazard identification, first aid, and handling/storage."} },
+    wednesday: { low: {title:"Storage audit", activity:"Check every room for cleaning products stored at child level. Move anything that should be stored higher or locked away."}, mid: {title:"Poison Control research", activity:"Research the Poison Control Center. What services do they provide? How many calls do they receive annually? What are the most common household exposures?"}, high: {title:"GHS labeling system", activity:"Research the Globally Harmonized System (GHS) of chemical classification and labeling. What do the 9 GHS pictograms mean?"} },
+    thursday:  { low: {title:"Safe chemical art project", activity:"Make labels for your cleaning product cabinet: a red STOP sign with \u2018Ask a Grown-Up!\u2019 for any cabinet with chemicals."}, mid: {title:"Green cleaning alternatives", activity:"Research 5 DIY cleaning solutions using safe ingredients (vinegar, baking soda, lemon). Are they as effective as commercial cleaners?"}, high: {title:"Occupational chemical exposure", activity:"Research OSHA permissible exposure limits (PELs) for common household chemicals in occupational settings. How do home exposures compare?"} }
+  },
+
+  "Recognizing poison ivy and oak": {
+    gradeHooks: {
+      low: "Poison ivy and oak have a rash-causing oil. The rhyme \u2018leaves of three, let it be\u2019 helps us stay safe outdoors!",
+      mid: "Recognizing poison ivy, oak, and sumac by leaf shape, growth pattern, and habitat prevents urushiol exposure and painful rashes.",
+      high: "Urushiol chemistry, sensitization and allergic response, and cross-reactivity with related plants are important botanical and immunology topics."
+    },
+    materials: ["Pictures of poison ivy, oak, and sumac (from a field guide or printout)", "Do NOT collect real samples"],
+    steps: [
+      "Look at photos of poison ivy: leaflets of three, shiny, pointed, and notched or smooth edges.",
+      "Look at poison oak: leaflets of three, more rounded and lobed like an oak leaf.",
+      "The rhyme: \u2018Leaves of three, let it be. Berries white, take flight.\u2019",
+      "Discuss: poison ivy grows as a vine, shrub, or ground cover. It can even be on dead-looking winter stems.",
+      "If you touch it: wash the area with soap and cool water within 10 minutes. Wash clothes and shoes separately."
+    ],
+    discussion: [
+      {q:"Can you get a rash from touching something that touched poison ivy (like a dog or garden tool)?", answers:["Yes. The oil (urushiol) transfers to surfaces and stays potent for years. Always wash tools and pets that may have contacted it."]},
+      {q:"What do you do if you develop a rash after being outdoors?", answers:["Wash the area if you haven\u2019t already. Apply calamine lotion or hydrocortisone cream for mild rashes. See a doctor if the rash is on the face, spreading rapidly, or near eyes or mouth."]}
+    ],
+    challenge: "On your next outdoor walk, look for plants with leaves in groups of three. Identify them safely (don\u2019t touch) and photograph them.",
+    tuesday:   { low: {title:"Leaf of three identification", activity:"Look at a field guide or app (like iNaturalist). Practice identifying poison ivy vs Virginia creeper (5 leaflets) vs raspberry (3 leaflets, thorny)."}, mid: {title:"Urushiol research", activity:"Research urushiol. How little is needed to cause a reaction? How long does it remain active on surfaces? Why do some people seem immune?"}, high: {title:"Allergic contact dermatitis", activity:"Research allergic contact dermatitis as an immune response. What is sensitization and why do reactions often get worse with each exposure?"} },
+    wednesday: { low: {title:"Habitat awareness", activity:"Research where poison ivy commonly grows in Florida: along trails, fence lines, forest edges. Describe the typical habitat."}, mid: {title:"Treatment options", activity:"Research treatment for poison ivy rash: OTC options, prescription steroids, and home remedies. Which have evidence behind them?"}, high: {title:"Cross-reactive plants", activity:"Research plants cross-reactive with poison ivy urushiol: mango skin, cashew shells, ginkgo fruit. Why does urushiol appear in these unrelated plants?"} },
+    thursday:  { low: {title:"Safety poster", activity:"Make a \u2018Watch Out!\u2019 poster showing poison ivy leaves (drawn from a photo). Post it near your outdoor gear."}, mid: {title:"iNaturalist activity", activity:"Download iNaturalist and use it to identify 5 plants on a walk. Can you use it to check plants before touching them?"}, high: {title:"Ethnobotany and urushiol", activity:"Research how Indigenous peoples used poison ivy plants for various purposes despite their toxicity. What protective or preparatory techniques were used?"} }
+  },
+
+  "What is flood safety?": {
+    gradeHooks: {
+      low: "Floods happen when too much water covers the land. We stay safe by moving to high ground and never walking in floodwater!",
+      mid: "Flood safety involves recognizing flood types, knowing when to evacuate, and understanding why floodwater is dangerous even when shallow.",
+      high: "Flood hydrology, infrastructure failure, FEMA flood mapping, and the increasing frequency of flooding under changing climate are important topics."
+    },
+    materials: ["Florida county flood map (FEMA or county website)"],
+    steps: [
+      "Ask: has anyone ever seen flooding? What did it look like?",
+      "Explain Florida\u2019s flood risks: heavy rain, storm surge from hurricanes, and river flooding.",
+      "Discuss the dangers of floodwater: hidden obstacles, downed power lines, sewage contamination, current strength.",
+      "Key rule: turn around, don\u2019t drown. 6 inches of moving water can knock a person down. 12 inches can carry a car.",
+      "Look up your home\u2019s flood zone on FEMA\u2019s flood map service. Are you in a flood-prone area?"
+    ],
+    discussion: [
+      {q:"Why is it dangerous to drive or walk through floodwater even if it looks shallow?", answers:["You can\u2019t see what\u2019s underneath: manholes, washed-out road, debris, electrical hazards. Moving water has tremendous force even at 6 inches deep."]},
+      {q:"What does it mean to be in FEMA flood zone A or AE?", answers:["These are high-risk areas with a 1% chance of flooding each year (100-year flood plain). Federally-backed mortgages in these zones require flood insurance."]}
+    ],
+    challenge: "Look up your address on the FEMA Flood Map Service Center (msc.fema.gov). What flood zone are you in? What does that mean for your family?",
+    tuesday:   { low: {title:"Flood safety rules", activity:"Draw a poster with 3 flood safety rules: never walk in floodwater, turn around don\u2019t drown, go to high ground."}, mid: {title:"Flood type research", activity:"Research 4 types of floods: flash flood, river flood, storm surge, and urban flooding. What causes each and which is most dangerous?"}, high: {title:"Infrastructure and flooding", activity:"Research how levees, stormwater systems, and drainage canals affect flood risk. What happens when these systems are overwhelmed or fail?"} },
+    wednesday: { low: {title:"Elevation awareness", activity:"Research what elevation your home is at. Is it above or below the flood plain level for your area?"}, mid: {title:"Flood preparedness kit", activity:"Research what to include in a flood-specific preparedness kit: waterproof documents, water shoes, extra medications, mold prevention supplies."}, high: {title:"NFIP research", activity:"Research the National Flood Insurance Program (NFIP). Why does private flood insurance rarely cover floods? What controversies surround NFIP pricing?"} },
+    thursday:  { low: {title:"Flood map activity", activity:"Find your county\u2019s flood zone map. Color-code areas by risk level. Where are the highest-risk areas near you?"}, mid: {title:"Storm surge simulation", activity:"Research storm surge maps for a Category 3 hurricane hitting your area. What areas would be inundated? What would your evacuation decision be?"}, high: {title:"Managed retreat", activity:"Research the concept of managed retreat from flood-prone areas. What are the ethical, economic, and community implications of relocating people from high-risk zones?"} }
+  },
+
+  "Writing a family emergency contact card": {
+    gradeHooks: {
+      low: "A family emergency contact card has all the important phone numbers on one card we can keep anywhere.",
+      mid: "A complete emergency contact card includes local and out-of-area contacts, medical information, and is kept in multiple locations.",
+      high: "Emergency communication planning requires redundancy, offline accessibility, and preparation for scenarios where normal communication infrastructure fails."
+    },
+    materials: ["Index cards or cardstock", "Pencil or pen", "Laminating sheet or packing tape"],
+    steps: [
+      "Explain: in an emergency, your brain doesn\u2019t work as well under stress. A card means you don\u2019t have to remember.",
+      "List what goes on the card: full names of all family members, 2 parent cell numbers, an out-of-state contact, doctor\u2019s number, and Poison Control.",
+      "Add: each child\u2019s school and teacher name, any medical conditions or medications, and blood types if known.",
+      "Write neatly and laminate with packing tape or at a print shop.",
+      "Make 4 copies: one per child\u2019s backpack, one in each parent\u2019s wallet, one in the go-bag."
+    ],
+    discussion: [
+      {q:"Why put medical information on the contact card?", answers:["If a parent is incapacitated, first responders or other adults need to know about allergies, medications, and conditions to provide proper care."]},
+      {q:"Why have an out-of-state contact rather than all local contacts?", answers:["Local lines jam during local disasters. An out-of-state contact can relay messages between family members who can\u2019t reach each other directly."]}
+    ],
+    challenge: "Complete your family\u2019s emergency contact card and make 4 copies. Distribute them to their locations today.",
+    tuesday:   { low: {title:"Contact card decoration", activity:"Make the card sturdy and attractive. Add a family symbol or small photo. Laminate it so it survives being in a backpack for months."}, mid: {title:"Digital backup", activity:"Photograph the contact card and save it as the lock screen on each parent\u2019s phone. Discuss why the physical card is still essential."}, high: {title:"HIPAA and emergency access", activity:"Research HIPAA and medical information sharing in emergencies. When can first responders share or access your medical information? What are the legal frameworks?"} },
+    wednesday: { low: {title:"Memorization quiz", activity:"Quiz each family member: can they recite the 3 most important numbers on the card from memory? Practice until they can."}, mid: {title:"School emergency forms", activity:"Compare your contact card to the emergency contact form on file at school. Are they consistent and up to date?"}, high: {title:"Emergency notification systems", activity:"Research how schools and workplaces use emergency notification systems. What data do they use and how do they reach people when phones are down?"} },
+    thursday:  { low: {title:"Backpack placement", activity:"Each child: put your contact card in a dedicated pocket of your backpack right now. Tell a parent where it is."}, mid: {title:"Annual review", activity:"Set a calendar reminder to update the contact card annually. What information changes most often? (Phone numbers, school, medications)"}, high: {title:"Medical ID bracelets", activity:"Research medical alert jewelry and apps (like MedicAlert, Road iD). How do they communicate critical medical information to first responders?"} }
+  },
+
+  "Cooking a simple breakfast safely": {
+    gradeHooks: {
+      low: "We can help make breakfast! Even scrambled eggs or toast requires knowing the safety rules for the stove and toaster.",
+      mid: "Breakfast cooking introduces stovetop and small appliance safety, egg handling, and basic food hygiene in a practical context.",
+      high: "Breakfast preparation is an opportunity to practice mise en place, food safety temperatures, and efficient cooking technique."
+    },
+    materials: ["Eggs", "Bread", "Pan", "Toaster", "Spatula"],
+    steps: [
+      "Review safety rules: wash hands, adult present for stove use, handle placement, never leave unattended.",
+      "Choose a breakfast: scrambled eggs, toast, or oatmeal.",
+      "Walk through prep: crack eggs into a bowl (not directly into pan), whisk, pour into buttered pan over medium-low heat.",
+      "Monitor closely: eggs cook fast. Stir gently until just set — no brown edges.",
+      "Plate, clean up, and wash hands again after handling raw eggs."
+    ],
+    discussion: [
+      {q:"Why do we crack eggs into a bowl before adding them to the pan?", answers:["So you can spot shell pieces and remove them before cooking. A shell in the pan is much harder to remove."]},
+      {q:"What temperature must scrambled eggs reach to be safe?", answers:["160\u00b0F, or until there is no visible liquid egg. Runny scrambled eggs carry Salmonella risk."]}
+    ],
+    challenge: "Cook breakfast for your family one day this week with minimal adult assistance. Clean up completely afterward.",
+    tuesday:   { low: {title:"Egg safety facts", activity:"Research Salmonella and eggs. Why are undercooked eggs risky? What food handling practices reduce the risk?"}, mid: {title:"Breakfast nutrition", activity:"Analyze the nutritional content of your breakfast. Does it include protein, complex carbs, and healthy fat? How could you improve it?"}, high: {title:"Maillard reaction in cooking", activity:"Research the Maillard reaction. Why do eggs and toast brown when cooked with heat? What temperatures trigger it and how does it affect flavor?"} },
+    wednesday: { low: {title:"Different egg styles", activity:"Research 5 ways to cook an egg: scrambled, fried, poached, boiled, omelet. What is different about each method?"}, mid: {title:"Full breakfast planning", activity:"Plan a nutritionally balanced breakfast for your family. Calculate approximate cost per person."}, high: {title:"Mise en place practice", activity:"Prepare all ingredients before turning on any heat. Measure, chop, crack — everything ready. Cook the meal. How did preparation affect the cooking experience?"} },
+    thursday:  { low: {title:"Weekend breakfast project", activity:"Cook a complete breakfast for your family: eggs, toast, and a fruit. Handle every step yourself with light supervision."}, mid: {title:"Food cost comparison", activity:"Compare the cost of making breakfast at home vs buying at a fast food restaurant. Calculate weekly and monthly savings."}, high: {title:"Breakfast culture around the world", activity:"Research traditional breakfasts in 5 countries. How do ingredients, preparation methods, and nutrition profiles compare to a typical American breakfast?"} }
+  },
+
+
+
+  "Burns and blisters first aid": {
+    gradeHooks: {
+      low: "If we touch something hot and get a burn, cool water helps right away. Never put butter on a burn!",
+      mid: "Burns are classified by degree. First and second degree burns have specific home care protocols. Third degree burns require emergency care.",
+      high: "Burn pathophysiology, the rule of nines for estimating burn area, and advanced wound care are key emergency medicine topics."
+    },
+    materials: ["Running water access", "Clean bandage or gauze"],
+    steps: [
+      "Ask: what should you do the instant you touch something hot?",
+      "Rule 1: cool running water for 10 full minutes. Not ice, not butter, not toothpaste — just cool water.",
+      "Explain burn degrees: first degree (red, no blister), second degree (blisters), third degree (emergency call 911).",
+      "For blisters: do NOT pop them. They protect the healing skin underneath.",
+      "Cover loosely with a clean bandage. Watch for infection signs over the next few days."
+    ],
+    discussion: [
+      {q:"Why should you never put butter or ice on a burn?", answers:["Butter traps heat in and can cause infection. Ice constricts blood vessels and can cause frostbite on damaged skin."]},
+      {q:"When is a burn an emergency requiring 911?", answers:["Third degree burns, burns on the face, hands, feet or genitals, burns from chemicals or electricity, or any burn larger than 3 inches."]}
+    ],
+    challenge: "Make a burn first aid reminder card for your kitchen: 1) Cool water 10 min. 2) Don\u2019t pop blisters. 3) Cover loosely. 4) Watch for infection.",
+    tuesday:   { low: {title:"Kitchen danger spots", activity:"Walk through your kitchen and identify 5 things that could cause a burn. Rate each as low, medium, or high risk."}, mid: {title:"Burn degree chart", activity:"Draw and label first, second, and third degree burns. Include: appearance, symptoms, and home treatment vs ER for each."}, high: {title:"Burn area estimation", activity:"Research the Rule of Nines for estimating burn surface area. Apply it to a scenario: burns covering one full arm and one hand. What percentage is affected?"} },
+    wednesday: { low: {title:"Cold water timer", activity:"Practice: pretend burn on hand. Start cool water and time 10 full minutes. How long does that actually feel?"}, mid: {title:"Chemical burn treatment", activity:"Research how chemical burn treatment differs from heat burns. Why is flushing with water critical and for how long?"}, high: {title:"Skin graft overview", activity:"Research when and why skin grafts are used for severe burns. What is the source of the donor skin and how does the procedure work?"} },
+    thursday:  { low: {title:"Safety rules poster", activity:"Make a kitchen burn safety poster with 3 rules and pictures. Hang it where it can be seen while cooking."}, mid: {title:"Blister biology", activity:"Research what a blister actually is and why the body forms one. What happens if you pop it and why is that risky?"}, high: {title:"Burn center research", activity:"Research what a burn center provides that a regular ER cannot. What criteria determine if a patient should be transferred to a burn center?"} }
+  },
+
+  "Emergency contact list": {
+    gradeHooks: {
+      low: "An emergency contact list has phone numbers we might need in an emergency. Every family needs one!",
+      mid: "A comprehensive emergency contact list includes local, out-of-area, and utility contacts. Knowing why each matters prepares you to use it.",
+      high: "Emergency communication planning accounts for network congestion, power outages, and the psychology of decision-making under stress."
+    },
+    materials: ["Paper and pencil", "Index card or cardstock"],
+    steps: [
+      "Ask: if something went wrong and you needed to call for help, do you know who to call beyond 911?",
+      "Build the list together: 911, both parents\u2019 cell numbers, a local trusted adult, an out-of-state relative.",
+      "Discuss why an out-of-area contact matters: local phone lines get jammed in disasters but out-of-state calls often go through.",
+      "Add: doctor, poison control (1-800-222-1222), local non-emergency police, utility company.",
+      "Write it neatly on a card, laminate or tape it, and place copies in 3 locations: kitchen, each child\u2019s backpack, go-bag."
+    ],
+    discussion: [
+      {q:"Why would you call an out-of-state relative during a local emergency?", answers:["Local phone lines get overloaded. Out-of-state calls often connect when local ones can\u2019t. They become your message relay hub."]},
+      {q:"What is the Poison Control number and when would you use it?", answers:["1-800-222-1222. Call immediately if someone swallows, inhales, or gets a chemical on their skin that could be toxic."]}
+    ],
+    challenge: "Create your family\u2019s emergency contact list. Make 3 copies and place them in 3 different locations.",
+    tuesday:   { low: {title:"Contact card craft", activity:"Write your family\u2019s emergency contacts on an index card. Decorate the border and laminate it with packing tape."}, mid: {title:"ICE contacts", activity:"Research the ICE (In Case of Emergency) phone contact convention. Set up ICE contacts on a parent\u2019s phone."}, high: {title:"Communication hierarchy", activity:"Design a full family emergency communication plan: who calls who, what the out-of-state relay does, and how the family reunites."} },
+    wednesday: { low: {title:"Number memorization", activity:"Memorize both parents\u2019 phone numbers. Practice by reciting them 5 times without looking."}, mid: {title:"Community resources list", activity:"Add to the contact list: nearest hospital, local Red Cross chapter, FEMA region office, and local emergency management."}, high: {title:"Communication failure scenarios", activity:"Plan for 3 scenarios where normal communication fails: no cell signal, power out, internet down. What backup method does your family use for each?"} },
+    thursday:  { low: {title:"Quiz the family", activity:"Quiz each family member: can they recite 3 emergency numbers from memory? Practice until everyone can."}, mid: {title:"Go-bag contact sheet", activity:"Create a laminated contact sheet for your family\u2019s go-bag. Include contacts, blood types, medications, and insurance info."}, high: {title:"Social media in emergencies", activity:"Research how social media platforms (Facebook Safety Check, Twitter) have been used in disasters. What are the limitations and risks?"} }
+  },
+
+  "Kitchen safety": {
+    gradeHooks: {
+      low: "The kitchen has hot things, sharp things, and slippery floors. We follow rules to stay safe and be good helpers.",
+      mid: "Kitchen safety encompasses burns, cuts, fire, foodborne illness, and ergonomics. Understanding each hazard enables confident cooking.",
+      high: "A professional kitchen safety framework includes hazard identification, HACCP principles, proper technique, and emergency response protocols."
+    },
+    materials: ["Kitchen access", "Oven mitts"],
+    steps: [
+      "Walk the kitchen and name one hazard in each zone: stove area, knife area, floor, fridge.",
+      "Cover the core rules: always wash hands, keep flammables away from burners, turn handles inward, clean spills immediately.",
+      "Demonstrate: how to carry a knife (tip down, blade away from body), how to use oven mitts properly.",
+      "Discuss fire: grease fires are smothered (never water), oven fires smother by closing the door and turning off the heat.",
+      "Practice: put on oven mitts, pick up a cold pot, move it safely to another burner."
+    ],
+    discussion: [
+      {q:"Why do we turn pan handles to the side on the stove?", answers:["Handles over the burner can get dangerously hot and handles sticking out can be knocked off by someone walking past."]},
+      {q:"What is the single most common cause of home kitchen fires?", answers:["Leaving cooking unattended. If you have to leave the kitchen, turn off the burner."]}
+    ],
+    challenge: "Write a \u2018Kitchen Safety Pledge\u2019 with 6 rules you commit to. Sign it and post it on the fridge.",
+    tuesday:   { low: {title:"Hazard hunt", activity:"Go through each kitchen zone and list every potential hazard. Categorize: burn risk, cut risk, slip risk, fire risk."}, mid: {title:"Fire extinguisher types", activity:"Research ABC fire extinguisher ratings. Which type belongs in a kitchen? Research the PASS method for use."}, high: {title:"Foodborne illness science", activity:"Research how Salmonella, E. coli, and Listeria contaminate food and at what temperatures they are destroyed. Create a safety temperature chart."} },
+    wednesday: { low: {title:"Safe cutting practice", activity:"With supervision, practice the claw grip on a soft food. Cut 5 pieces of banana or cucumber. Focus on finger position."}, mid: {title:"Cross-contamination audit", activity:"Audit your kitchen for cross-contamination risks: cutting boards, sponges, counter surfaces. Research best practices for each."}, high: {title:"HACCP in the home kitchen", activity:"Apply HACCP\u2019s 7 principles to a meal you commonly cook. Identify critical control points and what monitoring would look like."} },
+    thursday:  { low: {title:"Safe recipe project", activity:"Make a completely safe no-heat snack (ants on a log, fruit skewers, cheese and crackers) while narrating every safety choice."}, mid: {title:"Kitchen fire response plan", activity:"Write a step-by-step kitchen fire response plan for your home. Include: pan fire, oven fire, microwave fire, when to call 911."}, high: {title:"Restaurant inspection", activity:"Research how restaurant health inspections work. Look up the inspection score for a local restaurant online. What do inspectors look for?"} }
+  },
+
+  "Seed saving basics": {
+    gradeHooks: {
+      low: "We can save seeds from the foods we eat and use them to grow new plants next year!",
+      mid: "Seed saving preserves plant genetics, reduces cost, and builds gardening self-sufficiency. Different crops require different techniques.",
+      high: "Seed saving connects to genetic diversity, food sovereignty, heirloom vs hybrid varieties, and the history of industrial agriculture."
+    },
+    materials: ["A tomato, pepper, or squash from the kitchen", "Paper towel", "Small envelope or paper bag"],
+    steps: [
+      "Cut open a tomato or pepper. Look at the seeds inside.",
+      "Explain: these seeds can grow new plants if saved and dried correctly.",
+      "Demonstrate: scoop out seeds, rinse off the pulp, spread on a paper towel to dry.",
+      "Let them dry for 1\u20132 weeks in a warm spot out of direct sunlight.",
+      "Once dry, store in a labeled paper envelope in a cool, dry, dark place."
+    ],
+    discussion: [
+      {q:"Why do we use paper envelopes instead of plastic bags to store seeds?", answers:["Paper lets moisture escape so seeds don\u2019t rot. Plastic can trap humidity and cause mold."]},
+      {q:"Why might seeds from a store tomato not grow into the same tomato you bought?", answers:["Many store tomatoes are hybrid varieties. Their seeds may produce plants with different traits or may not be reliably fertile."]}
+    ],
+    challenge: "Save seeds from one food this week. Label the envelope with the plant name and today\u2019s date. Plant one test seed in a cup.",
+    tuesday:   { low: {title:"Seed library craft", activity:"Make a seed packet from a folded piece of paper. Label it with: plant name, date saved, and a drawing of the plant."}, mid: {title:"Wet vs dry processing", activity:"Research wet processing (tomatoes, cucumbers) vs dry processing (beans, peppers) for seed saving. Why does each method work for its crop type?"}, high: {title:"Heirloom vs hybrid seeds", activity:"Research the difference between open-pollinated, heirloom, and hybrid seeds. Why can you save heirloom seeds but not always hybrid ones?"} },
+    wednesday: { low: {title:"Germination test", activity:"Place 5 saved seeds on a damp paper towel in a bag. Check daily. How many sprout in 7 days? Calculate your germination rate."}, mid: {title:"Seed viability", activity:"Research how long seeds from different plants stay viable: tomato, bean, carrot, onion, corn. What storage conditions maximize viability?"}, high: {title:"Seed banks and food security", activity:"Research the Svalbard Global Seed Vault. Why was it built, what does it contain, and what is its role in global food security?"} },
+    thursday:  { low: {title:"Seed swap planning", activity:"What seeds would you want to trade with a neighbor? Make a list of seeds you have and seeds you want. Discuss how seed swaps work."}, mid: {title:"Seed journal setup", activity:"Start a seed saving journal: record the plant, source, date saved, storage location, and germination test results."}, high: {title:"Genetic diversity research", activity:"Research why genetic diversity in food crops matters. What happened to the Irish potato during the famine due to monoculture? What is being done to prevent similar events?"} }
+  },
+
+  "Building a snack from scratch": {
+    gradeHooks: {
+      low: "We can make our own snacks from simple ingredients! Homemade snacks are often healthier and taste better.",
+      mid: "Making snacks from scratch builds food literacy, nutrition awareness, and practical cooking skills.",
+      high: "Understanding food systems, ingredient sourcing, and the economics of processed vs whole food are part of food sovereignty and health literacy."
+    },
+    materials: ["Pantry ingredients", "Cutting board", "Bowl"],
+    steps: [
+      "Ask: what is one snack you love? Do you know every ingredient in it?",
+      "Challenge: build a snack using only whole ingredients you can name and recognize.",
+      "Walk through options: apple slices with peanut butter, hummus and veggies, trail mix, cheese and crackers.",
+      "Make the snack together, narrating each ingredient and why it\u2019s included.",
+      "Compare the ingredient list of your homemade version to a packaged equivalent."
+    ],
+    discussion: [
+      {q:"Why do packaged snacks often have so many ingredients you can\u2019t pronounce?", answers:["Preservatives extend shelf life, emulsifiers improve texture, artificial flavors enhance taste — most are added for cost and shelf life, not nutrition."]},
+      {q:"What makes a snack satisfying enough to hold you over until the next meal?", answers:["A combination of protein, healthy fat, and fiber slows digestion and keeps blood sugar stable longer."]}
+    ],
+    challenge: "Make 3 different from-scratch snacks this week. Keep a log: ingredients, time to make, cost estimate, taste rating.",
+    tuesday:   { low: {title:"Snack ingredient sort", activity:"Sort snack ingredients into categories: protein, fat, carbohydrate, fruit/veggie. Build a snack with at least 2 categories."}, mid: {title:"Nutrition comparison", activity:"Compare a homemade trail mix to a packaged one. Compare: calories, sugar, sodium, and number of ingredients."}, high: {title:"Ultra-processed food research", activity:"Research the NOVA food classification. What makes a food ultra-processed and what does research say about health outcomes?"} },
+    wednesday: { low: {title:"Snack cost math", activity:"Calculate the cost of making your snack at home vs buying the packaged version. Which costs more? Which is healthier?"}, mid: {title:"Preservation in packaged snacks", activity:"Research 5 common food preservatives (BHA, BHT, sodium benzoate, etc.). What do they do and are they considered safe?"}, high: {title:"Food system tracing", activity:"Trace each ingredient in your from-scratch snack back to its source. How far did each ingredient travel to reach your kitchen?"} },
+    thursday:  { low: {title:"Snack recipe card", activity:"Write and illustrate a recipe card for your favorite from-scratch snack. Include ingredients, steps, and a drawing."}, mid: {title:"Weekly snack budget", activity:"Plan a week of from-scratch snacks for your family. Create a shopping list and estimate the total cost."}, high: {title:"Food literacy essay", activity:"Write a short essay: why does knowing how to make food from scratch matter for preparedness, health, and self-sufficiency?"} }
+  },
+
+  "Simple home repairs — tightening screws": {
+    gradeHooks: {
+      low: "Screws can get loose in furniture and doors. Tightening them with a screwdriver is an easy repair anyone can learn!",
+      mid: "Basic home maintenance prevents small problems from becoming big ones. Tightening screws is one of the most common and simple repairs.",
+      high: "Home maintenance literacy includes identifying fastener types, understanding torque, and knowing when a repair needs professional help."
+    },
+    materials: ["Flathead and Phillips screwdrivers", "A piece of furniture or outlet plate with visible screws"],
+    steps: [
+      "Find 3 screws around your home: a door hinge, a cabinet handle, or an outlet cover plate.",
+      "Identify the screw type: Phillips (star shape) or flathead (single slot).",
+      "Match the screwdriver size to the screw head. Too small or too large will strip the head.",
+      "Turn clockwise to tighten (\u2018righty tighty, lefty loosey\u2019). Apply steady downward pressure while turning.",
+      "Check: is it snug but not stripped? A stripped screw is harder to fix than a loose one."
+    ],
+    discussion: [
+      {q:"What happens if you use a screwdriver that is too small for the screw head?", answers:["You can strip the head, making the screw impossible to turn. Always match the tool to the fastener."]},
+      {q:"When would you need to call a professional instead of fixing something yourself?", answers:["Anything involving electricity beyond outlet covers, plumbing leaks, structural repairs, or gas lines."]}
+    ],
+    challenge: "Do a \u2018screw check\u2019 of your home. Find and tighten every loose screw you can. Count how many you find.",
+    tuesday:   { low: {title:"Screw type matching", activity:"Collect 5 different screws from around the house. Match each to the right screwdriver. Sort by type and size."}, mid: {title:"Fastener types research", activity:"Research 6 types of fasteners: wood screw, machine screw, drywall screw, bolt, rivet, and nail. When is each used?"}, high: {title:"Torque science", activity:"Research torque in the context of fasteners. What is foot-pounds of torque, and why do some fasteners have specified torque ratings?"} },
+    wednesday: { low: {title:"Furniture check", activity:"Check every piece of furniture in two rooms for loose screws. Tighten each one. Record what you found."}, mid: {title:"Stripped screw solutions", activity:"Research 3 methods for removing a stripped screw. Which is easiest for a home repair beginner?"}, high: {title:"Preventive maintenance", activity:"Create a home maintenance checklist for quarterly, twice-yearly, and annual tasks. Use a home maintenance resource as a guide."} },
+    thursday:  { low: {title:"Simple project", activity:"With supervision, tighten all the screws on one piece of furniture completely. Do a before-and-after wobble test."}, mid: {title:"Tool kit building", activity:"Research what belongs in a basic home repair toolkit. Prioritize 10 items by usefulness and list the approximate cost of each."}, high: {title:"Home repair economics", activity:"Research the average cost of common small home repairs when done professionally vs DIY. Calculate potential annual savings from basic home maintenance skills."} }
+  },
+
+  "Counting and making change": {
+    gradeHooks: {
+      low: "We can count coins and bills to pay for things and get the right change back!",
+      mid: "Making change accurately requires understanding coin and bill values, subtraction, and the count-up method used by cashiers.",
+      high: "Currency arithmetic, mental math strategies, and financial transaction verification are practical life skills."
+    },
+    materials: ["Coins and dollar bills (real or play money)", "Small priced items for a pretend store"],
+    steps: [
+      "Set up a pretend store with items priced between $0.25 and $5.00.",
+      "The customer pays with a $5 bill. Walk through making change using the count-up method.",
+      "Count-up: from the price, count coins to the next dollar, then bills to the amount paid.",
+      "Practice 5 transactions together, then have the child run the store solo.",
+      "Discuss: always count change back into the customer\u2019s hand, never just hand over a pile."
+    ],
+    discussion: [
+      {q:"If something costs $3.47 and someone pays with $5, what is the change?", answers:["$1.53. Count up: 3 pennies to $3.50, two quarters to $4.00, one dollar to $5.00."]},
+      {q:"Why is it important to know how to make change even if the register does it?", answers:["Registers can be wrong, power can fail, and knowing math helps you catch errors and avoid being shortchanged."]}
+    ],
+    challenge: "Run a real or pretend store for 20 minutes. Make change correctly for every transaction. Have a parent check your work.",
+    tuesday:   { low: {title:"Change race", activity:"Race to make change for 10 different amounts using the fewest coins possible. Check accuracy after each."}, mid: {title:"Multi-item transactions", activity:"Practice buying 3\u20135 items and calculating the total before paying. Make change from $10 and $20 bills."}, high: {title:"Sales tax calculation", activity:"Research Florida\u2019s sales tax rate. Calculate the final price with tax for 5 different items. Build a mental math shortcut."} },
+    wednesday: { low: {title:"Bill identification", activity:"Examine each US bill denomination. What historical figure is on each? What building appears on the back?"}, mid: {title:"Coin and bill history", activity:"Research when each current US coin and bill design was introduced. Which designs are newest?"}, high: {title:"Cashless society", activity:"Research the decline of cash in everyday transactions. What are the advantages and risks for consumers, especially those without bank accounts?"} },
+    thursday:  { low: {title:"Restaurant role play", activity:"Create a simple menu. Take turns being customer and server. Practice calculating totals and making change for each order."}, mid: {title:"Tip math", activity:"Practice calculating 15%, 18%, and 20% tips on restaurant bills ranging from $12 to $65. Develop a mental math shortcut."}, high: {title:"Inflation and purchasing power", activity:"Research what $1 could buy in 1950, 1980, 2000, and today. Calculate the inflation rate between periods using the CPI."} }
+  },
+
+  "Compass basics — N S E W": {
+    gradeHooks: {
+      low: "A compass always points North! We can use it to find our direction anywhere.",
+      mid: "A compass uses Earth\u2019s magnetic field to orient you. Using one correctly is a foundational navigation skill.",
+      high: "Compass mechanics, magnetic declination, and integrating compass use with map reading are key wilderness and urban navigation skills."
+    },
+    materials: ["Compass or compass app on phone"],
+    steps: [
+      "Hold the compass flat and let the needle settle. The red end always points North.",
+      "Orient yourself: face North, then identify East, South, and West.",
+      "Practice turning to a specific direction: \u2018face East\u2019 — rotate until East is in front of you.",
+      "Go outside and use the compass to identify which direction your front door faces.",
+      "Combine with a map: hold the map so North on the map matches compass North. Now the map matches reality."
+    ],
+    discussion: [
+      {q:"Why does a compass needle point North?", answers:["Earth has a magnetic field. The compass needle is a tiny magnet that aligns with that field, pointing toward magnetic north."]},
+      {q:"Can a compass be fooled or give a wrong reading?", answers:["Yes — metal objects, electronics, and magnets nearby can interfere. Always hold a compass away from your phone or metal belt buckle."]}
+    ],
+    challenge: "Use a compass to find North from 5 different spots in or around your home. Do you get consistent results?",
+    tuesday:   { low: {title:"Compass scavenger hunt", activity:"Create a direction-based hunt: take 10 steps North, 5 steps East, 3 steps South. Mark the final spot — what\u2019s there?"}, mid: {title:"Declination research", activity:"Research magnetic declination for your location in Florida. How many degrees off from true North is magnetic North where you live?"}, high: {title:"Compass and map navigation", activity:"Using a printed map and compass, plan a walking route from your home to a landmark 0.5 miles away using compass bearings."} },
+    wednesday: { low: {title:"Compass rose drawing", activity:"Draw a detailed 16-point compass rose. Label all points and color each quadrant a different color."}, mid: {title:"Orienteering introduction", activity:"Research orienteering as a sport. What equipment is used? How do competitors navigate? Find a local orienteering club."}, high: {title:"Navigation without a compass", activity:"Research 5 natural methods for finding North without a compass: stars, sun, shadows, moss, and analog watch method."} },
+    thursday:  { low: {title:"Direction journal", activity:"For one day, record which direction you are facing each time you change rooms or go outside. Build a mental map of your home\u2019s orientation."}, mid: {title:"Compass bearing navigation", activity:"Research compass bearings (0\u2013360 degrees). Practice: what bearing is East? SW? NNW? Convert 8 directions to degree bearings."}, high: {title:"GPS vs compass reliability", activity:"Research scenarios where GPS fails (signal jamming, solar flares, remote terrain, power outage). Why should every navigator still know compass use?"} }
+  },
+
+  "Community emergency plan": {
+    gradeHooks: {
+      low: "When something bad happens, neighbors can help each other! A community plan means everyone knows what to do.",
+      mid: "Community emergency plans coordinate resources, communication, and roles so neighborhoods can respond effectively to disasters.",
+      high: "Community resilience theory, CERT (Community Emergency Response Team) programs, and the relationship between social capital and disaster outcomes are important topics."
+    },
+    materials: ["Paper for planning"],
+    steps: [
+      "Ask: if there was a big storm and no one could leave the neighborhood, how could neighbors help each other?",
+      "Discuss: people have different skills and resources. A community plan maps who has what.",
+      "Identify neighborhood assets: who has a generator, medical training, extra food/water, a truck, tools.",
+      "Discuss communication: how would neighbors reach each other without phones or internet?",
+      "Draft a simple block plan: who checks on whom, where the gathering point is, who has what skills."
+    ],
+    discussion: [
+      {q:"Why do communities that know their neighbors recover from disasters faster?", answers:["They can share resources, check on vulnerable people quickly, and coordinate without waiting for outside help to arrive."]},
+      {q:"Who in your neighborhood might need extra help in an emergency?", answers:["Elderly neighbors, people with disabilities, families with very young children, people without cars."]}
+    ],
+    challenge: "With a parent, identify 3 neighbors and what skill or resource they might contribute in an emergency.",
+    tuesday:   { low: {title:"Neighborhood asset map", activity:"Draw your block and mark what you know about each home: large family, elderly person, has a truck, has medical training, etc."}, mid: {title:"CERT program research", activity:"Research CERT (Community Emergency Response Team). What do they do, and how can your family get trained?"}, high: {title:"Community resilience research", activity:"Research the concept of community resilience. What factors predict how quickly a community recovers from disaster? Cite two sources."} },
+    wednesday: { low: {title:"Check-in plan", activity:"Identify 2 neighbors your family would check on in an emergency. How would you reach them if phones were down?"}, mid: {title:"Resource inventory", activity:"Create a community resource list for your block: list each home, what resources they might have, and any known skills."}, high: {title:"Social capital and recovery", activity:"Research studies on how social capital (neighborhood connectedness) affected recovery outcomes after Hurricane Katrina or another major disaster."} },
+    thursday:  { low: {title:"Welcome neighbor card", activity:"Make a simple card introducing your family to a neighbor you don\u2019t know well. Include your address and one way you could help in an emergency."}, mid: {title:"Neighborhood communication plan", activity:"Design a communication tree for 8 households on your block. Each household contacts 2 others. Draw the tree."}, high: {title:"FEMA community planning", activity:"Research FEMA\u2019s Whole Community approach to emergency management. How does it differ from top-down government response? What are its strengths and weaknesses?"} }
+  },
+
+  "Weather preparedness": {
+    gradeHooks: {
+      low: "We can get ready for bad weather before it comes! That means having supplies and knowing what to do.",
+      mid: "Weather preparedness involves monitoring forecasts, having supplies, and knowing shelter-in-place vs evacuation protocols.",
+      high: "Emergency weather planning integrates meteorology, risk assessment, evacuation logistics, and psychological preparedness."
+    },
+    materials: ["Paper for supply checklist"],
+    steps: [
+      "Ask: what severe weather is most common in Florida? (Hurricanes, thunderstorms, tornadoes)",
+      "Discuss the two main responses: shelter-in-place (stay home and ride it out) vs evacuation (leave before it arrives).",
+      "Review what to have ready: water (1 gallon/person/day), non-perishable food, flashlights, batteries, radio, medications.",
+      "Discuss how to get warnings: weather radio, phone alerts, TV, apps.",
+      "Make a family weather preparedness checklist together."
+    ],
+    discussion: [
+      {q:"Why is it important to prepare before a hurricane warning, not after?", answers:["After a warning, stores sell out fast, roads get crowded, and there may not be time. Preparation in advance means you\u2019re never scrambling."]},
+      {q:"What is the difference between a weather watch and a weather warning?", answers:["A watch means conditions are favorable for severe weather. A warning means severe weather is imminent or occurring — act now."]}
+    ],
+    challenge: "Check your family\u2019s weather preparedness kit. What\u2019s missing? Make a shopping list for anything you need.",
+    tuesday:   { low: {title:"Supply kit check", activity:"Go through your emergency supplies. Check expiration dates on food and water. Make a list of what needs replacing."}, mid: {title:"Hurricane category guide", activity:"Research the Saffir-Simpson hurricane wind scale. What does each category mean for wind speed and damage? Make a chart."}, high: {title:"Evacuation route planning", activity:"Research your county\u2019s official evacuation zones. What zone are you in? Map two evacuation routes out of your area."} },
+    wednesday: { low: {title:"Weather radio setup", activity:"Research NOAA weather radio. If your family has one, program it for your area. If not, research the best weather alert app."}, mid: {title:"Storm surge research", activity:"Research storm surge. Why is it more dangerous than hurricane winds? What does a 10-foot surge mean for a coastal area?"}, high: {title:"Climate change and storm intensity", activity:"Research the relationship between ocean temperature and hurricane intensity. How has storm behavior changed over the past 50 years?"} },
+    thursday:  { low: {title:"Weather prep poster", activity:"Make a family weather preparedness poster: watch vs warning definitions, 3 supplies to always have, and your family meeting spot."}, mid: {title:"72-hour kit assembly", activity:"Research the contents of a 72-hour emergency kit. Assemble or audit your family\u2019s kit against the recommended list."}, high: {title:"IPCC and extreme weather", activity:"Research the latest IPCC report findings on extreme weather events. How are hurricanes, floods, and droughts projected to change by 2050?"} }
+  },
+
+  "Treating a nosebleed": {
+    gradeHooks: {
+      low: "If our nose starts bleeding, we lean forward and pinch the soft part. Never tilt your head back!",
+      mid: "Nosebleed first aid is simple but often done incorrectly. Understanding the anatomy explains why the correct technique works.",
+      high: "Epistaxis management, anterior vs posterior nosebleeds, and when to seek medical care are important first aid topics."
+    },
+    materials: ["Tissues or clean cloth"],
+    steps: [
+      "Ask: what do most people do wrong when they get a nosebleed? (Tilt their head back)",
+      "Explain why tilting back is wrong: blood runs down the throat, can be swallowed, and may cause vomiting.",
+      "Correct technique: lean slightly forward, pinch the soft part of the nose (not the bony bridge), hold for 10 full minutes without checking.",
+      "Breathe through the mouth while pinching.",
+      "After bleeding stops: avoid blowing nose, bending over, or strenuous activity for several hours."
+    ],
+    discussion: [
+      {q:"Why do we pinch the soft part of the nose, not the hard bony part?", answers:["Most nosebleeds happen in the soft tissue just inside the nostril. Pinching there applies pressure directly to the bleeding vessels."]},
+      {q:"When would a nosebleed require a doctor or ER visit?", answers:["If it doesn\u2019t stop after 20\u201330 minutes of proper pressure, if it follows a head injury, if blood is flowing very heavily, or if nosebleeds are frequent and unexplained."]}
+    ],
+    challenge: "Teach the correct nosebleed technique to every family member. Can they all demonstrate it correctly?",
+    tuesday:   { low: {title:"Practice the technique", activity:"Practice the correct nosebleed position: lean forward, pinch soft part, breathe through mouth. Time 10 minutes."}, mid: {title:"Nasal anatomy", activity:"Research the nasal anatomy and the location of Kiesselbach\u2019s plexus. Why is this area so prone to bleeding?"}, high: {title:"Anterior vs posterior epistaxis", activity:"Research anterior vs posterior nosebleeds. How do treatment approaches differ and when is posterior epistaxis a medical emergency?"} },
+    wednesday: { low: {title:"Common causes", activity:"Research 5 common causes of nosebleeds: dry air, nose picking, allergies, blood thinners, injury. Which is most common in children?"}, mid: {title:"Prevention strategies", activity:"Research how to prevent recurrent nosebleeds: humidifiers, saline spray, avoiding nose picking. Create a prevention plan."}, high: {title:"Epistaxis in older adults", activity:"Research why nosebleeds are more serious in elderly patients, especially those on blood thinners. What additional steps are taken in a clinical setting?"} },
+    thursday:  { low: {title:"First aid review quiz", activity:"Quiz family members on nosebleed first aid: lean forward or back? Pinch hard or soft part? How long? Check for understanding."}, mid: {title:"First aid kit additions", activity:"Research what to add to a first aid kit specifically for nosebleeds. What is a nasal sponge and when is it used?"}, high: {title:"Cauterization research", activity:"Research nasal cauterization as a medical treatment for recurrent nosebleeds. When is it indicated and how is it performed?"} }
+  },
+
+  "What goes in a go-bag?": {
+    gradeHooks: {
+      low: "A go-bag is a backpack we can grab and leave with quickly if we have to leave home in an emergency!",
+      mid: "A go-bag contains the essentials for 72 hours away from home. Knowing what to pack and why makes evacuation faster and safer.",
+      high: "Go-bag design accounts for weight, family-specific needs, environmental conditions, and the psychology of evacuation decision-making."
+    },
+    materials: ["A backpack", "Paper for packing list"],
+    steps: [
+      "Ask: if you had 10 minutes to leave your home forever, what would you grab?",
+      "Introduce the go-bag concept: a pre-packed bag that means you never have to decide in a panic.",
+      "Cover the 5 categories: water and food (3 days), first aid, documents (copies of IDs, insurance), clothing, and communication (phone charger, radio, cash).",
+      "Walk through your home and gather items for each category.",
+      "Discuss: the bag should be checked and updated every 6 months."
+    ],
+    discussion: [
+      {q:"Why is cash an important item in a go-bag?", answers:["In a disaster, power is often out and card readers don\u2019t work. Cash lets you buy gas, food, and supplies when digital payment fails."]},
+      {q:"Why keep document copies in the go-bag rather than originals?", answers:["Originals should be in a fireproof safe. Copies in the go-bag mean you have ID and insurance info even if the originals are lost."]}
+    ],
+    challenge: "Build or audit your family\u2019s go-bag. Check it against a complete list. What is missing? What needs updating?",
+    tuesday:   { low: {title:"Go-bag packing practice", activity:"Time how quickly your family can grab the go-bag and reach the car. Try to get under 3 minutes."}, mid: {title:"Weight and efficiency", activity:"Weigh your go-bag. Research recommended maximum weights for adults and children. Is your bag practical to carry for a mile?"}, high: {title:"Scenario-specific packing", activity:"Design go-bags for 3 different scenarios: hurricane evacuation (days), wildfire evacuation (hours), and earthquake response (immediate). How do the contents differ?"} },
+    wednesday: { low: {title:"Documents checklist", activity:"Identify every important family document: birth certificates, passports, insurance cards, SS cards. Where are they? Make copies for the go-bag."}, mid: {title:"Special needs planning", activity:"Customize your go-bag for your family\u2019s specific needs: medications, pet supplies, infant items, glasses, hearing aid batteries."}, high: {title:"FEMA go-bag guidelines", activity:"Review FEMA\u2019s official go-bag recommendations at ready.gov. Compare to your bag. What does FEMA include that you hadn\u2019t considered?"} },
+    thursday:  { low: {title:"Go-bag story", activity:"Write a short story: your family uses the go-bag in an emergency. What happens? What does each item help with?"}, mid: {title:"6-month review calendar", activity:"Set a calendar reminder for 6 months from now to review the go-bag. Write a review checklist: rotate food and water, check clothing sizes, update documents."}, high: {title:"Vulnerability and access", activity:"Research how evacuation access and go-bag preparedness differ across income levels. What barriers do low-income families face and what programs exist to help?"} }
+  },
+
+  "Carbon monoxide — the invisible danger": {
+    gradeHooks: {
+      low: "Carbon monoxide is a dangerous gas you can\u2019t see or smell. A detector keeps our family safe from it.",
+      mid: "Carbon monoxide poisoning kills hundreds of Americans every year. Sources, symptoms, and detection are critical safety knowledge.",
+      high: "CO toxicology, hemoglobin binding mechanics, and the engineering of CO detection systems are important safety science topics."
+    },
+    materials: ["CO detector (if available to examine)"],
+    steps: [
+      "Ask: have you ever heard of carbon monoxide? What do you know about it?",
+      "Explain: CO is a colorless, odorless gas produced by burning fuel. Cars, generators, furnaces, and stoves all produce it.",
+      "Why it\u2019s dangerous: CO prevents blood from carrying oxygen. You can lose consciousness before you realize there\u2019s a problem.",
+      "Symptoms of CO poisoning: headache, dizziness, nausea, confusion — often mistaken for the flu.",
+      "Safety rules: never run a car or generator indoors or in an attached garage, have a CO detector on every level of the home."
+    ],
+    discussion: [
+      {q:"Why do people sometimes not realize they have CO poisoning?", answers:["The symptoms (headache, tiredness, nausea) feel like the flu. CO also impairs thinking, so victims may not recognize the danger."]},
+      {q:"If the CO alarm goes off, what do you do?", answers:["Get everyone out immediately, leave the door open, call 911 from outside, and do not go back inside until cleared by emergency services."]}
+    ],
+    challenge: "Find or install a CO detector in your home. Test it. Identify all CO sources in your home (furnace, water heater, attached garage, gas stove).",
+    tuesday:   { low: {title:"CO source hunt", activity:"Walk through your home and identify every appliance or situation that could produce CO: furnace, gas stove, fireplace, attached garage."}, mid: {title:"CO detector placement", activity:"Research where CO detectors should be placed. How many does your home need and at what heights? Check your home against recommendations."}, high: {title:"CO binding to hemoglobin", activity:"Research how CO binds to hemoglobin to form carboxyhemoglobin. Why is this more dangerous than simply reducing oxygen? How is it treated medically?"} },
+    wednesday: { low: {title:"Generator safety rules", activity:"Research the 3 most important generator safety rules. Make a sign to post near where your family might use one in an emergency."}, mid: {title:"CO vs smoke detectors", activity:"Research the difference between CO and smoke detectors. Why does each use a different detection technology? Can a smoke detector detect CO?"}, high: {title:"CO poisoning statistics", activity:"Research annual CO poisoning deaths in the US. When are deaths most common (seasonally)? What are the most common sources? What demographics are most at risk?"} },
+    thursday:  { low: {title:"Alarm response drill", activity:"Practice: CO alarm sounds. Everyone to the door, out to the meeting spot, parent calls 911. Time the drill."}, mid: {title:"Backdraft and ventilation", activity:"Research how backdrafting in furnaces and water heaters causes CO buildup. What maintenance prevents this?"}, high: {title:"Vehicle CO poisoning", activity:"Research CO poisoning from vehicles in enclosed spaces. Why is an attached garage particularly dangerous even with the car briefly idling?"} }
+  },
+
+  "Starting a seed journal": {
+    gradeHooks: {
+      low: "A seed journal is like a diary for our plants! We draw and write what happens as our seeds grow.",
+      mid: "A seed journal tracks germination rates, growth conditions, and observations — turning gardening into applied science.",
+      high: "Scientific journaling, data collection, hypothesis testing, and longitudinal observation are core skills applied through seed journaling."
+    },
+    materials: ["Notebook or blank paper", "Pencil and colored pencils", "Ruler"],
+    steps: [
+      "Show an example of a nature journal or scientist\u2019s notebook. Explain: scientists write down everything they observe.",
+      "Set up the first page: date, plant name, seed source, planting date, expected germination time.",
+      "Plant or check on a current plant. Make the first entry: draw what you see, measure any growth, note conditions (sunny, cloudy, temperature).",
+      "Establish a daily or every-other-day check-in routine.",
+      "Discuss what to track: days to germinate, first true leaves, watering schedule, any problems."
+    ],
+    discussion: [
+      {q:"Why do scientists write down observations instead of just remembering them?", answers:["Memory is unreliable and changes over time. Written records let you spot patterns, compare years, and share findings accurately."]},
+      {q:"How is tracking your plants in a journal similar to what farmers do?", answers:["Farmers keep records of planting dates, weather, yields, and problems to improve each year. It\u2019s applied science for food production."]}
+    ],
+    challenge: "Keep your seed journal updated every day for two weeks. At the end, write a one-paragraph summary of what you observed.",
+    tuesday:   { low: {title:"Journal decoration", activity:"Create a beautiful cover for your seed journal. Include your name, the year, and an illustration of a plant you\u2019re growing."}, mid: {title:"Data table setup", activity:"Create a data table in your journal: columns for date, height (mm), leaf count, watering notes, and observations."}, high: {title:"Scientific method application", activity:"Frame your seed journal as a scientific experiment. Write a hypothesis, define variables, and describe how you will measure results."} },
+    wednesday: { low: {title:"Detailed drawing", activity:"Draw your plant as accurately as you can. Include roots if visible, stem, leaves, and any buds. Label each part."}, mid: {title:"Germination rate calculation", activity:"If you planted 10 seeds and 7 sprouted, what is your germination rate? Research what a \u2018good\u2019 germination rate is for your crop."}, high: {title:"Controlled experiment design", activity:"Design a controlled experiment: grow the same plant in two different conditions (light, soil type, watering frequency). Document the hypothesis and methodology."} },
+    thursday:  { low: {title:"Weekly summary", activity:"Write a weekly summary entry: what happened this week, what surprised you, what you\u2019ll watch for next week."}, mid: {title:"Comparison journaling", activity:"Grow two plants of the same type under slightly different conditions. Track both in the same journal and compare growth."}, high: {title:"Phenology research", activity:"Research phenology — the study of seasonal timing in plants and animals. How do gardeners and scientists use phenological records to understand climate change?"} }
+  },
+
+  "Storing dry foods — rice beans pasta": {
+    gradeHooks: {
+      low: "Rice, beans, and pasta last a long time if we store them the right way! They are great to have for emergencies.",
+      mid: "Long-term dry food storage requires understanding moisture, pests, light, and oxygen as enemies of food preservation.",
+      high: "Food storage science, oxygen absorbers, Mylar bags, and caloric density calculations are components of serious emergency food planning."
+    },
+    materials: ["Airtight containers", "Rice, beans, or pasta to examine", "Labels and marker"],
+    steps: [
+      "Ask: what would happen to a bag of rice left open for a month?",
+      "Explain the 4 enemies of stored food: moisture, oxygen, light, and pests.",
+      "Demonstrate proper storage: transfer to airtight container, label with contents and date, store in cool dark place.",
+      "Discuss shelf life: white rice (25+ years sealed), dried beans (8\u201310 years), pasta (2\u20133 years).",
+      "Calculate: how many pounds of rice, beans, and pasta would your family need for 2 weeks?"
+    ],
+    discussion: [
+      {q:"Why does white rice last much longer than brown rice in storage?", answers:["Brown rice has oils in the bran that go rancid. White rice has the bran removed, dramatically increasing its shelf life."]},
+      {q:"Why is it important to label stored food with the date?", answers:["So you know which to use first (oldest first) and so you can replace items before they expire."]}
+    ],
+    challenge: "Inventory your family\u2019s dry food storage. How many days could you feed your family with what you have? What do you need to add?",
+    tuesday:   { low: {title:"Container sorting", activity:"Go through the pantry. Move all dry foods into airtight containers if they aren\u2019t already. Label each with contents and date."}, mid: {title:"Shelf life chart", activity:"Research shelf lives for: white rice, brown rice, dried beans, pasta, oats, flour, sugar, salt. Create a reference chart."}, high: {title:"Oxygen absorbers and Mylar", activity:"Research oxygen absorbers and Mylar bags for long-term food storage. How do they work and what oxygen content is targeted for maximum shelf life?"} },
+    wednesday: { low: {title:"Pest prevention", activity:"Research how pantry moths and weevils get into food. What containers stop them? Check your own pantry for any signs."}, mid: {title:"Caloric calculation", activity:"Calculate the calories per pound in rice, beans, and pasta. How many pounds of each would provide 2000 calories/day for your family for 2 weeks?"}, high: {title:"FIFO rotation system", activity:"Design a first-in-first-out rotation system for your family\u2019s food storage. How do you organize containers so the oldest is always used first?"} },
+    thursday:  { low: {title:"Simple recipe from storage", activity:"Make a meal using only stored dry goods: rice and beans, pasta with canned sauce, oatmeal. How does it taste?"}, mid: {title:"72-hour food plan", activity:"Plan all meals and snacks for 72 hours using only shelf-stable foods. Calculate the total calories per day per person."}, high: {title:"Food storage economics", activity:"Research the cost difference between buying bulk dry goods now vs purchasing food at emergency prices during a disaster. Calculate potential savings."} }
+  },
+
+  "Using a screwdriver safely": {
+    gradeHooks: {
+      low: "A screwdriver turns screws to put things together or take them apart. We hold it firmly and turn carefully.",
+      mid: "Correct screwdriver technique prevents stripped screws, injuries, and tool damage. Matching the right driver to the fastener is essential.",
+      high: "Fastener mechanics, driver bit selection, and torque management are foundational skills in construction and repair work."
+    },
+    materials: ["Phillips and flathead screwdrivers in multiple sizes", "Scrap wood with screws or outlet covers to practice on"],
+    steps: [
+      "Lay out 3 screwdrivers: different sizes and types. Ask: how do you know which one to use?",
+      "Rule 1: match the driver to the screw head — size and type both matter.",
+      "Demonstrate proper grip: dominant hand on handle, other hand steadying the shaft if needed.",
+      "Apply downward pressure while turning — this prevents slipping and stripping.",
+      "Practice on a piece of scrap wood: drive a screw in fully, then remove it."
+    ],
+    discussion: [
+      {q:"What does it mean to \u2018strip\u2019 a screw and how do you prevent it?", answers:["Stripping means the slots in the screw head get ground down so the driver can no longer grip. Prevent it by using the right size driver and applying downward pressure."]},
+      {q:"When would you use an electric screwdriver instead of a manual one?", answers:["For driving many screws quickly, for very tight fasteners, or in hard-to-reach spots. Manual is better for delicate work or when you need to feel the torque."]}
+    ],
+    challenge: "Remove and replace every outlet cover plate in your home using the right screwdriver. Count how many you find.",
+    tuesday:   { low: {title:"Screw type sorting", activity:"Collect screws from around the house. Sort by type (Phillips, flathead, Torx, hex) and size. Match each to the right driver."}, mid: {title:"Driving technique practice", activity:"Drive 10 screws into a piece of scrap wood. Focus on keeping the driver perpendicular and maintaining downward pressure. Count any strips."}, high: {title:"Torque specifications", activity:"Research why fasteners have torque specifications. Find the torque spec for a car lug nut and explain what happens if it\u2019s over or under-torqued."} },
+    wednesday: { low: {title:"Disassembly project", activity:"With supervision, disassemble a simple item (a toy, a small appliance that no longer works) using the correct screwdrivers."}, mid: {title:"Stripped screw solutions", activity:"Research and practice 3 methods for removing a stripped screw: rubber band method, screw extractor, drill out."}, high: {title:"Impact drivers vs drills", activity:"Research the difference between a drill, an impact driver, and a screwdriver. When would you choose each? What are the physics of impact driving?"} },
+    thursday:  { low: {title:"Furniture assembly", activity:"Find flat-pack furniture instructions or IKEA-style diagrams. Practice identifying which screws go where and which driver each needs."}, mid: {title:"Tool maintenance", activity:"Research how to maintain hand tools: cleaning, proper storage, when to replace. What are the signs a screwdriver should be retired?"}, high: {title:"Fastener engineering", activity:"Research why different industries use different fastener types. Why does aerospace prefer Torx? Why do electronics use tiny Phillips? What are the engineering tradeoffs?"} }
+  },
+
+  "Weekly allowance — save spend give": {
+    gradeHooks: {
+      low: "When we get money, we can split it three ways: some to save, some to spend, and some to give to others!",
+      mid: "The save-spend-give framework builds the habit of intentional money allocation, which is the foundation of lifelong financial health.",
+      high: "Budgeting frameworks, compound interest, and the psychology of financial decision-making are important financial literacy topics."
+    },
+    materials: ["3 jars or envelopes labeled Save, Spend, Give", "Some coins or bills"],
+    steps: [
+      "Introduce the three jars: every dollar we get is split between saving, spending, and giving.",
+      "Discuss percentages: a common split is 50% save, 40% spend, 10% give. But families choose their own.",
+      "Practice with $5: how much goes in each jar using your chosen split?",
+      "Talk about what each jar is for: Save (a goal), Spend (everyday wants), Give (charity, gifts, helping others).",
+      "Set a savings goal and calculate how many weeks of allowance it will take."
+    ],
+    discussion: [
+      {q:"Why is it important to decide how to split your money before you spend any of it?", answers:["Once money is spent, it\u2019s gone. Deciding first means saving and giving happen automatically, not just if there\u2019s money left over."]},
+      {q:"What is a savings goal and why is it helpful?", answers:["A specific thing you are saving toward. It makes saving feel purposeful and helps you track progress."]}
+    ],
+    challenge: "Set up your three jars. For the next month, split every dollar you receive. Track the total in each jar at month\u2019s end.",
+    tuesday:   { low: {title:"Goal setting", activity:"Choose a savings goal. Write it on a card and tape it to your save jar. Calculate how many weeks to reach it."}, mid: {title:"Percentage practice", activity:"Practice splitting 10 different amounts ($3, $7, $12, $20, $50) using your family\u2019s chosen percentages. Use a calculator to check."}, high: {title:"Compound interest", activity:"Research compound interest. If you save $10/month earning 5% annually, how much will you have in 10 years? Use a compound interest calculator."} },
+    wednesday: { low: {title:"Giving research", activity:"Research 3 local charities or causes. Choose one your give jar will support. Learn what that organization does."}, mid: {title:"Budget categories", activity:"Research common adult budget categories: housing, food, transportation, savings, entertainment. How do the percentages compare to the 50/40/10 kids model?"}, high: {title:"50/30/20 rule", activity:"Research the 50/30/20 budgeting rule for adults (needs/wants/savings). Compare it to Dave Ramsey\u2019s envelope method. Which would work better for your personality and why?"} },
+    thursday:  { low: {title:"Money math", activity:"Count your save jar. How close are you to your goal? How many more weeks at your current allowance?"}, mid: {title:"Needs vs wants audit", activity:"List 10 recent purchases or wishes. Label each as need or want. Were any wants you thought were needs?"}, high: {title:"Financial psychology", activity:"Research the psychology of spending: impulse buying, loss aversion, and the pain of paying. How do retailers exploit these tendencies and how can you counter them?"} }
+  },
+
+  "Following a trail on a map": {
+    gradeHooks: {
+      low: "Trail maps show paths through parks and forests. We can follow them to find our way and not get lost!",
+      mid: "Reading a trail map requires understanding symbols, scale, elevation markings, and orienting the map to your surroundings.",
+      high: "Trail navigation integrates map reading, compass use, distance estimation, and terrain assessment for safe backcountry travel."
+    },
+    materials: ["A trail map (state or local park, or printed from AllTrails)"],
+    steps: [
+      "Get a trail map for a local park or nature area. Examine it together.",
+      "Find: the trailhead (start), the trail route, any forks or intersections, the end point.",
+      "Find the legend. What do the symbols mean? (Restrooms, parking, trail difficulty)",
+      "Find the scale. How long is the trail in real life?",
+      "Plan a route: pick a loop or out-and-back trail and trace it with your finger."
+    ],
+    discussion: [
+      {q:"What should you do if you come to a fork in the trail and you\u2019re not sure which way to go?", answers:["Check the map. If you can\u2019t figure it out, backtrack to a known point rather than guessing."]},
+      {q:"Why should you always tell someone where you\u2019re hiking before you go?", answers:["If you get injured or lost, someone needs to know where to look. Always leave a trip plan with a responsible person."]}
+    ],
+    challenge: "Plan a hike at a local state or county park using a trail map. Identify start, route, distance, and estimated time.",
+    tuesday:   { low: {title:"Trail map drawing", activity:"Draw a simple trail map for your neighborhood or backyard. Include a legend, scale, and compass rose."}, mid: {title:"Topographic basics", activity:"Find a topographic map of a Florida trail. What do the contour lines tell you? How can you spot a hill or valley on a flat map?"}, high: {title:"Navigation tools comparison", activity:"Compare paper map, phone GPS, and compass for trail navigation. What are the failure modes of each? When would you rely on each?"} },
+    wednesday: { low: {title:"AllTrails exploration", activity:"Explore AllTrails.com or the app together. Find 3 trails within 30 minutes of your home. Note distance, difficulty, and reviews."}, mid: {title:"Distance and time estimation", activity:"Research average hiking speeds for different ages and terrain. Calculate how long a 5-mile trail with 500 feet of elevation gain would take your family."}, high: {title:"Leave No Trace principles", activity:"Research the 7 Leave No Trace principles. How do they apply to trail use and why does following them matter for long-term trail preservation?"} },
+    thursday:  { low: {title:"Virtual trail walk", activity:"Find a video or virtual tour of a local trail. Watch it together and identify landmarks on the corresponding map."}, mid: {title:"Trip planning", activity:"Plan a real family hike: choose the trail, check the weather forecast, list what to bring, and identify the trailhead parking location."}, high: {title:"Search and rescue", activity:"Research how search and rescue teams operate when hikers are lost. What information do they use and how does a trip plan help them?"} }
+  },
+
+
+
   "Treating a bruise or bump": {
     gradeHooks: {
       low: "Bumps and bruises happen when we play! We can help them feel better with rest, ice, and time.",
