@@ -139,6 +139,1742 @@ const LS_KEY = "rootbloom_v1";
 
 const LR_LESSON_PLANS = {
 
+  "Preparing wild greens — cooking safely": {
+    gradeHooks: {
+      low: "Some wild greens taste better and are safer when cooked. We learn which ones to cook and how to prepare them!",
+      mid: "Cooking wild greens removes or reduces tannins, oxalic acid, and other compounds that limit raw consumption. Technique matters for nutrition and safety.",
+      high: "Phytochemistry of wild greens, the effect of heat on antinutrients, and the comparison of nutritional profiles between cooked and raw wild edibles are important topics."
+    },
+    materials: ["Collected or purchased wild greens (dandelion, dock, or purslane)", "Pot", "Water", "Butter or oil", "Salt"],
+    steps: [
+      "Wash greens thoroughly. Remove any yellow, damaged, or insect-damaged leaves.",
+      "Blanching for bitterness (dock, dandelion): bring water to a boil, add greens for 1\u20132 minutes, drain, and rinse with cold water. This removes much of the bitterness.",
+      "Repeat blanching for high-oxalic acid greens (dock, lambsquarters): boil in 2\u20133 changes of water, draining each time.",
+      "Final preparation: saut\u00e9 blanched greens in butter or olive oil with garlic and salt, or add to soups and stews.",
+      "Taste test: how does blanching change the flavor? Is there a difference between one blanch and two?"
+    ],
+    discussion: [
+      {q:"Why do we change the blanching water multiple times for high-oxalic acid greens?", answers:["Oxalic acid dissolves into the boiling water. Changing the water removes more oxalic acid with each blanch. Without this, greens like dock can have significant oxalic acid content that inhibits mineral absorption."]},
+      {q:"Which wild greens can be eaten raw and which require cooking?", answers:["Dandelion leaves: raw in salad (young leaves are milder), or cooked. Wood sorrel: raw in small amounts. Dock: requires blanching. Lambsquarters: best blanched. Never eat raw wild plants in large quantities without researching preparation."]}
+    ],
+    challenge: "Prepare a side dish using one or two wild greens using proper blanching technique. Serve to the family. Compare to a prepared store-bought green.",
+    tuesday:   { low: {title:"Blanching technique practice", activity:"Blanch dandelion greens in 2 changes of water. Taste after each change. Describe how the bitterness changes."}, mid: {title:"Nutritional retention after cooking", activity:"Research how blanching affects the vitamin content of greens. Which vitamins are water-soluble and thus reduced by blanching? How does steaming compare to boiling?"}, high: {title:"Antinutrient chemistry", activity:"Research oxalic acid, tannins, and phytic acid in wild greens. What minerals does each bind to and how does cooking affect these antinutrient interactions?"} },
+    wednesday: { low: {title:"Wild greens recipe collection", activity:"Research and collect 5 recipes that use wild greens. Which greens does each recipe use and what preparation method is specified?"}, mid: {title:"Seasonal availability and nutrition", activity:"Research how the nutritional profile of wild greens changes by season. Are spring greens more or less bitter than fall greens and why?"}, high: {title:"Fermented wild greens", activity:"Research fermented preparations of wild greens across cultures. How does fermentation change the nutritional profile and digestibility of plants like dock and lambsquarters?"} },
+    thursday:  { low: {title:"Wild greens soup", activity:"Make a simple soup using wild greens, garlic, broth, and any available vegetables. Compare to store-bought canned greens soup."}, mid: {title:"Drying for storage", activity:"Research drying wild greens for long-term storage. How does drying affect their nutritional content and how do they rehydrate for cooking?"}, high: {title:"Wild food nutritional ecology", activity:"Research how wild plant nutrition varies by soil quality, light exposure, and water availability. What does foraging location tell you about likely nutritional content?"} }
+  },
+
+  "Flat tire change — lug wrench torque sequence": {
+    gradeHooks: {
+      low: "Changing a flat tire is a skill every driver should have. We practice before we need it so it\u2019s fast and safe when we do!",
+      mid: "Lug nut torque sequence prevents brake rotor warping and ensures even clamping force across the wheel hub.",
+      high: "Fastener mechanics, thread engagement, clamp load, and the physics of uniform torque application are important engineering concepts."
+    },
+    materials: ["Vehicle with spare tire, jack, and lug wrench"],
+    steps: [
+      "Safety setup: flat surface, hazard lights, parking brake, wheel chocks.",
+      "Loosen lug nuts before jacking: break them loose with the lug wrench turning counterclockwise while weight is on the tire.",
+      "Jack the vehicle at the correct frame point. Raise until the flat tire is 6 inches off the ground.",
+      "Remove lug nuts (pocket them), swap tires, hand-tighten lug nuts in the star pattern.",
+      "Lower the car until the tire contacts the ground (not fully lowered), torque in the star pattern to specification, then lower completely. Final torque check."
+    ],
+    discussion: [
+      {q:"What is the correct lug nut torque for most passenger vehicles and how would you know?", answers:["Typically 80\u2013100 ft-lbs for most passenger cars. The specification is in the owner\u2019s manual. A torque wrench achieves this precisely. Without one, use firm two-handed pressure on the lug wrench — snug but not maximum force."]},
+      {q:"Why must the tire contact the ground before the final torque check?", answers:["The car\u2019s weight through the tire prevents the wheel from spinning during the final torque. Without ground contact, you torque a spinning wheel and cannot achieve proper clamping force."]}
+    ],
+    challenge: "Complete a timed tire change with correct safety setup and star-pattern torque. Goal: under 20 minutes with zero safety steps skipped.",
+    tuesday:   { low: {title:"Star pattern practice", activity:"On a removed wheel, practice the star pattern for 4, 5, and 6 lug configurations until each is memorized."}, mid: {title:"Torque wrench use", activity:"Research how to use a click-type torque wrench. How do you set the torque and what does the click indicate? Why is over-torquing harmful?"}, high: {title:"Thread engagement and clamp load", activity:"Research the relationship between thread engagement (number of lug nut threads contacting the stud) and clamp load. Why must lug nuts be fully seated before torquing?"} },
+    wednesday: { low: {title:"Night preparation", activity:"Practice locating spare, jack, and lug wrench in the dark with a flashlight. Emergency preparedness includes being able to perform this at night in the rain."}, mid: {title:"Alloy vs steel wheel considerations", activity:"Research how torque specifications differ between alloy and steel wheels. Why do alloy wheels require more precise torque management?"}, high: {title:"Re-torque after driving", activity:"Research why mechanics recommend re-torquing lug nuts after driving 50\u2013100 miles following a tire change. What phenomenon causes lug nuts to loosen slightly after initial installation?"} },
+    thursday:  { low: {title:"Full scenario drill", activity:"Drive 10 miles, pull over in a safe area, change to the spare, and drive to a tire shop for proper installation. Time the complete sequence."}, mid: {title:"Spare tire maintenance", activity:"Research spare tire maintenance: checking pressure (donut spares need 60 PSI), inspecting for age cracking, and understanding the drive limitations."}, high: {title:"Asymmetric and directional tires", activity:"Research asymmetric and directional tires. Why can\u2019t some tires be moved from one side of the car to the other and what does this mean for emergency spare use?"} }
+  },
+
+  "Treating hypothermia basics": {
+    gradeHooks: {
+      low: "Hypothermia happens when the body gets too cold. We warm the person up gently and call for help!",
+      mid: "Hypothermia assessment, staged treatment, and understanding the risks of rewarming too quickly are critical wilderness and first aid skills.",
+      high: "Thermoregulation physiology, hypothermia stages, the afterdrop phenomenon, and advanced rewarming techniques are important medical topics."
+    },
+    materials: ["Warm blankets", "Warm (not hot) beverages for mild cases"],
+    steps: [
+      "Recognize hypothermia: mild (shivering, pale, confusion), moderate (violent shivering stops, severe confusion, slurred speech), severe (no shivering, rigid muscles, unconscious).",
+      "General principles: prevent further heat loss, add heat gently, protect from wind and moisture.",
+      "Mild hypothermia: move to shelter, remove wet clothing, insulate from all sides (including below), warm beverages if conscious and able to swallow.",
+      "Moderate to severe: handle gently (aggressive movement can trigger cardiac arrhythmia in a cold heart). No alcohol. Keep horizontal. Wrap in sleeping bags. Evacuate as a priority.",
+      "Afterdrop awareness: core temperature can continue to drop even after the person is removed from the cold environment. Monitor closely."
+    ],
+    discussion: [
+      {q:"Why should you not give alcohol to a hypothermic person?", answers:["Alcohol causes vasodilation (widening of blood vessels) near the skin, which feels warm but actually increases heat loss from the body surface. It also impairs shivering, which is the body\u2019s main mechanism for generating heat."]},
+      {q:"What is the afterdrop phenomenon and why is it dangerous?", answers:["As rewarming begins, cold blood from the extremities flows back to the core, temporarily dropping core temperature further. This can trigger cardiac arrhythmia. Gentle, gentle, gentle rewarming prevents flooding the core with cold blood."]}
+    ],
+    challenge: "Practice staging hypothermia assessment: given 3 symptoms, determine whether the case is mild, moderate, or severe and describe the treatment approach for each.",
+    tuesday:   { low: {title:"Hypothermia staging", activity:"Create a reference card: mild, moderate, and severe hypothermia. List symptoms, core temperature range, and treatment for each stage."}, mid: {title:"Vapor barrier technique", activity:"Research the vapor barrier technique in wilderness hypothermia management. How does preventing evaporative cooling help in field conditions?"}, high: {title:"Hunting reflex", activity:"Research the hunting reflex (Lewis hunting response): the periodic vasodilation that occurs in cold extremities. How does this represent the body\u2019s attempt to balance cold injury against core hypothermia?"} },
+    wednesday: { low: {title:"Prevention strategies", activity:"Research the COLDS acronym for cold weather gear: Clean, Avoid Overheating, Loose and Layered, Dry, Stay Dry. Apply it to packing for a cold weather activity."}, mid: {title:"Water immersion hypothermia", activity:"Research how cold water immersion causes hypothermia much faster than cold air exposure. What is the \u2018one-minute, ten-minute, one-hour\u2019 rule?"}, high: {title:"Rewarming cardiac arrest", activity:"Research the principle \u2018not dead until warm and dead.\u2019 Why have hypothermic patients in cardiac arrest been successfully resuscitated after extremely low core temperatures? What special resuscitation protocols apply?"} },
+    thursday:  { low: {title:"Warm pack placement", activity:"Research where to place heat packs on a hypothermic patient for most effective gentle rewarming: armpits, groin, neck. Why these locations?"}, mid: {title:"Wet vs dry cold", activity:"Compare hypothermia risk in wet cold vs dry cold at the same temperature. Why does wind and moisture dramatically increase risk?"}, high: {title:"Hospital rewarming techniques", activity:"Research active internal rewarming techniques used in hospital settings for severe hypothermia: warm IV fluids, warm humidified oxygen, and ECMO-assisted rewarming."} }
+  },
+
+  "72-hour family communication plan": {
+    gradeHooks: {
+      low: "If our family is separated during an emergency, everyone needs to know how to reach each other and where to meet.",
+      mid: "A 72-hour communication plan addresses phone network failure, family separation, and multi-day coordination during extended emergencies.",
+      high: "Communication redundancy, network failure modes, and the psychology of family reunification under stress are important emergency preparedness topics."
+    },
+    materials: ["Laminated communication cards", "Out-of-state contact list"],
+    steps: [
+      "Identify your 72-hour communication window: most acute post-disaster communication happens in the first 3 days.",
+      "Three meeting points: immediate area (next to home), neighborhood, farther away.",
+      "Out-of-state relay contact: identify one person outside your region who all family members will check in with. They serve as the information hub.",
+      "Text before calling: in network congestion, SMS uses less bandwidth. Establish the protocol: text first, call second.",
+      "Scheduled check-in times: if communication is intermittent, agree on specific times to try calling (e.g., 8am, 12pm, 6pm)."
+    ],
+    discussion: [
+      {q:"Why is an out-of-state relay contact more reliable than trying to contact family members directly during a local disaster?", answers:["Local cell towers become overwhelmed with traffic. Long-distance calls to an out-of-area number are often more likely to connect. The relay contact then communicates between family members who can\u2019t reach each other directly."]},
+      {q:"What happens to text messages when a cell tower is congested?", answers:["SMS messages are queued and delivered when network capacity is available. They may be delayed minutes to hours, but they will eventually deliver. Voice calls simply fail to connect when the network is at capacity."]}
+    ],
+    challenge: "Write and distribute your family\u2019s 72-hour communication plan. Contact your out-of-state relay and confirm they know their role.",
+    tuesday:   { low: {title:"Contact card distribution", activity:"Laminate communication plan cards and distribute to every family member\u2019s wallet, backpack, and car. Confirm everyone has one."}, mid: {title:"School and work plans", activity:"Obtain emergency communication plans from your school and workplace. Do they align with your family plan? What gaps exist?"}, high: {title:"HAM radio as backup", activity:"Research how amateur radio operators provide communication backup in disasters. How would you contact a local HAM operator if cell service fails?"} },
+    wednesday: { low: {title:"Check-in schedule", activity:"Establish check-in times: 8am, 12pm, 6pm. Practice reaching your out-of-state contact at a scheduled time."}, mid: {title:"Social media coordination", activity:"Research how Facebook Safety Check, Instagram, and Twitter have been used for post-disaster family reunification. What are the platforms\u2019 limitations?"}, high: {title:"Interoperability challenges", activity:"Research communication interoperability challenges between emergency responders. What lessons from 9/11 changed how responders communicate and how has technology helped?"} },
+    thursday:  { low: {title:"Plan memorization quiz", activity:"Quiz every family member: What are the 3 meeting points? What is the out-of-state contact\u2019s number? What time do we check in?"}, mid: {title:"Satellite communicator research", activity:"Research personal locator beacons (PLBs) and satellite communicators (Garmin inReach, SPOT). How do they work when cell service fails?"}, high: {title:"Mesh networking in emergencies", activity:"Research mesh networking apps (Meshtastic, goTenna) that allow off-grid communication between devices without cell towers. What are their range limitations?"} }
+  },
+
+  "Running new wire safely — conduit basics": {
+    gradeHooks: {
+      low: "Electrical wire needs to be protected in a tube called conduit when it runs through places where it could get damaged.",
+      mid: "Conduit protects electrical wiring from physical damage, moisture, and provides a safe raceway for future modifications.",
+      high: "Conduit types, fill calculations, bending techniques, and NEC requirements for conduit wiring methods are important electrical topics."
+    },
+    materials: ["Sample conduit sections (EMT, PVC)", "Conduit bender (optional)", "Pull wire or fish tape"],
+    steps: [
+      "Explain why conduit: exposed wire in garages, basements, and outdoors needs physical protection. Conduit also allows future wire replacement without opening walls.",
+      "Common types: EMT (thinwall metal, indoor/outdoor), Rigid Metal (heavy protection), PVC (outdoor, underground, wet locations).",
+      "Conduit fill: NEC rules limit how many wires you can run in a conduit based on wire gauge and conduit size. Overfilling traps heat.",
+      "Bending: conduit must be bent to navigate corners. A conduit bender makes precise bends. Key: measure accurately before bending.",
+      "Pulling wire: use a fish tape or pull wire to thread conductors through the conduit after installation."
+    ],
+    discussion: [
+      {q:"Why does NEC limit conduit fill to 40% of the conduit\u2019s cross-sectional area?", answers:["Wires carrying current generate heat. Packing too many wires in conduit prevents heat dissipation, causing the insulation to degrade or creating a fire hazard. Fill limits ensure adequate airspace for cooling."]},
+      {q:"When would you choose PVC conduit over metal conduit?", answers:["PVC is used in wet or underground locations where metal would corrode. It is also non-conductive, which is an advantage in some applications. Metal conduit provides better physical protection and is required in areas with heavy impact risk."]}
+    ],
+    challenge: "Plan a short conduit run in your garage or basement. Identify: conduit type needed, number and size of wires to pull, and any bends required.",
+    tuesday:   { low: {title:"Conduit type comparison", activity:"Research EMT, IMC, rigid metal, and PVC conduit. Create a comparison table: material, applications, NEC approval, and relative cost."}, mid: {title:"Fill calculation practice", activity:"Research NEC conduit fill tables. Calculate the minimum conduit size needed for 3 different wire combinations in both EMT and PVC."}, high: {title:"Conduit bending geometry", activity:"Research the math of conduit bending: offsets, kicks, and 90-degree stub-ups. What is the take-up allowance for a standard bender and how does it affect measurements?"} },
+    wednesday: { low: {title:"Fish tape demonstration", activity:"Practice fishing a pull string through a 10-foot section of straight conduit. Now try through conduit with two 90-degree bends."}, mid: {title:"Grounding requirements", activity:"Research grounding requirements for metal conduit. How does conduit function as a grounding conductor and what are the limitations?"}, high: {title:"Raceway systems", activity:"Research alternative raceway systems: wireways, cable trays, and surface raceways. When is each appropriate and what NEC articles govern each?"} },
+    thursday:  { low: {title:"Simple conduit project", activity:"Install a short section of PVC conduit with one elbow to protect a wire running along a wall. Verify it is correctly supported and secured."}, mid: {title:"Permit requirements", activity:"Research when electrical work requires a permit in Florida. What work is allowed without a permit and what requires a licensed electrician?"}, high: {title:"Arc flash in conduit", activity:"Research arc flash risk during work on energized conduit. What PPE is required and how does NFPA 70E govern safe work practices on electrical systems?"} }
+  },
+
+  "Starting a seed library": {
+    gradeHooks: {
+      low: "A seed library is like a book library but for seeds! We organize, store, and share seeds with our community.",
+      mid: "A seed library requires organization systems, viability tracking, and community protocols for borrowing and returning.",
+      high: "Seed library governance, seed sovereignty, and the role of community seed libraries in biodiversity conservation are important topics."
+    },
+    materials: ["Seed collection", "Small envelopes", "Index card box or binder", "Permanent markers"],
+    steps: [
+      "Gather all seeds you\u2019ve saved or purchased. Sort by crop family: nightshades together, brassicas together, alliums together, etc.",
+      "Prepare packets: fold small paper packets or use coin envelopes. Label each with: crop name, variety, year saved, and special notes.",
+      "Create an inventory card for each variety: variety name, characteristics, growing notes, first year collected, and germination test results.",
+      "Storage: keep packets in a sealed container with a desiccant packet in a cool, dark place. A refrigerator extends viability.",
+      "Establish a rotation policy: use the oldest seeds first, replenish annually."
+    ],
+    discussion: [
+      {q:"What is seed sovereignty and why do seed libraries support it?", answers:["Seed sovereignty is the right of farmers and gardeners to save, use, exchange, and sell seeds. Corporate seed patents restrict this right. Community seed libraries preserve open-pollinated varieties and the practice of seed saving outside the commercial seed system."]},
+      {q:"How does a community seed library work differently from a private one?", answers:["In a community library, borrowers take seeds and return seeds from the plants they grew. This circulates seed stock through local growing conditions, adapting varieties to the local microclimate over generations."]}
+    ],
+    challenge: "Establish a seed library with at least 20 varieties. Create a complete inventory with germination test results for each.",
+    tuesday:   { low: {title:"Sorting and cataloging", activity:"Sort your seed collection by crop family. Create a catalog card for each variety: name, year, source, and any growing notes."}, mid: {title:"Germination test batch", activity:"Run germination tests on 5 varieties. Calculate the germination rate for each. Flag any varieties below 50% germination for replacement."}, high: {title:"Community seed library governance", activity:"Research how established community seed libraries govern borrowing, returning, and variety selection. What models have been most successful?"} },
+    wednesday: { low: {title:"Envelope making", activity:"Practice making seed storage envelopes from folded paper. Label each consistently."}, mid: {title:"Variety preservation priorities", activity:"Research which vegetable varieties are considered at risk of extinction. How does home seed saving contribute to preservation of rare heirloom varieties?"}, high: {title:"Seed sovereignty movement", activity:"Research the global seed sovereignty movement. What organizations are involved, what legal frameworks threaten seed saving, and what policy changes are being advocated?"} },
+    thursday:  { low: {title:"Seed swap organization", activity:"Organize a seed swap with neighbors or homeschool families. Create a swap list showing what you have to offer and what you\u2019re looking for."}, mid: {title:"Digital seed library tools", activity:"Research software tools for managing seed libraries: spreadsheets, apps, and community platforms. What data fields are most important to track?"}, high: {title:"Crop wild relatives", activity:"Research crop wild relatives: the wild plant ancestors of our cultivated crops. Why are they important for breeding disease resistance and climate adaptation, and how are they being preserved?"} }
+  },
+
+  "Improvised water collection systems": {
+    gradeHooks: {
+      low: "If we don\u2019t have a water supply, we can collect rain, dew, or use plants to get water in creative ways.",
+      mid: "Improvised water collection uses available materials and environmental conditions to gather water when conventional sources are unavailable.",
+      high: "The physics of condensation, atmospheric moisture, and comparative analysis of improvised water collection methods are important topics."
+    },
+    materials: ["Plastic sheeting", "Collection containers", "String or rope"],
+    steps: [
+      "Rain catchment: any clean surface (tarp, plastic sheet) can direct rain into a container. Surface area determines yield.",
+      "Dew collection: a clean cloth wiped across grass before sunrise on humid mornings can yield significant water. Wring into a container.",
+      "Fog collection: in fog-prone areas, a fine mesh screen catches droplets that coalesce and drip into a container.",
+      "Tree transpiration: large bags tied over leafy branches in full sun collect several hundred mL per day.",
+      "Ground solar still: plastic sheeting over a dug pit extracts moisture from soil and vegetation."
+    ],
+    discussion: [
+      {q:"Which improvised water collection method requires the least energy and materials?", answers:["Dew collection with a cloth requires no tools, no digging, and only 30 minutes of early morning effort. In humid environments like Florida, it can yield meaningful amounts of clean water."]},
+      {q:"What environmental conditions make each method most productive?", answers:["Rain catchment: obviously rain. Dew: high humidity, clear nights (radiative cooling creates temperature drop). Fog collection: coastal or highland fog. Transpiration bags: sunny, warm, leafy deciduous plants."]}
+    ],
+    challenge: "Set up 3 different collection methods simultaneously. Compare yields over 24 hours. Calculate how many days until each method could meet your minimum hydration need.",
+    tuesday:   { low: {title:"Catchment area calculation", activity:"Calculate: if a 10-square-foot tarp catches 0.5 inches of rain, how many liters does it collect? (1 inch rain per sq ft = 0.623 gallons)"}, mid: {title:"Fog catcher design", activity:"Research fog catcher designs used in developing countries (Fogquest, MIT fog project). What mesh characteristics maximize water collection?"}, high: {title:"Atmospheric water vapor research", activity:"Research how atmospheric water vapor varies by location, temperature, and season. In Florida\u2019s humidity, what is the theoretical maximum dew point and water vapor content?"} },
+    wednesday: { low: {title:"Dew collection experiment", activity:"Collect dew from a large leaf or grass area on a humid morning. Measure the yield. Extrapolate: how large an area would yield 1 liter?"}, mid: {title:"Water quality comparison", activity:"Compare the expected water quality from each collection method. Which methods produce water that can be consumed with minimal treatment and which require full treatment?"}, high: {title:"Water harvesting economics", activity:"Research rainwater harvesting economics. What is the cost per gallon of harvested rainwater compared to municipal supply and bottled water? When does it make economic sense?"} },
+    thursday:  { low: {title:"Emergency collection kit", activity:"Design a lightweight emergency water collection kit under 2 pounds. What materials would you include for maximum versatility?"}, mid: {title:"Integrated collection system", activity:"Design an integrated water collection system for a 72-hour survival scenario in Florida. Combine multiple methods and calculate expected total yield."}, high: {title:"Passive architecture water collection", activity:"Research how vernacular architecture in arid and semi-arid regions has incorporated passive water collection: earthen cisterns, fog catches, qanats. What modern applications exist?"} }
+  },
+
+  "Unclogging a drain": {
+    gradeHooks: {
+      low: "When a drain gets slow, we can often fix it ourselves with a plunger or by cleaning the trap. No plumber needed!",
+      mid: "Understanding drain anatomy and clog types enables choosing the right tool: plunger, drain snake, or P-trap cleaning.",
+      high: "Drain system hydraulics, clog formation chemistry, and the environmental impact of chemical drain cleaners are important plumbing topics."
+    },
+    materials: ["Plunger", "Bucket", "Channel-lock pliers", "Flashlight"],
+    steps: [
+      "Identify the clog location: is water backing up in just one fixture (local clog) or multiple (main line issue)?",
+      "Plunger method: seal the overflow drain with a rag (sinks) or tape. Add enough water to cover the plunger cup. Use steady up-and-down pressure — not just up.",
+      "P-trap cleaning: place a bucket under the P-trap (the curved pipe under the sink). Unscrew the slip nuts by hand or with pliers. Remove and clean the trap. Reinstall.",
+      "Drain snake: insert into the drain and rotate to grab or break up the clog further down the pipe.",
+      "Prevention: hair catchers in shower drains, no grease down kitchen drains, regular hot water flushing."
+    ],
+    discussion: [
+      {q:"Why does the P-trap under sinks exist and why does it trap debris?", answers:["The P-trap holds water that creates a seal against sewer gases entering the home. Its curved shape also catches debris before it moves further into the drain system where it is harder to remove."]},
+      {q:"Why should chemical drain cleaners be used sparingly?", answers:["They are highly caustic and can damage older pipes (especially PVC joints and older metal pipes). They are also environmentally harmful when they reach water treatment systems, and repeated use can worsen clogs by not removing them but compacting the material."]}
+    ],
+    challenge: "Clean the P-trap under your bathroom or kitchen sink. Photograph the inside of the trap. Was there buildup? How much?",
+    tuesday:   { low: {title:"Plunger technique practice", activity:"Practice proper plunger technique in a sink or bucket: seal the overflow, submerge the cup, steady rhythm. What\u2019s the difference between cup plungers and flange plungers?"}, mid: {title:"Drain snake technique", activity:"Practice using a hand drain snake. What\u2019s the difference between a hand snake (up to 25 feet) and a professional snake? When is each appropriate?"}, high: {title:"Drain cleaning chemistry", activity:"Research the chemistry of enzymatic drain cleaners vs caustic cleaners (sodium hydroxide). Which is safer for pipes and the environment and for what clog types is each most effective?"} },
+    wednesday: { low: {title:"Preventive maintenance", activity:"Research and implement preventive drain maintenance: monthly hot water flushing, enzyme cleaners, and hair catchers."}, mid: {title:"Main line vs fixture clog", activity:"Research the diagnostic signs that distinguish a local fixture clog from a main sewer line blockage. What does backing up in the shower when the toilet is flushed indicate?"}, high: {title:"Hydrojetting", activity:"Research hydrojetting as a professional drain cleaning method. What pressures are used, what can it remove that snaking cannot, and when does a drain require jetting rather than snaking?"} },
+    thursday:  { low: {title:"Drain maintenance schedule", activity:"Create a drain maintenance schedule: monthly hot water flush, quarterly enzyme treatment, annual P-trap inspection."}, mid: {title:"Sewer gas awareness", activity:"Research the dangers of sewer gas (hydrogen sulfide, methane). What symptoms does exposure cause and what plumbing conditions allow it to enter the home?"}, high: {title:"CIPP pipe lining", activity:"Research Cured-In-Place Pipe (CIPP) lining for repairing old drain systems without excavation. How does it work and what are the longevity and environmental concerns?"} }
+  },
+
+  "Emergency fund — why 3 months expenses": {
+    gradeHooks: {
+      low: "An emergency fund is money saved for unexpected problems: car repairs, medical bills, or losing a job. It keeps the family safe!",
+      mid: "The 3\u20136 month emergency fund recommendation reflects statistical job search durations and unexpected expense frequency.",
+      high: "Emergency fund sizing, liquidity requirements, opportunity cost of cash holdings, and behavioral finance dimensions of emergency savings are important topics."
+    },
+    materials: ["Family budget data", "Calculator"],
+    steps: [
+      "Calculate your family\u2019s monthly essential expenses: rent, food, utilities, insurance, minimum debt payments. This is the baseline.",
+      "Multiply by 3 for the minimum goal and by 6 for a stronger buffer.",
+      "Discuss why 3\u20136 months: the average job search takes 3\u20135 months. Unexpected major expenses (car repair, medical) average several thousand dollars.",
+      "Where to keep it: a high-yield savings account. Accessible (liquid) but separate from everyday spending.",
+      "Building it: automate a monthly transfer even if it\u2019s small. Consistency matters more than amount."
+    ],
+    discussion: [
+      {q:"Why should an emergency fund be kept in a savings account rather than invested in stocks?", answers:["Emergency funds need to be liquid (accessible immediately) and stable in value. Stock investments can drop 30\u201350% in a market downturn — exactly when you\u2019re most likely to need emergency funds. The guaranteed access and stable value of a savings account is the priority."]},
+      {q:"What is the opportunity cost of keeping 6 months of expenses in a low-interest savings account?", answers:["If your emergency fund earns 4% but the stock market earns 8% historically, the cost of keeping funds in savings rather than investing is approximately 4% annually on that balance. This is the price of financial security and insurance against job loss."]}
+    ],
+    challenge: "Calculate your family\u2019s 3-month emergency fund goal. How close is your family to that goal? At current savings rate, how long to reach it?",
+    tuesday:   { low: {title:"Monthly expense calculation", activity:"Add up all monthly essential expenses. Multiply by 3 and by 6. These are your minimum and stronger emergency fund targets."}, mid: {title:"High-yield savings comparison", activity:"Research current high-yield savings account rates. Calculate how much interest your emergency fund would earn annually at today\u2019s best rate vs a traditional savings account."}, high: {title:"Emergency fund optimization research", activity:"Research academic and financial planning literature on optimal emergency fund size. What factors (job stability, number of income earners, health conditions) justify a larger or smaller fund?"} },
+    wednesday: { low: {title:"Savings automation", activity:"Research automatic savings transfers. How does automating a fixed monthly transfer to savings remove the psychological friction of voluntary saving?"}, mid: {title:"Baby steps approach", activity:"Research Dave Ramsey\u2019s baby steps approach to emergency fund building. What is the $1,000 starter fund and why is it recommended before paying off debt?"}, high: {title:"Behavioral barriers to saving", activity:"Research behavioral finance barriers to emergency saving: present bias, optimism bias (\u2018it won\u2019t happen to me\u2019), and mental accounting. What interventions most effectively overcome these barriers?"} },
+    thursday:  { low: {title:"Emergency fund story", activity:"Write or tell a story about a family that had a $10,000 emergency. Tell the story twice: once with an emergency fund and once without. How did the outcome differ?"}, mid: {title:"Beyond 6 months", activity:"Research scenarios where 6 months is not enough: self-employed workers (recommend 12 months), households with one income, those with chronic health conditions. What adjustments are recommended?"}, high: {title:"Insurance vs emergency fund tradeoffs", activity:"Research the relationship between insurance coverage levels and emergency fund requirements. How does comprehensive insurance coverage reduce the required emergency fund size?"} }
+  },
+
+  "Map and compass course — azimuth bearings": {
+    gradeHooks: {
+      low: "An azimuth is a compass direction given as a number from 0 to 360. North is 0, East is 90, South is 180, West is 270.",
+      mid: "Azimuth-based navigation enables precise direction-finding and course plotting that is universal across all military and technical navigation.",
+      high: "Azimuth mathematics, coordinate systems, and precision navigation techniques are foundational skills for advanced land navigation."
+    },
+    materials: ["Baseplate compass with degree bezel", "Topo map", "Protractor"],
+    steps: [
+      "Review the azimuth system: 0/360 = North, 90 = East, 180 = South, 270 = West. All other directions fall between.",
+      "Taking a bearing: point the direction-of-travel arrow at the target, rotate the bezel until the orienting arrow aligns with the magnetic needle. Read the azimuth.",
+      "Plotting a bearing on a map: align the compass edge with the starting point. Rotate the compass (not the bezel) until the orienting lines align with map north. Draw the line.",
+      "Back azimuth: subtract 180 from azimuths > 180, add 180 to azimuths < 180. Used to find your starting point from your destination.",
+      "Run a 3-point azimuth course: take bearings, walk specific distances, find the endpoint."
+    ],
+    discussion: [
+      {q:"If your bearing to a destination is 245\u00b0, what is your back azimuth (the bearing back to your start)?", answers:["245 - 180 = 65\u00b0. When the azimuth is greater than 180, subtract 180 to get the back azimuth."]},
+      {q:"Why is the azimuth system more precise than compass rose direction names like \u2018north-northeast\u2019?", answers:["NNE covers 22.5 degrees of arc. An azimuth is to the degree. For navigation over distance, a 5-degree error can mean missing your target by hundreds of feet or more."]}
+    ],
+    challenge: "Run a 5-point azimuth navigation course you designed yourself. Record each azimuth and distance. Can you finish within 10 feet of the intended endpoint?",
+    tuesday:   { low: {title:"Azimuth conversion practice", activity:"Convert 10 compass rose directions to azimuths (NE, SSW, WNW, etc.) and 10 azimuths to compass rose directions."}, mid: {title:"Map azimuth plotting", activity:"Plot 5 azimuths from given starting points on a topo map. Mark where each line goes after 1000 meters."}, high: {title:"Grid azimuth vs magnetic azimuth", activity:"Research the difference between grid azimuth (from map north), magnetic azimuth (from magnetic north), and true azimuth (from geographic north). When must you convert between them?"} },
+    wednesday: { low: {title:"Pace count calibration", activity:"Calibrate your personal pace count over 100 meters. How many double paces do you take? Use this for distance measurement during your azimuth course."}, mid: {title:"Resection with azimuths", activity:"Take azimuths to 3 known landmarks. Plot back azimuths from each on your map. Your position is inside the triangle formed by the 3 intersecting lines."}, high: {title:"Artillery azimuth calculations", activity:"Research how artillery uses azimuths for indirect fire targeting. What is a deflection and how do forward observers convert observed azimuths to firing data?"} },
+    thursday:  { low: {title:"Azimuth course design", activity:"Design a 3-point azimuth course for your yard: write the azimuth and pace count for each leg. Have a family member run it."}, mid: {title:"Night azimuth navigation", activity:"Research night azimuth navigation techniques. How does the absence of visible landmarks change your reliance on compass and pace count?"}, high: {title:"Precision navigation systems", activity:"Research how modern precision navigation systems (inertial navigation, GPS differential correction) achieve sub-meter accuracy. What are their failure modes and how do human navigators serve as backup?"} }
+  },
+
+  "Acorns — processing tannins to eat": {
+    gradeHooks: {
+      low: "Acorns from oak trees can be eaten, but they taste very bitter. We learn to remove the bitterness before eating them!",
+      mid: "Acorn processing removes tannins through leaching, making a high-calorie, storable wild food accessible.",
+      high: "Tannin chemistry, comparative analysis of oak species tannin content, and the ethnobotany of acorn use are important topics."
+    },
+    materials: ["Collected acorns (from non-toxic oaks)", "Water", "Grinder or mortar and pestle"],
+    steps: [
+      "Collect acorns from native oaks. Remove any that have holes (insect damage) or mold.",
+      "Shell the acorns and grind or chop the meat into a coarse meal.",
+      "Cold leaching: cover acorn meal with cold water, soak for 8\u201312 hours, drain and repeat 4\u20136 times until the bitterness is gone.",
+      "Hot leaching (faster): boil in water for 15\u201320 minutes, drain, repeat 3\u20134 times. Reduces nutrients slightly but is much faster.",
+      "Dry the leached meal and use as flour for flatbreads, porridge, or biscuits."
+    ],
+    discussion: [
+      {q:"Why do acorns contain tannins in the first place?", answers:["Tannins are a defense mechanism against insects and animals eating acorns before they can fall and germinate. They taste bitter and can cause digestive upset if consumed in large quantities without processing."]},
+      {q:"Why is cold leaching preferred over hot leaching despite being slower?", answers:["Hot water breaks down starch in acorns, making it less useful as flour and affecting the texture. Cold leaching removes tannins while preserving the starch structure. Hot leaching is used for speed when texture doesn\u2019t matter (soups, porridge)."]}
+    ],
+    challenge: "Collect, process, and cook with acorns. Make a simple flatbread or porridge from processed acorn meal. Rate the flavor and nutritional value.",
+    tuesday:   { low: {title:"Oak species identification", activity:"Research native Florida oak species. Which are most common near you? Which produce the most palatable acorns (white oaks are generally lower in tannins)?"}, mid: {title:"Tannin content comparison", activity:"Research tannin content (in terms of taste intensity) across oak species: white oak group vs red oak group. How does this affect processing time?"}, high: {title:"Tannin chemistry", activity:"Research condensed vs hydrolyzable tannins. Which type is found in acorns, how does it interact with proteins, and why does this cause bitterness and digestive issues?"} },
+    wednesday: { low: {title:"Leaching observation", activity:"Test the water after each leaching cycle: taste a small drop on your finger. Describe how the bitterness decreases with each cycle."}, mid: {title:"Acorn nutrition analysis", activity:"Research the nutritional profile of processed acorn flour. Compare carbohydrates, fat, protein, and caloric density to wheat flour."}, high: {title:"Indigenous acorn use", activity:"Research the extensive use of acorns by California Indigenous peoples. What processing methods did they develop and how did acorn-based foods support large, stable populations?"} },
+    thursday:  { low: {title:"Acorn flour cooking", activity:"Make acorn pancakes or flatbread from processed meal. What does the texture and flavor remind you of? How would you use it in a survival scenario?"}, mid: {title:"Preservation and storage", activity:"Research how to dry and store processed acorn flour. How long does it keep and what are the optimal storage conditions?"}, high: {title:"Caloric density for survival", activity:"Calculate: if a large oak tree produces 20,000 acorns at 5 grams each with a caloric density of 387 kcal/100g, what is the total caloric value of one tree\u2019s crop per year?"} }
+  },
+
+  "Jump-starting a car safely": {
+    gradeHooks: {
+      low: "When a car battery dies, we can use another car\u2019s battery to give it a jump start. We follow a careful order to stay safe!",
+      mid: "Jump-starting a car safely requires correct cable sequence, understanding of electrical safety, and awareness of modern vehicle electronics.",
+      high: "Battery chemistry, the physics of inrush current during jump-starting, and the risk of hydrogen gas near batteries are important automotive topics."
+    },
+    materials: ["Jumper cables", "Two vehicles"],
+    steps: [
+      "Verify both vehicles are off. Inspect both batteries: no cracks, leaks, or corrosion. Never jump a damaged battery.",
+      "Connect RED to dead battery positive (+). Connect RED to good battery positive (+). Connect BLACK to good battery negative (-). Connect BLACK to unpainted metal on dead car\u2019s engine block (NOT the battery).",
+      "Why engine block for the last connection: sparks near a battery can ignite hydrogen gas. The engine block is far from the battery.",
+      "Start the good car and let run for 2\u20133 minutes. Start the dead car. If it doesn\u2019t start in 3\u20134 attempts, the battery may need replacement.",
+      "Remove cables in reverse order: black from engine block, black from good battery, red from good, red from now-running car."
+    ],
+    discussion: [
+      {q:"Why is the last connection always made to the engine block rather than the negative battery terminal?", answers:["Every electrical connection risks a small spark. Batteries emit hydrogen gas which is explosive. Making the final connection at the engine block keeps the inevitable spark far from the battery."]},
+      {q:"Why might repeated jump-starting without the battery recovering indicate a larger problem?", answers:["If the battery won\u2019t hold a charge, it likely has a dead cell and needs replacement. If a new battery dies repeatedly, the alternator (which charges the battery while driving) may be failing."]}
+    ],
+    challenge: "Memorize the cable connection order (RRBB and its reverse) with the reasoning behind each step. Demonstrate it to a parent from memory.",
+    tuesday:   { low: {title:"Cable color memory system", activity:"Create a mnemonic for RRBB: Red-Red-Black-Black. Practice saying the sequence and explaining the reason for each connection."}, mid: {title:"Modern vehicle electronics considerations", activity:"Research why some modern vehicles (hybrids, high-end electronics) have special jump-start procedures or are not to be used as the boosting vehicle. What damage can inrush current cause?"}, high: {title:"Electrochemical battery science", activity:"Research lead-acid battery electrochemistry. What reaction produces electrical current? What produces hydrogen gas? Why does a deeply discharged battery take longer to accept a charge?"} },
+    wednesday: { low: {title:"Portable jump starter research", activity:"Research lithium-ion portable jump starters. How do they work, what vehicles can they start, and how long does a charge last?"}, mid: {title:"Battery health testing", activity:"Research battery load testing. What is a CCA (Cold Cranking Amps) rating and why does a battery that shows good voltage fail under load?"}, high: {title:"Alternator function and failure", activity:"Research alternator operation and failure modes. How does the alternator maintain battery charge while the engine runs and what are the symptoms of alternator failure?"} },
+    thursday:  { low: {title:"Car emergency kit update", activity:"Add jumper cables or a portable jump starter to your vehicle emergency kit if not already present. Confirm they are in good condition."}, mid: {title:"Battery replacement procedure", activity:"Research DIY battery replacement. What safety precautions are required? What happens to the car\u2019s electronics when battery power is interrupted?"}, high: {title:"Electric vehicle charging emergency", activity:"Research what to do when an electric vehicle battery is too low to drive. How does EV emergency charging differ from traditional jump-starting?"} }
+  },
+
+  "Head wound care — pressure and monitoring": {
+    gradeHooks: {
+      low: "Head wounds bleed a lot but most are not serious. We apply gentle pressure and watch for signs that the injury is more serious inside.",
+      mid: "Scalp laceration management and post-head-injury monitoring protocols are critical first aid skills. Head injuries can have delayed presentations.",
+      high: "Scalp vascular anatomy, intracranial pressure, concussion assessment tools, and the red flags for serious traumatic brain injury are important medical topics."
+    },
+    materials: ["Clean cloths and gauze", "Gloves if available"],
+    steps: [
+      "Scalp wounds bleed dramatically due to the rich blood supply. Do not panic: the bleeding usually looks much worse than the injury.",
+      "Apply gentle, firm pressure with a clean cloth. If the cloth soaks through, add more on top rather than removing.",
+      "Exception: if you feel or suspect a skull fracture (a depression in the bone), do NOT apply direct pressure. Apply a donut-shaped bandage (cloth ring) around the depression.",
+      "After bleeding is controlled, monitor for signs of serious head injury: confusion, unequal pupils, vomiting more than once, loss of consciousness, worsening headache, clear fluid from nose or ears.",
+      "Any of these signs = immediate 911 call. Even without these signs, a significant head injury warrants medical evaluation."
+    ],
+    discussion: [
+      {q:"Why do scalp wounds bleed so much more than wounds on the arm or leg?", answers:["The scalp has an extremely dense network of blood vessels that supply the hair follicles and maintain brain temperature. These vessels also do not constrict well when cut, unlike vessels deeper in the body."]},
+      {q:"What is the significance of clear fluid draining from the nose or ear after a head injury?", answers:["This could be cerebrospinal fluid (CSF) leaking from a skull base fracture. It is a serious sign requiring immediate emergency care. CSF creates a path for infection to reach the brain."]}
+    ],
+    challenge: "Practice head wound pressure bandaging on a simulated scalp wound. Demonstrate the donut bandage technique for a suspected skull fracture.",
+    tuesday:   { low: {title:"Red flag symptoms card", activity:"Create a reference card with head injury red flag symptoms. Laminate it for your first aid kit."}, mid: {title:"Glasgow Coma Scale intro", activity:"Research the Glasgow Coma Scale (GCS). What 3 responses does it assess and what scores indicate mild, moderate, and severe injury?"}, high: {title:"Intracranial pressure physiology", activity:"Research raised intracranial pressure (ICP) after head injury. What is the Monro-Kellie doctrine and how does it explain why brain swelling is so dangerous in a rigid skull?"} },
+    wednesday: { low: {title:"Concussion signs", activity:"Research post-concussion symptoms vs acute TBI red flags. What symptoms can appear hours or days after a head injury?"}, mid: {title:"SCAT5 concussion assessment", activity:"Research the SCAT5 (Sport Concussion Assessment Tool). What does it assess and who administers it? How does it compare to a full neurological exam?"}, high: {title:"Second impact syndrome", activity:"Research second impact syndrome: why a second concussion before the first has healed can be catastrophic. What are the physiological mechanisms and what sports policies address this risk?"} },
+    thursday:  { low: {title:"Monitoring protocol", activity:"Write a 6-hour monitoring protocol for a minor head injury: what to check, how often, and what findings would prompt a 911 call."}, mid: {title:"Return to activity protocol", activity:"Research return-to-sport protocols after concussion. What is a graduated return to play and how many steps does it involve?"}, high: {title:"CTE research", activity:"Research Chronic Traumatic Encephalopathy (CTE). What is the proposed mechanism linking repeated head impacts to neurodegeneration? What sports have been most affected?"} }
+  },
+
+  "What is shelter-in-place?": {
+    gradeHooks: {
+      low: "Shelter-in-place means staying inside your home and sealing it up to protect yourself from something dangerous outside.",
+      mid: "Shelter-in-place protocols vary by hazard type: chemical release, nuclear event, biological agent, and severe weather each require different responses.",
+      high: "Shelter-in-place effectiveness research, hazard-specific protocols, and the decision science of when to shelter vs evacuate are important emergency management topics."
+    },
+    materials: ["Plastic sheeting", "Duct tape", "Battery radio"],
+    steps: [
+      "Identify when shelter-in-place is ordered: hazmat release (chemical spill, industrial accident), radiological event, biological agent, or severe weather (tornado).",
+      "General protocol: go inside, bring pets, close and lock all windows and doors, turn off HVAC (stops bringing outside air in).",
+      "For chemical or radiological events: seal gaps with plastic sheeting and tape around windows, doors, and vents. This dramatically slows infiltration.",
+      "Monitor emergency alerts: battery radio or phone alerts for the all-clear signal.",
+      "Duration: most shelter-in-place orders for chemical releases last 30 minutes to a few hours. Never leave before the all-clear."
+    ],
+    discussion: [
+      {q:"Why do you turn off HVAC systems during a chemical shelter-in-place?", answers:["HVAC systems actively draw outside air into the building. During a chemical release, the HVAC would pump contaminated air directly into every room. Turning it off relies on passive sealing instead."]},
+      {q:"How long can sealing a room with plastic and tape actually protect you?", answers:["Research suggests a sealed room provides meaningful protection for 2\u20133 hours against most outdoor chemical releases. Most releases disperse significantly within this timeframe. It buys critical time."]}
+    ],
+    challenge: "Set up a shelter-in-place kit for one room in your home. Practice sealing the room with plastic and tape in under 5 minutes.",
+    tuesday:   { low: {title:"Shelter room selection", activity:"Identify the best shelter-in-place room in your home: interior room, fewest windows, above ground level (for heavier-than-air chemicals). Explain your choice."}, mid: {title:"Hazard-specific protocols", activity:"Research how shelter-in-place protocols differ for: chemical release (seal room), nuclear detonation (concrete interior room, stay for 24 hours), severe weather (interior low room, no windows)."}, high: {title:"Infiltration rate research", activity:"Research building infiltration rates: how quickly does outdoor air replace indoor air in typical vs sealed buildings? What does this tell us about the protection window a sealed room provides?"} },
+    wednesday: { low: {title:"Plastic and tape practice", activity:"Practice sealing a door frame with plastic sheeting and duct tape as fast as possible. Time it. Goal: under 2 minutes per door."}, mid: {title:"Local hazmat facilities", activity:"Research LEPC (Local Emergency Planning Committee) resources. What hazardous material facilities exist near your home and what chemicals do they use?"}, high: {title:"Chernobyl evacuation decision", activity:"Research the evacuation vs shelter-in-place decisions made during the Chernobyl and Fukushima nuclear accidents. What factors drove each decision and what outcomes resulted?"} },
+    thursday:  { low: {title:"Go kit for shelter-in-place", activity:"Assemble a shelter-in-place kit for your designated room: water (1 gallon per person), food (3-day supply), battery radio, first aid, and medications."}, mid: {title:"When to shelter vs evacuate", activity:"Research the FEMA guidance on when shelter-in-place vs evacuation is the better option for different hazard types. What information do you need to make this decision?"}, high: {title:"Protective action decision framework", activity:"Research the EPA\u2019s Protective Action Decision Framework. How do emergency managers decide between shelter-in-place and evacuation for different hazard scenarios, populations, and distances?"} }
+  },
+
+  "Heat exhaustion vs heat stroke — treatment": {
+    gradeHooks: {
+      low: "Too much heat can make people very sick. Heat exhaustion is serious; heat stroke is a life-threatening emergency!",
+      mid: "Differentiating heat exhaustion from heat stroke is critical because they require different treatments and heat stroke is immediately life-threatening.",
+      high: "Thermoregulation physiology, the continuum from heat cramps to heat stroke, core temperature measurement, and aggressive cooling protocols are important topics."
+    },
+    materials: ["Cold water", "Ice packs or cold, wet cloths"],
+    steps: [
+      "Heat cramps: muscle cramping from electrolyte loss. Rest, cool location, electrolyte fluids.",
+      "Heat exhaustion: heavy sweating, pale and clammy skin, weakness, nausea, fast weak pulse, possibly fainting. Move to cool area, loosen clothing, cool with wet cloths, oral fluids if conscious.",
+      "Heat stroke: the key distinction: hot DRY skin (sweating stops) OR altered mental status (confusion, combativeness, unconsciousness). This is a 911 emergency.",
+      "Heat stroke treatment: call 911 IMMEDIATELY. Aggressive cooling by any means available: ice bath, ice packs to neck/armpit/groin, cool water immersion. Do not give fluids.",
+      "Time matters: permanent organ damage begins when core temperature exceeds 104\u00b0F for extended periods. Cooling before EMS arrives saves lives."
+    ],
+    discussion: [
+      {q:"Why does heat stroke produce hot, dry skin while heat exhaustion produces cool, clammy skin?", answers:["In heat exhaustion, the body is still sweating (the cooling mechanism is overwhelmed but functioning). In heat stroke, the thermoregulatory mechanism fails completely — sweating stops, and body temperature spirals upward without control."]},
+      {q:"Why should you NOT give fluids to a heat stroke patient?", answers:["A heat stroke patient has altered mental status and may not be able to protect their airway. Giving fluids to someone who cannot swallow safely risks aspiration (fluid entering the lungs)."]}
+    ],
+    challenge: "Practice the assessment sequence: for 3 presented scenarios with specific symptoms, determine whether each is heat cramps, heat exhaustion, or heat stroke and describe the treatment.",
+    tuesday:   { low: {title:"Symptom comparison chart", activity:"Create a three-column chart: heat cramps, heat exhaustion, heat stroke. List key symptoms, treatment, and urgency level for each."}, mid: {title:"Cooling technique comparison", activity:"Research the effectiveness of different cooling techniques: ice bath, cold water immersion, ice packs to high-flow areas, evaporative cooling with fans. Rank by speed of core temperature reduction."}, high: {title:"Thermoregulation physiology", activity:"Research the hypothalamic thermostat and how it regulates body temperature. What happens physiologically when this system is overwhelmed? What is exertional vs classic heat stroke?"} },
+    wednesday: { low: {title:"Florida heat risk awareness", activity:"Research Florida\u2019s heat statistics. What months have the most heat-related deaths? What activities and populations are highest risk?"}, mid: {title:"Acclimatization", activity:"Research heat acclimatization: physiological changes that occur over 10\u201314 days of heat exposure that improve performance and safety. What changes occur in plasma volume, sweat rate, and cardiovascular function?"}, high: {title:"Heat index physiology", activity:"Research why high humidity makes heat stroke more dangerous. How does humidity impair evaporative cooling and what wet bulb globe temperature (WBGT) threshold is used for canceling athletic events?"} },
+    thursday:  { low: {title:"Prevention plan", activity:"Create a heat safety plan for outdoor activities in Florida summer: timing, hydration schedule, heat index monitoring, and signs to stop."}, mid: {title:"Elderly and medication risk", activity:"Research how age and certain medications (diuretics, anticholinergics, beta-blockers) increase heat stroke risk. What additional precautions apply to these populations?"}, high: {title:"Climate change and heat mortality", activity:"Research projected increases in heat-related mortality under different climate change scenarios. What populations are most vulnerable and what public health adaptations are being implemented?"} }
+  },
+
+  "Fall garden — what to plant in August": {
+    gradeHooks: {
+      low: "In Florida, our fall garden is planted in late summer! This is when we plant many cool-season vegetables.",
+      mid: "Florida\u2019s fall garden window opens in August\u2013September. Understanding what to plant and how to transition from summer heat is critical for success.",
+      high: "Thermal seasonality in subtropical horticulture, microclimate management for fall establishment, and succession planting into the fall-winter season are advanced topics."
+    },
+    materials: ["UF/IFAS fall planting calendar", "Seeds or transplants appropriate to the current date"],
+    steps: [
+      "Look up the UF/IFAS planting calendar for your specific county. Fall planting begins August\u2013September for most of Florida.",
+      "Best bets for August starting: tomatoes (for fall harvest), peppers, eggplant, sweet corn (short-season varieties), beans, squash.",
+      "Transition from summer: remove exhausted summer plants, add compost, test soil pH.",
+      "August planting challenge: heat and pests. Use shade cloth (30\u201350%) to protect seedlings during the hottest part of the day.",
+      "Succession planting: stagger plantings every 2\u20133 weeks to extend harvest window through December."
+    ],
+    discussion: [
+      {q:"Why are Florida\u2019s tomato seasons in fall and spring rather than summer like northern gardeners?", answers:["Tomatoes require nighttime temperatures below 70\u00b0F to set fruit. Florida summers have hot nights above this threshold. Fall and spring both provide the cooler evenings tomatoes need."]},
+      {q:"What is the role of shade cloth in an August Florida garden?", answers:["August soil and air temperatures are extreme. Shade cloth reduces soil temperature by 10\u201315\u00b0F, reduces water evaporation, and protects tender seedlings from sun scorch during establishment."]}
+    ],
+    challenge: "Plan and plant a fall garden using the UF/IFAS planting calendar. Document variety selection, planting date, and expected harvest dates.",
+    tuesday:   { low: {title:"UF/IFAS calendar research", activity:"Download the UF/IFAS planting guide for your specific county. What 5 vegetables can you plant right now (in August or September)?"}, mid: {title:"Succession planting schedule", activity:"Create a succession planting schedule for 3 crops: plant one batch now, one in 3 weeks, one in 6 weeks. Calculate expected harvest windows for each batch."}, high: {title:"Fall pest pressure", activity:"Research the specific pests most active in Florida fall gardens: whiteflies, aphids, loopers, and stinkbugs. What integrated pest management strategies are most effective in the fall transition?"} },
+    wednesday: { low: {title:"Soil preparation", activity:"Add 3\u20134 inches of compost to your garden bed. Test pH. What amendments might be needed before planting fall crops?"}, mid: {title:"Variety selection for heat tolerance", activity:"Research tomato varieties specifically bred for Florida\u2019s heat. What characteristics (heat-set ability, disease resistance) should you prioritize for a Florida fall garden?"}, high: {title:"Microclimate management", activity:"Research how raised beds, mulch, and irrigation management create favorable microclimates for fall establishment in Florida\u2019s heat. What does research say about soil temperature and germination rates?"} },
+    thursday:  { low: {title:"Garden journal setup", activity:"Set up a fall garden journal: variety, planting date, expected harvest, and weekly observation space."}, mid: {title:"Cover crop transition", activity:"Plan your winter cover crop: what will you plant in December when the main garden finishes? Research sunn hemp, crimson clover, and buckwheat for Florida."}, high: {title:"Climate-smart variety selection", activity:"Research how Florida Extension is recommending new heat-tolerant varieties in response to changing climate conditions. What varieties are being trialed and what results are emerging?"} }
+  },
+
+  "Greywater recycling basics": {
+    gradeHooks: {
+      low: "Greywater is the water from sinks and showers. Instead of wasting it, we can use it to water plants!",
+      mid: "Greywater recycling reduces household water consumption by 30\u201350% while providing nutrient-rich irrigation water for gardens.",
+      high: "Greywater system design, pathogen risk management, Florida regulations, and the chemistry of household greywater are important topics."
+    },
+    materials: ["Bucket for simple collection", "Florida regulation research"],
+    steps: [
+      "Define greywater: sink, shower, and laundry water. NOT toilet water (blackwater) or kitchen sink water with food waste.",
+      "Simple laundry-to-landscape system: the washing machine drain hose is redirected to a mulch basin in the garden. Gravity-fed, minimal equipment.",
+      "Considerations: use only plant-friendly soaps (no boron, low sodium, biodegradable). Never spray greywater on edible parts of food plants.",
+      "Florida regulations: Florida allows simple laundry-to-landscape systems without a permit in most cases, but complex systems may require permits.",
+      "Benefits: a typical household can redirect 40\u201350 gallons per laundry load to landscape irrigation."
+    ],
+    discussion: [
+      {q:"Why can kitchen sink water not be used as greywater for irrigation?", answers:["Kitchen sink water contains food particles, grease, and meat juices that support pathogen growth and attract pests. It also can introduce harmful bacteria to the soil near food crops."]},
+      {q:"Why should greywater be applied to the soil rather than sprayed on plant leaves?", answers:["Spraying on foliage can spread pathogens to edible portions and cause leaf burn from soap residue. Soil application allows filtration and pathogen die-off before plants absorb water through roots."]}
+    ],
+    challenge: "Calculate your household\u2019s total greywater generation per day. Research the permitting requirements for a laundry-to-landscape system in your county.",
+    tuesday:   { low: {title:"Greywater identification", activity:"Track all water-generating activities in your home for one day. Classify each as blackwater (toilet), greywater (safe to reuse), or kitchen water (not suitable). How many gallons total?"}, mid: {title:"Laundry-to-landscape design", activity:"Research how to design a simple laundry-to-landscape system. What is a mulch basin and how does it distribute and filter greywater?"}, high: {title:"Florida greywater code", activity:"Research Florida\u2019s greywater regulations. What is allowed without a permit and what requires a licensed plumber? How do the regulations compare to California\u2019s more permissive standards?"} },
+    wednesday: { low: {title:"Soap evaluation", activity:"Research how to identify greywater-safe soaps. What ingredients to avoid: sodium (salinity), boron (toxic to plants), and synthetic fragrances. Find 3 greywater-safe soap products."}, mid: {title:"Pathogen risk management", activity:"Research the pathogens found in greywater and the soil treatment processes (filtration, die-off time) that reduce risk. What soil buffer distance from food plants is recommended?"}, high: {title:"Advanced greywater systems", activity:"Research constructed wetlands and biofilter systems for treating greywater. How do they achieve higher quality output and what organisms do the biological treatment?"} },
+    thursday:  { low: {title:"Simple bucket method", activity:"Use a bucket to capture shower warm-up water (while waiting for hot water). Use it to water outdoor plants. Calculate the weekly savings."}, mid: {title:"Water savings calculation", activity:"Calculate the annual water savings from a laundry-to-landscape system for your household. What is the cost savings at your local water rate?"}, high: {title:"Net zero water building", activity:"Research net zero water buildings: designs that use rainwater harvesting and greywater recycling to reduce municipal water demand to zero. What technologies and certifications are involved?"} }
+  },
+
+  "Understanding a paycheck stub": {
+    gradeHooks: {
+      low: "A paycheck stub shows how much we earned and how much was taken out for taxes and other things. It\u2019s important to understand!",
+      mid: "Reading a paycheck stub reveals gross vs net pay, tax withholdings, and voluntary deductions that affect take-home pay.",
+      high: "Payroll tax structure, W-4 withholding optimization, pre-tax benefits, and the full cost of employment from an employer perspective are important financial literacy topics."
+    },
+    materials: ["A sample paycheck stub (can use a template)"],
+    steps: [
+      "Identify gross pay: total earnings before any deductions. This is what you earned.",
+      "Identify federal income tax withholding: based on your W-4 filing status and allowances.",
+      "Identify FICA: Social Security (6.2%) and Medicare (1.45%). These are mandatory and match-funded by the employer.",
+      "Identify state income tax (Florida has none, but most states do).",
+      "Calculate net pay: gross pay minus all deductions. This is what you actually receive."
+    ],
+    discussion: [
+      {q:"What is the difference between gross pay and net pay?", answers:["Gross pay is total earnings before deductions. Net pay is what you actually receive after federal taxes, FICA, state taxes, health insurance premiums, retirement contributions, and other deductions are removed. Net pay is often 25\u201330% less than gross pay."]},
+      {q:"Why does Florida not have state income tax and how does this affect workers?", answers:["Florida\u2019s state government is funded primarily by sales tax rather than income tax. Florida workers take home more per paycheck than workers in high-income-tax states. This is a key consideration in comparing job offers across states."]}
+    ],
+    challenge: "Calculate the net pay for a hypothetical $50,000/year salary in Florida. Identify all deductions and their amounts. What is the effective tax rate?",
+    tuesday:   { low: {title:"Stub terminology card", activity:"Create a glossary card for paycheck stub terms: gross pay, net pay, FICA, withholding, YTD, deductions, and pay period."}, mid: {title:"FICA calculation", activity:"Calculate FICA taxes for gross incomes of $30,000, $60,000, and $160,000. Note: Social Security has a wage base cap (currently $160,200). How does this affect higher earners?"}, high: {title:"W-4 optimization", activity:"Research how the W-4 form affects withholding. What is the difference between claiming more allowances (less withholding, possible underpayment penalty) vs fewer (more withholding, larger refund)?"} },
+    wednesday: { low: {title:"Pre-tax deduction benefits", activity:"Research how 401(k) and health insurance deductions reduce taxable income. If you contribute $200/month to a 401(k) and you\u2019re in a 22% tax bracket, how much does it actually cost you after-tax?"}, mid: {title:"Year-to-date tracking", activity:"Explain what YTD (year-to-date) columns on a paycheck stub represent. How can YTD data help you verify correct withholding for the full year?"}, high: {title:"Employer payroll taxes", activity:"Research the full cost of hiring an employee. What taxes does an employer pay beyond the salary: employer FICA match, unemployment taxes, workers\u2019 compensation? What percentage above salary is the true employment cost?"} },
+    thursday:  { low: {title:"Net pay calculation practice", activity:"Given gross pay of $1,500/biweekly and standard deductions, calculate net pay step by step."}, mid: {title:"Pay period comparison", activity:"Compare weekly, biweekly, semimonthly, and monthly pay periods. How does the pay period affect budgeting? How much does each paycheck differ?"}, high: {title:"Independent contractor vs employee", activity:"Research the financial differences between being an employee (W-2) and an independent contractor (1099). What taxes must contractors pay that employees don\u2019t, and what deductions are available to contractors?"} }
+  },
+
+
+
+  "Advanced first aid — fractures and splints": {
+    gradeHooks: {
+      low: "If someone breaks a bone, we don\u2019t move it. We support it in the position we find it and get help!",
+      mid: "Fracture recognition, immobilization principles, and improvised splinting are critical skills when medical help is delayed.",
+      high: "Fracture classification, neurovascular assessment, and splinting biomechanics are foundational emergency medicine skills."
+    },
+    materials: ["Rigid splint material (board, rolled magazine, or sticks)", "Padding (clothing, towels)", "Bandages or strips of cloth"],
+    steps: [
+      "Signs of fracture: pain, swelling, deformity, crepitus (grinding sound), inability to use the limb, point tenderness.",
+      "Immobilize in the position found. Never attempt to realign a fracture in the field.",
+      "Splint principles: the splint must immobilize the joint above AND below the fracture site.",
+      "Padding: add padding between the rigid splint and the limb to protect skin and improve comfort.",
+      "Check circulation after splinting: skin color, warmth, sensation, and capillary refill distal to the injury. Recheck every 15 minutes."
+    ],
+    discussion: [
+      {q:"Why must a splint immobilize the joints above AND below the fracture?", answers:["Movement at either adjacent joint creates movement at the fracture site. Both joints must be locked to fully immobilize the broken bone."]},
+      {q:"What signs indicate that a splint is too tight?", answers:["Pale, cold, or blue skin below the splint. Numbness or tingling. Loss of pulse in the wrist or foot. Increasing pain despite immobilization. Loosen immediately."]}
+    ],
+    challenge: "Splint a simulated forearm fracture using only materials found in your home. Check neurovascular status before and after splinting.",
+    tuesday:   { low: {title:"Splint material identification", activity:"Walk through your home and identify 5 materials that could serve as improvised splints. Rate each for rigidity, length, and comfort."}, mid: {title:"Upper vs lower extremity splinting", activity:"Research the differences in splinting approach for arm vs leg fractures. What anatomical considerations change the technique?"}, high: {title:"Fracture classification", activity:"Research fracture classifications: closed vs open, greenstick, comminuted, transverse, oblique. How does each type affect field treatment decisions?"} },
+    wednesday: { low: {title:"Traction splint awareness", activity:"Research femur fractures and why they are life-threatening without a traction splint. What blood loss can occur in the thigh compartment?"}, mid: {title:"SAM splint technique", activity:"Research the SAM splint: a moldable aluminum foam splint used by EMS. How is it shaped and applied for different fracture locations?"}, high: {title:"Compartment syndrome", activity:"Research compartment syndrome. What causes it, what are the 6 Ps of assessment, and why is it a surgical emergency that can result from improper splinting?"} },
+    thursday:  { low: {title:"Full scenario practice", activity:"Act out: someone falls from a tree and cannot move their arm. Walk through the complete response: scene safety, assessment, splinting, neurovascular check, help summoning."}, mid: {title:"Open fracture management", activity:"Research how management of an open fracture (bone protruding) differs from a closed fracture. What are the infection risks and first aid priorities?"}, high: {title:"Pelvic fracture response", activity:"Research pelvic fractures in trauma. Why is a pelvic binder used and what anatomy makes an unstable pelvic fracture life-threatening?"} }
+  },
+
+  "Family emergency protocols": {
+    gradeHooks: {
+      low: "Every family should have a plan for different emergencies: fire, hurricane, medical crisis. Knowing the plan helps everyone stay calm.",
+      mid: "Family emergency protocols are written, practiced procedures that remove decision-making pressure during actual emergencies.",
+      high: "Emergency protocol design, psychological research on decision-making under stress, and the importance of pre-committed procedures are important topics."
+    },
+    materials: ["Paper for writing protocols"],
+    steps: [
+      "Identify the 5 most likely emergencies for your family and location: fire, hurricane, medical emergency, power outage, shelter-in-place.",
+      "For each, write a simple 5-step protocol: what triggers it, what each person does, where you go, who you call.",
+      "Practice each protocol until it is automatic. Timed drills build speed and reveal gaps.",
+      "Store printed protocols in 3 locations: refrigerator, go-bag, each car.",
+      "Review annually and after any drill that reveals a problem."
+    ],
+    discussion: [
+      {q:"Why does writing a protocol in advance improve performance during an actual emergency?", answers:["During high-stress situations, the prefrontal cortex (rational decision-making) is partially hijacked by the amygdala (fear response). Pre-committed protocols bypass the need for real-time decision-making under stress."]},
+      {q:"What is the difference between a drill and a plan?", answers:["A plan is written. A drill tests the plan in conditions that simulate reality. Drills reveal gaps that reading never does. Both are necessary."]}
+    ],
+    challenge: "Write protocols for 3 emergencies. Run a drill for your most likely scenario. Note every point where the drill revealed a gap in the protocol.",
+    tuesday:   { low: {title:"Hurricane protocol", activity:"Write a 5-step hurricane protocol: watch received, warning issued, evacuation decision, evacuation execution, return home. Include decision criteria."}, mid: {title:"Medical emergency protocol", activity:"Write protocols for 3 medical scenarios: unconscious adult, child with severe allergic reaction, adult having a stroke. What triggers each and what are the steps?"}, high: {title:"Incident command for families", activity:"Research the Incident Command System and how its principles (clear roles, unity of command, span of control) can be applied to family emergency protocols."} },
+    wednesday: { low: {title:"Protocol card set", activity:"Make a laminated protocol card for your 3 most likely emergencies. Post one on the refrigerator and one in each bedroom."}, mid: {title:"Cross-training family members", activity:"Ensure every family member can execute every role in every protocol. Who covers if the primary person is unavailable? Build redundancy into your protocols."}, high: {title:"Human factors in protocol failure", activity:"Research documented cases where emergency protocols failed due to human factors: cognitive overload, communication failure, and normalization of deviance. What design changes prevent these failures?"} },
+    thursday:  { low: {title:"Protocol drill", activity:"Run an unannounced drill for one protocol. Time it. Debrief immediately: what worked, what didn\u2019t, what needs to change?"}, mid: {title:"Out-of-home protocols", activity:"Write protocols for emergencies that happen away from home: school shooting response for children, car accident with injuries, active threat in a public space."}, high: {title:"Protocol revision methodology", activity:"Research how organizations do After Action Reviews (AARs) after exercises. Apply the AAR structure to your family drill: what happened, what should have happened, what you\u2019ll do differently."} }
+  },
+
+  "Home electrical safety": {
+    gradeHooks: {
+      low: "Electricity powers our home but can be very dangerous. We learn the rules that keep our family safe every day.",
+      mid: "Home electrical safety covers overloading, water proximity, damaged wiring, and knowing how to respond to electrical emergencies.",
+      high: "Electrical shock physiology, arc flash energy, and the engineering of residential electrical protection systems are important topics."
+    },
+    materials: ["Electrical panel access", "GFCI outlets to test"],
+    steps: [
+      "Walk the home and identify: all GFCI outlet locations (bathrooms, kitchen, garage, outdoors) and when last tested.",
+      "Inspect all visible cords: any fraying, cracking, pinching, or overloading.",
+      "Test GFCI outlets: press TEST (should cut power), press RESET (should restore). Any that don\u2019t work need replacing.",
+      "Check the electrical panel: are any breakers in the tripped (middle) position? Is there room for additional circuits?",
+      "Discuss electrical emergency response: shock victim (do not touch with bare hands — use a non-conductive object to break contact), electrical fire (cut power if safe, CO2 or ABC extinguisher)."
+    ],
+    discussion: [
+      {q:"Why should you never touch someone who is being electrocuted with your bare hands?", answers:["You become part of the circuit and receive the shock as well. Use a dry non-conductive object (wooden board, plastic chair, rubber mat) to push them free, or cut the power source."]},
+      {q:"What is an arc flash and why is it different from a regular electrical shock?", answers:["An arc flash is a rapid discharge of electrical energy through air, creating a plasma arc with temperatures up to 35,000\u00b0F. The energy is released as light, heat, pressure, and sound. It can cause fatal burns at a distance without direct contact."]}
+    ],
+    challenge: "Complete a full home electrical safety audit. Test all GFCIs, inspect all cords, and identify 3 improvements to make.",
+    tuesday:   { low: {title:"GFCI testing tour", activity:"Test every GFCI outlet in your home. Create a map of all GFCI locations and record the test results."}, mid: {title:"Electrical hazard categories", activity:"Research the 4 categories of electrical hazards: shock, arc flash, arc blast, and fire. For each, describe the mechanism and a scenario where it could occur in a home."}, high: {title:"Electrical shock physiology", activity:"Research how electrical current affects the human body. What current levels cause tingling, muscle lock, ventricular fibrillation, and death? What is the voltage at typical household outlets?"} },
+    wednesday: { low: {title:"Cord management project", activity:"Organize and safely manage all electrical cords in one room: no pinching, no overloading, no daisy-chaining. Photograph before and after."}, mid: {title:"AFCI vs GFCI protection", activity:"Research where AFCI (Arc Fault Circuit Interrupter) and GFCI protection are required in new construction. What fires do each prevent and why do different locations need different protection?"}, high: {title:"Electrical fire investigation", activity:"Research how electrical fires are investigated. What evidence does a fire investigator look for and how do they distinguish an electrical fire from other causes?"} },
+    thursday:  { low: {title:"Emergency response plan", activity:"Write a home electrical emergency response plan: power outage, electrical fire, someone receives a shock. Post it at the electrical panel."}, mid: {title:"Whole-home generator safety", activity:"Research whole-home generator installation. What is a transfer switch and why is it critical for preventing backfeed onto utility lines?"}, high: {title:"Smart home electrical monitoring", activity:"Research smart electrical panels and whole-home energy monitors. What safety and efficiency features do they offer beyond traditional breaker panels?"} }
+  },
+
+  "Seed saving and heirloom seeds": {
+    gradeHooks: {
+      low: "Heirloom seeds come from plants that people have been growing for generations. Saving them keeps rare varieties alive!",
+      mid: "Heirloom seed saving preserves genetic diversity, reduces dependence on commercial seed suppliers, and connects gardeners to agricultural history.",
+      high: "Seed biology, the genetics of open-pollinated varieties, isolation distances, and the political economy of seed patenting are important topics."
+    },
+    materials: ["Ripe heirloom fruits or vegetables", "Paper envelopes", "Permanent marker", "Cool dark storage location"],
+    steps: [
+      "Choose the best specimens for seed saving: the most vigorous plant, the most flavorful fruit, the one that matured earliest.",
+      "Allow fruit to fully ripen — beyond eating stage — before saving seeds. Seeds need to fully mature.",
+      "Process seeds: wet processing for tomatoes and cucumbers (fermentation method), dry processing for peppers, beans, and squash.",
+      "Dry seeds completely: spread on paper plates or towels for 1\u20132 weeks. Test for dryness: seeds should not dent when pressed with a fingernail.",
+      "Store in paper envelopes in a cool, dark, dry location. A sealed jar in the refrigerator extends viability."
+    ],
+    discussion: [
+      {q:"What is the difference between an open-pollinated variety and a hybrid variety for seed saving?", answers:["Open-pollinated (including heirloom) varieties produce seeds that grow true-to-type — offspring are like the parent. Hybrid (F1) seeds produce inconsistent offspring, reverting toward the parent lines. Saving hybrid seeds is unreliable."]},
+      {q:"Why is the fermentation method used for tomato seeds?", answers:["Tomato seeds are surrounded by a gelatinous coating that inhibits germination. Fermentation breaks down this coating, improving germination rates. It also kills some seed-borne diseases."]}
+    ],
+    challenge: "Save seeds from at least 2 different heirloom vegetables. Document variety name, source, harvest date, and any selection notes.",
+    tuesday:   { low: {title:"Seed viability testing", activity:"Research seed viability testing. Place 10 saved seeds on a damp paper towel in a bag. Count germination after 7 days. What percentage germinated?"}, mid: {title:"Isolation distances", activity:"Research isolation distances for cross-pollinating crops. How far must you separate two pepper varieties to prevent cross-pollination? What about corn?"}, high: {title:"Seed patent law", activity:"Research the legal framework of utility patents on plant varieties. How have major seed companies used patents to restrict seed saving and what are the arguments for and against?"} },
+    wednesday: { low: {title:"Seed library organization", activity:"Create an organized seed library: sorted by crop family, labeled with variety, year, and source. Store in a cool, dark, dry location."}, mid: {title:"Fermentation method practice", activity:"Process tomato seeds using the fermentation method. Record observations at 24-hour intervals. What changes do you see on day 1, 2, 3?"}, high: {title:"Crop genetic diversity loss", activity:"Research the loss of crop genetic diversity in the 20th century. What percentage of vegetable varieties available in 1903 are still commercially available today?"} },
+    thursday:  { low: {title:"Seed swap planning", activity:"Identify neighbors or homeschool families interested in a seed swap. What varieties do you have to trade? What would you want in exchange?"}, mid: {title:"Heirloom variety history", activity:"Choose one heirloom variety and research its history: how old is it, where did it originate, and what makes it distinct from modern varieties?"}, high: {title:"Svalbard seed vault", activity:"Research the Svalbard Global Seed Vault. How is it governed, what deposits have been made, and what withdrawals have occurred? What are its limitations as a biodiversity preservation strategy?"} }
+  },
+
+  "Solar water purification": {
+    gradeHooks: {
+      low: "The sun can clean our water! UV rays from sunlight kill the germs that make us sick.",
+      mid: "Solar water purification methods (SODIS and solar pasteurization) use UV radiation and heat to inactivate pathogens in water.",
+      high: "UV photobiology, SODIS optimization variables, and comparison to other purification methods are important water treatment topics."
+    },
+    materials: ["Clear PET plastic bottles", "Reflective surface (aluminum foil)", "Thermometer (optional)"],
+    steps: [
+      "SODIS method: fill clear PET bottles with water filtered of sediment. Cap and place in direct sunlight for minimum 6 hours (2 days if overcast).",
+      "Enhancement: place bottles on a reflective surface (corrugated metal, aluminum foil). Reflected UV and heat increase effectiveness.",
+      "Solar pasteurization: water heated above 65\u00b0C (149\u00b0F) for 6 minutes kills all pathogens. A WAPI (Water Pasteurization Indicator) shows when temperature is reached.",
+      "Limitations: does not remove chemicals or heavy metals. Turbid water must be pre-filtered. Colored or scratched bottles block UV.",
+      "Best use cases: field emergencies, developing world without fuel, backup method when tablets run out."
+    ],
+    discussion: [
+      {q:"Why is solar pasteurization effective at 65\u00b0C when water doesn\u2019t boil until 100\u00b0C?", answers:["Pasteurization is a time-temperature relationship. At 65\u00b0C for 6 minutes, all waterborne pathogens including viruses, bacteria, and parasites are inactivated. Boiling is simply a higher temperature that kills faster."]},
+      {q:"What is a WAPI and how does it work?", answers:["A Water Pasteurization Indicator is a small tube containing a wax that melts at 68\u00b0C. When the wax falls to the bottom, you know the water has reached pasteurization temperature."]}
+    ],
+    challenge: "Run a controlled SODIS experiment: treat identical bottles at 4 hours, 6 hours, and 8 hours of sun exposure. Observe any turbidity difference.",
+    tuesday:   { low: {title:"Bottle selection test", activity:"Compare water clarity in clear PET, green PET, and opaque containers after 6 hours of sunlight. Which provides the most UV transmission?"}, mid: {title:"SODIS + PhotoFenton", activity:"Research the PhotoFenton enhancement: adding a small amount of lemon juice or acetic acid to SODIS water. How does the increased free radical production improve pathogen inactivation?"}, high: {title:"UV inactivation kinetics", activity:"Research UV inactivation kinetics for E. coli and Giardia. What UV dose (mJ/cm\u00b2) is required for 4-log reduction and how does SODIS deliver this dose over time?"} },
+    wednesday: { low: {title:"WAPI construction", activity:"Research how to make a DIY WAPI from a small tube and soy wax (melting point ~65\u00b0C). What materials could substitute for commercial WAPIs?"}, mid: {title:"Solar cooker water pasteurization", activity:"Research solar box cookers and parabolic solar cookers for water pasteurization. How do they concentrate solar energy to reach higher temperatures faster?"}, high: {title:"Effectiveness data comparison", activity:"Compare SODIS effectiveness data against other point-of-use treatment methods: household chlorination, ceramic filtration, and UV pen. What does field data from developing countries show?"} },
+    thursday:  { low: {title:"Emergency water kit integration", activity:"Describe how solar purification fits into a multi-method emergency water kit. When would it be your first choice? When would you choose another method?"}, mid: {title:"SODIS program research", activity:"Research NGO programs promoting SODIS in developing countries. What behavioral change strategies have been most effective in increasing adoption?"}, high: {title:"Advanced solar disinfection", activity:"Research compound parabolic collector (CPC) solar disinfection systems. How do they improve on simple SODIS and what scale of water treatment can they achieve?"} }
+  },
+
+  "Plumbing basics — shut-off valve": {
+    gradeHooks: {
+      low: "Every home has shut-off valves that stop the water flow. Knowing where they are can prevent serious flooding!",
+      mid: "Locating and operating main and fixture shut-off valves is a foundational home maintenance skill.",
+      high: "Plumbing system design, pressure regulation, and shut-off valve types and failure modes are important home systems knowledge."
+    },
+    materials: ["Flashlight", "Access to plumbing throughout the home"],
+    steps: [
+      "Find the main shut-off valve: usually near the water meter, in a utility room, or under the house. Turning it clockwise (right) stops all water to the home.",
+      "Find fixture shut-offs: under sinks (there are usually two — hot and cold), behind toilets, and near water-using appliances.",
+      "Practice turning fixture shut-offs off and on. They should turn clockwise to close. Old valves may be stiff.",
+      "Note the two types: gate valves (wheel handle, slow to operate, prone to failure if long unused) and ball valves (lever handle, quarter-turn operation, more reliable).",
+      "Post a map of shut-off locations inside a cabinet door."
+    ],
+    discussion: [
+      {q:"Why is it important to know where the main shut-off is before an emergency?", answers:["A burst pipe or major leak can release hundreds of gallons per hour. Shutting off the main in seconds versus searching for minutes makes the difference between minor and catastrophic water damage."]},
+      {q:"Why might a gate valve that hasn\u2019t been used in years fail to close properly?", answers:["Gate valves corrode and the gate (a metal disc) can fuse or crumble with age. This is why plumbers increasingly prefer ball valves for reliability, especially in emergency shut-off locations."]}
+    ],
+    challenge: "Create a home plumbing map showing every shut-off valve location. Test each valve by closing and reopening. Note any that are stiff or appear corroded.",
+    tuesday:   { low: {title:"Shut-off map creation", activity:"Walk through your home and locate every water shut-off valve. Draw a floor plan with each marked and labeled."}, mid: {title:"Water meter location", activity:"Locate your water meter and the main shut-off associated with it. Research how to read a water meter and whether you can detect a hidden leak from the reading."}, high: {title:"Water hammer", activity:"Research water hammer: the banging sound when water flow is rapidly stopped. What causes it and what devices (water hammer arrestors, pressure reducing valves) prevent pipe damage?"} },
+    wednesday: { low: {title:"Valve operation practice", activity:"Turn the toilet shut-off valve off, then flush (tank empties, doesn\u2019t refill). Turn back on and watch it refill. Practice the same with a sink shut-off."}, mid: {title:"Emergency water shut-off scenario", activity:"Time how fast you can reach and close the main shut-off from any room in the house. Practice from 3 different starting locations."}, high: {title:"Pressure reducing valve", activity:"Research pressure reducing valves (PRVs). Why does high incoming water pressure damage home plumbing and what pressure range is ideal for residential systems?"} },
+    thursday:  { low: {title:"Valve maintenance", activity:"Research how to exercise valves annually to prevent seizing. Turn every shut-off valve fully off, then fully open, once a year."}, mid: {title:"Pipe material identification", activity:"Identify the pipe materials in your home: copper, PVC, CPVC, PEX, galvanized steel. What are the pros and cons of each? Which is most prone to failure?"}, high: {title:"Plumbing code basics", activity:"Research the International Plumbing Code (IPC) requirements for residential water supply systems: minimum pipe sizes, pressure requirements, and backflow prevention."} }
+  },
+
+  "Creating a monthly budget": {
+    gradeHooks: {
+      low: "A monthly budget is a plan for all the money that comes in and goes out each month. It helps us make sure we have enough for everything!",
+      mid: "A complete monthly budget tracks income, categorizes expenses, identifies savings goals, and reveals spending patterns.",
+      high: "Zero-based budgeting, the 50/30/20 framework, and behavioral finance principles applied to monthly budgeting are personal finance fundamentals."
+    },
+    materials: ["Paper or spreadsheet"],
+    steps: [
+      "Start with after-tax income: what comes in each month?",
+      "List all fixed expenses: rent/mortgage, car payment, insurance, subscriptions. These are the same every month.",
+      "List variable necessities: groceries, utilities, gas. Estimate from past receipts.",
+      "List savings goals: emergency fund contribution, specific savings goals.",
+      "Remaining amount: discretionary spending. Does income minus everything else leave a positive number? If not, where can you cut?"
+    ],
+    discussion: [
+      {q:"What is the difference between a fixed and variable expense in a budget?", answers:["Fixed: the same amount every month (rent, car payment, streaming subscriptions). Variable: changes month to month (utilities, groceries, gas). Variable expenses are where most budget flexibility exists."]},
+      {q:"Why should savings appear as a budget line item rather than \u2018saving whatever is left over\u2019?", answers:["Savings left to chance after all spending usually results in zero savings. Treating savings as a required expense (pay yourself first) ensures it happens before discretionary spending begins."]}
+    ],
+    challenge: "Create a real monthly budget for your family using actual income and expense data. Identify 2 areas where spending could be reduced.",
+    tuesday:   { low: {title:"Income and expense list", activity:"List all monthly income sources and all regular monthly expenses for your family. Sort into fixed and variable categories."}, mid: {title:"50/30/20 application", activity:"Apply the 50/30/20 framework to your family\u2019s income. How much should go to needs, wants, and savings? How does your actual spending compare?"}, high: {title:"Zero-based budgeting", activity:"Build a zero-based budget where every dollar of income is assigned to a category until the remaining balance is exactly zero. What discipline does this require?"} },
+    wednesday: { low: {title:"Budget categories chart", activity:"Create a pie chart showing your family\u2019s budget categories by percentage. Which is the largest? Does the proportion surprise you?"}, mid: {title:"Emergency fund calculation", activity:"Research the 3\u20136 month emergency fund recommendation. Calculate what 3 months of your family\u2019s expenses totals. How long at your current savings rate would it take to reach that goal?"}, high: {title:"Sinking funds", activity:"Research sinking funds: saving monthly for known irregular expenses (car registration, holiday gifts, annual insurance). How do sinking funds prevent budget disruption from \u2018surprise\u2019 expenses that are actually predictable?"} },
+    thursday:  { low: {title:"Budget vs actual comparison", activity:"Track one week of real spending against your budgeted amounts. How close were estimates to reality?"}, mid: {title:"Subscription audit", activity:"List every subscription your family pays for: streaming, apps, memberships, automatic renewals. Total the annual cost. Which could be eliminated?"}, high: {title:"Lifestyle inflation", activity:"Research lifestyle inflation and how income increases often lead to proportionally higher spending without improving financial security. What strategies prevent lifestyle inflation?"} }
+  },
+
+  "Topographic maps and contour lines": {
+    gradeHooks: {
+      low: "Contour lines on a topo map show us hills and valleys. Close together means steep, far apart means flat.",
+      mid: "Advanced topo map reading enables accurate terrain prediction, route planning, and understanding of watershed and drainage patterns.",
+      high: "Contour line mathematics, slope gradient calculation, and the relationship between topographic maps and GIS data are important geography topics."
+    },
+    materials: ["USGS topographic map of your area (free at nationalmap.gov)"],
+    steps: [
+      "Find the contour interval in the map legend (common intervals: 10, 20, or 40 feet).",
+      "Identify the index contours (every 5th line, labeled with elevation). Calculate the elevation of any line between them.",
+      "Identify landforms from contour patterns: V pointing upstream = valley, V pointing downhill = ridge, closed loops = hill or depression.",
+      "Calculate slope gradient: rise \u00f7 run = gradient. If contours 40 feet apart are 200 feet horizontally, gradient = 40/200 = 20% (steep).",
+      "Identify a watershed: trace where all water drains from a given high point. Watersheds are bounded by ridges."
+    ],
+    discussion: [
+      {q:"How do you determine if a closed contour loop is a hilltop or a depression?", answers:["Depression contours are marked with tick marks pointing inward (toward the low point). Without tick marks, a closed loop is always a hilltop."]},
+      {q:"What does a slope gradient of 100% mean?", answers:["A 100% slope means for every 1 foot of horizontal distance, there is 1 foot of vertical rise. This is a 45-degree angle — very steep but not vertical. Vertical would be infinite percent gradient."]}
+    ],
+    challenge: "Download a USGS 7.5-minute quad map for your area. Identify: the highest point, a stream with its upstream direction, and a ridgeline that separates two watersheds.",
+    tuesday:   { low: {title:"Elevation calculation practice", activity:"Using a topo map with a 20-foot contour interval, calculate the elevation of 10 specific points. Show your work."}, mid: {title:"Slope gradient calculation", activity:"Calculate the slope gradient between 5 pairs of points on a topo map. Convert each to both percentage and degrees. Which sections are too steep to hike?"}, high: {title:"Watershed delineation", activity:"Research watershed delineation methodology. Using your local topo map, manually delineate the watershed for a small stream. Compare to GIS-generated watershed boundaries."} },
+    wednesday: { low: {title:"3D model construction", activity:"Build a 3D landscape model from a topo map using layers of cardboard cut to each contour line. Visualize how the flat map represents three-dimensional terrain."}, mid: {title:"Topo map vs satellite comparison", activity:"Compare a USGS topo map of an area to a Google Earth satellite view of the same area. What features does each show better?"}, high: {title:"LiDAR-derived DEMs", activity:"Research LiDAR-derived Digital Elevation Models (DEMs). How are they created and how do their vertical accuracies compare to traditional USGS topo maps?"} },
+    thursday:  { low: {title:"Route planning exercise", activity:"Plan a 5-mile hike on a topo map. Calculate total elevation gain and loss. Estimate hiking time using Naismith\u2019s Rule."}, mid: {title:"Flood plain identification", activity:"Using a topo map, identify areas likely to flood: wide valley bottoms, areas with dense closely-spaced contours that indicate steep stream channels."}, high: {title:"Geologic story from topo", activity:"Research how an experienced geologist reads a topo map to infer underlying geology. What landforms indicate specific rock types, fault lines, or glacial history?"} }
+  },
+
+  "Wild edibles identification": {
+    gradeHooks: {
+      low: "With careful study, we can identify wild plants that are safe to eat. The rule is: never eat anything unless you are 100% certain!",
+      mid: "Systematic wild edibles identification requires multi-feature verification, look-alike awareness, and conservative decision rules.",
+      high: "Ethnobotany, plant secondary metabolite chemistry, and the evidence base for traditional food plant use are important topics."
+    },
+    materials: ["Florida field guide", "iNaturalist app", "Camera"],
+    steps: [
+      "Focus on 5 high-confidence beginner edibles for Florida: dandelion, muscadine grape, wild blackberry, plantain, wood sorrel.",
+      "For each plant, verify using at least 3 features: leaf shape, stem characteristics, smell, habitat, and any identifying flowers or fruit.",
+      "Research each plant\u2019s dangerous look-alike and what features distinguish the safe from the toxic.",
+      "Location safety: never forage near roads (lead, exhaust), treated lawns (pesticides), or industrial areas (heavy metals).",
+      "Preparation: some edible plants require cooking to be safe or palatable. Research each before eating raw."
+    ],
+    discussion: [
+      {q:"Why should you start with a small amount when eating a wild edible for the first time, even one you\u2019ve correctly identified?", answers:["Individual reactions to foods vary. Some people have allergies or sensitivities to specific plants even when they are generally safe. A small test portion before a full serving reveals any individual sensitivity."]},
+      {q:"What does it mean for a plant to be edible in the right preparation but toxic if eaten wrong?", answers:["Elderberries are a classic example: cooked berries and flowers are edible; raw berries contain cyanogenic glycosides. Preparation method is part of the identification."]}
+    ],
+    challenge: "Identify and photograph 10 wild plants in your area using 3 sources for each. Confirm which are edible and which are not.",
+    tuesday:   { low: {title:"Field guide practice", activity:"Use a Florida field guide to identify 5 plants from photographs. Practice using the dichotomous key if the guide has one."}, mid: {title:"Edibility confidence rating", activity:"For 10 Florida plants, research and assign a confidence rating: high (multiple clear features), medium (some features match), low (uncertain). Only eat high-confidence plants."}, high: {title:"Alkaloid detection", activity:"Research the universal edibility test protocol. How does each step in the 8-step process help detect toxic alkaloids and irritants before full consumption?"} },
+    wednesday: { low: {title:"Muscadine vs other grapes", activity:"Research muscadine grape (Vitis rotundifolia) identification. What features distinguish it from other Vitis species? Are all native Florida grapes edible?"}, mid: {title:"Foraging calendar", activity:"Create a month-by-month foraging calendar for Florida. Which wild edibles are available in which months? What factors affect seasonal availability?"}, high: {title:"Ethnobotanical survey", activity:"Research how ethnobotanists document traditional plant knowledge. What methods do they use and how is this knowledge being threatened by cultural loss?"} },
+    thursday:  { low: {title:"Wild edibles recipe", activity:"Prepare one dish using a wild edible you\u2019ve confidently identified: dandelion tea, wood sorrel salad, or muscadine jelly."}, mid: {title:"Nutritional analysis", activity:"Research the nutritional content of 5 wild edibles compared to their cultivated equivalents. Do wild plants have higher nutrient density?"}, high: {title:"Phytochemistry research", activity:"Choose one wild edible and research its phytochemistry in depth: primary nutrients, secondary metabolites, and any documented pharmacological activity."} }
+  },
+
+  "Changing a tire — step by step": {
+    gradeHooks: {
+      low: "Knowing how to change a flat tire means you\u2019re never stranded. It\u2019s one of the most practical skills a driver can have!",
+      mid: "A tire change requires proper safety setup, understanding lug nut torque sequence, and knowing the limitations of a spare tire.",
+      high: "Vehicle stability physics during a tire change, lug nut torque specifications, and the engineering differences between full-size and temporary spare tires are important topics."
+    },
+    materials: ["Vehicle with a spare tire kit (jack, lug wrench, spare tire)"],
+    steps: [
+      "Safety first: pull completely off the road on a flat surface, turn on hazard lights, apply the parking brake, place wheel wedges if available.",
+      "Loosen lug nuts BEFORE jacking the car (the weight prevents wheel spin): turn counterclockwise, break them loose but don\u2019t remove yet.",
+      "Jack placement: find the reinforced jack point in the vehicle\u2019s frame (check owner\u2019s manual). Placing the jack wrong can damage the vehicle.",
+      "Raise the car until the flat tire is 6 inches off the ground. Remove lug nuts (pocket them!), swap tires.",
+      "Hand-tighten lug nuts in a star pattern. Lower the car until tire contacts the ground, then torque in star pattern. Drive to a tire shop."
+    ],
+    discussion: [
+      {q:"Why do we loosen the lug nuts before jacking the car?", answers:["With the tire on the ground, the car\u2019s weight prevents the wheel from spinning. Once jacked, you have no leverage to resist rotation and will spin the wheel instead of loosening the nut."]},
+      {q:"Why are lug nuts tightened in a star pattern rather than going around in a circle?", answers:["A circular sequence can pull the brake rotor or wheel hub unevenly, creating warping or brake vibration. The star pattern applies even pressure across all mounting points simultaneously."]}
+    ],
+    challenge: "Practice the full tire change sequence on a parked vehicle in your driveway. Time how long it takes. Goal: under 20 minutes with correct safety steps.",
+    tuesday:   { low: {title:"Jack point identification", activity:"Find the correct jack points on your family vehicle using the owner\u2019s manual. Photograph each location and mark it on a diagram."}, mid: {title:"Torque sequence practice", activity:"Practice the star-pattern tightening sequence on your vehicle\u2019s wheel without a tire change. Memorize the sequence for your lug count: 4, 5, or 6 lugs."}, high: {title:"Temporary spare limitations", activity:"Research the speed and distance limitations of donut spare tires. Why are they designed for limited use only? What changes in handling and braking distance should a driver expect?"} },
+    wednesday: { low: {title:"Emergency kit assembly", activity:"Check your vehicle\u2019s tire change kit: spare tire pressure (should be 60 PSI for a donut), jack condition, lug wrench fit. Add reflective triangles and gloves."}, mid: {title:"Run-flat vs traditional tires", activity:"Research run-flat tires. How do they work and what are the trade-offs in ride quality, cost, and load capacity compared to traditional tires with a spare?"}, high: {title:"Tire pressure monitoring systems", activity:"Research TPMS (Tire Pressure Monitoring Systems). How does the sensor work, when was it federally mandated, and what are the failure modes?"} },
+    thursday:  { low: {title:"Night tire change preparation", activity:"Practice locating your spare, jack, and lug wrench in the dark with a flashlight. Can you find everything in under 60 seconds?"}, mid: {title:"Full timed drill", activity:"Complete a full tire change drill from pullover to driving away. Time it and identify the slowest step. How would you improve?"}, high: {title:"Tire failure physics", activity:"Research blowout physics: why a rear blowout is more stable than a front blowout, and the correct steering response to each scenario."} }
+  },
+
+  "Splinting a broken arm": {
+    gradeHooks: {
+      low: "A broken arm needs to be held still so it doesn\u2019t hurt more or cause more damage. We support it carefully until help arrives.",
+      mid: "Upper extremity splinting requires immobilizing both the wrist and elbow for forearm fractures, or both the elbow and shoulder for upper arm fractures.",
+      high: "Fracture anatomy, neurovascular status assessment, and the biomechanics of upper extremity immobilization are advanced first aid topics."
+    },
+    materials: ["Rigid splint material (SAM splint, folded magazine, or wood)", "Padding", "Triangular bandage or cloth for sling"],
+    steps: [
+      "Assess neurovascular status before splinting: can the person wiggle their fingers? Do they have sensation? Is the radial pulse present?",
+      "Forearm fracture: splint from mid-palm to mid-upper arm. Wrist in neutral position, elbow at 90 degrees.",
+      "Pad all bony prominences and the length of the splint before application.",
+      "Apply the splint and secure with bandage wraps. Check circulation again (repeat neurovascular check every 15 minutes).",
+      "Apply a sling to support the weight of the arm. The sling keeps the elbow at 90 degrees."
+    ],
+    discussion: [
+      {q:"What is the neurovascular assessment for an upper extremity injury?", answers:["Check the 6 Ps: Pain (at the fracture site), Pulse (radial pulse at the wrist), Pallor (skin color), Paresthesia (tingling), Paralysis (can they move fingers), and Pressure (compartment syndrome signs)."]},
+      {q:"When should you NOT immobilize a fracture in the position you find it?", answers:["If there is no distal pulse (the bone is compressing the artery), some protocols permit one gentle attempt at realignment. Otherwise, immobilize as found. Splinting in the position found is almost always correct."]}
+    ],
+    challenge: "Splint a simulated forearm fracture and apply a sling. Perform neurovascular checks before and after. Goal: completed in under 5 minutes with all steps correct.",
+    tuesday:   { low: {title:"Sling construction", activity:"Practice making a sling from a triangular bandage. The arm should rest at 90 degrees, supported at the wrist, with the knot behind the neck."}, mid: {title:"Improvised materials splint", activity:"Splint a simulated fracture using only materials from your environment: rolled newspaper, sturdy cardboard, tree branches. Which improvised material is most effective?"}, high: {title:"Colles fracture management", activity:"Research Colles fracture (most common wrist fracture). What mechanism of injury causes it, what is the typical deformity, and what is the standard immobilization position?"} },
+    wednesday: { low: {title:"Upper arm vs forearm splinting", activity:"Research the different splinting approach for a humerus (upper arm) fracture vs a radius/ulna (forearm) fracture. What joint positions differ?"}, mid: {title:"SAM splint shaping", activity:"Research how a SAM splint is shaped for different fracture locations. How does the C-curve enhance rigidity? Practice shaping one for a forearm."}, high: {title:"Pediatric fractures", activity:"Research greenstick fractures in children. Why do children\u2019s bones fracture differently than adults\u2019 and how does splinting technique differ for a greenstick fracture?"} },
+    thursday:  { low: {title:"Complete scenario", activity:"Full scenario: someone falls from a bike onto their wrist and is in severe pain with visible deformity. Walk through the complete response from initial assessment to evacuation plan."}, mid: {title:"Traction vs non-traction splinting", activity:"Research when traction splinting is used (femur fractures) vs standard rigid splinting. What does traction accomplish and when is it contraindicated?"}, high: {title:"Compartment syndrome recognition", activity:"Research acute compartment syndrome: causes, the 6 Ps, and why it is a surgical emergency. Why can a well-padded, properly applied splint still contribute to compartment syndrome?"} }
+  },
+
+  "Evacuation routes — plan A and B": {
+    gradeHooks: {
+      low: "An evacuation plan tells us how to leave our home and neighborhood safely. We always have a backup plan in case the first route is blocked.",
+      mid: "Effective evacuation planning requires primary and alternate routes, decision criteria for when to activate each, and fuel/supply pre-positioning.",
+      high: "Evacuation logistics, traffic modeling during mass evacuations, and the behavioral economics of evacuation decision-making are important emergency management topics."
+    },
+    materials: ["Florida county road map", "List of family destinations"],
+    steps: [
+      "Identify your home\u2019s hurricane evacuation zone (Zone A, B, C, etc.) on your county\u2019s website.",
+      "Plan A: your primary evacuation route. This is the fastest, most direct route under normal conditions.",
+      "Plan B: your alternate route. This accounts for Plan A being blocked by traffic, flooding, or damage.",
+      "Fuel: never let your vehicle go below half a tank during hurricane season. Evacuations can empty gas stations within hours.",
+      "Destination: know where you\u2019re going (family, friend, hotel, shelter). Have a backup destination too."
+    ],
+    discussion: [
+      {q:"Why does Florida issue evacuation zone letters (A, B, C) rather than just distance from the coast?", answers:["Zone letters are based on storm surge flooding risk, which varies with coastal geography. Zone A may extend miles inland in some places due to low-lying land. Distance alone doesn\u2019t capture surge vulnerability."]},
+      {q:"Why should you evacuate before the mandatory order if you are in Zone A?", answers:["By the time a mandatory order is issued, roads are already congesting. Zone A residents who leave a day early face a much shorter and safer evacuation window."]}
+    ],
+    challenge: "Map both your primary and alternate evacuation routes on paper. Drive both routes and time them. Identify potential bottlenecks on each.",
+    tuesday:   { low: {title:"Evacuation zone lookup", activity:"Find your county\u2019s evacuation zone map online. What zone is your home in? What storm category triggers an evacuation order for your zone?"}, mid: {title:"Contraflow research", activity:"Research contraflow lane reversal during hurricanes. How does Florida manage contraflow and what are its limitations?"}, high: {title:"Evacuation decision research", activity:"Research the behavioral economics of evacuation. Why do people delay or refuse to evacuate? What communication strategies increase compliance?"} },
+    wednesday: { low: {title:"Fuel level commitment", activity:"Commit to a family rule: during June\u2013November (hurricane season), the car tank never goes below half. Calculate how many gallons that requires and what it costs to maintain."}, mid: {title:"Pet evacuation planning", activity:"Research pet-friendly evacuation options: pet-friendly shelters, hotels, and boarding facilities on common evacuation routes. Add these to your evacuation plan."}, high: {title:"Mass evacuation modeling", activity:"Research how traffic engineers model mass evacuation scenarios. What variables are inputs and how do planners use models to optimize route and timing recommendations?"} },
+    thursday:  { low: {title:"Evacuation kit check", activity:"Verify your go-bag and car kit are ready for an immediate 30-minute evacuation. Can everyone grab their essential items and be moving in 30 minutes?"}, mid: {title:"Hotel and shelter options", activity:"Research 3 destination options along your evacuation route: family/friends, pet-friendly hotels with advance booking, and public shelters. Note phone numbers and addresses."}, high: {title:"Katrina evacuation failures", activity:"Research the evacuation failure analysis from Hurricane Katrina. What logistical, communication, and equity failures contributed to the catastrophic outcome for non-evacuees?"} }
+  },
+
+  "GFCI outlets — what they do": {
+    gradeHooks: {
+      low: "GFCI outlets have test and reset buttons. They turn off instantly if electricity might shock someone near water!",
+      mid: "GFCI protection detects ground faults in milliseconds, cutting power before a lethal shock can occur.",
+      high: "Ground fault detection electronics, GFCI response time specifications, and the NEC requirements for GFCI placement are important electrical safety topics."
+    },
+    materials: ["GFCI outlet tester (optional) or manual test procedure"],
+    steps: [
+      "Locate all GFCI outlets in your home: bathrooms, kitchen counters, garage, outdoor outlets, within 6 feet of any sink.",
+      "Explain how a GFCI works: it constantly compares current flowing out on the hot wire to current returning on the neutral wire. If they differ by 5 milliamps (indicating current is taking another path — through a person), it trips in 1/40th of a second.",
+      "Test the outlet: press the TEST button. The outlet (and any outlets downstream) should lose power. Press RESET to restore.",
+      "Identify: a single GFCI outlet can protect multiple downstream outlets. Find which other outlets lose power when you test the GFCI.",
+      "Non-functional GFCI outlets should be replaced. They can appear to work while the protective circuit has failed."
+    ],
+    discussion: [
+      {q:"Why do bathrooms and kitchens specifically require GFCI protection?", answers:["These locations combine water (excellent conductor) with electricity. Water spilled near outlets or hair dryers near bathtubs creates ideal conditions for a ground fault. GFCI protection has saved thousands of lives in these locations."]},
+      {q:"Can a GFCI outlet protect you if there is a fault but no path to ground through a person?", answers:["A GFCI doesn\u2019t detect faults in isolation — it detects the difference in current between hot and neutral. If current goes to ground through another path (a pipe, wet floor), the GFCI will trip whether or not a person is involved."]}
+    ],
+    challenge: "Test every GFCI outlet in your home. For each, identify which downstream outlets it protects. Create a map.",
+    tuesday:   { low: {title:"Protected circuit mapping", activity:"Test each GFCI and plug a phone charger into every other outlet to see which ones also lose power. Map the protected circuits."}, mid: {title:"GFCI vs GFCI breaker", activity:"Research the difference between a GFCI outlet and a GFCI circuit breaker in the electrical panel. What does each protect and what are the cost and installation differences?"}, high: {title:"5-milliamp threshold science", activity:"Research why 5 milliamps was chosen as the GFCI trip threshold. At what current levels do different physiological effects occur: tingling, muscle lock, ventricular fibrillation?"} },
+    wednesday: { low: {title:"Non-functional GFCI identification", activity:"Research how to identify a GFCI outlet where the protective circuit has failed even though it appears functional. Why do they fail silently?"}, mid: {title:"GFCI installation research", activity:"Research the steps to replace a standard outlet with a GFCI outlet. What tools and safety precautions are required?"}, high: {title:"NEC evolution", activity:"Research how NEC (National Electrical Code) requirements for GFCI protection have expanded since 1971. What new locations have been added in recent code cycles and why?"} },
+    thursday:  { low: {title:"Monthly testing habit", activity:"Set a monthly reminder to test all GFCI outlets. Create a testing log to track when each was last tested."}, mid: {title:"GFCI in outdoor settings", activity:"Research GFCI requirements for outdoor outlets, swimming pools, hot tubs, and boat docks. What specific hazards make each location require GFCI protection?"}, high: {title:"AFCI and GFCI combination devices", activity:"Research combination AFCI/GFCI outlets. What dual protection do they provide and in which locations does the NEC now require both types of protection simultaneously?"} }
+  },
+
+  "Saving seeds from tomatoes peppers squash": {
+    gradeHooks: {
+      low: "We can save seeds from tomatoes, peppers, and squash in our garden to grow more plants next year for free!",
+      mid: "Wet and dry seed processing techniques, isolation for genetic purity, and storage conditions for different crop seeds are important seed saving skills.",
+      high: "Seed biology, cross-pollination genetics, viability and vigor testing, and the population genetics of small seed-saving gardens are advanced topics."
+    },
+    materials: ["Ripe tomatoes, peppers, and squash", "Glass jars with water", "Paper plates for drying", "Paper envelopes"],
+    steps: [
+      "Tomato (wet process): squeeze seeds and gel into a jar of water. Let ferment 2\u20133 days until gel degrades. Viable seeds sink. Rinse and dry on paper plates.",
+      "Pepper (dry process): cut open a fully ripe pepper. Shake or scrape seeds onto a paper plate. Spread and dry for 1\u20132 weeks.",
+      "Squash (dry process): scoop seeds from a fully ripe squash. Rinse off pulp. Spread on a paper plate. Dry for 2\u20133 weeks.",
+      "Test dryness: seeds should snap (not bend) when folded. Store in paper envelopes in a sealed jar with a desiccant packet.",
+      "Label with: crop name, variety, harvest year, and any selection notes (best flavor, earliest ripe, etc.)."
+    ],
+    discussion: [
+      {q:"Why do squash seeds need to be dried longer than tomato seeds?", answers:["Squash seeds are larger and have more moisture to release. They also have a thicker seed coat that slows moisture evaporation. Larger seeds = longer drying time."]},
+      {q:"What isolation practices prevent cross-pollination between squash varieties?", answers:["Hand-pollinate flowers using a small paintbrush or by moving male pollen to the female flower, then covering the female flower before and after to prevent insect pollination with another variety."]}
+    ],
+    challenge: "Save seeds from all 3 crop types this season. Test germination rates by planting 10 seeds from each batch on damp paper towels.",
+    tuesday:   { low: {title:"Fermentation observation", activity:"Set up tomato seed fermentation and observe daily. Photograph day 1, 2, and 3. Describe what changes: the gel breaks down, a mold layer forms on top, viable seeds sink."}, mid: {title:"Viability testing", activity:"Plant 10 seeds from each crop you saved. After 7 days, calculate germination rate. What is an acceptable germination rate for home seed saving?"}, high: {title:"Seed vigor vs viability", activity:"Research the difference between seed viability (will it germinate?) and seed vigor (how strongly will it grow?). How do you test vigor and why does it matter?"} },
+    wednesday: { low: {title:"Drying technique comparison", activity:"Dry 10 seeds on a paper plate vs 10 on a mesh screen vs 10 in a dehydrator at low temperature. Which dries fastest with the best quality?"}, mid: {title:"Storage conditions research", activity:"Research how temperature, humidity, and oxygen affect seed storage life. Why do seed savers freeze seeds for long-term storage and what precautions are needed?"}, high: {title:"Population size and genetic diversity", activity:"Research the minimum viable population for seed saving. Why must you save seeds from multiple plants rather than one to maintain genetic diversity in a variety?"} },
+    thursday:  { low: {title:"Seed bank organization", activity:"Organize all your saved seeds into a labeled, dated seed bank. Create a simple inventory log: what you have, how much, and when it expires."}, mid: {title:"Heirloom vs hybrid selection", activity:"Compare the flavor, yield, and disease resistance of an heirloom tomato variety to a hybrid variety. What does research say about the trade-offs?"}, high: {title:"Landrace varieties", activity:"Research landrace plant varieties: locally-adapted, genetically diverse crops developed over centuries. How do they differ from modern varieties and why are they valuable?"} }
+  },
+
+  "Solar still — making one in the field": {
+    gradeHooks: {
+      low: "A solar still uses sunlight and a sheet of plastic to pull water from the ground and collect it in a cup. It\u2019s like magic!",
+      mid: "A solar still uses evaporation and condensation to extract water from soil and plant material without any external water source.",
+      high: "The thermodynamics of solar still operation, yield optimization, and comparison to other emergency water sources are important survival science topics."
+    },
+    materials: ["Plastic sheeting (2-3 feet square)", "Digging tool", "Container", "Rocks or weights for edges"],
+    steps: [
+      "Dig a bowl-shaped hole about 2 feet wide and 18 inches deep in soil that contains moisture or place green vegetation in the hole.",
+      "Place a clean container at the center bottom of the hole.",
+      "Stretch the plastic sheet over the hole and seal the edges with soil and rocks.",
+      "Place a small rock in the center of the plastic to create a low point directly over the container.",
+      "The sun heats the air and soil inside, water evaporates, condenses on the underside of the plastic, and drips into the container."
+    ],
+    discussion: [
+      {q:"Why is a solar still more effective with green vegetation added to the hole?", answers:["Living plants transpire water through their leaves continuously. Adding cut vegetation dramatically increases the water vapor available inside the still, increasing yield significantly."]},
+      {q:"What is a realistic daily yield from a solar still?", answers:["Typically 0.5\u20131 liter per day per still in good conditions (sunny, moist soil). This is well below the 2\u20133 liters needed for hydration. Multiple stills and this being supplementary to other sources is the realistic framing."]}
+    ],
+    challenge: "Build a solar still in a sunny area. Collect output for 8 hours. Measure the yield. Calculate how many stills you would need for 1 liter per day.",
+    tuesday:   { low: {title:"Yield maximization", activity:"Compare still yield with and without added vegetation, and in full sun vs partial shade. Which variables have the biggest effect on output?"}, mid: {title:"Multiple still configuration", activity:"Research the optimal array of solar stills for survival hydration. What site selection criteria maximize yield per still?"}, high: {title:"Thermodynamic efficiency", activity:"Research the thermodynamic efficiency of a solar still. What fraction of incident solar energy is converted to useful water production and what are the energy losses?"} },
+    wednesday: { low: {title:"Ground moisture detection", activity:"Research how to detect moisture in soil without digging: vegetation as indicator, morning dew, valley bottoms vs ridgelines. How does location affect still productivity?"}, mid: {title:"Solar still vs transpiration bag", activity:"Compare solar still and transpiration bag for yield, construction time, materials needed, and best use scenarios."}, high: {title:"Advanced solar distillation", activity:"Research greenhouse-effect solar distillation systems used for seawater desalination. How do they scale the solar still principle for community-level water production?"} },
+    thursday:  { low: {title:"Emergency scenario planning", activity:"You are stranded in a sunny location for 72 hours with no water. Plan your water collection strategy: how many stills, where to place them, what vegetation to add."}, mid: {title:"Water source combination", activity:"Develop a 72-hour water collection strategy combining solar stills, transpiration bags, and dew collection. Calculate realistic total yield."}, high: {title:"Brackish water distillation", activity:"Research whether a solar still can produce drinkable water from brackish or salt water. What modifications improve salt removal efficiency?"} }
+  },
+
+  "Fixing a leaky faucet washer": {
+    gradeHooks: {
+      low: "A dripping faucet wastes water every day. We can fix it by replacing a small rubber washer inside!",
+      mid: "Faucet repair requires understanding valve types, disassembly sequence, and matching replacement parts.",
+      high: "Plumbing valve mechanics, seat grinding, and the differences between compression, ball, cartridge, and ceramic disc faucets are important home repair topics."
+    },
+    materials: ["Leaky compression faucet", "Adjustable wrench", "Screwdriver", "Replacement washers and O-rings", "Plumber\u2019s grease"],
+    steps: [
+      "Shut off the water supply: close the fixture shut-off valve under the sink. Confirm water is off by turning the faucet on and waiting for flow to stop.",
+      "Open the faucet to release remaining pressure. Place the stopper to catch any small parts.",
+      "Remove the faucet handle: unscrew the decorative cap, remove the screw, pull off the handle.",
+      "Remove the packing nut with a wrench, then pull out the stem. The rubber washer is at the bottom of the stem.",
+      "Replace the washer (match the size), apply plumber\u2019s grease to the O-rings, reassemble in reverse order, restore water supply, test."
+    ],
+    discussion: [
+      {q:"Why does a faucet drip only when the water is in the on position in some cases, and only when off in others?", answers:["Drips when on = the packing (O-ring) around the stem is worn, allowing water past when the valve is pressurized. Drips when off = the seat washer isn\u2019t sealing the valve seat properly."]},
+      {q:"How much water does a dripping faucet waste over a year?", answers:["A faucet dripping at one drop per second wastes about 3,000 gallons per year. At a faster drip rate, 4,000\u20136,000 gallons. This is a significant water and cost waste."]}
+    ],
+    challenge: "Repair a leaking compression faucet in your home. Time the repair. Test thoroughly: no drips in on or off position.",
+    tuesday:   { low: {title:"Faucet type identification", activity:"Research the 4 main faucet types: compression, ball, cartridge, and ceramic disc. Identify which type each faucet in your home is."}, mid: {title:"Parts identification", activity:"Disassemble a spare or inexpensive faucet completely. Identify and photograph every component. Can you reassemble it correctly?"}, high: {title:"Seat grinding", activity:"Research faucet seat grinding. When is a worn valve seat the cause of leaking and how is a seat grinder used to restore the sealing surface?"} },
+    wednesday: { low: {title:"Washer sizing", activity:"Research how to identify the correct replacement washer size for a faucet. What dimensions matter: outer diameter, inner diameter, and thickness?"}, mid: {title:"Ball faucet repair", activity:"Research how a ball-type faucet works differently from a compression faucet. What components are typically replaced in a ball faucet repair kit?"}, high: {title:"Cartridge and ceramic disc", activity:"Research cartridge and ceramic disc faucet designs. Why have they largely replaced compression faucets in modern fixtures and what are the repair differences?"} },
+    thursday:  { low: {title:"Water savings calculation", activity:"Measure the drip rate of a faucet (drops per minute). Calculate the annual water waste. What is the cost in your municipality at their water rate?"}, mid: {title:"DIY vs call a plumber", activity:"Research when a faucet repair exceeds DIY scope: corroded valves, damaged valve seats, unusual faucet designs, or when cutting into the wall is required."}, high: {title:"Smart faucets and conservation", activity:"Research smart faucet technology and motion sensors. What water savings have been documented in commercial vs residential installations?"} }
+  },
+
+  "Budget categories — fixed vs variable": {
+    gradeHooks: {
+      low: "Fixed expenses are the same every month. Variable expenses change. Knowing which is which helps us budget better!",
+      mid: "Understanding fixed vs variable expenses, and discretionary vs non-discretionary categories, enables more effective budget management.",
+      high: "Cost behavior analysis, contribution margin, break-even analysis, and the behavioral economics of expense categorization are important financial topics."
+    },
+    materials: ["Family budget data", "Paper or spreadsheet"],
+    steps: [
+      "Define fixed expenses: rent/mortgage, car payment, insurance premiums, loan payments, subscriptions. These don\u2019t change with activity level.",
+      "Define variable expenses: groceries, utilities, gas, dining out, entertainment. These change with usage or choice.",
+      "Category within variable: necessary variable (groceries, utilities) vs discretionary variable (dining out, entertainment).",
+      "Budget flexibility: fixed expenses cannot be easily reduced short-term. Discretionary variable expenses are where immediate budget changes can be made.",
+      "Calculate your fixed expense burden: what percentage of income is committed to fixed expenses before any choice is made?"
+    ],
+    discussion: [
+      {q:"Why is a high percentage of income committed to fixed expenses financially risky?", answers:["Fixed expenses must be paid regardless of income changes. If income drops (job loss, reduced hours), fixed expenses remain. High fixed expense burden leaves no cushion for income disruption."]},
+      {q:"How can a discretionary expense become effectively fixed over time?", answers:["Lifestyle inflation: you start a gym membership (discretionary), use it for 2 years, and psychologically it becomes \u2018necessary.\u2019 This is psychological fixed cost creep, even though it is technically cancellable."]}
+    ],
+    challenge: "Categorize every expense in your family\u2019s budget as fixed or variable, then as necessary or discretionary. What percentage is each category?",
+    tuesday:   { low: {title:"Fixed vs variable sort", activity:"Write 20 expense types on cards. Sort them into fixed and variable. Then re-sort the variable expenses into necessary and discretionary."}, mid: {title:"Fixed expense burden calculation", activity:"Calculate the percentage of your family\u2019s income committed to fixed expenses. How does this compare to the recommended maximum (typically 50%)?"}, high: {title:"Operating leverage", activity:"Research operating leverage in business: how a high proportion of fixed costs amplifies both profits and losses with revenue changes. How does this concept apply to personal finance?"} },
+    wednesday: { low: {title:"Discretionary cut scenario", activity:"If your family had to reduce spending by 20% immediately, which expenses could be cut? List them in order from easiest to hardest to cut."}, mid: {title:"Variable expense tracking", activity:"Track all variable expenses for one week. How much variance is there from week to week? What causes the variation?"}, high: {title:"Marginal cost analysis", activity:"Research marginal cost: the cost of one additional unit of consumption. Apply it to utilities (cost of one extra kWh), driving (cost per mile), and food (cost per additional serving)."} },
+    thursday:  { low: {title:"Budget revision exercise", activity:"Given a 25% income reduction scenario, revise your family budget. Which categories get cut first, second, and last? Why?"}, mid: {title:"Step fixed costs", activity:"Research step fixed costs: expenses that remain fixed within a range but jump at a threshold (a bigger apartment when a family grows, a second car when children need transportation). How do you plan for step changes?"}, high: {title:"Behavioral spending categories", activity:"Research behavioral economics approaches to budget categories. What does research say about the effectiveness of mental accounting in reducing overspending in discretionary categories?"} }
+  },
+
+  "Reading elevation on a topo map": {
+    gradeHooks: {
+      low: "Elevation numbers on a topo map tell us how high above sea level a place is. We can calculate how much we\u2019ll climb on a hike!",
+      mid: "Reading elevation from topo maps enables accurate climb calculations, travel time estimates, and terrain hazard identification.",
+      high: "Elevation data analysis, hypsometric curves, and the relationship between elevation and ecosystem type are advanced geography topics."
+    },
+    materials: ["USGS topographic map", "Ruler", "Calculator"],
+    steps: [
+      "Find the index contours (labeled bold lines). Read the elevation from the label.",
+      "Calculate elevations between index contours using the contour interval. If the interval is 20 feet and you count 3 lines from a labeled 200-foot contour, the unlabeled line is at 260 feet.",
+      "Identify the highest and lowest points on your map section.",
+      "Calculate total elevation gain for a planned route: add all uphill segments. (Downhill sections don\u2019t add to gain).",
+      "Use Naismith\u2019s Rule for hiking time estimate: 1 hour per 3 miles on flat ground, plus 1 hour per 2,000 feet of elevation gain."
+    ],
+    discussion: [
+      {q:"Why do we only count uphill elevation gain for hiking time estimates, not total elevation change?", answers:["Naismith\u2019s Rule accounts for uphill effort (which slows pace). Downhill can actually be faster than flat ground (to a point) or similar speed. The rule is designed for effort estimation, not total vertical displacement."]},
+      {q:"What is the bench mark (BM) symbol on a topo map and why is it placed precisely?", answers:["A bench mark is a surveyed point with a known, highly accurate elevation. They are used as reference points for all nearby elevation data and are physically marked in the field with a bronze disc."]}
+    ],
+    challenge: "Plan a hike from a topo map. Calculate total elevation gain and estimate hiking time using Naismith\u2019s Rule. Compare your estimate to trail database information.",
+    tuesday:   { low: {title:"Elevation reading practice", activity:"Identify the elevation of 15 specific points on a topo map. Show your calculation for each."}, mid: {title:"Elevation gain calculation", activity:"Trace a hiking route on a topo map. Calculate total elevation gain by identifying every uphill segment and summing them."}, high: {title:"Hypsometric curve", activity:"Research hypsometric curves (area-elevation curves). What do they reveal about the proportion of land area at different elevation ranges and what ecological patterns do they predict?"} },
+    wednesday: { low: {title:"Naismith\u2019s Rule practice", activity:"Calculate hiking time for 3 different routes of varying length and elevation gain using Naismith\u2019s Rule. How does elevation gain affect time vs flat hiking?"}, mid: {title:"Vertical exaggeration", activity:"Research vertical exaggeration in topo map cross-sections. Why are elevation profiles often drawn with exaggerated vertical scale and how does this affect interpretation?"}, high: {title:"Elevation and biodiversity", activity:"Research the relationship between elevation and biodiversity. What ecological zones exist in Florida\u2019s limited elevation range and how does this differ from mountainous regions?"} },
+    thursday:  { low: {title:"Route elevation profile", activity:"Draw an elevation profile for a local hiking route by plotting the elevation at regular intervals along the trail."}, mid: {title:"USGS elevation data access", activity:"Access USGS national elevation datasets online. How do you extract elevation for a specific point or along a transect? What formats is the data available in?"}, high: {title:"Climate change and elevation", activity:"Research how climate change is causing upward shifts in species\u2019 elevation ranges. What is happening at the high-elevation boundaries of these ranges and what are the ecological consequences?"} }
+  },
+
+
+
+  "Orienteering with a topographic map": {
+    gradeHooks: {
+      low: "A topographic map shows hills and valleys with lines. Using it for orienteering helps us understand the land we\u2019re walking through!",
+      mid: "Topo map orienteering requires reading contour features while moving and correlating what you see on the map to what you experience in the terrain.",
+      high: "Advanced terrain analysis, contour interpretation at speed, and micro-navigation skills are what separate good orienteers from great ones."
+    },
+    materials: ["Topographic map of a local area", "Compass", "Protractor (for measuring bearings)"],
+    steps: [
+      "Orient the topo map: rotate until north on the map matches compass north.",
+      "Identify your location using terrain association: find 2\u20133 features you can see and locate them on the map.",
+      "Plan your route using terrain features as handrails: streams, ridges, and trails that guide you without requiring precise compass work.",
+      "Navigate terrain changes: ascending a mapped hill, crossing a mapped valley, following a mapped ridge.",
+      "Practice terrain association: predict what you will see next (a slope, a stream, a clearing) before you reach it."
+    ],
+    discussion: [
+      {q:"What is terrain association and why is it faster than pure compass navigation?", answers:["Terrain association is matching visible terrain features to map features to confirm your position continuously. It is faster because you can move at full speed while simultaneously confirming location, rather than stopping to take bearings."]},
+      {q:"What makes a ridgeline useful as a navigation handrail?", answers:["A ridge is a linear feature that runs in a predictable direction. Walking along a ridge keeps you oriented and tells you exactly where you are on the map as long as you can identify which ridge you\u2019re on."]}
+    ],
+    challenge: "Navigate a 6-point orienteering course using only topo map terrain association. Predict each terrain feature before reaching it.",
+    tuesday:   { low: {title:"Contour reading quiz", activity:"Look at 10 sections of a topo map. Identify each as: hill, valley, ridge, spur, or saddle. Draw what the terrain would look like in 3D."}, mid: {title:"Attack point planning", activity:"For 5 orienteering control locations on a topo map, identify the best attack point for each. Explain why you chose each."}, high: {title:"Micro-navigation", activity:"Research micro-navigation in elite orienteering. How do competitors navigate between features 30\u201350 meters apart in dense terrain at race pace?"} },
+    wednesday: { low: {title:"Elevation profile drawing", activity:"Draw the elevation profile for a route across your local topo map. How much total climbing is involved?"}, mid: {title:"Collecting feature navigation", activity:"Research collecting features in orienteering: linear features (fence, stream, road) that stop you from going too far. Plan a route using 3 collecting features."}, high: {title:"Competition map analysis", activity:"Download a published orienteering competition map from a local club. Analyze the winning route choices. What terrain features were used as handrails and collecting features?"} },
+    thursday:  { low: {title:"Terrain prediction exercise", activity:"Walk a familiar trail. Before each turn or feature, predict what you will see next based on your topo map. How often were you correct?"}, mid: {title:"Speed vs precision", activity:"Research the orienteering speed-precision tradeoff. When should you slow down for precision and when should you trust terrain association and move fast?"}, high: {title:"Elite orienteer analysis", activity:"Research techniques used by world-class orienteers: parallel error avoidance, aiming off, and simplification. How do these techniques reflect principles of cognitive load management?"} }
+  },
+
+  "Foraging — dandelion dock plantain": {
+    gradeHooks: {
+      low: "Dandelion, dock, and plantain are common edible wild plants you might find in your own yard! Let\u2019s learn to recognize them.",
+      mid: "Dandelion, dock, and plantain are among the most widespread edible and medicinal plants in North America. Reliable identification builds foraging confidence.",
+      high: "The ethnobotany, nutritional analysis, and ecological roles of these three cosmopolitan plants connect food science to ecology."
+    },
+    materials: ["Field guide", "Photos of dandelion, dock, and plantain", "Outdoor access"],
+    steps: [
+      "Dandelion (Taraxacum officinale): jagged leaves in a rosette, hollow stem with milky sap, yellow composite flower. Every part is edible: leaves (bitter salad green), flowers (fritters, tea), root (coffee substitute).",
+      "Dock (Rumex species): large elongated leaves, prominent midrib, clusters of small flowers on tall spike. Young leaves cooked like spinach. Sour flavor from oxalic acid. Eat in moderation.",
+      "Plantain (Plantago species): NOT the tropical banana relative. Oval or lance-shaped leaves with parallel veins, seeds on a slender spike. Young leaves edible cooked. Seeds used like psyllium.",
+      "Practice identifying all three in your yard or a park.",
+      "Caution: plantain look-alike is lily of the valley (toxic). Check for parallel veins and the seed spike."
+    ],
+    discussion: [
+      {q:"Why do dandelion, dock, and plantain grow in disturbed areas like lawns and roadsides?", answers:["These are pioneer species: adapted to colonize disturbed soil. They are resilient, fast-growing, and not native to North America. Their presence often indicates human activity."]},
+      {q:"What does it mean that dock contains oxalic acid and why should you eat it in moderation?", answers:["Oxalic acid binds to calcium and other minerals, reducing absorption. In large amounts it can also irritate kidneys. Cooking reduces oxalic acid significantly."]}
+    ],
+    challenge: "Find and photograph all 3 plants in your area. Make a comparison card with photos, 3 ID features, and edible uses for each.",
+    tuesday:   { low: {title:"Dandelion tea", activity:"Harvest 10\u201315 fresh dandelion flowers (from unsprayed areas). Make dandelion tea and taste it. Describe the flavor."}, mid: {title:"Nutritional comparison", activity:"Research the nutritional content of dandelion leaves vs romaine lettuce. Which has more vitamins A, C, and K per gram?"}, high: {title:"Ethnobotanical uses", activity:"Research traditional medicinal uses of all 3 plants across multiple cultures. What active compounds have been identified in each and what is the evidence for their effects?"} },
+    wednesday: { low: {title:"Plantain vs lily of the valley", activity:"Research lily of the valley (toxic) and plantain. What features distinguish them? Practice the identification test: squeeze the stem."}, mid: {title:"Preparation methods", activity:"Research 3 different ways to prepare dock leaves. How does cooking vs eating raw affect flavor, oxalic acid content, and nutritional value?"}, high: {title:"Invasive species ecology", activity:"Research how these introduced species have spread through North America. What ecological impacts have they had on native plant communities?"} },
+    thursday:  { low: {title:"Simple dandelion recipe", activity:"Make dandelion leaf salad or saut\u00e9ed dock with garlic (supervised). Rate the flavor and discuss: would you eat this in an emergency?"}, mid: {title:"Urban foraging location analysis", activity:"Research the safest locations to forage in an urban environment. What distance from roads, treatment status of lawn, and soil contamination history should you consider?"}, high: {title:"Secondary metabolite analysis", activity:"Research the secondary metabolites in dandelion (taraxacin, inulin), dock (anthraquinones), and plantain (aucubin). What biological activities do these compounds have?"} }
+  },
+
+  "Checking tire pressure and tread": {
+    gradeHooks: {
+      low: "Tires need just the right amount of air and enough tread to grip the road. We check both regularly to stay safe!",
+      mid: "Maintaining proper tire pressure and adequate tread depth prevents accidents, improves fuel economy, and extends tire life.",
+      high: "Tire pressure effects on contact patch, tread wear patterns as diagnostic information, and tire construction engineering are important automotive topics."
+    },
+    materials: ["Tire pressure gauge", "Penny and quarter for tread test", "Vehicle with tires"],
+    steps: [
+      "Find the correct tire pressure: check the sticker on the driver\u2019s door jamb. This is the vehicle manufacturer\u2019s specification.",
+      "Check tires cold (before driving or within 1 mile). Remove the valve cap, press the gauge firmly, read the PSI.",
+      "Penny tread test: insert a penny into the shallowest part of the tread with Lincoln\u2019s head down. If you see his entire head, replace the tire.",
+      "Quarter tread test: if you see the top of Washington\u2019s head, you are at about 4/32 inch — consider replacing soon.",
+      "Check all 4 tires and the spare. Note any uneven wear patterns."
+    ],
+    discussion: [
+      {q:"Why does uneven tire wear across the width of a tire indicate a problem?", answers:["Wear only on the edges = underinflation (tire flexes too much, edges contact road more). Wear only in the center = overinflation (tire bulges, center contacts road more). Both indicate incorrect pressure."]},
+      {q:"How does tire pressure affect fuel economy?", answers:["Underinflated tires have more rolling resistance (the tire flexes more with each rotation, wasting energy). Proper inflation can improve fuel economy by 0.5\u20133%."]}
+    ],
+    challenge: "Check all 4 tires and the spare on your family vehicle. Record the PSI of each. Are any under or over the door jamb specification? Correct them.",
+    tuesday:   { low: {title:"Pressure gauge practice", activity:"Check the same tire 3 times and record each reading. How consistent is your gauge? What explains any variation?"}, mid: {title:"Tread depth measurement", activity:"Use a tread depth gauge or the coin method to measure tread depth at 3 points across the width of each tire. Create a wear pattern diagram."}, high: {title:"Contact patch analysis", activity:"Research how tire pressure affects the contact patch area. How does a larger contact patch in an underinflated tire affect braking and handling?"} },
+    wednesday: { low: {title:"Inflation correction", activity:"If any tire was under the spec, add air using a tire inflator. Check after adding air. How do you avoid overinflating?"}, mid: {title:"Tire rotation schedule", activity:"Research tire rotation patterns and schedules. How does regular rotation equalize wear and extend tire life?"}, high: {title:"Tire construction", activity:"Research tire construction: belts, plies, bead, tread compound, and sidewall. How does each structural element contribute to performance?"} },
+    thursday:  { low: {title:"Monthly check habit", activity:"Create a car maintenance reminder card: check tire pressure monthly (first of the month). Post it in the car."}, mid: {title:"Seasonal tire considerations", activity:"Research all-season vs summer vs winter tires. How does rubber compound hardness affect performance in different temperatures?"}, high: {title:"Run-flat technology", activity:"Research run-flat tire technology. How do they maintain structure without air pressure and what are the ride quality and replacement cost tradeoffs?"} }
+  },
+
+  "Calling 911 — what dispatchers need": {
+    gradeHooks: {
+      low: "When we call 911, we stay calm and tell them: where we are, what happened, and if anyone is hurt.",
+      mid: "A clear, organized 911 call with location, nature of emergency, and victim condition enables the fastest and most appropriate response.",
+      high: "Emergency dispatch systems, CAD (Computer Aided Dispatch), caller coaching, and the chain from call to response are important emergency management topics."
+    },
+    materials: ["No materials needed — practice the call sequence"],
+    steps: [
+      "The 3 essentials: location, nature of emergency, status of victim(s).",
+      "Location first: address, nearest intersection, or landmark. This is the most critical piece of information.",
+      "Stay on the line: dispatchers can guide you, provide pre-arrival instructions, and update responding units.",
+      "Listen and answer: answer the dispatcher\u2019s questions without interrupting. They are entering data while asking.",
+      "If a child: state your name and age immediately. Dispatchers have protocols for assisting children callers."
+    ],
+    discussion: [
+      {q:"Why is location the most critical piece of information in a 911 call?", answers:["Help cannot arrive without knowing where to go. Everything else can be gathered while responders are en route. An exact address can be provided by the dispatcher from cell phone data, but confirming it is faster."]},
+      {q:"What should you do if the 911 dispatcher asks questions you don\u2019t know the answers to?", answers:["Say \u2018I don\u2019t know\u2019 clearly and move on. Don\u2019t guess or delay. The dispatcher needs what you DO know quickly."]}
+    ],
+    challenge: "Role-play 3 different 911 scenarios: house fire, car accident, medical emergency. Practice providing all 3 essentials within the first 15 seconds.",
+    tuesday:   { low: {title:"Location drill", activity:"From 5 different locations in your neighborhood, practice stating your location in under 10 seconds: address or intersection, city, state."}, mid: {title:"Dispatcher training overview", activity:"Research what training 911 dispatchers receive. What is Emergency Medical Dispatch (EMD) and what caller coaching protocols does it provide?"}, high: {title:"Next Generation 911", activity:"Research Next Generation 911 (NG911): the transition from voice-only to accepting texts, photos, and video. What capabilities does it add and what challenges remain?"} },
+    wednesday: { low: {title:"Cell phone 911 limitations", activity:"Research how cell phone 911 calls are located. Why might a cell phone location be less accurate than a landline and how is this being addressed?"}, mid: {title:"Non-emergency vs 911", activity:"Research your local non-emergency police number. Create a decision guide: when to call 911 vs the non-emergency line."}, high: {title:"PSAP consolidation", activity:"Research Public Safety Answering Points (PSAPs). What is PSAP consolidation and what are the arguments for and against consolidating dispatch centers?"} },
+    thursday:  { low: {title:"Full scenario practice", activity:"Run 3 complete 911 scenarios from start to finish. Have a parent play dispatcher and provide feedback: was location given first? Was the call clear and calm?"}, mid: {title:"Text to 911", activity:"Research Text-to-911 availability in your county. When is texting to 911 appropriate and what information should a text include?"}, high: {title:"Dispatch prioritization", activity:"Research Emergency Medical Dispatch (EMD) call prioritization. How do dispatchers triage calls and allocate resources when multiple emergencies occur simultaneously?"} }
+  },
+
+  "Two-way radio basics": {
+    gradeHooks: {
+      low: "Two-way radios let us talk to each other without a phone signal. They\u2019re great for emergencies and outdoor adventures!",
+      mid: "Understanding radio frequencies, protocols, and range enables effective communication in situations where phones fail.",
+      high: "Radio wave physics, frequency allocation, FRS/GMRS regulations, and HAM radio licensing are important communication topics."
+    },
+    materials: ["Two FRS/GMRS walkie-talkies"],
+    steps: [
+      "Power on both radios and set to the same channel (start with Channel 1).",
+      "Basic protocol: press and hold the PTT (Push To Talk) button before speaking, release to listen.",
+      "Identify yourself before speaking: \u2018This is [name] to [name].\u2019",
+      "End transmissions with \u2018over\u2019 (I\u2019m done talking) or \u2018out\u2019 (I\u2019m done with this conversation).",
+      "Test range around your home and neighborhood. Note where signal degrades."
+    ],
+    discussion: [
+      {q:"Why can\u2019t two people talk on a two-way radio at the same time?", answers:["Half-duplex radios use the same frequency for both transmit and receive. When you transmit, you block your own receive. Full-duplex (phones) uses separate frequencies for each direction."]},
+      {q:"What factors reduce two-way radio range?", answers:["Hills, buildings, thick vegetation, and distance all reduce range. Higher frequency radios (like GMRS) penetrate buildings better than lower frequency UHF radios."]}
+    ],
+    challenge: "Conduct a range test of your radios around your neighborhood. Map where communication is reliable and where it fails. Note the obstacles that cause failure.",
+    tuesday:   { low: {title:"Radio protocol practice", activity:"Practice correct radio protocol for 10 simulated messages. Identify yourself, state the message, end with \u2018over.\u2019 Have a partner respond."}, mid: {title:"FRS vs GMRS channels", activity:"Research FRS (Family Radio Service) and GMRS (General Mobile Radio Service). What are the differences in power, license requirements, and range?"}, high: {title:"Radio wave physics", activity:"Research how radio waves propagate. What is the difference between line-of-sight range and ground wave propagation? How does frequency affect each?"} },
+    wednesday: { low: {title:"Emergency channel awareness", activity:"Research GMRS Channel 1 and FRS Channel 1 usage conventions. Is there a national calling channel for GMRS?"}, mid: {title:"Weather radio integration", activity:"Research NOAA weather radio and how to receive it on a multi-band radio. What frequencies does NOAA broadcast on and what tone alerts can it send?"}, high: {title:"GMRS licensing", activity:"Research the FCC GMRS license requirements. Cost, coverage, and what the license allows that FRS alone does not. Is it worth it for family emergency preparedness?"} },
+    thursday:  { low: {title:"Family emergency radio plan", activity:"Design a family radio communication plan: which channels to use, when to check in, and what to say in an emergency."}, mid: {title:"Repeater basics", activity:"Research radio repeaters: how they extend range and how to access them with a GMRS radio."}, high: {title:"HAM radio introduction", activity:"Research amateur (HAM) radio licensing. What is the Technician class exam and what operating privileges does it grant? How do HAM operators assist in emergencies?"} }
+  },
+
+  "Series vs parallel circuits": {
+    gradeHooks: {
+      low: "In a series circuit, all the lights share one path. In a parallel circuit, each light has its own path. Try removing one from each!",
+      mid: "Series and parallel circuits have fundamentally different electrical behavior. Understanding them explains how home wiring works.",
+      high: "Kirchhoff\u2019s laws govern series and parallel circuit behavior. Complex circuits are analyzed by breaking them into series and parallel segments."
+    },
+    materials: ["Battery", "3 LEDs", "Resistors", "Wires", "Breadboard (optional)"],
+    steps: [
+      "Series circuit: wire 3 LEDs end-to-end in a single loop. All light? Remove one. What happens?",
+      "Parallel circuit: wire 3 LEDs side-by-side so each has a direct path to the battery. All light? Remove one. What happens?",
+      "Measure: in series, measure voltage across each LED. What do you notice? (Voltage divides between them)",
+      "Measure: in parallel, measure voltage across each LED. What do you notice? (All get full voltage)",
+      "Explain: home circuits are wired in parallel. One light going out doesn\u2019t kill all the others."
+    ],
+    discussion: [
+      {q:"Why would a series string of Christmas lights go dark when one bulb fails?", answers:["Older lights were wired in series. When one filament breaks, the circuit is open and no current flows through any of the bulbs. Modern strings use parallel wiring or shunts that bypass failed bulbs."]},
+      {q:"What happens to the total resistance when you add a resistor in parallel vs in series?", answers:["In series: total resistance adds up (R total = R1 + R2 + ...). In parallel: total resistance decreases and is always less than the smallest individual resistor (1/Rtotal = 1/R1 + 1/R2 + ...)."]}
+    ],
+    challenge: "Build a mixed circuit: 2 LEDs in series connected in parallel with 1 LED. Predict what happens when you remove each LED before you try it.",
+    tuesday:   { low: {title:"Christmas light analogy", activity:"Research why modern Christmas lights stay on when one bulb fails. How has the wiring changed from the original series designs of the 1950s?"}, mid: {title:"Ohm\u2019s Law in parallel", activity:"Calculate the total current drawn from a 9V battery by 3 LEDs in parallel, each with a 330-ohm resistor. What is the total current vs the single-LED current?"}, high: {title:"Thevenin\u2019s theorem", activity:"Research Thevenin\u2019s theorem for circuit analysis. How does it simplify complex circuits to an equivalent simple circuit for analysis?"} },
+    wednesday: { low: {title:"Household wiring diagram", activity:"Research how home circuits are wired in parallel. Draw a simplified diagram of a bedroom circuit with 3 lights and 2 outlets, all in parallel."}, mid: {title:"Short circuit analysis", activity:"What happens when you connect a wire directly across a battery with no resistance? Calculate the current. Why is this dangerous?"}, high: {title:"Superposition theorem", activity:"Research the superposition theorem. How does it allow analysis of circuits with multiple voltage sources by analyzing each source independently?"} },
+    thursday:  { low: {title:"Project: parallel LED display", activity:"Build a display with 5 LEDs in parallel, each a different color. All should light simultaneously. Add individual switches to each."}, mid: {title:"Battery life calculation", activity:"Calculate how long a 2000 mAh battery can power 3 LEDs in parallel (each drawing 20 mA). Compare to powering just 1 LED."}, high: {title:"Filter circuits", activity:"Research RC filters (resistor-capacitor circuits). How does a low-pass or high-pass filter use the frequency-dependent behavior of capacitors to separate signals?"} }
+  },
+
+  "Square foot gardening method": {
+    gradeHooks: {
+      low: "Square foot gardening divides a garden into 1-foot squares. Each square grows a different plant and nothing goes to waste!",
+      mid: "Square foot gardening maximizes yield per area by using intensive spacing, raised beds, and companion planting in a grid system.",
+      high: "Intensive cultivation techniques, plant density optimization, and the history and science of square foot gardening are horticultural topics."
+    },
+    materials: ["4x4 raised bed or 16 square feet of garden space", "Grid dividers (string or wood strips)", "Seeds or transplants"],
+    steps: [
+      "Set up a 4x4 foot raised bed divided into 16 one-square-foot sections with string or wood.",
+      "Use the square foot planting guide to determine how many plants per square: 1 (tomato, pepper), 4 (lettuce, chard), 9 (spinach, beets), 16 (radishes, carrots).",
+      "Plan your 16 squares: mix tall, medium, and short plants. Tall plants (north side) don\u2019t shade smaller ones.",
+      "Fill with Mel\u2019s Mix (1/3 compost, 1/3 vermiculite, 1/3 peat moss) for optimal drainage and nutrition.",
+      "Water at the base of each plant. Never walk on the bed."
+    ],
+    discussion: [
+      {q:"Why does square foot gardening produce more food per area than traditional row gardening?", answers:["Row gardening wastes space between rows and uses wide spacing designed for machinery. Square foot gardening optimizes plant density for hand cultivation, eliminating wasted space."]},
+      {q:"Why should tall plants be on the north side of a raised bed?", answers:["Plants grow toward light. Tall plants on the south side would shade everything north of them. Placing them on the north side allows sunlight to reach all plants."]}
+    ],
+    challenge: "Plant and maintain a full 4x4 square foot garden for one growing season. Track which squares were most productive.",
+    tuesday:   { low: {title:"Grid planning", activity:"Design your 4x4 grid on paper. Choose 6\u20138 crops for the current Florida season. Assign the correct number of plants to each square."}, mid: {title:"Succession planting in SFG", activity:"Research succession planting in a square foot garden. When one crop finishes, what can be planted in that square next? Create a 12-month succession plan."}, high: {title:"Intensive yield research", activity:"Research yield comparisons between square foot gardening, traditional row gardening, and commercial agriculture per unit area. What does the data show?"} },
+    wednesday: { low: {title:"Mel\u2019s Mix preparation", activity:"Research the components of Mel\u2019s Mix. If you can\u2019t use this, research alternative soil mixes for raised beds in Florida\u2019s climate."}, mid: {title:"Water efficiency", activity:"Research how raised bed construction reduces water consumption compared to in-ground gardening. How does drip irrigation further improve efficiency?"}, high: {title:"Polyculture research", activity:"Research the academic literature on polyculture vs monoculture in small-scale food production. What metrics (yield, pest resistance, nutrient cycling) favor each approach?"} },
+    thursday:  { low: {title:"Harvest tracking", activity:"Track every harvest from your garden: date, square, crop, and quantity. At season\u2019s end, calculate yield per square foot."}, mid: {title:"Cost per calorie", activity:"Calculate the cost per calorie from your most productive square foot crop. Compare to grocery store equivalents."}, high: {title:"Urban food security", activity:"Research how square foot gardening and similar intensive methods could contribute to urban food security. What land area would be needed to produce a significant fraction of an urban family\u2019s caloric needs?"} }
+  },
+
+  "Water from dew and transpiration bags": {
+    gradeHooks: {
+      low: "Plants release water into the air and dew forms overnight. We can collect both in an emergency!",
+      mid: "Dew collection and transpiration bags are low-tech water collection methods useful in survival situations without access to streams or rain.",
+      high: "The physics of dew formation, transpiration rates in plants, and the limitations of these collection methods for survival hydration are important topics."
+    },
+    materials: ["Clear plastic bags", "String", "A leafy shrub or branch", "A flat surface for dew collection"],
+    steps: [
+      "Transpiration bag: tie a large clear plastic bag tightly around a leafy branch (not pine or eucalyptus). Leave in full sun. Within hours, water condenses inside the bag.",
+      "Dew collection: spread a clean cloth or plastic sheet in an open area before sunrise. In humid conditions, dew will collect. Wring it out into a container.",
+      "Evaluate yield: how much water did each method produce?",
+      "Discuss: these are supplemental methods in a survival situation. They will not meet full hydration needs alone.",
+      "Safety: never use a bag on poisonous plants. The condensed water absorbs compounds from the leaves."
+    ],
+    discussion: [
+      {q:"Why does the transpiration bag need to be on a leafy branch in full sun?", answers:["Plants transpire (release water vapor through their leaves) as a byproduct of photosynthesis. Sunlight drives photosynthesis and thus transpiration. A bag traps the vapor as it condenses on the cooler bag surface."]},
+      {q:"How much water can a transpiration bag realistically collect?", answers:["Typically 100\u2013500 mL per day per bag in good conditions. This is well below the 2\u20133 liters per day required for hydration. Multiple bags are needed and this is supplementary, not a primary water source."]}
+    ],
+    challenge: "Set up both a transpiration bag and a dew collection system. Compare the yields over 24 hours. Calculate how many bags/sheets you would need for 1 liter per day.",
+    tuesday:   { low: {title:"Transpiration bag setup", activity:"Set up 3 transpiration bags on different plant species. Check at the same time the next day. Which plant produced the most water?"}, mid: {title:"Dew point research", activity:"Research dew point temperature. What conditions (humidity, temperature drop) maximize dew formation? How does Florida\u2019s climate affect dew collection potential?"}, high: {title:"Fog collection", activity:"Research fog collectors: large mesh surfaces that capture fog droplets. What designs are being used in fog-prone regions for community water supply?"} },
+    wednesday: { low: {title:"Yield scaling", activity:"If one transpiration bag produces 200 mL per day and you need 2 liters, how many bags would you need? Is this practical?"}, mid: {title:"Solar still design", activity:"Research solar still construction: a hole in the ground with plastic sheeting. How does it work and how does its yield compare to transpiration bags?"}, high: {title:"Atmospheric water generation", activity:"Research atmospheric water generators (AWGs). How do they collect water from air and what is the energy cost per liter produced?"} },
+    thursday:  { low: {title:"Plant selection for transpiration", activity:"Research which plants produce the most water through transpiration. How does leaf area, stomata density, and photosynthetic rate affect transpiration rate?"}, mid: {title:"Survival hydration priority", activity:"Research the body\u2019s water loss rate in different conditions. At what rate must supplementary sources produce water to maintain minimal hydration?"}, high: {title:"Water vapor in atmosphere", activity:"Research how much water exists in the Earth\u2019s atmosphere at any given time. How does this compare to total surface freshwater and how might atmospheric water collection contribute to future water supply?"} }
+  },
+
+  "Using a power drill safely": {
+    gradeHooks: {
+      low: "A power drill is much faster than a hand drill, but it requires careful safety rules. The power can surprise you if you\u2019re not ready!",
+      mid: "Power drill safety includes proper bit selection, workpiece securing, correct body positioning, and understanding clutch and speed settings.",
+      high: "Drill mechanics, torque clutch calibration, bit metallurgy, and the engineering of modern cordless drills are interesting technical topics."
+    },
+    materials: ["Cordless drill", "Assorted drill bits", "Scrap wood clamped to a workbench"],
+    steps: [
+      "Safety setup: wear eye protection. Secure the workpiece — never hold it in your hands.",
+      "Insert the bit: open the chuck, insert the bit fully, tighten firmly. Test the bit is secure before drilling.",
+      "Start slow: set to low speed for drilling, high torque for driving screws.",
+      "Position: grip firmly with both hands when possible. Drilling generates torque that can spin the drill if the bit catches.",
+      "Pilot holes for screws near edges: prevents wood splitting. Use a bit slightly smaller than the screw diameter."
+    ],
+    discussion: [
+      {q:"Why can a drill be dangerous if the bit catches or the drill stalls?", answers:["When a bit catches, the drill body rotates instead. The sudden spin can break your wrist or cause you to drop the drill. This is why both hands and a firm grip are critical."]},
+      {q:"What does the clutch (numbered ring) on a drill do?", answers:["The clutch limits the torque the drill delivers. Lower numbers = less torque before the clutch slips. This prevents driving screws too deep or stripping them. \u2018Drill\u2019 setting bypasses the clutch for maximum torque."]}
+    ],
+    challenge: "Drill 10 pilot holes and drive 10 screws into scrap wood. Practice consistent depth using the clutch setting. Zero stripped screws is the goal.",
+    tuesday:   { low: {title:"Bit identification", activity:"Identify 8 types of drill bits: twist, spade, Forstner, hole saw, countersink, brad point, masonry, and driver bit. What material and task is each designed for?"}, mid: {title:"Clutch calibration practice", activity:"Practice setting the clutch for different tasks: flush screw in soft wood, flush screw in hard wood, deep screw vs shallow. Find the correct clutch setting for each."}, high: {title:"Cordless drill battery technology", activity:"Research lithium-ion battery technology in power tools. What are the advantages over older NiCad batteries? What is a brushless motor and what efficiency gains does it provide?"} },
+    wednesday: { low: {title:"Speed setting comparison", activity:"Drill the same hole in scrap wood at low speed and high speed. Compare: which is more controlled? Which produces cleaner edges?"}, mid: {title:"Depth stop technique", activity:"Research methods for drilling to a consistent depth: depth stop accessories, tape-on-the-bit method, and drill press use."}, high: {title:"Torque specifications", activity:"Research torque ratings for cordless drills. What does 500 in-lbs of torque mean physically? How do you match a drill\u2019s torque to the task requirements?"} },
+    thursday:  { low: {title:"Project application", activity:"Use the drill to complete a small repair project: tighten cabinet hardware, install a coat hook, or build a simple shelf bracket."}, mid: {title:"Maintenance routine", activity:"Research cordless drill maintenance: battery storage, chuck cleaning, bit storage, and when to replace worn bits."}, high: {title:"Impact driver vs drill", activity:"Research how an impact driver delivers torque differently from a standard drill. What is the mechanism of the impact action and why does it dramatically increase screw-driving performance?"} }
+  },
+
+  "Grocery budgeting — meal planning": {
+    gradeHooks: {
+      low: "When we plan our meals before shopping, we buy only what we need and save money!",
+      mid: "Meal planning before grocery shopping reduces waste, saves money, and ensures nutritional balance throughout the week.",
+      high: "Consumer economics, food budgeting strategies, and the connection between meal planning and financial wellness are important life skills."
+    },
+    materials: ["Paper for meal plan", "Store circular or app", "Calculator"],
+    steps: [
+      "Plan 7 dinners, 7 lunches, and 7 breakfasts before making the shopping list.",
+      "Inventory your pantry and fridge: what do you already have that can be used?",
+      "Build the shopping list from the meal plan minus the inventory.",
+      "Check store circulars: can any meals be adjusted to use sale items?",
+      "Estimate the total cost before shopping. Compare to the actual receipt."
+    ],
+    discussion: [
+      {q:"How does planning meals in advance reduce food waste?", answers:["Without a plan, you buy food that looks good but has no plan for use. It sits in the fridge until it\u2019s too old. A meal plan ensures every purchased item has a scheduled use."]},
+      {q:"What is the connection between cooking at home more and reducing financial stress?", answers:["Eating out costs 3\u20135x more per meal than cooking at home. A family that cooks 5 more meals per week at home can save hundreds of dollars monthly."]}
+    ],
+    challenge: "Plan a full week of meals for your family. Build the shopping list. Go shopping with a parent and track actual vs estimated cost.",
+    tuesday:   { low: {title:"Pantry inventory", activity:"Do a complete pantry and fridge inventory. List everything available. How many meals can you make from what you have right now without shopping?"}, mid: {title:"Cost per meal calculation", activity:"Calculate the cost per serving for 5 planned meals. Which is most economical? Which provides the most protein per dollar?"}, high: {title:"Food waste economics", activity:"Research average American household food waste in dollars per year. How does meal planning affect waste rates? What is the environmental cost of food waste?"} },
+    wednesday: { low: {title:"Sale item integration", activity:"Look at this week\u2019s store circular. Build one dinner around each of the top 3 sale items."}, mid: {title:"Batch cooking efficiency", activity:"Research batch cooking: cooking large quantities once and eating throughout the week. How does it reduce time and cost compared to cooking each meal individually?"}, high: {title:"SNAP budget challenge", activity:"Research the SNAP Challenge: eating on a food stamp budget for one week. What meal planning strategies are required to eat nutritiously on $5\u20136/person/day?"} },
+    thursday:  { low: {title:"Recipe card set", activity:"Create a set of 10 family favorite recipe cards with ingredient lists that can feed into meal planning quickly."}, mid: {title:"Annual food budget", activity:"Estimate your family\u2019s monthly grocery spend. Multiply by 12. What percentage of income does this represent? Research the national average."}, high: {title:"Food security and meal planning", activity:"Research how lack of food security affects meal planning for low-income families. What barriers (transportation, storage, cooking skills, time) prevent consistent meal planning?"} }
+  },
+
+  "Night navigation — stars and landmarks": {
+    gradeHooks: {
+      low: "We can find our way at night using the stars and familiar landmarks. The North Star never moves!",
+      mid: "Night navigation uses celestial landmarks (North Star, Southern Cross) and terrestrial landmarks to maintain direction without a compass.",
+      high: "Stellar navigation, the geometry of Polaris and the celestial pole, and the history of celestial navigation are fascinating astronomy and navigation topics."
+    },
+    materials: ["Clear night with visible stars", "Star map or astronomy app"],
+    steps: [
+      "Find Polaris (North Star): locate the Big Dipper, use the two outer stars of the cup (pointer stars) and follow them about 5x their distance. Polaris is the bright star at the end.",
+      "Polaris is always within 1 degree of true north. Standing with Polaris at your back means you face south.",
+      "Identify other navigation stars: Orion\u2019s belt rises due east and sets due west. The moon rises in the east.",
+      "Terrestrial landmarks at night: lit buildings, distant glow of a city, silhouette of a ridgeline.",
+      "Practice: determine north from Polaris. Confirm with your compass."
+    ],
+    discussion: [
+      {q:"Why is Polaris useful for navigation when other stars are not?", answers:["Most stars appear to rotate around the celestial pole due to Earth\u2019s rotation. Polaris is nearly directly above the North Pole, so it appears nearly stationary at about the same altitude as your latitude."]},
+      {q:"Why does Orion\u2019s belt rise due east and set due west?", answers:["Orion\u2019s belt sits nearly on the celestial equator. Stars on the celestial equator rise and set at due east and west respectively, regardless of the observer\u2019s latitude."]}
+    ],
+    challenge: "On a clear night, locate Polaris using the Big Dipper pointer stars. Determine north and confirm with a compass. How close are they?",
+    tuesday:   { low: {title:"Big Dipper and Polaris", activity:"Print a star map for tonight\u2019s sky. Go outside and find the Big Dipper. Follow the pointer stars to Polaris. Measure its altitude above the horizon."}, mid: {title:"Latitude from Polaris", activity:"Research how Polaris altitude equals observer latitude. Measure the altitude of Polaris using a homemade inclinometer (protractor and plumb line). Compare to your actual latitude."}, high: {title:"Celestial pole geometry", activity:"Research the geometry of Earth\u2019s axial tilt, the celestial equator, and the celestial pole. Why does Polaris\u2019s altitude equal the observer\u2019s latitude?"} },
+    wednesday: { low: {title:"Moon rising direction", activity:"Observe the moon over 3 nights. Does it consistently rise in the east? How can the moon\u2019s position help you determine east and west at night?"}, mid: {title:"Southern Cross navigation", activity:"Research navigation using the Southern Cross for observers in the Southern Hemisphere. How do you locate south from the Southern Cross?"}, high: {title:"Sidereal vs solar day", activity:"Research the difference between a sidereal day and a solar day. How does Earth\u2019s orbital motion cause stars to shift by about 1 degree per day relative to the sun?"} },
+    thursday:  { low: {title:"Night walk navigation", activity:"With a parent, take a short night walk using only stars for direction. Navigate 3 blocks without a phone or compass using Polaris."}, mid: {title:"Nautical navigation history", activity:"Research how Polynesian navigators used stars, swells, and birds to navigate thousands of miles across the Pacific without instruments."}, high: {title:"GPS vs celestial accuracy", activity:"Research the accuracy of celestial navigation vs GPS. What is the typical positional error for an experienced celestial navigator vs a civilian GPS receiver?"} }
+  },
+
+  "Wild berries — safe vs toxic": {
+    gradeHooks: {
+      low: "Some wild berries are delicious and safe. Others look similar but can make us very sick. We learn which is which!",
+      mid: "Wild berry identification requires checking multiple features. Many toxic berries resemble edible ones closely enough that single-feature identification is dangerous.",
+      high: "Berry toxicology, the chemistry of poisonous berries in Florida, and systematic plant identification methodology are important topics."
+    },
+    materials: ["Field guide to Florida berries", "Photos of edible and toxic berries"],
+    steps: [
+      "Introduce Florida\u2019s safe wild berries: muscadine grape, wild blueberry, maypop (passionflower fruit), American beautyberry (with caution).",
+      "Introduce Florida\u2019s toxic berries: pokeweed (dark purple, very toxic), nightshade (red or black, deadly), coral ardisia (red, toxic), Brazil pepper (red, toxic, extremely common).",
+      "The general rule: white and yellow berries are almost always toxic. Red berries are 50/50. Blue and black are more often safe but not always.",
+      "Always check: berry cluster arrangement, leaf shape, stem type, smell, and habitat.",
+      "The 3-source rule applies: confirm with field guide, app, and one additional source before eating."
+    ],
+    discussion: [
+      {q:"Why is the color rule (blue/black safer than red) only a general guideline and not a reliable rule?", answers:["Counterexamples exist: black nightshade and inkberry are toxic black berries. Strawberries are safe red berries. Color is one clue among many, not a final determination."]},
+      {q:"What should you do if a child has eaten unknown berries?", answers:["Call Poison Control (1-800-222-1222) immediately. Bring a sample of the berries or photographs. Do not wait for symptoms. Some berry toxins act slowly."]}
+    ],
+    challenge: "Create a Florida berry identification card with 5 safe and 5 toxic berries. Include 3 ID features and the toxic look-alike for each safe berry.",
+    tuesday:   { low: {title:"Photo identification quiz", activity:"Look at 10 berry photos. Using your field guide, identify each as safe, toxic, or unknown. Check your answers."}, mid: {title:"Toxic berry chemistry", activity:"Research the toxic compounds in pokeweed (phytolaccanin), nightshade (solanine), and coral ardisia. What symptoms does each cause?"}, high: {title:"Berry toxicology cases", activity:"Research documented berry poisoning cases in Florida. What were the most common species involved and what were the clinical presentations?"} },
+    wednesday: { low: {title:"Brazilian pepper ID", activity:"Research Brazilian pepper (Schinus terebinthifolia): what does it look like and why is it so commonly mistaken for something edible? Where does it grow?"}, mid: {title:"Muscadine grape identification", activity:"Research muscadine grapes (Vitis rotundifolia): all ID features, season, habitat. What toxic plant might be confused with muscadine vines?"}, high: {title:"Cyanogenic glycosides", activity:"Research cyanogenic glycosides in elderberry seeds and unripe fruit. At what concentration are they dangerous and how does cooking affect the toxicity?"} },
+    thursday:  { low: {title:"Safe berry identification walk", activity:"With an adult, walk an area where you have pre-confirmed the presence of a safe berry. Practice identification in the field before any tasting."}, mid: {title:"Berry look-alike card", activity:"Create a look-alike identification card for 5 pairs: muscadine vs other grape, blueberry vs similar species, passionflower fruit vs toxic alternatives."}, high: {title:"Secondary compound ecology", activity:"Research why plants produce toxins in their fruits at some developmental stages and not others. What ecological purpose do berry toxins serve before vs after seed maturation?"} }
+  },
+
+  "Checking oil and coolant levels": {
+    gradeHooks: {
+      low: "Cars need oil to protect their engine and coolant to keep from overheating. We check both regularly!",
+      mid: "Regular checking of oil and coolant levels prevents two of the most common and expensive vehicle failures.",
+      high: "Engine lubrication science, coolant system thermodynamics, and the consequences of running low on either fluid are important automotive topics."
+    },
+    materials: ["Access to a vehicle (engine off and cool)"],
+    steps: [
+      "Open the hood. Identify the oil dipstick (usually yellow) and the coolant reservoir (plastic tank near the radiator).",
+      "Oil check: pull the dipstick, wipe clean, reinsert fully, pull out and read. Level should be between MIN and MAX marks.",
+      "Oil color: light amber = good. Dark black = overdue for change. Milky = coolant leak (serious, see a mechanic).",
+      "Coolant check: look at the coolant reservoir (never open the radiator cap when hot — can spray scalding fluid). Level should be between MIN and MAX when cold.",
+      "Coolant color: green, orange, or pink depending on type. Never mix different types."
+    ],
+    discussion: [
+      {q:"Why should you NEVER open the radiator cap when the engine is hot?", answers:["The cooling system is pressurized. When hot, coolant is above 212\u00b0F (kept liquid by pressure). Opening the cap releases pressure and instantly causes the coolant to flash into steam and spray scalding liquid at high velocity."]},
+      {q:"What does milky or frothy oil on the dipstick indicate?", answers:["Coolant is leaking into the oil. This is a serious problem indicating a blown head gasket or cracked engine block. The vehicle should not be driven until repaired."]}
+    ],
+    challenge: "Check oil and coolant on your family\u2019s vehicle. Report: oil level, oil color, and whether it\u2019s due for a change. Coolant level and color.",
+    tuesday:   { low: {title:"Engine bay orientation", activity:"Under adult supervision, identify every fluid reservoir in the engine bay: oil, coolant, brake fluid, power steering, windshield washer. Label each in a diagram."}, mid: {title:"Oil change interval research", activity:"Look up your vehicle\u2019s make and model in the owner\u2019s manual or online. What is the manufacturer\u2019s recommended oil change interval? Does it differ for conventional vs synthetic oil?"}, high: {title:"Engine lubrication system", activity:"Research the full engine lubrication system: oil pump, oil galleries, pressure relief valve, and oil filter. How does oil reach the top of the engine and what happens if pressure drops?"} },
+    wednesday: { low: {title:"Coolant color identification", activity:"Research why different coolant colors exist. What is the chemical difference between green (inorganic) and orange/pink (OAT/HOAT) coolants? Can you mix them?"}, mid: {title:"Overheating response", activity:"Research what to do if your temperature gauge rises into the red: pull over safely, turn off AC, turn on heater (draws heat from coolant), do not open the hood until it cools."}, high: {title:"Cooling system thermodynamics", activity:"Research how the thermostat, water pump, and radiator work together. What is the ideal engine operating temperature and why is maintaining it (not too hot or cold) important?"} },
+    thursday:  { low: {title:"Maintenance log update", activity:"Add today\u2019s oil and coolant check to your vehicle maintenance log. Note levels, colors, and any concerns."}, mid: {title:"DIY oil change research", activity:"Research the steps for a DIY oil change. What tools are needed, what safety precautions apply, and is it cost-effective vs a quick-lube service?"}, high: {title:"Biodegradable lubricants", activity:"Research bio-based engine oils and coolants. What is their performance compared to petroleum-based products and what is their environmental profile at end of life?"} }
+  },
+
+  "Wound irrigation and bandaging": {
+    gradeHooks: {
+      low: "Cleaning a wound well before bandaging it helps prevent infection. Water pressure washes out dirt and bacteria!",
+      mid: "Proper wound irrigation technique and appropriate dressing selection are key skills for managing wounds in both clinical and field settings.",
+      high: "Wound irrigation pressure, antiseptic vs saline evidence, wound closure options, and infection assessment are advanced first aid topics."
+    },
+    materials: ["Syringe (irrigation syringe if available, otherwise squeeze bottle)", "Clean water or saline", "Non-adherent dressing", "Medical tape or self-adhering bandage"],
+    steps: [
+      "Stop bleeding first with direct pressure. Once controlled, proceed to irrigation.",
+      "Irrigation: fill a syringe or squeeze bottle with clean water or saline. Irrigate from 4\u20136 inches away with moderate pressure.",
+      "Goal: visibly remove all debris and discoloration from the wound.",
+      "Pat dry gently with clean gauze. Do not rub.",
+      "Cover with a non-adherent dressing (Telfa) for moderate wounds, or a simple bandage for small abrasions. Secure with medical tape."
+    ],
+    discussion: [
+      {q:"Why has research changed recommendations away from using hydrogen peroxide to clean wounds?", answers:["Hydrogen peroxide damages healthy fibroblasts and white blood cells in the wound bed, delaying healing. Research shows clean water or saline irrigation is more effective at cleaning and doesn\u2019t impair healing."]},
+      {q:"What irrigation pressure is ideal for wound cleaning?", answers:["8\u201315 psi is the evidence-based range. This requires a syringe with an 18\u201319 gauge tip or a squeeze bottle with a direct opening. Too low misses debris; too high can push bacteria deeper."]}
+    ],
+    challenge: "Practice wound irrigation technique on a simulated wound (a marked area of skin) using a syringe. Then apply a correctly sized non-adherent dressing.",
+    tuesday:   { low: {title:"Irrigation technique", activity:"Practice irrigation with a squeeze bottle at 5, 10, and 15 inches from a target. Which distance feels like moderate pressure? Which splashes vs rinses?"}, mid: {title:"Dressing selection guide", activity:"Research wound dressing types: non-adherent, absorbent, foam, hydrocolloid, and antimicrobial. When is each appropriate based on wound type?"}, high: {title:"Wound closure options", activity:"Research the continuum of wound closure: steri-strips, staples, sutures, tissue glue. What factors determine which is used? What is the golden period for primary closure?"} },
+    wednesday: { low: {title:"Signs of infection review", activity:"Review the 5 classic signs of wound infection. Practice assessing a simulated wound for each sign using a picture or staged setup."}, mid: {title:"Antibiotic ointment evidence", activity:"Research the evidence for antibiotic ointment (bacitracin, Neosporin) vs plain petroleum jelly on minor wounds. What does current research say about which promotes faster healing?"}, high: {title:"Biofilm formation", activity:"Research bacterial biofilm formation in chronic wounds. What makes biofilm different from a simple bacterial infection and what treatments penetrate it?"} },
+    thursday:  { low: {title:"Full wound care practice", activity:"Simulate a moderate abrasion. Complete the full sequence: apply pressure, irrigate, dry, assess, dress, and bandage. Time the whole process."}, mid: {title:"Wilderness wound care", activity:"Research wound care adaptations for wilderness settings (no irrigation syringe, limited supplies). What improvised tools work and what changes when medical evacuation is hours away?"}, high: {title:"Wound healing stages", activity:"Research the 4 stages of wound healing: hemostasis, inflammation, proliferation, and remodeling. How long does each stage typically last and what factors accelerate or delay healing?"} }
+  },
+
+  "What is a mutual aid network?": {
+    gradeHooks: {
+      low: "A mutual aid network is when neighbors help each other: sharing food, skills, and supplies so everyone has what they need.",
+      mid: "Mutual aid networks are community-organized systems of reciprocal support that operate outside formal charity structures.",
+      high: "Mutual aid theory, its historical roots, its relationship to social capital, and its growing role in disaster response are important civic topics."
+    },
+    materials: ["Paper for planning"],
+    steps: [
+      "Define mutual aid: neighbors and community members helping each other based on the principle that everyone has something to offer and everyone has needs.",
+      "Distinguish from charity: charity flows from those who have to those who don\u2019t. Mutual aid is reciprocal — everyone is both giver and receiver.",
+      "Examples: neighborhood food-sharing, tool libraries, skill exchanges, childcare co-ops.",
+      "Disaster application: mutual aid networks mobilized faster than official relief in multiple recent disasters.",
+      "Discuss: what skills, resources, or knowledge could YOUR family contribute to a neighborhood mutual aid network?"
+    ],
+    discussion: [
+      {q:"Why do mutual aid networks often respond faster to local disasters than government agencies?", answers:["They\u2019re already in place, built on existing relationships. Activation requires a phone call or text, not bureaucratic authorization. Local knowledge means they know who needs what immediately."]},
+      {q:"What is the difference between mutual aid and charity?", answers:["Charity is hierarchical: givers have, receivers need. Mutual aid is horizontal: everyone participates as both giver and receiver. The relationship is of solidarity, not pity."]}
+    ],
+    challenge: "Identify what your family could contribute to a neighborhood mutual aid network. Start a conversation with one neighbor about shared resources.",
+    tuesday:   { low: {title:"Network mapping", activity:"Map your household resources: tools, skills, food surplus, extra space. What could you share? What do you sometimes need that a neighbor might have?"}, mid: {title:"COVID mutual aid networks", activity:"Research mutual aid networks that formed during COVID-19. How did they organize, what did they distribute, and how did they maintain operations?"}, high: {title:"Kropotkin and mutual aid theory", activity:"Research Peter Kropotkin\u2019s theory of mutual aid as a factor in evolution. How does it contrast with competitive survival-of-the-fittest interpretations of Darwin?"} },
+    wednesday: { low: {title:"Tool library concept", activity:"Research community tool libraries. How do they work, how are they organized, and what tools are most commonly shared?"}, mid: {title:"Time banking", activity:"Research time banking: a mutual aid currency where one hour of service equals one time credit regardless of the service type. Find examples of active time banks."}, high: {title:"Disaster mutual aid case studies", activity:"Research mutual aid response in Hurricane Maria (Puerto Rico) or Hurricane Harvey (Houston). Compare it to the official FEMA response in terms of speed, reach, and cultural competence."} },
+    thursday:  { low: {title:"Neighborhood mutual aid map", activity:"Draw a neighborhood map showing which households could contribute what (with permission). Identify gaps: what resources are lacking on your block?"}, mid: {title:"Starting a network", activity:"Research how to start a neighborhood mutual aid network. What structure, communication tools, and agreements are needed for a functional small network?"}, high: {title:"Mutual aid and social capital", activity:"Research the relationship between mutual aid participation and social capital. What do researchers find about community resilience in neighborhoods with high mutual aid activity?"} }
+  },
+
+  "Lightning safety — 30-30 rule": {
+    gradeHooks: {
+      low: "If you see lightning and hear thunder, count to 30. If you can\u2019t reach 30 before the next lightning, go inside!",
+      mid: "The 30-30 rule provides a practical framework for lightning risk assessment. Understanding why lightning is dangerous enables better decisions.",
+      high: "Lightning physics, struck and nearby strike injury mechanisms, and the statistical risk of lightning death inform evidence-based safety protocols."
+    },
+    materials: ["Phone with weather app"],
+    steps: [
+      "The 30-30 rule: when you see lightning, count seconds until you hear thunder. If 30 seconds or less, seek shelter. Wait 30 minutes after the LAST thunder before going back outside.",
+      "Explain why 30 seconds = approximately 6 miles. Sound travels about 1 mile per 5 seconds.",
+      "Safe shelter: a substantial building or a hard-top vehicle (not a convertible or open vehicle).",
+      "Unsafe shelter: under trees (lightning ground current), near water, in open fields, elevated positions, open shelters like picnic pavilions.",
+      "If caught outside: avoid being the tallest object, crouch low with feet together, don\u2019t lie flat."
+    ],
+    discussion: [
+      {q:"Why is a car a safe shelter from lightning, not because of the rubber tires?", answers:["The Faraday cage effect: lightning travels along the metal body of the car and through the tires to the ground. The metal cage directs the current around the occupants. Rubber tires play no role."]},
+      {q:"Why should you not lie flat on the ground during a lightning storm?", answers:["Ground current from a nearby strike travels outward in the soil. A person lying flat has a large surface area in contact with this current. Crouching with feet together minimizes the current path through the body."]}
+    ],
+    challenge: "Practice the 30-30 rule during the next thunderstorm. Count each lightning-to-thunder interval. Note when the 30-second threshold is crossed.",
+    tuesday:   { low: {title:"Sound distance calculation", activity:"Practice: if you count 15 seconds between lightning and thunder, how far away is the lightning? Calculate for 5, 10, 15, 20, 25, and 30 seconds."}, mid: {title:"Lightning protection systems", activity:"Research lightning rods and grounding systems on buildings. How do they work to protect structures and what is the physics of the preferred conductive path?"}, high: {title:"Lightning formation physics", activity:"Research how lightning forms: charge separation in thunderstorms, stepped leaders, return strokes, and why lightning appears to flash multiple times."} },
+    wednesday: { low: {title:"Safe vs unsafe locations chart", activity:"Make a two-column chart: safe places to be during lightning (with explanation) and unsafe places (with explanation). Aim for 8 items in each column."}, mid: {title:"Lightning injury mechanisms", activity:"Research direct strike, side flash, ground current, and contact current as the 4 mechanisms of lightning injury. Which causes the most deaths statistically?"}, high: {title:"Lightning fatality statistics", activity:"Research NOAA lightning fatality data. What activities, months, and locations have the highest fatality rates? How has the annual fatality rate changed over the past 50 years?"} },
+    thursday:  { low: {title:"Activity plan modification", activity:"For 5 common outdoor activities (soccer game, hiking, fishing, swimming, picnic), write a lightning safety plan for each: when to start monitoring, when to stop, where to go."}, mid: {title:"Florida lightning statistics", activity:"Research why Florida has more lightning deaths than any other state. What geographic and meteorological factors make Florida the \u2018lightning capital\u2019 of the US?"}, high: {title:"Ball lightning", activity:"Research ball lightning as a phenomenon. What are the documented observations, what hypotheses exist for its formation, and why is it difficult to study scientifically?"} }
+  },
+
+  "Season extension — cold frames and row covers": {
+    gradeHooks: {
+      low: "We can grow food a little longer in cool weather by covering plants with special cloth or a cold frame to keep them warm!",
+      mid: "Season extension tools increase planting windows by protecting plants from cold snaps, frost, and excessive heat.",
+      high: "Microclimate engineering, passive solar heating, and the physics of row cover and cold frame insulation enable more efficient food production."
+    },
+    materials: ["Row cover fabric (or a sheer curtain as substitute)", "Cold frame (wooden box with clear lid) or materials to build one"],
+    steps: [
+      "Row cover: a lightweight fabric that allows light and water through while trapping heat and protecting from frost. Provides 4\u20138\u00b0F of frost protection.",
+      "Floating row cover: lay directly on plants or over wire hoops. Secure the edges with soil, rocks, or pins.",
+      "Cold frame: a low box with a transparent lid (old window, polycarbonate panel). Acts like a mini greenhouse. Provides 10\u201320\u00b0F of protection.",
+      "In Florida: used primarily to protect tender plants from rare cold snaps (Dec\u2013Feb) and to provide shade cloth protection from summer heat.",
+      "Ventilation: on warm days, open or raise the lid. Trapped heat can cook plants."
+    ],
+    discussion: [
+      {q:"How does a row cover create warmth when it\u2019s just a thin fabric?", answers:["The fabric reduces convective heat loss (wind) and traps air near the plant. The trapped air, warmed by the plant and soil, creates a microclimate several degrees warmer than the surrounding air."]},
+      {q:"Why do Florida gardeners use shade cloth in summer instead of row covers?", answers:["Florida summer heat (not cold) is the limiting factor. Shade cloth blocks 30\u201350% of sunlight, reducing heat and preventing sun scorch on cool-season crops grown into warmer months."]}
+    ],
+    challenge: "Set up a cold frame or row cover over a crop and monitor the temperature difference compared to outside. Record the data for 5 days.",
+    tuesday:   { low: {title:"Cold frame construction", activity:"Build a simple cold frame from a wooden box and an old window or clear plastic panel. Place it over a garden bed."}, mid: {title:"Temperature monitoring", activity:"Place a thermometer inside your cold frame or row cover and one outside. Track the temperature difference at several times of day over 3 days."}, high: {title:"Passive solar design principles", activity:"Research how passive solar design principles apply to cold frames. How do thermal mass, orientation, and glazing material affect cold frame performance?"} },
+    wednesday: { low: {title:"Shade cloth use", activity:"Research shade cloth for Florida summer gardening. What percentage shade is appropriate for leafy greens vs fruiting vegetables?"}, mid: {title:"Season extension calendar", activity:"Using the Florida planting calendar and your season extension tools, calculate how many additional weeks of growing season each tool provides for 3 specific crops."}, high: {title:"Protected cultivation economics", activity:"Research the economics of protected cultivation (greenhouses, high tunnels) at commercial scale. How does the capital investment compare to the premium prices season-extended produce commands?"} },
+    thursday:  { low: {title:"Extended season planting", activity:"Plant a crop that would normally be past season but protect it with your season extension tool. Track its progress over 2 weeks."}, mid: {title:"Row cover comparison", activity:"Research the different weights of row cover fabric (0.5 oz vs 1.5 oz). What does heavier weight add in terms of frost protection vs light transmission reduction?"}, high: {title:"High tunnel horticulture", activity:"Research high tunnel (hoop house) horticulture. What crops benefit most, what is the construction cost per square foot, and how do high tunnels affect microclimate year-round?"} }
+  },
+
+  "Reading an Explanation of Benefits — medical bill": {
+    gradeHooks: {
+      low: "After a doctor visit, we get a paper that explains what the insurance paid and what we owe. It\u2019s called an Explanation of Benefits.",
+      mid: "Reading an EOB reveals how insurance processes claims, what your actual financial responsibility is, and how to identify errors.",
+      high: "Health insurance billing systems, provider contracts, EOB interpretation, and medical billing error rates are important health literacy topics."
+    },
+    materials: ["A sample Explanation of Benefits (EOB) or created example"],
+    steps: [
+      "Identify the 5 key columns on an EOB: billed charge, allowed amount, plan paid, member responsibility (deductible/copay/coinsurance), and your share.",
+      "Billed charge vs allowed amount: the billed charge is what the provider asks. The allowed amount is what the insurance contract allows. The difference is written off.",
+      "Your member responsibility may include: deductible (you pay 100% until the deductible is met), copay (fixed amount per visit), coinsurance (your percentage after deductible).",
+      "An EOB is NOT a bill. It is an explanation. The actual bill comes separately from the provider.",
+      "Compare the EOB to the actual bill: do they match? If not, contact the provider or insurance."
+    ],
+    discussion: [
+      {q:"What is the difference between a deductible, a copay, and coinsurance?", answers:["Deductible: amount you pay before insurance starts covering costs. Copay: fixed dollar amount per visit (e.g., $25). Coinsurance: your percentage of allowed costs after the deductible (e.g., 20% coinsurance means you pay 20% and insurance pays 80%)."]},
+      {q:"Why might your EOB show a charge of $800 but your actual bill be $150?", answers:["The $800 is the billed charge. Insurance negotiated a $500 allowed amount. Insurance paid $350, leaving $150 as your share (deductible + coinsurance). The $300 above the allowed amount is simply written off."]}
+    ],
+    challenge: "Find a real or sample EOB online. Identify every column and calculate: how much was billed, how much insurance paid, and how much you owe.",
+    tuesday:   { low: {title:"EOB terminology card", activity:"Make a glossary card for all EOB terms: billed charge, allowed amount, adjustment, plan paid, deductible, copay, coinsurance, out-of-pocket maximum."}, mid: {title:"Deductible calculation", activity:"If your deductible is $1,500 and you\u2019ve paid $900 so far this year, how much of the next $800 bill is your responsibility? (Assume 20% coinsurance after deductible.)"}, high: {title:"Network vs out-of-network", activity:"Research in-network vs out-of-network provider billing. How does the allowed amount change and what is balance billing? What does \u2018surprise billing\u2019 mean and what legislation addresses it?"} },
+    wednesday: { low: {title:"EOB error scenarios", activity:"Research how common medical billing errors are. What types of errors most commonly appear on EOBs and how do you dispute them?"}, mid: {title:"Out-of-pocket maximum", activity:"Research the out-of-pocket maximum. What does it cap and when does it reset? Calculate: if your OOP max is $5,000 and you\u2019ve paid $3,200, what is your remaining liability?"}, high: {title:"Chargemaster pricing", activity:"Research hospital chargemasters: lists of every billed charge. Why are these prices often 2\u201310x higher than the allowed amount? Who actually pays chargemaster prices?"} },
+    thursday:  { low: {title:"Insurance card interpretation", activity:"Read your family\u2019s insurance card. Identify: plan type (HMO, PPO), member ID, group number, copay amounts, and in-network deductible."}, mid: {title:"Appeals process", activity:"Research how to appeal an insurance denial. What is a denial code, how do you write an appeal letter, and what are your rights under the ACA?"}, high: {title:"Single-payer comparison", activity:"Research how EOBs and patient financial responsibility differ in single-payer healthcare systems. What administrative costs does the US multi-payer system generate compared to single-payer systems?"} }
+  },
+
+  "What is a bug-out bag?": {
+    gradeHooks: {
+      low: "A bug-out bag is a backpack ready to go at any moment with everything you need to survive for 72 hours away from home.",
+      mid: "A bug-out bag is designed for rapid evacuation: it is pre-packed, weight-optimized, and customized to your family\u2019s specific needs.",
+      high: "Bug-out bag design philosophy, weight-to-utility optimization, scenario-based customization, and the psychology of emergency preparedness are important topics."
+    },
+    materials: ["Backpack", "Complete bug-out bag contents list"],
+    steps: [
+      "Define the bug-out scenario: you have 10 minutes to leave your home permanently or for an extended period.",
+      "Core categories: shelter (emergency bivy or tarp), water (filter + purification tablets + bottles), food (3-day high-calorie rations), fire (lighter, waterproof matches), first aid (comprehensive kit), navigation (map, compass), communication (radio, charged battery), documents (copies of IDs, cash).",
+      "Weight discipline: each adult carries max 25% of body weight. Test your pack on a 1-mile walk.",
+      "Test the bag: spend one night using only what\u2019s in it. Discover gaps before you need it.",
+      "Update twice a year: medications expire, children grow, family situation changes."
+    ],
+    discussion: [
+      {q:"How is a bug-out bag different from a 72-hour kit?", answers:["A 72-hour kit is stored at home and used in place or for short-term displacement. A bug-out bag is designed to be carried on your body during extended movement through uncertain conditions. It prioritizes weight, portability, and multi-day self-sufficiency."]},
+      {q:"What is the most commonly under-estimated item in a bug-out bag?", answers:["Footwear and water purification. People often forget comfortable walking shoes and underestimate how critical a reliable water source becomes after day 1."]}
+    ],
+    challenge: "Build or audit your family\u2019s bug-out bag. Conduct the one-night use test. Document what was missing and what could be removed to reduce weight.",
+    tuesday:   { low: {title:"Bug-out bag packing", activity:"Pack your bag and weigh it. Is it within 25% of your body weight? What are the 5 heaviest items?"}, mid: {title:"One-night test", activity:"Spend one night using only what is in your bug-out bag. No other supplies. What did you discover was missing? What did you never use?"}, high: {title:"Scenario customization", activity:"Design bug-out bags for 3 different scenarios: urban emergency (24-hour notice), rapid wildfire evacuation (30 minutes), and extended grid-down (2 weeks mobile). How do the contents differ?"} },
+    wednesday: { low: {title:"Water section deep dive", activity:"Examine the water section of your bag. Can it provide safe drinking water from any source for 3 days? What methods are covered?"}, mid: {title:"Weight reduction exercise", activity:"Lay out every item. For each, ask: what is the lightest version of this I could carry? Research ultralight alternatives for your 5 heaviest items."}, high: {title:"Prepper culture analysis", activity:"Research the cultural dimensions of prepper communities. How does mainstream emergency preparedness guidance (FEMA) differ from extreme prepper philosophy? Where do they converge?"} },
+    thursday:  { low: {title:"Location and access drill", activity:"Time how fast you can grab your bug-out bag and be at the door. Can every family member do it in under 2 minutes in the dark?"}, mid: {title:"Car vs foot scenario", activity:"Compare your bug-out bag for car evacuation (more weight is OK) vs foot evacuation (every ounce matters). What would you remove for a foot evacuation?"}, high: {title:"Gray man concept", activity:"Research the \u2018gray man\u2019 concept in emergency preparedness. What is the philosophy behind blending in during a crisis and when might it be more important than carrying visibly professional-looking gear?"} }
+  },
+
+
+
+  "CPR with AED awareness": {
+    gradeHooks: {
+      low: "An AED is a machine that can restart a stopped heart. It talks you through every step so you can use it even without training!",
+      mid: "Integrating AED use with CPR requires knowing when to use the AED, how to minimize interruptions to compressions, and how to respond to the AED\u2019s prompts.",
+      high: "AED technology, ventricular fibrillation physiology, defibrillation energy levels, and the evidence for AED public access programs are important topics."
+    },
+    materials: ["AED trainer device (if available) or instructional video"],
+    steps: [
+      "Review the chain of survival: call 911 \u2192 CPR \u2192 defibrillation \u2192 advanced care.",
+      "AED is used when someone is in cardiac arrest. Continue CPR until the AED arrives and is ready.",
+      "Power on the AED. Follow the voice prompts. Attach pads: one below right collarbone, one on left side below armpit.",
+      "When AED says \u2018analyzing,\u2019 ensure no one touches the patient. If shock is advised, ensure clear and press the button.",
+      "Resume CPR immediately after the shock. Continue the CPR/AED cycle until EMS arrives or the patient recovers."
+    ],
+    discussion: [
+      {q:"Why is it important to resume CPR immediately after delivering a shock?", answers:["A shock stops all heart electrical activity to allow the heart to reset. But the heart still needs blood flow during the 2-minute reset period. CPR maintains circulation while the heart attempts to restart in a normal rhythm."]},
+      {q:"Can an AED harm someone whose heart is still beating normally?", answers:["No. AEDs analyze the heart rhythm before advising a shock. They will only advise a shock for a shockable rhythm (VF or pulseless VT). A normal rhythm will result in a \u2018no shock advised\u2019 message."]}
+    ],
+    challenge: "Find the nearest 3 AEDs to locations you visit regularly: school, library, sports facility, grocery store. Record their locations.",
+    tuesday:   { low: {title:"AED pad placement practice", activity:"Using an AED trainer or diagram, practice correct pad placement: right subclavicular and left lateral. Practice on a stuffed animal or doll."}, mid: {title:"AED prompts walkthrough", activity:"Watch an official AED training video. List every voice prompt the device gives and what action each requires."}, high: {title:"Ventricular fibrillation", activity:"Research ventricular fibrillation: what it is, what it looks like on an ECG, and why it causes cardiac arrest. Why does a shock convert VF to a normal rhythm?"} },
+    wednesday: { low: {title:"AED location mapping", activity:"Look up AED locations in your community using PulsePoint or a local registry. Map the nearest 5 to your home."}, mid: {title:"CPR/AED integration drill", activity:"Practice the full CPR + AED sequence: compressions, AED arrives, apply pads, analyze, shock, resume compressions within 10 seconds."}, high: {title:"AED public access research", activity:"Research studies on the effectiveness of Public Access Defibrillation programs. How does each minute of time-to-defibrillation affect survival rates?"} },
+    thursday:  { low: {title:"Certification research", activity:"Research Heartsaver CPR/AED courses from the American Heart Association. What age can children take it and what does it cover?"}, mid: {title:"AED maintenance", activity:"Research AED maintenance requirements: battery life, pad expiration, self-test functions. Who is responsible for AEDs in public buildings?"}, high: {title:"Wearable defibrillators", activity:"Research wearable cardioverter defibrillators (WCDs). Who uses them, how do they work, and when does a patient graduate to an implantable device?"} }
+  },
+
+  "Emergency communication plan": {
+    gradeHooks: {
+      low: "An emergency communication plan tells our whole family how to reach each other and where to meet if something goes wrong.",
+      mid: "A complete emergency communication plan addresses multiple failure scenarios: no cell service, separated family members, and out-of-area contact relay.",
+      high: "Communication redundancy, network failure modes during disasters, and the psychology of family reunification planning are important preparedness topics."
+    },
+    materials: ["Paper", "Emergency contact card template"],
+    steps: [
+      "Ask: what if there was a disaster while half your family was at school and half at work? How would you find each other?",
+      "Establish 3 meeting points: one near home, one in the neighborhood, one farther away.",
+      "Designate an out-of-state contact: local lines jam in disasters, but out-of-state calls often go through.",
+      "Text uses less network bandwidth than calls: teach everyone to text first, call second.",
+      "Create a family contact card with all numbers, addresses, and meeting points. Laminate it."
+    ],
+    discussion: [
+      {q:"Why designate three meeting points instead of one?", answers:["The nearest meeting point may be inaccessible (fire, police activity, damage). Having backup points ensures the family always has a convergence option."]},
+      {q:"Why does texting work better than calling in a disaster?", answers:["Text messages are smaller data packets and can queue and deliver even when voice calls are failing due to network congestion. SMS can get through when calls cannot."]}
+    ],
+    challenge: "Complete your family\u2019s emergency communication plan. Every member must be able to recite all 3 meeting points and the out-of-state contact from memory.",
+    tuesday:   { low: {title:"Meeting point walk-through", activity:"Walk to all 3 family meeting points. Time each from your home. Note any obstacles that might block access in an emergency."}, mid: {title:"School reunification plan", activity:"Research your school\u2019s family reunification plan. Where do parents pick up children after an emergency? What ID is required?"}, high: {title:"Disaster communication failure", activity:"Research how communication infrastructure failed during a major disaster (Hurricane Maria, Katrina). What worked? What failed? How did families communicate?"} },
+    wednesday: { low: {title:"Out-of-state contact call", activity:"Call your out-of-state emergency contact. Make sure they know their role: collect messages, relay info, track family member status."}, mid: {title:"Social media check-in", activity:"Research Facebook Safety Check and other disaster check-in tools. How do they work and what are the limitations?"}, high: {title:"HAM radio emergency use", activity:"Research amateur radio\u2019s role in disaster communication. How do HAM operators assist when commercial communications fail?"} },
+    thursday:  { low: {title:"Card lamination", activity:"Write the emergency communication plan on index cards. Laminate or seal with tape. Every family member carries one."}, mid: {title:"Workplace and school plans", activity:"Research your workplace and school emergency communication plans. Do they align with your family plan? What gaps exist?"}, high: {title:"IPAWS system", activity:"Research the Integrated Public Alert and Warning System (IPAWS). How does it coordinate wireless emergency alerts, EAS, and NOAA weather radio?"} }
+  },
+
+  "Basic electrical — how circuits work": {
+    gradeHooks: {
+      low: "Electricity flows in a loop called a circuit. If the loop is broken, the electricity stops and the light goes out!",
+      mid: "Understanding voltage, current, resistance, and their relationship in Ohm\u2019s Law enables basic electrical troubleshooting.",
+      high: "Ohm\u2019s Law, Kirchhoff\u2019s laws, and the physics of electron flow through conductors are foundational electrical engineering concepts."
+    },
+    materials: ["Battery (AA or 9V)", "Wire", "LED or small bulb", "Optional: resistors"],
+    steps: [
+      "Build the simplest circuit: connect the positive terminal of a battery to one leg of an LED, run a wire from the other LED leg back to the negative terminal. The LED lights.",
+      "Break the circuit by disconnecting one wire. The LED goes out. Electricity needs a complete loop.",
+      "Introduce Ohm\u2019s Law: V = I x R (Voltage = Current x Resistance).",
+      "Demonstrate: add a resistor in series with the LED. The light dims (less current flows).",
+      "Discuss: this is exactly how your home works. Switches break circuits, dimmers change resistance."
+    ],
+    discussion: [
+      {q:"What is the difference between voltage and current?", answers:["Voltage is the electrical pressure (like water pressure in a pipe). Current is the flow of electrons (like water flow rate). Higher voltage pushes more current through a given resistance."]},
+      {q:"Why do LED lights need a resistor in a circuit?", answers:["LEDs have very low internal resistance. Without a resistor, too much current flows and burns out the LED. The resistor limits current to a safe level."]}
+    ],
+    challenge: "Build a working circuit with a battery, resistor, and LED. Then add a switch (a piece of foil you can fold to connect or disconnect). Demonstrate on/off.",
+    tuesday:   { low: {title:"Circuit diagram drawing", activity:"Draw a circuit diagram using standard symbols: battery, wire, bulb/LED, switch. Label each component."}, mid: {title:"Ohm\u2019s Law calculations", activity:"Calculate voltage, current, or resistance for 10 scenarios using V = I x R. Which variable changes if you double the resistance?"}, high: {title:"Kirchhoff\u2019s laws", activity:"Research Kirchhoff\u2019s Current Law (KCL) and Voltage Law (KVL). How do they apply to analyzing complex circuits with multiple branches?"} },
+    wednesday: { low: {title:"Switch types", activity:"Research 5 types of switches: toggle, push-button, rotary, reed, and relay. Where is each type used in everyday life?"}, mid: {title:"Series vs parallel", activity:"Build both a series circuit (2 LEDs, one path) and a parallel circuit (2 LEDs, two paths). What happens when you remove one LED from each?"}, high: {title:"AC vs DC electricity", activity:"Research the difference between AC and DC electricity. Why does household power use AC while electronics use DC? What was the War of Currents?"} },
+    thursday:  { low: {title:"Home circuit connection", activity:"Research how the circuits in your home connect to the electrical panel. How is a house circuit similar to your battery-LED circuit, just at higher voltage?"}, mid: {title:"Multimeter basics", activity:"Research how to use a multimeter to measure voltage, current, and resistance. What safety precautions are required when measuring household circuits?"}, high: {title:"Semiconductor physics", activity:"Research how transistors work as electronic switches. How does a small base current control a larger collector current? What does this enable in computing?"} }
+  },
+
+  "Growing a full vegetable garden": {
+    gradeHooks: {
+      low: "A full vegetable garden takes planning, work, and patience. But at the end, we grow our own food!",
+      mid: "A productive vegetable garden requires soil preparation, crop selection by season, pest management, and consistent care.",
+      high: "Sustainable food production, soil ecology, integrated pest management, and the economics of home food production are important topics."
+    },
+    materials: ["Garden plot or raised bed", "Florida-appropriate seeds or transplants", "Compost"],
+    steps: [
+      "Choose your plot: at least 6 hours of direct sun per day. Most vegetables need full sun.",
+      "Prepare soil: add 3\u20134 inches of compost and work it in. Florida\u2019s sandy soil needs organic matter.",
+      "Select crops for the current season: check the UF/IFAS planting calendar for your county.",
+      "Plant according to spacing requirements. Crowding causes disease and reduces yields.",
+      "Establish a weekly routine: water, weed, check for pests, harvest as things ripen."
+    ],
+    discussion: [
+      {q:"Why does Florida\u2019s sandy soil need so much organic matter added?", answers:["Sandy soil drains too fast, doesn\u2019t hold nutrients, and has few beneficial organisms. Compost improves drainage retention, adds nutrients, and supports the soil food web."]},
+      {q:"What is integrated pest management (IPM) and how does it differ from just spraying pesticides?", answers:["IPM uses multiple approaches in order: cultural (crop rotation, resistant varieties), physical (row covers, hand-picking), biological (beneficial insects), and chemical only as a last resort. It minimizes pesticide use."]}
+    ],
+    challenge: "Plan, plant, and maintain a minimum 4x4 foot garden for one full growing season. Keep a weekly journal of progress and challenges.",
+    tuesday:   { low: {title:"Soil test", activity:"Buy or download a simple soil pH test. Test your garden soil. What pH does it show and what does that mean for your plants?"}, mid: {title:"Companion planting map", activity:"Design your garden layout using companion planting principles. Which plants benefit each other? Which need to be separated?"}, high: {title:"Soil food web", activity:"Research the soil food web: bacteria, fungi, protozoa, nematodes, arthropods. How does each organism contribute to plant nutrition and soil health?"} },
+    wednesday: { low: {title:"Watering schedule", activity:"Research how much water your chosen crops need. Design a watering schedule. How does mulch reduce watering frequency?"}, mid: {title:"Pest identification", activity:"Research the 5 most common garden pests in Florida. For each: identify it, describe the damage, and list organic control options."}, high: {title:"Yield calculation", activity:"Research average yields per square foot for your chosen crops. Calculate expected harvest from your garden and its grocery store equivalent value."} },
+    thursday:  { low: {title:"Harvest and cook", activity:"Harvest something from your garden and cook it for the family. Describe the experience of growing your own food."}, mid: {title:"Season extension", activity:"Research how Florida gardeners extend seasons: shade cloth for summer, row covers for rare cold snaps. What does each tool accomplish thermally?"}, high: {title:"Home food production economics", activity:"Calculate the full cost of establishing a 4x4 raised bed: materials, soil, seeds, water, time. Compare to grocery store value of expected yield over 3 years."} }
+  },
+
+  "Water storage and rotation schedule": {
+    gradeHooks: {
+      low: "We store water for emergencies and rotate it regularly so it stays fresh and safe.",
+      mid: "A water storage rotation schedule ensures supplies are always fresh, correctly stored, and sufficient for your family\u2019s needs.",
+      high: "Water storage chemistry, container degradation, disinfection for long-term storage, and calculating family needs are important preparedness topics."
+    },
+    materials: ["Water storage containers", "Unscented bleach", "Labels and calendar"],
+    steps: [
+      "Calculate your family\u2019s 2-week water need: 1 gallon/person/day for drinking + 0.5 gallon for sanitation = 1.5 gallons/person/day.",
+      "Store in food-grade containers only. Mark each with the fill date.",
+      "For tap water in food-grade containers: add 1/8 teaspoon of unscented liquid bleach per gallon for long-term storage.",
+      "Rotate every 6 months: use the old water for plants or cleaning, refill with fresh.",
+      "Build your FIFO system: oldest containers always in front and used first."
+    ],
+    discussion: [
+      {q:"Why add bleach to stored tap water when tap water is already treated?", answers:["Chlorine added at the treatment plant dissipates over time in storage. A small bleach addition maintains residual disinfection during extended storage, preventing bacterial regrowth."]},
+      {q:"What is the difference between a water \u2018need\u2019 vs a water \u2018want\u2019 in a disaster context?", answers:["Need: drinking (0.5 gal/person/day minimum) and basic sanitation. Want: showers, laundry, cooking as normal. Prioritizing needs first allows a smaller storage supply to last longer."]}
+    ],
+    challenge: "Calculate your family\u2019s full 2-week water storage need. Audit your current supply. What percentage of the goal do you have? Create a plan to reach 100%.",
+    tuesday:   { low: {title:"FIFO setup", activity:"Reorganize your water storage so the oldest containers are in front. Create a physical system that makes FIFO automatic."}, mid: {title:"Bleach concentration math", activity:"Research EPA guidelines for emergency water disinfection using bleach. Calculate the correct amount for 1, 5, and 55 gallon quantities."}, high: {title:"Water storage chemistry", activity:"Research what happens chemically to stored water over time. What is trihalomethane formation and how does container type affect it?"} },
+    wednesday: { low: {title:"Calendar rotation setup", activity:"Mark water rotation dates in your family calendar for the next 2 years. Commit to rotating on those dates."}, mid: {title:"Container comparison", activity:"Compare water storage options: 1-gallon jugs, 5-gallon jugs, 55-gallon barrels, WaterBOB. Calculate cost per gallon and storage space needed for each."}, high: {title:"Municipal water treatment vs home storage", activity:"Research how municipal water treatment standards differ from home storage requirements. What does a treatment plant achieve that home storage cannot replicate?"} },
+    thursday:  { low: {title:"Rotation day practice", activity:"Conduct a water rotation today. Empty the oldest containers, use the water for plants or cleaning, refill with fresh, re-label, and move to the back."}, mid: {title:"Alternative water sources", activity:"Research alternative water sources in a prolonged emergency: rainwater harvesting, swimming pool water (not potable without treatment), and nearby natural sources."}, high: {title:"Water security planning", activity:"Research how communities with water security concerns (drought regions, areas with aging infrastructure) plan for extended supply disruptions. What lessons apply to household planning?"} }
+  },
+
+  "Hand tools mastery — saw level drill": {
+    gradeHooks: {
+      low: "A hand saw cuts wood, a level tells us if something is straight, and a drill makes holes or drives screws. We learn to use each one safely!",
+      mid: "Mastering hand saw technique, bubble level reading, and drill operation enables confident basic woodworking and home repair.",
+      high: "Tool mechanics, wood grain considerations for cutting, drill bit selection, and accurate level use are foundational construction skills."
+    },
+    materials: ["Hand saw", "Bubble level", "Corded or cordless drill", "Scrap wood"],
+    steps: [
+      "Hand saw: always cut on the push stroke for most saws. Let the saw do the work — don\u2019t force it. Keep the saw at 45 degrees to the wood surface.",
+      "Start the cut with a few light pulls to establish a groove (kerf), then switch to full strokes.",
+      "Level: place the bubble level on a surface. When the bubble is centered between the lines, the surface is level. If left of center, the right side is lower.",
+      "Drill: select the correct bit for the material and purpose. Start at low speed, apply steady pressure, pull back occasionally to clear chips.",
+      "Practice each tool on scrap wood before any real project."
+    ],
+    discussion: [
+      {q:"Why do we start a saw cut with light pull strokes rather than immediately sawing full strokes?", answers:["Full strokes on unmarked wood cause the saw to skip and make ragged starts. Light pull strokes establish a groove that guides the saw accurately for the rest of the cut."]},
+      {q:"Why does a bubble level need to be checked in both directions to confirm a surface is truly level?", answers:["A surface can be level left-to-right but tilted front-to-back. True level requires checking on two perpendicular axes."]}
+    ],
+    challenge: "Cut a piece of wood to a measured length using a hand saw, verify the cut end is square with a try square, and drill a pilot hole in the center of the piece.",
+    tuesday:   { low: {title:"Saw technique drills", activity:"Practice 10 saw cuts on scrap wood. Focus on: starting groove, straight line, consistent angle. Compare early cuts to later cuts."}, mid: {title:"Square and miter cuts", activity:"Research the difference between a square cut (90\u00b0) and a miter cut (angled). Practice both. Use a speed square as a guide."}, high: {title:"Saw tooth geometry", activity:"Research how saw tooth geometry (number of teeth per inch, set, and gullet) affects cutting speed and finish quality for different wood types."} },
+    wednesday: { low: {title:"Level mastery", activity:"Use a bubble level to check 10 surfaces in your home: shelves, countertops, window sills. Which are out of level? By how much?"}, mid: {title:"Drill bit selection", activity:"Research twist bits, spade bits, Forstner bits, and hole saws. What size and type is best for: hanging a picture, drilling plumbing holes, and making a pocket hole?"}, high: {title:"Drill speed and torque", activity:"Research how drill speed (RPM) and torque settings affect different drilling tasks. Why do harder materials require lower speed and higher torque?"} },
+    thursday:  { low: {title:"Simple project", activity:"Build a small shelf bracket using hand saw cuts and drilled pilot holes. Mount it on the wall and verify level before final tightening."}, mid: {title:"Tool sharpening basics", activity:"Research how to sharpen a hand saw and how to sharpen drill bits. How does dull tooling affect work quality and safety?"}, high: {title:"Laser level technology", activity:"Research laser levels. How do they project a level line and how accurate are consumer-grade vs professional-grade instruments?"} }
+  },
+
+  "Reading bills and receipts": {
+    gradeHooks: {
+      low: "Bills and receipts tell us what we paid and what for. Reading them carefully helps us catch mistakes!",
+      mid: "Reading bills and receipts carefully helps catch errors, understand charges, and track spending patterns.",
+      high: "Consumer financial literacy includes understanding billing statements, identifying fraudulent charges, and disputing errors effectively."
+    },
+    materials: ["A utility bill, phone bill, or grocery receipt"],
+    steps: [
+      "Examine a recent bill: identify the billing period, account number, amount due, due date, and any fees.",
+      "Check the math: does the total match the itemized charges?",
+      "Look for unfamiliar charges: many bills contain fees that aren\u2019t clearly explained.",
+      "On a receipt: identify: subtotal, taxes (what percentage?), total, payment method, and change received.",
+      "Discuss: what do you do if you find an error? (Call customer service, dispute in writing, keep records)"
+    ],
+    discussion: [
+      {q:"What is a line item charge and why do companies sometimes add them without explanation?", answers:["A line item is a separate listed charge. Companies sometimes add fees (\u2018administrative fee,\u2019 \u2018service charge\u2019) that are revenue items, not actual costs, hoping customers won\u2019t notice or question them."]},
+      {q:"How long should you keep financial records like bills and receipts?", answers:["Receipts for returns: as long as the return period. Major purchases: for the life of the item. Tax-related: 3\u20137 years. Insurance claims and medical: at least 5 years."]}
+    ],
+    challenge: "Review 3 recent bills or receipts from your family. Check the math on each. Are any charges unclear? Look them up.",
+    tuesday:   { low: {title:"Receipt math check", activity:"Take a grocery receipt and verify the math: do all the prices add up to the subtotal? Is the tax percentage correct? Was change given correctly?"}, mid: {title:"Utility bill analysis", activity:"Analyze a utility bill in full: base rate, usage charges, taxes, fees. Which charges are fixed and which vary with usage?"}, high: {title:"Credit card statement", activity:"Research how to read a credit card statement: minimum payment, interest charges, available credit, and the true cost of paying only the minimum."} },
+    wednesday: { low: {title:"Fees identification", activity:"Look at 3 different bills (phone, internet, electric). List every fee beyond the base service cost. What is the total monthly in fees alone?"}, mid: {title:"Disputing a charge", activity:"Research the correct process for disputing a charge on a credit card vs a debit card. What are your protections under the Fair Credit Billing Act?"}, high: {title:"Dark patterns in billing", activity:"Research dark patterns in subscription billing: free trial auto-conversion, difficult cancellation, and unauthorized charges. What consumer protections exist?"} },
+    thursday:  { low: {title:"Bill organization system", activity:"Create a simple bill-tracking system for your family: a folder or spreadsheet with due dates, amounts, and payment status."}, mid: {title:"Annual cost calculation", activity:"Take your family\u2019s monthly bills and calculate annual costs. Which service is most expensive? Which might be reduced or eliminated?"}, high: {title:"Consumer rights research", activity:"Research the Consumer Financial Protection Bureau (CFPB). What complaints can you file? How does the Bureau enforce consumer financial protection laws?"} }
+  },
+
+  "Orienteering — trail navigation": {
+    gradeHooks: {
+      low: "Orienteering is like a treasure hunt using a map and compass. We find checkpoints hidden in the woods!",
+      mid: "Orienteering builds integrated map-and-compass skills in a real terrain context, combining route choice with accurate navigation.",
+      high: "Orienteering as a competitive sport, route choice optimization, and the cognitive skills it develops connect navigation to geography and sports science."
+    },
+    materials: ["Orienteering map or trail map", "Compass", "Pencil for marking controls"],
+    steps: [
+      "Introduce the orienteering map: more detailed than a regular topo map, with special symbols for trail features.",
+      "Orient the map: turn it until north on the map matches compass north. The map now matches the real world.",
+      "Choose a route: not always the straight line. Consider terrain, obstacles, and your skill level.",
+      "Navigate to the first control point: use a combination of map features (attack point) and compass bearing.",
+      "Practice thumb navigation: keep your thumb on the map where you currently are, moving it as you go."
+    ],
+    discussion: [
+      {q:"What is an attack point in orienteering?", answers:["A large, unmistakable feature near your destination that you navigate to first. From there, you use a precise bearing to find the smaller, harder-to-locate control point. It reduces the error area significantly."]},
+      {q:"Why is route choice important in orienteering, not just compass accuracy?", answers:["The shortest route on a map is often not the fastest on the ground. Going around a swamp, climbing a gentle ridge rather than a steep one, or following a path may be faster even if it\u2019s longer in distance."]}
+    ],
+    challenge: "Design and run a 5-control orienteering course in your neighborhood or a local park. Use handmade controls (numbered flags) and time yourself.",
+    tuesday:   { low: {title:"Map thumbing practice", activity:"Walk a trail while keeping your thumb on the map at your current location. Move it continuously as you walk."}, mid: {title:"Route choice comparison", activity:"For a given start and end point on your map, plan 3 different routes. Calculate distance and estimate travel time for each. Which would you choose and why?"}, high: {title:"Competitive orienteering", activity:"Research competitive orienteering. What are the different course types (sprint, middle, long)? What does the world-class orienteer look for when reading a map at speed?"} },
+    wednesday: { low: {title:"Control description reading", activity:"Research orienteering control descriptions. What do the symbols on a control description card mean? Practice reading 5 sample descriptions."}, mid: {title:"Re-entrant navigation", activity:"Research re-entrants (small valleys) as navigational features. Why are they frequently used as control locations in orienteering?"}, high: {title:"Flow state in navigation", activity:"Research the psychology of expert navigation. What mental processes allow experienced orienteers to read and navigate simultaneously without losing speed?"} },
+    thursday:  { low: {title:"Design your own course", activity:"Design a 3-control orienteering course for your yard or local park. Write control descriptions and draw the map."}, mid: {title:"Night orienteering", activity:"Research night orienteering with a headlamp. How does losing distant sight lines change navigation strategy? What features become more or less useful?"}, high: {title:"GPS tracking in orienteering", activity:"Research how GPS tracking is used in modern orienteering for route analysis. What does post-race route comparison reveal about elite vs beginner decision-making?"} }
+  },
+
+  "Foraging safety rules": {
+    gradeHooks: {
+      low: "Foraging means gathering wild food. The most important rule: only eat something you are 100% sure is safe!",
+      mid: "Foraging safety requires systematic identification, knowledge of toxic look-alikes, and conservative decision rules that prevent poisoning.",
+      high: "Foraging risk management, toxicology of common poisoning plants, and the cognitive biases that lead to foraging accidents are important topics."
+    },
+    materials: ["Field guide", "Plant ID app"],
+    steps: [
+      "The cardinal rule: if in doubt, leave it out. Never eat anything you cannot identify with certainty.",
+      "The 3-source rule: confirm any foraged food with at least 3 independent sources before eating.",
+      "Toxic look-alike awareness: for every edible plant you learn, immediately learn its most dangerous look-alike.",
+      "Age matters: young plants can look different from mature ones. Verify at the stage you find them.",
+      "Location matters: even safe plants can be contaminated near roads (lead), treated lawns (pesticides), or industrial areas."
+    ],
+    discussion: [
+      {q:"Why is \u2018I think it\u2019s probably safe\u2019 never acceptable for foraging?", answers:["The consequences of being wrong range from illness to death. A mistake with poison hemlock, death camas, or Amanita mushrooms can be fatal within hours. Uncertainty means don\u2019t eat it."]},
+      {q:"What does it mean for a plant to be safe in the right quantity but toxic in large amounts?", answers:["Many edible plants contain compounds that are harmless in small amounts but toxic in large doses: oxalic acid in sorrel and spinach, glucosinolates in brassicas. Safe means appropriate quantity, not unlimited consumption."]}
+    ],
+    challenge: "Create a personal foraging safety checklist with your 5 most important rules. Commit to following every rule before eating any wild plant.",
+    tuesday:   { low: {title:"Safety rule poster", activity:"Design a foraging safety poster with your 5 most important rules. Illustrate each rule. Post it in your study area."}, mid: {title:"Most dangerous look-alikes", activity:"Research the 5 most dangerous foraging mistakes in North America. What plants or mushrooms are most frequently involved in fatal poisonings?"}, high: {title:"Cognitive bias in foraging", activity:"Research confirmation bias and wishful thinking in foraging accidents. How do people convince themselves of an incorrect identification? What mental safeguards counter this?"} },
+    wednesday: { low: {title:"Wash all foraged food", activity:"Research why you should always wash foraged food even if it looks clean. What can be on the surface: pesticide drift, animal waste, soil bacteria?"}, mid: {title:"Poison Control resources", activity:"Research how to contact Poison Control (1-800-222-1222). What information do they need when someone has eaten a potentially toxic plant? Why is time critical?"}, high: {title:"Toxicology case studies", activity:"Research documented cases of foraging poisoning. Analyze what identification errors were made and how the 3-source rule would have prevented each."} },
+    thursday:  { low: {title:"Safe foraging ID practice", activity:"Identify 3 local plants as safe or unsafe using your field guide. For each safe plant, name its most dangerous look-alike."}, mid: {title:"Build a personal foraging guide", activity:"Create a laminated card with the 10 plants you\u2019ve confirmed as local edibles. For each: photo, 3 ID features, look-alike, and any preparation required."}, high: {title:"Risk-benefit analysis", activity:"Research how to think about foraging risk in a survival context. How does the risk-benefit calculation change between a casual foraging walk and a survival situation with no other food?"} }
+  },
+
+  "Vehicle parts intro — tires and oil": {
+    gradeHooks: {
+      low: "Cars need oil to keep their engine running and tires that are properly inflated to drive safely.",
+      mid: "Understanding tire condition, tire pressure, and oil level enables basic vehicle safety checks that prevent breakdowns and accidents.",
+      high: "Tire mechanics, hydroplaning physics, engine lubrication science, and the consequences of deferred vehicle maintenance are important topics."
+    },
+    materials: ["Access to a vehicle", "Tire pressure gauge", "Oil dipstick location"],
+    steps: [
+      "Tires: check tread with the penny test. Insert a penny into the tread with Lincoln\u2019s head down. If you can see all of his head, tires need replacing.",
+      "Tire pressure: check cold (before driving). Find the correct PSI on the door jamb sticker (not the tire sidewall). Overinflation and underinflation both cause problems.",
+      "Oil: engine off and cool. Find the oil dipstick (usually yellow handle). Pull out, wipe clean, reinsert fully, pull out again and check: is the oil level between the MIN and MAX marks?",
+      "Oil color: fresh oil is amber/light brown. Dark black oil is overdue for a change. Milky oil indicates coolant contamination (serious).",
+      "Check frequency: tires monthly, oil every 3,000\u20135,000 miles or per manufacturer specification."
+    ],
+    discussion: [
+      {q:"Why is checking tire pressure when the tires are cold important?", answers:["Driving heats the air inside tires, increasing pressure. Checking after driving gives an artificially high reading. Cold tire pressure is the standard for comparison to the door jamb specification."]},
+      {q:"What happens to a car engine if it runs without enough oil?", answers:["Metal parts rub directly against each other without lubrication. Friction generates extreme heat. Engine components can weld together in minutes. Complete engine failure is possible."]}
+    ],
+    challenge: "Perform a full tire and oil check on your family\u2019s vehicle. Report your findings: pressure, tread depth, and oil level.",
+    tuesday:   { low: {title:"Tire pressure gauge practice", activity:"Use a tire pressure gauge on all 4 tires plus the spare. Record each reading and compare to the door jamb specification."}, mid: {title:"Tire pressure vs handling", activity:"Research how underinflation and overinflation each affect braking distance, fuel economy, and tire wear pattern."}, high: {title:"Hydroplaning physics", activity:"Research hydroplaning: at what speed and water depth does it occur? How do tire tread depth and pressure affect hydroplaning risk?"} },
+    wednesday: { low: {title:"Oil dipstick reading", activity:"With a parent, locate and read the oil dipstick. Note: level, color, and consistency. Is the oil due for a change?"}, mid: {title:"Oil change interval research", activity:"Research synthetic vs conventional oil and how they affect change intervals. Look up your family vehicle\u2019s manufacturer recommendation."}, high: {title:"Engine lubrication system", activity:"Research the engine lubrication system: oil pump, galleries, and bearings. How does oil reach every part of the engine and why is viscosity important?"} },
+    thursday:  { low: {title:"Car maintenance log", activity:"Create a simple vehicle maintenance log for your family\u2019s car: date, mileage, and what was checked or serviced."}, mid: {title:"Complete check routine", activity:"Design a monthly vehicle safety check routine: tires (pressure, tread), fluids (oil, coolant, washer), lights, and brakes. How long does each check take?"}, high: {title:"Vehicle maintenance economics", activity:"Research the cost difference between preventive maintenance (regular oil changes, tire rotation) vs deferred maintenance (reacting to failures). Calculate 5-year costs for each approach."} }
+  },
+
+  "AED — where to find them and how they work": {
+    gradeHooks: {
+      low: "An AED is a device that can shock a stopped heart back into a normal rhythm. There might be one near you right now!",
+      mid: "Knowing how to locate AEDs in your community and use one correctly can bridge the gap between cardiac arrest and EMS arrival.",
+      high: "AED technology, ventricular fibrillation, defibrillation thresholds, and the design principles of public-access AEDs are important biomedical topics."
+    },
+    materials: ["Phone with internet access or PulsePoint app"],
+    steps: [
+      "Research: AEDs are required in many public buildings. Schools, gyms, airports, malls, and offices often have them.",
+      "Find AEDs near you: download the PulsePoint AED app, search your local fire department\u2019s registry, or ask building management.",
+      "How an AED works: analyzes heart rhythm, determines if defibrillation is needed, charges, instructs operator to deliver shock.",
+      "Two pad positions: right subclavicular (below collarbone) and left lateral (side of chest below armpit). Pads also come in pediatric sizes.",
+      "AEDs are designed for untrained users: the voice prompts guide every step."
+    ],
+    discussion: [
+      {q:"Can an AED harm a person who doesn\u2019t need a shock?", answers:["No. AEDs analyze the heart rhythm before advising a shock. If the rhythm is not shockable, the device says \u2018no shock advised.\u2019 AEDs never deliver an unsolicited shock."]},
+      {q:"Why are AED pads disposable and replaced after each use?", answers:["Pads are gel-coated conductors that adhere to the skin. After delivering a shock, the gel and pad integrity may be compromised. Single-use ensures consistent performance."]}
+    ],
+    challenge: "Map the nearest AED to 5 locations you visit weekly. Time how long it would take to retrieve each one if needed.",
+    tuesday:   { low: {title:"AED location registry", activity:"Research whether your city or county has a public AED registry. How many are registered? Are any in your neighborhood?"}, mid: {title:"Pediatric AED pads", activity:"Research pediatric AED pads and how they differ from adult pads. At what age and weight can adult pads be used? What do pediatric pads do differently?"}, high: {title:"Defibrillation threshold", activity:"Research defibrillation thresholds and biphasic vs monophasic waveforms. Why did biphasic defibrillation require less energy and produce better outcomes?"} },
+    wednesday: { low: {title:"AED pad placement drill", activity:"Practice placing AED pads (using stickers or drawn outlines) on a willing family member in the correct positions without looking at instructions."}, mid: {title:"AED maintenance program", activity:"Research who is responsible for AED maintenance in public buildings. What are the inspection requirements and what happens when an AED is used?"}, high: {title:"Wearable AED research", activity:"Research wearable cardioverter-defibrillators (WCDs). Who uses them and how does continuous monitoring compare to bystander-operated AED response?"} },
+    thursday:  { low: {title:"PulsePoint app", activity:"Download the PulsePoint app. Register as a CPR-capable bystander. Learn how the app alerts trained bystanders to nearby cardiac arrests."}, mid: {title:"AED advocacy", activity:"Research AED availability requirements in Florida schools and public buildings. Is current coverage adequate? Write a paragraph on what could be improved."}, high: {title:"Implantable defibrillator", activity:"Research implantable cardioverter defibrillators (ICDs). How do they differ from external AEDs? What arrhythmias do they treat and how are they programmed?"} }
+  },
+
+  "ICE contacts — in case of emergency": {
+    gradeHooks: {
+      low: "ICE stands for In Case of Emergency. If we label contacts on our phone this way, helpers can find them fast!",
+      mid: "ICE contacts ensure that emergency responders and medical personnel can contact family members and access critical medical information quickly.",
+      high: "Emergency contact systems, medical ID standards, HIPAA in emergency contexts, and digital vs physical contact storage are important topics."
+    },
+    materials: ["Phone", "Medical ID settings"],
+    steps: [
+      "Explain: first responders are trained to look for ICE contacts in a victim\u2019s phone.",
+      "Set up ICE contacts: add contacts labeled \u2018ICE — Mom,\u2019 \u2018ICE — Dad,\u2019 etc.",
+      "Set up the phone\u2019s Medical ID (iPhone: Health app. Android: Emergency Contacts settings). Include: name, blood type, allergies, conditions, medications.",
+      "Discuss: Medical ID is accessible from the lock screen. Paramedics can read it without unlocking the phone.",
+      "Make a physical ICE card as backup: laminated, kept in wallet or backpack."
+    ],
+    discussion: [
+      {q:"Why is it important to have ICE contacts even if you\u2019re with family when something happens?", answers:["If the whole family is in an accident, first responders may not know who is related to whom. ICE contacts help reach someone outside the immediate situation who can provide critical information."]},
+      {q:"What information should be in a Medical ID?", answers:["Name, date of birth, blood type, known allergies (especially drug allergies), current medications with dosages, chronic conditions, and emergency contacts."]}
+    ],
+    challenge: "Set up ICE contacts and a complete Medical ID on your phone. Have a parent verify the information is correct and complete.",
+    tuesday:   { low: {title:"Medical ID setup", activity:"Set up the complete Medical ID on every family member\u2019s phone. Verify it is accessible from the lock screen."}, mid: {title:"Physical ICE card", activity:"Create laminated physical ICE cards for every family member\u2019s wallet. Include: name, DOB, blood type, allergies, conditions, and 2 emergency contacts."}, high: {title:"HIPAA in emergencies", activity:"Research HIPAA provisions for emergency medical situations. When can medical information be shared without consent and what protections apply?"} },
+    wednesday: { low: {title:"ICE contact verification", activity:"Call your ICE contacts and confirm they know they are listed. Do they know what to do if they receive a call from an emergency number?"}, mid: {title:"Medical alert jewelry", activity:"Research medical alert bracelets and tags (MedicAlert, Road iD). For which conditions are they most critical? How do first responders use them?"}, high: {title:"Electronic health records in emergencies", activity:"Research how emergency rooms access patient records in your state. Is there a statewide health information exchange? What information can be accessed without prior authorization?"} },
+    thursday:  { low: {title:"Family ICE audit", activity:"Check that every family member has ICE contacts set up correctly. Test the Medical ID lock screen access on each device."}, mid: {title:"Update protocol", activity:"Create a system for updating ICE contacts: when should they be reviewed? (New medications, new address, changed contact numbers)"}, high: {title:"Digital legacy research", activity:"Research digital legacy planning: how family members access accounts and important information after a death. What tools and legal instruments exist for this?"} }
+  },
+
+  "Wiring a simple circuit with batteries": {
+    gradeHooks: {
+      low: "We build a real circuit with batteries, wires, and an LED. When the loop is complete, the light turns on!",
+      mid: "Building circuits from schematics, reading component values, and troubleshooting circuit failures are practical electronics skills.",
+      high: "Circuit analysis, Kirchhoff\u2019s laws in practice, and the fundamentals of breadboard prototyping are engineering skills."
+    },
+    materials: ["AA battery holder (2 batteries)", "LED (red or green)", "100-ohm resistor", "Hookup wire", "Breadboard (optional)"],
+    steps: [
+      "Review the circuit diagram: battery (+) \u2192 resistor \u2192 LED (long leg is +) \u2192 battery (-).",
+      "If using a breadboard: insert the resistor spanning the center gap. Connect one end to the positive rail. Insert the LED with the long leg adjacent to the resistor\u2019s free end.",
+      "Connect wires to complete the circuit. LED should light.",
+      "Add a switch: a piece of wire that can be connected or disconnected to break the circuit.",
+      "Experiment: use a different resistor value (470 ohm, 1k ohm). How does the LED brightness change?"
+    ],
+    discussion: [
+      {q:"Using Ohm\u2019s Law, if you have a 3V battery and want 20mA through your LED, what resistor do you need?", answers:["First, subtract the LED forward voltage (~2V) from supply voltage: 3V - 2V = 1V across the resistor. R = V/I = 1V / 0.02A = 50 ohms. Use the next standard value up: 56 or 68 ohms."]},
+      {q:"What happens if you connect an LED directly to a battery without a resistor?", answers:["The LED conducts freely, current spikes to a very high value, the LED overheats and fails within seconds. The resistor is not optional."]}
+    ],
+    challenge: "Build a circuit with 3 LEDs in parallel, all sharing one resistor. Do they all light? What happens to brightness compared to a single LED?",
+    tuesday:   { low: {title:"Schematic reading", activity:"Practice reading 5 simple circuit schematics. Identify each component symbol: battery, resistor, LED, switch, capacitor."}, mid: {title:"Parallel vs series LEDs", activity:"Build LEDs in series (one path, all must work) and in parallel (multiple paths). What happens when you remove one LED from each configuration?"}, high: {title:"Voltage divider", activity:"Research voltage dividers. Calculate the output voltage from a 9V battery using a 1k and 2k resistor divider. What applications use voltage dividers?"} },
+    wednesday: { low: {title:"Troubleshooting practice", activity:"Build a working circuit, then deliberately introduce a fault (wrong LED orientation, loose wire). Practice troubleshooting systematically."}, mid: {title:"Capacitor introduction", activity:"Research capacitors: what they store and how they affect circuit behavior. Add a capacitor to your circuit and observe the fade-out effect when power is disconnected."}, high: {title:"555 timer circuit", activity:"Research the 555 timer IC. Build the classic astable multivibrator (blinking LED) circuit. Calculate the blink frequency from your chosen resistor and capacitor values."} },
+    thursday:  { low: {title:"Project: nightlight", activity:"Build a simple nightlight circuit: LED, resistor, battery, and a photoresistor that turns the LED on in the dark."}, mid: {title:"Multimeter practice", activity:"Use a multimeter to measure voltage across each component in your circuit. Does the sum of voltages equal the supply voltage? (Kirchhoff\u2019s Voltage Law)"}, high: {title:"Arduino introduction", activity:"Research the Arduino microcontroller. Write a simple program to blink an LED at different rates. How does a microcontroller differ from the simple circuits you\u2019ve been building?"} }
+  },
+
+  "Soil health — composting and amendments": {
+    gradeHooks: {
+      low: "Healthy soil is full of life and nutrients. Adding compost makes soil better for growing food!",
+      mid: "Soil health involves physical structure, chemical nutrition, and biological activity. Amendments address specific deficiencies in each category.",
+      high: "Soil science, the cation exchange capacity, soil food web, and the carbon cycle\u2019s relationship to agricultural soil health are important topics."
+    },
+    materials: ["Soil samples from different locations", "Compost", "pH test strips"],
+    steps: [
+      "Collect soil from 3 locations: under a tree, in a garden bed, and from a disturbed area like a driveway edge.",
+      "Compare: texture (squeeze a moist ball — does it hold shape?), color (darker = more organic matter), smell (earthy = healthy microbes).",
+      "Test pH of each sample. Most vegetables prefer 6.0\u20137.0.",
+      "Discuss amendments: compost adds organic matter and nutrients. Lime raises pH. Sulfur lowers pH. Gypsum improves clay structure.",
+      "Apply compost to your garden area and incorporate it into the top 6 inches."
+    ],
+    discussion: [
+      {q:"Why does compost improve both sandy and clay soils, even though they have opposite problems?", answers:["Sandy soil: compost adds organic matter that holds water and nutrients. Clay soil: compost improves structure and drainage. Organic matter is the universal soil improver."]},
+      {q:"What is the difference between fertilizer and compost?", answers:["Fertilizer adds specific nutrients quickly. Compost adds nutrients slowly but also improves soil structure, water retention, and biological activity. Fertilizer without compost eventually degrades soil health."]}
+    ],
+    challenge: "Test the pH of your garden soil. If it is outside the 6.0\u20137.0 range, research what amendment would correct it and apply an appropriate amount.",
+    tuesday:   { low: {title:"Compost check", activity:"Examine your compost pile. Does it smell right (earthy, not rotten)? Is it the right moisture (damp sponge, not wet)? Adjust as needed."}, mid: {title:"Soil texture test", activity:"Research the jar test for soil texture: add soil to a jar of water, shake, let settle for 24 hours. Layers reveal percentages of sand, silt, and clay."}, high: {title:"Cation exchange capacity", activity:"Research cation exchange capacity (CEC). How does it determine how well soil holds nutrients and why does organic matter increase CEC?"} },
+    wednesday: { low: {title:"Worm farm", activity:"Research vermicomposting. Set up a small worm farm in a bin. How many worms do you need and what do you feed them?"}, mid: {title:"Cover crops", activity:"Research cover crops for Florida: sunn hemp, crimson clover, buckwheat. How does each improve soil and when do you plant them?"}, high: {title:"Mycorrhizal networks", activity:"Research mycorrhizal fungi and their symbiosis with plant roots. How do fungal networks transfer nutrients between plants? What is the \u2018wood wide web\u2019?"} },
+    thursday:  { low: {title:"Before and after", activity:"Compare plant growth in amended vs unamended soil over 4 weeks. Photograph both weekly. What differences do you observe?"}, mid: {title:"Soil biology counting", activity:"Research the Soil Food Web and the organisms in a healthy tablespoon of soil. How many bacteria, fungi, protozoa, and nematodes should a healthy soil contain?"}, high: {title:"Regenerative agriculture", activity:"Research regenerative agriculture principles. How do practices like no-till, cover cropping, and rotational grazing rebuild soil organic matter and sequester carbon?"} }
+  },
+
+  "Water storage rotation — FIFO": {
+    gradeHooks: {
+      low: "FIFO means First In, First Out. The oldest water gets used first so nothing ever gets too old!",
+      mid: "A FIFO water rotation system prevents expired water, ensures quality, and builds the habit of always having fresh stored water.",
+      high: "Supply chain management, inventory rotation systems, and the chemistry of long-term water storage are topics applicable from home to industrial settings."
+    },
+    materials: ["Your water storage containers", "Permanent marker for dating", "Shelving or organized storage area"],
+    steps: [
+      "Examine your current water storage: are all containers dated? Are the oldest ones in front?",
+      "Set up physical FIFO: newest containers go in the back, oldest in front where they will be reached first.",
+      "Date every container you fill. The date on the container is the fill date, not the expiration.",
+      "Establish rotation frequency: every 6 months for tap water in plastic, annually if treated with bleach, every 5 years for commercial water pouches.",
+      "Build rotation into a regular habit: rotate on the same date each cycle."
+    ],
+    discussion: [
+      {q:"Why does FIFO matter more for water than for emergency food?", answers:["Water in plastic containers can absorb compounds from the plastic over time, especially in heat. FIFO ensures you are always using the freshest supply and the oldest doesn\u2019t degrade unnoticed."]},
+      {q:"What should you do with water that has reached its rotation date?", answers:["Use it for watering plants, cleaning, or flushing toilets. Never pour clean water down the drain when it can serve a non-drinking purpose first."]}
+    ],
+    challenge: "Set up a complete FIFO water storage system. Date every container. Create a rotation schedule and add reminder dates to the family calendar.",
+    tuesday:   { low: {title:"Container audit", activity:"Examine every water storage container. Are any undated? Cracked? Non-food-grade? Replace any that fail the audit."}, mid: {title:"Rotation schedule design", activity:"Design a rotation schedule that staggers rotation dates so you never have to rotate everything at once. Spread rotations every 2 months."}, high: {title:"Industrial FIFO systems", activity:"Research how FIFO is implemented in commercial food storage and pharmacy inventory. What automation exists and how does it prevent product expiration at scale?"} },
+    wednesday: { low: {title:"FIFO label system", activity:"Create color-coded labels for your water rotation: red for oldest, green for newest. Apply them to your containers."}, mid: {title:"Storage environment audit", activity:"Assess your water storage environment. Temperature, light exposure, and proximity to chemicals all affect shelf life. Is your storage location optimal?"}, high: {title:"Water storage chemistry over time", activity:"Research what changes in water chemistry during long-term storage. Chlorine dissipation, pH shift, and plastic outgassing over time — what does research show?"} },
+    thursday:  { low: {title:"Rotation practice", activity:"Conduct a full rotation today: use the oldest water, refill containers, date them, and move them to the back."}, mid: {title:"Emergency water audit", activity:"Do a complete audit: quantity against goal, quality of containers, rotation dates current, and storage environment. Write a one-page status report."}, high: {title:"Long-term water storage products", activity:"Research long-term water storage products: military water pouches (5-year shelf life), Water Brick containers, and Mylar-sealed water packets. Compare cost, convenience, and shelf life."} }
+  },
+
+  "Using a hand saw safely": {
+    gradeHooks: {
+      low: "A hand saw is a sharp tool that cuts wood. We always cut away from our body and keep our fingers clear!",
+      mid: "Proper hand saw technique produces accurate cuts efficiently. Safety rules and correct body positioning prevent injury.",
+      high: "Saw tooth geometry, cut quality vs speed tradeoffs, and the materials science of cutting are important woodworking topics."
+    },
+    materials: ["Hand saw (crosscut or combination)", "Scrap wood (pine 2x4)", "Workbench or sawhorse", "Clamps"],
+    steps: [
+      "Secure the workpiece: clamp it to a workbench or sawhorse. Never hold wood in your free hand while sawing.",
+      "Mark the cut line clearly with a pencil and square.",
+      "Start the cut: hold the saw at about 45 degrees. Use light pull strokes to establish a groove (kerf).",
+      "Full cutting strokes: let the weight of the saw do the work. Don\u2019t force it.",
+      "Near the end of the cut: support the cut-off piece with your free hand so it doesn\u2019t split off and damage the workpiece."
+    ],
+    discussion: [
+      {q:"Why do we support the cut-off piece at the end of a saw cut?", answers:["As the last fibers are cut, the piece can drop suddenly, splitting or tearing the wood rather than cutting cleanly. Supporting the piece ensures a clean final cut."]},
+      {q:"What is the difference between a crosscut saw and a rip saw?", answers:["Crosscut saws have teeth angled to cut across the grain (most cuts). Rip saws have teeth angled to cut parallel to the grain (cutting wood lengthwise). Combination saws do both adequately."]}
+    ],
+    challenge: "Make 5 accurate crosscuts on marked lines. Measure the deviation of each cut end from the marked line. Goal: within 1/16 inch.",
+    tuesday:   { low: {title:"Kerf width measurement", activity:"Make a cut in scrap wood. Measure the width of the cut. This is the kerf. How must you account for kerf when making multiple pieces from one board?"}, mid: {title:"Saw selection", activity:"Research the difference between crosscut, rip, and Japanese pull saws. When would you choose each? How do teeth per inch (TPI) affect cut quality and speed?"}, high: {title:"Saw tooth metallurgy", activity:"Research saw tooth hardening processes. Why do some saws have hardened teeth that cannot be resharpened? What steel alloys are used for quality saw blades?"} },
+    wednesday: { low: {title:"Accuracy drill", activity:"Draw 5 cut lines on scrap wood. Make each cut and measure deviation. Track improvement over the 5 cuts."}, mid: {title:"Cutting to length technique", activity:"Practice \u2018splitting the line\u2019: cutting so the saw kerf is on the waste side of the line, leaving the line intact on the piece. This ensures the piece is full length."}, high: {title:"Compound miter cuts", activity:"Research compound miter cuts: simultaneously angled in two planes. Where are they used (crown molding, hip roofs) and what geometry calculations are required?"} },
+    thursday:  { low: {title:"Simple project", activity:"Cut all pieces for a small project (picture frame, simple box) using only a hand saw. Focus on clean, accurate cuts."}, mid: {title:"Saw maintenance", activity:"Research how to tension and set a hand saw for optimal performance. What does \u2018set\u2019 mean in saw terminology and why does it matter?"}, high: {title:"Japanese vs Western saws", activity:"Compare Western push saws to Japanese pull saws (ryoba). What are the biomechanical and material advantages of each? Which produces a finer cut and why?"} }
+  },
+
+  "Understanding a utility bill": {
+    gradeHooks: {
+      low: "A utility bill shows us how much electricity or water we used and how much we owe. Reading it helps us understand where money goes!",
+      mid: "Understanding a utility bill reveals usage patterns, rate structures, and opportunities for conservation that reduce costs.",
+      high: "Utility rate structures, demand charges, tiered pricing, and the policy implications of utility pricing are important economics topics."
+    },
+    materials: ["A recent electric or water bill"],
+    steps: [
+      "Identify the key sections: account information, billing period, meter readings, usage (kWh or gallons), rate breakdown, taxes and fees, and total due.",
+      "Calculate usage: ending meter reading minus beginning reading = usage this period.",
+      "Read the rate: is it a flat rate per unit or tiered (first X kWh cheaper, more expensive above that)?",
+      "Identify fixed charges: customer charge (paid regardless of usage), and any fuel adjustment charges.",
+      "Compare to previous months: is usage up or down? What could explain the change?"
+    ],
+    discussion: [
+      {q:"What is a tiered utility rate and why do utility companies use them?", answers:["Tiered rates charge more per unit as usage increases. They incentivize conservation and are considered equitable because low users (often lower-income) pay less per unit."]},
+      {q:"Why does an electric bill have a \u2018customer charge\u2019 that you pay even if you use zero electricity?", answers:["The customer charge covers the fixed cost of maintaining the connection infrastructure regardless of usage: the meter, the service wire, and administrative costs. It ensures cost recovery independent of consumption."]}
+    ],
+    challenge: "Analyze 3 months of utility bills. Create a usage graph. Identify the highest-cost month and hypothesize why.",
+    tuesday:   { low: {title:"Bill math check", activity:"Recalculate your utility bill from the usage and rate information. Does your math match the billed amount?"}, mid: {title:"Rate comparison", activity:"Research whether your utility offers time-of-use pricing. How does electricity cost differently at peak vs off-peak hours? What appliances should you shift to off-peak?"}, high: {title:"Demand charges", activity:"Research demand charges in commercial electric bills. What is a demand charge, how is the peak demand measured, and why does it disproportionately affect some businesses?"} },
+    wednesday: { low: {title:"Conservation impact", activity:"Research: what would happen to your electric bill if your family reduced usage by 10%? Calculate the monthly and annual savings."}, mid: {title:"Energy monitoring", activity:"Research smart plugs and whole-home energy monitors. How can real-time energy monitoring change consumption behavior?"}, high: {title:"Net metering", activity:"Research net metering for solar panels. How does it work, what are the billing credits, and how has utility lobbying affected net metering policies in different states?"} },
+    thursday:  { low: {title:"Bill comparison chart", activity:"Create a 12-month chart of your family\u2019s utility usage. What are the highest and lowest months? What drives the seasonal pattern?"}, mid: {title:"Low-income utility assistance", activity:"Research LIHEAP (Low Income Home Energy Assistance Program). Who qualifies, what does it cover, and how does energy cost burden affect household financial stability?"}, high: {title:"Utility deregulation", activity:"Research electricity market deregulation. In deregulated states, customers choose their electricity supplier. What are the consumer benefits and risks compared to regulated monopoly utilities?"} }
+  },
+
+
+
   "Triangulating your location on a map": {
     gradeHooks: {
       low: "If we can see two or three landmarks and find them on the map, we can figure out exactly where we are!",
