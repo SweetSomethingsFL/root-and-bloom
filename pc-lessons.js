@@ -139,6 +139,874 @@ const LS_KEY = "rootbloom_v1";
 
 const LR_LESSON_PLANS = {
 
+  "Triangulating your location on a map": {
+    gradeHooks: {
+      low: "If we can see two or three landmarks and find them on the map, we can figure out exactly where we are!",
+      mid: "Triangulation uses bearings to two or more known landmarks to pinpoint your location on a map without GPS.",
+      high: "Resection technique, bearing intersection geometry, and error triangle analysis are advanced land navigation skills."
+    },
+    materials: ["Topographic map", "Baseplate compass", "Pencil and straightedge"],
+    steps: [
+      "Identify two or three visible landmarks you can also locate on your map (hills, towers, buildings).",
+      "Take a compass bearing to the first landmark. Record the degree reading.",
+      "On the map, draw a line FROM the landmark in the direction of your back-bearing (subtract 180 degrees). You are somewhere on this line.",
+      "Repeat for the second landmark. Where the two lines cross is your position.",
+      "A third landmark creates a triangle. Your true position is in the center of the triangle."
+    ],
+    discussion: [
+      {q:"Why does a third landmark create a triangle rather than a perfect point?", answers:["No measurement is perfectly precise. Compass reading errors and map plotting errors accumulate. The triangle represents your uncertainty range. Smaller triangle = more accurate measurements."]},
+      {q:"What makes a good set of landmarks for triangulation?", answers:["Landmarks spread around you at roughly 120-degree intervals work best. Landmarks all in the same direction give a long thin triangle with high position uncertainty."]}
+    ],
+    challenge: "Triangulate your position in your neighborhood using 3 identifiable landmarks and your map. How close to your actual position are you?",
+    tuesday:   { low: {title:"Back-bearing practice", activity:"Take bearings to 5 objects. Calculate and record the back-bearing (opposite direction) for each. Verify: forward + back bearing = 180 or 360."}, mid: {title:"Two-landmark triangulation", activity:"Set up a 2-landmark triangulation exercise in your yard. Take bearings, plot lines on your map, find where they intersect."}, high: {title:"Error analysis", activity:"Research how bearing measurement errors accumulate in triangulation. How does the 60-degree rule of thumb for landmark spacing minimize position error?"} },
+    wednesday: { low: {title:"Landmark identification", activity:"Stand in front of your home. Identify and name every landmark visible that also appears on your map. Prioritize distinctive features."}, mid: {title:"Three-landmark exercise", activity:"Complete a three-landmark triangulation. Measure the error triangle and estimate the area. What was your position uncertainty in feet?"}, high: {title:"GPS triangulation comparison", activity:"Research how GPS triangulation works differently from compass triangulation. How many satellites are needed and what accuracy does GPS typically achieve?"} },
+    thursday:  { low: {title:"Landmark sketch map", activity:"Draw a sketch showing your position relative to 3 landmarks. Label each landmark and show your estimated position."}, mid: {title:"Urban triangulation", activity:"Practice triangulating in an urban environment. What makes urban triangulation harder than wilderness triangulation? What features work as landmarks?"}, high: {title:"Survey-grade triangulation", activity:"Research how land surveyors used triangulation before GPS. What was the US triangulation network and how accurate was it?"} }
+  },
+
+  "RICE method — rest ice compress elevate": {
+    gradeHooks: {
+      low: "RICE is our first aid recipe for bumps, sprains, and sore muscles. Rest, Ice, Compress, Elevate!",
+      mid: "The RICE method reduces swelling and pain in soft tissue injuries. Knowing when to use it and how long to continue each step prevents further injury.",
+      high: "The evolution from RICE to POLICE to PEACE & LOVE protocols reflects updated sports medicine understanding of optimal tissue healing."
+    },
+    materials: ["Elastic bandage", "Ice pack or frozen bag"],
+    steps: [
+      "REST: Stop the activity. Continuing on an injured joint or muscle worsens the injury.",
+      "ICE: Apply cold wrapped in a cloth for 20 minutes, then off for 20 minutes. Never apply ice directly to skin.",
+      "COMPRESSION: Wrap with an elastic bandage from below the injury upward. Snug but not cutting off circulation.",
+      "ELEVATION: Raise the injured limb above heart level to reduce blood flow and swelling to the area.",
+      "Duration: continue RICE for 24\u201348 hours after the injury. After 48 hours, gentle movement aids healing."
+    ],
+    discussion: [
+      {q:"Why do we stop icing after 20 minutes?", answers:["After 20 minutes, blood vessels near the skin constrict maximally. Continued icing provides diminishing returns and risks frostbite. The 20-on/20-off cycle maximizes benefit safely."]},
+      {q:"How do you check if a compression bandage is too tight?", answers:["Check the skin color, temperature, and sensation below the bandage every 15\u201320 minutes. Pale, numb, or cold skin means the bandage is too tight and must be loosened immediately."]}
+    ],
+    challenge: "Practice the complete RICE protocol from start to finish on a willing family member (without a real injury). Time each step correctly.",
+    tuesday:   { low: {title:"RICE scenarios", activity:"Apply RICE to 5 scenarios: twisted ankle on stairs, sore calf after running, bruised shin, wrist pain after fall, sore shoulder after lifting."}, mid: {title:"POLICE protocol comparison", activity:"Research POLICE: Protect, Optimal Loading, Ice, Compression, Elevation. What does \u2018optimal loading\u2019 mean and how does it differ from pure rest?"}, high: {title:"PEACE and LOVE protocol", activity:"Research the newest framework PEACE & LOVE (Protect, Elevate, Avoid anti-inflammatory, Compress, Educate / Load, Optimism, Vascularization, Exercise). What is the evidence base?"} },
+    wednesday: { low: {title:"Compression wrap practice", activity:"Practice wrapping an ankle with an elastic bandage 5 times. Goal: smooth, 50% overlap, even pressure from foot to mid-calf."}, mid: {title:"Anti-inflammatory debate", activity:"Research the debate around NSAIDs (ibuprofen) for acute sports injuries. New guidance suggests inflammation is part of healing. What does current evidence say?"}, high: {title:"Tissue healing stages", activity:"Research the 3 stages of soft tissue healing: inflammation, proliferation, and remodeling. How does each stage respond differently to treatment?"} },
+    thursday:  { low: {title:"First aid kit upgrade", activity:"Verify your first aid kit has: elastic bandages (multiple sizes), cold pack (instant or reusable), and medical tape."}, mid: {title:"Return to activity", activity:"Research when it is safe to return to activity after a Grade 1 ankle sprain. What functional tests should you pass first?"}, high: {title:"Chronic injury prevention", activity:"Research how inadequate recovery from acute sprains leads to chronic instability. What rehabilitation protocols have the best evidence for preventing recurrence?"} }
+  },
+
+  "Edible plants in my backyard": {
+    gradeHooks: {
+      low: "Our own backyard might have plants we can eat! We look carefully and learn which ones are safe.",
+      mid: "Identifying edible plants in your immediate environment builds practical foraging skills and local ecological knowledge.",
+      high: "Local ethnobotany, plant community ecology, and the chemistry of common edible backyard plants are fascinating science topics."
+    },
+    materials: ["Plant identification app (iNaturalist or PlantNet)", "Field guide to Florida plants"],
+    steps: [
+      "Walk your yard or a nearby green space. Photograph every plant you see.",
+      "Use iNaturalist or a Florida field guide to identify each plant.",
+      "For any potential edible: verify with at least 2 sources before touching or tasting.",
+      "Common Florida backyard edibles: dandelion (leaves and flowers), wood sorrel (clover-like, lemony), muscadine grape, passionflower fruit.",
+      "Safety rule: if there is any doubt, do not eat it. Identification must be 100% certain."
+    ],
+    discussion: [
+      {q:"Why is it important to identify plants in your specific region rather than using a general US guide?", answers:["Plant species vary significantly by region. A general guide may show a plant that looks identical to yours but is a different (possibly toxic) species not found in your area."]},
+      {q:"What is wood sorrel and how do you identify it?", answers:["Wood sorrel has heart-shaped leaflets in groups of three, small yellow or pink flowers, and a distinctive sour/lemony taste. It grows in lawns and shaded areas. Edible in small quantities."]}
+    ],
+    challenge: "Identify and photograph 5 plants in your immediate outdoor environment. Confirm which (if any) are edible using 2 sources for each.",
+    tuesday:   { low: {title:"Dandelion full use", activity:"Research dandelion: every part is edible. Compare the taste of leaves (bitter), flowers (sweet), and root (coffee substitute). Try each if available."}, mid: {title:"Backyard plant map", activity:"Create a map of your yard with every plant identified and labeled. Mark edible, non-edible, and unknown. How many edibles did you find?"}, high: {title:"Invasive edibles", activity:"Research edible invasive plants in Florida (Brazilian pepper, air potato, kudzu). How does eating invasives serve both nutrition and conservation goals?"} },
+    wednesday: { low: {title:"Passionflower identification", activity:"Research passionflower (Passiflora incarnata and others). What does the fruit look like and where does it grow in Florida? Is the whole plant edible?"}, mid: {title:"Look-alike research", activity:"For each edible you identified, research its most dangerous look-alike. What features distinguish the safe plant from the toxic one?"}, high: {title:"Secondary metabolites", activity:"Research why many edible plants taste bitter or tart. What secondary metabolites (tannins, oxalic acid, alkaloids) are present and what are their effects in large quantities?"} },
+    thursday:  { low: {title:"Edible plant recipe", activity:"Use one plant you identified to make a simple dish or tea. Research a recipe that uses that specific plant."}, mid: {title:"Seasonal availability calendar", activity:"Research which backyard edibles are available in each season in your region. Create a foraging calendar."}, high: {title:"Food forest design", activity:"Research food forest design: planting edible plants that mimic a forest ecosystem. Design a small food forest for your yard using Florida-appropriate plants."} }
+  },
+
+  "Recovery position — when to use it": {
+    gradeHooks: {
+      low: "If someone is unconscious but still breathing, we put them in the recovery position to keep their airway clear.",
+      mid: "The recovery position prevents a breathing unconscious person from choking on fluids. Knowing when and how to use it is critical first aid.",
+      high: "Airway management, the physiology of unconsciousness, and when recovery position is contraindicated are important medical topics."
+    },
+    materials: ["A willing volunteer and open floor space"],
+    steps: [
+      "When to use it: someone is unconscious, breathing, and has no suspected spinal injury.",
+      "Kneel beside the person. Extend the arm closest to you at a right angle to the body.",
+      "Bring the far arm across and place the back of their hand against their near cheek.",
+      "With your other hand, pull up the far knee to a right angle. Roll them toward you by gently pulling the bent knee.",
+      "Adjust the upper leg to stabilize. Tilt the head slightly back to keep airway open. Monitor breathing until EMS arrives."
+    ],
+    discussion: [
+      {q:"Why can\u2019t an unconscious person remain lying on their back?", answers:["An unconscious person loses muscle tone and their tongue can fall back and block the airway. Vomit can also pool and be inhaled. The recovery position uses gravity to keep the airway clear."]},
+      {q:"When should you NOT use the recovery position?", answers:["If you suspect a spinal injury from a fall, accident, or trauma. Moving the person could worsen a spinal injury. Keep them still and call 911 unless there is an immediate life-threatening airway problem."]}
+    ],
+    challenge: "Practice the recovery position on a family member until you can complete it smoothly in under 30 seconds.",
+    tuesday:   { low: {title:"Step-by-step practice", activity:"Practice the recovery position 5 times. Each time, check: is the airway open? Is the person stable? Will they roll forward without support?"}, mid: {title:"Airway anatomy", activity:"Research the anatomy of the unconscious airway. What specifically happens to the tongue and epiglottis during unconsciousness?"}, high: {title:"HAINES position", activity:"Research the HAINES (High Arm IN Endangered Spine) recovery position. When is it preferred and how does it minimize spinal movement compared to standard recovery position?"} },
+    wednesday: { low: {title:"Scenario decision tree", activity:"Create a decision tree: is the person conscious? Yes \u2192 different care. No \u2192 breathing? Yes \u2192 recovery position. No \u2192 CPR."}, mid: {title:"Monitoring the unconscious patient", activity:"Research what to monitor when maintaining a recovery position: respiratory rate, skin color, pulse. What changes indicate deterioration?"}, high: {title:"Anesthesia airway management", activity:"Research how anesthesiologists manage airways during surgery. How does this relate to the principles behind the recovery position?"} },
+    thursday:  { low: {title:"Full first aid scenario", activity:"Role play a complete first aid scenario: find unresponsive person, check response, check breathing, place in recovery position, call 911, monitor."}, mid: {title:"Modified recovery positions", activity:"Research how the recovery position is modified for pregnant women, obese patients, and children. What anatomical considerations drive each modification?"}, high: {title:"Lateral vs prone positioning", activity:"Research prone positioning in ICU patients with respiratory failure. How does the same principle (gravity for airway) apply differently in the critical care setting?"} }
+  },
+
+  "Water storage containers — food-grade only": {
+    gradeHooks: {
+      low: "We store emergency water in special containers that won\u2019t let chemicals leak into the water.",
+      mid: "Food-grade water containers use specific plastics and coatings that don\u2019t leach chemicals into stored water over time.",
+      high: "Plastic polymer types, leaching chemistry, BPA and phthalates, and the chemistry of food-safe material selection are important topics."
+    },
+    materials: ["Various containers to compare (water bottles, old milk jugs, food-grade containers)"],
+    steps: [
+      "Explain: not all plastic containers are safe for long-term water storage. Some leach chemicals into water.",
+      "Look for the resin code: #2 HDPE and #1 PETE are the safest for water. Avoid #7 (may contain BPA).",
+      "Food-grade containers are specifically manufactured to not impart flavors, odors, or chemicals to stored contents.",
+      "Best options: WaterBOB bathtub bladder, blue 5-gallon HDPE jugs, PETE water bottles.",
+      "What NOT to use: milk jugs (protein residue causes bacterial growth), non-food-grade buckets, old bleach containers."
+    ],
+    discussion: [
+      {q:"Why are milk jugs not recommended for water storage even after thorough washing?", answers:["Milk protein residue embeds in the plastic and is nearly impossible to fully remove. It creates an ideal environment for bacterial growth that can contaminate stored water."]},
+      {q:"How long can water be safely stored in food-grade containers?", answers:["Commercially sealed water: indefinitely if sealed. Tap water in clean food-grade containers: 6\u201312 months (rotate regularly). Add unscented bleach at 8 drops/gallon to extend shelf life."]}
+    ],
+    challenge: "Audit all water storage containers in your home. Identify the resin code on each. Replace any non-food-grade containers.",
+    tuesday:   { low: {title:"Resin code identification", activity:"Find the resin identification code (triangle with number) on 10 plastic items. Which are food-safe? Which should never be used for water storage?"}, mid: {title:"Container size calculation", activity:"Calculate how many gallons your family needs for 2 weeks. Research the cost and space requirements for that amount in 5-gallon jugs vs 1-gallon jugs."}, high: {title:"BPA and phthalate chemistry", activity:"Research BPA (bisphenol A) and phthalates. What are they, how do they leach, and what health effects are associated with chronic low-level exposure?"} },
+    wednesday: { low: {title:"Container labeling system", activity:"Label all your water storage containers with: fill date, rotation date, and water source. Set a calendar reminder for rotation."}, mid: {title:"Water treatment before storage", activity:"Research whether tap water needs treatment before storage. What is the correct amount of unscented bleach to add per gallon for long-term storage?"}, high: {title:"HDPE and PETE polymer chemistry", activity:"Research the chemical structure of HDPE and PETE plastics. What properties make them food-safe compared to other polymer types?"} },
+    thursday:  { low: {title:"Storage location audit", activity:"Assess where your water containers are stored. Are they in a cool, dark location? Away from gasoline, pesticides, or chemicals? Sunlight accelerates degradation."}, mid: {title:"Emergency bathtub storage", activity:"Research WaterBOB and similar bathtub water storage bladders. How much water do they hold, how quickly can they be filled, and what is the shelf life?"}, high: {title:"Bottled water industry", activity:"Research the bottled water industry: where does it come from, how is it regulated (vs tap water), and what is the environmental impact of single-use plastic water bottles?"} }
+  },
+
+  "What is a circuit breaker?": {
+    gradeHooks: {
+      low: "A circuit breaker is a safety switch that turns off electricity if too much flows through a wire. It protects our home from fire!",
+      mid: "Circuit breakers protect electrical circuits from overloads and short circuits by automatically interrupting current flow.",
+      high: "Electrical circuit protection, thermal-magnetic trip mechanisms, AFCI vs GFCI vs standard breakers, and electrical panel design are important electrical topics."
+    },
+    materials: ["Access to your home\u2019s electrical panel"],
+    steps: [
+      "Locate your electrical panel (usually in a utility room, garage, or hallway). Open it with a parent.",
+      "Identify the main breaker (usually at the top): turns off all power to the home.",
+      "Identify individual circuit breakers. Each controls a different area or appliance.",
+      "Explain how a breaker works: when current exceeds the rated amperage, a bimetallic strip heats, bends, and trips the switch.",
+      "Demonstrate: a tripped breaker is in the middle position. To reset: push fully to OFF, then to ON."
+    ],
+    discussion: [
+      {q:"Why does a circuit breaker trip instead of just letting the extra current flow?", answers:["Excess current generates heat in the wiring. Without the breaker tripping, wires overheat inside walls and start fires. The breaker sacrifices convenience to prevent disaster."]},
+      {q:"If a breaker trips repeatedly after resetting, what should you do?", answers:["Do not keep resetting it. A repeatedly tripping breaker indicates a persistent overload or fault condition. Unplug devices on that circuit and call an electrician if it continues."]}
+    ],
+    challenge: "Create a complete circuit directory for your electrical panel: label what each breaker controls. Test by briefly switching each off.",
+    tuesday:   { low: {title:"Panel directory project", activity:"Label every circuit in your panel. Test each by turning it off and seeing what loses power. Create a permanent directory."}, mid: {title:"Breaker ratings", activity:"Research 15-amp vs 20-amp circuit breakers. What determines the rating? How can you tell which appliances require a 20-amp circuit?"}, high: {title:"Trip mechanism physics", activity:"Research the thermal-magnetic trip mechanism in circuit breakers. How does the bimetallic strip respond to sustained overload differently from how the magnetic mechanism responds to a short circuit?"} },
+    wednesday: { low: {title:"Main breaker practice", activity:"With a parent, practice using the main breaker to cut all power to the home. Discuss: when would you need to do this in an emergency?"}, mid: {title:"GFCI vs circuit breaker", activity:"Research the difference between GFCI protection and circuit breaker protection. What does each protect against? Can a circuit have both?"}, high: {title:"Smart circuit breakers", activity:"Research smart circuit breakers (Leviton, Square D Wiser). What monitoring and remote control features do they offer and how do they aid in energy management and safety?"} },
+    thursday:  { low: {title:"Emergency power cutoff drill", activity:"Practice: someone calls that there is a sparking outlet. Walk to the panel, identify the correct breaker, switch it off. Time the response."}, mid: {title:"Service panel capacity", activity:"Research how to calculate remaining capacity in a service panel. What happens when a homeowner wants to add a new circuit to a full panel?"}, high: {title:"Arc fault protection code", activity:"Research NEC (National Electrical Code) requirements for AFCI protection. Which circuits require AFCI protection in new construction and why?"} }
+  },
+
+  "Making pickles — lacto-fermentation": {
+    gradeHooks: {
+      low: "Fermented pickles use salt and naturally occurring bacteria to preserve vegetables. No vinegar needed — the bacteria do the work!",
+      mid: "Lacto-fermentation uses Lactobacillus bacteria to produce lactic acid, lowering pH and creating a self-preserving environment.",
+      high: "Fermentation biochemistry, the role of beneficial bacteria, probiotic health effects, and the history of fermentation are fascinating topics."
+    },
+    materials: ["Cucumbers or other vegetables", "Non-iodized salt", "Water", "Glass jar", "Weight to keep vegetables submerged"],
+    steps: [
+      "Make brine: 1 tablespoon non-iodized salt per 2 cups water. Stir until dissolved. Do not use iodized salt — iodine kills beneficial bacteria.",
+      "Pack vegetables tightly into a clean glass jar. Add garlic, dill, or peppercorns for flavor.",
+      "Pour brine over vegetables, ensuring all are submerged. Place a weight on top.",
+      "Cover loosely (not airtight) and leave at room temperature for 3\u20135 days.",
+      "Taste daily after day 2. When sour enough, cap and refrigerate. They keep for months."
+    ],
+    discussion: [
+      {q:"Why must all vegetables stay submerged below the brine?", answers:["Lacto-fermentation is anaerobic (without oxygen). Vegetables above the brine are exposed to oxygen, which allows mold rather than beneficial bacteria to grow."]},
+      {q:"Why does the jar need to be loosely covered, not sealed airtight?", answers:["Fermentation produces CO2 gas. A sealed jar would build pressure and could explode. A loose cover allows gas to escape while keeping debris out."]}
+    ],
+    challenge: "Make a batch of lacto-fermented pickles. Taste them on day 3, 5, and 7. Describe how the flavor changes over time.",
+    tuesday:   { low: {title:"Taste test timeline", activity:"Compare your pickles on days 3, 5, and 7. Describe the flavor, sourness, and texture at each stage. Which do you prefer?"}, mid: {title:"pH testing", activity:"Use pH strips to test the brine pH at the start and after 5 days of fermentation. What pH indicates sufficient lactic acid production?"}, high: {title:"Lactobacillus biology", activity:"Research Lactobacillus bacteria: their metabolism, how they outcompete pathogens, and the specific strains active in vegetable fermentation."} },
+    wednesday: { low: {title:"Fermented foods research", activity:"Research other lacto-fermented foods from around the world: kimchi (Korea), sauerkraut (Germany), injera (Ethiopia), kvass (Russia). What vegetables or grains are used?"}, mid: {title:"Probiotic health effects", activity:"Research the evidence for probiotic health effects from fermented foods. What does current research say about gut microbiome and fermented food consumption?"}, high: {title:"Fermentation biochemistry", activity:"Research the biochemical pathway of lacto-fermentation: glucose \u2192 pyruvate \u2192 lactic acid. What enzyme catalyzes the final step and why does lactic acid accumulation lower pH?"} },
+    thursday:  { low: {title:"Refrigerator pickles vs fermented", activity:"Compare lacto-fermented pickles to vinegar pickles: taste, texture, shelf life, and nutritional differences. Which do you prefer and why?"}, mid: {title:"Fermentation troubleshooting", activity:"Research common fermentation problems: kahm yeast (white film), soft vegetables, off-smells. What causes each and how do you fix them?"}, high: {title:"Fermentation history", activity:"Research the history of fermentation as a food preservation technology. How did fermentation enable human settlement and food security before refrigeration?"} }
+  },
+
+  "Solar disinfection of water — SODIS": {
+    gradeHooks: {
+      low: "We can clean water using just sunlight and a clear plastic bottle! UV rays from the sun kill germs in the water.",
+      mid: "SODIS (Solar Water Disinfection) is a low-cost method using UV-A radiation and heat to inactivate pathogens in water.",
+      high: "The photobiology of UV inactivation, SODIS limitations, and evidence from field studies in developing countries are important public health topics."
+    },
+    materials: ["Clear PET plastic bottles (1\u20132 liter)", "Clean water", "Direct sunlight"],
+    steps: [
+      "Use only clear PET plastic bottles (the recycling number 1). Green or colored plastic blocks UV rays.",
+      "Fill with water that is as clear as possible. If turbid, filter first through a cloth or coffee filter.",
+      "Seal and place on a reflective surface in direct sunlight for minimum 6 hours.",
+      "If overcast: extend to 2 full days of daylight exposure.",
+      "Once treated, the water is safe from biological threats but does not remove chemicals or heavy metals."
+    ],
+    discussion: [
+      {q:"Why must the water be relatively clear before using SODIS?", answers:["Turbid (cloudy) water contains particles that shelter pathogens from UV rays. The particles act as a shield. Filtering first removes the shelter and allows UV to reach all pathogens."]},
+      {q:"What does SODIS not protect against?", answers:["SODIS does not remove chemicals, heavy metals, or salt. It also has limited effect against some bacterial spores. It is most appropriate for biologically contaminated surface water."]}
+    ],
+    challenge: "Set up a SODIS experiment: treat a clear bottle and a colored bottle simultaneously. After 6 hours, compare turbidity visually.",
+    tuesday:   { low: {title:"UV demonstration", activity:"Research how UV light affects bacteria. Use a UV flashlight on surfaces and observe what glows. Discuss: this is similar to what UV does inside bacteria."}, mid: {title:"Temperature contribution", activity:"Research how heat (when bottles exceed 50\u00b0C / 122\u00b0F) synergistically improves SODIS effectiveness. How do reflective surfaces increase temperature?"}, high: {title:"Inactivation kinetics", activity:"Research UV inactivation kinetics. What is the D-value (decimal reduction time) for E. coli under SODIS conditions and how is it used to determine required exposure time?"} },
+    wednesday: { low: {title:"SODIS scenario planning", activity:"In what emergency scenarios would SODIS be your best option? When would it be inadequate? Create a decision guide."}, mid: {title:"SODIS field studies", activity:"Research field studies of SODIS effectiveness in developing countries. What reduction in diarrheal disease incidence has been documented?"}, high: {title:"PhotoFenton enhancement", activity:"Research the PhotoFenton process as an enhancement to SODIS. How does adding a small amount of citrus juice or iron improve pathogen inactivation?"} },
+    thursday:  { low: {title:"Full water treatment comparison", activity:"Compare your 4 purification methods: boiling, tablets, ceramic filter, and SODIS. In which scenario is each your best choice?"}, mid: {title:"Emergency kit integration", activity:"Research how SODIS fits into a multi-method emergency water strategy. What other methods complement it and cover its limitations?"}, high: {title:"Large-scale solar disinfection", activity:"Research solar water disinfection systems scaled beyond individual bottles: compound parabolic collectors and solar pasteurization systems. What volumes can they treat?"} }
+  },
+
+  "Debris hut shelter basics": {
+    gradeHooks: {
+      low: "A debris hut is built from sticks and leaves found in the forest. It can keep you warm without any equipment!",
+      mid: "A debris hut uses natural insulation principles to retain body heat in a survival situation. Construction technique determines its effectiveness.",
+      high: "Heat transfer modes (conduction, convection, radiation), insulation R-value, and the physics of why a debris hut works are engineering topics."
+    },
+    materials: ["Outdoor space with sticks, leaves, and debris", "Or a scale model indoors"],
+    steps: [
+      "Choose a site: protected from wind, not in a low spot where cold air pools, not under dead branches.",
+      "Build the ridgepole: a long sturdy branch supported by a forked stick at one end and the ground at the other. Long enough for your body plus 1 foot.",
+      "Add ribbing: branches leaning against both sides of the ridgepole like fishbones.",
+      "Pile debris (leaves, pine needles, dry grass): 3\u20134 feet thick on all sides. The thicker the better for insulation.",
+      "Fill the inside with debris for bedding. The smaller the interior, the faster it heats up."
+    ],
+    discussion: [
+      {q:"Why is a smaller interior better in a debris hut?", answers:["Your body heat warms the air inside. A smaller space requires less heat to warm. A large interior loses heat faster than your body produces it."]},
+      {q:"What makes dry leaves effective insulation?", answers:["Dead air trapped between leaves has very low thermal conductivity. It is the trapped air, not the leaves themselves, that prevents heat loss."]}
+    ],
+    challenge: "Build a full-scale debris hut frame in your yard. Test the interior with a thermometer on a cool morning compared to the outside temperature.",
+    tuesday:   { low: {title:"Insulation experiment", activity:"Fill 3 containers with hot water and insulate one with dry leaves, one with wet leaves, and leave one bare. Which stays warm longest?"}, mid: {title:"Heat transfer modes", activity:"Research the 3 modes of heat transfer: conduction (contact), convection (moving air), and radiation (electromagnetic). How does a debris hut address each?"}, high: {title:"R-value calculation", activity:"Research how insulation R-value is calculated. Estimate the R-value of a 3-foot-thick layer of dry leaves compared to modern building insulation."} },
+    wednesday: { low: {title:"Site selection practice", activity:"Walk your yard or a local park. Identify 3 potential debris hut sites. Evaluate each for: wind protection, drainage, available materials."}, mid: {title:"Debris availability assessment", activity:"Research what debris is most effective for insulation. Compare: dry leaves, pine needles, dry grass, moss, and bark. What makes each better or worse?"}, high: {title:"Vernacular shelters comparison", activity:"Research vernacular shelters from different climates that use similar debris/earth insulation principles: earth lodges, grass huts, turf houses. How do they apply the same thermal principles?"} },
+    thursday:  { low: {title:"Overnight test", activity:"With family supervision, sleep in your debris hut for a portion of the night. Was it warmer than expected? What would you improve?"}, mid: {title:"Waterproofing additions", activity:"Research how to add waterproofing to a debris hut: bark shingles, pine boughs, layering technique. How is waterproofing different from insulation?"}, high: {title:"Thermal modeling", activity:"Research simple thermal modeling of shelters. Using heat transfer equations, estimate the interior temperature of a debris hut in 40\u00b0F weather with a single occupant generating 80 watts of heat."} }
+  },
+
+  "Interest — how savings grows": {
+    gradeHooks: {
+      low: "When we save money at the bank, it grows! The bank pays us a little extra called interest for keeping our money there.",
+      mid: "Understanding how compound interest works mathematically reveals why starting to save early creates dramatically larger long-term wealth.",
+      high: "Compound interest mathematics, the Rule of 72, inflation-adjusted returns, and the time value of money are foundational financial concepts."
+    },
+    materials: ["Calculator or spreadsheet"],
+    steps: [
+      "Simple interest: Interest = Principal x Rate x Time. $1,000 at 5% for 3 years = $150 interest.",
+      "Compound interest: interest earns interest. Year 1: $1,000 + 5% = $1,050. Year 2: $1,050 + 5% = $1,102.50.",
+      "Use a spreadsheet or calculator to show growth of $1,000 over 10, 20, and 30 years at 5% compound.",
+      "Show the dramatic difference between starting at age 15 vs age 25 vs age 35.",
+      "Introduce the Rule of 72: divide 72 by the interest rate to estimate doubling time."
+    ],
+    discussion: [
+      {q:"If you invest $1,000 at 6% compound interest, how long until it doubles?", answers:["72 / 6 = 12 years. After 12 years you have approximately $2,000. After 24 years, $4,000. After 36 years, $8,000. This is the power of compound interest over time."]},
+      {q:"What is the real return on savings and why does it matter?", answers:["Real return = nominal interest rate minus inflation. If savings earns 3% but inflation is 4%, your money is losing purchasing power. Real return is negative."]}
+    ],
+    challenge: "Use a compound interest calculator to compare: $1,000 invested at age 15 vs $1,000 at age 25, both at 7% until age 65. What is the difference?",
+    tuesday:   { low: {title:"Compound interest table", activity:"Build a compound interest table for $100 at 5%: show the balance each year for 10 years. Watch how the growth accelerates."}, mid: {title:"Rule of 72 practice", activity:"Apply the Rule of 72 to 6 different interest rates (2%, 3%, 5%, 7%, 10%, 12%). How long does each take to double your money?"}, high: {title:"Continuous compounding", activity:"Research continuous compounding using the formula A = Pe^(rt). How does daily compounding compare to monthly and annual compounding at the same rate?"} },
+    wednesday: { low: {title:"Starting early comparison", activity:"Compare saving $1,000 at age 10 vs $1,000 at age 20 vs $1,000 at age 30, all at 6% until age 60. What is the final value of each?"}, mid: {title:"Inflation adjustment", activity:"Research the average US inflation rate over the past 30 years. Recalculate your compound interest scenarios adjusting for inflation. What is the real purchasing power of each result?"}, high: {title:"Present value vs future value", activity:"Research the time value of money concept. Calculate the present value of $10,000 received in 20 years at a 5% discount rate. Why does this concept matter for investment decisions?"} },
+    thursday:  { low: {title:"Savings account opening", activity:"Research a real youth savings account with the best available APY. Calculate how much $500 would grow in that account over 5 years."}, mid: {title:"Index fund comparison", activity:"Research the historical average return of the S&P 500 index. Compare the long-term growth of $1,000 in a savings account (3%) vs an index fund (7% historical average)."}, high: {title:"Opportunity cost of spending", activity:"Calculate the opportunity cost of spending $50 on entertainment today vs investing it at 8% for 40 years. Present this as a persuasive argument for intentional spending decisions."} }
+  },
+
+  "Magnetic declination and true north": {
+    gradeHooks: {
+      low: "A compass points to magnetic north, not true north. They\u2019re a little different! We learn to adjust for this difference.",
+      mid: "Magnetic declination is the angular difference between magnetic north and true north. Adjusting for it is necessary for accurate navigation.",
+      high: "Geomagnetic field dynamics, isogonic lines, and the implications of a shifting magnetic pole for navigation systems are fascinating geophysics topics."
+    },
+    materials: ["Compass", "Topographic map showing declination", "Calculator"],
+    steps: [
+      "Explain: true north is the geographic North Pole. Magnetic north is where a compass needle points — currently in northern Canada.",
+      "The difference between them at your location is called magnetic declination. In Florida, it is approximately 5\u20136 degrees west.",
+      "Look at the declination diagram in the map margin. It shows the angle between true and magnetic north.",
+      "Applying declination: if your map bearing is 030\u00b0 (true north) and declination is 6\u00b0 west, your compass bearing is 030\u00b0 + 6\u00b0 = 036\u00b0.",
+      "Practice: convert 5 true north bearings to magnetic compass bearings using Florida\u2019s declination."
+    ],
+    discussion: [
+      {q:"Why does magnetic declination change depending on where you are?", answers:["The Earth\u2019s magnetic field is not uniform. The molten iron in the outer core creates a complex field that points different directions at different locations on the surface."]},
+      {q:"Why does magnetic declination change over time?", answers:["The Earth\u2019s molten outer core is constantly moving, which shifts the magnetic field. Declination values on maps are updated periodically as the field drifts. Currently, magnetic north is drifting toward Siberia."]}
+    ],
+    challenge: "Look up the current declination for your specific location using NOAA\u2019s magnetic declination calculator. Apply it to 5 bearings on your local map.",
+    tuesday:   { low: {title:"Declination diagram", activity:"Find the declination diagram on a topographic map. Draw it and label: true north, magnetic north, and the declination angle."}, mid: {title:"Bearing conversion practice", activity:"Convert 10 true bearings to magnetic bearings using Florida\u2019s current declination. Then convert 10 magnetic to true."}, high: {title:"Geomagnetic reversal history", activity:"Research geomagnetic reversals: when the north and south poles swap. How often do they occur, how long do they take, and what effects might a reversal have?"} },
+    wednesday: { low: {title:"NOAA declination tool", activity:"Use the NOAA National Centers for Environmental Information magnetic declination calculator online. What is your exact local declination?"}, mid: {title:"Adjustable compass", activity:"Research compasses with adjustable declination. How do they work and what are the advantages of having declination pre-set?"}, high: {title:"Magnetic pole drift", activity:"Research the current rate of magnetic north pole drift. Where was it in 1900, 1950, and today? Project where it might be in 2050."} },
+    thursday:  { low: {title:"Navigation exercise with declination", activity:"Navigate a 3-point compass course in your neighborhood, applying declination to all bearings. Compare to a previous navigation without declination adjustment."}, mid: {title:"Aviation and declination", activity:"Research how aviation charts handle magnetic declination. What are isogonic lines and how do pilots use them?"}, high: {title:"GPS and true north", activity:"Research whether GPS uses true north or magnetic north. How does this affect the integration of GPS with compass navigation? What conversion is needed?"} }
+  },
+
+  "Taping an ankle — basic wrap": {
+    gradeHooks: {
+      low: "Wrapping an ankle after a sprain helps support it and reduce swelling. We learn the right way to do it!",
+      mid: "Proper ankle wrapping provides compression and mild support. Technique matters: too loose is ineffective, too tight can cut off circulation.",
+      high: "Ankle taping mechanics, the difference between compression wrapping and functional taping, and evidence for their effectiveness are sports medicine topics."
+    },
+    materials: ["Elastic bandage (2\u20133 inch width)", "Optional: pre-wrap foam"],
+    steps: [
+      "Position the foot at 90 degrees (neutral position). Never wrap in plantar flexion (pointed down).",
+      "Start 2\u20133 inches below the injury. Make 2 anchor wraps around the foot just below the toes.",
+      "Work upward with overlapping spiral wraps, covering 50% of each previous layer.",
+      "Cross the ankle in a figure-8 pattern for added lateral support.",
+      "Finish above the ankle with 2 anchor wraps. Secure with clips or tape. Check: can you slide two fingers under the wrap?"
+    ],
+    discussion: [
+      {q:"Why do we wrap starting below the injury and working upward?", answers:["Wrapping upward follows venous blood flow back toward the heart. Wrapping downward traps blood and fluid in the lower extremity, increasing swelling."]},
+      {q:"What are the signs that an ankle wrap is too tight?", answers:["Numbness, tingling, skin color changes (pale or blue), loss of pulse in the foot, or significant pain in the toes. Check circulation every 15\u201320 minutes."]}
+    ],
+    challenge: "Practice ankle wrapping on a family member until you can complete it smoothly with correct technique in under 2 minutes.",
+    tuesday:   { low: {title:"Figure-8 pattern practice", activity:"Practice the figure-8 ankle wrapping pattern 5 times. Focus on consistent tension and 50% overlap throughout."}, mid: {title:"Athletic vs medical taping", activity:"Research the difference between elastic compression bandaging (ACE bandage) and rigid athletic taping (white athletic tape). When is each appropriate?"}, high: {title:"Kinesiology taping", activity:"Research kinesiology tape (K-tape). What does research say about its effectiveness for ankle injuries? How does the mechanism differ from compression wrapping?"} },
+    wednesday: { low: {title:"Pressure check protocol", activity:"After wrapping, teach the 5-point circulation check: skin color, temperature, capillary refill, sensation, and ability to wiggle toes."}, mid: {title:"Wilderness ankle wrap", activity:"Research how to improvise an ankle wrap in a wilderness setting using available materials: bandana, t-shirt strips, or compression sock."}, high: {title:"Prophylactic taping", activity:"Research prophylactic ankle taping for athletes with previous sprain history. What does the evidence say about injury prevention vs performance effects?"} },
+    thursday:  { low: {title:"Scenario practice", activity:"Act out a complete trail injury response: someone rolls their ankle, you perform RICE and apply an ankle wrap, then help them to safety."}, mid: {title:"Splinting addition", activity:"Research when an ankle injury requires splinting instead of just wrapping. What structural findings suggest a possible fracture requiring immobilization?"}, high: {title:"Ankle brace vs taping", activity:"Compare ankle braces to taping for injury prevention and post-injury support. What do biomechanical studies show about proprioception, restriction of motion, and long-term outcomes?"} }
+  },
+
+  "Poisonous look-alikes — know the difference": {
+    gradeHooks: {
+      low: "Some dangerous plants look very similar to safe ones. We learn to spot the differences so we stay safe!",
+      mid: "Identifying dangerous look-alikes requires checking multiple identification features simultaneously. One wrong identification can be fatal.",
+      high: "Plant toxicology, the chemistry of common plant toxins, and systematic identification methods are important ethnobotany topics."
+    },
+    materials: ["Field guide or printed photos of look-alike pairs"],
+    steps: [
+      "Study the most dangerous look-alike pairs in Florida: wild carrot vs poison hemlock, elderberry vs water hemlock, wild onion vs death camas.",
+      "For each pair, identify the distinguishing features: leaf shape, stem markings, smell, habitat, growth pattern.",
+      "Poison hemlock: purple-spotted hollow stem, musty smell. Wild carrot: hairy stem, no spots, carrot smell.",
+      "Critical rule: NEVER eat any plant you cannot identify with 100% certainty from multiple features.",
+      "Introduce the 3-source rule: confirm identification from 3 independent sources before consuming any wild plant."
+    ],
+    discussion: [
+      {q:"Why is smelling a plant sometimes a useful identification technique?", answers:["Many plants have distinctive volatile compounds. Wild carrot smells like carrot, wild onion smells like onion, and mint smells like mint. However, some toxic plants also have distinctive smells."]},
+      {q:"What should you do if someone has eaten a plant they are unsure about?", answers:["Call Poison Control (1-800-222-1222) immediately. Do not wait for symptoms. Bring a sample of the plant or photos if available. Do not induce vomiting unless instructed."]}
+    ],
+    challenge: "Create a look-alike identification card for 3 pairs, showing the distinguishing features of each. Keep it in your foraging kit.",
+    tuesday:   { low: {title:"Look-alike photo quiz", activity:"Study photo pairs of look-alikes. For each pair, identify 3 differences that distinguish the safe plant from the toxic one."}, mid: {title:"Poison Control research", activity:"Research how Poison Control uses plant identification in poisoning cases. What information do they need and how quickly does treatment need to begin?"}, high: {title:"Alkaloid toxicology", activity:"Research the toxic alkaloids in poison hemlock (coniine) and death camas (zygacine). What are their mechanisms of action and at what doses are they lethal?"} },
+    wednesday: { low: {title:"Florida-specific look-alikes", activity:"Research the most dangerous plant look-alike pairs specific to Florida. Which pairs have caused the most poisoning incidents?"}, mid: {title:"Universal edibility test", activity:"Research the military survival universal edibility test. Walk through each step and discuss why each stage matters before the next."}, high: {title:"Plant toxin database", activity:"Research Dr. Duke\u2019s phytochemical database or a similar resource. How do researchers catalog plant secondary metabolites and their known effects?"} },
+    thursday:  { low: {title:"Identification field practice", activity:"With a field guide, attempt to identify 5 plants outdoors. Practice checking multiple features for each. Did any surprise you?"}, mid: {title:"3-source verification", activity:"Choose one plant you believe you can identify. Verify it using 3 different sources: app, printed guide, and an online botanical reference. Do all 3 agree?"}, high: {title:"Ethnobotanical case study", activity:"Research a historical mass poisoning event caused by plant misidentification. Analyze what identification failures occurred and what safeguards could have prevented it."} }
+  },
+
+  "Insulating a shelter for warmth": {
+    gradeHooks: {
+      low: "Adding leaves, grass, or other natural materials around a shelter keeps heat inside and cold out!",
+      mid: "Insulation works by trapping air. Thickness, dryness, and material choice determine how effectively a shelter retains heat.",
+      high: "Thermal resistance, dead air pockets, moisture and its effect on insulation value, and optimal insulation strategies are engineering topics."
+    },
+    materials: ["Insulation materials: dry leaves, dry grass, pine needles", "Small model shelter or cardboard box"],
+    steps: [
+      "Set up a small model shelter. Measure interior temperature with a thermometer.",
+      "Add 3 inches of dry leaf insulation to the walls and roof of the model.",
+      "Measure interior temperature again after 15\u201330 minutes. Compare.",
+      "Add 6 inches of insulation. Measure again.",
+      "Discuss: what matters more — material type or thickness? (Thickness wins; dead air is the insulator)"
+    ],
+    discussion: [
+      {q:"Why does wet insulation fail so dramatically?", answers:["Water has 25x the thermal conductivity of air. When insulation gets wet, the dead air pockets fill with water, eliminating the insulation effect entirely."]},
+      {q:"What is the minimum insulation thickness needed for a debris hut to be effective?", answers:["Survival instructors recommend at least 3 feet of dry debris for overnight protection. In survival situations, most people underestimate how much insulation they need."]}
+    ],
+    challenge: "Insulate two identical model shelters with different thicknesses. Compare interior temperatures. At what thickness do you reach diminishing returns?",
+    tuesday:   { low: {title:"Material comparison experiment", activity:"Insulate 3 cups with dry leaves, crumpled paper, and cotton balls. Fill each with hot water and measure temperature loss over 30 minutes."}, mid: {title:"R-value experiment", activity:"Research R-value. Using thermal conductivity data, calculate the approximate R-value per inch for dry leaves, fiberglass batt, and closed-cell spray foam."}, high: {title:"Moisture and thermal conductivity", activity:"Research the thermal conductivity of dry vs wet cellulose insulation. Calculate the percentage reduction in R-value when insulation absorbs 20% moisture by weight."} },
+    wednesday: { low: {title:"Ground insulation importance", activity:"Research why ground insulation is more important than roof insulation in cold survival. How much heat is lost through conduction with the cold ground vs convection?"}, mid: {title:"Sleeping system design", activity:"Research sleeping bag insulation types: down vs synthetic. How does each perform when wet and what does this mean for choosing a shelter insulation strategy?"}, high: {title:"Passive house standards", activity:"Research Passive House (Passivhaus) building standards. What insulation values do they achieve and how do they use thermal mass and air sealing in addition to insulation?"} },
+    thursday:  { low: {title:"Full debris hut insulation", activity:"Add 3+ feet of dry insulation to your debris hut frame. Measure interior vs exterior temperature. Did you achieve a meaningful temperature difference?"}, mid: {title:"Vapor barrier role", activity:"Research the role of a vapor barrier in insulation systems. Where should it be placed and why? What happens without one in a humid environment like Florida?"}, high: {title:"Phase change materials", activity:"Research phase change materials (PCMs) used in advanced building insulation. How do they store and release heat at specific temperatures and how might this apply to emergency shelters?"} }
+  },
+
+  "What is a power outage plan?": {
+    gradeHooks: {
+      low: "When the power goes out, we have a plan so everyone knows what to do and stays safe and comfortable.",
+      mid: "A power outage plan addresses food safety, alternative lighting, heating and cooling, communication, and medical equipment needs.",
+      high: "Power grid vulnerability, backup power systems, utility infrastructure resilience, and the business continuity model for households are important topics."
+    },
+    materials: ["Paper for writing a plan"],
+    steps: [
+      "Ask: what stops working when power goes out? (Lights, fridge, AC/heat, internet, stove, medical devices)",
+      "Build the plan in 5 categories: lighting (flashlights, candles — candle safety rules), food (fridge 4 hrs, freezer 48 hrs if closed), communication (phone charged, battery radio), medical (backup power for any devices), cooling (fans, wet towels, cool water in Florida heat).",
+      "Identify your home\u2019s vulnerabilities: does anyone depend on electrically powered medical equipment?",
+      "Discuss generator safety if applicable: ONLY outdoors, 20+ feet from windows, CO detector required.",
+      "Write the plan and post it somewhere accessible."
+    ],
+    discussion: [
+      {q:"In Florida, what is the biggest health risk during a summer power outage?", answers:["Heat. Florida summer heat can be life-threatening, especially for elderly people, young children, and those with certain medical conditions. Having a cool location plan (library, mall, shelter) is essential."]},
+      {q:"What should you do with prescription medications that require refrigeration if power is out for more than 4 hours?", answers:["Contact the pharmacy or doctor immediately. Many medications have limited unrefrigerated viability. Keep a small cooler with ice as backup. Know the specific temperature requirements for each medication."]}
+    ],
+    challenge: "Write your family\u2019s complete power outage plan. Cover all 5 categories. Post it on the refrigerator.",
+    tuesday:   { low: {title:"Outage kit assembly", activity:"Assemble a power outage kit: flashlights (tested), extra batteries, manual can opener, battery-powered radio, and a list of emergency phone numbers."}, mid: {title:"Food safety timeline", activity:"Create a refrigerator and freezer food safety decision chart: what to keep, what to toss, at what hour for different food categories."}, high: {title:"Grid vulnerability research", activity:"Research the vulnerabilities of the US electrical grid: aging infrastructure, cyberattack risk, weather events, and solar flares. What projects are underway to harden the grid?"} },
+    wednesday: { low: {title:"Alternative lighting test", activity:"Go through one evening using only battery-powered or candle lighting (with safety precautions). What activities were difficult or impossible?"}, mid: {title:"Medical equipment planning", activity:"Research how families with CPAP machines, home oxygen, and insulin that requires refrigeration prepare for extended power outages. What utility programs exist for medically dependent customers?"}, high: {title:"Backup power systems", activity:"Research whole-home generators, transfer switches, solar + battery backup, and portable battery stations. Compare cost, capacity, fuel requirements, and installation complexity."} },
+    thursday:  { low: {title:"Outage drill", activity:"Conduct a 30-minute power outage simulation. Turn off all electronics and lights. Follow your plan. What worked? What gaps did you discover?"}, mid: {title:"Utility company resources", activity:"Research your utility company\u2019s programs for customers during outages: medical priority restoration lists, cooling centers, and outage reporting systems."}, high: {title:"Microgrid technology", activity:"Research microgrids: localized electrical grids that can operate independently from the main grid. How are they being deployed in communities vulnerable to extended outages?"} }
+  },
+
+  "Tornado preparedness — shelter in place": {
+    gradeHooks: {
+      low: "Tornadoes can happen fast! We go to the lowest floor, an interior room, and cover our heads immediately.",
+      mid: "Tornado response requires knowing your shelter options, monitoring for warnings, and acting immediately — not waiting to see the funnel.",
+      high: "Tornado meteorology, the Enhanced Fujita scale, shelter performance data, and the challenges of warning lead time are important topics."
+    },
+    materials: ["Your home\u2019s floor plan", "Phone with weather alerts enabled"],
+    steps: [
+      "Identify your tornado shelter: lowest floor, interior room (no windows), away from exterior walls. Bathroom, closet, or hallway.",
+      "Discuss Florida\u2019s unique tornado risk: Florida has more tornadoes per square mile than any other state.",
+      "Review the difference: watch (conditions exist) vs warning (tornado confirmed). Warning = act NOW.",
+      "Practice the response: when the alert sounds, go directly to shelter, cover your head and neck, stay until the all-clear.",
+      "Discuss special locations: in a mobile home, leave and go to a permanent structure. On the road, get off and go below grade in a ditch, never under an overpass."
+    ],
+    discussion: [
+      {q:"Why should you never shelter under a highway overpass during a tornado?", answers:["The overpass acts as a wind tunnel, increasing wind speed. Debris is channeled under the overpass at lethal velocities. People who have done this have been killed by debris."]},
+      {q:"What is the average tornado warning lead time and what does that mean for your response?", answers:["The NWS average lead time is about 13 minutes. That is all the time you have. Waiting to see the tornado, gather belongings, or decide is not an option."]}
+    ],
+    challenge: "Identify your shelter room and conduct a tornado drill from 3 different starting locations in your home. Time each one.",
+    tuesday:   { low: {title:"Shelter identification", activity:"Walk your home and identify the single safest tornado shelter spot. Explain your choice: lowest floor, most interior, no windows, far from exterior walls."}, mid: {title:"Enhanced Fujita scale", activity:"Research the EF scale: wind speeds, expected damage, and death/injury statistics for each category. What percentage of tornadoes are EF0/1 vs EF4/5?"}, high: {title:"Tornado formation meteorology", activity:"Research supercell thunderstorm development and how mesocyclones form tornadoes. What atmospheric conditions are required and why is Florida\u2019s tornado season different from the Midwest?"} },
+    wednesday: { low: {title:"Mobile home safety", activity:"Research why mobile homes are so dangerous in tornadoes. If your family lives in or visits one, what is the nearest permanent shelter?"}, mid: {title:"Safe room construction", activity:"Research FEMA safe rooms and tornado shelters. What construction standards do they require and how much do they cost to add to a home?"}, high: {title:"Warning system research", activity:"Research the NWS tornado warning system: Doppler radar signatures (hook echo, velocity couplet), spotters, and the false alarm ratio. How does the false alarm ratio affect public response behavior?"} },
+    thursday:  { low: {title:"Family tornado drill", activity:"Conduct a surprise tornado drill. Sound a phone alarm and time how fast every family member reaches the shelter spot."}, mid: {title:"Tornado kit", activity:"Assemble a tornado shelter kit for your safe room: flashlight, water, first aid kit, phone charger, emergency radio, shoes."}, high: {title:"Tornado vulnerability analysis", activity:"Research which building types have the highest fatality rates in tornadoes. How do manufactured housing, older homes, and modern construction compare?"} }
+  },
+
+  "Preserving meat — jerky making": {
+    gradeHooks: {
+      low: "Jerky is dried meat that lasts for months without refrigeration! People have been making it for thousands of years.",
+      mid: "Making jerky safely requires reaching adequate internal temperature to kill pathogens before and/or during drying.",
+      high: "Jerky food safety, water activity, the role of salt and pH in preservation, and the debate over pre-heating vs post-heating are food science topics."
+    },
+    materials: ["Lean beef or turkey (1 lb)", "Soy sauce and Worcestershire sauce for marinade", "Oven or dehydrator"],
+    steps: [
+      "Choose lean meat: fat goes rancid quickly and shortens shelf life. Slice against the grain for a tender chew, with the grain for a chewier result.",
+      "Marinate for 4\u201324 hours in refrigerator: soy sauce, Worcestershire, garlic powder, black pepper, optional hot sauce.",
+      "Safety step: pre-heat sliced meat in 275\u00b0F oven for 10 minutes BEFORE dehydrating, OR ensure the finished jerky reaches 160\u00b0F during dehydration.",
+      "Dehydrate at 165\u00b0F for 4\u20138 hours until leathery and dry but still pliable.",
+      "Cool completely before sealing. Store in airtight container. Refrigerate for 1\u20132 weeks or freeze for longer storage."
+    ],
+    discussion: [
+      {q:"Why should we heat the meat before or during dehydration rather than relying on salt alone?", answers:["Salt reduces water activity but does not reliably kill Salmonella and E. coli at the concentrations used in jerky marinades. USDA research found that dehydrators may not reach internal temperatures sufficient to kill these pathogens without pre-heating."]},
+      {q:"Why is lean meat better for jerky than fatty meat?", answers:["Fat oxidizes and goes rancid much faster than dried muscle tissue. Even well-preserved jerky with fat can develop off-flavors in days. Lean meat dried properly can last weeks at room temperature."]}
+    ],
+    challenge: "Make a batch of jerky using the pre-heat method. Test for proper doneness. Calculate cost per ounce vs commercial jerky.",
+    tuesday:   { low: {title:"Marinade chemistry", activity:"Research why salt, acid (soy sauce has some), and other marinade components affect both flavor and shelf life."}, mid: {title:"Water activity measurement", activity:"Research target water activity for safe jerky. What Aw level stops microbial growth and how is it measured without specialized equipment?"}, high: {title:"USDA jerky safety research", activity:"Research the USDA\u2019s research on pathogen survival in home-dried jerky. What prompted the updated guidelines requiring heat treatment?"} },
+    wednesday: { low: {title:"Meat selection", activity:"Research which cuts of beef make the best jerky: eye of round, flank, sirloin tip. What makes each suitable or unsuitable?"}, mid: {title:"Pre-heat vs post-heat", activity:"Compare the pre-heating method (before drying) vs post-heating method (after drying, in oven). What are the texture and safety differences?"}, high: {title:"Traditional preservation methods", activity:"Research how Indigenous peoples preserved meat before modern food science: pemmican, biltong, gravlax. What food science principles do each exploit?"} },
+    thursday:  { low: {title:"Shelf life test", activity:"Make two batches: one with pre-heating and one without. Keep notes on appearance, smell, and texture over 10 days. Which lasts longer?"}, mid: {title:"Cost analysis", activity:"Calculate cost per ounce for homemade jerky (including meat, marinade, and energy). Compare to commercial jerky. Is homemade cost-effective?"}, high: {title:"Hurdle technology", activity:"Research hurdle technology in food preservation: using multiple mild preservation methods together that collectively prevent spoilage. How does jerky (salt + drying + heat) exemplify this concept?"} }
+  },
+
+  "Comparison shopping — unit prices": {
+    gradeHooks: {
+      low: "A unit price tells us how much one ounce or one serving costs. It helps us find the best deal!",
+      mid: "Unit price comparison is the foundational consumer skill for identifying value regardless of package size or marketing.",
+      high: "Consumer economics, retail pricing psychology, and the economics of bulk purchasing connect everyday shopping to broader market principles."
+    },
+    materials: ["Store circulars or grocery store app", "Calculator"],
+    steps: [
+      "Explain: the price on the shelf tag is NOT the best comparison tool. Different sizes make it hard to compare.",
+      "Unit price formula: Total price \u00f7 Number of units (ounces, count, etc.) = Price per unit.",
+      "Compare: a 16 oz box for $3.20 vs a 24 oz box for $4.32. Unit price: $0.20/oz vs $0.18/oz. The bigger box wins.",
+      "Practice with 5 real products from grocery ads or a store visit.",
+      "Discuss: when is the bigger size NOT the better deal? (If you waste it, if it\u2019s perishable, if you lack storage space)"
+    ],
+    discussion: [
+      {q:"When is a larger package NOT the better unit price value?", answers:["When you won\u2019t use it all before it expires. Wasted food means the effective unit price was much higher than calculated. Freshness and realistic consumption matter."]},
+      {q:"Why do stores sometimes make the smaller package a better unit price?", answers:["To capture different customer segments. Customers who can\u2019t afford a large upfront cost or lack storage may pay the premium. This is called a \u2018poverty premium.\u2019"]}
+    ],
+    challenge: "At your next grocery shopping trip, compare unit prices for 10 items. Were the cheaper per-unit options always the best choice for your family?",
+    tuesday:   { low: {title:"Unit price calculation practice", activity:"Calculate unit prices for 10 products (use store circulars or online listings). Rank from best to worst value."}, mid: {title:"Store brand comparison", activity:"Compare unit prices of store brand vs name brand for 5 products. Is the store brand always cheaper per unit? By how much?"}, high: {title:"Price anchoring", activity:"Research price anchoring in retail: how placing a premium product next to a mid-range product makes the mid-range seem like a bargain. Give 5 grocery store examples."} },
+    wednesday: { low: {title:"Family shopping exercise", activity:"With a parent, look up the unit prices of 3 items you buy regularly. Are you buying the best value version?"}, mid: {title:"Bulk store economics", activity:"Compare Costco/Sam\u2019s Club unit prices to regular grocery store unit prices for 5 staples. Factor in membership cost. Is bulk shopping worth it for your family?"}, high: {title:"Consumer surplus", activity:"Research consumer surplus in economics. How does comparison shopping help consumers capture more of the available consumer surplus in a transaction?"} },
+    thursday:  { low: {title:"Grocery list optimization", activity:"Take a family grocery list and find the best unit price for each item using a store\u2019s app or circular. How much could the family save monthly?"}, mid: {title:"Price per meal calculation", activity:"Calculate the cost per serving of 5 homemade meals vs equivalent restaurant or prepared meals. What is the monthly savings potential?"}, high: {title:"Poverty premium research", activity:"Research the poverty premium: how low-income consumers often pay more per unit due to inability to buy in bulk, lack of transportation, and living in food deserts. What are the policy implications?"} }
+  },
+
+  "Foraging walk — plants of my region": {
+    gradeHooks: {
+      low: "We go on a walk and try to find plants we can identify. We look carefully and only touch plants we know are safe!",
+      mid: "A guided foraging walk builds field identification skills, ecological awareness, and practical knowledge of regional plants.",
+      high: "Field botany, ecological community identification, phenology, and sustainable foraging ethics are topics explored through a foraging walk."
+    },
+    materials: ["Field guide to Florida plants", "Plant ID app (iNaturalist)", "Camera or sketchbook", "Paper bags for any edible samples"],
+    steps: [
+      "Plan the route: a local park, nature trail, or neighborhood with diverse plant life.",
+      "Before leaving: review 5 target plants to look for on this walk.",
+      "Walk slowly. When you find a plant, examine it fully: leaves, stem, flowers, fruit, smell, habitat.",
+      "Use the app to identify. Cross-reference with the field guide.",
+      "Never collect or taste anything you haven\u2019t verified. Take photos and notes instead."
+    ],
+    discussion: [
+      {q:"What is the \u2018ethical 10%\u2019 rule in foraging?", answers:["Never harvest more than 10% of any plant patch. This ensures the plant population remains healthy and regenerates. Over-harvesting can eliminate a species from an area entirely."]},
+      {q:"How does knowing the plants in your region connect to preparedness?", answers:["In an extended emergency with limited food access, knowing which local plants are edible, nutritious, and safe could be essential for survival. Local knowledge is more reliable than general guides."]}
+    ],
+    challenge: "Complete a 1-hour foraging walk. Identify and photograph at least 10 plants. For each, note: edible, non-edible, or unknown. Research any unknowns afterward.",
+    tuesday:   { low: {title:"Walk documentation", activity:"Organize your walk photos into a field journal. For each plant: location, date, physical description, identification, and edibility notes."}, mid: {title:"Seasonal changes", activity:"Research how your identified plants change by season. Which are available now vs in 3 months? How does seasonal awareness affect foraging strategy?"}, high: {title:"Plant community ecology", activity:"Research plant community ecology. Why do certain plants grow together? What does the presence of one plant tell you about soil type, moisture, and what other plants might be nearby?"} },
+    wednesday: { low: {title:"iNaturalist contribution", activity:"Upload your plant photos to iNaturalist with location data. Your observations contribute to global biodiversity research. Track how many are confirmed by experts."}, mid: {title:"Florida ethnobotany", activity:"Research traditional plant uses by Florida\u2019s indigenous peoples. Which of the plants you found were used historically and for what purposes?"}, high: {title:"Bioremediation plants", activity:"Research plants that absorb pollutants from soil (phytoremediation). Are any common in your area? What does their presence indicate about soil quality?"} },
+    thursday:  { low: {title:"Favorite plant report", activity:"Choose your favorite plant from the walk. Write a one-page report: identification, range, edibility, ecological role, and one interesting fact."}, mid: {title:"Foraging ethics essay", activity:"Write a short essay on foraging ethics: why foragers follow leave-no-trace principles, harvest limits, and property law. How does responsible foraging preserve the resource?"}, high: {title:"Restoration ecology connection", activity:"Research ecological restoration projects in your region. How does understanding native plant communities (what you observed on your walk) inform restoration work?"} }
+  },
+
+
+
+  "CPR intro — hands-only technique": {
+    gradeHooks: {
+      low: "Hands-only CPR means pushing hard and fast on someone\u2019s chest to keep blood moving until help comes.",
+      mid: "Hands-only CPR is the AHA-recommended technique for untrained bystanders. Proper rate, depth, and positioning are critical.",
+      high: "The biomechanics of chest compressions, cardiac output during CPR, and the evidence base for hands-only vs traditional CPR are important topics."
+    },
+    materials: ["CPR training mannequin or firm pillow", "Metronome app"],
+    steps: [
+      "Confirm unresponsiveness: tap shoulders, shout \u2018Are you okay?\u2019",
+      "Call 911 or direct someone specific to call: \u2018You in the red shirt — call 911 now!\u2019",
+      "Position: heel of hand on center of chest (lower half of sternum), second hand on top, fingers interlaced.",
+      "Compress: at least 2 inches deep (adults), at 100\u2013120 BPM. Allow full chest recoil between compressions.",
+      "Continue until EMS arrives, an AED is available, or the person shows obvious signs of life."
+    ],
+    discussion: [
+      {q:"Why is it important to allow full chest recoil between compressions?", answers:["Recoil allows the heart to refill with blood. Leaning on the chest between compressions reduces the volume pumped with each compression."]},
+      {q:"What is the correct rate for chest compressions and how can you remember it?", answers:["100\u2013120 per minute. The song \u2018Stayin\u2019 Alive\u2019 by the Bee Gees is almost exactly 103 BPM and is officially endorsed as a memory aid."]}
+    ],
+    challenge: "Practice hands-only CPR on a firm pillow at 100\u2013120 BPM for 2 full minutes without stopping. This simulates real CPR fatigue.",
+    tuesday:   { low: {title:"Compression depth demo", activity:"Use a ruler on your pillow: practice reaching 2 inches of compression depth consistently. Too shallow is ineffective."}, mid: {title:"Two-rescuer CPR", activity:"Research two-rescuer CPR. How does switching every 2 minutes prevent fatigue and maintain compression quality?"}, high: {title:"Cardiac output during CPR", activity:"Research what percentage of normal cardiac output hands-only CPR provides. Why is even this reduced output sufficient to prevent brain death temporarily?"} },
+    wednesday: { low: {title:"AED location hunt", activity:"Identify AED locations at 3 places you visit regularly. Search building maps or ask staff."}, mid: {title:"AED integration", activity:"Research how to integrate AED use with CPR. What happens to compressions when the AED is analyzing? When do you resume after a shock?"}, high: {title:"CPR outcomes research", activity:"Research out-of-hospital cardiac arrest survival rates. How much does each minute without CPR reduce survival? What does early bystander CPR do to that curve?"} },
+    thursday:  { low: {title:"Full scenario practice", activity:"Role play: you find someone unresponsive. Go through every step: check response, call 911, start CPR, continue until told to stop."}, mid: {title:"Compression fraction", activity:"Research chest compression fraction: the percentage of resuscitation time spent doing compressions. What is the target percentage?"}, high: {title:"Post-cardiac arrest care", activity:"Research what happens after ROSC (Return of Spontaneous Circulation). What is targeted temperature management and why is post-arrest care critical to outcomes?"} }
+  },
+
+  "72-hour emergency kit build": {
+    gradeHooks: {
+      low: "Today we actually build our 72-hour kit! We gather everything our family needs for 3 days and pack it together.",
+      mid: "Building a functional 72-hour kit requires calculating quantities, testing portability, and customizing for your family\u2019s needs.",
+      high: "A fully built 72-hour kit is stress-tested against real scenarios, weight-optimized, and includes family-specific medical and logistical needs."
+    },
+    materials: ["Backpack or container", "All gathered supplies"],
+    steps: [
+      "Lay everything out before packing. Do a final inventory check against your list.",
+      "Pack by priority: water and food first (heaviest, bottom), then first aid, then documents, then clothing.",
+      "Weigh the finished pack. Can each family member carry their portion?",
+      "Do a timed grab drill: can the whole family be out the door with kits in under 3 minutes?",
+      "Identify one gap and commit to filling it within 1 week."
+    ],
+    discussion: [
+      {q:"What is the maximum recommended weight for a child\u2019s emergency pack?", answers:["Generally no more than 10\u201315% of body weight for children. A 70-pound child should carry no more than 7\u201310 pounds."]},
+      {q:"What is the most commonly forgotten item in 72-hour kits?", answers:["Medications and medical supplies, cash in small bills, phone chargers and backup batteries, and comfort items for children."]}
+    ],
+    challenge: "Conduct a complete 72-hour kit drill: everyone grabs their kit and reaches the car in under 3 minutes. Time it and identify bottlenecks.",
+    tuesday:   { low: {title:"Child kit customization", activity:"Build a child-sized kit: age-appropriate food, comfort item, copy of emergency contacts, small flashlight, and a whistle."}, mid: {title:"Food calorie calculation", activity:"Calculate the total calories in your food supply. Divide by family members and days. Are you hitting 2000 calories/person/day?"}, high: {title:"Scenario stress test", activity:"Simulate having to use your kit: 24 hours using only kit supplies. What gaps did real use reveal that inventory didn\u2019t catch?"} },
+    wednesday: { low: {title:"Pet kit", activity:"Build a pet emergency kit: 3-day food supply, water, leash, vaccination records, medication, and a familiar toy."}, mid: {title:"Seasonal adjustment", activity:"Research how your 72-hour kit should change for summer vs hurricane season vs winter travel. What items swap in and out?"}, high: {title:"Emergency kit for special needs", activity:"Research how families with members who have medical conditions or disabilities modify 72-hour kits. What resources and programs exist to help?"} },
+    thursday:  { low: {title:"Kit location quiz", activity:"Quiz every family member: where is your kit? What is in it? Can you get it in the dark? Time the retrieval."}, mid: {title:"6-month review system", activity:"Set up a 6-month review calendar. Create a review checklist: rotate food and water, check battery charge, verify medications haven\u2019t expired."}, high: {title:"Community kit sharing", activity:"Research community-level emergency supply caching programs. How do neighborhoods and towns pre-position supplies for disaster response?"} }
+  },
+
+  "Electrical safety basics": {
+    gradeHooks: {
+      low: "Electricity is powerful and can hurt us if we don\u2019t respect it. We learn the rules to stay safe!",
+      mid: "Electrical safety covers overloading circuits, water near electricity, downed power lines, and recognizing warning signs of electrical hazards.",
+      high: "Electrical safety engineering, grounding, GFCI technology, and arc fault protection are important technical topics."
+    },
+    materials: ["Outlet covers and electrical cords to examine"],
+    steps: [
+      "Rule 1: water and electricity never mix. Never use electrical devices near sinks, bathtubs, or pools.",
+      "Rule 2: never overload outlets. Too many devices on one circuit cause overheating and fires.",
+      "Rule 3: damaged cords are a hazard. Frayed, cracked, or loose cords must be replaced — not taped.",
+      "Rule 4: downed power lines are always energized. Stay 30+ feet away and call 911.",
+      "Show how to check for GFCI outlets in bathrooms and kitchens: the test/reset buttons."
+    ],
+    discussion: [
+      {q:"Why is water so dangerous near electricity?", answers:["Water conducts electricity well, especially tap water with dissolved minerals. Even a small amount can create a complete circuit through a person\u2019s body."]},
+      {q:"What should you do if you see a downed power line?", answers:["Stay far away (at least 30 feet), keep others back, call 911. Never touch it or anything it is touching. Even the ground near a downed line can be energized."]}
+    ],
+    challenge: "Do an electrical safety audit of your home: check all cords for damage, count outlets per circuit, test all GFCI outlets.",
+    tuesday:   { low: {title:"GFCI testing", activity:"Locate every GFCI outlet in your home (bathrooms, kitchen, garage, outdoors). Press the test button, confirm power cuts, press reset to restore."}, mid: {title:"Circuit breaker identification", activity:"Find your home\u2019s electrical panel. Identify each circuit breaker and what area of the home it serves. Create a labeled diagram."}, high: {title:"Electrical grounding", activity:"Research electrical grounding and its role in safety. What does a ground wire do? What is the difference between grounded and ungrounded outlets?"} },
+    wednesday: { low: {title:"Cord safety audit", activity:"Check every electrical cord in your home. Look for: fraying, cracking, pinching under furniture, or overloaded outlet strips."}, mid: {title:"Overloading circuits", activity:"Research how to calculate whether a circuit is overloaded. What is the maximum wattage for a standard 15-amp and 20-amp circuit?"}, high: {title:"AFCI protection", activity:"Research Arc Fault Circuit Interrupter (AFCI) breakers. What electrical fires do they prevent that regular breakers cannot? Where are they required by current code?"} },
+    thursday:  { low: {title:"Electrical safety pledge", activity:"Write and sign a 5-rule electrical safety pledge for your home. Post it near the main electrical panel."}, mid: {title:"Power strip safety", activity:"Research safe power strip use: maximum load, surge protection vs regular strips, and why daisy-chaining (connecting one strip to another) is dangerous."}, high: {title:"Electrical fire statistics", activity:"Research NFPA statistics on electrical home fires. What are the most common causes by percentage? What prevention measures have the highest impact?"} }
+  },
+
+  "Canning and food preservation": {
+    gradeHooks: {
+      low: "Canning puts food in sealed jars so it lasts for years without refrigeration. Our great-grandparents did this to survive winters!",
+      mid: "Canning uses heat to destroy pathogens and create a vacuum seal. Water bath canning is for high-acid foods; pressure canning is for low-acid foods.",
+      high: "Canning science involves Clostridium botulinum, water bath vs pressure canning chemistry, USDA-tested recipes, and food safety validation."
+    },
+    materials: ["Canning jars with lids", "Large pot", "High-acid food: tomatoes or jam"],
+    steps: [
+      "Explain the difference: water bath canning (high-acid foods: tomatoes, pickles, jams) vs pressure canning (low-acid: vegetables, meat).",
+      "Sterilize jars in boiling water for 10 minutes.",
+      "Prepare your food (use a USDA-tested recipe — never improvise with canning).",
+      "Fill jars leaving correct headspace, wipe rims, apply lids, process in boiling water bath for recipe-specified time.",
+      "Listen for the pop as jars seal while cooling. Any that don\u2019t seal must be refrigerated and used within 1\u20132 weeks."
+    ],
+    discussion: [
+      {q:"Why must you use tested recipes for canning rather than improvising?", answers:["Canning science is precise. Changing ingredients, ratios, or processing times can create conditions where botulism survives. Only tested recipes guarantee safe acidity and processing time."]},
+      {q:"How do you check if a sealed jar is still safe before opening it?", answers:["The lid should be concave (no flex when pressed), no off odors, no bubbling or unusual appearance. Never taste-test questionable canned food — botulism toxin is odorless."]}
+    ],
+    challenge: "Can one batch of high-acid food using a USDA-tested recipe. Label jars with contents and date. Eat within 18 months.",
+    tuesday:   { low: {title:"Jar seal test", activity:"Examine sealed canning jars: press the center of each lid. A properly sealed jar won\u2019t flex. Count how many sealed correctly."}, mid: {title:"USDA recipe research", activity:"Find the USDA Complete Guide to Home Canning online. Look up processing times for 3 foods. Why do processing times vary?"}, high: {title:"Botulism science", activity:"Research Clostridium botulinum: its growth conditions, spore formation, and why pressure canning (240\u00b0F) is required to kill spores that survive boiling (212\u00b0F)."} },
+    wednesday: { low: {title:"Headspace importance", activity:"Research why headspace matters in canning. What happens with too much or too little? How does it affect the vacuum seal?"}, mid: {title:"High-acid vs low-acid foods", activity:"Research the pH threshold that separates water bath from pressure canning requirements. List 10 foods in each category."}, high: {title:"Commercial canning", activity:"Research how commercial canning differs from home canning. What process does commercial production use and how are safety standards verified?"} },
+    thursday:  { low: {title:"Label your jars", activity:"Design professional-looking labels for your canned goods: food name, date canned, and recipe source. Consistency matters for rotation."}, mid: {title:"Shelf life and rotation", activity:"Research shelf life of home-canned goods. Set up a rotation system: oldest jars in front, newest in back. How often should you check your supply?"}, high: {title:"Food preservation history", activity:"Research how canning was developed (Nicolas Appert, 1809). How did it change warfare, exploration, and food security? What were the early safety problems?"} }
+  },
+
+  "Water purification methods": {
+    gradeHooks: {
+      low: "There are several ways to clean water. We can boil it, use tablets, or filter it. Each has pros and cons.",
+      mid: "Knowing multiple purification methods and when to use each is critical emergency preparedness knowledge.",
+      high: "Comparative analysis of purification technologies, their efficacy against specific pathogens, and their logistical requirements are important public health topics."
+    },
+    materials: ["Water purification tablets", "Coffee filter", "Clear bottles"],
+    steps: [
+      "Review the three main categories: heat (boiling), chemical (tablets), and physical (filtration + UV).",
+      "Boiling: most reliable, kills everything, requires fuel, doesn\u2019t remove chemicals.",
+      "Chemical tablets: portable, no fuel, slower, less effective against Cryptosporidium without extended time.",
+      "Filtration: removes particles and many pathogens, varies by filter rating, doesn\u2019t kill viruses (most filters).",
+      "Best practice: filter first to remove particles (improves all other methods), then purify by preferred method."
+    ],
+    discussion: [
+      {q:"Which purification method would you use if you were hiking 20 miles from a road?", answers:["A combination: a quality filter (removes protozoa and bacteria) plus iodine or UV pen for viruses. Carrying tablets as backup makes sense if weight is a concern."]},
+      {q:"What contaminants can NO purification method remove?", answers:["Heavy metals (lead, arsenic), industrial chemicals, and agricultural runoff require activated carbon or reverse osmosis — not field methods."]}
+    ],
+    challenge: "Design a water treatment kit for a 3-day backpacking trip. Choose your methods, explain your reasoning, and calculate the weight.",
+    tuesday:   { low: {title:"Method card set", activity:"Make a card for each method: what it is, what it kills, pros, cons, and best use scenario."}, mid: {title:"Pathogen chart", activity:"Research which purification methods are effective against: Giardia, Cryptosporidium, E. coli, and hepatitis A. Create a matrix."}, high: {title:"Log reduction", activity:"Research log reduction in water treatment. What does a 4-log reduction mean? What log reduction is required for safe drinking water by EPA standards?"} },
+    wednesday: { low: {title:"Emergency kit water section", activity:"Assemble a complete water section for your 72-hour kit: filter, tablets, container, and instructions card."}, mid: {title:"Municipal failure scenarios", activity:"Research scenarios where municipal water has been contaminated (Flint, MI; Walkerton, Canada). What purification methods would have helped residents?"}, high: {title:"WHO water quality guidelines", activity:"Research WHO guidelines for drinking water quality. What are the key pathogens and chemical contaminants monitored and at what levels are they dangerous?"} },
+    thursday:  { low: {title:"Taste test comparison", activity:"Compare the taste of tap water, boiled water, tablet-treated water, and filtered water. Which do you prefer? Does taste equal safety?"}, mid: {title:"Long-term storage", activity:"Research how to store 2 weeks of water for a family of 4. What containers, where to store them, and how often to rotate?"}, high: {title:"Desalination overview", activity:"Research desalination technology. How does reverse osmosis desalination work and what energy does it require? Why isn\u2019t it a simple solution to global water scarcity?"} }
+  },
+
+  "Building a simple shelter model": {
+    gradeHooks: {
+      low: "A shelter protects us from wind, rain, and cold. We can build a model to understand how shelters work!",
+      mid: "Shelter design involves understanding wind, rain, and thermal dynamics. Testing a model before building full-size saves materials and time.",
+      high: "Shelter engineering, thermal performance, structural load, and materials science connect wilderness survival to formal engineering principles."
+    },
+    materials: ["Cardboard or sticks", "Tape", "Fabric or plastic sheeting", "Spray bottle for rain test"],
+    steps: [
+      "Define the shelter\u2019s purpose: protection from rain, wind, or cold? Each priority changes the design.",
+      "Sketch a design: A-frame, lean-to, or dome. Consider: what angle sheds rain best?",
+      "Build the model at small scale using cardboard, sticks, or craft materials.",
+      "Test it: spray with water. Does rain run off or pool? Hold it against a fan: does wind penetrate?",
+      "Evaluate and improve: what failed? What would you change in a full-size version?"
+    ],
+    discussion: [
+      {q:"What angle should a roof be to shed rain most effectively?", answers:["At least 30\u201345 degrees. Steeper pitches shed rain and snow faster but require more material and are harder to build. A very shallow pitch allows water to pool."]},
+      {q:"Why is the door of an emergency shelter traditionally positioned away from prevailing wind?", answers:["Positioning the opening away from wind prevents cold air from entering and retains body heat inside. It also prevents the structure from acting as a scoop."]}
+    ],
+    challenge: "Build two shelter models using different designs. Test both for wind and rain resistance. Which performs better and why?",
+    tuesday:   { low: {title:"Shelter types research", activity:"Research 5 survival shelter types: lean-to, A-frame, debris hut, snow cave, tarp shelter. Draw each one and note 2 pros and 2 cons."}, mid: {title:"Thermal model", activity:"Research how insulation works in shelters. What creates the most heat retention: the material, the thickness, or the air pockets?"}, high: {title:"R-value calculation", activity:"Research R-value in building insulation. What R-value is recommended for walls and roofs in Florida\u2019s climate? How does emergency shelter insulation compare?"} },
+    wednesday: { low: {title:"Rain test improvement", activity:"After your first rain test, modify your model to improve water shedding. Test again. Did your modification work?"}, mid: {title:"Load testing", activity:"Place increasing weight on your model\u2019s roof. At what load does it fail? How would you reinforce it for real-world use?"}, high: {title:"Vernacular architecture", activity:"Research vernacular architecture: traditional building styles adapted to local climate. How do traditional shelters in 3 different climates demonstrate optimal design for that environment?"} },
+    thursday:  { low: {title:"Backyard shelter", activity:"With supervision, build a full-size shelter version (lean-to or A-frame) in your backyard using natural or available materials."}, mid: {title:"Emergency blanket physics", activity:"Research how emergency (Mylar) blankets work. What wavelength of radiation do they reflect? Why are they effective at retaining body heat?"}, high: {title:"Passive solar design", activity:"Research passive solar building design. How can shelter orientation, window placement, and thermal mass reduce energy needs for heating and cooling?"} }
+  },
+
+  "Bank accounts — savings basics": {
+    gradeHooks: {
+      low: "A savings account is where we keep money safe and earn a little extra over time called interest.",
+      mid: "Understanding savings account interest, FDIC insurance, and how banks use deposited money is foundational financial literacy.",
+      high: "Interest rate comparison, compound interest mathematics, and the banking system\u2019s use of deposits are important personal finance topics."
+    },
+    materials: ["Paper for calculating interest"],
+    steps: [
+      "Explain: a bank holds your money safely and pays you interest for letting them use it.",
+      "Simple interest formula: Interest = Principal x Rate x Time. If you deposit $100 at 2% for 1 year, you earn $2.",
+      "Compound interest: interest earned also earns interest. This makes savings grow faster over time.",
+      "FDIC insurance: the federal government insures deposits up to $250,000 per account, per bank.",
+      "Discuss types of savings accounts: regular savings, high-yield savings, money market, CDs."
+    ],
+    discussion: [
+      {q:"Why does compound interest make a bigger difference the longer you save?", answers:["Each year, the interest from previous years also earns interest. The longer the time, the more earnings compound on top of each other. Starting early makes a dramatic difference."]},
+      {q:"What is the difference between APR and APY?", answers:["APR (Annual Percentage Rate) is the base rate. APY (Annual Percentage Yield) accounts for compounding. APY is always equal to or higher than APR."]}
+    ],
+    challenge: "Calculate: if you save $25/month starting today, how much will you have in 10 years at 4% compound interest? Use an online calculator.",
+    tuesday:   { low: {title:"Interest calculation practice", activity:"Calculate simple interest for 5 scenarios: different principals, rates (1\u20135%), and time periods (1\u20135 years)."}, mid: {title:"Compound interest comparison", activity:"Use a compound interest calculator to compare $1000 at 2%, 5%, and 8% over 20 years. What is the difference in final value?"}, high: {title:"Rule of 72", activity:"Research the Rule of 72: divide 72 by the interest rate to estimate how long it takes to double your money. Apply it to current high-yield savings rates."} },
+    wednesday: { low: {title:"Bank comparison", activity:"Research 3 banks or credit unions that offer youth savings accounts. Compare interest rates, minimum balance requirements, and any fees."}, mid: {title:"CD laddering", activity:"Research Certificates of Deposit (CDs). What is a CD ladder strategy and how does it balance liquidity with higher interest rates?"}, high: {title:"Fractional reserve banking", activity:"Research fractional reserve banking. When you deposit $100, how much of it can the bank lend out? What is the reserve requirement and how does this create money supply?"} },
+    thursday:  { low: {title:"Savings goal tracker", activity:"Set a savings goal and calculate how long it will take at different contribution amounts ($5/week vs $10/week vs $20/week)."}, mid: {title:"High-yield savings research", activity:"Research current high-yield savings account rates. Compare to a traditional savings account at a major bank. How much extra would $5,000 earn over 5 years?"}, high: {title:"Inflation and real returns", activity:"Research the concept of real return: nominal interest rate minus inflation rate. If inflation is 3% and your savings earns 2%, what is your real return?"} }
+  },
+
+  "Navigating with a map and compass": {
+    gradeHooks: {
+      low: "Using a map and compass together helps us find our way even without a phone!",
+      mid: "Map and compass navigation requires orienting the map, taking a bearing, and following it while accounting for obstacles.",
+      high: "Precise compass navigation, declination adjustment, triangulation, and dead reckoning are advanced navigation skills."
+    },
+    materials: ["Baseplate compass", "Topographic or trail map", "Pencil"],
+    steps: [
+      "Orient the map using the compass: rotate the map until north on the map aligns with the compass needle.",
+      "Choose a destination on the map. Draw a line from your current position to the destination.",
+      "Take a bearing: align the compass base plate with that line, rotate the bezel until the orienting arrow aligns with the needle. Read the bearing in degrees.",
+      "Travel on that bearing: keep the needle aligned with the orienting arrow as you walk.",
+      "Account for magnetic declination: in Florida, declination is approximately 5\u20136 degrees west. Adjust the bearing accordingly."
+    ],
+    discussion: [
+      {q:"What is magnetic declination and why do you need to account for it?", answers:["Magnetic north (where the compass points) is not the same as true north (on maps). In Florida, the difference is about 5\u20136 degrees. Over distance, this error becomes significant."]},
+      {q:"What do you do when an obstacle blocks your bearing line?", answers:["Use the \u2018box around obstacle\u2019 technique: turn 90 degrees, count paces, turn back on bearing, count same paces past obstacle, turn 90 back to original bearing."]}
+    ],
+    challenge: "Navigate to a hidden target in your yard or neighborhood using only a compass bearing and pace count. Can you land within 10 feet?",
+    tuesday:   { low: {title:"Bearing practice", activity:"Set 5 objects around your yard. Practice taking a bearing to each from a central point. Record each bearing in degrees."}, mid: {title:"Declination adjustment", activity:"Research Florida\u2019s current magnetic declination. Practice adjusting 5 bearings to account for it."}, high: {title:"Resection technique", activity:"Research the resection technique: using 2\u20133 known landmarks to determine your exact position on a map. Practice on a local topographic map."} },
+    wednesday: { low: {title:"Pace count calibration", activity:"Count your paces over a known 100-foot distance 3 times. Average the count. Use this as your personal pace count."}, mid: {title:"Night navigation concepts", activity:"Research night navigation techniques: using stars for direction, pace counting in the dark, and handrail navigation along features."}, high: {title:"Military land navigation", activity:"Research US Army land navigation techniques. What is a deliberate offset and when would you use it?"} },
+    thursday:  { low: {title:"Neighborhood navigation challenge", activity:"Navigate a 4-point course in your neighborhood using only a compass and your hand-drawn map. Record each bearing and distance."}, mid: {title:"GPS backup plan", activity:"Research how to download offline maps for areas with no cell service. What apps work? What are the limitations?"}, high: {title:"Expedition navigation", activity:"Research how polar and ocean expedition navigators use compass, sextant, and dead reckoning together. What is the cumulative error over long distances?"} }
+  },
+
+  "First aid for sprains and strains": {
+    gradeHooks: {
+      low: "A sprain means a joint got twisted and a ligament stretched. RICE helps it heal: Rest, Ice, Compression, Elevation.",
+      mid: "Differentiating sprains from strains and fractures, applying the RICE protocol, and knowing when to seek medical care are key first aid skills.",
+      high: "Musculoskeletal injury assessment, the POLICE protocol replacing RICE, and the biomechanics of ligament and muscle injury are important medical topics."
+    },
+    materials: ["Elastic bandage", "Ice pack or frozen vegetable bag"],
+    steps: [
+      "Distinguish: sprain (ligament at a joint), strain (muscle or tendon). Both feel similar but happen differently.",
+      "Assess severity: can the person bear weight? Is there obvious deformity? If yes to deformity, treat as fracture and call for help.",
+      "Apply RICE: Rest (stop activity), Ice (wrapped, 20 min on/20 off), Compression (elastic bandage), Elevation (raise above heart level).",
+      "Demonstrate compression wrapping: start below the injury, overlap 50%, work upward. Not so tight circulation is cut off.",
+      "Warning signs that need medical care: severe swelling, inability to bear weight after 24 hours, numbness, or bruising that spreads rapidly."
+    ],
+    discussion: [
+      {q:"How can you tell if a sprain might actually be a fracture?", answers:["Significant deformity, point tenderness over bone (not just the joint), inability to bear weight, or bruising and swelling that is severe and immediate.")},
+      {q:"Why do we elevate an injury above heart level?", answers:["Gravity helps reduce fluid accumulation in the injured area. Less swelling means less pain and faster healing."]}
+    ],
+    challenge: "Practice wrapping an ankle with an elastic bandage on a family member. Check: is circulation maintained? Is it snug but not cutting off blood flow?",
+    tuesday:   { low: {title:"RICE poster", activity:"Create a detailed RICE poster with drawings for each step. Post it in your first aid area."}, mid: {title:"POLICE protocol", activity:"Research the updated POLICE protocol (Protect, Optimal Loading, Ice, Compression, Elevation). Why was \u2018optimal loading\u2019 added to replace pure rest?"}, high: {title:"Ligament anatomy", activity:"Research the anatomy of the ankle\u2019s lateral ligament complex. Which ligaments are most commonly sprained and why?"} },
+    wednesday: { low: {title:"Compression wrap practice", activity:"Practice wrapping a wrist and an ankle with elastic bandage. Do it 5 times on each joint until it is smooth and even."}, mid: {title:"Grade classification", activity:"Research the 3 grades of sprains. What structural damage corresponds to each grade and what is the typical recovery time?"}, high: {title:"Return to activity protocol", activity:"Research evidence-based return-to-sport protocols after ankle sprains. What criteria must be met before full activity resumes?"} },
+    thursday:  { low: {title:"Scenario practice", activity:"Act out: you are hiking and twist your ankle. Walk through every RICE step including finding improvised materials in the wilderness."}, mid: {title:"Proprioception rehab", activity:"Research proprioceptive rehabilitation exercises for ankle sprains. Why is balance training specifically important after a sprain?"}, high: {title:"Chronic ankle instability", activity:"Research chronic ankle instability: why do repeated sprains make future sprains more likely, and what interventions break the cycle?"} }
+  },
+
+  "Identifying edible plants locally": {
+    gradeHooks: {
+      low: "Some plants near our home are safe to eat in an emergency! But we must be 100% sure before eating any wild plant.",
+      mid: "Foraging requires confident identification using multiple characteristics. Misidentification can be fatal — always use 3+ identification features.",
+      high: "Ethnobotany, plant taxonomy, chemical compounds in edible and toxic plants, and the ecology of edible plant communities are important topics."
+    },
+    materials: ["Field guide to Florida plants", "Camera or sketchbook"],
+    steps: [
+      "Critical safety rule: never eat any wild plant unless you are 100% certain of its identification using multiple sources.",
+      "Start with the easiest, most recognizable Florida edibles: muscadine grapes, saw palmetto berries, wild blackberries, dandelion.",
+      "Learn identification by multiple features: leaf shape, stem cross-section, smell, bark, growth habit, habitat.",
+      "Discuss look-alikes: always research what the dangerous look-alike is for any plant you plan to forage.",
+      "Practice with photos: can you identify 5 common Florida edibles from pictures before going outside?"
+    ],
+    discussion: [
+      {q:"Why is it dangerous to identify plants from only one feature?", answers:["Many edible plants have toxic look-alikes that share one or two features. Positive ID requires checking multiple characteristics simultaneously to rule out dangerous alternatives."]},
+      {q:"What is the universal edibility test?", answers:["A systematic test used when a plant is unidentified: skin test, lip test, tongue test, chew test, wait — with 8 hours between each stage. It can take 3 days but may identify edible plants when no guide is available."]}
+    ],
+    challenge: "Identify 5 Florida edible plants from photos using a field guide. For each, name the plant, 3 identifying features, and its dangerous look-alike.",
+    tuesday:   { low: {title:"Florida edible plant photo quiz", activity:"Print or display 10 Florida plant photos. Using a field guide, identify as many as possible. Note: safe, edible, toxic, or unknown."}, mid: {title:"Look-alike research", activity:"Research dangerous look-alikes for 5 Florida edible plants: wild blackberry vs nightshade, dandelion vs cat\u2019s ear, etc."}, high: {title:"Secondary compounds", activity:"Research secondary plant compounds: alkaloids, terpenes, and glycosides. How do these chemicals protect plants and what effects do they have on humans?"} },
+    wednesday: { low: {title:"Backyard plant identification", activity:"Walk your yard or neighborhood. Using a plant ID app (iNaturalist), identify every plant you see. Note any edibles."}, mid: {title:"Seasonal availability", activity:"Research which Florida edible plants are available in which seasons. Create a foraging calendar for your region."}, high: {title:"Ethnobotany of Florida", activity:"Research the traditional plant knowledge of the Seminole people of Florida. What edible and medicinal plants did they use and how were they prepared?"} },
+    thursday:  { low: {title:"Plant journal", activity:"Start a plant identification journal. Sketch or photograph 3 plants today. Write: location found, physical description, identification guess, and source used to confirm."}, mid: {title:"Foraging ethics", activity:"Research ethical foraging practices: take no more than 10% of a patch, avoid rare species, know local regulations. Why do foragers follow these rules?"}, high: {title:"Wild plant nutritional analysis", activity:"Research the nutritional content of 5 Florida wild edibles. Compare to their cultivated counterparts. Do wild plants have higher or lower nutritional density?"} }
+  },
+
+  "Practicing hands-only CPR steps": {
+    gradeHooks: {
+      low: "Today we practice CPR again so it becomes automatic. The more we practice, the better we\u2019d do in a real emergency.",
+      mid: "Skill reinforcement through deliberate practice builds the muscle memory needed to perform CPR effectively under stress.",
+      high: "Motor learning theory, compression quality metrics, and the evidence showing that regular CPR practice prevents skill decay are important topics."
+    },
+    materials: ["CPR training mannequin or firm pillow", "Metronome app at 110 BPM"],
+    steps: [
+      "Review positioning: heel of hand on center of sternum, shoulders over hands, arms straight.",
+      "Set a metronome to 110 BPM and practice to the beat for 2 full minutes.",
+      "Self-assess: are compressions 2 inches deep? Is recoil complete between each compression?",
+      "Switch with a partner and provide feedback on each other\u2019s technique.",
+      "Discuss fatigue: CPR is physically demanding. In a real scenario, switch with another person every 2 minutes if possible."
+    ],
+    discussion: [
+      {q:"What happens to CPR quality after 2 minutes of continuous compressions?", answers:["Research shows compression quality — especially depth — decreases significantly after 90\u2013120 seconds due to fatigue. This is why switching rescuers is critical."]},
+      {q:"How do you minimize the interruption when switching CPR providers?", answers:["Plan the switch in advance, switch on a count so the new rescuer starts within 5 seconds, keep total interruption under 10 seconds."]}
+    ],
+    challenge: "Complete 4 consecutive 2-minute CPR sessions with full quality throughout. This is the real-world endurance standard.",
+    tuesday:   { low: {title:"Timing drill", activity:"Practice 100 compressions and count them while maintaining beat. How well do you stay at rate when also counting?"}, mid: {title:"Compression quality feedback", activity:"Research how CPR feedback devices (like the Zoll CPR-D Padz or Laerdal CPR meter) measure compression quality. What metrics do they track?"}, high: {title:"CPR skill decay research", activity:"Research how CPR skills decay over time without practice. What interval of retraining maintains acceptable performance? What does the AHA recommend?"} },
+    wednesday: { low: {title:"Rescue breathing intro", activity:"Research the rescue breathing component of traditional CPR. When would a trained responder add rescue breaths to compressions?"}, mid: {title:"Two-rescuer practice", activity:"Practice two-rescuer CPR with a partner: one compresses for 2 minutes, calls \u2018switching,\u2019 the other takes over within 5 seconds without a pause in compressions."}, high: {title:"High-performance CPR", activity:"Research high-performance CPR (HP-CPR) used by advanced EMS teams. What metrics do they target and how do pit crew-style rotations maximize quality?"} },
+    thursday:  { low: {title:"Full scenario run", activity:"Complete a full scenario: find unresponsive person, check response, call 911, position, compress for 4 minutes total. How was your quality and fatigue?"}, mid: {title:"AED integration drill", activity:"Practice integrating AED use: compressions, AED arrives, analyze, shock (simulated), resume compressions within 10 seconds of shock."}, high: {title:"Cardiac arrest survival chain analysis", activity:"Research survival rates at each link in the cardiac arrest chain of survival. Where does the data show the biggest opportunity for improvement?"} }
+  },
+
+  "Reviewing and updating the 72-hour kit": {
+    gradeHooks: {
+      low: "We check our emergency kit every 6 months to make sure nothing is expired or missing!",
+      mid: "Regular kit review maintains readiness. Rotating food and water, checking batteries, and updating documents keeps the kit functional.",
+      high: "Emergency preparedness maintenance schedules, supply chain considerations, and kit evolution based on changing family needs are important topics."
+    },
+    materials: ["Your 72-hour kit", "Review checklist"],
+    steps: [
+      "Set out every item from the kit. Do a complete inventory against the original list.",
+      "Check expiration dates: food, water (if in soft containers), medications, batteries.",
+      "Update documents: have phone numbers changed? Have insurance cards been renewed?",
+      "Check clothing: do sizes still fit? Has the season changed?",
+      "Repack efficiently. Note any items that need replacement and create a shopping list."
+    ],
+    discussion: [
+      {q:"How often should you formally review your 72-hour kit?", answers:["Every 6 months minimum. Good anchor dates: when clocks change (spring and fall) or on known dates like your birthday or a family anniversary."]},
+      {q:"What is the most commonly expired item in emergency kits?", answers:["Food and medications. Water in plastic bottles should also be rotated every 6\u201312 months. Batteries lose charge over time even unused."]}
+    ],
+    challenge: "Complete a full 72-hour kit review. Create a shopping list for replacements. Set a 6-month reminder for the next review.",
+    tuesday:   { low: {title:"Expiration date audit", activity:"Check every food item and medication in your kit. List everything expiring in the next 6 months and rotate it into regular use."}, mid: {title:"Document update", activity:"Review every document in the kit: insurance cards, ID copies, emergency contacts. Update anything that has changed."}, high: {title:"Seasonal adjustment", activity:"Research how hurricane season timing in Florida should affect your kit review schedule. What should be done before June 1 every year?"} },
+    wednesday: { low: {title:"Battery test", activity:"Test every battery-powered item in the kit. Replace any with dead or low batteries. Note the replacement date on each."}, mid: {title:"Water rotation", activity:"If water is stored in soft plastic bottles, rotate it now. Research the correct rotation schedule for different container types."}, high: {title:"Supply chain preparedness", activity:"Research how supply chain disruptions (like those during COVID-19) affect emergency supply availability. What does this mean for kit building timing?"} },
+    thursday:  { low: {title:"Shopping list creation", activity:"Create a prioritized shopping list for kit replacements. Order by importance: what would you buy first if you only had $20?"}, mid: {title:"New family needs assessment", activity:"Have any family needs changed? New baby, new medication, new pet? Update the kit to reflect current family status."}, high: {title:"Kit optimization research", activity:"Research lightweight emergency kit design for backpacking or car evacuation. What are the lightest options for water purification, food, and shelter that still meet 72-hour needs?"} }
+  },
+
+  "Extension cords and power strips — safe use": {
+    gradeHooks: {
+      low: "Extension cords help electricity reach further, but we have to use them safely or they can start a fire!",
+      mid: "Extension cord and power strip safety involves understanding amp ratings, overloading risks, and the difference between surge protection and basic power strips.",
+      high: "Electrical load calculation, wire gauge and ampacity, surge protection technology, and fire statistics related to extension cord misuse are important topics."
+    },
+    materials: ["Extension cords and power strips to examine"],
+    steps: [
+      "Examine an extension cord: find the amp rating (usually 10\u201315 amps), gauge (AWG), and length.",
+      "Rule 1: never daisy-chain (connect extension cord to extension cord). It creates overloading risk.",
+      "Rule 2: never run extension cords under rugs or through walls. Covered cords can\u2019t dissipate heat.",
+      "Rule 3: match the cord to the load. High-power appliances (space heaters, refrigerators) need heavy-gauge, short cords.",
+      "Explain the difference between a surge protector and a basic power strip: a surge protector has a Joule rating and absorbs voltage spikes."
+    ],
+    discussion: [
+      {q:"Why can\u2019t you plug a space heater into an extension cord?", answers:["Space heaters draw 12\u201315 amps continuously. Most extension cords are rated for 10\u201313 amps and aren\u2019t designed for sustained high loads. The cord overheats and can start a fire."]},
+      {q:"How do you know a surge protector is actually protecting your electronics?", answers:["Check the Joule rating (higher is better, 600+ for computers), the UL listing, and that it has an indicator light showing protection is active. A strip without a Joule rating is just a power strip, not a surge protector."]}
+    ],
+    challenge: "Audit every extension cord and power strip in your home. Check for overloading, damage, and daisy-chaining. Fix or replace anything unsafe.",
+    tuesday:   { low: {title:"Cord rating quiz", activity:"Find 3 extension cords. Read each label: amp rating, wattage, AWG gauge. Which is heaviest gauge and therefore safest for high-load appliances?"}, mid: {title:"Wattage calculation", activity:"Calculate the total wattage of everything plugged into one power strip. Does it exceed the strip\u2019s rating? Research how to calculate this."}, high: {title:"Wire gauge and ampacity", activity:"Research the American Wire Gauge (AWG) system. What is the relationship between gauge number and wire diameter? What is the ampacity of 14 AWG, 12 AWG, and 10 AWG wire?"} },
+    wednesday: { low: {title:"Power strip audit", activity:"Find every power strip in your home. Count devices plugged in. Are any strips overloaded? Are any surge protectors past their rated service life?"}, mid: {title:"Surge protector lifespan", activity:"Research how long surge protectors remain effective. What depletes the MOVs (metal oxide varistors) inside? How do you know when a protector needs replacement?"}, high: {title:"UL listing research", activity:"Research Underwriters Laboratories (UL) testing for power strips and extension cords. What does a UL listing certify and how does it differ from just having a UL mark?"} },
+    thursday:  { low: {title:"Home cord safety pledge", activity:"Write 5 extension cord safety rules and post them near your home\u2019s most-used power strip."}, mid: {title:"Whole-house electrical load", activity:"Research how to calculate your home\u2019s total electrical load. What size service panel does your home have and how close to capacity is it?"}, high: {title:"Electrical fire statistics", activity:"Research NFPA data: what percentage of home structure fires are caused by extension cords and power strips? What are the most common failure modes?"} }
+  },
+
+  "Pressure canning safety": {
+    gradeHooks: {
+      low: "Some foods need extra-hot processing to be safe in jars. A special pot called a pressure canner makes the temperature high enough.",
+      mid: "Pressure canning reaches 240\u00b0F, necessary to destroy botulism spores in low-acid foods like vegetables and meat.",
+      high: "The science of Clostridium botulinum, pressure canning thermodynamics, and USDA process validation are critical food safety topics."
+    },
+    materials: ["Pressure canner or photos of one", "USDA canning guide (printed or online)"],
+    steps: [
+      "Review: water bath canning reaches only 212\u00b0F. Botulism spores survive this temperature in low-acid foods.",
+      "Pressure canning reaches 240\u00b0F at 10 PSI. This temperature destroys botulism spores in the required time.",
+      "Identify low-acid foods requiring pressure canning: green beans, corn, carrots, meat, poultry, fish.",
+      "Walk through the pressure canning process: fill jars, load canner, seal, bring to pressure, hold at required pressure for required time, allow natural pressure release.",
+      "Safety rules: never open a pressurized canner, follow tested recipes exactly, always inspect the gasket and vent before use."
+    ],
+    discussion: [
+      {q:"Why is botulism particularly dangerous with home-canned low-acid vegetables?", answers:["Botulism toxin is colorless, odorless, and tasteless. You cannot detect it by sight or smell. Pressure canning is the only safe method for low-acid foods."]},
+      {q:"Why must you use USDA-tested recipes and not adjust them?", answers:["Processing time and temperature are calculated for specific jar sizes, densities, and heat penetration rates. Changing the recipe changes the heat penetration and may leave the center of the jar undertreated."]}
+    ],
+    challenge: "Find a USDA-tested pressure canning recipe for green beans or carrots. Read it completely and list every safety step mentioned.",
+    tuesday:   { low: {title:"High-acid vs low-acid", activity:"Sort 20 foods into high-acid (water bath) and low-acid (pressure canning) categories. What pH level is the dividing line?"}, mid: {title:"Pressure canner anatomy", activity:"Identify all parts of a pressure canner: gasket, vent pipe, overpressure plug, pressure gauge, and rack. What does each do?"}, high: {title:"Botulinum toxin science", activity:"Research the mechanism of action of botulinum toxin. How does it cause paralysis? Why is it also used medically in small doses (Botox)?"} },
+    wednesday: { low: {title:"Processing time research", activity:"Look up USDA processing times for 3 different low-acid foods. Why do processing times differ between quart and pint jars?"}, mid: {title:"Altitude adjustment", activity:"Research how altitude affects pressure canning. Why must processing pressure be increased at higher altitudes and by how much?"}, high: {title:"Commercial retort processing", activity:"Research commercial retort canning (autoclave). How does it differ from home pressure canning and how are safety standards verified scientifically?"} },
+    thursday:  { low: {title:"Safety checklist", activity:"Create a pressure canning safety checklist: inspect gasket, check vent, verify gauge accuracy, use tested recipe, correct pressure, correct time."}, mid: {title:"Gauge accuracy testing", activity:"Research how to test a pressure canner gauge for accuracy. Where can you get it tested and how often should it be done?"}, high: {title:"Historical canning disasters", activity:"Research historical botulism outbreaks linked to home canning. What common mistakes caused them and how did each change home canning safety recommendations?"} }
+  },
+
+  "Ceramic water filter — how it works": {
+    gradeHooks: {
+      low: "Ceramic water filters have tiny holes that are too small for bacteria and parasites to fit through. Only clean water gets through!",
+      mid: "Ceramic filtration uses pore size to physically remove pathogens. Understanding the limits of ceramic filters is critical for safe use.",
+      high: "Ceramic filter pore size ratings, silver impregnation for antibacterial effect, and flow rate vs purity tradeoffs are important water treatment topics."
+    },
+    materials: ["Ceramic filter element (or photo/diagram)", "Flashlight to show pores"],
+    steps: [
+      "Explain: ceramic filters work by forcing water through millions of tiny pores. Bacteria (0.2\u20132 microns) and protozoa cannot pass through pores of 0.2\u20130.5 microns.",
+      "Common formats: pot-style filter, candle filter, gravity-fed bucket system.",
+      "Silver impregnation: many ceramic filters have silver particles embedded. Silver has antibacterial properties that prevent bacteria from growing on the filter itself.",
+      "Critical limitation: ceramic filters do NOT remove viruses (0.02\u20130.3 microns), heavy metals, or chemicals.",
+      "Maintenance: ceramic filters must be cleaned regularly by scrubbing gently with a brush. A cracked filter must be discarded."
+    ],
+    discussion: [
+      {q:"If a ceramic filter removes bacteria but not viruses, when is it sufficient?", answers:["In areas where the main threat is bacterial and protozoan contamination (most wilderness sources in North America), ceramic is often adequate. In areas with viral waterborne diseases (cholera, hepatitis A), you need additional treatment."]},
+      {q:"How do you know if your ceramic filter is cracked?", answers:["Test it with dye or turbid water. If color passes through, the filter is compromised. Cracks are often invisible to the naked eye."]}
+    ],
+    challenge: "Research the Berkey, British Berkefeld, and ceramic pot filter used in developing countries. Compare micron rating, flow rate, and cost.",
+    tuesday:   { low: {title:"Micron size visualization", activity:"Research the size in microns of: bacteria, Giardia cyst, Cryptosporidium, hepatitis A virus, and a human hair. Draw them to scale."}, mid: {title:"Filter comparison chart", activity:"Create a chart comparing ceramic, hollow fiber, activated carbon, and reverse osmosis filters. Include: removes bacteria, removes viruses, removes chemicals, cost, maintenance."}, high: {title:"Silver nanoparticle research", activity:"Research how silver nanoparticles provide antibacterial activity. What is the mechanism and what are the environmental concerns about silver release in wastewater?"} },
+    wednesday: { low: {title:"Gravity filter build", activity:"Build a simple gravity-fed ceramic filter system using two buckets and a ceramic candle filter. Test flow rate and water clarity."}, mid: {title:"Developing world filters", activity:"Research ceramic pot filters deployed in developing countries by organizations like Potters for Peace. What is their effectiveness and cost?"}, high: {title:"WHO performance standards", activity:"Research WHO performance standards for household water treatment. What log reduction must a filter achieve to be classified as highly protective?"} },
+    thursday:  { low: {title:"Maintenance practice", activity:"Research and demonstrate how to clean a ceramic filter element by scrubbing. Why must you be gentle? What happens if the pores clog?"}, mid: {title:"System design", activity:"Design a complete gravity ceramic filter system for a family of 4 for 72 hours. Calculate flow rate needed and system capacity required."}, high: {title:"Point-of-use treatment global impact", activity:"Research the global impact of household water treatment on diarrheal disease mortality. What interventions have been most cost-effective and why?"} }
+  },
+
+  "Tarp shelter — ridgeline setup": {
+    gradeHooks: {
+      low: "A tarp tied between two trees makes a great rain shelter! We use a ridgeline rope and learn the right knots.",
+      mid: "A ridgeline tarp setup requires selecting anchor points, tensioning the ridgeline, and configuring the tarp for weather conditions.",
+      high: "Tarp shelter optimization involves wind angle, pitch geometry, condensation management, and knot selection for specific loads."
+    },
+    materials: ["Tarp (8x10 or larger)", "Paracord or rope (50 feet)", "Tent stakes or rocks"],
+    steps: [
+      "Select two trees 10\u201312 feet apart. Tie a ridgeline between them at about 6 feet high using a trucker\u2019s hitch for tension.",
+      "Drape the tarp over the ridgeline and extend it to the ground on both sides.",
+      "Angle one side steeply to the ground toward prevailing wind (this side sheds rain and blocks wind).",
+      "Stake out the corners. The opposite side can be raised for ventilation or lowered for more coverage.",
+      "Add guylines to the corners for stability in wind."
+    ],
+    discussion: [
+      {q:"Why does the steep side face into the wind?", answers:["A steep windward wall deflects wind over the top. A vertical or slight angled tarp facing wind creates a scoop that can rip out stakes or collapse the shelter."]},
+      {q:"What knot is most useful for a ridgeline and why?", answers:["The trucker\u2019s hitch creates a mechanical advantage (3:1) for tensioning a line very tight. It is easy to tie and untie even under tension."]}
+    ],
+    challenge: "Set up a ridgeline tarp shelter in your backyard. Test it with a hose for rain resistance. Adjust and improve until it is dry inside.",
+    tuesday:   { low: {title:"Knot practice", activity:"Learn and practice 3 knots essential for tarp setup: bowline (fixed loop), trucker\u2019s hitch (tensioning), and taut-line hitch (adjustable)."}, mid: {title:"Tarp configuration variations", activity:"Research 5 tarp configurations: A-frame, lean-to, diamond, plow point, and flying diamond. When is each configuration most useful?"}, high: {title:"Condensation management", activity:"Research how tarp pitch angle affects condensation inside a shelter. How does airflow prevent condensation and what configurations maximize ventilation?"} },
+    wednesday: { low: {title:"Ridgeline height testing", activity:"Test your tarp at 3 different ridgeline heights. How does height change the usable interior space and the rain protection?"}, mid: {title:"Guyline tensioning", activity:"Research why guylines at 45-degree angles from the corners provide the best structural support. Practice tensioning them evenly."}, high: {title:"Wind load analysis", activity:"Research how wind pressure scales with speed. At what wind speed does a standard tarp setup become unsafe? How do professional expedition teams reinforce shelters?"} },
+    thursday:  { low: {title:"Overnight challenge", activity:"With family, sleep one night under your tarp shelter in the backyard. What would you improve for real-world use?"}, mid: {title:"Minimalist kit", activity:"Design the minimum kit for a tarp shelter system under 2 pounds: tarp size, cord length, stakes, and repair tape. Calculate total weight."}, high: {title:"Emergency tarp use", activity:"Research non-shelter emergency tarp uses: ground sheet, litter (stretcher), water collection, signaling. How would you configure a tarp for each use?"} }
+  },
+
+  "Opening a savings account — how it works": {
+    gradeHooks: {
+      low: "Opening a savings account is one of the first steps to managing money as a grown-up. Let\u2019s see how it works!",
+      mid: "Understanding the process, requirements, and tradeoffs of opening a savings account builds practical financial literacy.",
+      high: "Account types, fee structures, FDIC insurance, and the banking relationship from a consumer perspective are important personal finance topics."
+    },
+    materials: ["Bank or credit union website to explore", "Paper for notes"],
+    steps: [
+      "Research: what do you need to open a savings account? (ID, Social Security number, initial deposit, sometimes a parent for minors)",
+      "Compare 3 options: a traditional bank, a credit union, and an online bank.",
+      "Evaluate each on: interest rate (APY), minimum balance, monthly fees, and ATM access.",
+      "Discuss custodial accounts for minors: a parent is the custodian until the child reaches adulthood.",
+      "Calculate: if you deposit $200 and earn the APY of each option, how much do you have after 1 year? After 5?"
+    ],
+    discussion: [
+      {q:"Why might a credit union or online bank offer a higher interest rate than a traditional bank?", answers:["Credit unions are member-owned nonprofits and return profits to members as higher rates. Online banks have no physical branch costs and pass those savings to customers."]},
+      {q:"What happens to your savings if a bank fails?", answers:["FDIC insurance protects deposits up to $250,000 per depositor per bank. You would receive your full balance back from the FDIC."]}
+    ],
+    challenge: "Research and compare 3 savings accounts. Prepare a recommendation for which your family should use, with supporting data.",
+    tuesday:   { low: {title:"Account comparison chart", activity:"Compare 3 savings accounts: traditional bank, credit union, and online bank. Compare APY, minimum balance, fees, and FDIC coverage."}, mid: {title:"Compound interest projections", activity:"Using the APY from each account option, calculate the balance after 1, 5, and 10 years for a $500 initial deposit with $25/month contributions."}, high: {title:"Banking regulation overview", activity:"Research which government agencies regulate banks (FDIC, OCC, Federal Reserve, CFPB). What consumer protections does each provide?"} },
+    wednesday: { low: {title:"Fee awareness", activity:"Research monthly maintenance fees for 5 savings accounts. Calculate the annual cost of each fee. How does a fee compare to the interest earned?"}, mid: {title:"Account opening process", activity:"Walk through the actual online account opening process for one bank. What personal information is requested and why? What is verified?"}, high: {title:"Know Your Customer (KYC)", activity:"Research Know Your Customer (KYC) regulations. Why do banks require identity verification and what anti-money laundering laws drive this requirement?"} },
+    thursday:  { low: {title:"Savings goal projection", activity:"If you save $10/week in the account with the best APY, how long until you reach a $500 goal? A $1,000 goal?"}, mid: {title:"Joint vs individual accounts", activity:"Research joint savings accounts. When are they useful (parent/child, spouses)? What are the risks and benefits?"}, high: {title:"Fintech disruption", activity:"Research how fintech companies (Chime, SoFi, Marcus) have disrupted traditional banking. What advantages do they offer and what risks should consumers understand?"} }
+  },
+
+
+
   "What is a neighborhood emergency plan?": {
     gradeHooks: {
       low: "A neighborhood emergency plan helps everyone on our street know what to do and how to help each other.",
