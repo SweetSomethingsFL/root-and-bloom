@@ -139,6 +139,3964 @@ const LS_KEY = "rootbloom_v1";
 
 const LR_LESSON_PLANS = {
 
+  "Pediatric CPR differences": {
+    gradeHooks: {
+      low: "Babies and small children need different CPR than adults. We use fewer fingers, press less deeply, and breathe more gently.",
+      mid: "Pediatric CPR adapts compression depth, hand position, compression-to-breath ratios, and rescue breathing technique for smaller bodies.",
+      high: "Age-specific cardiac arrest etiologies, pediatric resuscitation research, and the physiological basis for protocol differences are important medical topics."
+    },
+    materials: ["Infant CPR mannequin or doll", "Child CPR mannequin or pillow"],
+    steps: [
+      "Infant (<1 year): two-finger technique (index and middle fingers) on center of chest, just below nipple line. Compress 1.5 inches. Cover both nose and mouth for rescue breaths.",
+      "Child (1\u201312 years): one or two hands depending on child size. Compress at least 2 inches. Pinch nose, seal mouth for rescue breaths.",
+      "Both: rate 100\u2013120 compressions per minute. Allow full chest recoil. Minimize interruptions.",
+      "Two-rescuer pediatric: use 15:2 ratio (vs 30:2 for single rescuer). More frequent breaths address the respiratory etiology.",
+      "Call order: for witnessed sudden collapse in a child, call 911 first. For an unresponsive infant found already in arrest, provide 2 minutes of CPR first then call."
+    ],
+    discussion: [
+      {q:"Why do pediatric resuscitation guidelines emphasize rescue breathing more than adult guidelines?", answers:["Most adult cardiac arrests are primary cardiac events (the heart stops first). Most pediatric arrests are secondary to respiratory failure (airway obstruction, drowning, respiratory illness). Rescue breaths address the oxygen deficit that caused the arrest."]},
+      {q:"What is the two-thumb encircling technique for infant CPR and when is it used?", answers:["The two-thumb encircling technique uses both thumbs on the sternum with the hands encircling the infant\u2019s chest. It produces better compression depth and less fatigue than two fingers, and is preferred when two rescuers are present. It also delivers compressions more centrally."]}
+    ],
+    challenge: "Complete a 5-minute infant and 5-minute child CPR practice session. Demonstrate correct hand position and depth for each. Describe how the technique differs from adult CPR.",
+    tuesday:   { low: {title:"Infant rescue breathing", activity:"Practice infant rescue breathing technique on a doll. How gently do you need to breathe to see minimal chest rise without overinflating?"}, mid: {title:"Two-thumb technique practice", activity:"Practice the two-thumb encircling technique on an infant mannequin. Compare fatigue and compression depth to the two-finger technique over 2 minutes."}, high: {title:"Pediatric arrest causes research", activity:"Research the leading causes of cardiac arrest in infants (SIDS, respiratory illness), toddlers (drowning, foreign body), and older children (trauma, arrythmia). How does each etiology affect resuscitation approach?"} },
+    wednesday: { low: {title:"SIDS awareness", activity:"Research SIDS prevention for caregivers: safe sleep guidelines (back to sleep, firm surface, no soft bedding)."}, mid: {title:"Pediatric AED considerations", activity:"Research pediatric AED pad placement and energy delivery. At what age/weight can adult pads be used? What does the pediatric attenuator do?"}, high: {title:"Hypothermia and pediatric arrest", activity:"Research the role of therapeutic hypothermia in pediatric post-arrest care. What outcomes data support it and how does it differ from adult applications?"} },
+    thursday:  { low: {title:"Choking and infant CPR connection", activity:"Practice the complete infant choking response: back blows, chest thrusts, and transition to CPR if the infant becomes unresponsive."}, mid: {title:"PALS overview", activity:"Research Pediatric Advanced Life Support (PALS). What does it cover beyond BLS and who is it designed for?"}, high: {title:"Neonatal resuscitation", activity:"Research Neonatal Resuscitation Program (NRP) for newborns. How does resuscitation of a newborn in the delivery room differ from infant CPR?"} }
+  },
+
+  "NIMS — National Incident Management intro": {
+    gradeHooks: {
+      low: "NIMS is the national system that makes sure all emergency responders — from different towns, states, or agencies — can work together using the same system.",
+      mid: "NIMS provides a standardized framework for incident management that allows any combination of agencies to work together effectively.",
+      high: "NIMS components, the evolution of ICS, and the research on coordinated emergency response effectiveness are important emergency management topics."
+    },
+    materials: ["FEMA NIMS documentation"],
+    steps: [
+      "NIMS purpose: before NIMS, different agencies used different command systems, creating coordination failures (notably in 9/11 response). NIMS standardized everything.",
+      "NIMS components: Incident Command System (ICS), Multi-Agency Coordination, Public Information, Resource Management, and Communications.",
+      "ICS structure: Incident Commander at the top, with 4 functional sections: Operations, Planning, Logistics, Finance/Administration.",
+      "Unified Command: when multiple agencies have jurisdiction, they form a Unified Command rather than arguing over who\u2019s in charge.",
+      "Scalability: the same ICS structure scales from a single-unit response to a multi-state disaster with thousands of responders."
+    ],
+    discussion: [
+      {q:"Why was a standardized national incident management system considered necessary after the 9/11 response?", answers:["The 9/11 Commission found that communication failures and incompatible command structures between NYPD, FDNY, and other agencies contributed to responder deaths. Agencies couldn\u2019t communicate directly, duplicate efforts occurred, and no unified command coordinated the response. NIMS and ICS were mandated for all federal funding recipients."]},
+      {q:"What is the span of control principle in ICS and why does it matter?", answers:["Each supervisor manages 3\u20137 subordinates (optimal 5). This prevents any one person from being overwhelmed and losing situational awareness. As incidents grow, sections, branches, and divisions are created to maintain appropriate spans of control at every level."]}
+    ],
+    challenge: "Draw a fully labeled ICS organizational chart for a 50-person incident. Include the Incident Commander, all 4 sections, and appropriate span of control.",
+    tuesday:   { low: {title:"ICS structure diagram", activity:"Draw and label the full ICS organizational chart. Label: Incident Commander, Operations, Planning, Logistics, Finance/Administration, and 2 levels below each section chief."}, mid: {title:"NIMS credentialing research", activity:"Research NIMS credentialing. What training is required for different ICS positions and how are credentials maintained?"}, high: {title:"NIMS critique research", activity:"Research academic critiques of NIMS/ICS. What organizational behavior researchers have identified as limitations of the system in complex, rapidly evolving disasters?"} },
+    wednesday: { low: {title:"Unified Command scenario", activity:"Research a real incident that used Unified Command. Who were the agencies involved and how did Unified Command resolve jurisdictional conflicts?"}, mid: {title:"FEMA IS-100 course", activity:"Complete FEMA\u2019s free online IS-100 (Introduction to ICS) course at training.fema.gov. This is the foundational NIMS course."}, high: {title:"ICS in private sector", activity:"Research how ICS principles have been adopted in the private sector: hospital incident command (HICS), corporate emergency response, and utility emergency restoration."} },
+    thursday:  { low: {title:"Local emergency management", activity:"Research your county\u2019s emergency management structure. How does it fit into the ICS/NIMS framework? Who is the Emergency Manager?"}, mid: {title:"EOC vs ICS distinction", activity:"Research the distinction between an Emergency Operations Center (EOC) and an Incident Command Post (ICP). What functions does each perform and how do they coordinate?"}, high: {title:"Future of emergency management", activity:"Research how AI, social media, and remote sensing are being integrated into NIMS-based emergency management. What are the opportunities and risks?"} }
+  },
+
+  "Wind turbine basics — DIY small scale": {
+    gradeHooks: {
+      low: "Small wind turbines can generate electricity from wind at home. The blades spin, turning a generator that makes electricity!",
+      mid: "Small-scale wind turbines require understanding wind resource assessment, generator types, charge controllers, and tower requirements.",
+      high: "Wind turbine aerodynamics, permanent magnet generator design, and the economics of small-scale wind vs solar in different climates are important topics."
+    },
+    materials: ["Small wind turbine kit or DC motor (can substitute as generator)", "Fan for demonstration"],
+    steps: [
+      "Components: rotor blades, hub, generator (permanent magnet alternator), tail (for facing into wind), tower, charge controller, battery.",
+      "Wind resource: small turbines need average wind speeds of 10+ mph to be economically viable. Florida is generally poor for small wind.",
+      "Height matters: wind speed increases significantly with height above ground. A 20-foot tower may have 50% of the wind resource of a 60-foot tower.",
+      "Generator output: small turbines produce variable voltage AC, rectified to DC, then regulated by a charge controller for battery charging.",
+      "DIY construction: blade carving from wood or PVC, permanent magnet alternator winding, and tower construction are achievable projects."
+    ],
+    discussion: [
+      {q:"Why is Florida generally not a good location for small wind turbines despite being exposed to sea breezes?", answers:["Florida\u2019s average wind speed is relatively low (8\u201310 mph in most inland areas). Small turbines typically need consistent 10+ mph average winds for good economics. Additionally, Florida\u2019s building codes after Hurricane Andrew are very strict about tower structures. Solar typically outperforms small wind in Florida."]},
+      {q:"Why does wind turbine power output scale with the cube of wind speed?", answers:["Power in the wind = \u00bd x air density x swept area x velocity\u00b3. The cubic relationship is why finding a high-wind site is so critical. A 15 mph wind has 3.4x the power of a 10 mph wind."]}
+    ],
+    challenge: "Using a DC motor as a generator and hand-crafted blades, build a small model wind turbine. Test output with a multimeter at different fan speeds.",
+    tuesday:   { low: {title:"Blade design experiment", activity:"Cut 3 different blade designs from cardboard. Test each in front of a fan. Which produces the most shaft rotation?"}, mid: {title:"Generator winding concept", activity:"Research permanent magnet alternator construction. How does coil winding and magnet arrangement determine output voltage and current?"}, high: {title:"Blade aerodynamics", activity:"Research wind turbine blade airfoil profiles. How does the lift-to-drag ratio of a blade cross-section affect efficiency? What is the tip speed ratio and why does it matter?"} },
+    wednesday: { low: {title:"Power calculation", activity:"If a small turbine produces 400W at 12 mph wind, use the cubic scaling law to estimate output at 8 mph and 16 mph."}, mid: {title:"Wind resource assessment", activity:"Research how to assess wind resource at a specific site: anemometer placement, measurement duration, and the Weibull distribution for modeling wind speed variability."}, high: {title:"Betz limit application", activity:"Apply the Betz limit (59.3%) and typical mechanical/electrical efficiency (40% total) to calculate the realistic power output from a turbine with a 6-foot diameter rotor at 12 mph."} },
+    thursday:  { low: {title:"Complete model build", activity:"Complete your model wind turbine. Mount it on a post and test outside or with a fan. What improvements would make it more efficient?"}, mid: {title:"Battery charging system", activity:"Design the charge controller and battery system for your model turbine. Research what charge controller features are important for wind (dump load for overspeed)."}, high: {title:"Hybrid solar-wind system", activity:"Research hybrid solar-wind systems. How do they complement each other in terms of generation timing and how is the combined system sized for off-grid reliability?"} }
+  },
+
+  "Calculating caloric needs for your family": {
+    gradeHooks: {
+      low: "Each person needs a different number of calories depending on their age, size, and activity level. We calculate our family\u2019s total needs!",
+      mid: "Accurate caloric need calculations enable proper emergency food planning and nutritional preparedness.",
+      high: "Energy metabolism, the Harris-Benedict equation, and the difference between basal metabolic rate and total daily energy expenditure are important health topics."
+    },
+    materials: ["Calculator", "Family member data (age, weight, height, activity level)"],
+    steps: [
+      "Basal Metabolic Rate (BMR): calories needed at complete rest. Harris-Benedict equation for adults: men: 66 + (6.23 x weight in lbs) + (12.7 x height in inches) \u2013 (6.8 x age). Women: 655 + (4.35 x weight) + (4.7 x height) \u2013 (4.7 x age).",
+      "Activity multiplier: sedentary (BMR x 1.2), lightly active (x 1.375), moderately active (x 1.55), very active (x 1.725).",
+      "Emergency context: post-disaster manual labor may push activity level higher than normal.",
+      "Children: use age-based tables (children ages 2\u201318 range from 1,000\u20133,200 calories depending on age, sex, and activity).",
+      "Family total: sum all individual needs. This is the daily calorie target for emergency food planning."
+    ],
+    discussion: [
+      {q:"Why might a family\u2019s caloric needs be higher than normal during a major disaster?", answers:["Manual labor (debris clearing, carrying supplies, evacuation on foot) can push energy expenditure 50\u2013100% above normal. Cold weather increases needs further (thermogenesis). Stress also increases basal metabolic rate. Emergency food plans should include a buffer above calculated resting needs."]},
+      {q:"What is the difference between BMR and TDEE and which should be used for emergency food planning?", answers:["BMR is the calories needed at complete rest (keeping organs functioning). TDEE (Total Daily Energy Expenditure) includes physical activity. For emergency food planning, use TDEE (activity-adjusted calories) to ensure people have enough energy to actually function and respond to the emergency."]}
+    ],
+    challenge: "Calculate the BMR and TDEE for each family member. Sum the total daily caloric need. How many pounds of rice and beans would meet your family\u2019s caloric needs for 2 weeks?",
+    tuesday:   { low: {title:"BMR calculation practice", activity:"Calculate BMR for 5 different people using the Harris-Benedict equation. How does age affect BMR? How does a 50-pound weight difference affect it?"}, mid: {title:"Activity-adjusted calculations", activity:"Calculate TDEE for each family member using the activity multiplier appropriate for each person\u2019s typical day. How does the range across family members affect food planning?"}, high: {title:"Metabolic research", activity:"Research how metabolic rate changes during caloric restriction. What is metabolic adaptation and why does it complicate both weight loss and long-term survival scenarios?"} },
+    wednesday: { low: {title:"Caloric density of pantry staples", activity:"Calculate calories per pound for: white rice, dried beans, peanut butter, oats, and pasta. Which provides the most calories per storage pound?"}, mid: {title:"Two-week food weight calculation", activity:"Using your family\u2019s TDEE, calculate how many pounds of shelf-stable food are needed for 2 weeks. Assume rice (1,600 cal/lb) and beans (1,600 cal/lb) as primary sources."}, high: {title:"Nutritional anthropology", activity:"Research how traditional cultures in food-scarce environments managed seasonal caloric restriction. What physiological adaptations and cultural practices helped them survive and maintain function?"} },
+    thursday:  { low: {title:"Family calorie summary", activity:"Create a one-page family caloric need summary: each member\u2019s BMR, TDEE, and special considerations. Post it with your emergency planning materials."}, mid: {title:"Emergency ration comparison", activity:"Compare your calculated family TDEE to standard military rations (3,600 cal/day for active service) and emergency food rations (2,000 cal/day). What is the right target for your family?"}, high: {title:"Starvation physiology", activity:"Research the physiological stages of starvation: glycogen depletion, gluconeogenesis, ketosis, and protein catabolism. At what point does cognitive impairment become significant?"} }
+  },
+
+  "Water table — wells and aquifers": {
+    gradeHooks: {
+      low: "Underground water is stored in layers of rock and soil called aquifers. Wells drill down to reach this water!",
+      mid: "Understanding aquifer types, the water table, and how wells access groundwater is essential for anyone relying on private wells.",
+      high: "Hydrogeology, the Floridan Aquifer System, groundwater flow, and the threats of saltwater intrusion and aquifer depletion are important topics."
+    },
+    materials: ["Florida geological survey resources", "Water table depth data for your county"],
+    steps: [
+      "Aquifer types: unconfined aquifer (water table rises and falls seasonally, vulnerable to surface contamination) vs confined aquifer (sealed between impermeable layers, deeper, more protected).",
+      "Water table: the upper surface of an unconfined aquifer. It rises after rain and drops during drought.",
+      "Florida\u2019s aquifer: the Floridan Aquifer System is one of the world\u2019s largest and most productive aquifer systems, extending 100,000 square miles.",
+      "Well types: shallow wells (<50 feet, unconfined aquifer) vs deep wells (100\u2013700+ feet into the Floridan). Deep wells are more reliable and protected.",
+      "Saltwater intrusion: in coastal areas, excessive pumping can allow saltwater to infiltrate freshwater aquifers, permanently contaminating them."
+    ],
+    discussion: [
+      {q:"Why does the Floridan Aquifer System remain one of the most productive aquifers in the world despite Florida\u2019s heavy water use?", answers:["The Floridan Aquifer is extensively recharged by Florida\u2019s abundant rainfall through sinkholes, springs, and permeable surface soils. The karstic limestone structure allows rapid water infiltration and high permeability. Annual recharge roughly balances pumping in most areas, though some regions show declining water levels."]},
+      {q:"What is saltwater intrusion and why is it irreversible once it occurs?", answers:["Saltwater intrusion happens when excessive groundwater pumping near the coast lowers the freshwater pressure, allowing denser saltwater to migrate inland through the aquifer. Once saline water occupies pore spaces in the aquifer, the damage is effectively permanent on human timescales."]}
+    ],
+    challenge: "Research the water table depth for your county and the depth of the Floridan Aquifer. Look up any recent reports on aquifer health or saltwater intrusion in your area.",
+    tuesday:   { low: {title:"Water cycle and aquifer connection", activity:"Draw a diagram showing how rainfall recharges an unconfined aquifer and how a confined aquifer is recharged from distant recharge zones."}, mid: {title:"Spring research", activity:"Research Florida\u2019s springs as expressions of the Floridan Aquifer. Why are spring flows decreasing in many locations and what does this indicate about aquifer health?"}, high: {title:"Groundwater flow modeling", activity:"Research Darcy\u2019s Law for groundwater flow. How does permeability, hydraulic gradient, and cross-sectional area determine groundwater flow rate?"} },
+    wednesday: { low: {title:"Water management district research", activity:"Research the water management district responsible for your area. What permits are required for new wells and what regulations protect the aquifer?"}, mid: {title:"Sinkhole connection", activity:"Research the connection between the Floridan Aquifer and Florida\u2019s sinkholes. How does aquifer level change and dissolution of limestone create sinkhole risk?"}, high: {title:"Saltwater intrusion mapping", activity:"Research USGS saltwater intrusion mapping in coastal Florida. Which areas are most at risk and what land use changes have accelerated the problem?"} },
+    thursday:  { low: {title:"Water conservation impact", activity:"Research how water conservation by individual households affects aquifer levels. What are the most impactful conservation actions for a Florida homeowner?"}, mid: {title:"Artificial recharge", activity:"Research aquifer storage and recovery (ASR) systems used in Florida. How does injecting treated surface water into aquifers during wet periods provide water security during droughts?"}, high: {title:"Aquifer depletion globally", activity:"Research the Ogallala Aquifer depletion crisis in the US Great Plains. How does it compare to Florida\u2019s Floridan situation and what are the agricultural and policy implications?"} }
+  },
+
+  "Building a raised garden bed": {
+    gradeHooks: {
+      low: "A raised garden bed sits above the ground and gives plants perfect soil to grow in. We build one from wood and fill it with great soil!",
+      mid: "Raised bed construction requires material selection, appropriate dimensions, soil mix preparation, and drainage consideration.",
+      high: "Raised bed horticulture, soil science, and the economics of raised bed vs in-ground gardening are important agricultural topics."
+    },
+    materials: ["Untreated cedar or pine boards (2x6 or 2x8)", "Deck screws", "Cardboard for weed barrier", "Soil mix materials"],
+    steps: [
+      "Materials: use untreated cedar (naturally rot-resistant) or pine. Avoid pressure-treated wood near food crops (contains copper arsenic compounds in older versions).",
+      "Dimensions: width should not exceed 4 feet (to reach the center from both sides without stepping in). Length is flexible. Height: 8\u201312 inches minimum.",
+      "Construction: butt-joint corners with 3-inch deck screws. Galvanized or stainless steel screws for longevity.",
+      "Weed barrier: lay cardboard inside the bed before adding soil. It suppresses weeds and decomposes into organic matter.",
+      "Soil mix: avoid using native soil. Use Mel\u2019s Mix (1/3 compost, 1/3 peat moss or coconut coir, 1/3 vermiculite) or a comparable premixed raised bed soil."
+    ],
+    discussion: [
+      {q:"Why should raised beds not exceed 4 feet in width?", answers:["You need to reach the center of the bed to plant, weed, and harvest without stepping on the soil. Stepping on soil compacts it, destroying the aeration that makes raised beds productive. A 4-foot maximum width allows access from both sides."]},
+      {q:"Why is native Florida soil generally not suitable to use in a raised bed without significant amendment?", answers:["Florida\u2019s native sandy soil drains too rapidly, holds almost no nutrients, and has minimal moisture retention. Adding it to a raised bed results in soil that won\u2019t hold water or nutrients. Raised bed mix specifically addresses these limitations with components that improve retention, structure, and fertility."]}
+    ],
+    challenge: "Design and build a 4x8 foot raised bed. Fill it with appropriate soil mix. Plant it with currently in-season Florida crops.",
+    tuesday:   { low: {title:"Material selection", activity:"Research lumber options for raised bed construction. Compare cedar, pine, and composite materials for: longevity, cost, safety, and availability."}, mid: {title:"Soil mix calculation", activity:"Calculate how many cubic feet of soil mix a 4x8x12-inch bed requires. Calculate the cost of Mel\u2019s Mix using current prices for compost, peat moss, and vermiculite."}, high: {title:"Biointensive growing research", activity:"Research biointensive gardening methods (John Jeavons). How do double-digging and close plant spacing compare to raised bed production in terms of yield per square foot?"} },
+    wednesday: { low: {title:"Construction project", activity:"Build your raised bed frame. Focus on: square corners (measure diagonals), level (use a level on the top rail), and secure connections."}, mid: {title:"Irrigation planning", activity:"Design a drip irrigation system for your raised bed. Research soaker hose vs drip tape vs emitter systems. What is the cost and installation effort for each?"}, high: {title:"Soil food web in raised beds", activity:"Research how the soil food web develops in a raised bed over multiple seasons. How do cover cropping, compost additions, and no-till management build biological soil health?"} },
+    thursday:  { low: {title:"Planting day", activity:"Fill the bed with soil mix and plant it according to the square foot gardening grid. Water in with a gentle spray."}, mid: {title:"Multi-year plan", activity:"Create a 3-year crop rotation plan for your raised bed. Research which crop families should not follow each other and plan your succession accordingly."}, high: {title:"Raised bed economics", activity:"Calculate the cost per pound of produce from your raised bed over 5 years. Compare to grocery store prices. At what yield level does the bed pay for itself?"} }
+  },
+
+  "Filing a simple tax return — 1040EZ": {
+    gradeHooks: {
+      low: "The 1040 is the form people use to file their taxes with the federal government. The simple version is easier — but taxes aren\u2019t optional!",
+      mid: "Filing a basic tax return requires understanding income types, standard deductions, and how to use free filing tools.",
+      high: "Tax return preparation, the tax filing ecosystem, free filing options, and common errors in basic returns are important financial literacy topics."
+    },
+    materials: ["Sample W-2 form", "1040 form (current year)", "IRS Free File resources"],
+    steps: [
+      "Gather documents: W-2 (wages from employer), 1099-INT (bank interest), 1099-DIV (dividends), Social Security number for all family members.",
+      "Choose filing status: single, married filing jointly, married filing separately, head of household, or qualifying widow(er).",
+      "Calculate adjusted gross income (AGI): total income minus above-the-line deductions (student loan interest, IRA contributions, etc.).",
+      "Apply standard deduction: reduces taxable income. Look up current year amounts.",
+      "Calculate tax using tax tables, apply credits (Child Tax Credit, Earned Income Credit if applicable), and compare to withholding to determine refund or amount owed."
+    ],
+    discussion: [
+      {q:"What happens if you don\u2019t file a tax return by the April 15th deadline?", answers:["The IRS charges both a failure-to-file penalty (5% per month of unpaid tax, max 25%) and a failure-to-pay penalty (0.5% per month). You can file for a 6-month extension (Form 4868) to October 15, but this extends the filing deadline, NOT the payment deadline. You still owe interest on unpaid taxes from April 15."]},
+      {q:"Who can use IRS Free File and what does it offer?", answers:["Taxpayers with adjusted gross income under $73,000 (adjusted annually) can use IRS Free File partner software at no cost. The Free File Fillable Forms version is available to anyone. These programs guide you through the return, do the math, and file electronically."]}
+    ],
+    challenge: "Using a sample W-2 and the current 1040 form (or a tax simulator), complete a practice return for a single filer with $35,000 of wages. Calculate the refund or amount owed.",
+    tuesday:   { low: {title:"Form W-2 reading", activity:"Read every box on a sample W-2. What does each box represent? Which boxes are used in the 1040 and where do they go?"}, mid: {title:"Standard deduction research", activity:"Look up the current standard deduction amounts for all filing statuses. How does the standard deduction compare to the personal exemption system it replaced in 2018?"}, high: {title:"Tax software comparison", activity:"Research TurboTax, H&R Block, FreeTaxUSA, and IRS Free File. Compare cost, user experience, accuracy, and what support is available if audited."} },
+    wednesday: { low: {title:"1040 walkthrough", activity:"Walk through a blank 1040 line by line. For each section, describe what it asks for and why it matters."}, mid: {title:"Earned Income Credit research", activity:"Research the Earned Income Tax Credit (EITC). Who qualifies, what is the maximum credit, and why is it considered one of the most effective anti-poverty programs?"}, high: {title:"Tax audit risk research", activity:"Research what triggers IRS audits. What red flags increase audit probability and what does the audit process involve?"} },
+    thursday:  { low: {title:"Practice return", activity:"Complete a practice tax return using a tax simulator (H&R Block\u2019s free estimator or similar). Use realistic sample income data."}, mid: {title:"State tax return research", activity:"Research whether your state requires a tax return even if Florida doesn\u2019t (for families with income in other states, or families who may move)."}, high: {title:"Tax planning vs tax preparation", activity:"Research the difference between tax preparation (filing what happened) and tax planning (making decisions in advance to minimize taxes). What strategies can a middle-income family use to reduce their tax burden legally?"} }
+  },
+
+  "Pace count for distance measurement": {
+    gradeHooks: {
+      low: "Counting our steps is one way to measure how far we\u2019ve walked without any tools. We calibrate our personal pace count first!",
+      mid: "A calibrated pace count enables accurate distance measurement in the field without instruments, essential for land navigation.",
+      high: "Pace count applications, terrain adjustment factors, and the integration of pace count with compass navigation for precision dead reckoning are important topics."
+    },
+    materials: ["Measured course of exactly 100 meters", "Pace counter beads (or tally counter)"],
+    steps: [
+      "Calibration: walk 100 meters on flat ground at your natural pace. Count only when your right foot hits the ground (double paces). Repeat 3 times and average.",
+      "Typical calibrated count: 60\u201370 double paces per 100 meters for an adult (varies widely by individual).",
+      "Terrain adjustment: add 15\u201320% for uphill, 10% for downhill, 20\u201330% for heavy brush or sand.",
+      "Pace counter beads: string of 9 beads moves down with each 100 meters. Second string of 4 beads tracks kilometers.",
+      "Practice: navigate to a series of waypoints using compass + pace count. Compare estimated arrival position to GPS."
+    ],
+    discussion: [
+      {q:"Why do you count double paces (every time the right foot strikes) rather than every step?", answers:["Counting every step is more error-prone because the count is twice as fast. Double paces (right foot only) halve the count, reducing counting errors, especially over long distances or when focused on navigation."]},
+      {q:"What factors other than terrain affect your pace count and why must you account for them?", answers:["Load (a heavy pack shortens your stride), fatigue (pace shortens late in the day), darkness (people instinctively take shorter steps at night), and vegetation density all affect pace length. A navigation plan should include adjustment factors for anticipated conditions."]}
+    ],
+    challenge: "Calibrate your pace count on flat ground. Then measure a known distance (like a football field) using pace count and compare to the actual distance. What is your error percentage?",
+    tuesday:   { low: {title:"Calibration exercise", activity:"Calibrate your pace count on a 100m course 3 times. Calculate the average. Make pace counter beads from cord and beads."}, mid: {title:"Terrain adjustment practice", activity:"Walk 200m on flat ground, 200m uphill, and 200m through heavy grass. Count paces for each. What adjustment factor does your data suggest for each terrain?"}, high: {title:"Statistical error analysis", activity:"Walk a 500m straight-line course 5 times and record your pace count each time. Calculate the standard deviation. What does this tell you about your reliability over long distances?"} },
+    wednesday: { low: {title:"Combined pace + compass", activity:"Navigate a 3-point course using azimuth and pace count. Log each leg. Compare estimated endpoint to GPS."}, mid: {title:"Pace count at night", activity:"Repeat your calibration at night or in low light. How does your pace length change? What is the adjustment factor?"}, high: {title:"Ranger pace count methodology", activity:"Research US Army Ranger School land navigation standards. What accuracy is required on a standard night navigation course and what methods are taught?"} },
+    thursday:  { low: {title:"Pace counter bead system", activity:"Practice using ranger beads for a 1km navigation leg. Move a bead down with every 100m. How does the system help you track distance without mental arithmetic?"}, mid: {title:"Vehicle dead reckoning", activity:"Research how odometer readings and compass headings can provide dead reckoning for vehicle navigation. What accuracy can be achieved?"}, high: {title:"INS comparison", activity:"Research Inertial Navigation Systems that effectively implement electronic dead reckoning. How do accelerometers and gyroscopes measure movement and what error sources limit accuracy?"} }
+  },
+
+  "Medicinal herbs — echinacea elderberry yarrow": {
+    gradeHooks: {
+      low: "Some plants have been used as medicine for thousands of years. Echinacea, elderberry, and yarrow are three that still have scientific support!",
+      mid: "Evidence-based herbal medicine requires understanding what research supports, what it doesn\u2019t, and appropriate versus inappropriate applications.",
+      high: "Phytochemistry, clinical evidence for herbal medicines, herb-drug interactions, and the regulatory landscape for herbal supplements are important topics."
+    },
+    materials: ["Dried herbs or research materials", "Small jars for tincture/tea preparation"],
+    steps: [
+      "Echinacea: several species used for immune support. Clinical evidence supports modest reduction in cold duration (0.58 days average). Best used at onset of illness, not as ongoing prevention.",
+      "Elderberry (Sambucus nigra): syrup shows evidence for reducing flu duration (4 days to 2 days in one study). Must be cooked — raw berries contain cyanogenic glycosides. Easy to prepare as syrup.",
+      "Yarrow (Achillea millefolium): traditional wound treatment (staunches bleeding, antimicrobial). External use well-supported. Internal use for fever reduction has some evidence.",
+      "Preparation: echinacea tincture (alcohol extraction), elderberry syrup (berry decoction with honey), yarrow poultice or wound compress.",
+      "Safety: discuss contraindications (echinacea in autoimmune conditions, elderberry interaction with immunosuppressants, yarrow allergy in ragweed-sensitive individuals)."
+    ],
+    discussion: [
+      {q:"How does the evidence for elderberry syrup compare to over-the-counter cold medications?", answers:["Elderberry has better clinical evidence than most OTC cold remedies. Oseltamivir (Tamiflu) is more effective for flu, but elderberry compares favorably to zinc lozenges and most OTC symptom treatments. The key studies are small but consistent in showing reduced duration."]},
+      {q:"Why is it important to verify herbal remedies with clinical evidence rather than traditional use alone?", answers:["Traditional use demonstrates safety over time but doesn\u2019t prove efficacy for specific conditions (something can be safe but not effective). Traditional use also sometimes persists despite evidence of harm. Clinical evidence applies scientific standards to traditional practices."]}
+    ],
+    challenge: "Make one preparation from this lesson: elderberry syrup, echinacea tincture, or yarrow wound compress. Document the recipe, preparation, and the evidence supporting its use.",
+    tuesday:   { low: {title:"Elderberry syrup preparation", activity:"Make elderberry syrup: simmer dried elderberries in water, strain, add honey and optional ginger/cinnamon. Dose: 1 tablespoon daily for adults during cold/flu season."}, mid: {title:"Evidence quality assessment", activity:"Research the clinical trials for echinacea and elderberry. What are the study limitations (small sample size, variable preparations)? How strong is the evidence on a 1\u20135 scale?"}, high: {title:"Herb-drug interaction research", activity:"Research potential interactions for each herb: echinacea and immunosuppressants, elderberry and diabetes medications, yarrow and blood thinners. What mechanisms drive each interaction?"} },
+    wednesday: { low: {title:"Tincture preparation", activity:"Research tincture making: fill a jar with dried echinacea root, cover with 80-proof vodka (40% alcohol), seal, and let infuse for 4\u20136 weeks. Strain and store."}, mid: {title:"Florida medicinal plant research", activity:"Research medicinal plants native or naturalized to Florida: saw palmetto (benign prostatic hyperplasia), passionflower (anxiety), and elderberry. Which have the strongest clinical evidence?"}, high: {title:"Pharmacognosy overview", activity:"Research pharmacognosy: the study of medicinal plants. What active constituents in echinacea (alkylamides, polysaccharides) and elderberry (anthocyanins) are proposed to account for their effects?"} },
+    thursday:  { low: {title:"Medicinal herb garden planning", activity:"Plan a small medicinal herb garden with 5 plants supported by evidence. Include each plant\u2019s growing requirements in Florida\u2019s climate."}, mid: {title:"Regulatory comparison", activity:"Research how herbal supplements are regulated in the US (FDA) vs Europe (European Medicines Agency). Why is the regulatory gap significant for consumers?"}, high: {title:"Placebo effect in herbal medicine", activity:"Research the placebo effect in clinical trials of herbal medicines. How do researchers control for it and what does this tell us about interpreting studies with subjective endpoints like cold symptom severity?"} }
+  },
+
+  "FRS vs GMRS vs Ham radio differences": {
+    gradeHooks: {
+      low: "FRS walkie-talkies are simple and license-free. GMRS is more powerful and needs a license. Ham radio is the most capable and requires studying for an exam.",
+      mid: "Understanding the capabilities, legal requirements, and appropriate use cases for FRS, GMRS, and amateur radio enables informed communication system choices.",
+      high: "FCC radio service regulations, frequency allocations, power limits, and the technical capabilities of each service are important radio communication topics."
+    },
+    materials: ["FRS/GMRS radio", "FCC Part 95 regulations reference"],
+    steps: [
+      "FRS (Family Radio Service): no license required. 22 channels, 0.5W (channels 8\u201314) or 2W (channels 1\u20137, 15\u201322). Non-removable antenna. Range: 0.5\u20131 mile realistic.",
+      "GMRS (General Mobile Radio Service): $35 FCC license covers whole family for 10 years. 22 channels shared with FRS plus 8 exclusive repeater channels. Up to 50W. Removable antenna. Can use repeaters.",
+      "Amateur/Ham radio: requires passing a knowledge exam. Technician license covers VHF/UHF. General and Amateur Extra add HF bands. Enormous range of capabilities.",
+      "Emergency use: all three can be used for emergency purposes. Ham radio has the broadest emergency network (ARES, RACES).",
+      "Compatibility: FRS and GMRS radios share channels 1\u201322 and can communicate. Ham radios communicate with each other on different bands."
+    ],
+    discussion: [
+      {q:"Why should a family preparing for emergencies consider upgrading from FRS to GMRS?", answers:["GMRS offers 5\u201325x more power (up to 50W vs 2W FRS), removable antennas for better performance, and access to repeaters that can extend range to 50+ miles. A single $35 license covers the entire family for 10 years."]},
+      {q:"What can a ham radio operator do in an emergency that an FRS/GMRS user cannot?", answers:["Ham operators can operate on HF bands for long-range communication, access a nationwide network of linked repeaters, use digital modes like Winlink for email over radio, interface with the official emergency management communication structure (ARES/RACES), and operate with much higher power."]}
+    ],
+    challenge: "Compare 3 radios: an FRS-only radio, a GMRS radio, and an entry-level ham HT. Research the specifications, cost, and legal requirements for each. Make a recommendation for your family\u2019s needs.",
+    tuesday:   { low: {title:"FRS channel guide", activity:"Create a reference card for your family\u2019s FRS radios: designated family channels, privacy codes for each use, and the emergency calling channel."}, mid: {title:"GMRS license application", activity:"Research the process for obtaining a GMRS license. What information is required? How does one license cover the whole family?"}, high: {title:"FCC Part 95 regulations", activity:"Research FCC Part 95 regulations governing FRS and GMRS. What are the technical and operational requirements and what activities are prohibited?"} },
+    wednesday: { low: {title:"Range testing", activity:"Test the realistic range of your FRS radios in your neighborhood. How does terrain, buildings, and trees affect range? What is the realistic communication distance?"}, mid: {title:"GMRS repeater access", activity:"Research how to access GMRS repeaters. What tone or code is required? Find a GMRS repeater in your area using the MyGMRS.com directory."}, high: {title:"Software defined radio", activity:"Research Software Defined Radio (SDR). How does an inexpensive RTL-SDR dongle allow receiving (not transmitting) across a wide frequency range? What can you monitor?"} },
+    thursday:  { low: {title:"Family radio plan", activity:"Create a family radio communication plan: assigned channels, check-in times, emergency protocol, and radio locations."}, mid: {title:"Digital GMRS modes", activity:"Research digital modes available on GMRS radios. What is the difference between analog FM and digital voice in terms of clarity and range?"}, high: {title:"Emergency communication system design", activity:"Design a complete neighborhood emergency communication system using a combination of FRS, GMRS, and amateur radio resources. What coverage gaps does each tier fill?"} }
+  },
+
+  "Traction splint — when and how": {
+    gradeHooks: {
+      low: "A femur (thigh bone) fracture can cause life-threatening blood loss inside the leg. A traction splint stretches the leg to reduce that bleeding!",
+      mid: "Traction splints are indicated specifically for mid-shaft femur fractures to reduce internal hemorrhage and provide pain relief.",
+      high: "Femur fracture pathophysiology, compartment anatomy, traction splint mechanics, and contraindications are important advanced first aid topics."
+    },
+    materials: ["Traction splint (Sager, Kendrick, or improvised) or diagrams"],
+    steps: [
+      "Indication: mid-shaft femur fractures ONLY. Contraindicated for hip fractures, knee injuries, ankle injuries, and fractures that extend to the knee.",
+      "Why traction: the powerful thigh muscles spasm after fracture, pulling bone ends over each other. Traction counters muscle spasm, reduces blood loss (1.5\u20132 liters possible in closed femur fracture), and reduces pain.",
+      "Traction application: secure the ankle hitch, extend the splint beyond the foot, apply traction by pulling the ankle hitch while supporting the leg, secure straps.",
+      "End-point: traction until pain/spasm reduces or deformity lessens, OR until resistance is felt. Apply 10% of body weight as a guideline.",
+      "Monitor: check distal circulation (pulse, sensation, movement in foot) before and after application."
+    ],
+    discussion: [
+      {q:"Why can a closed femur fracture be life-threatening even without external bleeding?", answers:["The thigh contains the femoral artery and a large fascial compartment. A femur fracture can damage the femoral artery and cause 1.5\u20132 liters of internal hemorrhage in the closed thigh compartment — enough to cause hemorrhagic shock. The fracture is not visible externally."]},
+      {q:"Why is a traction splint contraindicated for a femur fracture that extends to the knee joint?", answers:["Traction pulls through the ankle hitch. If the fracture involves the knee, applying traction through the ankle distraction forces at the knee joint, potentially converting a stable knee into an unstable injury with ligament damage."]}
+    ],
+    challenge: "Practice traction splint application on a training mannequin or simulated victim. Complete neurovascular checks before and after. Time yourself: goal under 3 minutes.",
+    tuesday:   { low: {title:"Femur anatomy", activity:"Research femur anatomy and the major structures in the thigh compartment: femoral artery, femoral vein, femoral nerve, and quadriceps muscles."}, mid: {title:"Sager vs HARE traction splint", activity:"Research the Sager and HARE traction splint designs. What are the advantages of each and what is the application difference between them?"}, high: {title:"Hemorrhagic shock stages", activity:"Research the 4 stages of hemorrhagic shock (Class I\u2013IV). What vital sign changes characterize each stage and at what blood loss volume does each occur?"} },
+    wednesday: { low: {title:"Improvised traction splint", activity:"Research how to improvise a traction splint in the field using available materials. What are the key functional requirements that any traction splint must meet?"}, mid: {title:"Pelvic binding connection", activity:"Research how pelvic fractures have similar mechanisms of internal hemorrhage to femur fractures. What is a pelvic binder and how does it work?"}, high: {title:"Pre-hospital hemorrhage control", activity:"Research the evolution of pre-hospital hemorrhage control in military medicine. How has the TCCC (Tactical Combat Casualty Care) protocol changed traction splint use?"} },
+    thursday:  { low: {title:"Complete scenario", activity:"Full scenario: someone falls from a height and has a deformed mid-thigh. Walk through complete assessment, traction splint application, and evacuation plan."}, mid: {title:"Pain management connection", activity:"Research how traction splints reduce pain through fracture stabilization. What is the relationship between muscle spasm, bone fragment movement, and pain in femur fractures?"}, high: {title:"Compartment syndrome risk", activity:"Research how femur fractures and traction splint application relate to compartment syndrome risk. What assessment must be repeated during transport?"} }
+  },
+
+  "Community resilience — what makes neighborhoods survive?": {
+    gradeHooks: {
+      low: "Some neighborhoods bounce back quickly after disasters while others struggle. The difference is usually how connected and prepared the people are!",
+      mid: "Community resilience is shaped by social cohesion, economic resources, infrastructure quality, and institutional capacity.",
+      high: "Resilience theory, disaster sociology, and the evidence base for community resilience interventions are important emergency management and social science topics."
+    },
+    materials: ["Research on community disaster recovery"],
+    steps: [
+      "Define resilience: the capacity of a community to anticipate, prepare for, respond to, and recover from significant adversity.",
+      "Social cohesion factors: trust between neighbors, pre-existing organizations, communication networks, and sense of community identity.",
+      "Economic factors: household income stability, local business diversity, insurance coverage rates, and economic redundancy.",
+      "Infrastructure factors: quality of housing, redundant utilities, transportation network alternatives.",
+      "Institutional factors: local government capacity, emergency management quality, and community access to state/federal resources."
+    ],
+    discussion: [
+      {q:"What specific social capital factors most strongly predicted recovery speed after Hurricane Katrina and Hurricane Harvey?", answers:["In both cases, researchers found that neighborhoods with strong pre-existing social ties (church membership, neighborhood associations, block clubs) recovered faster. Trust between neighbors enabled resource sharing. Neighborhoods with established communication networks could coordinate mutual aid before formal help arrived."]},
+      {q:"Why do wealthier neighborhoods typically recover faster from disasters than lower-income neighborhoods beyond simply having more money?", answers:["Wealth correlates with insurance coverage, structural quality of homes, transportation options for evacuation, social networks with resources outside the disaster zone, and political influence to access recovery programs. These systemic advantages compound, not just the raw dollar amount."]}
+    ],
+    challenge: "Assess your neighborhood\u2019s resilience using a simple rubric: social cohesion, economic stability, infrastructure quality, and institutional capacity. What are the 2 strongest and 2 weakest factors?",
+    tuesday:   { low: {title:"Resilience factor identification", activity:"Research the 5 key factors in community resilience: social capital, economic capital, physical capital, human capital, and natural capital. Give an example of each in your neighborhood."}, mid: {title:"Katrina vs Harvey comparison", activity:"Research the differential recovery outcomes between neighborhoods in New Orleans after Katrina and Houston after Harvey. What social and economic factors explain the differences?"}, high: {title:"Resilience measurement tools", activity:"Research the BRIC (Baseline Resilience Indicators for Communities) index and similar community resilience measurement tools. What variables do they measure and how are they validated?"} },
+    wednesday: { low: {title:"Neighborhood resilience assessment", activity:"Assess your neighborhood on 5 resilience dimensions. Rate each 1\u20135. What is your total score and what does it mean?"}, mid: {title:"Vulnerable population research", activity:"Research how the presence of vulnerable populations (elderly, disabled, non-English speakers) affects both resilience challenges and community response. What interventions specifically improve outcomes for these groups?"}, high: {title:"Equity and resilience", activity:"Research the relationship between racial and economic equity and disaster resilience. How do systemic inequalities translate into differential recovery outcomes and what policy interventions address this?"} },
+    thursday:  { low: {title:"Resilience improvement action plan", activity:"Based on your assessment, identify 3 specific actions your family or neighborhood could take to improve resilience."}, mid: {title:"Resilience hub model", activity:"Research resilience hubs: community facilities pre-equipped with solar power, batteries, water, food, and communication for post-disaster support. What cities have implemented this model and what results have been documented?"}, high: {title:"Adaptive capacity theory", activity:"Research adaptive capacity as a component of resilience. How does a community\u2019s capacity to learn from disasters and modify its systems affect long-term resilience?"} }
+  },
+
+  "Wildfire preparedness — defensible space": {
+    gradeHooks: {
+      low: "A defensible space is a cleared area around your home that slows a wildfire and gives firefighters room to work!",
+      mid: "Defensible space creation uses strategic vegetation management, non-combustible materials, and structure hardening to reduce wildfire risk.",
+      high: "Wildfire behavior, ember transport, structure ignition mechanics, and the science behind defensible space effectiveness are important topics."
+    },
+    materials: ["Florida Forest Service guidelines"],
+    steps: [
+      "Zone 1 (0\u201330 feet): lean, clean, and green. Remove dead vegetation, maintain plants with regular irrigation, space trees 10+ feet apart, clear branches to 6 feet off the ground.",
+      "Zone 2 (30\u2013100 feet): reduce fuel continuity. Space trees 20\u201330 feet apart, remove ladder fuels (shrubs to tree canopy connection), keep grass mowed to under 4 inches.",
+      "Structure hardening: ember-resistant vents (mesh), non-combustible roofing, enclosed eaves, tempered glass windows, non-combustible mulch (gravel) within 5 feet of the house.",
+      "Florida context: Florida has significant wildfire risk in palmetto scrub, pine flatwoods, and oak scrub habitat. Spring wildfire season.",
+      "Awareness: sign up for Firewise USA and contact your county\u2019s prescribed burn coordinator."
+    ],
+    discussion: [
+      {q:"What is the primary pathway by which most homes ignite during a wildfire?", answers:["Research shows embers (firebrands) carried by wind are responsible for the majority of home ignitions during wildfires — not direct flame contact. Embers travel up to a mile ahead of the fire front and ignite vulnerable spots: vents, wood mulch, gutters with debris, and wood decks."]},
+      {q:"Why are ember-resistant vents a higher priority than roof material in many research findings?", answers:["Unscreened vents allow embers to enter the attic or under-floor area and ignite the building from inside, where the fire can grow large before being detected. Even a fire-resistant roof can\u2019t protect against ember intrusion through vents."]}
+    ],
+    challenge: "Conduct a defensible space assessment of your home using the Zone 1 and Zone 2 checklist from the Florida Forest Service. Identify 3 improvements.",
+    tuesday:   { low: {title:"Zone 1 audit", activity:"Walk Zone 1 (0\u201330 feet from your house). Document: dead vegetation, overhanging branches, combustible mulch, and any wood touching the house."}, mid: {title:"Ember vulnerability assessment", activity:"Identify every potential ember entry point on your home: vents, gaps in soffits, open eaves, and gutters with debris. Research the retrofit cost for each."}, high: {title:"Wildfire behavior science", activity:"Research the factors affecting wildfire spread rate and intensity: slope, aspect, fuel moisture, wind speed, and fuel load. How does each factor multiply fire behavior?"} },
+    wednesday: { low: {title:"Plant flammability comparison", activity:"Research the flammability of common Florida landscape plants. Which are most fire-resistant? Which should be replaced in Zone 1?"}, mid: {title:"Firewise USA program", activity:"Research the Firewise USA program. What does certification involve and what benefits (insurance discounts, community resources) does it provide?"}, high: {title:"Prescribed burn policy", activity:"Research Florida\u2019s prescribed burn program. How does the Florida Forest Service work with landowners to use prescribed fire for both wildfire risk reduction and ecological restoration?"} },
+    thursday:  { low: {title:"Defensible space improvement project", activity:"Complete one Zone 1 improvement today: remove dead vegetation, clear branches, or replace combustible mulch within 5 feet of the house."}, mid: {title:"Insurance implications", activity:"Research how defensible space affects homeowner\u2019s insurance in wildfire-prone areas. Do Florida insurers offer discounts for Firewise certification or documented defensible space?"}, high: {title:"WUI development research", activity:"Research the growth of Wildland-Urban Interface (WUI) development in Florida. What counties have the highest WUI fire risk and what policies are being proposed to manage development in these areas?"} }
+  },
+
+  "Fermented beverages — water kefir": {
+    gradeHooks: {
+      low: "Water kefir is a fizzy, lightly sweet drink made with special crystals of bacteria and yeast. It\u2019s a healthy alternative to soda!",
+      mid: "Water kefir fermentation produces a probiotic beverage through the metabolic activity of a complex symbiotic SCOBY of bacteria and yeasts.",
+      high: "Water kefir grain microbiology, the chemistry of its polysaccharide matrix, and comparative analysis of probiotic beverages are important topics."
+    },
+    materials: ["Water kefir grains (purchased or obtained from a local kefir community)", "Filtered water", "Sugar", "Glass jar"],
+    steps: [
+      "Basic recipe: dissolve 1/4 cup sugar in 4 cups of filtered water (no chlorine — use filtered or dechlorinated). Add 1/4 cup water kefir grains.",
+      "First ferment: cover loosely (allows CO2 to escape), ferment at room temperature 24\u201348 hours. Taste at 24 hours — less sugar, more tart = more fermented.",
+      "Strain out the grains (they\u2019re reusable indefinitely). The liquid is now first-ferment water kefir.",
+      "Second ferment (for carbonation): bottle tightly with a small amount of fruit juice or dried fruit. Leave at room temperature 12\u201324 hours. Refrigerate to stop fermentation.",
+      "Grain care: rinse grains weekly with filtered water. Feed fresh sugar water at each batch cycle."
+    ],
+    discussion: [
+      {q:"What organisms make up water kefir grains and how do they cooperate?", answers:["Water kefir grains contain a diverse community of Lactobacillus species (produce lactic acid), Leuconostoc species (produce CO2 and flavor compounds), and yeasts (primarily Saccharomyces and others, produce ethanol and CO2). The organisms are held in a polysaccharide matrix. Yeasts provide nutrients that bacteria need; bacteria maintain an acidic environment that protects the yeast."]},
+      {q:"Why must water kefir be made with filtered or dechlorinated water rather than straight tap water?", answers:["Chlorine in tap water is antimicrobial by design. It will kill or impair the microorganisms in the water kefir grains. Filtered water, spring water, or tap water left out 24 hours (to allow chlorine to off-gas) allows the cultures to thrive."]}
+    ],
+    challenge: "Complete a full water kefir cycle: first ferment, second ferment with fruit, and carbonation testing. Document pH, flavor, and carbonation level at each stage.",
+    tuesday:   { low: {title:"Grain multiplication", activity:"Research how water kefir grains multiply. How do you split grains when they grow too numerous? How do you share grains with others?"}, mid: {title:"Sugar variety experiment", activity:"Ferment 3 identical batches using different sugars: white sugar, brown sugar, and coconut sugar. Compare flavor and fermentation rate."}, high: {title:"Polysaccharide matrix analysis", activity:"Research the structure of the kefiran polysaccharide matrix in water kefir grains. What organisms produce it and what function does it serve?"} },
+    wednesday: { low: {title:"Flavor combinations", activity:"Research flavor additions for second ferment: citrus, ginger, berries, tropical fruit. Make 3 different flavored batches."}, mid: {title:"Grain health indicators", activity:"Research signs of healthy vs stressed water kefir grains: growth rate, appearance, and fermentation speed. What causes grain decline and how do you revive them?"}, high: {title:"Comparative probiotic research", activity:"Research the comparative probiotic content of water kefir, milk kefir, kombucha, and yogurt. What strains are present in each and what does clinical research show about their health effects?"} },
+    thursday:  { low: {title:"Grain resting", activity:"Research how to rest water kefir grains when you want to take a break: milk resting (slows growth), sugar water refrigeration, or freezing."}, mid: {title:"Alcohol content management", activity:"Research how to minimize alcohol content in water kefir if desired (for children or those avoiding alcohol). How does fermentation time and temperature affect alcohol production?"}, high: {title:"Probiotic viability research", activity:"Research the scientific literature on whether commercially purchased probiotics and home-fermented probiotics differ in viability. What does research show about survival through the gut?"} }
+  },
+
+  "Electrical panel safety — breakers and fuses": {
+    gradeHooks: {
+      low: "The electrical panel controls all the electricity in your home. Knowing how it works — and what not to touch — is important for safety!",
+      mid: "Understanding electrical panel components, breaker types, and safe operation enables both routine maintenance and emergency response.",
+      high: "Electrical panel design, arc fault and ground fault protection technologies, load calculations, and service upgrade considerations are important topics."
+    },
+    materials: ["Your home\u2019s electrical panel (with adult supervision)"],
+    steps: [
+      "Safety rules: the main breaker shuts off everything except the incoming utility lines. Never touch the wires connecting to the main breaker — those remain energized.",
+      "Panel components: main breaker (top), double-pole breakers (240V circuits: range, dryer, HVAC), single-pole breakers (120V circuits: outlets, lights).",
+      "Breaker identification: verify each breaker\u2019s label matches the actual circuit. A circuit directory should be on the inside panel door.",
+      "Tripped breaker: shows in the middle position. Reset by pushing fully to OFF, then to ON. If it trips again immediately, there is a fault.",
+      "Fuse panels: older homes may have fuse panels. Fuses are one-time devices. Blown fuses must be replaced with the same amperage."
+    ],
+    discussion: [
+      {q:"Why is it dangerous to replace a blown fuse with a higher-amperage fuse?", answers:["Fuses protect the wiring from overheating. If the wire is rated for 15A, using a 30A fuse means the wire will overheat and potentially start a fire before the fuse blows. The fuse must always match the wire gauge it protects."]},
+      {q:"What is the difference between a GFCI and an AFCI breaker?", answers:["GFCI (Ground Fault Circuit Interrupter) trips when current leaks to ground (shock protection). AFCI (Arc Fault Circuit Interrupter) trips when it detects the electrical signature of an arc fault, which causes fires. Modern code requires AFCI protection in most living areas and GFCI in wet areas."]}
+    ],
+    challenge: "Create a complete circuit directory for your electrical panel. Test each circuit by briefly switching it off and noting what loses power. Post the completed directory inside the panel.",
+    tuesday:   { low: {title:"Panel directory creation", activity:"Label every breaker in your panel. Test each by switching it off and noting what loses power. Create a permanent directory."}, mid: {title:"Breaker types identification", activity:"Identify all breaker types in your panel: standard, GFCI, AFCI, combination AFCI/GFCI, tandem (two circuits in one slot), and double-pole."}, high: {title:"Load calculation for service upgrade", activity:"Research how to calculate your home\u2019s total electrical load for a service upgrade. What calculation method is used and what factors determine whether a 100A vs 200A service is adequate?"} },
+    wednesday: { low: {title:"Emergency panel operation", activity:"Practice: with a parent, locate the main breaker and practice turning it off and on. In an emergency electrical situation, being able to cut power quickly matters."}, mid: {title:"Arc flash awareness", activity:"Research arc flash in residential settings. What activities can cause arc flash in a residential panel and what safety precautions (deenergize before working, PPE) apply?"}, high: {title:"Smart panel technology", activity:"Research smart electrical panels (Leviton, Square D Wiser, Span). What monitoring, control, and safety features do they add and how do they integrate with solar and battery storage?"} },
+    thursday:  { low: {title:"Fuse panel research", activity:"Research whether your home has a fuse panel or breaker panel. If fuses: what types are used and where do you buy replacements? If breakers: when were GFCI and AFCI requirements added to code?"}, mid: {title:"Panel maintenance schedule", activity:"Research residential electrical panel maintenance: what should be done annually (visual inspection, breaker exercise, termination torque check) and what requires a licensed electrician."}, high: {title:"Electric vehicle panel impact", activity:"Research how adding an EV charger affects residential electrical panel capacity. What amperage does a Level 2 charger require and when does an EV charger necessitate a panel upgrade?"} }
+  },
+
+  "Negotiating a price — practical economics": {
+    gradeHooks: {
+      low: "Negotiating means trying to reach an agreement on a price that works for both buyer and seller. It\u2019s a skill everyone can use!",
+      mid: "Negotiation is a learnable skill with documented techniques. Understanding BATNA, anchoring, and framing enables better outcomes.",
+      high: "Negotiation theory, game theory applied to bargaining, and the psychology of influence are important economics and behavioral science topics."
+    },
+    materials: ["Role-play scenarios"],
+    steps: [
+      "Research before negotiating: know the market value of what you\u2019re buying or selling. Knowledge is power.",
+      "BATNA (Best Alternative to Negotiated Agreement): know your walkaway option. If you have a strong BATNA, you negotiate from strength.",
+      "Anchoring: the first number stated tends to anchor the negotiation. Opening high (as a seller) or low (as a buyer) influences the final outcome.",
+      "Never accept the first offer: even if it\u2019s fair. The other party expects to negotiate. Accepting immediately may signal that you would have paid more.",
+      "Win-win framing: the best negotiations find value for both parties. Ask what matters most to the other side — it may not be just price."
+    ],
+    discussion: [
+      {q:"What is anchoring bias and how does the first number stated in a negotiation influence the outcome?", answers:["Anchoring bias means people rely heavily on the first number they hear as a reference point. If a seller opens at $10,000, subsequent offers cluster around that anchor even if the fair value is $7,000. Research shows that counter-offers tend to be influenced by the opening anchor regardless of how unreasonable it is."]},
+      {q:"Why is it important to know your BATNA before entering any negotiation?", answers:["BATNA defines your minimum acceptable outcome. Without knowing your BATNA, you may accept a poor deal (because you don\u2019t know you have a better option) or reject a good one (because you overestimate your alternatives). BATNA knowledge lets you negotiate from realistic strength."]}
+    ],
+    challenge: "Practice negotiating in 3 real situations this week: at a garage sale, with a service provider, or on any item where negotiation is appropriate. Document what worked.",
+    tuesday:   { low: {title:"Car buying negotiation role play", activity:"Role play buying a used car. Seller asks $8,000. Research suggests fair value is $6,500. Practice: research preparation, opening offer, counteroffer sequence."}, mid: {title:"BATNA development exercise", activity:"For 3 negotiation scenarios, identify and strengthen your BATNA before negotiating. How does having a strong alternative change your confidence and outcome?"}, high: {title:"Nash equilibrium", activity:"Research the Nash equilibrium in game theory. How does it apply to price negotiations and what does it predict about optimal strategies?"} },
+    wednesday: { low: {title:"Salary negotiation basics", activity:"Research salary negotiation. What does research show about the financial impact of negotiating a starting salary vs accepting the first offer? What is the lifetime compounding effect?"}, mid: {title:"Interest-based negotiation", activity:"Research Fisher and Ury\u2019s interest-based negotiation from \u2018Getting to Yes.\u2019 How does separating positions (what people want) from interests (why they want it) enable creative solutions?"}, high: {title:"Behavioral economics and negotiation", activity:"Research Kahneman\u2019s prospect theory and how loss aversion affects negotiation. Why do people work harder to avoid a loss than to achieve an equivalent gain?"} },
+    thursday:  { low: {title:"Real negotiation practice", activity:"Find a real opportunity to negotiate this week: a garage sale item, a service estimate, or a return/adjustment. Report the outcome."}, mid: {title:"Cultural dimensions of negotiation", activity:"Research how negotiation styles and expectations differ across cultures. What negotiation practices acceptable in one culture are offensive in another?"}, high: {title:"Auction theory", activity:"Research auction theory. What is the winner\u2019s curse in common value auctions and why do winning bidders systematically overpay? What strategies protect against it?"} }
+  },
+
+
+
+  "Advanced CPR — adult child infant": {
+    gradeHooks: {
+      low: "CPR is different for babies, children, and adults. The technique changes to match the smaller body and faster heart rate.",
+      mid: "Adult, child, and infant CPR differ in compression depth, rate, hand position, and rescue breathing ratios.",
+      high: "Pediatric cardiac arrest physiology, age-related anatomical differences, and the evidence base for pediatric CPR protocols are important medical topics."
+    },
+    materials: ["CPR mannequin (adult and infant if available)", "Metronome app"],
+    steps: [
+      "Adult (8+ years): heel of hand on center of sternum, 2+ inches deep, 100\u2013120 BPM, 30:2 ratio with rescue breaths if trained.",
+      "Child (1\u20138 years): one or two hands depending on child size, 2 inches deep, 100\u2013120 BPM, 30:2 (single rescuer) or 15:2 (two rescuers).",
+      "Infant (under 1 year): two fingers on center of chest just below nipple line, 1.5 inches deep, 100\u2013120 BPM, 30:2 (single rescuer) or 15:2 (two rescuers).",
+      "Infant rescue breathing: cover both nose and mouth with your mouth. Puff gently — just enough to see the chest rise.",
+      "Key difference: most pediatric cardiac arrests are respiratory in origin (not cardiac). Early rescue breathing is more important for children than adults."
+    ],
+    discussion: [
+      {q:"Why does infant CPR use fingers rather than the heel of the hand?", answers:["An infant\u2019s chest is very small. The heel of the hand would cover the entire chest and compress too broadly and deeply. Two fingers allow controlled, precise compression depth on the sternum."]},
+      {q:"Why is the two-rescuer ratio 15:2 for children and infants rather than 30:2?", answers:["Children\u2019s cardiac arrests are more often respiratory. More frequent rescue breaths (every 15 compressions rather than 30) better address the oxygen deficit that commonly causes pediatric cardiac arrest."]}
+    ],
+    challenge: "Practice all 3 CPR techniques in sequence. Time each 2-minute compression cycle. Demonstrate correct hand position, depth, and rate for each age group.",
+    tuesday:   { low: {title:"Technique comparison chart", activity:"Create a comparison chart: adult vs child vs infant CPR. Include compression depth, hand position, compression-to-breath ratio, and AED considerations."}, mid: {title:"Infant rescue breathing", activity:"Practice infant rescue breathing technique on a doll. How gently must you breathe to just move the chest without overinflating infant lungs?"}, high: {title:"Pediatric arrest etiology", activity:"Research the most common causes of cardiac arrest in infants, toddlers, school-age children, and adolescents. How does etiology affect resuscitation approach?"} },
+    wednesday: { low: {title:"Two-rescuer practice", activity:"Practice two-rescuer CPR with a partner. Practice the switch: count compressions, call the switch, new rescuer starts within 5 seconds."}, mid: {title:"AED use on children", activity:"Research AED use on children under 8. What are the pediatric pad requirements and what attenuator does the AED use to reduce the energy delivered?"}, high: {title:"ROSC differences", activity:"Research how post-cardiac arrest care differs between adults and children. How does targeted temperature management apply to pediatric patients?"} },
+    thursday:  { low: {title:"Full scenario drill", activity:"Role play: you find a 6-month-old infant unresponsive. Walk through the complete response: check, call, position, compressions, and rescue breaths."}, mid: {title:"Drowning and CPR", activity:"Research how CPR for drowning victims differs from standard cardiac arrest CPR. Why is rescue breathing even more critical in submersion cases?"}, high: {title:"CPR quality metrics", activity:"Research compression quality metrics: depth, rate, recoil, and interruption fraction. What does research show about the relationship between CPR quality and survival?"} }
+  },
+
+  "Neighborhood emergency network": {
+    gradeHooks: {
+      low: "A neighborhood emergency network connects nearby families so they can help each other quickly when something goes wrong.",
+      mid: "A functional neighborhood network requires asset mapping, communication protocols, and pre-established roles for different emergency types.",
+      high: "Social capital theory, network resilience, and the documented relationship between neighborhood connectedness and disaster recovery are important topics."
+    },
+    materials: ["Paper for network map", "Neighbor contact list"],
+    steps: [
+      "Define the network boundary: which homes are included? (typically your immediate block or 10\u201315 nearest homes)",
+      "Asset mapping: what skills, tools, and resources does each household have? (medical training, generator, truck, chainsaw, extra water)",
+      "Communication tree: design the contact sequence so each person contacts 2 others. Everyone is reachable in 3\u20134 contacts.",
+      "Pre-assigned roles: who checks on elderly/disabled residents, who has medical training, who coordinates with outside emergency services.",
+      "Regular activation: low-stakes check-ins (storm prep, heat wave) build the habits and relationships needed in a real emergency."
+    ],
+    discussion: [
+      {q:"Why do pre-existing relationships matter more than formal training in community disaster response?", answers:["Trust and familiarity enable faster, more flexible cooperation than formal protocols with strangers. Neighbors who know each other act immediately; strangers wait for authorization. Research after multiple disasters confirms that pre-existing social bonds are the strongest predictor of community recovery speed."]},
+      {q:"What is the free rider problem in neighborhood emergency networks and how do you address it?", answers:["Some households benefit from network resources without contributing. This is addressed by making contributions visible (a neighborhood asset map), creating reciprocal norms, and ensuring even households with limited resources have a defined role."]}
+    ],
+    challenge: "Map your neighborhood network: draw every home within 10 houses, note what you know about each household, and design a communication tree.",
+    tuesday:   { low: {title:"Neighbor asset survey", activity:"With a parent, informally survey 3 neighbors about their emergency assets and skills. Add them to your network map."}, mid: {title:"Communication tree design", activity:"Design a 10-household communication tree. Each household contacts exactly 2 others. Draw the tree and identify any single points of failure."}, high: {title:"Social capital research", activity:"Research Robert Putnam\u2019s work on social capital and its relationship to community outcomes. How does his concept of bridging vs bonding social capital apply to neighborhood emergency networks?"} },
+    wednesday: { low: {title:"Vulnerable household identification", activity:"Identify households in your network that may need extra assistance in an emergency: elderly, disabled, families with very young children, non-English speakers."}, mid: {title:"Network activation protocol", activity:"Write a network activation protocol: what trigger events activate it, who makes the call, and what each household does in the first 30 minutes."}, high: {title:"Network failure analysis", activity:"Research cases where neighborhood networks failed during disasters. What structural weaknesses caused failures and how were they addressed in post-event planning?"} },
+    thursday:  { low: {title:"Network introduction event", activity:"Plan a simple neighborhood event (block party, meeting) to introduce the network concept to neighbors who aren\u2019t yet connected."}, mid: {title:"Digital network tools", activity:"Research neighborhood communication tools: Nextdoor, group texts, Signal groups. What are the privacy considerations and failure modes of each during an emergency?"}, high: {title:"Network resilience theory", activity:"Research network resilience in complex systems theory. What structural properties (redundancy, modularity, diversity) make both social and technical networks more resilient?"} }
+  },
+
+  "Solar and wind energy basics": {
+    gradeHooks: {
+      low: "Solar panels turn sunlight into electricity and wind turbines turn wind into electricity. Both are renewable — they never run out!",
+      mid: "Solar and wind energy systems convert natural energy flows into electricity. Understanding their physics, limitations, and complementary nature enables informed decisions.",
+      high: "Photovoltaic cell physics, wind turbine aerodynamics, capacity factors, and grid integration challenges are important renewable energy topics."
+    },
+    materials: ["Small solar panel and/or small wind turbine (or instructional resources)"],
+    steps: [
+      "Solar: photovoltaic cells convert photons to electrons via the photoelectric effect. Output depends on irradiance (W/m\u00b2) and cell temperature.",
+      "Wind: turbine blades capture kinetic energy from moving air. Power output scales with the cube of wind speed (double the wind = 8x the power).",
+      "Complementary nature: solar peaks midday in summer; wind often peaks at night and in winter. Together they cover more of the demand profile.",
+      "Capacity factor: solar averages 20\u201325% in Florida (energy produced vs theoretical maximum). Wind averages 25\u201345% depending on site.",
+      "Storage challenge: both are intermittent. Batteries, pumped hydro, and grid balancing address the mismatch between generation and demand."
+    ],
+    discussion: [
+      {q:"Why does wind power output scale with the cube of wind speed rather than linearly?", answers:["Power in wind = \u00bd x air density x swept area x wind speed\u00b3. The cubic relationship means a site with 15 mph average wind has 3.4x more energy than a 10 mph site — small wind speed differences have enormous power implications."]},
+      {q:"What is the Betz limit and why does it matter for wind turbine design?", answers:["The Betz limit (59.3%) is the theoretical maximum efficiency for extracting energy from wind. No turbine can capture more than 59.3% of the wind\u2019s kinetic energy, because some air must flow through and past the turbine. Modern turbines achieve 40\u201350% efficiency."]}
+    ],
+    challenge: "Calculate the solar energy available on your roof using PVWatts (NREL\u2019s free calculator). How many kWh per year could a 5kW system produce at your location?",
+    tuesday:   { low: {title:"PV cell demonstration", activity:"Place a small solar panel in sunlight and measure output with a multimeter at different angles and shade levels. How does angle and shading affect output?"}, mid: {title:"Capacity factor calculation", activity:"Research Florida\u2019s average solar capacity factor. Calculate the annual energy production of a 10kW system. Compare to the average Florida household\u2019s annual usage (around 14,000 kWh)."}, high: {title:"LCOE analysis", activity:"Research Levelized Cost of Energy (LCOE) for utility-scale solar and wind. How does LCOE compare to natural gas and coal? How has it changed over the past decade?"} },
+    wednesday: { low: {title:"Wind resource map", activity:"Find NREL\u2019s wind resource map for Florida. What wind speeds are typical? Why is Florida not a strong state for land-based wind energy?"}, mid: {title:"Grid integration challenges", activity:"Research the duck curve in solar-heavy grids. What problem does high midday solar penetration create and what solutions are being deployed?"}, high: {title:"Intermittency and storage", activity:"Research grid-scale energy storage technologies: pumped hydro, lithium-ion batteries, flow batteries, and hydrogen. Compare cost, scalability, and discharge duration for each."} },
+    thursday:  { low: {title:"Home solar assessment", activity:"Using Google\u2019s Project Sunroof or NREL\u2019s PVWatts, assess the solar potential of your home. How many panels would fit? What would the annual savings be?"}, mid: {title:"Net metering research", activity:"Research Florida\u2019s net metering policy. What rate do utilities pay for excess solar fed into the grid? How has this policy changed recently?"}, high: {title:"100% renewable grid modeling", activity:"Research studies modeling 100% renewable electricity grids. What combination of generation, storage, and transmission is required and what does it cost compared to current systems?"} }
+  },
+
+  "Full meal planning from pantry": {
+    gradeHooks: {
+      low: "Using only what\u2019s in our pantry, we plan a week of meals. It\u2019s a challenge that tests our creativity and preparedness!",
+      mid: "A pantry-only meal plan requires calculating nutritional needs, managing ingredient availability, and minimizing waste across a full week.",
+      high: "Emergency nutrition planning, caloric density optimization, and the psychology of food monotony in extended emergencies are important preparedness topics."
+    },
+    materials: ["Complete pantry inventory", "Nutritional reference", "Meal planning template"],
+    steps: [
+      "Inventory everything: every can, dry good, condiment, and spice. Create a complete list with quantities.",
+      "Calculate caloric needs: 2,000\u20132,500 calories per adult per day. Identify which pantry items provide the most calories per unit.",
+      "Plan 21 meals (7 breakfasts, 7 lunches, 7 dinners) using only pantry items plus water.",
+      "Check nutritional completeness: are protein, carbohydrates, fats, and vitamins represented? Identify gaps.",
+      "Plan ingredient order: use the most perishable-after-opening items first. Preserve variety by spacing repeated meals."
+    ],
+    discussion: [
+      {q:"What is food fatigue and how does it affect emergency food planning?", answers:["Food fatigue is the psychological and sometimes physiological reduction in appetite when eating the same foods repeatedly. People consume fewer calories when food is monotonous, even when hungry. Emergency planners account for this by ensuring variety across a multi-week supply."]},
+      {q:"What macronutrient ratio is most important for sustained energy during a physically demanding emergency?", answers:["Carbohydrates provide quick energy and should make up 45\u201365% of calories. Fats provide sustained energy (9 cal/g vs 4 cal/g for carbs and protein). Protein supports muscle maintenance. A balance of all three prevents the cognitive and physical decline of extreme macro restriction."]}
+    ],
+    challenge: "Execute your pantry-only meal plan for 3 actual days. Document what you made, caloric estimates, and what gaps or challenges you discovered.",
+    tuesday:   { low: {title:"Pantry calorie map", activity:"For your 10 most abundant pantry items, calculate calories per cup or per can. Rank them from highest to lowest calorie density."}, mid: {title:"7-day meal plan creation", activity:"Create a complete 7-day meal plan from only your pantry inventory. Include all 3 meals and snacks. Calculate approximate daily calories."}, high: {title:"Nutrient gap analysis", activity:"Analyze your 7-day pantry meal plan for nutritional completeness. What vitamins and minerals are likely deficient and what pantry items address each gap?"} },
+    wednesday: { low: {title:"No-cook meal options", activity:"Identify 5 complete meals from your pantry that require no cooking or heating. Why is this important in a power outage scenario?"}, mid: {title:"Water requirement calculation", activity:"Calculate the water needed to prepare all meals in your 7-day plan. Add drinking water. Does your stored water supply cover a pantry-only week?"}, high: {title:"Long-term nutritional planning", activity:"Research nutritional requirements for a 90-day emergency food supply. What supplements address the vitamins typically missing from shelf-stable foods (C, D, fresh produce nutrients)?"} },
+    thursday:  { low: {title:"Pantry gap shopping list", activity:"After your pantry inventory and meal planning exercise, identify what purchases would most improve your pantry\u2019s completeness. Prioritize by nutritional value."}, mid: {title:"Recipe adaptation skills", activity:"Take 3 favorite family recipes and adapt them to use only shelf-stable pantry ingredients. What substitutions make each work?"}, high: {title:"Emergency food system research", activity:"Research how FEMA and the Red Cross calculate and provide emergency food rations. What caloric and nutritional standards do they use and how do they balance cost vs nutrition?"} }
+  },
+
+  "Water well basics and maintenance": {
+    gradeHooks: {
+      low: "Some homes get water from a well instead of a city pipe. The well pump pulls water up from underground!",
+      mid: "Private wells require understanding the pump system, water quality testing, and maintenance to ensure safe, reliable water.",
+      high: "Groundwater hydrology, well construction standards, pump systems, and water quality parameters for private wells are important topics."
+    },
+    materials: ["Well system access (if applicable) or diagrams"],
+    steps: [
+      "Well components: the well casing (pipe going into the ground), the pump (submersible or jet pump above ground), the pressure tank, and the pressure switch.",
+      "How it works: the pump pushes water into a pressure tank, which maintains pressure in the household system without the pump running constantly.",
+      "Pressure tank: the bladder inside the tank holds air at 2 PSI below the pump\u2019s cut-in pressure. Check the air charge annually.",
+      "Water quality: private wells should be tested annually for bacteria (coliform), nitrates, and pH. Test after flooding or nearby construction.",
+      "Power dependency: well pumps require electricity. A generator or hand pump is essential for emergency water access."
+    ],
+    discussion: [
+      {q:"Why does a well system need a pressure tank in addition to the pump?", answers:["Without a pressure tank, the pump would cycle on and off with every small water use (opening a faucet). Thousands of short cycles per day would quickly burn out the pump motor. The pressure tank stores pressurized water to serve small demands without running the pump."]},
+      {q:"Why should you test your well water after a major flood even if it tested fine previously?", answers:["Flooding can introduce surface contaminants (bacteria, nitrates, chemicals) into the well casing or the aquifer through damaged well caps or ground infiltration. A previously safe well can become contaminated after a flood event."]}
+    ],
+    challenge: "If your home has a well, locate all components and test the pressure tank air charge. If not, research the well construction standards for Florida and sketch a well system diagram.",
+    tuesday:   { low: {title:"Pressure system test", activity:"Check your home\u2019s water pressure with a gauge at an outdoor hose bib. Is it in the 40\u201360 PSI range? Research what causes low or high pressure."}, mid: {title:"Well water testing", activity:"Research what parameters Florida well owners should test annually. Where can you send a water sample and what does testing cost?"}, high: {title:"Florida aquifer system", activity:"Research the Floridan Aquifer System. How deep is it, how much water does it contain, and what are the current threats to its quality and quantity?"} },
+    wednesday: { low: {title:"Emergency hand pump research", activity:"Research hand pump options that can be installed alongside a submersible pump for power-outage backup. What depth limitations do hand pumps have?"}, mid: {title:"Well maintenance schedule", activity:"Create an annual well maintenance schedule: pressure tank check, water quality test, cap inspection, and electrical component inspection."}, high: {title:"Wellhead protection", activity:"Research wellhead protection zones. What land uses and activities are regulated near public water supply wells? How does this concept apply to private wells?"} },
+    thursday:  { low: {title:"Water storage backup", activity:"Calculate how many days your stored water supply would last if your well pump failed. What is your action plan?"}, mid: {title:"Water softener research", activity:"Research water softeners and their role in homes with hard well water. What minerals cause hardness, what problems do they cause, and how does ion exchange softening work?"}, high: {title:"Nitrate contamination research", activity:"Research nitrate contamination in Florida private wells. What agricultural and septic sources contribute to nitrate loading and what health effects does elevated nitrate cause?"} }
+  },
+
+  "Basic carpentry project — shelf or box": {
+    gradeHooks: {
+      low: "A shelf or box is a great first carpentry project. We learn to measure, cut, and join wood to make something useful!",
+      mid: "A basic carpentry project requires accurate measurement, square cuts, proper joinery selection, and finishing for a functional result.",
+      high: "Wood movement, joinery selection, structural load calculations, and the engineering behind simple wooden structures are important woodworking topics."
+    },
+    materials: ["1x8 or 1x10 board (pine)", "Wood screws or nails", "Drill with bits", "Hand saw or circular saw", "Sandpaper", "Measuring tape and square"],
+    steps: [
+      "Design first: sketch the project with all dimensions. Calculate how many linear feet of lumber you need.",
+      "Measure and mark all cuts before sawing. Double-check each measurement.",
+      "Cut all pieces before assembly. Dry-fit everything before driving a single fastener.",
+      "Drill pilot holes at all fastener locations (prevents splitting, especially near edges).",
+      "Sand all surfaces before final assembly. 80 grit to remove mill marks, 120 grit for smoothing, 220 grit before finish."
+    ],
+    discussion: [
+      {q:"Why do we dry-fit the entire project before driving any fasteners?", answers:["Dry-fitting reveals any measurement errors, cut inaccuracies, or fit problems before they are permanent. Correcting a cut is easy; correcting a glued or screwed joint that doesn\u2019t fit is much harder."]},
+      {q:"Why does wood need to acclimate to your home before you build with it?", answers:["Wood expands and contracts with changes in humidity. If you build immediately with wood from a damp environment, it will shrink as it adjusts to your home\u2019s humidity, potentially causing warping, joint gaps, or cracks."]}
+    ],
+    challenge: "Complete a functional shelf or box from design to finished product. Document each step with photos. Test the finished project by loading it with appropriate weight.",
+    tuesday:   { low: {title:"Design exercise", activity:"Sketch 3 different shelf or box designs. Choose one and create a complete cut list: each piece with its dimensions."}, mid: {title:"Joinery options research", activity:"Research 5 joinery options for building a box: butt joints with screws, pocket screws, rabbets, dadoes, and box joints. Which is strongest? Which is easiest?"}, high: {title:"Wood movement calculations", activity:"Research wood movement coefficients. How much will a 12-inch wide pine board expand across its width from 20% to 80% relative humidity? How does this affect design?"} },
+    wednesday: { low: {title:"Accurate measuring practice", activity:"Practice measuring and marking 10 cut lines on scrap material. Cut each and measure the result. How close to the marked line did you cut?"}, mid: {title:"Finishing options", activity:"Research wood finishing options for a utilitarian shelf: paint (best protection), stain + polyurethane (shows wood grain), oil (easy application, less protection). Test samples on scrap pieces."}, high: {title:"Structural load analysis", activity:"Calculate the maximum load a pine shelf can support based on span, board thickness, and wood species. Research the deflection formula for a simply-supported beam."} },
+    thursday:  { low: {title:"Project assembly", activity:"Complete the assembly of your project. Focus on square corners (check with a square before fasteners set), flush surfaces, and no protruding fastener heads."}, mid: {title:"Project improvement", activity:"After your first project is complete, identify 3 things you would do differently. Write a revised plan incorporating these improvements."}, high: {title:"Furniture design principles", activity:"Research furniture design principles: golden ratio proportions, visual weight, and the relationship between form and function. How do these principles apply to your project?"} }
+  },
+
+  "Income and taxes intro": {
+    gradeHooks: {
+      low: "When people earn money from working, the government takes a portion called taxes. These pay for roads, schools, and services everyone uses.",
+      mid: "Understanding gross vs net income, the difference between tax types, and how marginal tax rates work enables informed financial planning.",
+      high: "Progressive tax systems, marginal vs effective tax rates, payroll taxes, and the economic debate around tax policy are important financial literacy topics."
+    },
+    materials: ["Tax rate tables", "Calculator"],
+    steps: [
+      "Types of income: wages (W-2 employment), self-employment (1099), investment income (dividends, capital gains), and rental income.",
+      "Types of taxes: federal income tax (progressive), Social Security (6.2%), Medicare (1.45%), state income tax (Florida has none), and sales tax.",
+      "Progressive federal tax: the first dollars of income are taxed at lower rates. Only income in each bracket is taxed at that bracket\u2019s rate.",
+      "Marginal vs effective rate: a person in the 22% bracket doesn\u2019t pay 22% on all income. The marginal rate is only on income in that bracket.",
+      "Deductions: the standard deduction reduces taxable income. Itemized deductions (mortgage interest, charitable giving) can reduce it further."
+    ],
+    discussion: [
+      {q:"If you\u2019re in the 22% tax bracket, does that mean you pay 22% of all your income in federal taxes?", answers:["No. The 22% only applies to income that falls within that bracket. Your income in lower brackets is taxed at 10% and 12%. Most people\u2019s effective tax rate is significantly lower than their marginal rate."]},
+      {q:"Why does Florida not have a state income tax and how is state government funded instead?", answers:["Florida relies heavily on sales tax (6% state plus local) and property taxes rather than income tax. This makes Florida attractive to high earners but puts a proportionally higher burden on low-income residents who spend a larger share of income on taxable goods."]}
+    ],
+    challenge: "Calculate the federal income tax for a $45,000 income using current tax brackets. Then calculate the effective tax rate. Compare to the marginal rate.",
+    tuesday:   { low: {title:"Tax bracket calculation", activity:"Using current federal tax brackets, calculate the tax owed on $30,000, $60,000, and $120,000 of income. Calculate the effective rate for each."}, mid: {title:"Payroll tax calculation", activity:"Calculate total payroll taxes (FICA) on a $50,000 salary. What is the employer\u2019s matching contribution? What is the total employment cost to the employer?"}, high: {title:"Progressive vs flat tax debate", activity:"Research the economic arguments for and against progressive taxation vs a flat tax. What are the equity, efficiency, and simplicity arguments on each side?"} },
+    wednesday: { low: {title:"Standard deduction impact", activity:"Research the current standard deduction amounts for single and married filers. How does the standard deduction reduce taxable income and the resulting tax bill?"}, mid: {title:"Tax credit vs deduction", activity:"Research the difference between a tax credit (reduces tax owed dollar for dollar) and a deduction (reduces taxable income). Which is more valuable and why?"}, high: {title:"Capital gains tax treatment", activity:"Research long-term vs short-term capital gains tax rates. Why does investment income receive preferential treatment compared to wage income and what are the economic arguments for and against this?"} },
+    thursday:  { low: {title:"Florida tax comparison", activity:"Compare a $60,000 salary in Florida (no income tax) to the same salary in California (up to 13.3% state tax). What is the annual dollar difference?"}, mid: {title:"Tax withholding adjustment", activity:"Research how to adjust W-4 withholding. What happens if you over-withhold (large refund) vs under-withhold (owe money at filing)? Which is actually better financially?"}, high: {title:"Tax policy and behavior", activity:"Research how tax policy influences behavior: mortgage interest deduction\u2019s effect on homeownership, capital gains rates\u2019 effect on investment, and sin taxes\u2019 effect on consumption."} }
+  },
+
+  "Land navigation — no GPS azimuth walking": {
+    gradeHooks: {
+      low: "We can navigate to a destination using only a compass and our steps. Set the bearing, walk, count, arrive!",
+      mid: "Precision azimuth navigation combines compass bearing, pace count, and terrain reading to travel accurately without GPS.",
+      high: "Land navigation methodology, cumulative error management, and the integration of map, compass, and terrain skills are advanced navigation topics."
+    },
+    materials: ["Baseplate compass", "Calibrated pace count", "Topographic map", "Pencil for DR log"],
+    steps: [
+      "Plan the route: identify waypoints on the map. Calculate the azimuth and distance for each leg.",
+      "Set the azimuth: rotate the bezel to the desired degree. Walk with the needle aligned to the orienting arrow.",
+      "Count paces: use your calibrated pace count (double paces per 100m) to measure distance walked.",
+      "Log each leg: record azimuth, paces, and any terrain notes. Plot your estimated position on the map after each leg.",
+      "Terrain confirmation: use a prominent feature (ridge, stream, trail junction) to confirm your position when available."
+    ],
+    discussion: [
+      {q:"What is the relationship between azimuth accuracy and position error over distance?", answers:["A 1-degree azimuth error causes approximately 17 meters of lateral error per kilometer traveled. Over 5 kilometers, a consistent 2-degree error means you arrive 170 meters off target. This is why precise compass reading and frequent terrain confirmation matter."]},
+      {q:"What is the \u2018aiming off\u2019 technique and when do you use it?", answers:["Aiming off means deliberately choosing an azimuth slightly to one side of your target. When you reach the landmark (stream, road), you know which direction to turn to find your target. It eliminates the uncertainty of \u2018did I go left or right of it?\u2019 when you hit a linear feature."]}
+    ],
+    challenge: "Navigate a 4-leg course using only azimuth and pace count. Log each leg. At the end, compare your estimated position to GPS. Record the error distance.",
+    tuesday:   { low: {title:"Azimuth precision drill", activity:"Take 5 bearings to distant targets. Repeat each bearing 3 times and compare readings. What is your typical precision range?"}, mid: {title:"Aiming off practice", activity:"Design a navigation problem where aiming off is the correct technique. Navigate it using the method and describe the decision point where you turned toward your target."}, high: {title:"Cumulative error modeling", activity:"Research cumulative navigation error models. If each compass reading has \u00b12\u00b0 random error and pace count has \u00b12% error, model the expected position uncertainty after a 5-leg, 3km course."} },
+    wednesday: { low: {title:"Night navigation", activity:"Navigate a short 2-leg course in the dark using only a compass and pace count. How does losing visual reference affect your confidence and accuracy?"}, mid: {title:"Terrain association integration", activity:"Navigate a course using alternating azimuth walking and terrain association. Use terrain features to confirm (or correct) your dead reckoning position at each waypoint."}, high: {title:"Military land navigation standards", activity:"Research US Army land navigation proficiency standards. What accuracy is required on a standard land navigation course and how is it tested?"} },
+    thursday:  { low: {title:"Urban azimuth walking", activity:"Navigate 4 blocks in your neighborhood using only azimuth and pace count. Compare estimated position to actual. What obstacles complicated the navigation?"}, mid: {title:"Multi-day navigation planning", activity:"Plan a 3-day backpacking route using land navigation techniques. Identify waypoints, calculate azimuths, and estimate travel times for each leg."}, high: {title:"Orienteering competition analysis", activity:"Research an elite orienteering competition course. Analyze the route choices made by top competitors. How did they balance precision navigation with speed?"} }
+  },
+
+  "Foraging walk — neighborhood plants": {
+    gradeHooks: {
+      low: "Our neighborhood has wild plants we can identify and sometimes eat! We practice recognizing them safely.",
+      mid: "A neighborhood foraging walk builds field identification skills in a familiar environment, revealing the food plants hiding in plain sight.",
+      high: "Urban ecology, the plant communities of disturbed human landscapes, and the intersection of foraging with food security are important topics."
+    },
+    materials: ["Field guide", "iNaturalist app", "Camera", "Paper bags for any samples"],
+    steps: [
+      "Plan the route: choose a path through diverse habitats — lawns, disturbed edges, tree lines, and any natural areas.",
+      "Identification protocol: photograph each plant, identify with at least 2 sources, note location and abundance.",
+      "Target plants for Florida neighborhoods: dandelion, plantain, wood sorrel, muscadine grape, wild blackberry, Spanish needle (flowers edible), cattail (if near water).",
+      "Location evaluation: assess each find for safety: distance from road (lead/exhaust), lawn treatment status, soil contamination history.",
+      "Document findings: create a foraging map of your neighborhood showing locations of confirmed edibles."
+    ],
+    discussion: [
+      {q:"Why is the area adjacent to roadsides problematic for foraging even if the plants are edible?", answers:["Vehicle exhaust deposits heavy metals (especially lead from pre-unleaded gasoline soil accumulation) and particulates on roadside vegetation. The closer to the road and the busier the road, the higher the contamination. A general guideline is to stay at least 50 feet from any road."]},
+      {q:"What does the presence of certain plant species tell you about the soil and history of a site?", answers:["Pioneer plants indicate disturbed, nutrient-poor soil. Nitrogen-fixing plants (clover, vetch) indicate low nitrogen. Certain plants indicate specific pH levels. Invasive species often indicate human disturbance. Plants are ecological indicators of their growing conditions."]}
+    ],
+    challenge: "Complete a 1-mile foraging walk. Identify and photograph at least 8 plants. For each: name, 3 ID features, edibility status, and location quality assessment.",
+    tuesday:   { low: {title:"Neighborhood foraging map", activity:"Draw a map of your neighborhood with all identified edible plants marked. Note abundance and location quality for each."}, mid: {title:"Invasive edibles research", activity:"Research edible invasive plants in Florida neighborhoods. Brazilian pepper, air potato, and kudzu are all edible with preparation. What are the ecological implications of eating invasives?"}, high: {title:"Urban food forest concept", activity:"Research food forest design for urban and suburban settings. How do the plants you identified in your neighborhood fit into a food forest model?"} },
+    wednesday: { low: {title:"Spanish needle identification", activity:"Research Spanish needle (Bidens pilosa) — one of Florida\u2019s most common yard plants. The flowers and young leaves are edible. Find it and confirm identification."}, mid: {title:"Pollinator plant overlap", activity:"Research which foraging plants also serve as pollinator habitat. How does maintaining some \u2018weedy\u2019 areas serve both human food potential and ecosystem health?"}, high: {title:"Ethnobotany of Florida neighborhoods", activity:"Research the cultural history of plant use by African American and Latinx communities in Florida\u2019s neighborhoods. What traditional food plants are still found and used?"} },
+    thursday:  { low: {title:"Neighborhood forage recipe", activity:"Use something found on your foraging walk to make a simple dish. Document the identification, preparation, and taste."}, mid: {title:"Foraging ethics in urban settings", activity:"Research the legal and ethical framework for foraging in urban settings. What public lands allow foraging? What are the rules for private property and parks?"}, high: {title:"Urban food security research", activity:"Research how urban foraging contributes to food security for low-income urban residents. What studies have examined the nutritional and economic value of urban wild food gathering?"} }
+  },
+
+  "Emergency communication frequencies": {
+    gradeHooks: {
+      low: "Emergency services and amateur radio operators use specific frequencies to communicate when phones don\u2019t work.",
+      mid: "Knowing key emergency frequencies and how to monitor or transmit on them enables communication when commercial infrastructure fails.",
+      high: "Radio frequency allocation, emergency communication systems, interoperability challenges, and amateur radio\u2019s role in disaster communication are important topics."
+    },
+    materials: ["Multi-band radio receiver or scanner", "FCC frequency reference"],
+    steps: [
+      "NOAA Weather Radio: broadcasts on 162.400\u2013162.550 MHz. The most reliable continuous emergency information source.",
+      "FRS/GMRS channels: Channel 1 (462.5625 MHz) is the most commonly monitored calling channel for family/neighborhood radio communication.",
+      "Amateur radio simplex calling frequencies: 146.520 MHz (2-meter VHF national simplex calling), 446.000 MHz (70cm UHF national simplex).",
+      "CB Radio: Channel 9 (27.065 MHz) is the emergency and highway distress channel monitored by many truckers and emergency services.",
+      "Scanning: a multi-band scanner allows monitoring of local police, fire, EMS, and emergency management frequencies."
+    ],
+    discussion: [
+      {q:"Why is NOAA Weather Radio more reliable than internet-based weather apps during a disaster?", answers:["NOAA Weather Radio is a dedicated broadcast system using VHF frequencies and transmitter towers with backup power. It functions when cell networks, internet, and power grids fail. A battery-powered NOAA radio receiver can receive broadcasts even in a complete grid-down scenario."]},
+      {q:"Why can\u2019t different emergency agencies always communicate directly with each other on the same radio system?", answers:["Different agencies often use different frequency bands, digital encryption systems, and proprietary radio infrastructure. Interoperability failures contributed to deaths in the 9/11 response. The First Responder Network (FirstNet) was created to address this by building a unified nationwide public safety broadband network."]}
+    ],
+    challenge: "Program a radio with the 5 most important local emergency frequencies: NOAA weather, local police, local fire, local EMS, and the 146.520 simplex calling frequency.",
+    tuesday:   { low: {title:"NOAA radio setup", activity:"Set up a NOAA weather radio for your county. Program the correct frequency and test the Specific Area Message Encoding (SAME) alert for your county code."}, mid: {title:"Local frequency research", activity:"Research your county\u2019s public safety radio frequencies using RadioReference.com. What systems do your local police and fire use? Are they analog or digital?"}, high: {title:"FirstNet research", activity:"Research the First Responder Network (FirstNet). What is its technical architecture, who operates it, and how does it improve interoperability over traditional radio systems?"} },
+    wednesday: { low: {title:"FRS calling channel practice", activity:"Program Channel 1 on FRS radios. Practice making and receiving calls using proper protocol: identify yourself, state your message, end with \u2018over.\u2019"}, mid: {title:"Radio propagation basics", activity:"Research VHF vs UHF propagation. Why does VHF (2-meter) travel farther in open terrain while UHF (70cm) penetrates buildings better? How does this affect emergency radio planning?"}, high: {title:"Digital emergency communications", activity:"Research digital voice modes used by amateur radio operators in emergencies: DMR, D-STAR, and System Fusion. How do they improve communication capacity over analog?"} },
+    thursday:  { low: {title:"Emergency radio kit", activity:"Assemble an emergency communication kit: NOAA radio, FRS/GMRS radio, extra batteries, and a frequency reference card."}, mid: {title:"Repeater systems", activity:"Research VHF/UHF repeater systems. How do repeaters extend range for handheld radios and how do you access them? Find your nearest amateur repeater on RepeaterBook.com."}, high: {title:"ARRL emergency communication", activity:"Research the ARRL Amateur Radio Emergency Service (ARES) and RACES programs. How are amateur radio operators integrated into the official emergency management structure?"} }
+  },
+
+  "CPR with two rescuers": {
+    gradeHooks: {
+      low: "With two people doing CPR, one compresses and one breathes. Switching every 2 minutes keeps the compressions strong!",
+      mid: "Two-rescuer CPR improves compression quality through regular switching and allows rescue breaths without interrupting compression rate.",
+      high: "Two-rescuer CPR research, compression fraction optimization, and the coordination protocols for EMS two-person teams are important topics."
+    },
+    materials: ["CPR mannequin", "Timer or metronome"],
+    steps: [
+      "Role assignment: Rescuer 1 compresses, Rescuer 2 manages airway and delivers breaths.",
+      "Compression-to-breath ratio: 30:2 for basic two-person CPR. Rescuer 2 delivers 2 breaths after every 30 compressions.",
+      "Switch protocol: after 5 cycles (about 2 minutes), Rescuer 1 calls \u2018switching\u2019 after a compression. Rescuer 2 moves to compressions, new Rescuer 1 takes airway.",
+      "Seamless switch: the new compressor should start within 5 seconds of the call. Total pause should be under 10 seconds.",
+      "AED integration: when AED arrives, Rescuer 2 sets up pads while Rescuer 1 continues compressions. Pause only for rhythm analysis and shock delivery."
+    ],
+    discussion: [
+      {q:"Why does CPR quality decline after about 2 minutes of continuous compressions?", answers:["Research shows compression depth and rate decrease significantly after 90\u2013120 seconds due to muscle fatigue. Regular switching maintains consistent quality throughout the resuscitation."]},
+      {q:"What is compression fraction and why does it matter?", answers:["Compression fraction is the percentage of total resuscitation time spent doing compressions. Target is >80%. Every pause (switch, AED analysis, pulse check) reduces this fraction. High compression fraction is strongly associated with improved ROSC and survival rates."]}
+    ],
+    challenge: "Complete 10 minutes of two-rescuer CPR with seamless switches every 2 minutes. Measure compression depth and rate in the last 30 seconds of each cycle to quantify fatigue.",
+    tuesday:   { low: {title:"Switch coordination drill", activity:"Practice the switch 10 times until it is smooth and automatic. Measure time from call to new compressor starting. Goal: under 5 seconds."}, mid: {title:"BVM operation", activity:"Research bag-valve-mask (BVM) operation. How do you create a mask seal with one hand? What tidal volume is appropriate for adults?"}, high: {title:"AED integration timing", activity:"Research the optimal timing of AED attachment during two-rescuer CPR. When should Rescuer 2 attach pads and how does minimizing interruption affect survival?"} },
+    wednesday: { low: {title:"Compression fraction calculation", activity:"Time a 10-minute two-rescuer CPR session and count total pause time. Calculate compression fraction. Are you above the 80% target?"}, mid: {title:"High-performance CPR", activity:"Research the pit crew model of CPR used by advanced EMS teams. How do 4\u20136 responders rotate roles to maintain near-perfect compression fraction?"}, high: {title:"CPR quality research", activity:"Research the relationship between CPR quality metrics and survival outcomes. What does the data show about depth, rate, and compression fraction independently?"} },
+    thursday:  { low: {title:"Full resuscitation scenario", activity:"Run a complete 10-minute resuscitation scenario: call 911, start CPR, integrate AED, switch regularly, hand off to arriving \u2018EMS\u2019 (family member). Debrief."}, mid: {title:"Video feedback training", activity:"Record your CPR session and review it. What do you notice about compression depth consistency? About switch timing?"}, high: {title:"Team dynamics in resuscitation", activity:"Research the team dynamics literature on resuscitation. What communication patterns distinguish high-performing resuscitation teams from low-performing ones?"} }
+  },
+
+  "Mapping neighborhood resources — water food shelter": {
+    gradeHooks: {
+      low: "A resource map shows where to find water, food, and shelter in our neighborhood during an emergency.",
+      mid: "A neighborhood resource map identifies formal and informal sources of critical needs within walking distance.",
+      high: "Community resource mapping, geographic information systems, and participatory mapping for disaster preparedness are important topics."
+    },
+    materials: ["Large paper or printed neighborhood map", "Colored markers"],
+    steps: [
+      "Water resources: municipal fire hydrants, neighbors with wells or large water storage, nearby ponds or streams (with purification note), community pools.",
+      "Food resources: community gardens, neighbors with productive gardens, food pantries, grocery stores, restaurants (may distribute in disasters).",
+      "Shelter resources: community centers, faith buildings, schools, neighbors with generators and space.",
+      "Skill resources: medical professionals, licensed contractors, mechanics, farmers, and other skilled neighbors.",
+      "Map symbols: create a consistent symbol system. Color-code by resource type."
+    ],
+    discussion: [
+      {q:"Why is a resource map made BEFORE an emergency more valuable than one made during?", answers:["During an emergency, you have no time to research, roads may be blocked, communications may be down, and stress impairs judgment. A pre-made map is immediately actionable."]},
+      {q:"How does knowing the location of informal resources (neighbors with wells, gardens, generators) complement formal emergency shelters?", answers:["Formal shelters have limited capacity and may require transportation. Informal neighborhood resources can serve people who can\u2019t travel, provide more personal environments, and reach people faster than institutional responses."]}
+    ],
+    challenge: "Create a complete neighborhood resource map within a 1-mile radius of your home. Include water, food, shelter, and skill resources. Test it with a family drill.",
+    tuesday:   { low: {title:"Water source mapping", activity:"Map all water sources within 0.5 miles: fire hydrants (from a city map), natural water bodies, and any known large storage (neighbors, businesses)."}, mid: {title:"Community garden research", activity:"Research community gardens in your area. How much food can a typical plot produce per year? Could your neighborhood\u2019s gardens meaningfully supplement food needs during a disruption?"}, high: {title:"GIS for community mapping", activity:"Research how GIS (Geographic Information Systems) is used for disaster preparedness mapping. What free tools (Google Maps, QGIS) can individuals use to create and share resource maps?"} },
+    wednesday: { low: {title:"Shelter capacity research", activity:"Research the capacity and activation conditions for your 3 nearest emergency shelters. How many people can each hold and under what conditions are they opened?"}, mid: {title:"Skill inventory", activity:"Research what professional skills are most valuable in a multi-day community emergency. Create a skill inventory for your neighborhood: who has medical, electrical, mechanical, or agricultural expertise?"}, high: {title:"Participatory mapping research", activity:"Research participatory mapping methodologies used by NGOs in developing countries. How can the same community-engagement approach be used to create more accurate and complete local resource maps?"} },
+    thursday:  { low: {title:"Resource map sharing", activity:"Share your resource map with neighbors. Does sharing reveal additional resources you missed? Update the map."}, mid: {title:"Seasonal resource variation", activity:"Research how seasonal variation affects neighborhood food resources. How does your map change between summer (productive gardens) and winter (fewer options)?"}, high: {title:"Resilience hub concept", activity:"Research the resilience hub model used in some cities: designated community centers pre-equipped with solar, water, food, and communication resources. How does this formalize what your map identifies informally?"} }
+  },
+
+  "Sizing a solar system for a home": {
+    gradeHooks: {
+      low: "To put solar panels on a house, we need to calculate how much electricity the house uses and how many panels it takes to make that much!",
+      mid: "Residential solar system sizing requires calculating load, assessing the solar resource, choosing components, and evaluating economics.",
+      high: "PV system design, string sizing, inverter selection, and the economics of residential solar are important renewable energy topics."
+    },
+    materials: ["Electricity bills (12 months)", "NREL PVWatts calculator access"],
+    steps: [
+      "Step 1: determine annual energy consumption from utility bills (kWh). Average Florida home uses ~14,000 kWh/year.",
+      "Step 2: find annual peak sun hours for your location using NREL PVWatts. Florida averages ~1,800\u20131,900 kWh/kW-installed per year.",
+      "Step 3: calculate system size: annual consumption \u00f7 production per kW-installed = kW needed.",
+      "Step 4: determine roof space: a 400W panel is roughly 22 square feet. Calculate panels needed and check against available roof area.",
+      "Step 5: economics: system cost (\u00b7$3/watt installed), 30% federal tax credit, utility savings, and payback period."
+    ],
+    discussion: [
+      {q:"How does the 30% federal solar tax credit work and who can use it?", answers:["The Residential Clean Energy Credit allows you to deduct 30% of the total installation cost from your federal taxes. It applies to the full system cost including panels, inverter, and installation. You must have a federal tax liability to use it — it\u2019s a credit, not a refund, though unused credits can carry forward."]},
+      {q:"What is the payback period for a typical Florida residential solar system?", answers:["With a $20,000 system, 30% credit reduces net cost to $14,000. At $150/month in electricity savings, payback is about 7\u20138 years. Systems are warrantied for 25 years and typically last 30+, providing 17\u201322 years of free electricity."]}
+    ],
+    challenge: "Size a solar system for your home using your actual electricity bills and the NREL PVWatts calculator. Calculate system size, estimated cost after credits, and payback period.",
+    tuesday:   { low: {title:"Utility bill analysis", activity:"Analyze 12 months of utility bills. Calculate average monthly and annual kWh consumption. Which month uses the most electricity and why?"}, mid: {title:"PVWatts walkthrough", activity:"Use NREL\u2019s PVWatts calculator to simulate a 6kW system at your address. What annual output does it project? What tilt angle and azimuth maximize production?"}, high: {title:"String sizing and inverter selection", activity:"Research how solar panels are wired into strings and how inverter string sizing works. What is the difference between a string inverter and microinverters, and when is each preferred?"} },
+    wednesday: { low: {title:"Roof assessment", activity:"Estimate the south-facing roof area on your home. How many 400W panels (each ~22 sq ft) could fit? What system size does this support?"}, mid: {title:"Battery backup option", activity:"Research adding battery storage to a solar system. How does a Tesla Powerwall or similar product integrate with solar, and what does it add to cost and backup capability?"}, high: {title:"Solar financing comparison", activity:"Research solar financing options: cash purchase, solar loan, lease, and power purchase agreement (PPA). Calculate the total 25-year cost and benefit of each for a $20,000 system."} },
+    thursday:  { low: {title:"Neighborhood solar survey", activity:"Count solar installations visible in your neighborhood. Research whether your utility has a solar incentive program."}, mid: {title:"Net metering calculation", activity:"Calculate annual net metering credits for your sized system. At what electricity rate does your system produce more than you consume? Research Florida\u2019s current net metering policy."}, high: {title:"Community solar research", activity:"Research community solar programs. How do they allow renters and those without suitable roofs to access solar benefits? What is the business model and how does it compare to rooftop solar economics?"} }
+  },
+
+  "One-week pantry meal plan — no grocery store": {
+    gradeHooks: {
+      low: "If we couldn\u2019t go to a store for a whole week, could we feed our family from what we have at home? Let\u2019s find out!",
+      mid: "A one-week pantry-only meal plan tests preparedness, cooking creativity, and understanding of nutritional needs.",
+      high: "Emergency food system design, nutritional completeness analysis, and the psychological dimensions of food monotony are important preparedness topics."
+    },
+    materials: ["Complete pantry inventory", "Nutrition reference", "Meal planning template"],
+    steps: [
+      "Conduct a complete inventory: every item including condiments, spices, and ingredients.",
+      "List caloric content of main pantry staples. Calculate total calories available.",
+      "Plan 21 meals prioritizing: highest calorie density first, nutrition variety second, family preference third.",
+      "Check cooking method: what can be prepared without power? What requires stovetop vs oven?",
+      "Identify the weakest points in the plan: what day does variety run out? What nutrition is missing?"
+    ],
+    discussion: [
+      {q:"What is the minimum number of calories per day needed to maintain basic function and prevent cognitive impairment?", answers:["Below 1,200 calories/day, cognitive function declines noticeably. Below 800 calories, physical performance degrades significantly. Emergency planning should target a minimum of 1,500\u20132,000 calories to maintain work capacity."]},
+      {q:"What pantry items provide the best nutritional insurance for a long-duration emergency?", answers:["Multivitamins (address micronutrient gaps), canned fish (protein and omega-3), dried legumes (protein and fiber), canned tomatoes (lycopene, vitamin C), and canned fruit (vitamin C, variety)."]}
+    ],
+    challenge: "Execute the one-week pantry meal plan for 3 real days with your family. Document: what you made, caloric estimates, family satisfaction, and what you\u2019d change.",
+    tuesday:   { low: {title:"Day 1\u20133 plan", activity:"Create detailed meal plans for days 1\u20133: breakfast, lunch, dinner, snacks. List ingredients needed from your pantry for each meal."}, mid: {title:"Protein inventory", activity:"Calculate total grams of protein available in your pantry. How many days can you meet the 0.8g/kg/day protein requirement? What is your limiting ingredient?"}, high: {title:"Micronutrient gap analysis", activity:"Analyze your 7-day pantry plan for the micronutrients most commonly deficient in shelf-stable diets: vitamin C, vitamin D, calcium, iron, and zinc. What specific pantry additions would address each gap?"} },
+    wednesday: { low: {title:"No-power cooking options", activity:"Identify which of your planned meals can be made without electricity. Do you have a camp stove, grill, or wood fire option? Plan for a power-out scenario."}, mid: {title:"Water requirement calculation", activity:"Calculate the water needed to prepare all 21 planned meals plus 2 liters/person/day for drinking. Does your water storage meet this requirement?"}, high: {title:"Meal variety psychology", activity:"Research the role of meal variety in maintaining caloric intake and morale in long-duration emergencies. What does military ration research show about food acceptance over time?"} },
+    thursday:  { low: {title:"Pantry improvement shopping list", activity:"Based on your planning exercise, create a prioritized shopping list: what items would most significantly improve your one-week pantry meal plan?"}, mid: {title:"Recipe adaptation challenge", activity:"Take a family favorite recipe and adapt it to use only shelf-stable ingredients. What substitutions were necessary? How does the adapted version compare in taste and nutrition?"}, high: {title:"FEMA emergency food standards", activity:"Research FEMA\u2019s guidance on emergency food planning. What caloric and nutritional standards do they recommend and how does your pantry plan compare?"} }
+  },
+
+  "Hand pump well basics": {
+    gradeHooks: {
+      low: "A hand pump can pull water from a well without electricity. It\u2019s essential emergency backup for homes on well water!",
+      mid: "Hand pump installation requires understanding well depth, lift capacity, and pump selection for reliable emergency water access.",
+      high: "Hydraulic lift principles, pump selection for different aquifer depths, and the engineering of hand pump systems are important topics."
+    },
+    materials: ["Hand pump diagrams or actual pump", "Well depth information"],
+    steps: [
+      "Types of hand pumps: shallow well pumps (suction, work to 25 feet), pitcher pumps (to 25 feet), deep well hand pumps (250+ feet).",
+      "Suction limit: atmospheric pressure limits suction lift to about 25 feet. Below that, you need a deep well pump that uses a cylinder in the well.",
+      "Installation: some deep well hand pumps can be installed alongside an existing submersible pump, sharing the same well casing.",
+      "Florida context: many Florida wells are shallow (under 100 feet) and accessible to hand pumps.",
+      "Maintenance: hand pumps require annual check of leathers/seals. Unused pumps should be exercised monthly."
+    ],
+    discussion: [
+      {q:"Why can\u2019t a standard suction pump work below 25 feet?", answers:["A suction pump creates a partial vacuum above the water. Atmospheric pressure (14.7 PSI) pushes water up to fill the vacuum. The maximum height atmospheric pressure can push water is about 25 feet. Below that, a different mechanism (pushing from below via a cylinder in the well) is required."]},
+      {q:"What is the advantage of a hand pump that can be installed alongside an existing submersible pump?", answers:["When power fails, the submersible pump is useless. A coaxial hand pump uses the same well without requiring a separate borehole. This provides emergency backup access to water through the existing well casing."]}
+    ],
+    challenge: "Research the appropriate hand pump type for your home\u2019s water supply (well depth, aquifer type). If on city water, research how neighbors on wells could share water access.",
+    tuesday:   { low: {title:"Pump type selection", activity:"Research hand pump options for your well depth. Which type works? What is the approximate cost and installation requirements?"}, mid: {title:"Daily yield calculation", activity:"Research the daily water yield from hand pumping. How many strokes per gallon? How long to pump 15 gallons for basic family daily needs?"}, high: {title:"Pump hydraulics", activity:"Research the physics of deep well pump cylinders. How does the check valve and plunger work to lift water from depths greater than 25 feet?"} },
+    wednesday: { low: {title:"Water access backup plan", activity:"Create a backup water access plan for a power outage scenario: hand pump options, stored water, and nearby alternative sources."}, mid: {title:"Well depth determination", activity:"Research how to determine your well\u2019s depth. What is the water table depth in your county? Research Florida\u2019s Water Management District well records."}, high: {title:"Rota Sita pump research", activity:"Research India\u2019s village hand pump program using the India Mark II design. How has standardized, repairable pump design improved rural water access reliability?"} },
+    thursday:  { low: {title:"Neighborhood water sharing", activity:"If your home uses city water, identify neighbors with wells. Would they be willing to share water access in an emergency? How would this be organized?"}, mid: {title:"Water hauling plan", activity:"If hand pump installation isn\u2019t feasible, plan water hauling logistics: containers, transport method, and storage from a neighbor\u2019s hand pump."}, high: {title:"Community water systems in emergencies", activity:"Research how communities maintain water access after hurricanes. What portable pumping equipment do utilities pre-position and how do they prioritize restoration?"} }
+  },
+
+  "Reading a level and plumb line": {
+    gradeHooks: {
+      low: "A level tells us if something is perfectly horizontal. A plumb line tells us if something is perfectly vertical. Both are essential for good building!",
+      mid: "Accurate level and plumb measurements are foundational to construction quality. Errors compound as building progresses.",
+      high: "The physics of gravity-based reference tools, systematic error sources, and precision leveling in engineering are important topics."
+    },
+    materials: ["Bubble level (torpedo and 4-foot)", "Plumb bob", "String line", "Measuring tape"],
+    steps: [
+      "Bubble level: hold the level against the surface. When the bubble is centered between the two lines, the surface is level (horizontal).",
+      "Check the level itself: a level can be inaccurate. Verify by flipping it end-for-end on the same surface — the bubble should read the same.",
+      "Plumb: a plumb bob uses gravity to establish a true vertical reference. Hang it from a fixed point and allow it to stop swinging.",
+      "String line level: for longer distances, stretch a taut string between two points and use a line level (small spirit level that hangs on the string).",
+      "Practice: check 5 surfaces in your home. Are floors level? Are door frames plumb?"
+    ],
+    discussion: [
+      {q:"Why can a bubble level give incorrect readings if the level itself is damaged or poorly made?", answers:["Bubble vials can be knocked off calibration. Aluminum bodies can be bent. Always check a level against itself (flip test) before trusting critical measurements."]},
+      {q:"Why does plumb become more important the taller the structure?", answers:["A small deviation from plumb at the base becomes a large error at the top. A wall that is 0.5 degrees off plumb over 8 feet is only about 3/4 inch off — but over 20 feet that same error becomes nearly 2 inches, which can affect structural integrity."]}
+    ],
+    challenge: "Survey your home: check 10 surfaces for level and plumb. Record your findings. Which surfaces are furthest from true level or plumb?",
+    tuesday:   { low: {title:"Level verification test", activity:"Verify your bubble level\u2019s accuracy using the flip test on 3 different surfaces. Is your level accurate?"}, mid: {title:"Laser level research", activity:"Research laser levels. How do they project a level line and what is their accuracy over distance vs bubble levels?"}, high: {title:"Differential leveling", activity:"Research differential leveling used by surveyors. How do they establish elevation over long distances with cumulative errors measured in millimeters?"} },
+    wednesday: { low: {title:"Plumb bob practice", activity:"Hang a plumb bob from a ceiling point. When it stops moving, it establishes true vertical. Practice marking the floor point directly below a ceiling mark."}, mid: {title:"Home survey findings", activity:"Survey all exterior door frames for plumb and all interior floors for level. Create a house diagram showing deviations greater than 1/4 inch over 6 feet."}, high: {title:"Precision optical instruments", activity:"Research theodolites and total stations used in precision surveying. What angular precision do modern total stations achieve and how is this used in construction layout?"} },
+    thursday:  { low: {title:"Project application", activity:"Use a level and plumb bob to lay out a raised garden bed or install a shelf. Document how you used each tool."}, mid: {title:"String line technique", activity:"Establish a level string line between two points 20 feet apart. How do you set equal heights at each end? How do you tension the string without sagging?"}, high: {title:"GPS and GNSS leveling", activity:"Research how GPS is used to determine elevation. What is the difference between geodetic height (ellipsoidal) and orthometric height (above sea level) and why does the distinction matter?"} }
+  },
+
+  "W-2 vs 1099 — employee vs contractor": {
+    gradeHooks: {
+      low: "Some workers get a W-2 from their employer. Others get a 1099 and are their own boss. Each has very different tax and benefit implications!",
+      mid: "Understanding the financial difference between W-2 employment and 1099 independent contracting enables informed career decisions.",
+      high: "Employment law, the gig economy\u2019s impact on worker classification, and the economic implications of contractor vs employee status are important topics."
+    },
+    materials: ["Sample W-2 and 1099 forms", "Calculator"],
+    steps: [
+      "W-2 employee: employer withholds taxes, pays half of FICA, provides benefits (often), subject to employment law protections.",
+      "1099 contractor: responsible for all taxes (including the full 15.3% self-employment tax vs the employee\u2019s 7.65%), no employer benefits, more schedule flexibility.",
+      "Self-employment tax: a 1099 contractor pays 12.4% Social Security + 2.9% Medicare = 15.3% SE tax on net earnings. (Employees pay 7.65% and employers match.)",
+      "Quarterly estimated taxes: 1099 contractors must pay taxes quarterly or face penalties. No withholding happens automatically.",
+      "Deductions: contractors can deduct business expenses (home office, equipment, vehicle, health insurance) that employees cannot."
+    ],
+    discussion: [
+      {q:"If a W-2 employee and a 1099 contractor both earn $60,000 gross, why does the contractor take home significantly less?", answers:["The contractor pays the full 15.3% SE tax vs the employee\u2019s 7.65% (employer pays the other half). On $60,000, this is about $4,590 extra in tax. The contractor also lacks employer-provided benefits (health insurance, retirement match) that could be worth $5,000\u201315,000+ annually."]},
+      {q:"Why do some companies prefer to classify workers as contractors rather than employees?", answers:["Contractors cost less: no employer FICA match, no benefits, no unemployment insurance, no workers\u2019 compensation, and no compliance with employment law (overtime, leave). The legal test for worker classification is based on control and independence, not what either party prefers to call the relationship."]}
+    ],
+    challenge: "Calculate the take-home difference between a $75,000 W-2 salary with standard benefits vs a $90,000 1099 contract. Include taxes and estimate the value of lost benefits.",
+    tuesday:   { low: {title:"SE tax calculation", activity:"Calculate self-employment tax on $40,000, $70,000, and $100,000 of net self-employment income. Note: the deductible portion of SE tax."}, mid: {title:"Quarterly estimated tax", activity:"Research the quarterly estimated tax system. When are the 4 payment deadlines? How do you calculate the correct amount to pay each quarter?"}, high: {title:"Worker misclassification research", activity:"Research the worker classification test used by the IRS and the DOL. What factors determine whether a worker is an employee or contractor? Research a major misclassification case."} },
+    wednesday: { low: {title:"Benefits value calculation", activity:"Research the average employer cost of a benefits package: health insurance, 401k match, life insurance, disability. How much is this worth annually?"}, mid: {title:"Contractor business expenses", activity:"Research allowable business deductions for a 1099 contractor: home office, vehicle, equipment, health insurance, and retirement contributions. How do these reduce taxable income?"}, high: {title:"Gig economy policy debate", activity:"Research the AB5 law in California and the ongoing federal debate about gig worker classification. What are the arguments for and against requiring platforms to classify workers as employees?"} },
+    thursday:  { low: {title:"Which is better quiz", activity:"Given 3 scenarios (high income, low expenses vs low income, high expenses; stable vs variable income), determine whether W-2 or 1099 is financially better for each."}, mid: {title:"S-Corp election research", activity:"Research the S-Corp election for self-employed individuals earning over $40,000. How does it reduce SE tax and what are the compliance requirements?"}, high: {title:"Benefits portability research", activity:"Research how portable benefits could work for gig workers: proposals to decouple benefits from employment status. What would this mean for worker protections and business costs?"} }
+  },
+
+  "Declination-adjusted compass work": {
+    gradeHooks: {
+      low: "A compass points to magnetic north, not true north. We adjust for the difference so our map and compass agree!",
+      mid: "Declination adjustment is required for accurate navigation. Understanding when and how to apply it prevents systematic navigation errors.",
+      high: "Geomagnetic field dynamics, declination variation over time and location, and the mathematics of bearing conversion are important navigation topics."
+    },
+    materials: ["Adjustable declination compass or compass with declination diagram", "Topographic map with declination", "NOAA magnetic declination data for your location"],
+    steps: [
+      "Find current declination: use NOAA\u2019s online calculator (ngdc.noaa.gov) with your zip code. Florida is approximately 5\u20136\u00b0 West.",
+      "Adjustable compass: set the declination on the compass bezel. Now all bearings are automatically corrected to true north.",
+      "Non-adjustable compass: when converting map bearing (true north) to magnetic compass, add westerly declination. Subtract easterly declination.",
+      "Memory aid: for westerly declination (west of the agonic line, most of eastern US): \u2018east is least, west is best\u2019 (add western declination to get compass bearing).",
+      "Verify: take a compass bearing to a known mapped landmark. Does it match the map bearing after declination correction?"
+    ],
+    discussion: [
+      {q:"Why does Florida have westerly magnetic declination while locations in the Pacific Northwest have easterly declination?", answers:["Magnetic north is currently located northwest of Hudson Bay, Canada. Observers east of the line connecting their location to magnetic north (the agonic line) see magnetic north to the west of true north (westerly declination). The agonic line runs roughly through the eastern US from Lake Superior to Florida."]},
+      {q:"How much does declination change over time and why does this matter for older maps?", answers:["Declination changes up to 1 degree per year in some areas due to movement of the Earth\u2019s outer core. A map printed in 2005 may have a declination value off by 5+ degrees from today\u2019s actual value. Always use current declination data."]}
+    ],
+    challenge: "Look up your exact current declination from NOAA. Take 5 map bearings and convert each to magnetic compass bearings. Navigate one leg using the corrected bearing and verify accuracy.",
+    tuesday:   { low: {title:"NOAA declination lookup", activity:"Go to NOAA\u2019s magnetic declination calculator. Find the current declination for your zip code. How has it changed from 10 years ago and 20 years ago?"}, mid: {title:"Bearing conversion practice", activity:"Convert 10 true map bearings to magnetic compass bearings using your local declination. Then convert 10 magnetic bearings to true."}, high: {title:"Isogonic line research", activity:"Research isogonic lines on a magnetic declination map. What is the agonic line (zero declination) and where does it currently run through the US?"} },
+    wednesday: { low: {title:"Adjustable declination compass setup", activity:"If your compass has adjustable declination, set it correctly for your location. Verify by taking a bearing to a mapped landmark."}, mid: {title:"Historical map comparison", activity:"Find a topographic map of your area printed 20+ years ago. What was the stated declination? Calculate the difference from today and how much error this would cause on a 5km navigation leg."}, high: {title:"Magnetic pole drift research", activity:"Research the current rate and direction of magnetic north pole movement. Project where it will be in 2050. How will this affect declination values across North America?"} },
+    thursday:  { low: {title:"Practical navigation with correction", activity:"Navigate a 3-point course using declination-corrected bearings. Compare your ending position to GPS. Was the correction applied correctly?"}, mid: {title:"GPS vs compass integration", activity:"Research how GPS devices handle the true north vs magnetic north issue. How does a GPS compass differ from a physical magnetic compass in this regard?"}, high: {title:"Surveying and true north", activity:"Research how surveyors establish true north. What methods (GPS, astronomical observation, gyroscopic compass) are used for precision survey work requiring true rather than magnetic north?"} }
+  },
+
+  "Identifying invasive edibles in your area": {
+    gradeHooks: {
+      low: "Some invasive plants that spread where they shouldn\u2019t actually taste good! Eating them can help remove them.",
+      mid: "Identifying and harvesting invasive edibles serves both food security and ecological restoration goals simultaneously.",
+      high: "Invasive species ecology, the biocontrol debate, and the ethics and efficacy of \u2018eat the invasives\u2019 as a management strategy are important topics."
+    },
+    materials: ["Field guide to Florida invasive plants", "iNaturalist app"],
+    steps: [
+      "Florida\u2019s top edible invasives: Brazilian pepper berries (controversial — some people react badly), air potato (must be cooked), kudzu (all parts edible), wild taro (cooked only), Chinese tallow tree (seeds have industrial uses).",
+      "Research each before consuming: some invasives have toxic lookalikes or require specific preparation.",
+      "Safe invasives for beginners: air potato tubers (cooked), kudzu leaves (salad, cooked), Japanese honeysuckle flowers (tea, edible raw).",
+      "Location considerations: invasives on treated land may carry herbicide residue. Choose harvest sites carefully.",
+      "Ethical harvesting: harvest invasives aggressively. There is no \u2018leave 10%\u2019 rule for harmful invasives."
+    ],
+    discussion: [
+      {q:"Why do \u2018eat the invasives\u2019 advocates argue that foraging can help control invasive species?", answers:["Creating a market and cultural demand for invasive species gives humans an economic incentive to harvest them, which can reduce their population pressure on native ecosystems. However, most ecologists note that human foraging alone is insufficient to control established invasive populations without additional management."]},
+      {q:"Why might some invasive species be difficult to eradicate even if people widely harvest them?", answers:["Many invasives have high reproductive rates that outpace any harvest rate. Air potato, for example, produces thousands of aerial tubers per plant. Human harvest would need to remove virtually all biomass continuously to make a dent. Foraging helps but is rarely sufficient alone."]}
+    ],
+    challenge: "Identify 5 invasive edible plants within 1 mile of your home. For each: confirmation ID, preparation method, and harvest location quality assessment.",
+    tuesday:   { low: {title:"Air potato ID and preparation", activity:"Research air potato (Dioscorea bulbifera). How do you identify the invasive species vs the edible African form? How must it be prepared (boiled, water changed twice) to be safe?"}, mid: {title:"Kudzu research", activity:"Research kudzu\u2019s spread across the Southeast. Which parts are edible and how are they traditionally used in Asian cuisine? Research the kudzu starch (kuzu) used in Japanese cooking."}, high: {title:"Invasion ecology", activity:"Research the ecological impacts of Florida\u2019s most harmful invasive plants. What mechanisms allow invasives to outcompete native species and what restoration approaches are most effective?"} },
+    wednesday: { low: {title:"Invasive edibles recipe", activity:"Prepare a simple dish using an invasive edible you\u2019ve identified and safely collected. Document the preparation and flavor."}, mid: {title:"Biocontrol vs foraging comparison", activity:"Research biological control of invasive species (introducing natural enemies). How does it compare to foraging as a management strategy in terms of cost, effectiveness, and ecological risk?"}, high: {title:"Novel ecosystem theory", activity:"Research the concept of novel ecosystems: human-altered environments with new combinations of species that may have ecological value despite containing invasives. How does this challenge traditional conservation approaches?"} },
+    thursday:  { low: {title:"Invasive mapping project", activity:"Map invasive edibles in your neighborhood. Create a \u2018harvest zone\u2019 map for 3 species, noting abundance and location quality."}, mid: {title:"Invasive species chef research", activity:"Research chefs and food advocates who have championed invasive species as food (Bun Lai, Joe Roman). What is their argument for cooking invasives and what dishes have they created?"}, high: {title:"International case studies", activity:"Research countries where harvesting invasive species for food has been successfully implemented at scale. What economic, cultural, and ecological factors contributed to success?"} }
+  },
+
+  "Ham radio — Technician license overview": {
+    gradeHooks: {
+      low: "Ham radio operators can communicate around the world using their own equipment and a license. In emergencies, they provide critical communication!",
+      mid: "The Technician class amateur radio license is entry-level and opens access to VHF/UHF frequencies most useful for local emergency communication.",
+      high: "Radio frequency physics, amateur radio regulations, and the technical skills required for the Technician exam are important topics."
+    },
+    materials: ["ARRL Ham Radio License Manual or online study resources", "Practice exam at HamStudy.org"],
+    steps: [
+      "What ham radio can do: local communications (2m/70cm), regional via repeaters, emergency backup communication, satellite, international (with General/Extra license).",
+      "Technician license: covers VHF/UHF frequencies. Exam has 35 questions from a published pool of 412 questions. You need 26 correct (74%) to pass.",
+      "Exam topics: FCC regulations, operating practices, basic electronics, radio wave propagation, and station setup.",
+      "License is free after passing (small testing fee, usually $15). License valid for 10 years.",
+      "Call sign: the FCC issues a call sign after passing. This is your identifier on the air."
+    ],
+    discussion: [
+      {q:"Why does amateur radio remain relevant in an era of smartphones and internet?", answers:["Ham radio is infrastructure-independent. It requires only a radio and an antenna — no cell towers, no internet, no commercial power. During major disasters when all commercial communications fail, ham operators provide the backbone communication that enables coordinated response."]},
+      {q:"What is the difference between simplex and duplex communication in amateur radio?", answers:["Simplex: transmit and receive on the same frequency. Only one person can talk at a time. Duplex: transmit on one frequency, receive on another simultaneously (used with repeaters). Most handheld radios operate in half-duplex: transmit OR receive, not both at once."]}
+    ],
+    challenge: "Complete a practice Technician exam at HamStudy.org or QRZ.com. Target score: 90%+. Identify and study any question categories where you score below 70%.",
+    tuesday:   { low: {title:"Study session 1", activity:"Study the FCC regulations and operating practices section. These cover about 35% of the exam. Use HamStudy.org flashcards."}, mid: {title:"Study session 2", activity:"Study basic electronics and antenna/propagation questions. Focus on understanding, not just memorizing."}, high: {title:"Study session 3", activity:"Study the technical questions: electrical principles, component identification, and safety. Take a full practice exam."} },
+    wednesday: { low: {title:"Repeater directory research", activity:"Research your local VHF/UHF repeaters using RepeaterBook.com. What repeaters are within range of your home? What are their input and output frequencies?"}, mid: {title:"Equipment research", activity:"Research entry-level ham radio equipment. What is a good first handheld radio (HT) for a new Technician? Compare Baofeng, Yaesu, and Kenwood options."}, high: {title:"Emergency communication training", activity:"Research ARRL ARES (Amateur Radio Emergency Service) and RACES (Radio Amateur Civil Emergency Service). What training and activation protocols do they use?"} },
+    thursday:  { low: {title:"License exam registration", activity:"Research how to register for a Technician class exam in your area. Find a local exam session through the ARRL website or local ham radio clubs."}, mid: {title:"First contact planning", activity:"Research how to make your first ham radio contact after getting licensed. What is the procedure for calling on a repeater? What is the procedure for a simplex contact?"}, high: {title:"Digital modes research", activity:"Research digital voice modes for emergency communication: Winlink email over radio, APRS (Automatic Packet Reporting System), and digital voice (DMR, D-STAR). What capabilities do they add?"} }
+  },
+
+
+
+  "Pediatric CPR differences": {
+    gradeHooks: {
+      low: "CPR for kids is similar to adult CPR but with some important differences in depth and technique.",
+      mid: "Pediatric CPR modifications account for anatomical and physiological differences in children that affect optimal resuscitation technique.",
+      high: "Pediatric cardiac arrest epidemiology, age-specific physiology, and the evidence base for pediatric CPR guidelines are important medical topics."
+    },
+    materials: ["Child and infant mannequins if available"],
+    steps: [
+      "Definition: pediatric CPR for ages 1\u201312 years (puberty onset), infant CPR for under 1 year.",
+      "Child compressions: 2 inches deep, 100\u2013120 BPM. One hand for small children, two hands for larger children.",
+      "Infant compressions: 1.5 inches deep, 100\u2013120 BPM. Two fingers on sternum, just below nipple line.",
+      "Rescue breaths: 30:2 ratio. Infant: cover mouth AND nose. Small puffs — just visible chest rise.",
+      "AED use: pediatric pads for under 25 pounds / 8 years. Adult pads can be used if no pediatric pads available."
+    ],
+    discussion: [
+      {q:"Why does pediatric cardiac arrest have different causes than adult cardiac arrest and how does this affect treatment priorities?", answers:["Children rarely have primary cardiac events. Most pediatric cardiac arrest is caused by respiratory failure (drowning, suffocation, SIDS). This is why 2 minutes of CPR before calling 911 is recommended for children: restoring oxygenation is the priority. Adults: call first (AED is the priority)"]},
+      {q:"What is SIDS and what infant sleep practices reduce its risk?", answers:["Sudden Infant Death Syndrome is the unexplained death of an apparently healthy infant during sleep. Risk reduction: back to sleep on a firm surface, no soft bedding or pillows, no co-sleeping, no smoking exposure, room temperature not too warm."]}
+    ],
+    challenge: "Demonstrate adult, child, and infant CPR technique with correct modifications for each. Complete 2 full minutes of each without pause.",
+    tuesday:   { low: {title:"Side-by-side comparison", activity:"Create a detailed comparison table: adult vs child vs infant CPR. Include depth, hand placement, rescue breath volume, and call-911 timing."}, mid: {title:"Pediatric AED protocol", activity:"Research pediatric AED dosing. How do attenuated pediatric pads reduce energy delivery and why is this important for small chests?"}, high: {title:"Pediatric resuscitation outcomes", activity:"Research pediatric out-of-hospital cardiac arrest survival rates. How do they compare to adult rates and what factors most influence outcome?"} },
+    wednesday: { low: {title:"Two-thumb technique", activity:"Practice the two-thumb encircling infant CPR technique. Why is it preferred for two-rescuer infant CPR? How does it generate better hemodynamics?"}, mid: {title:"Pediatric basic life support flow", activity:"Research the pediatric BLS algorithm. Map the decision points and actions at each stage."}, high: {title:"Newborn resuscitation", activity:"Research neonatal resuscitation (NRP). How does resuscitation of a newborn differ from infant CPR in terms of priorities and technique?"} },
+    thursday:  { low: {title:"Babysitter certification", activity:"Research babysitter certification courses that include pediatric CPR. What age are participants typically? What is the typical cost and duration?"}, mid: {title:"Airway management differences", activity:"Research how a child\u2019s airway anatomy differs from an adult\u2019s. Why is the neutral head tilt (not extended) preferred for infants?"}, high: {title:"Pediatric trauma assessment", activity:"Research how pediatric trauma assessment differs from adult assessment. What are the age-specific vital sign normals and how do they change with age?"} }
+  },
+
+  "NIMS — National Incident Management intro": {
+    gradeHooks: {
+      low: "NIMS is the system the US uses to coordinate all emergency responders. It gives everyone the same language and structure.",
+      mid: "NIMS provides a consistent nationwide framework for incident management from local fires to national disasters.",
+      high: "NIMS architecture, the relationship between ICS and NIMS, and the policy history of unified incident management are important emergency management topics."
+    },
+    materials: ["NIMS overview document (fema.gov)"],
+    steps: [
+      "NIMS background: created after 9/11 revealed critical coordination failures between agencies. HSPD-5 (2003) mandated NIMS adoption by all agencies receiving federal funding.",
+      "Core components: Preparedness, Communications and Information Management, Resource Management, Command and Management (ICS).",
+      "Command and Management: the Incident Command System (ICS), Multiagency Coordination Systems (MACS), and Public Information.",
+      "Unified Command: when multiple agencies have jurisdiction, they form a Unified Command with one command structure but multiple agency representatives.",
+      "Benefits: common terminology, scalable structure from 1 responder to thousands, interoperability across agencies."
+    ],
+    discussion: [
+      {q:"Why was a national incident management standard needed after 9/11?", answers:["The 9/11 Commission found that communication failures between agencies — due to different command structures, terminology, and radio systems — contributed to confusion and casualties. NIMS addressed the command structure problem by requiring all agencies to adopt ICS and common terminology."]},
+      {q:"How does NIMS enable a firefighter from rural Florida to immediately integrate into a Hurricane response in Texas?", answers:["Because both have been trained in NIMS/ICS, they use the same command structure, the same position titles, and the same terminology. The Florida firefighter knows to report to the Operations Section and will receive the same type of briefing they would receive at home."]}
+    ],
+    challenge: "Complete FEMA\u2019s free online IS-100 (Introduction to ICS) course. Download the certificate and explain the key concepts to your family.",
+    tuesday:   { low: {title:"NIMS components diagram", activity:"Draw a diagram of NIMS\u2019s major components and how they relate to each other. Focus on the relationship between NIMS and ICS."}, mid: {title:"IS-100 course", activity:"Complete FEMA IS-100.c (Introduction to the Incident Command System) at training.fema.gov. It is free and takes about 3 hours."}, high: {title:"NIMS implementation history", activity:"Research the implementation of NIMS after Hurricane Katrina. What failures were identified and how was NIMS adapted in response?"} },
+    wednesday: { low: {title:"Unified Command example", activity:"Research how Unified Command was used during the Deepwater Horizon oil spill. What agencies participated and how did they coordinate?"}, mid: {title:"MACS vs ICS", activity:"Research Multiagency Coordination Systems. How do MACS (coordination at the policy level) differ from ICS (operational command at the incident level)?"}, high: {title:"NIMS vs other countries", activity:"Research how other countries organize incident management. How do the UK\u2019s Gold-Silver-Bronze command structure and NIMS compare in their underlying design principles?"} },
+    thursday:  { low: {title:"IS-200 overview", activity:"Research FEMA IS-200 (ICS for Single Resources). What additional ICS concepts does it cover beyond IS-100?"}, mid: {title:"National Response Framework connection", activity:"Research the National Response Framework and how it works with NIMS. What is the relationship between emergency support functions and the ICS structure?"}, high: {title:"NIMS compliance research", activity:"Research what NIMS compliance means for local governments. What training requirements exist and what are the consequences of non-compliance for federal funding?"} }
+  },
+
+  "Wind turbine basics — DIY small scale": {
+    gradeHooks: {
+      low: "Small wind turbines can generate electricity from wind. Understanding how they work helps us evaluate if they\u2019re right for our home.",
+      mid: "Small-scale wind turbines involve aerodynamics, generator design, and system integration. Understanding each component enables informed evaluation.",
+      high: "Wind turbine aerodynamics, Betz limit, generator types, and the economic analysis of small wind installations are important topics."
+    },
+    materials: ["Small wind turbine demonstration (or video)", "Anemometer if available"],
+    steps: [
+      "Components: rotor blades (convert wind kinetic energy to rotation), generator (converts rotation to electricity), tower (elevates rotor above turbulence), charge controller/inverter.",
+      "Betz limit: theoretically, no turbine can extract more than 59.3% of the wind\u2019s kinetic energy. Real turbines achieve 35\u201345%.",
+      "Power scales with the cube of wind speed: doubling wind speed increases power 8x. This is why average wind speed is critical.",
+      "Small wind economics: requires average wind speed > 10 mph. Florida\u2019s inland wind is generally poor for small turbines. Coastal sites better.",
+      "DIY turbine: open-source designs (Hugh Piggott turbine) allow building from scratch. Involves blade carving, alternator winding, and tower construction."
+    ],
+    discussion: [
+      {q:"Why does power scale with the cube of wind speed rather than linearly?", answers:["Wind power is kinetic energy (P = \u00bd\u03c1AV\u00b3). Power equals mass flow rate times velocity squared. Mass flow rate is proportional to velocity. Therefore total power is proportional to velocity cubed. Going from 10 mph to 20 mph multiplies power by 8."]},
+      {q:"Why do small wind turbines generally have a higher cost per kWh than small solar panels in most US locations?", answers:["Small turbines are mechanically complex (bearings, blades, generator, yaw mechanism, all must be maintained). They require good wind resources (average > 10 mph). Solar panels have no moving parts and work everywhere the sun shines. In most locations, solar has better economics and reliability."]}
+    ],
+    challenge: "Research the wind resources at your location. Determine whether small wind is economically viable. If so, estimate the size and cost of a system to offset 25% of your electricity use.",
+    tuesday:   { low: {title:"Blade aerodynamics", activity:"Research how wind turbine blades use airfoil profiles (like airplane wings) to generate lift. How does a blade\u2019s twist angle change from root to tip?"}, mid: {title:"Horizontal vs vertical axis turbines", activity:"Compare HAWT (horizontal axis) and VAWT (vertical axis) turbine designs. What are the advantages of each for different applications?"}, high: {title:"Betz limit derivation", activity:"Research Albert Betz\u2019s 1919 derivation. What assumptions does the ideal actuator disk model make and how does it determine the 16/27 theoretical maximum efficiency?"} },
+    wednesday: { low: {title:"Hugh Piggott turbine", activity:"Research Hugh Piggott\u2019s open-source wind turbine designs. What materials are needed and what power output is achievable with the most popular design?"}, mid: {title:"Tower height importance", activity:"Research why tower height is critical for wind energy. How does wind speed change with height (wind shear profile) and what is the economic impact of 10 more feet of tower height?"}, high: {title:"Permanent magnet alternator design", activity:"Research permanent magnet alternator design for small wind turbines. How does stator winding and magnet rotor design affect voltage, current, and overall efficiency?"} },
+    thursday:  { low: {title:"Florida wind resource assessment", activity:"Use the NREL wind resource map to assess your county\u2019s wind resources. Is it viable for small wind? Compare to the best wind states."}, mid: {title:"Hybrid system design", activity:"Design a hybrid solar + small wind system for a coastal Florida home. How does the complementary nature of the two resources improve system reliability?"}, high: {title:"Community wind economics", activity:"Research community wind projects. How do shared ownership models change the economics of wind energy for participating households?"} }
+  },
+
+  "Calculating caloric needs for your family": {
+    gradeHooks: {
+      low: "Everyone needs a different number of calories each day depending on their age, size, and activity level.",
+      mid: "Accurate caloric calculation for each family member enables proper food storage planning for emergencies.",
+      high: "Harris-Benedict equation, TDEE calculation, macronutrient ratios, and the relationship between caloric needs and physical demands are important topics."
+    },
+    materials: ["Calculator", "Family member age, weight, and activity level data"],
+    steps: [
+      "Harris-Benedict equation (simplified): Men: 66 + (6.23 x weight in lbs) + (12.7 x height in inches) \u2013 (6.8 x age) = BMR. Women: 655 + (4.35 x weight in lbs) + (4.7 x height in inches) \u2013 (4.7 x age) = BMR.",
+      "Total Daily Energy Expenditure (TDEE): BMR x activity factor. Sedentary = 1.2, light activity = 1.375, moderate = 1.55.",
+      "Emergency adjustment: in a disaster scenario, physical activity may increase significantly (evacuation, manual labor). Increase TDEE by 20\u201330%.",
+      "Calculate for each family member. Sum for total family daily caloric need.",
+      "Storage calculation: total daily calories x storage days = total calories to store."
+    ],
+    discussion: [
+      {q:"Why do emergency food storage calculations use a higher caloric figure than normal daily intake?", answers:["Disasters often involve physical exertion: carrying supplies, clearing debris, walking long distances. Cold weather also increases caloric need as the body burns more to maintain temperature. Stress response can also increase metabolic rate."]},
+      {q:"What happens to a person\u2019s cognitive and physical performance when calories are restricted?", answers:["Moderate restriction (500 cal/day below need): fatigue, difficulty concentrating. Severe restriction (1000+ cal below need): significant impairment of decision-making, coordination, and physical capability — exactly when maximum performance is needed in an emergency."]}
+    ],
+    challenge: "Calculate the BMR and TDEE for each family member. Sum to get the family\u2019s total daily caloric need. Calculate how many days your current pantry can sustain the family.",
+    tuesday:   { low: {title:"BMR calculation worksheet", activity:"Calculate BMR for each family member using the Harris-Benedict equation. Show all work."}, mid: {title:"TDEE activity multiplier", activity:"Research the different TDEE activity multipliers. For each family member, determine the appropriate multiplier based on typical daily activity level."}, high: {title:"Macronutrient ratios for emergencies", activity:"Research optimal macronutrient ratios under physical stress. How do protein needs change during heavy physical labor? What ratio minimizes muscle catabolism during caloric restriction?"} },
+    wednesday: { low: {title:"Family daily total", activity:"Sum the TDEE for all family members. This is your family\u2019s total daily caloric need."}, mid: {title:"Caloric density optimization", activity:"Calculate the caloric density (calories per pound) of 10 common shelf-stable foods. What are the top 5 most calorie-dense foods for storage?"}, high: {title:"Fasting physiology", activity:"Research the metabolic changes during caloric restriction: glycogen depletion, fat mobilization, and protein catabolism. When does the body begin breaking down muscle for energy and what can slow this process?"} },
+    thursday:  { low: {title:"30-day supply calculation", activity:"Calculate the total calories needed for your family for 30, 60, and 90 days. Express in pounds of each staple food (rice, beans, oats)."}, mid: {title:"Special caloric needs", activity:"Research caloric needs for pregnant women, nursing mothers, growing children, and elderly individuals. How do these differ from standard adult calculations?"}, high: {title:"Food storage optimization", activity:"Design the most calorie-dense, nutritionally complete, and lightweight food storage system for a family of 4 for 30 days. Calculate total weight, volume, and cost."} }
+  },
+
+  "Water table — wells and aquifers": {
+    gradeHooks: {
+      low: "Underground water is stored in layers of rock and sand called aquifers. Wells drill down to reach this water.",
+      mid: "Understanding aquifer types, water table dynamics, and groundwater recharge informs well construction and water security planning.",
+      high: "Hydrogeology, confined vs unconfined aquifers, the Floridan Aquifer System, and groundwater sustainability are important environmental science topics."
+    },
+    materials: ["Florida hydrogeology resources"],
+    steps: [
+      "Water table: the surface of the saturated zone in an unconfined aquifer. Rises after rain, drops during drought.",
+      "Confined aquifer: an aquifer sandwiched between impermeable layers. Water is under pressure (artesian conditions). More protected from surface contamination.",
+      "Floridan Aquifer System: one of the most productive aquifer systems in the world. Supplies drinking water to most of Florida and parts of Georgia, Alabama, and South Carolina.",
+      "Well types: shallow wells (water table, unconfined, vulnerable to contamination), deep wells (confined aquifer, more protected, more expensive to drill).",
+      "Recharge zones: areas where surface water infiltrates to recharge the aquifer. Protecting these from contamination is critical."
+    ],
+    discussion: [
+      {q:"Why is the Floridan Aquifer particularly vulnerable to contamination from sinkholes?", answers:["Florida\u2019s karst geology means the limestone is riddled with conduits and sinkholes that connect the surface directly to the aquifer. Contaminants can travel rapidly through these conduits without the filtering that slow percolation through sand and soil provides. A pollution event at the surface can affect the aquifer quickly."]},
+      {q:"What is an artesian well and why does water sometimes flow to the surface without pumping?", answers:["An artesian well taps a confined aquifer where the water is under pressure from the weight of water in the recharge zone at higher elevation. If the confining layer is penetrated and the local surface elevation is lower than the pressure head, water flows freely to the surface."]}
+    ],
+    challenge: "Research the Floridan Aquifer System. What is the depth to water in your county? What are the primary recharge zones? What contamination threats exist?",
+    tuesday:   { low: {title:"Aquifer diagram", activity:"Draw a cross-section diagram showing: unsaturated zone, water table, unconfined aquifer, confining layer, confined aquifer, and artesian conditions."}, mid: {title:"Water table monitoring", activity:"Research how the USGS monitors groundwater levels nationwide. Find the nearest monitoring well to your location and graph the water table changes over the past year."}, high: {title:"Aquifer depletion research", activity:"Research the Ogallala Aquifer depletion in the High Plains. Compare its geology, depletion rate, and recharge rate to the Floridan Aquifer. What are the long-term sustainability implications?"} },
+    wednesday: { low: {title:"Sinkhole formation", activity:"Research how sinkholes form in Florida\u2019s karst landscape. What is the connection between sinkhole formation and the aquifer?"}, mid: {title:"Saltwater intrusion", activity:"Research saltwater intrusion in Florida\u2019s coastal aquifers. What causes it and how does it affect water supply? What management strategies prevent it?"}, high: {title:"Virtual water trade", activity:"Research the concept of virtual water: the water embedded in traded goods. How does Florida\u2019s agricultural exports export Floridan Aquifer water to other countries and states?"} },
+    thursday:  { low: {title:"Well depth determination", activity:"Research how drillers determine the correct depth for a well in your area. What factors determine whether to tap the shallow or deep aquifer?"}, mid: {title:"Groundwater conservation districts", activity:"Research Florida\u2019s water management districts. What regulations govern groundwater use? How are withdrawal permits allocated?"}, high: {title:"Aquifer storage and recovery", activity:"Research aquifer storage and recovery (ASR) systems. How do water utilities inject excess surface water into aquifers during wet seasons to withdraw during dry seasons?"} }
+  },
+
+  "Building a raised garden bed": {
+    gradeHooks: {
+      low: "A raised garden bed grows more food in less space, with better drainage and soil than in-ground gardening.",
+      mid: "A raised garden bed requires planning dimensions for access, selecting appropriate lumber, mixing optimal growing media, and considering drainage.",
+      high: "Raised bed engineering, soil science, plant root zone requirements, and the long-term economics of raised bed gardening are important topics."
+    },
+    materials: ["2x8 or 2x10 lumber (cedar, redwood, or untreated pine)", "Corner hardware or screws", "Soil mix ingredients", "Cardboard for weed barrier"],
+    steps: [
+      "Dimensions: maximum 4 feet wide (reach the center from both sides without stepping in), any length, minimum 8\u201312 inches deep for most vegetables.",
+      "Lumber selection: untreated cedar or redwood (natural rot resistance, expensive), or pine (treat with linseed oil, will last 5\u20137 years).",
+      "Assembly: cut lumber to length, screw corners together. Use galvanized or stainless hardware to resist rust.",
+      "Weed barrier: lay cardboard in the bottom to smother grass and weeds. Will decompose in 1\u20132 years.",
+      "Soil: Mel\u2019s Mix (1/3 compost, 1/3 peat moss or coco coir, 1/3 coarse vermiculite) or quality garden mix."
+    ],
+    discussion: [
+      {q:"Why is Mel\u2019s Mix considered superior to topsoil for raised beds?", answers:["Native topsoil compacts, especially in containers. Mel\u2019s Mix has a loose, friable structure that allows deep root penetration, excellent drainage, and aeration. It never needs tilling and maintains its structure for years, providing consistent growing conditions."]},
+      {q:"Why do many gardeners avoid pressure-treated lumber for vegetable beds?", answers:["Older pressure-treated lumber used CCA (chromated copper arsenate) with arsenic. Modern ACQ (alkaline copper quaternary) treatment is much safer. However, some gardeners prefer no potential chemical contact with food plants. Cedar and redwood are natural choices but cost significantly more."]}
+    ],
+    challenge: "Design, build, and fill a 4x8 raised garden bed. Plant at least 4 different crops. Document the full process: materials cost, build time, soil cost.",
+    tuesday:   { low: {title:"Design and cut list", activity:"Design a 4x8x10\u201d raised bed. Write the complete cut list and calculate the lumber needed. Price the materials at a home improvement store."}, mid: {title:"Soil volume calculation", activity:"Calculate the cubic feet of soil needed for a 4x8x10\u201d bed (4 x 8 x 10/12 = 26.7 cubic feet). Price the Mel\u2019s Mix components and compare to buying pre-made garden mix."}, high: {title:"Root zone requirements", activity:"Research root depth requirements for different vegetables. Which crops require a deeper bed? Why do root vegetables need more depth than lettuce?"} },
+    wednesday: { low: {title:"Construction day", activity:"Build the raised bed frame. Focus on square corners (measure diagonals — they should be equal if the frame is square)."}, mid: {title:"Irrigation planning", activity:"Design a drip irrigation system for your raised bed. Research emitter spacing and flow rates. What is the cost of a basic drip system vs hand watering?"}, high: {title:"Long-term economics", activity:"Calculate the 10-year economics of a raised bed: initial construction cost, annual soil amendment cost, and estimated yield value at grocery store prices."} },
+    thursday:  { low: {title:"Planting day", activity:"Plant your raised bed using square foot gardening spacing. Photograph the process from empty bed to planted bed."}, mid: {title:"Succession planning", activity:"Plan 3 successions of crops for your raised bed over the next 12 months. What gets planted when as one crop finishes?"}, high: {title:"Permaculture integration", activity:"Research how raised beds can be integrated into a permaculture design. How do you incorporate perennial plants, beneficial insect habitat, and soil building crops alongside annual vegetables?"} }
+  },
+
+  "Filing a simple tax return — 1040EZ": {
+    gradeHooks: {
+      low: "When we have our first job, we file a tax return to tell the government how much we earned and whether we owe more taxes or get a refund.",
+      mid: "Filing a basic tax return involves gathering W-2 income, reporting it on Form 1040, applying the standard deduction, and determining refund or balance due.",
+      high: "Tax return mechanics, the filing requirement thresholds, refundable vs nonrefundable credits, and the earned income tax credit are important financial literacy topics."
+    },
+    materials: ["Sample W-2 form", "IRS Form 1040 (or online equivalent at FreeTaxUSA.com or IRS Free File)"],
+    steps: [
+      "Who must file: generally required if income exceeds the standard deduction ($13,850 single for 2023).",
+      "Gather documents: W-2 (from employer), 1099s (freelance or other income), Social Security number.",
+      "1040 process: report total income, subtract adjustments (student loan interest, etc.), subtract standard deduction, calculate tax on taxable income, subtract withholding, calculate refund or balance due.",
+      "Free filing: IRS Free File available for income under $73,000. FreeTaxUSA.com free for federal return.",
+      "Deadline: April 15 (or next business day). File for extension (Form 4868) by April 15 to get 6 more months."
+    ],
+    discussion: [
+      {q:"Why do most people who file a tax return receive a refund rather than owe money?", answers:["Employers withhold taxes throughout the year based on W-4 elections. Most workers choose to have slightly more withheld than they owe, resulting in a refund. While a refund feels good, it represents an interest-free loan to the government. Adjusting W-4 to break even keeps the money working for you year-round."]},
+      {q:"What is the Earned Income Tax Credit and who benefits from it?", answers:["The EITC is a refundable tax credit for low-to-moderate income workers. Refundable means it can reduce your tax below zero, generating a cash refund even if you owe no tax. For a family with 3 children, the EITC can be worth over $7,000 annually. It is one of the largest anti-poverty programs in the US."]}
+    ],
+    challenge: "Using a sample W-2, complete a simulated 1040 return. Determine whether the person would receive a refund or owe additional tax.",
+    tuesday:   { low: {title:"W-2 anatomy", activity:"Research every box on a W-2 form. What does each box represent? Box 1 (wages), Box 2 (federal withholding), Box 4 (Social Security withheld), Box 6 (Medicare withheld)."}, mid: {title:"1040 walkthrough", activity:"Walk through the 2023 Form 1040 line by line. What information goes on each major section and how do the calculations flow?"}, high: {title:"Refundable vs nonrefundable credits", activity:"Research the difference between refundable and nonrefundable tax credits. List 5 of each and explain the financial difference for a person who owes no taxes."} },
+    wednesday: { low: {title:"FreeTaxUSA practice", activity:"Create a test account on FreeTaxUSA.com. Walk through the interview for a simple W-2 return with the sample form. Complete through the refund calculation."}, mid: {title:"Standard vs itemized", activity:"Research when itemizing deductions beats the standard deduction. What is the standard deduction for a single filer in 2024 and what common itemized deductions might exceed it?"}, high: {title:"Schedule C introduction", activity:"Research Schedule C for self-employment income. Walk through a simple Schedule C for a student who earned $5,000 from lawn care. Calculate self-employment tax and income tax."} },
+    thursday:  { low: {title:"Filing deadline calendar", activity:"Create a tax calendar: W-2 receipt deadline (Jan 31), filing deadline (April 15), extension deadline (April 15), extended deadline (Oct 15), quarterly estimated payments (April, June, Sept, Jan)."}, mid: {title:"IRS Free File options", activity:"Research the IRS Free File program and partner options. What income limits apply and what do different software partners offer?"}, high: {title:"Tax complexity research", activity:"Research the compliance cost of the US tax system. How many hours do Americans spend on taxes annually and what is the economic cost? What simplification proposals have been made?"} }
+  },
+
+  "Pace count for distance measurement": {
+    gradeHooks: {
+      low: "Counting our steps helps us know how far we\u2019ve walked when we don\u2019t have GPS or a measuring tape.",
+      mid: "A calibrated pace count is a reliable distance measurement tool for land navigation. Accurate calibration across terrain types improves distance estimation.",
+      high: "Pace count error analysis, terrain correction factors, and the integration of pace counting into dead reckoning and navigation systems are important topics."
+    },
+    materials: ["Known measured distance (100m or 100 yards)", "Ranger beads (or substitute)"],
+    steps: [
+      "Calibration: walk a known 100-meter distance at your natural pace. Count each time your LEFT foot touches the ground (double paces). Repeat 3 times and average.",
+      "Typical range: adults average 60\u201370 double paces per 100 meters on flat ground.",
+      "Terrain corrections: uphill = add 5\u201310%, downhill = subtract 3\u20135%, sand = add 10\u201315%, thick brush = add 10\u201320%.",
+      "Ranger beads: 9 beads on one strand (units of 100m), 4 beads on another (units of 1000m). Move a bead per 100m completed.",
+      "Accuracy over distance: typical accuracy is \u00b15% on flat ground. Over 1 kilometer, this means 50m error. Combining with compass bearing creates dead reckoning position estimates."
+    ],
+    discussion: [
+      {q:"Why do you count double paces (every time the same foot hits the ground) rather than single steps?", answers:["Single step counting is prone to losing count — you\u2019re doing more mental work per meter traveled. Double paces (every other step) cut the counting in half, are easier to track, and are the standard used in military and orienteering."  ]},
+      {q:"How does your pace count change significantly in different conditions and how do you adjust for this?", answers:["Uphill: you take shorter steps as you climb, adding distance per step. Downhill: you naturally stride longer but still cover distance faster. Rough terrain: you pick your way carefully, taking smaller steps. Each condition has a correction factor that must be learned through practice to maintain accuracy."]}
+    ],
+    challenge: "Calibrate your pace count on flat ground, uphill, downhill, and through thick vegetation. Document each count and calculate the correction factor for each terrain type.",
+    tuesday:   { low: {title:"Calibration walk", activity:"Walk three 100-meter calibration courses. Average the double pace count. Use this as your baseline."}, mid: {title:"Ranger beads construction", activity:"Make ranger beads from paracord and beads. Practice using them for a 1-kilometer simulated course. How do you prevent miscounting?"}, high: {title:"Cumulative error analysis", activity:"Model the cumulative error from pace count over distances of 100m, 500m, 1km, and 5km at \u00b15% accuracy. At what distance does the error become operationally significant?"} },
+    wednesday: { low: {title:"Terrain correction practice", activity:"Walk pace count calibration courses on uphill, downhill, and rough terrain. Calculate your actual correction factor for each terrain type by comparing to a measured distance."}, mid: {title:"Pacing in the dark", activity:"Research how pacing changes at night when you can\u2019t see obstacles clearly. Practice pacing over a known distance with eyes partially closed. What is the increased error rate?"}, high: {title:"Hip pocket distance estimation", activity:"Research the hip pocket distance estimation techniques used by soldiers. How do experienced navigators develop intuitive distance sense through practice?"} },
+    thursday:  { low: {title:"Dead reckoning integration", activity:"Navigate a 3-leg dead reckoning course using both compass bearing and pace count. Track each leg in a navigation log and compare final position to GPS."}, mid: {title:"Distance measurement comparison", activity:"Compare pace count accuracy to map-and-scale measurement for a 500m course. Which is more accurate and which is faster in the field?"}, high: {title:"GPS vs manual navigation accuracy study", activity:"Design and execute a comparison study: navigate the same 5-point course with GPS only, with compass bearing only, and with compass + pace count. Compare time and endpoint accuracy."} }
+  },
+
+  "Medicinal herbs — echinacea elderberry yarrow": {
+    gradeHooks: {
+      low: "Some plants have been used as medicine for thousands of years. Echinacea, elderberry, and yarrow are three of the most useful!",
+      mid: "Understanding the active compounds, evidence base, and proper preparation of medicinal herbs enables informed use.",
+      high: "Phytochemistry, clinical evidence for herbal medicines, herb-drug interactions, and the regulatory framework for botanical supplements are important topics."
+    },
+    materials: ["Dried echinacea, elderberry, and yarrow (or photos)", "Small pot for tea preparation"],
+    steps: [
+      "Echinacea (Echinacea purpurea/angustifolia): used for immune support. Active compounds: alkylamides, polysaccharides. Evidence: modest reduction in cold duration. Preparation: tincture, tea, capsule.",
+      "Elderberry (Sambucus nigra): used for flu/cold symptoms. Active compounds: anthocyanins, flavonoids. Evidence: several RCTs show reduced duration of influenza. Preparation: syrup (cooked berries), tincture. Never eat raw berries.",
+      "Yarrow (Achillea millefolium): used for wound care and fever. Active compounds: achillin, flavonoids. Historical use: hemostatic poultice, fever reduction. Preparation: tea, poultice, tincture.",
+      "Dosing: always research specific doses. More is not always better with herbal medicine.",
+      "Interactions: some herbs interact with medications. Research before combining with pharmaceuticals."
+    ],
+    discussion: [
+      {q:"What is the evidence standard for herbal medicines and how does it differ from pharmaceutical standards?", answers:["Pharmaceuticals require rigorous RCTs (randomized controlled trials) for FDA approval. Herbal supplements are regulated as dietary supplements under DSHEA 1994 and don\u2019t require pre-market safety or efficacy trials. Evidence quality varies widely — some herbs have strong RCT evidence, many have only traditional use or low-quality trials."]},
+      {q:"What is an herb-drug interaction and why is it medically significant?", answers:["Some herbs affect the same biochemical pathways as medications. St. John\u2019s Wort activates liver enzymes that metabolize many drugs, reducing their effectiveness. Echinacea may interact with immunosuppressants. Patients on blood thinners must be careful with many herbs. Always consult a healthcare provider when combining herbs with prescription medications."]}
+    ],
+    challenge: "Research the evidence base for all 3 herbs using PubMed. Find one RCT for each. Summarize the study design, results, and quality of evidence.",
+    tuesday:   { low: {title:"Tea preparation", activity:"Prepare a cup of each herb as tea. Research correct steeping time and temperature for each. Compare the flavors."}, mid: {title:"Elderberry syrup recipe", activity:"Research and prepare a batch of elderberry syrup using dried elderberries. Why must the berries be cooked and for how long?"}, high: {title:"Active compound identification", activity:"Research the primary active compounds in each herb. For elderberry: what specific anthocyanins have anti-influenza activity and what is their mechanism of action?"} },
+    wednesday: { low: {title:"Herb garden planning", activity:"Research growing conditions for echinacea, elderberry, and yarrow in Florida. Which can be grown successfully and what special conditions do they need?"}, mid: {title:"Contraindications research", activity:"Research the contraindications and potential drug interactions for each herb. When should each NOT be used?"}, high: {title:"Cochrane review analysis", activity:"Find and analyze a Cochrane systematic review on one of these herbs. What does a systematic review reveal that individual studies cannot?"} },
+    thursday:  { low: {title:"First aid herbal kit", activity:"Design a basic herbal first aid kit for common complaints: cold/flu, wound care, digestive upset, stress. Which herbs would you include and why?"}, mid: {title:"Regulatory framework", activity:"Research how the FDA regulates dietary supplements (DSHEA). What claims can supplement manufacturers make and what labeling is required?"}, high: {title:"Traditional knowledge and IP", activity:"Research the intellectual property issues around indigenous plant knowledge. When is bioprospecting ethical and what protections exist for traditional ecological knowledge?"} }
+  },
+
+  "FRS vs GMRS vs Ham radio differences": {
+    gradeHooks: {
+      low: "FRS, GMRS, and Ham radio are three different types of two-way radio, each with different range, power, and license requirements.",
+      mid: "Understanding the technical and regulatory differences between radio services enables selecting the right tools for different emergency communication needs.",
+      high: "FCC spectrum allocation, comparative analysis of service rules, and the tradeoffs between consumer simplicity and operator capability are important topics."
+    },
+    materials: ["FRS/GMRS radio for examination"],
+    steps: [
+      "FRS (Family Radio Service): 22 channels, max 2W (most channels 0.5W), no license required, channel 8\u201314 restricted to 0.5W, cannot use repeaters. Range: 0.5\u20132 miles typically.",
+      "GMRS (General Mobile Radio Service): 22 channels (overlapping with FRS), up to 50W, repeater use allowed, requires FCC license ($35, 10 years, no exam, covers whole family).",
+      "Ham radio (Technician): nearly unlimited VHF/UHF frequency access, up to 1,500W, repeater access, digital modes, worldwide communication potential. Exam required.",
+      "Key comparison: FRS is simplest, no license, limited. GMRS is medium power, easy license, repeater capable. Ham is most powerful, requires knowledge exam, most capable.",
+      "Emergency use: all can be used without license during genuine emergencies threatening life."
+    ],
+    discussion: [
+      {q:"What is the practical range difference between FRS and GMRS and what causes it?", answers:["FRS: 0.5\u20132 miles direct. GMRS with 5\u201350W and a repeater: 25\u2013100+ mile range. Power is one factor, but repeater access is transformative. A GMRS repeater on a hill can link radios 50 miles apart that could never communicate directly."]},
+      {q:"Why does GMRS have a license requirement if it requires no exam?", answers:["The FCC requires a license to track who is using GMRS frequencies and enable interference resolution. The license also establishes a callsign. The no-exam requirement recognizes that GMRS is primarily a consumer service, while the license requirement ensures some accountability for powerful transmitters."]}
+    ],
+    challenge: "Create a comparative analysis of FRS, GMRS, and Ham radio: technical specs, license requirements, cost, range, and best use scenarios for each.",
+    tuesday:   { low: {title:"Radio comparison table", activity:"Create a side-by-side comparison of FRS, GMRS, and Ham (Technician) on 10 dimensions: power, license, cost, range, repeater, digital, exam, channels, family coverage, and primary use."}, mid: {title:"GMRS license application", activity:"Research the GMRS license application process at the FCC website (ULS). What information is required and what does the license cover?"}, high: {title:"Spectrum management policy", activity:"Research how the FCC allocates spectrum. Why is spectrum regulation necessary? What is the spectrum auction system for commercial users?"} },
+    wednesday: { low: {title:"Channel assignment memorization", activity:"Research the FRS/GMRS channel assignments. What channels are FRS-only (low power), what are GMRS-only, and what are shared? What is channel 16 used for?"}, mid: {title:"Repeater network research", activity:"Research your county\u2019s GMRS and Ham repeater networks. How do you access a repeater (offset, tone)? Find the nearest open GMRS repeater."}, high: {title:"Digital radio modes", activity:"Research digital voice modes available on Ham radio: DMR, D-STAR, System Fusion, and P25. How do they extend range and connectivity compared to analog FM?"} },
+    thursday:  { low: {title:"Emergency communication kit design", activity:"Design a family emergency communication kit: which radio service and radios would you choose? What is the total cost and what is your rationale?"}, mid: {title:"GMRS vs Ham decision analysis", activity:"For a family focused on regional emergency communication, compare the cost, capability, and effort of GMRS vs Ham radio. What are the tipping points in each direction?"}, high: {title:"Software defined radio for monitoring", activity:"Research software-defined radio (SDR) as a complement to transmitting radios. What frequencies can be monitored and what does this add to an emergency communication capability?"} }
+  },
+
+  "Traction splint — when and how": {
+    gradeHooks: {
+      low: "A traction splint is a special device that pulls on a broken leg to stop the bleeding inside and reduce pain.",
+      mid: "Traction splints are indicated specifically for midshaft femur fractures. Applying traction reduces compartment hemorrhage and pain.",
+      high: "Femur fracture physiology, traction splint mechanics, and contraindications to traction are important emergency medicine topics."
+    },
+    materials: ["Traction splint (Sager, Kendrick, or improvised) or diagram"],
+    steps: [
+      "Indication: ONLY for isolated midshaft femur (thigh bone) fractures. NOT for hip fractures, knee injuries, or lower leg fractures.",
+      "Why traction: the thigh muscle group is powerful. When the femur breaks, muscles contract and override, causing bleeding into the thigh. 1\u20132 liters of blood can be lost into the thigh. Traction reduces this by bringing bone ends closer together.",
+      "Contraindications: hip fracture (traction on a dislocated hip is dangerous), knee injury (traction across an injured knee causes further damage), open fracture with protruding bone.",
+      "Application: apply ankle hitch, extend the splint, apply traction to relieve muscle spasm and pain. Immobilize in traction.",
+      "Improvised traction: can be improvised from two sticks and bandaging material, but requires training and practice to do safely."
+    ],
+    discussion: [
+      {q:"Why can a femur fracture be life-threatening without treatment?", answers:["The femoral artery and large venous channels run through the thigh. A displaced midshaft femur fracture can lacerate or pressure these vessels, resulting in 1\u20132 liters of blood loss into the thigh compartment. This is enough to cause hemorrhagic shock. Traction reduces the blood loss by approximating the bone ends."]},
+      {q:"Why must you determine whether the fracture is at the midshaft before applying traction?", answers:["A hip fracture is a fracture near the hip joint. Applying traction to this injury can pull the femoral head further out of the acetabulum. A knee injury proximal to the lower limb means traction would be applied across a damaged joint. Misapplication worsens the injury."]}
+    ],
+    challenge: "Practice identifying the indication for traction splint in 5 different lower extremity injury scenarios. For each: indicate, contraindicate, or uncertain.",
+    tuesday:   { low: {title:"Femur anatomy", activity:"Draw and label the femur, the quadriceps muscle group, femoral artery, and femoral vein. Explain how the fracture leads to bleeding."}, mid: {title:"Traction splint types comparison", activity:"Research the Sager, Kendrick, and Hare traction splints. How does each generate traction and what are the application differences?"}, high: {title:"Femur fracture hemodynamics", activity:"Research the hemodynamic changes from femur fracture. At what rate does blood accumulate in the thigh and at what total blood loss does hemorrhagic shock begin in an average adult?"} },
+    wednesday: { low: {title:"Contraindication scenarios", activity:"Present 10 lower extremity injury scenarios. For each, determine whether traction splint is indicated, contraindicated, or requires further assessment."}, mid: {title:"Improvised traction", activity:"Research improvised traction splint techniques from wilderness medicine. What materials are needed and what are the critical steps to generate adequate traction?"}, high: {title:"Pelvic ring fracture", activity:"Research pelvic ring fractures and pelvic binders. How does the mechanism of hemorrhage control differ between a pelvic binder and a traction splint?"} },
+    thursday:  { low: {title:"Field application practice", activity:"Practice applying an improvised or commercial traction splint on a partner\u2019s uninjured leg. Focus on ankle hitch placement and traction generation."}, mid: {title:"Transport and monitoring", activity:"Research how a patient with a traction splint is monitored during transport. What neurovascular checks are performed and at what intervals?"}, high: {title:"ITLS vs PHTLS traction guidance", activity:"Compare the International Trauma Life Support and Pre-Hospital Trauma Life Support guidelines for traction splint use. Are there meaningful differences in their indications?"} }
+  },
+
+  "Community resilience — what makes neighborhoods survive?": {
+    gradeHooks: {
+      low: "Some neighborhoods bounce back quickly after disasters while others struggle. What makes the difference?",
+      mid: "Community resilience is determined by social capital, resource access, leadership, and the quality of community planning.",
+      high: "Resilience theory, the Baseline Resilience Indicators for Communities (BRIC), and empirical research on disaster outcomes by community type are important topics."
+    },
+    materials: ["Community resilience assessment tools"],
+    steps: [
+      "Define resilience: the capacity to absorb disruption, reorganize, and return to functionality while adapting to the change.",
+      "Social capital: the density of relationships, trust, and reciprocity in a community. The single most-studied predictor of resilience.",
+      "Resource equity: communities with greater income inequality recover more slowly. Unequal access to preparation and recovery resources amplifies disaster impacts.",
+      "Institutional capacity: strong local government, good emergency management, and functional community organizations improve outcomes.",
+      "Physical infrastructure: hardened buildings, redundant utilities, and good road access enable faster recovery."
+    ],
+    discussion: [
+      {q:"What does research show about the relationship between social cohesion (knowing your neighbors) and disaster recovery speed?", answers:["Multiple studies (post-Katrina, post-Fukushima, post-earthquake) show that communities with higher neighborhood social cohesion — measured by frequency of interaction, trust levels, and willingness to help — recover measurably faster. They share resources earlier, identify vulnerable members faster, and coordinate without waiting for institutional direction."]},
+      {q:"Why do disasters disproportionately affect low-income communities even when the physical hazard is the same?", answers:["Lower-income communities have less capacity to prepare (no savings for supplies or evacuation), live in lower-quality housing, have less insurance, have fewer political connections to advocate for faster recovery resources, and have fewer economic reserves to survive disruption. The same flood kills more people in a poor neighborhood than a wealthy one."]}
+    ],
+    challenge: "Assess your neighborhood\u2019s resilience using 5 indicators: social cohesion, economic capacity, institutional resources, infrastructure quality, and community planning. Rate each 1\u201310 and identify the lowest-scoring area.",
+    tuesday:   { low: {title:"Resilience indicator assessment", activity:"Rate your neighborhood on 5 resilience dimensions: social cohesion, economic resources, community organizations, physical infrastructure, and emergency planning."}, mid: {title:"BRIC index research", activity:"Research FEMA\u2019s Baseline Resilience Indicators for Communities. What 49 indicators are used and how are communities scored?"}, high: {title:"Disaster sociology research", activity:"Research the key findings of post-Katrina sociology research. What specific social dynamics predicted which neighborhoods recovered and which remained devastated?"} },
+    wednesday: { low: {title:"Social capital building activity", activity:"Identify one concrete action you can take this week to increase social capital in your neighborhood: introduce yourself to a neighbor, organize a block activity."}, mid: {title:"Equity and resilience", activity:"Research how the FEMA disaster declaration process and disaster relief programs can amplify existing inequities. What reforms have been proposed?"}, high: {title:"Adaptive capacity research", activity:"Research adaptive capacity as a component of resilience. How do communities develop the ability to learn, innovate, and reorganize rather than simply \u2018bouncing back\u2019 to the pre-disaster state?"} },
+    thursday:  { low: {title:"Resilience improvement plan", activity:"Based on your assessment, write a 1-page neighborhood resilience improvement plan. What are the 3 most impactful things that could be done?"}, mid: {title:"Case study analysis", activity:"Research a community that demonstrated exceptional resilience after a disaster. What specific factors contributed to its rapid recovery?"}, high: {title:"Resilience vs sustainability", activity:"Research the intersection of resilience and sustainability. How does building long-term sustainability (renewable energy, local food systems) also build resilience?"} }
+  },
+
+  "Wildfire preparedness — defensible space": {
+    gradeHooks: {
+      low: "Defensible space is a clear area around your home that gives firefighters room to protect it from a wildfire.",
+      mid: "Defensible space zones, vegetation management, and ember-resistant construction are the primary tools for protecting structures from wildfire.",
+      high: "Fire behavior in the wildland-urban interface, defensible space science, and the ecology of fire-adapted landscapes are important topics."
+    },
+    materials: ["Home site map", "Florida Forest Service resources"],
+    steps: [
+      "Zone 0 (0\u20135 feet from structure): ember-resistant zone. Non-combustible materials only. No wood mulch, no combustible furniture, clean gutters.",
+      "Zone 1 (5\u201330 feet): lean, clean, and green. Irrigated, low-growing plants. Prune trees to 10-foot clearance from structures. No ladder fuels (vegetation connecting ground to tree canopy).",
+      "Zone 2 (30\u2013100 feet): reduce fuel continuity. Space trees and shrubs so fire cannot easily spread. Remove dead vegetation.",
+      "Ember resistance: embers travel miles ahead of a fire. A home ignites primarily from ember intrusion through vents, windows, and gaps, not from direct flame contact.",
+      "Florida context: while Florida has low wildfire risk in many areas, the WUI (wildland-urban interface) in northern Florida and areas with pine flatwoods are vulnerable."
+    ],
+    discussion: [
+      {q:"Why do most homes ignite from embers rather than direct flame contact during wildfires?", answers:["In a fast-moving wildfire, the flame front may pass quickly. But spot fires from embers started up to 2 miles ahead can smolder in debris, accumulate in vents, and eventually ignite structures after the main fire has passed. Ember resistance is therefore more important than proximity to the flame front."]},
+      {q:"Why does defensible space also benefit firefighters and affect whether they will attempt to defend a structure?", answers:["Firefighters make triage decisions: is this structure defensible? Good defensible space means they can defend it without excessive risk to themselves. A structure with no clearance and combustible landscaping right up to the walls will often be abandoned to burn."]}
+    ],
+    challenge: "Conduct a defensible space assessment of your home or a neighbor\u2019s home. Rate Zone 0, Zone 1, and Zone 2 compliance. Identify the top 3 improvements.",
+    tuesday:   { low: {title:"Zone mapping", activity:"Draw a site plan of your home and yard. Mark the Zone 0, 1, and 2 boundaries. Identify any vegetation or materials in each zone that violate the guidelines."}, mid: {title:"Ember-resistant retrofits", activity:"Research ember-resistant vents, skylights, and deck materials. What are the cost and effectiveness of each retrofit?"}, high: {title:"Fire behavior in WUI research", activity:"Research how fire behavior changes in the wildland-urban interface. How do structure density, road accessibility, and defensible space collectively affect fire spread through a neighborhood?"} },
+    wednesday: { low: {title:"Vegetation management", activity:"Research which plant species are most fire-resistant and which are most flammable. Create a list of fire-safe plants appropriate for your region."}, mid: {title:"Home ignition assessment", activity:"Research the Home Ignition Assessment methodology. Walk your home and identify the top 5 most likely ignition points."}, high: {title:"Prescribed fire ecology", activity:"Research how prescribed burning is used in Florida\u2019s pine flatwoods ecosystems. How does fire ecology interact with wildfire preparedness?"} },
+    thursday:  { low: {title:"Defensible space maintenance schedule", activity:"Create a seasonal defensible space maintenance schedule: what to do monthly, twice yearly, and annually."}, mid: {title:"Community fire preparedness", activity:"Research how communities in high-wildfire-risk areas have implemented community-level defensible space programs. What incentives and regulations have been effective?"}, high: {title:"Insurance and wildfire risk", activity:"Research how wildfire risk affects homeowner\u2019s insurance availability and cost in California and the Southeast US. What is the insurance market failure in high-risk areas?"} }
+  },
+
+  "Fermented beverages — water kefir": {
+    gradeHooks: {
+      low: "Water kefir is a lightly fizzy, slightly sweet fermented drink made with special grains that feed on sugar and water.",
+      mid: "Water kefir fermentation produces a probiotic, slightly alcoholic (<1%) beverage through a symbiotic culture of bacteria and yeast.",
+      high: "Water kefir microbiology, SCOBY ecology, fermentation chemistry, and the health evidence for water kefir are important topics."
+    },
+    materials: ["Water kefir grains", "Sugar (cane or coconut)", "Filtered water", "Glass jar", "Dried fruit or minerals"],
+    steps: [
+      "Grains: water kefir grains are a SCOBY (symbiotic culture of bacteria and yeast). They look like small translucent crystals.",
+      "Ratio: 1/4 cup grains + 1/4 cup sugar + 4 cups filtered water. Add minerals if using distilled water (a pinch of mineral-rich sea salt or a dried fig).",
+      "First fermentation: 24\u201348 hours at 70\u201375\u00b0F, covered loosely. The grains consume sugar, producing lactic acid, CO2, and a small amount of ethanol.",
+      "Strain out grains (rinse in non-chlorinated water, store in a small amount of sugar water in the refrigerator if not continuing).",
+      "Second fermentation (carbonation): bottle the strained kefir with a small amount of fruit juice in sealed bottles. 24\u201348 hours at room temp. Burp daily — over-carbonation can cause explosive bottle opening."
+    ],
+    discussion: [
+      {q:"What is the mineral requirement for water kefir and why does it matter?", answers:["Water kefir grains require calcium, magnesium, and other minerals to thrive. Tap water usually provides adequate minerals. Distilled or reverse osmosis water lacks them, causing grain deterioration. Adding a slice of dried fruit, a pinch of sea salt, or a clean eggshell compensates."]},
+      {q:"How does water kefir differ from milk kefir in terms of microbial composition and nutritional profile?", answers:["Milk kefir grains contain bacteria and yeasts specialized for lactose fermentation in a protein-rich medium. Water kefir grains are specialized for sugar water. The microbial communities are largely different species. Milk kefir has protein and calcium from milk; water kefir is dairy-free and lower in calories."]}
+    ],
+    challenge: "Complete two batches of water kefir including a second fermentation for carbonation. Compare flavor at different fermentation durations and with different fruit juices.",
+    tuesday:   { low: {title:"Grain health monitoring", activity:"Research the visual signs of healthy vs unhealthy water kefir grains. What does excessive stickiness, pink color, or grain disintegration indicate?"}, mid: {title:"pH tracking", activity:"Measure the pH of water kefir at 12, 24, and 48 hours. What pH is achieved and how does this compare to safe lacto-fermented vegetable pH?"}, high: {title:"Microbial community analysis", activity:"Research the specific Lactobacillus and yeast species found in water kefir. How does the community differ from milk kefir and kombucha?"} },
+    wednesday: { low: {title:"Flavor variation experiments", activity:"Try second fermentation with 3 different juices: ginger, blueberry, and citrus. Compare carbonation level, flavor, and color."}, mid: {title:"Grain multiplication", activity:"Research how water kefir grains multiply. Under ideal conditions, how quickly do grains double in volume? What are the signs that grains are growing well?"}, high: {title:"Organic acid profile", activity:"Research the organic acids produced in water kefir fermentation: lactic acid, acetic acid, and gluconic acid. What are the relative proportions and how do they affect flavor?"} },
+    thursday:  { low: {title:"Comparison tasting", activity:"Compare commercial kombucha, commercial water kefir, and your homemade water kefir. Describe flavor, carbonation, and sweetness of each."}, mid: {title:"Long-term grain maintenance", activity:"Research how to store water kefir grains when not brewing: refrigerator short-term storage, sugar concentration for hibernation, and freezing for long-term storage."}, high: {title:"Kefiran research", activity:"Research kefiran, the exopolysaccharide produced by Lactobacillus kefiranofaciens. What health effects have been studied and what is the evidence quality?"} }
+  },
+
+  "Electrical panel safety — breakers and fuses": {
+    gradeHooks: {
+      low: "The electrical panel is the brain of our home\u2019s electricity. Knowing how to use it safely protects us from shocks and fires!",
+      mid: "Electrical panel safety involves understanding breaker types, the main disconnect, proper labeling, and when to call an electrician.",
+      high: "Electrical panel engineering, breaker technology, fault current interruption, and the code requirements for residential panels are important topics."
+    },
+    materials: ["Home electrical panel (with parent supervision)", "Circuit directory form"],
+    steps: [
+      "Panel anatomy: main breaker (kills all power), individual circuit breakers (protect specific circuits), neutral bus, ground bus.",
+      "Main breaker: turns off all power to the home. Located at top of panel. Crucial to know location before any emergency.",
+      "Circuit breaker operation: thermal-magnetic mechanism trips on sustained overload (heat) and immediately on short circuit (magnetic).",
+      "Tripped breaker: in middle position. Reset: push fully to OFF, then fully to ON. If it trips again immediately, do not reset.",
+      "Fuses: older panels use fuses instead of breakers. A blown fuse shows a melted element. Replace only with a fuse of the same amperage rating."
+    ],
+    discussion: [
+      {q:"Why is it dangerous to replace a blown fuse with one of higher amperage?", answers:["The fuse\u2019s job is to interrupt current before the wire overheats and causes a fire. A 20-amp fuse on a 15-amp wire circuit protects nothing — the wire can carry 20 amps until it melts into the wall. A 30-amp fuse is even worse. Always replace with the same amperage."]},
+      {q:"What is a tandem breaker and when is it acceptable to use one?", answers:["A tandem breaker puts two circuits in one breaker slot, allowing more circuits than the panel has physical spaces. They are acceptable only where the panel is listed for them (the listing indicates \u2018CTL\u2019 or lists the maximum number of circuits). Overfilling a panel creates heat and fire risk."]}
+    ],
+    challenge: "Create a complete circuit directory for your electrical panel. Test each breaker by turning it off and confirming what loses power. Label everything clearly.",
+    tuesday:   { low: {title:"Panel location and main breaker", activity:"Locate your panel and practice turning the main breaker off and on with a parent present. Discuss when you would need to do this in an emergency."}, mid: {title:"AFCI breaker identification", activity:"Research AFCI (Arc Fault Circuit Interrupter) breakers. What do they look like compared to standard breakers? What circuits require AFCI protection by code?"}, high: {title:"Interrupting rating", activity:"Research AIC (Ampere Interrupting Capacity) rating on breakers. What fault currents can your panel safely interrupt and why does this matter for safety?"} },
+    wednesday: { low: {title:"Circuit labeling project", activity:"Complete the circuit labeling of your entire panel. Every circuit should be clearly labeled. How long does it take to verify every circuit?"}, mid: {title:"Panel capacity assessment", activity:"Research how to assess whether your electrical panel has capacity for additional circuits. What is the service amperage of your panel and what is its maximum circuit count?"}, high: {title:"Smart breaker technology", activity:"Research smart circuit breaker technology. What monitoring, remote control, and safety features do products like Leviton Smart Panel or Square D Wiser offer?"} },
+    thursday:  { low: {title:"Emergency response drill", activity:"Practice the emergency electrical response: identify a sparking outlet, go to the panel, identify the correct circuit, turn it off. Time the response."}, mid: {title:"Electrical inspection checklist", activity:"Research what a residential electrical inspection covers. Create a checklist of the most common violations found in older Florida homes."}, high: {title:"NEC code evolution", activity:"Research how the National Electrical Code has evolved over the past 30 years regarding panel safety. What new requirements have been added that weren\u2019t required in 1990?"} }
+  },
+
+  "Negotiating a price — practical economics": {
+    gradeHooks: {
+      low: "Negotiating means talking to reach a price that works for both the buyer and the seller. It\u2019s a valuable skill!",
+      mid: "Negotiation involves preparation, understanding the other party\u2019s interests, knowing your BATNA, and using communication strategies effectively.",
+      high: "Game theory, negotiation psychology, principal-agent problems, and the economics of price negotiation are important topics."
+    },
+    materials: ["A scenario to practice with (car purchase, salary, rent)"],
+    steps: [
+      "Preparation: research the fair market value before negotiating. What does this item typically sell for? What is your maximum and minimum?",
+      "BATNA (Best Alternative To Negotiated Agreement): know your walkaway point. If you\u2019ll buy elsewhere if you don\u2019t get below $X, that\u2019s your BATNA.",
+      "Anchoring: whoever makes the first offer sets the anchor. Research suggests the first offer strongly influences the final outcome.",
+      "Common negotiation contexts: car purchase, salary negotiation, medical bill reduction, rent negotiation, flea market / garage sales.",
+      "Silence is a tool: after making an offer, stop talking. Silence creates discomfort that often causes the other party to fill with a concession."
+    ],
+    discussion: [
+      {q:"Why does research recommend against accepting the first offer even if it seems fair?", answers:["The first offer is never the final position. Accepting immediately signals that you would have accepted less (for a seller) or more (for a buyer). Negotiating even slightly from the first offer establishes the dynamic that you are not simply a price taker. It also often uncovers additional flexibility."]},
+      {q:"What is anchoring bias and how does it affect negotiation outcomes?", answers:["Anchoring is the tendency to rely heavily on the first piece of information offered. In negotiation, the first number mentioned influences the entire rest of the conversation. Even an arbitrary high anchor pulls the final price higher than a low anchor would. Experienced negotiators use anchoring intentionally."]}
+    ],
+    challenge: "Negotiate a real transaction: a used item on Facebook Marketplace, a medical bill reduction, or a service quote. Document the opening offer, your response, and the final outcome.",
+    tuesday:   { low: {title:"Car price research", activity:"Research a specific used car on 3 different platforms (KBB, Edmunds, local listings). What is the fair market value range? At what price would you walk away?"}, mid: {title:"BATNA exercise", activity:"For 3 negotiation scenarios, identify the BATNA: what is your best alternative if negotiation fails? How does knowing your BATNA change how you negotiate?"}, high: {title:"Game theory and negotiation", activity:"Research Nash equilibrium and its application to negotiation. When do both parties benefit from cooperative vs competitive negotiating strategies?"} },
+    wednesday: { low: {title:"Salary negotiation role play", activity:"Role-play a salary negotiation for a $45,000 job offer with a target of $52,000. Practice the anchor, counter-offer, and justification."}, mid: {title:"Medical bill negotiation", activity:"Research how to negotiate medical bills. What is the cash pay discount? What hardship programs do hospitals offer? What is the settlement process for large bills?"}, high: {title:"Principal-agent problem", activity:"Research the principal-agent problem in negotiation contexts (real estate agents, car dealers). How do agent interests diverge from client interests and how do you structure incentives to align them?"} },
+    thursday:  { low: {title:"Negotiation script practice", activity:"Write a negotiation script for purchasing a used car at 15% below the asking price. Practice saying it out loud with a partner."}, mid: {title:"Package deals", activity:"Research how expanding negotiations beyond price to include other terms can create value: warranty, delivery date, payment terms, accessories. How does adding variables create more room for agreement?"}, high: {title:"Distributive vs integrative bargaining", activity:"Research distributive bargaining (fixed pie, win-lose) vs integrative bargaining (expanding the pie, win-win). How do you identify which type of negotiation you\u2019re in and shift toward integrative?"} }
+  },
+
+
+
+  "Advanced CPR — adult child infant": {
+    gradeHooks: {
+      low: "CPR is done differently for adults, children, and infants. Knowing each version means you can help anyone!",
+      mid: "Age-specific CPR differences in compression depth, rate, and rescue breath technique are critical for effective resuscitation.",
+      high: "Pediatric resuscitation physiology, cardiac arrest etiology differences across age groups, and evidence-based protocol variations are important medical topics."
+    },
+    materials: ["CPR mannequins (adult, child, infant if available) or pillows"],
+    steps: [
+      "Adult: 2-inch compressions, 100\u2013120 BPM, heel of hand, 30:2 with rescue breaths or hands-only.",
+      "Child (1\u201312 years): 2-inch compressions, 100\u2013120 BPM, one or two hands depending on child size, 30:2.",
+      "Infant (under 1 year): 1.5-inch compressions, 100\u2013120 BPM, two fingers on the center of chest just below nipple line, 30:2.",
+      "Infant rescue breaths: cover mouth AND nose with your mouth. Small puffs — just enough to see chest rise.",
+      "For children and infants: after 5 cycles of 30:2, call 911 if not already done. For adults, call first then start CPR."
+    ],
+    discussion: [
+      {q:"Why do infants get two-finger compressions rather than a full-hand compression?", answers:["The infant sternum is very small and fragile. Two fingers provide adequate compression depth (1.5 inches) without the risk of rib fractures or liver lacerations that full-hand pressure would cause."]},
+      {q:"Why should you call 911 before starting CPR for an adult, but start CPR first for a child?", answers:["Adult cardiac arrest is most often due to a primary cardiac event. Defibrillation (which requires EMS) is the most important intervention. Pediatric arrest is most often due to respiratory failure. 5 cycles of CPR (2 minutes) can restore circulation before EMS arrives."]}
+    ],
+    challenge: "Demonstrate all 3 CPR techniques (adult, child, infant) with correct compression depth, rate, and rescue breath technique for each.",
+    tuesday:   { low: {title:"Age comparison chart", activity:"Create a comparison chart: adult vs child vs infant CPR. Include compression depth, hand position, rate, and ratio for each."}, mid: {title:"Pediatric chain of survival", activity:"Research how the pediatric chain of survival differs from the adult chain. What is the primary cause of cardiac arrest in each age group?"}, high: {title:"Neonatal resuscitation", activity:"Research neonatal resuscitation program (NRP) basics. How does resuscitation of a newborn differ from infant CPR?"} },
+    wednesday: { low: {title:"Two-thumb encircling technique", activity:"Research the two-thumb encircling technique for infant CPR with two rescuers. Why is it preferred over two-finger technique when a second rescuer is present?"}, mid: {title:"Pediatric defibrillation", activity:"Research pediatric AED use. What pads are used for children and what energy doses are delivered? At what age/weight can adult pads be used?"}, high: {title:"Asphyxial vs cardiac arrest", activity:"Research the physiological differences between asphyxial cardiac arrest (primary respiratory failure) and primary cardiac arrest. How do these affect resuscitation priorities?"} },
+    thursday:  { low: {title:"Full scenario practice", activity:"Role-play: you find an unresponsive 8-month-old infant at home. Walk through the complete response: check response, call 911, start CPR."}, mid: {title:"CPR certification planning", activity:"Research pediatric CPR certification courses in your area. What is required for babysitters, camp counselors, and school staff?"}, high: {title:"Post-resuscitation care", activity:"Research targeted temperature management and post-cardiac arrest syndrome in pediatric patients. How does care after resuscitation affect neurological outcomes?"} }
+  },
+
+  "Neighborhood emergency network": {
+    gradeHooks: {
+      low: "A neighborhood emergency network connects neighbors so they can help each other when something goes wrong.",
+      mid: "A formal neighborhood emergency network maps resources, assigns roles, and establishes communication protocols for mutual aid.",
+      high: "Network design, redundant communication systems, and the research on community social capital and disaster outcomes are important topics."
+    },
+    materials: ["Neighborhood map", "Contact information forms"],
+    steps: [
+      "Conduct a neighborhood survey: who lives on your block, what skills do they have, what resources do they have, who needs extra help?",
+      "Create a resource inventory: generators, chain saws, medical training, extra food/water, vehicles, tools.",
+      "Assign roles: block captain (overall coordination), medical resource, communications, supply management.",
+      "Communication protocol: primary (phone tree), backup (in-person check-in at designated times), emergency signal.",
+      "Hold a neighborhood meeting to present and refine the plan. Build relationships before you need them."
+    ],
+    discussion: [
+      {q:"What is the most important factor in a neighborhood\u2019s ability to recover from a disaster?", answers:["Research consistently shows that pre-existing social connections and trust are the strongest predictors of rapid community recovery. Neighborhoods where people know each other restore services, share resources, and identify vulnerable members faster than those without social cohesion."]},
+      {q:"Why should the neighborhood network include documentation of who needs extra help (elderly, disabled, medically dependent)?", answers:["In a disaster, emergency services are overwhelmed. Knowing in advance who needs assistance allows the network to check on those people immediately, potentially saving lives before any professional help arrives."]}
+    ],
+    challenge: "Conduct a preliminary neighborhood survey of your 5 nearest neighbors. Document skills, resources, and needs. Present findings to your family.",
+    tuesday:   { low: {title:"Skills inventory survey", activity:"Design a 1-page neighborhood skills/resources survey. What information would you collect and why?"}, mid: {title:"Communication tree design", activity:"Design a communication tree for 12 households. Each household contacts 2 others. Test it with a non-emergency message."}, high: {title:"Network resilience analysis", activity:"Research network resilience theory. How does the structure of a neighborhood communication network affect its ability to function when some nodes (households) are unavailable?"} },
+    wednesday: { low: {title:"Vulnerable neighbor identification", activity:"Research the categories of people who need extra help in disasters. How do you identify and respectfully include them in your network?"}, mid: {title:"Resource cache planning", activity:"Design a shared neighborhood resource cache: what supplies would be collectively owned, where stored, and how accessed during emergencies?"}, high: {title:"Formalization options", activity:"Research legal structures for neighborhood mutual aid groups: informal agreement, registered nonprofit, or formal neighborhood association. What are the liability and governance implications of each?"} },
+    thursday:  { low: {title:"Neighborhood meeting agenda", activity:"Write an agenda for a first neighborhood preparedness meeting. What would you cover? How would you make it engaging?"}, mid: {title:"After-action review design", activity:"Design an after-action review process for your neighborhood network after each drill or activation. What questions would you ask?"}, high: {title:"Research presentation", activity:"Research a successful neighborhood emergency network from a real disaster. What made it effective? Present findings to your family."} }
+  },
+
+  "Solar and wind energy basics": {
+    gradeHooks: {
+      low: "Solar panels and wind turbines turn sunlight and wind into electricity without burning anything!",
+      mid: "Solar and wind energy convert natural resources into electricity through different physical mechanisms, each with specific advantages and limitations.",
+      high: "Photovoltaic effect, wind turbine aerodynamics, capacity factor, and the complementary nature of solar and wind generation are important renewable energy topics."
+    },
+    materials: ["Small solar panel (or photo)", "Research on local wind and solar resources"],
+    steps: [
+      "Solar PV: photons from sunlight dislodge electrons in silicon cells, creating direct current (DC). Inverter converts to AC for home use.",
+      "Wind: blades convert kinetic energy of wind to rotational energy. Generator converts rotation to electricity. Most effective above 10 mph average wind speed.",
+      "Capacity factor: solar generates at full capacity only 4\u20135 hours/day. Wind generates at full capacity perhaps 25\u201335% of the time. Both are intermittent.",
+      "Complementarity: wind often blows when sun doesn\u2019t shine. Combining both with battery storage creates more reliable off-grid power.",
+      "Florida resources: excellent solar (one of top 5 states), moderate coastal and offshore wind, very little inland wind."
+    ],
+    discussion: [
+      {q:"Why can\u2019t you simply size a solar panel to your total daily electricity use and power your home continuously?", answers:["Solar only generates during daylight hours and at full capacity for perhaps 5 hours/day. Evening, nighttime, and cloudy days require stored energy (battery) or grid connection. You must size for the worst-case period, not average production."]},
+      {q:"What is the levelized cost of energy (LCOE) and why is it used to compare renewable and fossil fuel energy?", answers:["LCOE is the total lifetime cost of an energy system divided by total lifetime energy produced, expressed as cost per kilowatt-hour. It allows fair comparison across technologies with different upfront costs, fuel costs, and lifespans."]}
+    ],
+    challenge: "Calculate the solar energy potential of your home. Measure your roof\u2019s usable south-facing area. Research Florida peak sun hours and calculate potential daily kWh production.",
+    tuesday:   { low: {title:"PV cell physics", activity:"Research the photovoltaic effect. What is the bandgap of silicon and why does it limit theoretical efficiency? What is the Shockley-Queisser limit?"}, mid: {title:"System components tour", activity:"Research every component in a grid-tied solar system: panels, string inverter or microinverters, net meter, AC disconnect, and monitoring system."}, high: {title:"Wind turbine power curve", activity:"Research wind turbine power curves. How does power output relate to wind speed? Why does power scale with the cube of wind speed?"} },
+    wednesday: { low: {title:"Florida solar resource map", activity:"Find the NREL solar resource map for Florida. What is the average daily peak sun hours for your county? How does this compare to the best and worst states?"}, mid: {title:"Capacity factor comparison", activity:"Compare capacity factors: utility-scale solar (20\u201325%), residential rooftop (15\u201318%), onshore wind (25\u201335%), offshore wind (40\u201345%), nuclear (90\u201393%). What do these numbers mean for system sizing?"}, high: {title:"Duck curve problem", activity:"Research the duck curve in electricity grids with high solar penetration. What causes it and what grid management solutions are being deployed?"} },
+    thursday:  { low: {title:"Home energy audit", activity:"Research your home\u2019s electricity consumption. How many kWh per month does your family use? How many solar panels would be needed to offset this in Florida?"}, mid: {title:"Wind vs solar for Florida", activity:"Research why Florida\u2019s renewable energy is dominated by solar rather than wind. What are the land use, grid integration, and economic factors?"}, high: {title:"Energy storage necessity", activity:"Research why energy storage (batteries, pumped hydro) is essential for high renewable penetration grids. What storage capacity would be needed for a 100% renewable Florida grid?"} }
+  },
+
+  "Full meal planning from pantry": {
+    gradeHooks: {
+      low: "With the right pantry, we can cook good meals for weeks without going to the store. Let\u2019s plan a full week!",
+      mid: "A well-stocked pantry enables complete nutritional meal planning. Calculating caloric needs and nutrient balance is an important life skill.",
+      high: "Nutritional completeness, macro and micronutrient planning, and the economics of pantry-based meal planning are important food literacy topics."
+    },
+    materials: ["Full pantry inventory", "Nutritional reference resources"],
+    steps: [
+      "Inventory your pantry completely: every item, quantity, and approximate caloric content.",
+      "Calculate family caloric needs: 2,000\u20132,500 calories/day per adult, 1,500\u20132,000 for children (varies by age and activity).",
+      "Plan 7 days of 3 meals and snacks: breakfast, lunch, dinner, snacks. Focus on variety and nutrition.",
+      "Check nutritional completeness: are you getting enough protein, fat, carbohydrates, and key vitamins?",
+      "Identify gaps: what would be missing from a pantry-only diet over 30 days? (Fresh produce, vitamin C, certain minerals)"
+    ],
+    discussion: [
+      {q:"What nutrients are most commonly deficient in a long-term shelf-stable food plan?", answers:["Vitamin C (no fresh produce), vitamin A, potassium, and fiber are commonly deficient. Canned fruits and vegetables provide some, but a diverse pantry with multivitamins, canned tomatoes, and legumes addresses most gaps."]},
+      {q:"How do you calculate whether your pantry can sustain your family and for how long?", answers:["Total calories stored \u00f7 family\u2019s daily caloric need = days of food supply. A family of 4 needing 8,000 calories/day with 240,000 calories stored has a 30-day supply."]}
+    ],
+    challenge: "Plan 7 days of complete meals using only your current pantry. Calculate total calories per day and identify any nutritional gaps.",
+    tuesday:   { low: {title:"Caloric inventory", activity:"Calculate the total calories in your pantry. Count every item: canned goods, grains, beans, oils, canned meats. What is your family\u2019s supply in days?"}, mid: {title:"Micronutrient gap analysis", activity:"Research which micronutrients are hardest to maintain from shelf-stable foods. What specific pantry items address vitamin C, vitamin D, and potassium deficiencies?"}, high: {title:"Nutrient density optimization", activity:"Research the most calorie-dense, nutrition-dense shelf-stable foods. How do legumes, whole grains, and nuts complement each other for complete protein?"} },
+    wednesday: { low: {title:"Recipe creation", activity:"Create 5 complete meals using only pantry ingredients. Research preparation methods (no refrigerator needed) and approximate cooking times without electricity."}, mid: {title:"Variety and palatability", activity:"Research food fatigue: the psychological and physiological effects of eating the same foods repeatedly. How do spices, sauces, and varied preparation methods combat food fatigue?"}, high: {title:"Long-term nutrition science", activity:"Research what happened nutritionally to populations relying on limited food supplies (WWII rationing, pioneer diets). What deficiency diseases emerged and how were they prevented?"} },
+    thursday:  { low: {title:"Pantry gap shopping list", activity:"Based on your pantry inventory and meal planning, create a shopping list to fill the gaps for a 30-day supply."}, mid: {title:"Cost per meal calculation", activity:"Calculate the cost per meal for your 7-day pantry meal plan. Compare to your family\u2019s usual food spending."}, high: {title:"Food security metrics", activity:"Research food security metrics: caloric sufficiency, dietary diversity, and food safety. How does your pantry plan score on each metric?"} }
+  },
+
+  "Water well basics and maintenance": {
+    gradeHooks: {
+      low: "Some homes get water from a well underground instead of city pipes. Wells need maintenance to keep the water safe and flowing.",
+      mid: "Understanding well components, water testing, and maintenance requirements ensures safe drinking water from private wells.",
+      high: "Groundwater hydrology, well construction standards, aquifer science, and Florida-specific water table dynamics are important topics."
+    },
+    materials: ["Well inspection checklist", "Water testing kit"],
+    steps: [
+      "Well components: wellhead (above ground, must be sealed), casing (pipe going into the aquifer), pump (submersible or jet), pressure tank, and pressure switch.",
+      "Water testing: private wells are not regulated by public water standards. Annual testing for bacteria, nitrates, and pH is essential.",
+      "Wellhead protection: keep the area around the wellhead free of chemicals, fertilizers, and animal waste. These can infiltrate the aquifer.",
+      "Common problems: loss of pressure (pressure tank waterlogged), no water (pump failure, low water table), discolored water (iron, sediment), or bad taste/smell.",
+      "Florida-specific: Florida has a shallow water table. Heavy rains can recharge wells quickly but also carry surface contamination into the aquifer."
+    ],
+    discussion: [
+      {q:"Why do private well owners bear full responsibility for their water quality while public water system customers do not?", answers:["Public water systems are regulated by the EPA under the Safe Drinking Water Act and must test and treat water to meet standards. Private wells serve fewer than 25 people and are exempt from federal regulation. The owner is solely responsible for testing and treating their own water."]},
+      {q:"What is the most important thing to do immediately after a flood if you have a well?", answers:["Do not use the well water until it has been tested. Floodwater infiltrates wellheads and can introduce E. coli, nitrates, and other contaminants from surface runoff. Shock chlorination and retesting are required before the well is safe to use."]}
+    ],
+    challenge: "Research the specific maintenance schedule for a private water well. Create a comprehensive annual maintenance checklist.",
+    tuesday:   { low: {title:"Well component identification", activity:"Research and draw a detailed diagram of a residential well system: wellhead, casing, submersible pump, electrical connections, pressure tank, and pressure switch."}, mid: {title:"Water testing parameters", activity:"Research what parameters to test in private well water. What are the action levels for total coliform, E. coli, nitrates, arsenic, and pH?"}, high: {title:"Aquifer science", activity:"Research the Floridan Aquifer System: its extent, depth, recharge zones, and vulnerability to contamination. How does Florida\u2019s karst geology affect groundwater quality?"} },
+    wednesday: { low: {title:"Shock chlorination procedure", activity:"Research how to shock chlorinate a well after contamination or as routine maintenance. What concentration, contact time, and flushing procedure is required?"}, mid: {title:"Wellhead protection planning", activity:"Walk your property and identify all potential contamination sources within 50 feet of your wellhead: fuel tanks, septic, animal areas, chemical storage."}, high: {title:"Well construction standards", activity:"Research Florida Well Construction Permitting rules (Chapter 62-532 FAC). What casing depth, grouting, and setback requirements apply to residential wells?"} },
+    thursday:  { low: {title:"Pressure tank diagnosis", activity:"Research how to diagnose a waterlogged pressure tank: symptoms, testing procedure, and the re-pressurization process."}, mid: {title:"Backup water supply plan", activity:"What do you do if your well pump fails? Design a backup water supply plan for a family with a private well."}, high: {title:"Saltwater intrusion", activity:"Research saltwater intrusion in Florida coastal aquifers. What causes it, how is it detected, and what water management strategies prevent it?"} }
+  },
+
+  "Basic carpentry project — shelf or box": {
+    gradeHooks: {
+      low: "We build something functional from wood using what we\u2019ve learned: measuring, cutting, drilling, and assembly.",
+      mid: "A carpentry project integrates measuring, cutting, joinery, and finishing into a functional object. Planning before cutting is essential.",
+      high: "Carpentry design principles, structural joinery selection, wood movement science, and the economics of building vs buying are important topics."
+    },
+    materials: ["Lumber (1x8 or 1x10 pine or plywood)", "Circular saw or hand saw", "Drill", "Screws", "Sandpaper", "Finish (paint, stain, or oil)"],
+    steps: [
+      "Design: sketch the project with all dimensions. Calculate the cut list: every piece, its size, and how many needed.",
+      "Material purchase: calculate total board feet needed plus 10% waste. Buy appropriate lumber for the application.",
+      "Cut: measure twice, cut once. Mark all cut lines before starting. Cut in sequence to minimize waste.",
+      "Assembly: pre-drill pilot holes to prevent splitting. Use appropriate fasteners (screws for strength, nails for trim).",
+      "Finish: sand progressively (80, 120, 180 grit). Apply stain, paint, or oil appropriate to the project use."
+    ],
+    discussion: [
+      {q:"Why do woodworkers say \u2018measure twice, cut once\u2019 and what does it cost to cut once without measuring twice?", answers:["A wrong cut wastes materials and time. Once cut, a piece cannot be un-cut. For a $5 piece of lumber, a mistake costs $5 plus the time to return to the store. For a large project, accumulated measurement errors can cost significantly more."]},
+      {q:"Why might solid wood be a worse choice than plywood for a shelf that will hold heavy books?", answers:["Solid wood planks can cup, bow, and warp as humidity changes. They also have lower strength-to-weight ratio than plywood for spanning distances. Plywood\u2019s cross-laminated layers provide dimensional stability and predictable strength."]}
+    ],
+    challenge: "Build a complete functional shelf or storage box. Document the full process: design sketch, cut list, material cost, build time, and final cost vs store equivalent.",
+    tuesday:   { low: {title:"Cut list development", activity:"For a 3-shelf bookcase measuring 36\u201d wide x 48\u201d tall x 10\u201d deep, write the complete cut list: every piece with dimensions."}, mid: {title:"Joinery selection", activity:"Research the joinery options for a shelf: butt joint with screws, dado joint, rabbet joint, and pocket screws. Compare strength, difficulty, and appearance of each."}, high: {title:"Wood species comparison", activity:"Compare pine, poplar, oak, and plywood for a painted shelf. Consider workability, cost, strength, and paint acceptance."} },
+    wednesday: { low: {title:"Sanding and finishing practice", activity:"Sand a sample piece of wood through 80, 120, and 180 grit. Apply a coat of paint or stain. What changes with each grit?"}, mid: {title:"Board foot calculation", activity:"Calculate the board feet needed for your project. Research current lumber prices. What is the total material cost?"}, high: {title:"Cabinetmaking principles", activity:"Research the principles of face-frame vs frameless cabinet construction. What are the aesthetic and structural differences?"} },
+    thursday:  { low: {title:"Project completion", activity:"Finish and photograph your completed shelf or box. Document: total time, total cost, and any problems encountered."}, mid: {title:"Quality assessment", activity:"Assess your completed project: are corners square (check with a speed square)? Are surfaces smooth? Does it look professional from 3 feet away?"}, high: {title:"Cost vs store equivalent", activity:"Price an equivalent commercial product. Calculate your cost in materials and time. What is the cost-benefit of making vs buying for this project?"} }
+  },
+
+  "Income and taxes intro": {
+    gradeHooks: {
+      low: "When we earn money, we share some with the government through taxes. Taxes fund schools, roads, and emergency services!",
+      mid: "Understanding income types, tax brackets, and the difference between marginal and effective tax rates is foundational financial literacy.",
+      high: "Federal income tax structure, tax incidence, fiscal policy, and the equity implications of different tax systems are important economic topics."
+    },
+    materials: ["IRS tax bracket table (current year)", "Calculator"],
+    steps: [
+      "Types of income: wages (W-2), self-employment (1099), investment (dividends, capital gains), rental, and passive income.",
+      "Federal income tax brackets: the US uses a progressive system. Higher income is taxed at higher rates, but only the income ABOVE each threshold.",
+      "Marginal vs effective rate: if you\u2019re in the 22% bracket, you don\u2019t pay 22% on all income. You pay the lower rates on lower income and 22% only on income above the 22% threshold.",
+      "FICA taxes: Social Security (6.2%) and Medicare (1.45%) apply to all earned income below the SS wage base.",
+      "State taxes: Florida has no state income tax. Most other states do."
+    ],
+    discussion: [
+      {q:"What is a marginal tax rate and why does it NOT mean you keep less by earning more?", answers:["The marginal rate is the rate on your last dollar of income. A 22% marginal rate only applies to the portion of income above the 22% bracket threshold. Earning more still increases your after-tax income because the additional money is taxed at 22%, not your entire income."]},
+      {q:"What is the difference between a tax deduction and a tax credit?", answers:["A deduction reduces your taxable income. A $1,000 deduction for someone in the 22% bracket saves $220. A tax credit directly reduces your tax bill. A $1,000 credit saves $1,000 regardless of your bracket. Credits are generally more valuable than deductions."]}
+    ],
+    challenge: "Calculate the federal income tax on $50,000 of taxable income using current tax brackets. Show the calculation for each bracket.",
+    tuesday:   { low: {title:"Bracket calculation practice", activity:"Calculate federal income tax for $30,000, $75,000, and $150,000 of taxable income. Show each bracket segment."}, mid: {title:"Effective rate calculation", activity:"For each income level above, calculate the effective tax rate. Why is the effective rate always lower than the marginal rate?"}, high: {title:"Progressive vs flat vs regressive", activity:"Research progressive, flat (proportional), and regressive tax structures. Give examples of each in the US tax code. What are the equity arguments for each?"} },
+    wednesday: { low: {title:"Florida tax advantage", activity:"Research Florida\u2019s lack of state income tax. How much would a $60,000/year earner save compared to living in California or New York? What taxes does Florida use instead?"}, mid: {title:"Capital gains vs ordinary income", activity:"Research how capital gains (profit from selling investments) are taxed differently than wages. What are the long-term capital gains rates and why are they lower?"}, high: {title:"Tax incidence research", activity:"Research tax incidence: who actually bears the economic burden of a tax (payroll, corporate, sales). How does statutory vs economic incidence differ?"} },
+    thursday:  { low: {title:"W-4 purpose", activity:"Research what a W-4 form is and how it determines how much is withheld from each paycheck. What happens if too little is withheld?"}, mid: {title:"Standard vs itemized deductions", activity:"Research the standard deduction vs itemizing deductions. What are the most common itemized deductions and when does itemizing save more than the standard deduction?"}, high: {title:"Tax policy tradeoffs", activity:"Research a current tax policy debate (wealth tax, carbon tax, VAT). Present the economic arguments for and against the policy."} }
+  },
+
+  "Land navigation — no GPS azimuth walking": {
+    gradeHooks: {
+      low: "Azimuth walking means we pick a direction in degrees, walk it exactly, and end up exactly where we planned!",
+      mid: "Precision azimuth walking combines compass bearing accuracy, declination adjustment, pace counting, and obstacle bypass technique.",
+      high: "Land navigation fieldcraft, terrain feature identification, and the integration of map, compass, and pace counting for precision movement are advanced skills."
+    },
+    materials: ["Baseplate compass", "Topo map", "Prepared azimuth course"],
+    steps: [
+      "Set azimuth: rotate the bezel to your desired bearing in degrees. Adjust for magnetic declination.",
+      "Orient with the compass: hold level, rotate your body until the needle aligns with the orienting arrow.",
+      "Walk on the bearing: keep the needle aligned with the orienting arrow as you walk. Don\u2019t watch the compass constantly — pick an aiming point on your bearing line and walk to it.",
+      "Count paces: track distance traveled. Know your personal 100-meter pace count on different terrain.",
+      "Obstacle bypass: when a lake or cliff blocks your path, turn 90\u00b0, count paces across, turn back to original bearing, count the same paces, turn back on original bearing."
+    ],
+    discussion: [
+      {q:"Why do you pick an aiming point (a tree, rock, or landmark) rather than looking at the compass while walking?", answers:["Walking while looking down at a compass causes you to weave. Picking an aiming point on your bearing line allows you to walk a straight line naturally while keeping your eyes on terrain. You check the compass only to verify the aiming point is accurate."]},
+      {q:"What is the bypass error and how do you correct for it?", answers:["When bypassing an obstacle with 90\u00b0 turns, any error in the turn angle or pace count accumulates. After the bypass, your position should be exactly on the original bearing line. Check by taking a bearing to a known landmark and verifying it matches the map."]}
+    ],
+    challenge: "Complete a precision 5-point azimuth course across mixed terrain. Record time, bearing, and pace count for each leg. End within 20 meters of the target.",
+    tuesday:   { low: {title:"Declination calculation drill", activity:"Calculate the magnetic compass bearing for 10 different true azimuths using Florida\u2019s current declination."}, mid: {title:"Offset navigation", activity:"Research the deliberate offset technique: intentionally aiming left or right of a target to ensure you arrive at a known feature and know which direction to turn to find the target."}, high: {title:"Star-pattern land navigation", activity:"Research military star-pattern land navigation exercises. How are they designed to develop skills progressively and what standards are required for qualification?"} },
+    wednesday: { low: {title:"Terrain association practice", activity:"Navigate a 1-kilometer course using only terrain association (no compass bearings): identify and move from feature to feature based only on map reading."}, mid: {title:"Night navigation preparation", activity:"Plan a night navigation route. What terrain features can be identified at night? How does reduced visibility change your pace count and bearing accuracy?"}, high: {title:"Integrated navigation course design", activity:"Design a 10-point navigation course that tests terrain association, azimuth walking, resection, and elevation reading. Write the course book with control descriptions."} },
+    thursday:  { low: {title:"Time-distance calculation", activity:"Using your pace count and typical hiking speed, calculate how long it will take to complete each leg of a planned route with varying elevation."}, mid: {title:"Competitive orienteering", activity:"Research competitive orienteering courses in Florida. What is the format and what navigation skills are tested at different competition levels?"}, high: {title:"Military land navigation standards", activity:"Research US Army land navigation qualification standards. What score is required and what distances and time limits are involved?"} }
+  },
+
+  "Foraging walk — neighborhood plants": {
+    gradeHooks: {
+      low: "On a foraging walk, we look for edible plants right in our neighborhood. There might be more food growing around us than we think!",
+      mid: "A neighborhood foraging walk builds observation skills, plant ID confidence, and ecological awareness of the urban food landscape.",
+      high: "Urban food systems, the ecology of edible urban plants, and the intersection of foraging, food sovereignty, and urban planning are important topics."
+    },
+    materials: ["Field guide", "iNaturalist app", "Camera", "Paper bags for samples"],
+    steps: [
+      "Plan a 1\u20132 mile walking route through your neighborhood. Look for: vacant lots, utility corridors, parks, and roadside plantings.",
+      "Target species for your area: dandelion, wood sorrel, muscadine grape, blackberry, plantain, prickly pear cactus (Florida).",
+      "At each find: photograph, identify with 2+ sources, note exact location, assess safety (no spray, distance from road).",
+      "Document harvest potential: how abundant is each find? Sustainable harvest (take no more than 10%) leaves plenty for wildlife and regrowth.",
+      "Safety protocol: never eat anything identified with less than full certainty. Note any potential contamination sources."
+    ],
+    discussion: [
+      {q:"Why should you avoid foraging within 50 feet of a road?", answers:["Vehicle exhaust deposits lead, cadmium, and polycyclic aromatic hydrocarbons (PAHs) on roadside vegetation. Rain can distribute these contaminants further. These heavy metals accumulate in leafy plants and are difficult to remove by washing."]},
+      {q:"What is the difference between foraging on public land vs private land?", answers:["Public land (parks, roadways) may have regulations against plant collection. Many parks prohibit any plant removal. Private land requires explicit permission from the owner. Urban foraging often operates in a legal gray area that varies by city."]}
+    ],
+    challenge: "Complete a 2-mile neighborhood foraging walk. Identify and photograph 10 plants. Confirm which are edible, which are not, and document any potential contamination concerns.",
+    tuesday:   { low: {title:"Walk documentation", activity:"Create a neighborhood foraging map with all identified plants, their locations, abundance, and safety status."}, mid: {title:"Seasonal availability", activity:"Research which of your identified plants are available in each season. Create a neighborhood foraging calendar."}, high: {title:"Urban food forest movement", activity:"Research urban food forest projects. What are the social, ecological, and economic arguments for converting urban green space to edible landscapes?"} },
+    wednesday: { low: {title:"Invasive edible research", activity:"Research edible invasive plants in your area. How does eating invasives serve both food security and ecological restoration goals?"}, mid: {title:"Contamination risk assessment", activity:"Create a contamination risk assessment for each identified foraging location: road distance, land use history, visible spray indicators, and water drainage patterns."}, high: {title:"Food sovereignty connection", activity:"Research the food sovereignty movement and how urban foraging connects to it. How does local food knowledge relate to political and economic autonomy?"} },
+    thursday:  { low: {title:"Foraged meal", activity:"Prepare a simple dish using one plant you identified and confirmed as safe. Document the preparation process."}, mid: {title:"iNaturalist contribution", activity:"Upload all observations to iNaturalist with detailed notes. How do citizen science observations contribute to biodiversity research?"}, high: {title:"Permaculture design connection", activity:"Research permaculture food forest design. How would you convert your neighborhood into a more food-producing landscape while maintaining or improving ecological function?"} }
+  },
+
+  "Emergency communication frequencies": {
+    gradeHooks: {
+      low: "Emergency services communicate on specific radio frequencies. Knowing them helps us monitor for information when other communication fails.",
+      mid: "Emergency communication frequencies vary by service. Understanding the frequency landscape enables effective monitoring and communication during disasters.",
+      high: "Radio frequency allocation, emergency communication systems architecture, and the integration of amateur, commercial, and government systems during disasters are important topics."
+    },
+    materials: ["Scanner or software-defined radio (SDR) if available", "Frequency reference list"],
+    steps: [
+      "NOAA Weather Radio: 162.400\u2013162.550 MHz (7 frequencies). Broadcasts continuous weather and emergency alerts. Most important to monitor.",
+      "FRS/GMRS: channels 1\u201322 on FRS (shared with GMRS). Channel 1 (462.5625 MHz) is commonly used as a calling channel.",
+      "VHF Marine: Channel 16 (156.800 MHz) is the international distress and calling channel. Required monitoring for all boats.",
+      "Amateur radio: 146.520 MHz is the national VHF FM simplex calling frequency. 2m band most commonly used for local emergency communication.",
+      "Law enforcement, fire, EMS: widely varies by county. Can be monitored with a scanner. Increasingly encrypted."
+    ],
+    discussion: [
+      {q:"Why is Channel 16 on marine VHF the international distress frequency and why must it be monitored?", answers:["Channel 16 was established by international maritime treaty as the universal distress and hailing frequency. All commercial vessels and coast guard vessels monitor it continuously. Broadcasting a distress call on Ch16 guarantees you reach anyone in radio range."]},
+      {q:"Why are many law enforcement and fire frequencies now encrypted and what does this mean for citizen monitoring?", answers:["Encryption prevents criminals from monitoring police operations. It also prevents the public and press from monitoring. Emergency management advocates argue that public safety benefits from open emergency frequencies to coordinate with the public. The debate continues."]}
+    ],
+    challenge: "Create a laminated emergency frequency reference card for your family: NOAA weather, FRS calling, marine distress, and your county\u2019s emergency management frequency.",
+    tuesday:   { low: {title:"NOAA radio setup", activity:"Program a NOAA weather radio for your county\u2019s SAME code. Test the emergency alert function."}, mid: {title:"Frequency allocation chart", activity:"Research the VHF/UHF frequency spectrum. Draw a diagram showing the major allocations: public safety, marine, aviation, amateur, FRS/GMRS, and commercial."}, high: {title:"SDR exploration", activity:"Research software-defined radio (SDR). How does a $25 RTL-SDR dongle turn a computer into a wideband receiver? What frequencies can you legally monitor?"} },
+    wednesday: { low: {title:"Scanner programming", activity:"Research how to program a handheld scanner for your county. What frequencies should you monitor for weather, fire, EMS, and emergency management?"}, mid: {title:"Emergency alert systems", activity:"Research the Integrated Public Alert and Warning System (IPAWS). How does it coordinate wireless emergency alerts, EAS broadcasts, and NOAA weather radio?"}, high: {title:"FirstNet research", activity:"Research FirstNet: the national broadband network built specifically for first responders. How does it differ from commercial cellular networks and what priority access does it provide?"} },
+    thursday:  { low: {title:"Frequency card creation", activity:"Create and laminate a personal emergency frequency reference card. Include NOAA, marine, FRS, and any other relevant frequencies for your location."}, mid: {title:"HAM radio emergency value", activity:"Research documented cases where amateur radio provided critical communication when all other systems failed. What infrastructure must be in place for HAM to serve this role?"}, high: {title:"Interoperability challenges", activity:"Research the interoperability challenges between emergency communication systems. What technical and organizational barriers prevent seamless communication between agencies?"} }
+  },
+
+  "CPR with two rescuers": {
+    gradeHooks: {
+      low: "Two people doing CPR together is more effective and less tiring than one person alone!",
+      mid: "Two-rescuer CPR maintains higher compression quality by rotating roles and enables simultaneous compressions and ventilations.",
+      high: "The physiology of CPR quality degradation over time, the biomechanics of two-rescuer coordination, and the evidence for high-performance CPR teams are important topics."
+    },
+    materials: ["CPR mannequin or firm pillow"],
+    steps: [
+      "Role assignment: Compressor and Ventilator. Compressor handles chest compressions, Ventilator manages airway and provides rescue breaths.",
+      "Ratio: 30:2 continues (30 compressions, 2 rescue breaths). Compressor counts aloud.",
+      "Ventilator applies jaw thrust or head-tilt, provides bag-mask ventilation if available, and monitors chest rise.",
+      "Switching: every 2 minutes (5 cycles), Ventilator calls \u2018switch.\u2019 At end of the next 30 compressions, Ventilator moves to compressions, Compressor moves to ventilations. Goal: < 5 seconds interruption.",
+      "Communication: \u2018You\u2019re in, I\u2019m out.\u2019 Clear verbal handoffs prevent any gap in compressions."
+    ],
+    discussion: [
+      {q:"Why is switching every 2 minutes important for maintaining CPR quality?", answers:["Research shows that compression quality (depth and rate) deteriorates significantly after 90\u2013120 seconds even in trained rescuers. Fatigue causes shallower compressions. Switching at 2-minute intervals maintains optimal quality throughout a prolonged resuscitation."]},
+      {q:"What is the maximum acceptable interruption in chest compressions and why?", answers:["The AHA recommends limiting interruptions to < 10 seconds for any reason (pulse check, switching, AED analysis). Each second of no compressions allows blood pressure to drop toward zero. The chest compression fraction (% of time doing compressions) should be > 80%."]}
+    ],
+    challenge: "Practice two-rescuer CPR with a partner through 10 complete minutes. Switch roles at 2-minute intervals. Maintain quality throughout.",
+    tuesday:   { low: {title:"Role switching drill", activity:"Practice the role switch with a partner at speed: compressor counts to 30, ventilator calls \u2018switch,\u2019 roles reverse within 5 seconds. Repeat 10 times."}, mid: {title:"Bag-mask ventilation", activity:"Research bag-mask ventilation technique. How is it superior to mouth-to-mouth and what is the correct tidal volume for an adult? What causes gastric inflation?"}, high: {title:"High-performance CPR research", activity:"Research pit crew CPR used by elite EMS teams. What specific roles are assigned and what chest compression fraction do they achieve?"} },
+    wednesday: { low: {title:"AED integration", activity:"Practice integrating an AED into two-rescuer CPR. Who operates the AED? What is the verbal cue before analysis? How quickly do compressions resume after a shock?"}, mid: {title:"Compression fraction calculation", activity:"Time a 10-minute CPR scenario. Calculate the actual chest compression fraction (seconds doing compressions divided by total seconds). How does it compare to the > 80% standard?"}, high: {title:"Advanced airway devices", activity:"Research supraglottic airway devices (King LT, LMA). How do they change the compression-to-ventilation ratio and allow asynchronous ventilation during CPR?"} },
+    thursday:  { low: {title:"Team communication practice", activity:"Practice the verbal communication of two-rescuer CPR: \u2018Switching, 1-2-3-4-5, switch!\u2019 with no interruption in compressions."}, mid: {title:"ACLS awareness", activity:"Research Advanced Cardiac Life Support (ACLS). What medications and advanced interventions are added to CPR by paramedics and hospital teams?"}, high: {title:"CPR outcome predictors", activity:"Research the factors that most strongly predict survival from out-of-hospital cardiac arrest: time to CPR, time to defibrillation, bystander CPR rates, and hospital post-arrest care."} }
+  },
+
+  "Mapping neighborhood resources — water food shelter": {
+    gradeHooks: {
+      low: "A resource map shows where to find water, food, and shelter in our neighborhood during an emergency.",
+      mid: "A comprehensive neighborhood resource map includes primary and backup sources for critical needs and documents capacity and access conditions.",
+      high: "Community resilience mapping, participatory GIS, and the relationship between resource distribution and disaster vulnerability are important emergency management topics."
+    },
+    materials: ["Neighborhood map", "Survey forms", "Camera"],
+    steps: [
+      "Water resources: public water access points (fire hydrants with valve tools), natural water sources (ponds, streams), neighbors with wells, emergency water storage.",
+      "Food resources: community gardens, neighbors with significant food production, food banks, community centers with food programs, stores with generators.",
+      "Shelter resources: community centers, schools, faith organizations with large buildings, neighbors with spare rooms, structures with generators and HVAC.",
+      "Medical resources: neighbors with medical training, nearby clinics or hospitals, AED locations, neighbors with medical supplies.",
+      "Map all findings with access conditions: is it open 24/7? Who has keys? What conditions trigger access?"
+    ],
+    discussion: [
+      {q:"Why is a neighborhood resource map most valuable if it\u2019s created BEFORE a disaster rather than during one?", answers:["During a disaster, communication is degraded, time is critical, and people are stressed. A pre-created map means information is immediately available without any search or communication. Relationships built during map creation also improve coordination during the actual event."]},
+      {q:"What information about a resource makes it useful vs merely interesting to note?", answers:["Useful: location, capacity, access requirements, operating conditions, contact person. Merely interesting: the resource exists but no one has verified access or capacity. A resource you can\u2019t actually use is worth nothing in an emergency."]}
+    ],
+    challenge: "Create a complete resource map for a 1-mile radius from your home. Verify access conditions for at least 3 of the resources you identify.",
+    tuesday:   { low: {title:"Water source identification", activity:"Map all water sources within 1 mile: municipal connections, natural sources, emergency storage. Note treatment requirements for each source."}, mid: {title:"Capacity estimation", activity:"For each identified resource, estimate capacity. How many people can a given community center shelter? How many gallons does a neighborhood pond contain? How long could each resource sustain the community?"}, high: {title:"Vulnerability overlay", activity:"Overlay your resource map with a vulnerability map (elderly, disabled, medically dependent residents). How well do resources align with needs? Where are the gaps?"} },
+    wednesday: { low: {title:"Resource verification", activity:"Visit 3 of the identified resources and verify the information: is the community center actually available? Does the neighbor with a well have a manual pump?"}, mid: {title:"Digital mapping tools", activity:"Research mapping tools for community resource mapping: Google My Maps, ArcGIS Online, and OpenStreetMap. Create a digital version of your neighborhood resource map."}, high: {title:"Participatory GIS research", activity:"Research participatory GIS in disaster preparedness. How do community members contribute data to create more accurate and complete emergency preparedness maps?"} },
+    thursday:  { low: {title:"Map sharing", activity:"Present your resource map to your family. Could they use it without any explanation from you?"}, mid: {title:"FEMA resources overlay", activity:"Overlay FEMA shelter locations and flood maps with your neighborhood resource map. How does official planning align with actual community resources?"}, high: {title:"Community resilience index", activity:"Research community resilience indices (Baseline Resilience Indicators for Communities, BRIC). How is community resilience measured and what factors does your neighborhood score highly vs poorly on?"} }
+  },
+
+  "Sizing a solar system for a home": {
+    gradeHooks: {
+      low: "To know how many solar panels a home needs, we calculate how much electricity the home uses and how much sun it gets.",
+      mid: "Home solar sizing requires calculating energy consumption, peak sun hours, system losses, and battery backup requirements.",
+      high: "Solar system design, financial modeling, incentive structures, and the optimization of solar plus storage systems are important topics."
+    },
+    materials: ["Electricity bills (12 months)", "NREL PVWatts calculator"],
+    steps: [
+      "Step 1: calculate annual electricity use from 12 months of bills. Divide by 12 for monthly average and by 365 for daily average.",
+      "Step 2: find your location\u2019s average peak sun hours. Florida averages 5\u20135.5 hours/day.",
+      "Step 3: calculate required panel capacity. Daily kWh \u00f7 peak sun hours = system kW required. Add 20\u201325% for system losses.",
+      "Step 4: number of panels. System kW \u00f7 panel wattage (typically 400\u2013450W) = number of panels.",
+      "Step 5: battery sizing (if off-grid or backup). Days of autonomy x daily kWh \u00f7 depth of discharge = battery bank kWh."
+    ],
+    discussion: [
+      {q:"Why must you add 20\u201325% to the calculated panel capacity to account for system losses?", answers:["Real solar systems lose energy through: inverter inefficiency (3\u20135%), wiring losses (1\u20132%), panel temperature derating in hot climates (5\u201310%), soiling (2\u20134%), and mismatch between panels (1\u20133%). The total can easily be 15\u201325% less than nameplate capacity."]},
+      {q:"How does the financial analysis of solar change with and without battery storage?", answers:["Grid-tied solar without storage: payback period 6\u201310 years, low risk, no backup power. Solar with battery storage: higher upfront cost, provides backup, but adds 5\u201310 years to payback period. The financial case depends heavily on local electricity rates, net metering policy, and how much you value backup power."]}
+    ],
+    challenge: "Size a solar system for your home using NREL\u2019s PVWatts calculator. Calculate the number of panels, estimated annual production, and simple payback period.",
+    tuesday:   { low: {title:"PVWatts walkthrough", activity:"Use the NREL PVWatts calculator for your home address. Input your roof\u2019s tilt and azimuth. What is the estimated annual production for a 5kW system?"}, mid: {title:"Financial modeling", activity:"Using current panel prices ($2.50\u2013$3.50/watt installed), calculate the gross system cost, federal tax credit (30%), net cost, and simple payback period at your local electricity rate."}, high: {title:"Net metering policy research", activity:"Research Florida\u2019s net metering policy. What compensation rate do utilities pay for exported solar energy and how has this policy changed recently?"} },
+    wednesday: { low: {title:"String sizing basics", activity:"Research how solar panels are wired in strings for a string inverter. What voltage limits must be met? Why does panel selection matter for string sizing?"}, mid: {title:"Microinverter vs string inverter", activity:"Compare microinverter and string inverter architectures. When does shading make microinverters worth the premium cost?"}, high: {title:"Time-of-use rate optimization", activity:"Research time-of-use (TOU) electricity rates. How does a solar plus storage system optimize value under TOU rates by discharging batteries during peak price periods?"} },
+    thursday:  { low: {title:"Roof assessment", activity:"Assess your roof for solar suitability: orientation (south-facing is optimal), tilt (10\u201340\u00b0 is ideal in Florida), shading (trees, chimneys), and available area."}, mid: {title:"Permit and interconnection", activity:"Research the permit and utility interconnection process for residential solar in Florida. What approvals are required and how long does the process typically take?"}, high: {title:"Community solar research", activity:"Research community solar programs that allow renters and those with unsuitable roofs to participate in solar. What are the subscription terms and how do savings compare to rooftop solar?"} }
+  },
+
+  "One-week pantry meal plan — no grocery store": {
+    gradeHooks: {
+      low: "Challenge: plan and cook 7 days of meals using only what\u2019s in the pantry right now. No grocery store runs allowed!",
+      mid: "A no-grocery-store week tests pantry depth, meal planning creativity, and nutritional self-sufficiency.",
+      high: "Nutritional sustainability, food system resilience, and the practical skills required for extended self-sufficiency are important topics."
+    },
+    materials: ["Complete pantry inventory", "Recipes adaptable to shelf-stable ingredients"],
+    steps: [
+      "Complete inventory: every item in pantry, freezer, and fridge. Note quantities.",
+      "Calculate nutritional capacity: estimate calories, protein, and key vitamins available.",
+      "Plan 21 meals and 14 snacks. Use perishables (freezer/fridge items) first, shelf-stable items after.",
+      "Identify challenges early: what will run out first? What meals can\u2019t be made?",
+      "Execute the plan for 7 days. Document what worked, what didn\u2019t, and what you would add to your pantry."
+    ],
+    discussion: [
+      {q:"What is the single most common pantry gap discovered when attempting a no-grocery-store week?", answers:["Most families run out of fresh produce and dairy first. These have the shortest shelf lives. Identifying this gap highlights the value of canned vegetables, powdered milk, and long-shelf-life produce (potatoes, onions, garlic) in an emergency pantry."]},
+      {q:"Why is a no-grocery-store week a better emergency preparedness test than simply inventorying your pantry?", answers:["An inventory tells you what you have. Actually cooking reveals: what meals can be made, what equipment you need (can opener, propane stove), how long preparation takes, what tastes good, and what your family will actually eat under stress."]}
+    ],
+    challenge: "Complete a full 7-day no-grocery-store meal plan. Execute at least 3 days of it. Write a detailed after-action report.",
+    tuesday:   { low: {title:"Day 1\u20133 plan", activity:"Plan the first 3 days in detail: every meal, every ingredient, and preparation method. Check that all needed items are actually in the pantry."}, mid: {title:"Spice and flavor inventory", activity:"Research which spices have the longest shelf life and provide the most variety. What 10 spices would transform a boring shelf-stable meal into something enjoyable?"}, high: {title:"Caloric vs nutritional sustainability", activity:"Research the difference between caloric sufficiency and nutritional completeness over time. What micronutrient deficiencies emerge first in a limited diet and how do you prevent them?"} },
+    wednesday: { low: {title:"Cooking without power", activity:"Plan at least 2 meals that can be cooked without electricity: camp stove, outdoor grill, or firepit. Practice preparing one of them."}, mid: {title:"Food fatigue management", activity:"Research flavor diversification strategies for extended shelf-stable eating. How do fermentation, spice variety, and texture changes prevent food fatigue?"}, high: {title:"Cultural food security models", activity:"Research historical and contemporary cultures that live primarily on shelf-stable or preserved foods. What preservation and culinary techniques did they develop?"} },
+    thursday:  { low: {title:"After-action report", activity:"Write a 1-page after-action report: what ran out first, what you couldn\u2019t make, what was surprisingly good, and the top 5 items you need to add to your pantry."}, mid: {title:"Pantry enhancement plan", activity:"Based on your experience, create a prioritized pantry enhancement shopping list. What items have the best caloric density, nutritional value, and versatility?"}, high: {title:"30-day extension planning", activity:"Based on the 7-day experience, design a 30-day pantry plan. What quantity of each item, how is it stored, and how is rotation maintained?"} }
+  },
+
+  "Hand pump well basics": {
+    gradeHooks: {
+      low: "A hand pump can get water from a well without any electricity. This is important when the power goes out!",
+      mid: "Hand pump systems provide a reliable non-electric water source. Understanding installation, depth limits, and maintenance enables informed decisions.",
+      high: "Lift pump vs force pump mechanics, suction limits, and the engineering of deep-well hand pump systems are important topics."
+    },
+    materials: ["Hand pump specifications", "Well depth information"],
+    steps: [
+      "Types: shallow well hand pumps (suction lift, effective to 20\u201325 feet), deep well hand pumps (positive displacement, effective to 200+ feet).",
+      "Suction limit: at sea level, atmospheric pressure can theoretically lift water 33.9 feet. Practical limit with a pump is 20\u201325 feet. Deep wells require a different mechanism.",
+      "Deep well pumps: the pump cylinder is submerged at the water level. The pump handle operates a rod that moves the cylinder piston. Much harder to operate due to water column weight.",
+      "Pitcher pump installation: can be installed alongside an existing electric pump on the same well. Provides hand-pump backup.",
+      "Maintenance: leather cups (seals) need replacement every few years. Lubricate moving parts annually. Prime before each use if needed."
+    ],
+    discussion: [
+      {q:"Why can\u2019t a suction pump lift water more than about 25 feet?", answers:["A suction pump creates a vacuum above the water. Atmospheric pressure (14.7 psi at sea level) pushes water up into the vacuum. The maximum height that 14.7 psi can lift water is 33.9 feet (one atmosphere). Pump inefficiency and pipe friction reduce the practical limit to 20\u201325 feet."]},
+      {q:"Why is a hand pump a better emergency backup than storing water for most families?", answers:["A hand pump provides an ongoing source of water as long as the well has water. Storage is finite. For extended emergencies, a pump produces water continuously while stored water eventually runs out."]}
+    ],
+    challenge: "Research the depth of groundwater in your county. Determine what type of hand pump (shallow or deep well) would be appropriate. Price out a complete installation.",
+    tuesday:   { low: {title:"Pump mechanics diagram", activity:"Draw a diagram showing how a shallow well suction pump works. Label the cylinder, piston, check valves, and water movement during the up-stroke and down-stroke."}, mid: {title:"Deep well pump installation", activity:"Research how a deep-well hand pump (such as the Bison Pump or Simple Pump) is installed in an existing drilled well. What is the installation process and what depths can they reach?"}, high: {title:"Pump efficiency analysis", activity:"Research the mechanical advantage of different deep well pump handle designs. How does handle length and pivot point affect the force required to pump water from 100 feet deep?"} },
+    wednesday: { low: {title:"Water yield calculation", activity:"Research typical hand pump flow rates (gallons per stroke). Calculate how many strokes are needed to fill a 5-gallon bucket. How long would it take to provide 15 gallons/person/day for a family of 4?"}, mid: {title:"Pitcher pump installation", activity:"Research how to install a pitcher pump alongside an existing submersible pump on the same well. What components are needed and how are they connected?"}, high: {title:"Wind pump history", activity:"Research the history of wind-powered water pumps (windmills) in the American West. What engineering problems did they solve and how did they enable settlement of arid regions?"} },
+    thursday:  { low: {title:"Emergency water plan", activity:"Design a complete emergency water plan for a home with a private well: what happens if the power goes out for 7 days? What if the pump fails? What backup systems do you have?"}, mid: {title:"Cost comparison", activity:"Compare the cost of installing a deep well hand pump vs storing 500 gallons of water. Which provides better long-term value for emergency preparedness?"}, high: {title:"Gravity-fed water systems", activity:"Research how gravity-fed water systems (cisterns on hillsides) were used historically and are used today in off-grid settings. What are the engineering requirements for adequate flow pressure?"} }
+  },
+
+  "Reading a level and plumb line": {
+    gradeHooks: {
+      low: "A level tells us if something is perfectly flat (horizontal) or straight (vertical). Building things out of level causes problems!",
+      mid: "Using a level and plumb line ensures structures are built true. Understanding tolerances and checking in multiple planes prevents cumulative errors.",
+      high: "The physics of bubble levels, laser level technology, and the engineering tolerances for different types of construction are important topics."
+    },
+    materials: ["2-foot bubble level", "4-foot level if available", "Plumb bob or plumb line"],
+    steps: [
+      "Level: contains a vial of liquid and an air bubble. When the bubble is centered between the lines, the surface is level.",
+      "Check in two directions: a surface can be level left-to-right but tilted front-to-back. True level requires checking on both axes.",
+      "Plumb: perfectly vertical. A plumb line (weight on a string) hangs perfectly plumb due to gravity. Use it to verify a wall or post is truly vertical.",
+      "Practice: check 10 surfaces in your home for level. Check a door frame for plumb. How many are true?",
+      "Level tolerance: in most residential construction, 1/8 inch over 8 feet is considered acceptable. Tile work requires tighter tolerance."
+    ],
+    discussion: [
+      {q:"Why does building a wall slightly out of plumb cause problems when doors and cabinets are installed later?", answers:["Doors swing on vertical hinges and must hang plumb to open and close properly. Cabinets mounted to an out-of-plumb wall create visible gaps. Tile on an out-of-plumb wall runs off at the edges. Every subsequent trade depends on plumb and level foundations from the previous trade."]},
+      {q:"How does a laser level improve on a bubble level for large-scale work?", answers:["A laser level projects a perfectly level line (or plane) across an entire room instantly. A bubble level must be physically repositioned to check different locations. For laying tile, hanging cabinets, or setting a continuous height reference, a laser level provides accuracy across large areas that bubble levels cannot match."]}
+    ],
+    challenge: "Check every major horizontal surface and vertical surface in one room. Document how many are within 1/8 inch of perfect level/plumb and which are significantly off.",
+    tuesday:   { low: {title:"10-surface level check", activity:"Check 10 surfaces in your home: floors, shelves, windowsills. Record the bubble deviation for each. Which is most out of level?"}, mid: {title:"Laser level comparison", activity:"Research laser levels. What types are available (cross-line, rotary, point-to-point) and for what applications is each used?"}, high: {title:"Differential settlement", activity:"Research differential settlement in building foundations. How does uneven settlement of a foundation cause walls to go out of plumb and floors to go out of level?"} },
+    wednesday: { low: {title:"Plumb bob use", activity:"Hang a plumb bob from a string and allow it to settle. Use it to check whether a door frame is truly plumb. What deviation do you find?"}, mid: {title:"Leveling a surface", activity:"Shim a small object (a piece of furniture) to perfectly level using only shims and a bubble level. How small a change does a thin piece of cardboard make?"}, high: {title:"Survey instrument precision", activity:"Research surveying levels and theodolites. What accuracy do they achieve and how does this compare to a bubble level? What applications require survey-grade precision?"} },
+    thursday:  { low: {title:"Project application", activity:"Plan a small project (hang a shelf, install a picture rail) that requires both level and plumb. Execute it with proper checking at each step."}, mid: {title:"Out-of-level problem solving", activity:"You\u2019re installing kitchen cabinets and the floor is 1/2 inch lower on one end of the run than the other. How do you install all cabinets at the same level despite the sloping floor?"}, high: {title:"Historic building settlement", activity:"Research a notable historic building with significant structural settlement or lean. How has the lean been managed and what would happen if it were corrected?"} }
+  },
+
+  "W-2 vs 1099 — employee vs contractor": {
+    gradeHooks: {
+      low: "Some workers get a W-2 from their employer and some get a 1099. They mean different things for taxes!",
+      mid: "The employment classification determines tax obligations, benefits, legal protections, and financial planning needs.",
+      high: "Employment law, tax implications of the gig economy, and the policy debate around worker classification are important financial and legal topics."
+    },
+    materials: ["Sample W-2 and 1099 forms"],
+    steps: [
+      "W-2 (employee): employer withholds taxes, pays half of FICA, provides workers\u2019 comp and unemployment insurance, may provide benefits. Employee pays 7.65% FICA.",
+      "1099 (independent contractor): no withholding, pay ALL FICA (15.3% self-employment tax), no workers\u2019 comp, no unemployment. Must make quarterly estimated tax payments.",
+      "Total tax burden comparison: a contractor earning $50,000 pays $7,650 in self-employment tax plus federal income tax. An employee earning $50,000 pays $3,825 FICA (employer pays the other $3,825).",
+      "Contractor advantages: deduct business expenses, set your own hours, work for multiple clients, potentially higher hourly rate.",
+      "Misclassification: some companies improperly classify employees as contractors to avoid benefit costs. This is illegal and deprives workers of protections."
+    ],
+    discussion: [
+      {q:"If a 1099 contractor earns the same gross income as a W-2 employee, who pays more in taxes?", answers:["The contractor pays 15.3% self-employment tax (both employee and employer FICA shares) vs the employee paying 7.65%. The contractor pays approximately $3,825 more in FICA on $50,000 of income. Contractors must factor this into their pricing to be truly equivalent to an employee salary."]},
+      {q:"What is worker misclassification and why do some companies do it?", answers:["Misclassification is calling an employee a contractor to avoid payroll taxes, workers\u2019 comp, unemployment insurance, and benefits. It saves the employer roughly 25\u201330% of labor costs. It is illegal under IRS and DOL rules. Workers lose employment protections and end up paying higher taxes."]}
+    ],
+    challenge: "Calculate the total tax cost of being a 1099 contractor earning $60,000 vs a W-2 employee earning $60,000. Include all FICA and estimate federal income tax for each.",
+    tuesday:   { low: {title:"W-2 vs 1099 comparison chart", activity:"Create a comparison chart: W-2 vs 1099 on 8 dimensions: tax withholding, FICA responsibility, benefits, legal protections, flexibility, expense deductions, quarterly payments, and typical industries."}, mid: {title:"Quarterly estimated tax calculation", activity:"Research how quarterly estimated tax payments work for self-employed people. What form is used, when are payments due, and what happens if you underpay?"}, high: {title:"ABC test and Dynamex", activity:"Research the ABC test for worker classification used in California and other states. How is it stricter than the IRS test and what are the economic impacts of stricter classification standards?"} },
+    wednesday: { low: {title:"Business expense deductions", activity:"Research common business expense deductions for self-employed people: home office, vehicle mileage, health insurance, equipment, and professional development."}, mid: {title:"Schedule C walkthrough", activity:"Research Schedule C (Profit or Loss from Business). What income and expense categories does it include? How does it determine taxable self-employment income?"}, high: {title:"Gig economy policy debate", activity:"Research the policy debate over gig worker classification. What are the arguments from companies (flexibility, lower prices), workers (protections, benefits), and labor economists?"} },
+    thursday:  { low: {title:"Rate calculation", activity:"A contractor earns $30/hour. After accounting for the extra 7.65% FICA, lack of paid vacation (2 weeks = ~4% of income), and lack of benefits ($10,000/year in employer benefits), what equivalent hourly wage does an employee need to break even?"}, mid: {title:"SEP IRA benefit", activity:"Research the SEP IRA (Simplified Employee Pension). How do self-employed people use it to reduce taxable income? What is the maximum contribution?"}, high: {title:"Misclassification enforcement", activity:"Research IRS and DOL enforcement of worker misclassification. What penalties do companies face and what rights do misclassified workers have to recover back pay and benefits?"} }
+  },
+
+  "Declination-adjusted compass work": {
+    gradeHooks: {
+      low: "When we adjust our compass for local magnetic declination, our compass bearing matches what\u2019s on the map exactly!",
+      mid: "Declination adjustment is required for precise land navigation. Understanding and applying the adjustment prevents systematic navigation errors.",
+      high: "Magnetic field variations, secular variation of magnetic declination, and the mathematics of coordinate system transformations are important topics."
+    },
+    materials: ["Compass with adjustable declination (or standard compass)", "Topo map with declination diagram"],
+    steps: [
+      "Determine local declination: find the declination diagram in the map margin or use NOAA\u2019s online calculator. Florida: approximately 5\u20136\u00b0 west.",
+      "Adjustable compass: rotate the orienting arrow adjustment screw (if present) to offset the declination. Now you can use true north bearings from the map directly.",
+      "Fixed compass method: when converting map bearing to compass bearing for westward declination, ADD the declination. To convert compass to map: SUBTRACT.",
+      "Memory aid: \u2018East is Least (subtract), West is Best (add)\u2019 when converting from true to magnetic for western declination.",
+      "Verify: take a bearing to a mapped landmark. Compare the bearing to what the map says it should be. Declination adjustment should make them match."
+    ],
+    discussion: [
+      {q:"What is secular variation of magnetic declination and why do map declination diagrams show an annual change rate?", answers:["Secular variation is the slow shift of Earth\u2019s magnetic pole over years. A map printed in 2010 has a slightly different declination than the same location in 2024. The annual change rate (e.g., 0.1\u00b0/year) lets you calculate the current declination from an older map."]},
+      {q:"In what navigation scenario would a 5\u00b0 declination error have the most serious consequences?", answers:["Over long distances. After 1 kilometer, a 5\u00b0 error places you 87 meters off course. After 10 kilometers, it\u2019s 873 meters. For a 100km expedition, you could miss your destination by over 8 kilometers — potentially the difference between reaching a known water source or becoming critically lost."]}
+    ],
+    challenge: "Navigate a 5-point course using declination-adjusted bearings. Verify accuracy at each point with a landmark check. Compare results to a previous course run without adjustment.",
+    tuesday:   { low: {title:"East vs west declination", activity:"Research the locations of the agonic line (zero declination). On which side of the US is declination east vs west? What is Florida\u2019s approximate declination right now?"}, mid: {title:"Declination adjustment practice", activity:"Convert 10 true bearings to magnetic for western declination and 10 for eastern declination. Use the East-West memory rules."}, high: {title:"Grid north vs true north vs magnetic north", activity:"Research all 3 north references: grid north (parallel to UTM grid), true north (geographic pole), and magnetic north (compass direction). When must each be used?"} },
+    wednesday: { low: {title:"Adjustable compass calibration", activity:"If your compass has an adjustable declination, set it for your local declination. Verify by taking a bearing to a known landmark and comparing to the map."}, mid: {title:"Long-distance error calculation", activity:"Calculate the position error after 5, 10, and 20 kilometers of navigation with an uncorrected 6\u00b0 declination error."}, high: {title:"Historical pole migration mapping", activity:"Research the historic migration of the magnetic north pole from 1900 to present. Create a map showing its location at 25-year intervals."} },
+    thursday:  { low: {title:"Verified navigation exercise", activity:"Navigate a 3-point course with declination-adjusted bearings. At each waypoint, take a bearing to a known landmark and verify it matches the map bearing."}, mid: {title:"Compass model comparison", activity:"Research baseplate compasses with built-in declination adjustment vs those without. What makes a competition-quality orienteering compass worth 10x more than a basic model?"}, high: {title:"Celestial navigation and declination", activity:"Research how celestial navigation avoids the magnetic declination problem entirely. How does a sextant determine position without any reference to magnetic north?"} }
+  },
+
+  "Identifying invasive edibles in your area": {
+    gradeHooks: {
+      low: "Some invasive plants that are bad for our ecosystem are also delicious to eat! Eating them helps control them.",
+      mid: "Invasive edible plants represent a unique opportunity: harvesting them for food contributes to ecological restoration while providing nutrition.",
+      high: "Invasion biology, the ethics and effectiveness of eat-the-invasives strategies, and the nutritional analysis of common invasive edibles are important topics."
+    },
+    materials: ["Florida invasive species list", "Field guide or iNaturalist"],
+    steps: [
+      "Florida\u2019s edible invasives: Brazilian pepper (Schinus terebinthifolia — berries used as pink peppercorns), air potato (Dioscorea bulbifera), kudzu (not in Florida but nearby states), Japanese knotweed, wild boar (animal invasive).",
+      "Verification importance: always verify identity with multiple sources before eating any invasive. Some toxic plants are also invasive.",
+      "Brazilian pepper: the red berries are used as a spice similar to pink peppercorns. The plant contains urushiol relatives — those allergic to poison ivy may react.",
+      "Sustainable harvesting: take as much as you want of true invasives — you are helping by reducing them.",
+      "The caveat: \u2018eat the invasives\u2019 enthusiasm must not lead to foraging endangered native look-alikes."
+    ],
+    discussion: [
+      {q:"Does the \u2018eat the invasives\u2019 movement significantly control invasive plant populations?", answers:["Research is mixed. For high-demand species (garlic mustard, Japanese knotweed), demand can create genuine removal pressure. For most species, human foraging alone cannot match the reproductive capacity of established invasive populations. It helps at the margins and raises awareness."]},
+      {q:"Why might creating a profitable market for an invasive species actually worsen the invasion?", answers:["If an invasive becomes commercially valuable, people may spread it intentionally or neglect to fully remove it. This has happened with some \u2018invasive\u2019 species that were actually deliberately introduced for commercial purposes. Profitability can undermine eradication motivation."]}
+    ],
+    challenge: "Identify 5 invasive plants or animals in your area. For each, research whether it is edible, how to prepare it, and how your consumption would affect the local ecosystem.",
+    tuesday:   { low: {title:"Florida invasive species list", activity:"Research the Florida Invasive Species Council\u2019s list. Which of the Category 1 invasives (most harmful) are edible?"}, mid: {title:"Brazilian pepper identification", activity:"Research Brazilian pepper tree identification: compound leaves, red berry clusters, the distinctive turpentine-like smell when leaves are crushed. What are the allergy considerations?"}, high: {title:"Invasion biology research", activity:"Research the ecological impact of invasive species on biodiversity. What mechanisms do successful invasives use to outcompete native species?"} },
+    wednesday: { low: {title:"Air potato identification", activity:"Research air potato (Dioscorea bulbifera) identification and edibility. The aerial bulbils are the edible part. How must they be processed?"}, mid: {title:"Invasive animal foraging", activity:"Research invasive animals in Florida that are legal and encouraged to eat: Burmese pythons, green iguanas, lion fish, and feral hogs. Which is most accessible and how are they prepared?"}, high: {title:"Eat the invasives policy analysis", activity:"Research programs that incentivize eating invasives: USDA programs, restaurant partnerships, and fisherman incentives for lionfish. What metrics determine program success?"} },
+    thursday:  { low: {title:"Invasive edibles recipe", activity:"Prepare a dish using one confirmed invasive edible. Research a recipe specific to that ingredient."}, mid: {title:"Ecological restoration connection", activity:"Research land management strategies that combine mechanical removal of invasives with forage use. How do some land managers fund restoration through edible invasives?"}, high: {title:"Biotic resistance hypothesis", activity:"Research the biotic resistance hypothesis: do diverse native communities better resist invasion? What evidence supports or challenges this hypothesis in Florida ecosystems?"} }
+  },
+
+  "Ham radio — Technician license overview": {
+    gradeHooks: {
+      low: "A Ham radio license lets you use powerful radios to communicate across great distances, even in emergencies when phones don\u2019t work.",
+      mid: "The Technician class amateur radio license is the entry level. Understanding the exam structure and privileges enables targeted study.",
+      high: "Amateur radio technology, frequency privileges by license class, and the role of amateur radio in emergency communication are important topics."
+    },
+    materials: ["ARRL Technician study guide or HamStudy.org"],
+    steps: [
+      "Why Ham radio: operates independently of internet and cellular infrastructure. Licensed operators can communicate when all other systems fail.",
+      "Technician privileges: VHF/UHF bands (144 MHz, 440 MHz) — primarily local and regional communication. Limited HF privileges (10m and above).",
+      "Exam structure: 35 multiple-choice questions from a published question pool. Must score 74% (26/35). No Morse code requirement since 2007.",
+      "Study resources: HamStudy.org (free, adaptive), ARRL Technician Study Guide ($20). Most people can prepare in 2\u20134 weeks.",
+      "Cost: exam fee is $15 (administered by volunteer examiners). License is free and valid for 10 years."
+    ],
+    discussion: [
+      {q:"Why can\u2019t anyone just use a powerful radio without a license?", answers:["Radio frequencies are a shared public resource. Without regulation, high-power transmitters would create interference, rendering all communication unusable. The FCC licenses and regulates use to prevent chaos and reserve frequencies for specific purposes including safety-of-life communications."]},
+      {q:"What makes amateur radio uniquely valuable in a disaster when cell towers are operational but overloaded?", answers:["Ham radio uses its own infrastructure (repeaters, simplex frequencies) independent of cellular or internet systems. During disasters, amateur radio operators can relay messages, coordinate resources, and supplement official emergency communication when commercial infrastructure is congested or damaged."]}
+    ],
+    challenge: "Complete the full Technician question pool on HamStudy.org. Schedule an exam with a local club. Obtain your Technician license.",
+    tuesday:   { low: {title:"Question pool study", activity:"Study 35 Technician exam questions on HamStudy.org. Focus on the sections you score lowest on: regulations, operating procedures, and basic electronics."}, mid: {title:"Frequency privileges chart", activity:"Create a chart showing Technician, General, and Extra class privileges by frequency band. What additional privileges does upgrading to General provide?"}, high: {title:"Emergency communication operations", activity:"Research ARES (Amateur Radio Emergency Service) and RACES (Radio Amateur Civil Emergency Service). How are these organized and what roles do they play in FEMA\u2019s communication infrastructure?"} },
+    wednesday: { low: {title:"Repeater concept", activity:"Research how repeaters work: receive on one frequency, transmit on another (offset). Why do repeaters extend the range of handheld radios so dramatically?"}, mid: {title:"HF vs VHF/UHF comparison", activity:"Research the propagation differences between HF (1\u201330 MHz) and VHF/UHF (above 30 MHz). How does ionospheric skip make HF suitable for long-distance communication?"}, high: {title:"Software-defined radio integration", activity:"Research how software-defined radio has changed amateur radio. What digital modes (FT8, WSPR, JS8Call) are most used for long-distance weak-signal communication?"} },
+    thursday:  { low: {title:"Club finder", activity:"Find your nearest amateur radio club (ARRL club finder). When do they hold exams and what Elmer (mentoring) programs do they offer for new licensees?"}, mid: {title:"Equipment selection", activity:"Research entry-level Ham radio equipment for a new Technician: a handheld 2m/70cm dual-band radio costs $30\u2013$50. What features matter most for emergency preparedness use?"}, high: {title:"FT8 digital mode", activity:"Research the FT8 digital mode. How does it allow contacts at signal levels 15dB below what voice communication requires? What is the typical contact sequence and why has it become the most popular HF mode?"} }
+  },
+
+
+
+  "Wilderness first aid — patient assessment": {
+    gradeHooks: {
+      low: "In the wilderness, help can be hours away. A complete head-to-toe patient assessment tells us what is wrong and what help we need.",
+      mid: "The wilderness first aid patient assessment is systematic: scene safety, mechanism, primary survey (life threats), secondary survey (complete assessment), and ongoing monitoring.",
+      high: "Wilderness medicine patient assessment adapts clinical protocols for remote environments where evacuation decisions, improvised treatment, and prolonged care change priorities."
+    },
+    materials: ["Patient assessment scenario cards", "Partner for practice"],
+    steps: [
+      "Scene size-up: is the scene safe? What is the mechanism of injury or nature of illness?",
+      "Primary survey (ABCDE): Airway, Breathing, Circulation (bleeding control), Disability (consciousness level), Expose (look for hidden injuries).",
+      "Secondary survey: head-to-toe physical exam. Vital signs (pulse rate/quality, respiration rate, mental status, skin condition). Patient history (SAMPLE: Symptoms, Allergies, Medications, Past history, Last intake, Events).",
+      "Problem list: list every identified problem in order of urgency.",
+      "Evacuation decision: can the patient wait for help, be assisted out, or must be carried out urgently?"
+    ],
+    discussion: [
+      {q:"How does the wilderness patient assessment differ from in-hospital assessment?", answers:["In the wilderness, you have no diagnostic equipment, limited treatment options, and evacuation may take hours or days. The assessment must determine evacuation urgency (go now, go soon, can wait), identify problems that can worsen during evacuation, and establish a monitoring plan. The decision to evacuate is as important as the treatment."]},
+      {q:"What does the mnemonic STOP stand for in wilderness medicine and when is it used?", answers:["STOP: Stop, Think, Observe, Plan. Used when you encounter a patient or an emergency situation to prevent impulsive action that worsens the outcome. A moment of calm assessment before action improves every wilderness emergency response."]}
+    ],
+    challenge: "Practice a complete wilderness patient assessment on a partner with a simulated injury scenario. Complete primary survey, secondary survey, SAMPLE history, and evacuation decision in under 15 minutes.",
+    tuesday:   { low: {title:"Primary survey drill", activity:"Practice the ABCDE primary survey on 5 different simulated patients. Focus on identifying immediate life threats in the correct priority order."}, mid: {title:"SAMPLE history practice", activity:"Practice taking a complete SAMPLE history from a simulated patient. How does each element affect your treatment and evacuation decisions?"}, high: {title:"Wilderness medicine evidence base", activity:"Research the evidence base for wilderness medicine protocols. How do WFR and WEMT curricula differ from standard BLS in their evidence standards and treatment algorithms?"} },
+    wednesday: { low: {title:"Vital signs baseline", activity:"Measure and record vital signs on 3 different people: pulse rate and quality, respiration rate, mental status, and skin condition. What is the normal range for each?"}, mid: {title:"Mechanism of injury analysis", activity:"Research how mechanism of injury guides your assessment. How does a fall from height guide your spinal assessment vs a twisted ankle?"}, high: {title:"Wilderness patient monitoring", activity:"Research serial vital signs monitoring in the wilderness. How often should vitals be checked and what changes indicate deterioration requiring immediate evacuation?"} },
+    thursday:  { low: {title:"Evacuation decision practice", activity:"Given 5 patient scenarios, practice making the evacuation decision: go now (urgent), go soon (delayed), wait for rescue (shelter in place)."}, mid: {title:"Patient handoff report", activity:"Practice giving a patient handoff report (MIST: Mechanism, Injuries, Signs, Treatment) to simulated rescue services. How do you communicate all critical information quickly?"}, high: {title:"Improvised patient monitoring", activity:"Research how to monitor patients without standard equipment: pulse assessment, respiration rate counting, Glasgow Coma Scale field application, and capillary refill assessment."} }
+  },
+
+  "Community emergency response leadership": {
+    gradeHooks: {
+      low: "Good leaders help their community stay calm and organized during emergencies. Leadership skills can be learned!",
+      mid: "Emergency response leadership requires clear communication, decisiveness under uncertainty, delegating to capable people, and maintaining team function under stress.",
+      high: "Crisis leadership theory, the psychology of decision-making under stress, command presence, and after-action review methodology are important topics."
+    },
+    materials: ["Scenario cards", "Leadership assessment framework"],
+    steps: [
+      "Core leadership competencies for emergencies: clear communication, prioritization under uncertainty, delegation, situational awareness, and team management.",
+      "Command presence: the ability to project calm authority that stabilizes those around you. It is largely behavioral: measured voice, deliberate movement, direct eye contact.",
+      "Decision-making under uncertainty: in emergencies, perfect information is never available. Good leaders make the best decision with available information and update as new information arrives.",
+      "Delegate early: the leader\u2019s job is coordination, not task execution. Assign capable people to specific tasks and trust them.",
+      "After-action review: every exercise and actual event should be followed by a structured debrief."
+    ],
+    discussion: [
+      {q:"What is the \u2018single point of failure\u2019 problem in emergency response and how does leadership structure prevent it?", answers:["Single point of failure: if the leader is incapacitated, the response collapses. Good leadership structure ensures deputies understand priorities, have authority, and can maintain function. In ICS, the Deputy Incident Commander can immediately assume command if needed."]},
+      {q:"How does stress affect decision-making and what techniques do emergency leaders use to maintain effectiveness?", answers:["Stress activates the amygdala and constrains prefrontal cortex function (rational thought). Tunnel vision, fixation, and missed information are common. Techniques: tactical breathing (box breathing), checklists and pre-committed procedures, team members designated to watch for tunnel vision, and regular pause-and-assess discipline."]}
+    ],
+    challenge: "Lead a community or family emergency drill. Take on the incident commander role: assign tasks, manage communication, maintain situational awareness, and conduct an after-action review.",
+    tuesday:   { low: {title:"Command presence practice", activity:"Practice delivering a briefing with command presence: standing posture, measured voice, direct eye contact, clear message structure. Record and review."}, mid: {title:"Priority matrix", activity:"Research the Eisenhower priority matrix (urgent/important). Apply it to 10 emergency response tasks to determine sequence."}, high: {title:"Decision-making under stress research", activity:"Research naturalistic decision-making (Klein\u2019s Recognition-Primed Decision model). How do experienced emergency responders make decisions differently than novices?"} },
+    wednesday: { low: {title:"Delegation exercise", activity:"Practice delegating: identify a task, select the right person, give clear instructions with expected outcome, and verify understanding without micromanaging."}, mid: {title:"Situational awareness", activity:"Research Endsley\u2019s situational awareness model: perception, comprehension, and projection. How does it apply to emergency incident command?"}, high: {title:"After-action review methodology", activity:"Research the US Army\u2019s AAR methodology. What are the 4 questions and how does the structured debrief improve future performance?"} },
+    thursday:  { low: {title:"Leadership scenario", activity:"Lead a tabletop exercise: present an emergency scenario, assign roles, make decisions, and adapt to injected complications."}, mid: {title:"Stress inoculation", activity:"Research stress inoculation training: deliberately practicing under simulated stress to improve performance under real stress. What does research show about its effectiveness?"}, high: {title:"Team dynamics in crisis", activity:"Research team dynamics in high-stakes emergency teams. What role configurations (task roles, maintenance roles, dysfunctional roles) affect team performance in crises?"} }
+  },
+
+  "Off-grid energy systems — design basics": {
+    gradeHooks: {
+      low: "An off-grid energy system provides all a home\u2019s electricity without any connection to the utility grid.",
+      mid: "Off-grid system design integrates solar, storage, backup generation, and load management for reliable independent power.",
+      high: "Off-grid system engineering, autonomy days calculation, inverter/charger selection, and the economics of energy independence are important topics."
+    },
+    materials: ["Load calculation tools", "Solar and battery specifications"],
+    steps: [
+      "Load analysis: calculate daily kWh for every load. Divide into critical (run continuously) and non-critical (can be timed or reduced).",
+      "Autonomy: how many days without sun must the system support? Typically 3\u20135 days. Determines battery bank size.",
+      "Battery bank: daily kWh x autonomy days \u00f7 depth of discharge (80% for lithium) = required battery capacity.",
+      "Solar array: daily kWh \u00f7 peak sun hours \u00f7 system efficiency (85%) = kW array needed.",
+      "Backup generator: sized to recharge batteries in 6\u20138 hours during extended cloudy periods."
+    ],
+    discussion: [
+      {q:"Why is depth of discharge (DoD) an important parameter for battery bank sizing?", answers:["Fully discharging lead-acid batteries to 0% dramatically shortens their lifespan (100\u2013200 cycles at 100% DoD vs 500\u2013800 at 50% DoD). Lithium batteries can safely discharge to 20\u201380% DoD with 2,000+ cycles. Sizing for a realistic DoD ensures the battery bank lasts the projected lifetime."]},
+      {q:"What is the role of the inverter/charger in an off-grid system?", answers:["The inverter/charger is the hub of the system. It converts DC battery power to AC for household loads, converts AC generator power to DC to charge batteries, manages the charging profile for the battery type, and prioritizes power sources (solar MPPT, generator, batteries) automatically."]}
+    ],
+    challenge: "Design a complete off-grid system for a small cabin with specified loads. Calculate battery bank, solar array, and backup generator sizes. Research component costs.",
+    tuesday:   { low: {title:"Load analysis worksheet", activity:"Create a complete load analysis for a small off-grid cabin: lighting, water pump, refrigerator, laptop, phone charging. Calculate total daily kWh."}, mid: {title:"Autonomy calculation", activity:"Calculate the battery bank size needed for the cabin load analysis with 3-day autonomy using both lead-acid (50% DoD) and LiFePO4 (80% DoD) batteries."}, high: {title:"System wiring diagram", activity:"Draw a complete off-grid system wiring diagram: solar panels, charge controller, battery bank, inverter/charger, AC distribution, and generator connection."} },
+    wednesday: { low: {title:"Component selection", activity:"Research and select specific products for each system component. Compare two options for each: solar panels, batteries, inverter, and charge controller."}, mid: {title:"Generator sizing", activity:"Size a backup generator for the system. Calculate the time required to recharge the battery bank from empty at the generator\u2019s charging rate."}, high: {title:"System monitoring", activity:"Research off-grid system monitoring solutions: battery state-of-charge displays, production and consumption monitoring, remote monitoring via cellular. What data matters most?"} },
+    thursday:  { low: {title:"Cost analysis", activity:"Calculate the total installed cost of your designed system. Calculate the cost per kWh over 25 years and compare to utility rates."}, mid: {title:"Seasonal performance variation", activity:"Research how Florida\u2019s seasonal variation in solar irradiance affects an off-grid system. What month requires the most backup generator use?"}, high: {title:"Island mode operation", activity:"Research island mode operation for grid-connected inverters. How does a grid-tied system maintain power during utility outages and what safety mechanisms are required?"} }
+  },
+
+  "Fermentation — kombucha sourdough kefir": {
+    gradeHooks: {
+      low: "Fermentation can make bread rise, preserve vegetables, and create healthy drinks! All from beneficial microorganisms.",
+      mid: "Kombucha, sourdough, and kefir represent different fermentation ecosystems with distinct microbial communities, substrates, and products.",
+      high: "Comparative fermentation microbiology, the ecology of different SCOBY types, and the biochemistry of each fermentation process are important topics."
+    },
+    materials: ["Active sourdough starter", "Kombucha starter or SCOBY", "Milk or water kefir grains"],
+    steps: [
+      "Sourdough: maintain a starter by feeding flour and water at a 1:1:1 ratio (starter:flour:water) every 12\u201324 hours. Use at peak activity (doubled, bubbly).",
+      "Kombucha: brew sweet tea, add SCOBY and 10% starter liquid. Ferment 7—14 days. pH should reach 2.5\u20133.5.",
+      "Kefir: add grains to milk or sugar water. Ferment 24\u201348 hours. Strain grains and reuse.",
+      "Common principles across all three: starter provides the microbial community, substrate provides food, time and temperature control the process, pH indicates completion.",
+      "Comparison: sourdough is primarily bacterial (Lactobacillus + Acetobacter) with wild yeast. Kombucha is bacterial (acetic acid bacteria) + yeast. Kefir is a complex multi-species community."
+    ],
+    discussion: [
+      {q:"What distinguishes a healthy sourdough starter from an unhealthy one?", answers:["A healthy starter doubles in size within 4\u20138 hours of feeding, has a consistent bubbly/spongy texture, smells pleasantly sour with some yeasty character, and has a consistent pH drop to 4.0\u20134.5. An unhealthy starter smells of acetone (overfermented), nail polish remover (stressed yeasts), or sulfur (contamination), and may not rise reliably."]},
+      {q:"How does the acidity produced by each fermentation contribute to both preservation and flavor?", answers:["Lactic acid (mild, creamy sourness in kefir and sourdough), acetic acid (vinegar-like in kombucha), and gluconic acid (mild tartness in kombucha) each lower pH below pathogen growth thresholds. The specific acid profile and concentration creates the characteristic flavor of each product while simultaneously preserving it."]}
+    ],
+    challenge: "Maintain all 3 fermentation cultures simultaneously for 2 weeks. Document feeding schedules, activity indicators, and flavor profiles. What does active maintenance teach you about each?",
+    tuesday:   { low: {title:"Starter maintenance log", activity:"Create a maintenance log for your sourdough starter: feeding time, ratios, peak activity time, aroma, and appearance at each observation."}, mid: {title:"pH comparison", activity:"Test pH at multiple time points in all 3 fermentations. Create a pH vs time graph for each. At what pH is each product considered finished?"}, high: {title:"Microbial ecology comparison", activity:"Research the microbial ecology of all 3 fermentation ecosystems. What mechanisms prevent pathogen contamination in each?"} },
+    wednesday: { low: {title:"Sourdough bread bake", activity:"Bake a sourdough loaf from your starter. Compare it to bread made with commercial yeast: texture, flavor, and crust."}, mid: {title:"Flavor development analysis", activity:"Research how fermentation time affects flavor in all 3 products. What compounds develop with extended fermentation in each?"}, high: {title:"Stress response in fermentation cultures", activity:"Research how fermentation cultures respond to stress: temperature extremes, starvation, antibiotic contamination. What survival mechanisms exist in each culture type?"} },
+    thursday:  { low: {title:"Culture gift", activity:"Give a healthy portion of each culture to a neighbor or friend. Write care instructions for each one."}, mid: {title:"Cross-contamination prevention", activity:"Research how to prevent cross-contamination between fermentation cultures. Can you keep all 3 in a small kitchen without interference?"}, high: {title:"Commercial fermentation scale-up", activity:"Research how commercial producers of sourdough bread, kombucha, and kefir scale these processes. What quality control challenges emerge at production scale?"} }
+  },
+
+  "Water rights and storage laws": {
+    gradeHooks: {
+      low: "Laws govern who can use water, how much, and how they store it. These laws vary widely by state!",
+      mid: "Water law varies dramatically between Eastern states (riparian rights) and Western states (prior appropriation). Florida has its own framework.",
+      high: "Water rights doctrine, the public trust doctrine, groundwater vs surface water distinctions, and interstate water conflicts are important legal and policy topics."
+    },
+    materials: ["Florida water law resources", "SFWMD water use regulations"],
+    steps: [
+      "Florida water law: Florida uses a permit system managed by 5 water management districts. Consumptive Use Permits (CUPs) are required for significant withdrawals.",
+      "Riparian vs prior appropriation: Eastern states give water rights to landowners adjacent to waterways. Western states give rights based on first-use priority.",
+      "Florida groundwater: all groundwater in Florida is state-owned, not private property. Use requires permits for significant amounts.",
+      "Rainwater harvesting: Florida generally allows residential rainwater collection without a permit. However, commercial use may require permits.",
+      "Storage laws: cisterns, rain barrels, and aquifer storage and recovery (ASR) are all governed by different regulations."
+    ],
+    discussion: [
+      {q:"Why does Florida\u2019s water law require permits rather than using pure riparian rights?", answers:["Florida\u2019s massive population growth and intensive agriculture would quickly overwhelm a pure riparian system. The permit system allows the water management districts to allocate water equitably, prevent over-pumping, protect minimum flows and levels in natural systems, and respond to drought by restricting non-essential use."]},
+      {q:"What is the public trust doctrine and how does it affect private water rights in Florida?", answers:["The public trust doctrine holds that certain resources (navigable waters, tidal areas, and in Florida much of the groundwater) are held in trust by the state for the public. This means private land ownership doesn\u2019t automatically confer unlimited water rights — the state can regulate use in the public interest."]}
+    ],
+    challenge: "Research your specific county\u2019s regulations for rainwater collection, well permits, and water storage. What size cistern can you install without a permit?",
+    tuesday:   { low: {title:"Florida water management districts", activity:"Research the 5 Florida water management districts. What geographic area does each manage and what is its primary water challenge?"}, mid: {title:"Consumptive use permit research", activity:"Research what triggers a consumptive use permit requirement in your district. What volume per day requires a permit for residential vs agricultural vs commercial use?"}, high: {title:"Interstate water conflict", activity:"Research the Georgia-Florida-Alabama water war over the Apalachicola-Chattahoochee-Flint river basin. What are the legal frameworks governing interstate water allocation and how has this dispute been adjudicated?"} },
+    wednesday: { low: {title:"Prior appropriation research", activity:"Research the Colorado Doctrine (prior appropriation). How does \u2018first in time, first in right\u2019 work and what happens when rivers run low?"}, mid: {title:"Minimum flows and levels", activity:"Research Florida\u2019s minimum flows and levels (MFLs) program. What ecological harm do MFLs prevent and how are they established?"}, high: {title:"Water markets", activity:"Research water markets: the buying and selling of water rights. Where do they exist, how do they work, and what are the arguments for and against market-based water allocation?"} },
+    thursday:  { low: {title:"Storage regulation compliance", activity:"Design a rainwater collection system that complies with your county\u2019s regulations. What size, what uses, and what permits (if any) are required?"}, mid: {title:"Climate change and water rights", activity:"Research how climate change is straining existing water rights frameworks. What happens when a senior water rights holder demands full allocation during a drought that would destroy junior rights holders?"}, high: {title:"UN water rights framework", activity:"Research the United Nations recognition of water as a human right (2010). What does this mean for national water law and how have different countries incorporated it into domestic policy?"} }
+  },
+
+  "Electrical wiring safety — NEC basics": {
+    gradeHooks: {
+      low: "Electrical wiring must follow rules to prevent fires and electrocution. The National Electrical Code sets these safety standards.",
+      mid: "The NEC governs wire sizing, circuit protection, installation methods, and the specific requirements for different locations in a building.",
+      high: "NEC structure, the Code\u2019s relationship to local jurisdictions, ampacity derating, and the engineering principles behind key NEC requirements are important topics."
+    },
+    materials: ["NEC handbook reference or access to nfpa.org"],
+    steps: [
+      "What is the NEC: the National Electrical Code (NFPA 70) is the standard for electrical safety adopted by most US jurisdictions. It is updated every 3 years.",
+      "Wire sizing: ampacity (current-carrying capacity) determines wire gauge. 14 AWG for 15-amp circuits, 12 AWG for 20-amp, 10 AWG for 30-amp.",
+      "GFCI and AFCI requirements: NEC mandates specific circuit types for wet locations (GFCI) and bedroom/living areas (AFCI).",
+      "Box fill calculations: the number of conductors in a junction box is limited by the box\u2019s cubic inch volume.",
+      "Permit and inspection: most electrical work requires a permit and inspection in Florida, even DIY work in your own home."
+    ],
+    discussion: [
+      {q:"Why does wire gauge need to match the circuit breaker rating and what happens when they don\u2019t?", answers:["The breaker is sized to protect the wire. If a 14 AWG wire (rated 15 amps) is on a 20-amp breaker, the wire can carry 20 amps of current (which will overheat and may start a fire) before the breaker trips. The breaker must trip at or below the wire\u2019s ampacity to protect it."]},
+      {q:"What is the purpose of the NEC vs local codes?", answers:["The NEC is a model code created by NFPA. States and municipalities adopt it (with or without local amendments) and enforce it through permitting and inspection. Local amendments may be more stringent than the NEC (never less). Florida adopts the NEC with specific Florida Building Code electrical provisions."]}
+    ],
+    challenge: "Research what electrical work requires a permit in your county. Determine the correct wire gauge and breaker size for a new 20-amp kitchen circuit.",
+    tuesday:   { low: {title:"Wire gauge chart", activity:"Create a reference chart: AWG gauge, diameter, resistance per foot, ampacity at 60\u00b0C and 75\u00b0C, and typical application."}, mid: {title:"NEC location requirements", activity:"Research NEC requirements for 5 specific locations: bathroom, kitchen, garage, outdoor, and swimming pool. What special protection is required at each?"}, high: {title:"Ampacity derating", activity:"Research ampacity derating: how running multiple conductors in conduit, high ambient temperatures, and bundled cables reduce the allowable current. Calculate the derating for 6 conductors in 90\u00b0C conduit."} },
+    wednesday: { low: {title:"Box fill calculation", activity:"Calculate whether a 4x4-inch square box (21 cubic inches) can contain: 2 THHN 14 AWG conductors, 1 ground, and 1 standard device (duplex outlet)."}, mid: {title:"Florida permit requirements", activity:"Research Florida\u2019s specific permit requirements for electrical work. What work can a homeowner legally do and what requires a licensed electrician?"}, high: {title:"NEC evolution research", activity:"Research how the NEC has evolved from its first edition in 1897 to today. What were the major additions driven by fire investigations? How does the NFPA technical committee process work?"} },
+    thursday:  { low: {title:"Inspection preparation", activity:"Research what an electrical inspection looks for on a new circuit installation. What are the most common failure items that cause re-inspection?"}, mid: {title:"NEC Article 210 deep dive", activity:"Research NEC Article 210 (Branch Circuits). What does it require for circuit loading, receptacle placement in living spaces, and GFCI/AFCI protection?"}, high: {title:"Performance-based codes", activity:"Research performance-based vs prescriptive electrical codes. What would a performance-based approach to electrical safety mean for innovation in building technology?"} }
+  },
+
+  "Personal finance plan — income minus expenses": {
+    gradeHooks: {
+      low: "A personal finance plan tracks everything coming in and going out to ensure we\u2019re building toward our goals.",
+      mid: "A complete personal finance plan integrates income, expenses, debt, savings, and long-term investment into a coherent strategy.",
+      high: "Financial planning frameworks, behavioral finance, sequence of returns risk, and the mathematical foundations of long-term financial planning are important topics."
+    },
+    materials: ["Spreadsheet or budgeting software", "Financial data"],
+    steps: [
+      "Net income: after-tax income from all sources.",
+      "Fixed expenses: housing, insurance, minimum debt payments, subscriptions.",
+      "Variable necessities: food, utilities, transportation, medical.",
+      "Savings and investments: emergency fund, retirement (target 15% of gross income), other goals.",
+      "Discretionary: entertainment, dining, hobbies.",
+      "Remaining = zero in a zero-based budget. If positive: allocate to accelerated savings/debt payoff. If negative: identify cuts."
+    ],
+    discussion: [
+      {q:"What is the correct order for allocating money after essential expenses are covered?", answers:["Financial planners generally recommend: (1) emergency fund to $1,000, (2) employer 401k match (free money), (3) high-interest debt payoff (avalanche method), (4) emergency fund to 3\u20136 months, (5) Roth IRA max ($7,000/year in 2024), (6) remaining retirement account max, (7) taxable investing or other goals."]},
+      {q:"Why does starting retirement savings at 22 vs 32 make such a dramatic difference?", answers:["At 7% average return, money doubles every 10 years (Rule of 72). $1,000 invested at 22 becomes $16,000 by 62 (4 doublings). The same $1,000 invested at 32 becomes $8,000 (3 doublings). Starting 10 years earlier literally doubles the outcome through the power of compounding."]}
+    ],
+    challenge: "Create a complete personal finance plan for your current situation or a hypothetical first-year-out-of-high-school scenario. Every dollar of income must be assigned.",
+    tuesday:   { low: {title:"Net income calculation", activity:"Calculate monthly net income for a $45,000 salary in Florida including FICA and federal income tax withholding."}, mid: {title:"Budget allocation", activity:"Allocate the calculated net income across all budget categories using the 50/30/20 framework. Is 15% of gross income achievable for retirement savings?"}, high: {title:"Financial independence number", activity:"Research the 4% safe withdrawal rate and the FIRE (Financial Independence, Retire Early) movement. Calculate the portfolio size required to support your current family budget indefinitely."} },
+    wednesday: { low: {title:"Debt payoff projection", activity:"If you have $8,000 in student loans at 5% and contribute $200/month, when will it be paid off? How much total interest will you pay?"}, mid: {title:"Investment vehicle comparison", activity:"Compare 401k, Roth IRA, and taxable brokerage accounts. What are the contribution limits, tax treatment, and withdrawal rules for each?"}, high: {title:"Sequence of returns risk", activity:"Research sequence of returns risk: how the order of investment returns affects portfolio longevity. Why does a bad market early in retirement cause more harm than the same bad market later?"} },
+    thursday:  { low: {title:"Goal setting", activity:"Set 3 financial goals with timelines: short-term (1 year), medium-term (3\u20135 years), long-term (retirement). Calculate monthly savings needed for each."}, mid: {title:"Insurance needs assessment", activity:"Research what insurance a young adult needs: health, renters, auto, disability, and term life (if others depend on income). What does each cost and what does it protect?"}, high: {title:"Monte Carlo simulation", activity:"Research Monte Carlo simulation in financial planning. How does it model uncertainty in returns and what does a 90% success rate mean for a retirement plan?"} }
+  },
+
+  "Celestial navigation — Polaris and the Southern Cross": {
+    gradeHooks: {
+      low: "Stars can tell us which way is north or south! Polaris (the North Star) and the Southern Cross help navigators anywhere on Earth.",
+      mid: "Celestial navigation using Polaris and the Southern Cross provides direction finding without instruments.",
+      high: "Spherical astronomy, the celestial sphere model, declination and right ascension, and the geometry of stellar navigation are important topics."
+    },
+    materials: ["Clear night sky or star map", "Inclinometer or homemade angle measurer"],
+    steps: [
+      "Polaris: find the Big Dipper, use the two pointer stars (outer edge of the cup), follow their direction 5x the distance. Polaris is the North Star, within 1\u00b0 of true north.",
+      "Latitude from Polaris: Polaris altitude above the horizon = your latitude. At 25\u00b0 N latitude, Polaris is 25\u00b0 above the horizon.",
+      "Southern Cross: not visible from Florida but used in the Southern Hemisphere. The long axis of the Southern Cross points toward the South Celestial Pole.",
+      "South from Southern Cross: extend the long axis 4.5x its length to find south. Use the two bright pointer stars (Alpha and Beta Centauri) as a check.",
+      "Moon navigation: the illuminated side of the crescent moon roughly points toward the sun. The horns of a crescent moon in the north point away from the south."
+    ],
+    discussion: [
+      {q:"Why does Polaris altitude equal the observer\u2019s latitude?", answers:["The Earth\u2019s axis points toward Polaris. At the North Pole (90\u00b0 N latitude), Polaris is directly overhead (90\u00b0 altitude). At the equator (0\u00b0 latitude), Polaris is on the horizon (0\u00b0 altitude). At 30\u00b0 N, Polaris is 30\u00b0 above the horizon. The geometry is exact: latitude = Polaris altitude."]},
+      {q:"Why can\u2019t you see the Southern Cross from most of the United States?", answers:["The Southern Cross is centered at approximately -60\u00b0 declination (60\u00b0 south of the celestial equator). For it to be visible, it must rise above the horizon. From latitude 25\u00b0 N (South Florida), stars at declination worse than about -65\u00b0 never rise above the horizon. The Southern Cross\u2019 southernmost stars barely appear from Key West."]}
+    ],
+    challenge: "On a clear night, locate Polaris using the Big Dipper pointer stars. Measure its altitude using an inclinometer. Compare to your actual latitude. What is the error?",
+    tuesday:   { low: {title:"Star chart navigation", activity:"Using a star chart for tonight\u2019s sky, identify 5 prominent constellations and trace the path to Polaris from 2 different starting constellations."}, mid: {title:"Latitude measurement", activity:"Build a simple inclinometer (protractor + plumb line). Measure Polaris\u2019 altitude from your location. Compare to your GPS latitude."}, high: {title:"Celestial sphere model", activity:"Research the celestial sphere model: right ascension, declination, the celestial equator, and the ecliptic. How do these coordinates relate to latitude and longitude on Earth?"} },
+    wednesday: { low: {title:"Orion as East/West indicator", activity:"Research how Orion\u2019s belt rises due east and sets due west regardless of observer location. Why is this true only for stars on the celestial equator?"}, mid: {title:"Polaris precision", activity:"Research how close Polaris actually is to the North Celestial Pole. By how many degrees does it circle the pole and how does this affect its utility as a direction indicator?"}, high: {title:"Precession of the equinoxes", activity:"Research precession: the 26,000-year wobble of Earth\u2019s axis. How does precession change which star serves as the North Star over millennia? What star was \u2018North Star\u2019 in ancient Egypt?"} },
+    thursday:  { low: {title:"Navigation story", activity:"Research the role of celestial navigation in Pacific Islander wayfinding. How did they use stars, swells, and winds to navigate thousands of miles without instruments?"}, mid: {title:"Sextant basics", activity:"Research how a sextant measures celestial altitude. What is a noon sight and how was it used historically to determine latitude at sea?"}, high: {title:"Naval celestial navigation", activity:"Research when the US Navy stopped requiring celestial navigation training and why it reinstated it in 2015. What specific vulnerabilities drove the reconsideration?"} }
+  },
+
+  "Medicinal herbs and first aid plants": {
+    gradeHooks: {
+      low: "Some plants can help clean wounds, soothe burns, or reduce fever. Nature\u2019s medicine cabinet!",
+      mid: "First aid plants have documented traditional uses. Understanding preparation methods and limitations enables responsible use.",
+      high: "Evidence-based phytotherapy, herb-drug interactions, and the regulatory landscape for botanical medicines are important topics."
+    },
+    materials: ["Samples or photos of yarrow, plantain, aloe, calendula, comfrey"],
+    steps: [
+      "Plantain (Plantago species): anti-inflammatory and antimicrobial. Chew a fresh leaf and apply to insect stings, minor wounds, and skin irritation as a \u2018spit poultice.\u2019",
+      "Yarrow (Achillea millefolium): hemostatic (slows bleeding). Apply crushed fresh leaves to wounds. Also used for fever. Look-alike: poison hemlock (check for hairy stem, no purple spots, and carrot-like smell in yarrow).",
+      "Aloe vera: gel for burns and skin irritation. Break a leaf and apply the clear gel directly. Avoid the yellow latex near the skin — it is irritating.",
+      "Calendula (Calendula officinalis): anti-inflammatory and wound healing. Used as infused oil or salve for skin conditions.",
+      "Comfrey (Symphytum officinale): contains allantoin that promotes cell growth. Used topically for bruises, sprains, and bone healing. Do NOT take internally — pyrrolizidine alkaloids are hepatotoxic."
+    ],
+    discussion: [
+      {q:"How does yarrow control bleeding and what is its proposed mechanism?", answers:["Yarrow contains achillin and achillicin, which have astringent and hemostatic properties. It promotes platelet aggregation and vasoconstriction. Traditional use as a battlefield hemostatic herb predates modern medicine. Some research supports its platelet-activating effects, though clinical trials are limited."]},
+      {q:"Why is comfrey safe for topical use but dangerous when taken internally?", answers:["Comfrey contains pyrrolizidine alkaloids (PAs) that are not absorbed through intact skin in significant amounts. However, when ingested, PAs are metabolized by the liver into toxic compounds that cause hepatic veno-occlusive disease. Topical use allows the therapeutic allantoin benefits without the systemic PA toxicity."]}
+    ],
+    challenge: "Grow, identify, and prepare 3 first aid plants. Make a simple salve from calendula. Create a reference guide documenting each plant\u2019s uses, preparation, and contraindications.",
+    tuesday:   { low: {title:"Spit poultice practice", activity:"Identify a plantain plant, chew a leaf to release juice, and apply to a small bug bite. Document the effect on itch and swelling over 30 minutes."}, mid: {title:"Herbal salve preparation", activity:"Research calendula-infused oil preparation: cold infusion (6 weeks) vs hot infusion (8 hours). Make the oil and combine with beeswax to make a salve."}, high: {title:"Pharmacognosy research", activity:"Research pharmacognosy: the study of bioactive compounds in plants. For yarrow, identify the key secondary metabolites and their proposed pharmacological mechanisms."} },
+    wednesday: { low: {title:"Growing medicinal herbs", activity:"Research which first aid herbs grow well in Florida: aloe, calendula, plantain, yarrow (may struggle in summer heat). Start one plant."}, mid: {title:"Herb preparation comparison", activity:"Compare 4 preparation methods for the same herb: tea, tincture, oil infusion, and salve. What does each method preserve and what is it best used for?"}, high: {title:"Herb-drug interaction database", activity:"Research Natural Medicines database or Natural Standard. Look up 3 first aid herbs for documented drug interactions. What medications are most commonly affected?"} },
+    thursday:  { low: {title:"Herbal first aid kit", activity:"Assemble a basic herbal first aid kit: plantain tincture, calendula salve, aloe plant, yarrow tincture. Document what each is for."}, mid: {title:"Wilderness herbal medicine", activity:"Research how wilderness medicine practitioners integrate knowledge of local medicinal plants. What training is available and what do wilderness herbalism courses cover?"}, high: {title:"Clinical botanical evidence review", activity:"Search PubMed for randomized controlled trials on 2 first aid herbs. Summarize: trial design, sample size, outcome measured, and quality of evidence."} }
+  },
+
+  "Vehicle emergency kit build": {
+    gradeHooks: {
+      low: "A car emergency kit has everything we need if we break down or have an accident away from home.",
+      mid: "A comprehensive vehicle emergency kit addresses breakdown, accident, medical, weather, and communication scenarios.",
+      high: "Risk-based kit design, probability-weighted threat analysis, and weight-volume constraints in vehicle emergency preparedness are important topics."
+    },
+    materials: ["Container for kit", "Supply checklist"],
+    steps: [
+      "Breakdown kit: jumper cables or jump starter, tire repair kit or fix-a-flat, lug wrench and jack, reflective triangles or flares, tow strap.",
+      "Medical kit: comprehensive first aid kit, any personal medications, tourniquet.",
+      "Communication: phone charger (car and battery pack), FRS radio as backup.",
+      "Shelter and comfort: emergency blankets, rain poncho, change of clothes, water (at least 1 gallon).",
+      "Documentation: insurance card, registration, vehicle manual, laminated emergency contact list, and small amount of cash."
+    ],
+    discussion: [
+      {q:"How does a vehicle emergency kit differ from a home emergency kit and why?", answers:["A vehicle kit must be portable, survive temperature extremes (a car can reach 140\u00b0F in Florida summer), and address vehicle-specific scenarios. It should be lightweight for carrying from a disabled vehicle, weather-resistant, and include vehicle-specific tools not relevant at home."]},
+      {q:"Why should food in a vehicle emergency kit be chosen differently than pantry emergency food?", answers:["Car interiors reach extreme temperatures in Florida summers and can freeze in winter in other regions. Food must be heat-stable: no chocolate (melts), nothing requiring water, nothing in glass. Energy bars, hard candies, and sealed crackers tolerate temperature extremes better than many shelf-stable foods."]}
+    ],
+    challenge: "Build a complete vehicle emergency kit. Test it by practicing a flat tire change and simulated breakdown using only kit resources.",
+    tuesday:   { low: {title:"Temperature-stable food selection", activity:"Research which foods survive 120\u00b0F+ car temperatures without spoiling, melting, or degrading. Create an approved vehicle emergency food list."}, mid: {title:"Kit weight and volume", activity:"Assemble your kit and weigh it. Measure the volume. Does it fit in the trunk efficiently? What could be removed without significantly reducing capability?"}, high: {title:"Probability-weighted threat analysis", activity:"Rank the 10 most likely vehicle emergencies by probability and consequence. Calculate a risk score for each. Does your kit address the highest-risk scenarios first?"} },
+    wednesday: { low: {title:"Seasonal adjustment", activity:"Research how your vehicle emergency kit should change seasonally: Florida summer (heat-specific additions) vs rare Florida cold snap (cold weather additions)."}, mid: {title:"Roadside emergency signaling", activity:"Research roadside safety and signaling: reflective triangles vs flares vs LED flares. What does OSHA recommend for roadside safety when changing a tire?"}, high: {title:"EV-specific emergency considerations", activity:"Research how electric vehicle breakdowns differ from ICE vehicle breakdowns. What unique tools, charging options, and towing requirements does an EV driver need in their emergency kit?"} },
+    thursday:  { low: {title:"Kit location and access", activity:"Store your kit and time how long it takes to locate and access the flat tire repair tools from both trunk and passenger compartment positions."}, mid: {title:"Insurance documentation audit", activity:"Verify all vehicle emergency documents: insurance card, registration, and roadside assistance information are current and accessible."}, high: {title:"Professional driver standards", activity:"Research what professional commercial truck drivers are required to carry by FMCSA (Federal Motor Carrier Safety Administration). How does professional truck preparedness compare to consumer standards?"} }
+  },
+
+  "STOP mnemonic — stop think observe plan": {
+    gradeHooks: {
+      low: "STOP helps us slow down in an emergency so we don\u2019t make things worse by acting too fast.",
+      mid: "The STOP mnemonic (Stop, Think, Observe, Plan) is the foundational decision-making framework for wilderness and emergency response.",
+      high: "Cognitive psychology of decision-making under stress, naturalistic decision-making, and the evidence for structured decision protocols in emergency contexts are important topics."
+    },
+    materials: ["Scenario cards"],
+    steps: [
+      "STOP: Stop physically and mentally. Do not take action. Prevent the panic-driven responses that often worsen situations.",
+      "Think: What do you know? What do you need to know? What resources do you have?",
+      "Observe: Gather information. Look around. Assess the patient, the environment, and available resources. Don\u2019t act on assumptions.",
+      "Plan: Formulate a plan based on observed reality. Prioritize actions. Identify the first, second, and third steps. Communicate the plan.",
+      "Act: Execute the plan. Monitor results. Be prepared to update the plan as new information emerges."
+    ],
+    discussion: [
+      {q:"Why is stopping the most important step and why is it the most counter-intuitive?", answers:["Stopping prevents the \u2018do something\u2019 impulse that causes people to make things worse in emergencies: moving spinal injury patients, running in avalanche terrain, spreading out in a group that becomes separately lost. The natural impulse is to act immediately. Training to stop first overrides this instinct."]},
+      {q:"What does \u2018observe\u2019 specifically prevent in emergency decision-making?", answers:["Observation prevents confirmation bias: acting on assumptions about what happened rather than what you see. First responders are trained to assess the patient they find, not the patient described to them. What you observe may contradict the initial report and changes the response entirely."]}
+    ],
+    challenge: "Apply STOP to 5 different emergency scenarios. Document each step for each scenario. Practice until the sequence is automatic.",
+    tuesday:   { low: {title:"STOP drill", activity:"Practice STOP from the beginning of a drill: pause, take 3 breaths, verbalize each STOP step before taking any physical action."}, mid: {title:"Decision tree development", activity:"For one specific scenario (lost hiker, car accident, home fire), develop a complete decision tree from the STOP framework."}, high: {title:"Naturalistic decision-making", activity:"Research Gary Klein\u2019s Recognition-Primed Decision (RPD) model. How do experienced emergency responders pattern-match to situation types and what role does deliberate STOP-style analysis play?"} },
+    wednesday: { low: {title:"Observe practice", activity:"Practice the Observe step: given a simulated emergency scene, list everything you observe before drawing any conclusions. How many things do you notice in 30 seconds?"}, mid: {title:"Plan verbalization", activity:"Practice verbalizing a plan before acting. A verbalized plan receives team input and prevents unilateral action based on incomplete information."}, high: {title:"Stress and cognitive narrowing", activity:"Research how stress causes cognitive tunneling and reduced situational awareness. What is the neurological mechanism and what training techniques counteract it?"} },
+    thursday:  { low: {title:"Real-world application", activity:"For one week, practice STOP before responding to any stressful situation: an argument, a problem in schoolwork, or a minor accident. How does it change your response?"}, mid: {title:"Team STOP protocol", activity:"Research how ICS (Incident Command System) embeds STOP principles into team decision-making through the Planning-P cycle and Incident Action Plans."}, high: {title:"High-reliability organizations", activity:"Research high-reliability organizations (nuclear plants, aircraft carriers, air traffic control). What organizational practices prevent catastrophic errors in complex environments?"} }
+  },
+
+  "ICS — Incident Command System structure": {
+    gradeHooks: {
+      low: "ICS gives everyone responding to an emergency a clear role, a supervisor, and a way to communicate so nothing is missed.",
+      mid: "ICS provides a standardized management structure that scales from small incidents to catastrophic disasters while maintaining clear authority and communication.",
+      high: "ICS organizational theory, its relationship to management science, the scalability mechanism, and documented improvements in disaster outcomes from ICS adoption are important topics."
+    },
+    materials: ["ICS organizational chart", "FEMA training materials"],
+    steps: [
+      "Command staff: Incident Commander (overall authority), Safety Officer, Public Information Officer, Liaison Officer.",
+      "General staff: Operations Section (tactical response), Planning Section (situation status, resource tracking), Logistics Section (support services), Finance/Admin Section (cost tracking).",
+      "Span of control: each supervisor manages 3\u20137 people (5 is ideal). When span is exceeded, divisions, groups, or branches are created.",
+      "Unity of command: every person has ONE supervisor. Conflicting orders from multiple commanders are eliminated.",
+      "Modular expansion: small incidents start with just an Incident Commander. Sections are added only as needed."
+    ],
+    discussion: [
+      {q:"What is the management principle behind ICS\u2019s span of control requirement?", answers:["Research on team performance consistently shows that managers become ineffective beyond 7 direct reports. In an emergency context, communication quality and coordination degrade even faster. The 5-person optimal span of control ensures each supervisor can meaningfully track every person\u2019s status and needs."]},
+      {q:"How does ICS prevent the inter-agency coordination failures that occurred on 9/11?", answers:["ICS provides common terminology, unified command capability, and clear chain of authority. On 9/11, New York Fire and Police used incompatible radio systems and different command terminology, leading to coordination failures. NIMS adoption after 9/11 mandated ICS for all agencies receiving federal preparedness funding."]}
+    ],
+    challenge: "Complete FEMA IS-200 (ICS for Single Resources and Initial Action Incidents). Design the ICS structure for a simulated local disaster.",
+    tuesday:   { low: {title:"Organization chart from memory", activity:"Draw the full ICS organizational structure from memory: command staff, general staff sections, and their relationships. Test by covering it and recreating."}, mid: {title:"Unified command exercise", activity:"Research and explain unified command: when two or more jurisdictions or agencies share incident management. Design a unified command structure for a wildfire on the border of two counties."}, high: {title:"ICS management theory", activity:"Research how ICS draws from management by objectives (MBO), scalar chain of command, and span of control theories from classical management science."} },
+    wednesday: { low: {title:"ICS position role cards", activity:"Create role cards for 6 ICS positions: what each does, who they report to, and what information they need."}, mid: {title:"Area command", activity:"Research Area Command: the structure used to oversee multiple ICS incidents of the same type. When is it activated and how does it differ from a single Incident Command?"}, high: {title:"ICS adoption effectiveness research", activity:"Research empirical studies on ICS adoption outcomes. What improvements in resource coordination, communication, and outcomes have been documented in jurisdictions that adopted ICS?"} },
+    thursday:  { low: {title:"Tabletop exercise", activity:"Run an ICS tabletop exercise: assign roles, present a scenario, and have each section report their actions. Debrief on role clarity and communication."}, mid: {title:"Type classification", activity:"Research incident type classification (Type 1 through 5). What characterizes each type and what ICS activation level corresponds to each?"}, high: {title:"ICS international adoption", activity:"Research how other countries have adopted or adapted ICS. What national differences in emergency management culture have affected adoption and modification?"} }
+  },
+
+  "Battery bank sizing and wiring": {
+    gradeHooks: {
+      low: "A battery bank stores electricity from solar panels so we can use power at night or on cloudy days.",
+      mid: "Battery bank design requires calculating capacity, selecting chemistry, determining series/parallel wiring, and managing charge and discharge properly.",
+      high: "Electrochemical energy storage, state of charge management, battery management systems, and the engineering of multi-cell battery banks are important topics."
+    },
+    materials: ["Battery specifications", "Calculator", "Wire gauge chart"],
+    steps: [
+      "Calculate required capacity: daily kWh \u00f7 depth of discharge \u00f7 inverter efficiency = battery bank kWh needed.",
+      "Series wiring: increases voltage, capacity stays the same. Two 12V 100Ah batteries in series = 24V, 100Ah.",
+      "Parallel wiring: increases capacity, voltage stays the same. Two 12V 100Ah batteries in parallel = 12V, 200Ah.",
+      "Series-parallel combinations: 4 batteries in 2 series pairs, wired in parallel = 24V, 200Ah.",
+      "BMS: a Battery Management System protects lithium batteries from overcharge, over-discharge, and thermal runaway. Essential for LiFePO4 banks."
+    ],
+    discussion: [
+      {q:"Why must batteries in a parallel bank be identical (same age, capacity, and type)?", answers:["In a parallel bank, the battery with the lowest internal resistance will be charged and discharged first and more deeply. Mixing old and new batteries causes the new battery to work harder, reducing both batteries\u2019 service life. Mismatched capacities prevent the bank from functioning as a unified system."]},
+      {q:"What is thermal runaway in lithium batteries and what causes it?", answers:["Thermal runaway is a self-reinforcing exothermic reaction where a lithium cell generates heat faster than it can dissipate it. Causes: overcharge, physical damage, cell defect, or excessive discharge rate. A BMS prevents the electrical conditions that trigger thermal runaway. Physical damage cannot be prevented by a BMS."]}
+    ],
+    challenge: "Design a 24V battery bank providing 10 kWh usable capacity using LiFePO4 cells. Draw the wiring diagram and specify the wire gauge for the bank\u2019s maximum discharge current.",
+    tuesday:   { low: {title:"Battery chemistry comparison", activity:"Create a comparison chart of lead-acid (flooded, AGM, gel), LiFePO4, and NMC lithium chemistries: DoD, cycle life, weight, cost, and self-discharge."}, mid: {title:"Series-parallel wiring design", activity:"Design 3 different battery banks using 12V 200Ah batteries: one at 12V with 800Ah capacity, one at 24V with 400Ah, one at 48V with 200Ah. Draw wiring diagrams for each."}, high: {title:"Battery management system deep dive", activity:"Research BMS architecture. What sensors does it use, what protection algorithms does it implement, and how does it communicate with the inverter/charger for coordinated charging?"} },
+    wednesday: { low: {title:"State of charge measurement", activity:"Research methods for measuring battery state of charge: voltage measurement (unreliable for lithium), coulomb counting, and impedance spectroscopy. Which is most accurate?"}, mid: {title:"Balancing passive vs active", activity:"Research cell balancing in multi-cell lithium packs. What is the difference between passive balancing (resistive) and active balancing (charge redistribution) and when does each matter?"}, high: {title:"Ragone plot analysis", activity:"Research Ragone plots: specific energy vs specific power for different battery chemistries. How does this plot explain why different chemistries are chosen for different applications?"} },
+    thursday:  { low: {title:"Wire sizing for high current", activity:"Calculate the minimum wire gauge for a 48V battery bank at 100A discharge using NEC ampacity tables. What is the voltage drop at this current over a 10-foot run?"}, mid: {title:"Warranty and cycle life economics", activity:"Calculate the lifetime cost per kWh for lead-acid (500 cycles at 50% DoD) vs LiFePO4 (3,000 cycles at 80% DoD). Include initial cost and replacement cost."}, high: {title:"Second life batteries", activity:"Research second-life EV batteries for stationary storage. What state of health makes an EV battery suitable for stationary use and what technical challenges exist in repurposing them?"} }
+  },
+
+  "Lacto-fermentation of grains — sourdough": {
+    gradeHooks: {
+      low: "Sourdough bread uses wild yeast and bacteria from a starter culture. No commercial yeast needed — just flour, water, and time!",
+      mid: "Sourdough fermentation involves a complex ecosystem of wild yeasts and lactic acid bacteria that transform flour into a nutritious, long-lasting bread.",
+      high: "Sourdough microbiology, the biochemistry of gluten development under acidic conditions, and the nutritional improvements from fermentation are important topics."
+    },
+    materials: ["Active sourdough starter", "Bread flour", "Salt", "Water", "Dutch oven"],
+    steps: [
+      "Maintain starter: feed at 1:1:1 (starter:flour:water) by weight. Use at peak activity (2\u20134 hours after feeding, doubled and bubbly).",
+      "Mix dough: 450g flour, 325g water, 9g salt, 90g active starter. Mix until no dry flour remains. Rest 30 minutes.",
+      "Stretch and fold: every 30 minutes for 2\u20133 hours. This develops gluten structure without mechanical kneading.",
+      "Bulk fermentation: 4\u20138 hours at room temperature until the dough has risen 50\u201375% and is bubbly.",
+      "Shape, cold proof overnight in the refrigerator, score, and bake in a Dutch oven at 500\u00b0F for 20 minutes covered, 20 minutes uncovered."
+    ],
+    discussion: [
+      {q:"How does the acidity in sourdough dough affect gluten development compared to commercial yeast bread?", answers:["Acidic conditions (pH 4.0\u20134.5 in well-fermented dough) strengthen the gluten network differently than neutral dough. Organic acids slow gluten degradation by proteases, while lactic acid affects the charge distribution on gluten proteins. The result is a more complex, chewy crumb structure than commercial yeast produces."]},
+      {q:"What nutritional improvements does long sourdough fermentation provide?", answers:["Extended fermentation (12\u201324 hours) breaks down phytic acid, improving mineral absorption (iron, zinc, calcium). It degrades some gluten proteins, potentially improving tolerability for sensitive individuals. The lactic acid bacteria produce B vitamins. The lower glycemic index is attributed to partial starch breakdown and organic acid interference with digestive enzymes."]}
+    ],
+    challenge: "Bake a successful sourdough loaf with an open crumb structure, well-developed crust, and good oven spring. Document every step including timing and temperatures.",
+    tuesday:   { low: {title:"Starter health indicators", activity:"Evaluate your starter\u2019s health: smell (pleasantly sour, yeasty), texture (bubbly, spongy), rise pattern (doubles in 4\u20134 hours). What does each indicator tell you?"}, mid: {title:"Hydration effects", activity:"Research how dough hydration percentage affects sourdough: 65% (stiff, easy to handle), 75% (standard), 85% (very wet, open crumb but challenging)."}, high: {title:"Wild yeast species", activity:"Research the wild yeast species found in sourdough starters. What species dominate and why? How does the geographic origin of a starter affect its species composition?"} },
+    wednesday: { low: {title:"Baker\u2019s percentages", activity:"Learn baker\u2019s percentages: all ingredients expressed relative to total flour weight. Convert a recipe to baker\u2019s percentages and scale it to make a different batch size."}, mid: {title:"Gluten window test", activity:"Practice the windowpane test for gluten development. Stretch a piece of dough until translucent without tearing. How does this indicate sufficient gluten development?"}, high: {title:"Phytate degradation research", activity:"Research phytic acid and phytase in grain fermentation. How does fermentation time, temperature, and flour type affect phytase activity and mineral bioavailability?"} },
+    thursday:  { low: {title:"Bake comparison", activity:"Bake the same recipe using your sourdough starter and commercial yeast. Compare: texture, flavor, crust, shelf life, and time required."}, mid: {title:"Troubleshooting guide", activity:"Create a troubleshooting guide for sourdough: dense crumb (causes), no oven spring (causes), gummy interior (causes), overly sour (causes). Include remedies for each."}, high: {title:"Fermentation microbiology research", activity:"Research the specific Lactobacillus species that dominate healthy sourdough starters. What metabolic byproducts does each species produce and how do they contribute to flavor complexity?"} }
+  },
+
+  "State water law — riparian vs prior appropriation": {
+    gradeHooks: {
+      low: "Eastern states give water rights to landowners near rivers. Western states give rights to whoever used the water first. These different rules cause very different water situations!",
+      mid: "Understanding riparian rights, prior appropriation, and Florida\u2019s hybrid regulated system enables informed participation in water policy discussions.",
+      high: "Water law doctrine, the historical development of prior appropriation, interstate compacts, and the constitutional dimensions of water rights are important topics."
+    },
+    materials: ["State water law reference materials"],
+    steps: [
+      "Riparian doctrine (Eastern states): landowners adjacent to a waterway have the right to reasonable use of the water. No priority date — all riparian landowners share proportionally.",
+      "Prior appropriation (Western states): \u2018First in time, first in right.\u2019 Water is allocated based on when the right was established. Senior rights are satisfied before junior rights, even in drought.",
+      "Florida hybrid: uses a permit system (consumptive use permits) administered by water management districts. Based on reasonable-beneficial use with environmental protections.",
+      "Minimum flows and levels: Florida requires environmental water reservations (MFLs) before issuing new permits.",
+      "Interstate compacts: states sharing river systems negotiate water-sharing agreements (e.g., the Apalachicola-Chattahoochee-Flint compact between Georgia, Alabama, and Florida)."
+    ],
+    discussion: [
+      {q:"Why did the American West develop prior appropriation rather than adopting the Eastern riparian system?", answers:["Western settlement was driven by mining and agriculture in arid regions where water was scarce. Riparian rights were impractical because water needed to be transported far from rivers. Prior appropriation rewarded investment: the first person to divert and use water productively got the right to keep doing so, incentivizing development."]},
+      {q:"What happens under prior appropriation during a severe drought and who suffers most?", answers:["During drought, junior rights holders (those with more recent priority dates) have their allocations cut first, potentially to zero. In some Western rivers, 90%+ of the water is allocated to agricultural users with senior rights dating to the 1800s. Cities and ecosystems often hold junior rights and bear the brunt of drought impacts."]}
+    ],
+    challenge: "Research the current status of the ACF (Apalachicola-Chattahoochee-Flint) water dispute between Georgia, Alabama, and Florida. What is at stake and what is the current legal status?",
+    tuesday:   { low: {title:"Doctrine comparison chart", activity:"Create a comparison chart: riparian vs prior appropriation. Include: basis for rights, drought allocation, transferability, and which states use each."}, mid: {title:"ACF dispute research", activity:"Research the Apalachicola River\u2019s health and the Florida oyster industry\u2019s dependence on freshwater flows. What minimum flow is needed and what has Georgia\u2019s consumption done to flows?"}, high: {title:"Law review analysis", activity:"Research academic law review articles on the challenges of applying 19th-century water rights doctrines to 21st-century conditions (climate change, growing cities, environmental needs). What reforms are proposed?"} },
+    wednesday: { low: {title:"Florida water permit research", activity:"Research what consumptive use permit you would need to dig a small pond on a Florida property and irrigate a 1-acre market garden."}, mid: {title:"Environmental water rights", activity:"Research the concept of environmental flow rights: allocations specifically for ecosystem needs. How are they established and enforced in Florida and other states?"}, high: {title:"Water market mechanics", activity:"Research how water markets function in Colorado, Utah, and Arizona. What transaction costs, third-party effects, and governance challenges affect market efficiency?"} },
+    thursday:  { low: {title:"Your water rights", activity:"Research what water rights apply to your property in Florida. Is there a water body on or near your land? What permits would you need to use the water?"}, mid: {title:"Climate change adaptation", activity:"Research how water law is adapting (or failing to adapt) to climate change. What happens when the hydrology that water rights were based on no longer exists?"}, high: {title:"International water law", activity:"Research international water law governing transboundary rivers and aquifers. What treaties govern the Colorado River between the US and Mexico? The Nile between Egypt, Sudan, and Ethiopia?"} }
+  },
+
+  "Rough-in wiring — outlet installation": {
+    gradeHooks: {
+      low: "Rough-in wiring is the wiring installed inside walls before they are covered. It must be done exactly right for safety!",
+      mid: "Outlet installation requires understanding circuit topology, box mounting, NEC compliance, and proper termination techniques.",
+      high: "Electrical rough-in methodology, NEC Article 210 requirements, and the engineering of residential branch circuits are important topics."
+    },
+    materials: ["Outlet, cover plate, 14-2 or 12-2 NM cable", "Junction box", "Wire stripper, screwdriver"],
+    steps: [
+      "Safety: turn off the circuit at the panel. Verify with a non-contact voltage tester before touching any wire.",
+      "Box mounting: secure the electrical box to a stud or using a wing-type bracket. Box face should be flush with the finished wall.",
+      "Cable preparation: strip 6 inches of outer jacket, strip 3/4 inch of insulation from each conductor.",
+      "Termination: black (hot) to brass screw, white (neutral) to silver screw, bare copper (ground) to green screw. Wrap with electrical tape.",
+      "Pigtail method: if multiple cables enter the box, connect all hots together and run a short pigtail to the device. Do not backstab — use screw terminals."
+    ],
+    discussion: [
+      {q:"Why is the \u2018backstab\u2019 method of connecting wires to outlets inferior to screw terminals?", answers:["Backstab (push-in) connections grip the wire with a spring clip rather than a clamped screw. Over time, thermal cycling (heating and cooling) causes the spring to loosen. Loose connections create resistance, which creates heat, which can cause fires or failure. Screw terminals maintain clamped pressure and are more reliable long-term."]},
+      {q:"What is the significance of connecting the neutral wire to the silver (identified) screw rather than the brass screw?", answers:["The neutral carries return current at near-zero voltage. The hot wire carries voltage. Reversing polarity (connecting hot to silver, neutral to brass) creates a \u2018reverse polarity\u2019 condition where the socket shell is energized rather than the contact. Touching the shell while inserting a plug can cause electrocution. NEC mandates identified terminals for this safety reason."]}
+    ],
+    challenge: "Install an outlet in a practice box (not connected to power) with correct termination, proper wire organization, and device seating flush to the box. Pass a self-inspection checklist.",
+    tuesday:   { low: {title:"Wire identification practice", activity:"Practice identifying wire colors in NM cable: black (hot), white (neutral or switched leg), red (second hot), bare copper (ground). What does each color indicate?"}, mid: {title:"Outlet types research", activity:"Research outlet types: standard duplex, GFCI, AFCI, tamper-resistant, USB-integrated, and smart outlets. When is each type required or preferred?"}, high: {title:"Circuit topology", activity:"Research series vs parallel outlet wiring in branch circuits. Why are outlets always wired in parallel (same voltage at every outlet) rather than series (voltage drops at each outlet)?"} },
+    wednesday: { low: {title:"Box fill compliance", activity:"Calculate the box fill for a single box containing: 2 NM cables (14-2), 1 outlet, and 2 clamps. Is a standard 20 cubic inch box sufficient?"}, mid: {title:"GFCI outlet wiring", activity:"Research the LINE and LOAD terminals on a GFCI outlet. How can a single GFCI protect multiple downstream outlets on the same circuit?"}, high: {title:"Arc fault circuit interrupter (AFCI) outlet", activity:"Research AFCI outlets vs AFCI breakers. What is the difference in protection coverage and how does each detect arcing faults at different points in the circuit?"} },
+    thursday:  { low: {title:"Inspection preparation", activity:"Create a self-inspection checklist for an outlet installation: wire colors correct, tight connections, no nicks in insulation, box flush, device mounted straight."}, mid: {title:"Permit process", activity:"Research the permit and inspection process for adding a new outlet in Florida. What documentation is required, what does the inspector check, and what are common failure items?"}, high: {title:"Smart outlet integration", activity:"Research smart outlets and their integration with home automation systems. What NEC considerations apply to line-voltage smart devices and how do they differ from standard outlets?"} }
+  },
+
+  "Net worth — assets minus liabilities": {
+    gradeHooks: {
+      low: "Net worth is everything we own minus everything we owe. It\u2019s the most important measure of financial health!",
+      mid: "Calculating and tracking net worth reveals financial progress over time and provides the foundation for financial planning.",
+      high: "Net worth analysis, liquid vs illiquid assets, intergenerational wealth, and the role of net worth in financial planning are important topics."
+    },
+    materials: ["Asset and liability inventory template", "Calculator"],
+    steps: [
+      "Assets: cash, savings accounts, investment accounts, retirement accounts, home value, vehicle value, and other owned items of significant value.",
+      "Liabilities: mortgage balance, car loans, student loans, credit card balances, medical debt, and any other amounts owed.",
+      "Net worth = total assets minus total liabilities.",
+      "Liquid vs illiquid: liquid assets (cash, savings, taxable investments) can be accessed immediately. Illiquid (home, retirement accounts, business interests) cannot be quickly converted to cash.",
+      "Track over time: calculate net worth monthly or quarterly. The trend matters more than the current number."
+    ],
+    discussion: [
+      {q:"Why might someone with a high income have a low or negative net worth?", answers:["Income is a flow (money coming in per period). Net worth is a stock (accumulated wealth). High income paired with high spending, debt, and no savings produces negative net worth regardless of income. The classic example: a high-earning professional with a large mortgage, luxury car loans, and no savings has negative net worth despite making $200,000/year."]},
+      {q:"Why is liquid net worth often more important than total net worth in emergency situations?", answers:["Total net worth includes illiquid assets like a home, retirement accounts, and other assets that cannot be quickly accessed without penalty or delay. In a financial emergency, only liquid assets (cash, savings, taxable investments) are immediately accessible. A person with $500,000 in home equity and $1,000 in savings has a financial emergency problem despite high total net worth."]}
+    ],
+    challenge: "Calculate your own or your family\u2019s net worth. Track it monthly for 3 months. Identify the factors that caused changes in each direction.",
+    tuesday:   { low: {title:"Asset valuation", activity:"Research how to value different asset types: home (Zillow estimate vs appraisal), vehicles (KBB), investments (brokerage account balance), and personal property."}, mid: {title:"Liquid vs illiquid analysis", activity:"Separate your calculated net worth into liquid and illiquid categories. What percentage is immediately accessible? How does this affect your financial resilience?"}, high: {title:"Wealth inequality research", activity:"Research US wealth distribution. What is the median household net worth? How does wealth distribute across quintiles and racial groups? What structural factors explain the patterns?"} },
+    wednesday: { low: {title:"Liability tracking", activity:"List every debt obligation: amount, interest rate, and monthly payment. What is the total debt service (monthly payments) as a percentage of income?"}, mid: {title:"Net worth trajectory projection", activity:"Project your net worth 5, 10, and 20 years forward assuming specific savings rates and investment returns. What monthly savings rate achieves a $1M net worth by age 65?"}, high: {title:"Intergenerational wealth transfer", activity:"Research how wealth transfers between generations. What percentage of US wealth is inherited vs earned? What tax structures (estate tax, step-up in basis) affect intergenerational transfer?"} },
+    thursday:  { low: {title:"Monthly tracking setup", activity:"Set up a monthly net worth tracking spreadsheet. Commit to updating it on the same day each month. What categories will you track?"}, mid: {title:"Debt payoff impact on net worth", activity:"Model the net worth impact of paying off debt vs investing. If you have $5,000 at 5% interest and can earn 7% investing, what is the mathematically optimal allocation?"}, high: {title:"Balance sheet analysis", activity:"Research how company balance sheets resemble personal net worth statements. What financial ratios (debt-to-equity, current ratio) do analysts use that have personal finance analogs?"} }
+  },
+
+  "Sun compass — shadow tip method": {
+    gradeHooks: {
+      low: "We can find north and south using the sun and a stick! The shadow tip method works anywhere on Earth.",
+      mid: "The shadow tip method uses the sun\u2019s apparent east-to-west movement to determine true north-south without any instruments.",
+      high: "The geometry of solar declination, the relationship between sun azimuth and the shadow tip method\u2019s accuracy, and corrections for different latitudes are important topics."
+    },
+    materials: ["Straight stick or pole", "Open area with sunlight", "Marking stones or sticks"],
+    steps: [
+      "Place a 3-foot stick vertically in flat, level ground.",
+      "Mark the tip of the shadow with a stone or stick. Wait 15\u201330 minutes.",
+      "Mark the new shadow tip.",
+      "Draw a line between the two marks. This line is approximately east-west.",
+      "Standing with the first mark at your left foot and the second at your right foot, you are facing approximately north (in the Northern Hemisphere)."
+    ],
+    discussion: [
+      {q:"Why does the shadow move from west to east as the sun moves from east to west?", answers:["The shadow is cast in the direction opposite the sun. When the sun is in the east (morning), the shadow points west. When the sun moves to the west (afternoon), the shadow points east. The tip of the shadow traces an arc moving from west to east as the day progresses."]},
+      {q:"What is the accuracy of the shadow tip method and what are its limitations?", answers:["The shadow tip method is approximately accurate to ±5\u201310\u00b0. It is most accurate near solar noon and in temperate latitudes. At high latitudes (above 60\u00b0), sun angles are too low. Near the equinoxes at the equator, the method is unreliable because the sun passes almost directly overhead."]}
+    ],
+    challenge: "Use the shadow tip method at different times of day and compare the derived north-south line to a compass reading. When is it most accurate and when does it fail?",
+    tuesday:   { low: {title:"Morning vs afternoon test", activity:"Run the shadow tip method in the morning and afternoon on the same day. Compare both derived directions to a compass. Which is more accurate?"}, mid: {title:"Equal shadow method", activity:"Research the equal shadow method: a refinement of the shadow tip method that uses equal-length shadows on either side of solar noon for improved accuracy."}, high: {title:"Sun azimuth calculation", activity:"Research how to calculate the sun\u2019s azimuth for any location, date, and time. Use the calculation to predict the accuracy of the shadow tip method for your specific situation."} },
+    wednesday: { low: {title:"Watch method comparison", activity:"Research the analog watch sun compass: point the hour hand at the sun; north is halfway between the hour hand and 12 o\u2019clock. Compare accuracy to the shadow tip method."}, mid: {title:"Solar noon determination", activity:"Research how to determine solar noon (when the sun is due south in the Northern Hemisphere). How does solar noon differ from 12:00 noon and why?"}, high: {title:"Equation of time", activity:"Research the equation of time: the difference between clock noon and solar noon. What causes this variation (up to 16 minutes) and how does it affect solar navigation accuracy?"} },
+    thursday:  { low: {title:"Combined navigation techniques", activity:"Navigate a short route using only sun compass (shadow tip method), pace count, and terrain association. Compare endpoint to GPS."}, mid: {title:"Emergency sun compass kit", activity:"Design a minimal emergency navigation kit using only sun-based navigation: shadow tip stick, analog watch, pace count beads. What accuracy can you realistically achieve?"}, high: {title:"Astronomical navigation history", activity:"Research the history of sun-based navigation before the compass. How did ancient navigators use solar observations for latitude and longitude estimation?"} }
+  },
+
+  "Poultice and infusion preparation": {
+    gradeHooks: {
+      low: "A poultice is a soft mass of plant material applied to the skin. An infusion is an herbal tea. Both are simple ways to use plants medicinally.",
+      mid: "Poultices and infusions are the most accessible herbal preparations. Understanding their mechanisms and limitations enables responsible use.",
+      high: "Transdermal absorption, water extraction efficiency for different plant compounds, and the evidence base for topical herbal preparations are important topics."
+    },
+    materials: ["Fresh or dried herbs (plantain, calendula, chamomile)", "Mortar and pestle or blender", "Cheesecloth or fine mesh"],
+    steps: [
+      "Fresh poultice: crush or chew fresh plant material to release juices. Apply directly to skin. Cover with a cloth to hold in place. Change every 30\u201360 minutes.",
+      "Dried poultice: rehydrate dried herbs with minimal water, mash into a paste, apply.",
+      "Simple infusion (tea): pour boiling water over 1\u20132 teaspoons dried herb per cup. Steep covered for 10\u201315 minutes. Strain. For roots and bark, simmer 20\u201330 minutes (decoction).",
+      "Topical infusion: cool an infusion and use as a wash or compress for skin conditions.",
+      "Oil infusion (cold method): pack jar with dried herb, cover with carrier oil. Seal and infuse 4\u20136 weeks in a warm, sunny spot."
+    ],
+    discussion: [
+      {q:"Why do different plant parts require different preparation methods?", answers:["Delicate parts (flowers, leaves): their volatile compounds and water-soluble constituents are easily extracted with a brief steep in hot water. Roots, bark, and seeds have tougher cell walls: they require longer simmering (decoction) to break down cell walls and release compounds. Wrong preparation may extract little of the active material."]},
+      {q:"What limits the therapeutic effectiveness of topical poultices?", answers:["The stratum corneum (outer skin layer) is a significant barrier. Only small, lipid-soluble molecules penetrate easily. Most large polar plant compounds don\u2019t penetrate deeply. Poultices work best for surface-level inflammation, minor wounds, and insect stings where the target tissue is accessible. They are less effective for deeper injuries."]}
+    ],
+    challenge: "Prepare a poultice, a standard infusion, and a cold-process oil infusion using different herbs. Document preparation, application, and any observable effects.",
+    tuesday:   { low: {title:"Herb and preparation matching", activity:"Match 8 herbs to their best preparation method: poultice, tea, decoction, oil infusion, or tincture. Justify each choice based on the plant part and desired effect."}, mid: {title:"Infusion concentration", activity:"Research how infusion time and water temperature affect the extraction of different compound classes: tannins (astringent, extract quickly), volatile oils (extract in minutes, then evaporate), alkaloids (vary widely)."}, high: {title:"Transdermal absorption research", activity:"Research the factors affecting transdermal drug/herb absorption: molecule size, lipophilicity, skin barrier integrity, and enhancers (such as alcohol in tinctures). What does the evidence show for specific herbal compounds?"} },
+    wednesday: { low: {title:"Calendula oil preparation", activity:"Prepare a cold-process calendula oil infusion. Pack fresh or dried calendula flowers in a jar. Cover with olive oil. Seal. Place in sunny window. Check weekly for 4\u20136 weeks."}, mid: {title:"Preservation of preparations", activity:"Research shelf life of different herbal preparations: fresh poultice (hours), tea (24 hours refrigerated), tincture (3\u20135 years in alcohol), oil infusion (6\u201312 months)."}, high: {title:"Bioavailability comparison", activity:"Research the bioavailability of herbal compounds by preparation route: topical, oral tea, alcohol tincture, and encapsulated extract. How does each preparation method affect the fraction of active compounds that reach therapeutic targets?"} },
+    thursday:  { low: {title:"Healing response documentation", activity:"Apply a plantain poultice to a minor bug bite. Photograph and document the area every hour for 3 hours. Is there a measurable difference in redness or swelling?"}, mid: {title:"Medicinal tea formulation", activity:"Research principles of herbal formula construction: primary herbs (address the main problem), supporting herbs (address secondary symptoms), and harmonizing herbs (improve palatability or reduce side effects)."}, high: {title:"Phytopharmacognosy deep dive", activity:"Select one herb used topically and research its pharmacognosy in depth: active compounds, extraction method efficiency, and any clinical studies on topical application."} }
+  },
+
+  "Roadside emergency — what to carry and use": {
+    gradeHooks: {
+      low: "A well-prepared car means we can handle most roadside emergencies without waiting for help.",
+      mid: "Roadside emergency preparedness integrates breakdown tools, safety signaling, medical readiness, and communication capability.",
+      high: "Risk analysis for roadside emergencies, the statistics of roadside fatalities from secondary accidents, and the engineering of vehicle safety equipment are important topics."
+    },
+    materials: ["Vehicle emergency kit", "Reflective safety vest"],
+    steps: [
+      "Scene safety: when pulling off the road, get as far from traffic as possible. Turn on hazards. Exit from the passenger (traffic-away) side.",
+      "Signaling: place reflective triangles 100 feet, 200 feet, and 300 feet behind the vehicle on the traffic side.",
+      "Personal protection: wear a high-visibility safety vest before exiting the vehicle. Most roadside fatalities are from secondary accidents.",
+      "Communication: call for help before attempting any repair. Give exact location (GPS coordinates or mile marker), vehicle description, and situation.",
+      "Repair sequence: assess safety first, then execute: tire change, jump start, or await assistance."
+    ],
+    discussion: [
+      {q:"Why are secondary accidents (another vehicle hitting a disabled vehicle or responders) so deadly at roadside emergencies?", answers:["Drivers are distracted, driving at speed, and often not expecting stopped vehicles. Emergency responders and stranded motorists working at road level have extremely low visibility in day and almost none at night without high-visibility gear. Secondary accidents kill more highway workers and responders than the original incidents in many categories."]},
+      {q:"At what distance from traffic should you place the first warning triangle and why?", answers:["At minimum 100 feet for city streets and up to 300 feet on highways. Drivers need distance to perceive the warning, process it, and brake. At 60 mph, a car travels 88 feet per second. Placing the first triangle 100 feet back gives a driver barely more than 1 second of warning. On highways, further warning is essential."]}
+    ],
+    challenge: "Practice complete roadside emergency response: pull off safely, deploy triangles, don safety vest, call for help with exact location, and begin tire change. Time the complete sequence.",
+    tuesday:   { low: {title:"Safety vest requirement", activity:"Research when high-visibility safety vests are legally required for roadside workers. What ANSI class is required for different visibility conditions?"}, mid: {title:"GPS location communication", activity:"Practice communicating your exact location: GPS coordinates, nearest mile marker, cross street, or landmark. Practice doing this accurately from the passenger seat in unfamiliar areas."}, high: {title:"Roadside fatality statistics", activity:"Research NIOSH and OSHA data on roadside worker fatalities. What are the primary causes and what engineering and PPE interventions have been most effective at reduction?"} },
+    wednesday: { low: {title:"Night visibility drill", activity:"Practice the roadside emergency sequence in the dark. How difficult is it to find equipment, deploy triangles, and perform tasks with only a flashlight?"}, mid: {title:"Tire change on soft shoulder", activity:"Research how to safely change a tire when the shoulder is soft (gravel, grass). What additional precautions are needed and when should you wait for a tow instead?"}, high: {title:"Managed lanes and breakdown protocols", activity:"Research the specific protocols for breakdowns in express lanes, tunnels, and on bridges where stopping is prohibited. What are the options and legal obligations?"} },
+    thursday:  { low: {title:"Emergency kit function test", activity:"Without looking at your kit, retrieve and functionally test each item: jump starter, tire gauge, triangle deployment. Are all items where you expect them?"}, mid: {title:"Fleet safety programs research", activity:"Research how professional trucking companies address roadside safety. What training, equipment, and protocols do they require that consumer vehicles lack?"}, high: {title:"Connected vehicle safety", activity:"Research connected vehicle technology for roadside safety: automatic crash notification (OnStar, BMW Assist), lane closure warnings, and vehicle-to-infrastructure communication that warns approaching drivers of stopped vehicles."} }
+  },
+
+
+
+  "Pediatric CPR differences": {
+    gradeHooks: {
+      low: "CPR for babies and children uses less force and different hand positions than CPR for adults.",
+      mid: "Pediatric CPR differences reflect the anatomical and physiological distinctions between children and adults. Knowing them enables appropriate response to any patient.",
+      high: "Pediatric resuscitation physiology, age-specific airway anatomy, and the evidence base for pediatric CPR guidelines are important medical topics."
+    },
+    materials: ["Child and infant CPR mannequins or substitutes"],
+    steps: [
+      "Infant (under 1 year): use 2 fingers on the sternum, just below the nipple line. Depth: 1.5 inches (1/3 chest depth). Rate: 100\u2013120/min.",
+      "Two-rescuer infant: thumb-encircling technique. Both thumbs on sternum, fingers wrapped around the back. Allows greater depth and better recoil.",
+      "Child (1 year to puberty): one or two hands based on size. Depth: 2 inches or 1/3 chest depth. Rate: 100\u2013120/min.",
+      "Rescue breaths for pediatrics: puff only enough to see the chest rise. Over-inflation can force air into the stomach.",
+      "Pediatric priority: respiratory cause is more common in children than adults. 2 minutes of CPR before calling 911 if alone."
+    ],
+    discussion: [
+      {q:"Why does the cause of cardiac arrest in children differ from adults and how does this affect the CPR protocol?", answers:["Children rarely have primary cardiac events. Their cardiac arrest is almost always secondary to respiratory failure: choking, near-drowning, or respiratory infection. This is why rescue breaths are emphasized more in pediatric CPR — the underlying respiratory cause must be addressed. Adults often have primary cardiac arrhythmia, making compressions more critical."]},
+      {q:"What anatomical feature of infants makes airway management different from adults?", answers:["Infants have a large occiput (back of head) that causes the neck to flex forward when lying flat, obstructing the airway. Placing a small roll under the shoulders or using the neutral position (rather than full head-tilt) maintains a patent airway."]}
+    ],
+    challenge: "Practice all three age-group CPR techniques in a single training session. Demonstrate the key technique differences for each age group from memory.",
+    tuesday:   { low: {title:"Thumb-encircling technique", activity:"Practice the two-rescuer infant thumb-encircling CPR technique. Why is this superior to the two-finger technique for two rescuers?"}, mid: {title:"Airway size differences", activity:"Research the anatomical airway differences between infants, children, and adults. How do these differences affect intubation technique and why is infant airway management more challenging?"}, high: {title:"PALS vs BLS", activity:"Research Pediatric Advanced Life Support (PALS) vs Basic Life Support (BLS) for pediatric patients. What does PALS add beyond BLS and what healthcare providers use it?"} },
+    wednesday: { low: {title:"Choking response comparison", activity:"Review the full choking response sequence for adults, children, and infants. What are the key differences and why does each technique differ?"}, mid: {title:"Neonatal resuscitation", activity:"Research neonatal resuscitation: CPR for newborns. How does it differ from infant CPR and what is the initial assessment sequence for a non-breathing newborn?"}, high: {title:"Drowning CPR modification", activity:"Research CPR modifications for drowning victims. Why are rescue breaths particularly critical in drowning resuscitation and how does the protocol differ from standard cardiac arrest CPR?"} },
+    thursday:  { low: {title:"Pediatric AED use", activity:"Research AED use in children under 8 years. What are pediatric pads, when are they used, and what do you do if only adult pads are available?"}, mid: {title:"Family CPR training plan", activity:"Design a family CPR training plan: what courses, for whom, and at what ages should family members be trained? What is your family\u2019s current training status?"}, high: {title:"Pediatric survival data analysis", activity:"Research pediatric out-of-hospital cardiac arrest survival data. How does location (school, home, sports field) affect survival rates and what interventions have the most impact?"} }
+  },
+
+  "NIMS — National Incident Management intro": {
+    gradeHooks: {
+      low: "NIMS is the system that all emergency responders use together so they can work as a team even if they\u2019ve never met before.",
+      mid: "NIMS provides a national framework of principles, terminology, and structure that enables seamless coordination across organizations during emergencies.",
+      high: "NIMS architecture, its relationship to the National Response Framework, and the research on incident management system effectiveness are important emergency management topics."
+    },
+    materials: ["FEMA NIMS documentation"],
+    steps: [
+      "Why NIMS: in major disasters, hundreds of organizations from different jurisdictions respond. Without a common system, coordination fails.",
+      "Core components: Incident Command System (ICS), multi-agency coordination, public information management, and resource management.",
+      "Common terminology: all NIMS users use the same words for the same things. \u2018Incident Commander\u2019 means the same thing in Florida and Alaska.",
+      "ICS structure: Incident Commander \u2192 Operations, Planning, Logistics, Finance/Admin. Each section has standardized roles and responsibilities.",
+      "NIMS compliance: all agencies receiving federal preparedness funding must be NIMS compliant. Training is available free at FEMA\u2019s Emergency Management Institute."
+    ],
+    discussion: [
+      {q:"What incident management failures during 9/11 and Hurricane Katrina drove the creation of mandatory NIMS adoption?", answers:["In 9/11, responding agencies from different jurisdictions used incompatible radio systems and different command terminology, causing coordination failures. In Katrina, unclear command authority between federal, state, and local agencies created catastrophic delays. NIMS addressed both by standardizing structure and terminology."]},
+      {q:"How does NIMS enable a volunteer firefighter from one state to integrate into an incident in another state?", answers:["NIMS\u2019s common terminology means the volunteer knows what the Incident Commander, Operations Section Chief, and Safety Officer titles mean regardless of the agency. Credentialing systems verify qualifications. Check-in procedures integrate resources into the organization without confusion."]}
+    ],
+    challenge: "Complete FEMA\u2019s free online IS-700.b (Introduction to NIMS) course. Receive your certificate and understand the ICS organizational structure.",
+    tuesday:   { low: {title:"ICS organizational chart", activity:"Draw the standard ICS organizational chart showing the command staff and general staff sections. Label every box and write one sentence describing each role\u2019s function."}, mid: {title:"Unified command", activity:"Research unified command: the NIMS structure used when multiple jurisdictions or agencies share incident management responsibility. When is it used and how does it function?"}, high: {title:"NIMS research", activity:"Research academic studies evaluating NIMS implementation effectiveness. What benefits have been documented and what implementation challenges persist?"} },
+    wednesday: { low: {title:"FEMA IS-100 course", activity:"Begin FEMA\u2019s free online IS-100.c (Introduction to ICS) course. This is the foundation for all NIMS training."}, mid: {title:"Area command vs unified command", activity:"Research the difference between Area Command (multiple incidents of the same type) and Unified Command (single incident with multiple agencies). Provide an example scenario for each."}, high: {title:"NIMS resource typing", activity:"Research NIMS resource typing: the national system of categorizing emergency resources by capability. How does resource typing enable efficient requests during mutual aid?"} },
+    thursday:  { low: {title:"Incident action plan", activity:"Research what an Incident Action Plan (IAP) contains and when it is required. What are the minimum planning products for a Type 5 incident vs a Type 1 incident?"}, mid: {title:"NIMS in non-emergency events", activity:"Research how NIMS/ICS is applied to planned events (football games, concerts, political rallies). What benefits does the system provide even for non-emergency events?"}, high: {title:"International incident management", activity:"Research how other countries\u2019 emergency management systems compare to NIMS. What did Australia, the UK, and Canada adopt from ICS and what did they adapt?"} }
+  },
+
+  "Wind turbine basics — DIY small scale": {
+    gradeHooks: {
+      low: "A small wind turbine can charge batteries and power lights using nothing but the wind. People build them from scratch!",
+      mid: "Small-scale wind turbines convert kinetic energy to electrical energy. Understanding the key parameters enables informed system design.",
+      high: "Wind turbine aerodynamics, generator design, tower engineering, and the practical economics of small wind are important renewable energy topics."
+    },
+    materials: ["Motor/generator (salvaged or purchased)", "Rotor blades (carved or commercial)", "Tower material"],
+    steps: [
+      "Key parameters: wind speed (power scales with v\u00b3), rotor diameter (power scales with d\u00b2), and generator efficiency.",
+      "DIY approach: the Hugh Piggott design (book: \u2018A Wind Turbine Recipe Book\u2019) is the most proven DIY small wind turbine. Uses a permanent magnet alternator, fiberglass blades, and steel tower.",
+      "Blade design: airfoil shape and angle of attack determine lift. Blade length determines swept area and power capture.",
+      "Generator: permanent magnet alternators are most reliable and efficient for small wind. No brushes to wear out.",
+      "Tower: turbines must be placed where wind is unobstructed. Tower height is critical — wind speed increases significantly with height."
+    ],
+    discussion: [
+      {q:"Why does doubling the rotor diameter quadruple the power output?", answers:["Power is proportional to the swept area of the rotor (A = \u03c0r\u00b2). Doubling the diameter doubles the radius, which quadruples the area, which quadruples the potential power capture. This is why large commercial turbines have such enormous blades."]},
+      {q:"Why is small wind often less cost-effective than small solar in Florida?", answers:["Florida\u2019s wind resource is modest (average 8\u201312 mph at 50m in most inland areas) compared to states like Texas or Wyoming. Florida\u2019s excellent solar resource (5.5 peak sun hours/day) and dramatically falling solar costs make solar the higher-return investment in most Florida locations."]}
+    ],
+    challenge: "Build a small demonstration wind turbine from a kit or plan. Test it and measure output at different wind speeds. Calculate the power coefficient.",
+    tuesday:   { low: {title:"Blade carving", activity:"Research the Hugh Piggott blade design. Why are wooden blades advantageous for small DIY turbines? What wood species and grain orientation work best?"}, mid: {title:"Swept area calculation", activity:"Calculate the swept area and theoretical maximum power for rotors of 1, 2, and 3 meter diameter at wind speeds of 5, 10, and 15 mph."}, high: {title:"Tip speed ratio", activity:"Research tip speed ratio (TSR): the ratio of blade tip speed to wind speed. What TSR maximizes power extraction and how does blade count affect the optimal TSR?"} },
+    wednesday: { low: {title:"Tower height research", activity:"Research how wind speed changes with height using the wind shear equation. How much faster is wind at 30 meters vs 10 meters in typical terrain?"}, mid: {title:"Charge controller for wind", activity:"Research how wind turbine charge controllers differ from solar charge controllers. Why does wind require a dump load and what happens without one?"}, high: {title:"Stall regulation vs pitch control", activity:"Research stall-regulated vs pitch-controlled wind turbines. How does each approach limit power in high winds and what are the mechanical and electrical tradeoffs?"} },
+    thursday:  { low: {title:"DIY turbine testing", activity:"Build a simple demonstration turbine (using a motor as a generator, cardboard or PVC blades). Test output voltage at different fan speeds."}, mid: {title:"Grid-connected small wind", activity:"Research net metering for small wind systems. What interconnection requirements and fees do utilities impose and how do these affect the economics?"}, high: {title:"Vertical axis wind turbines", activity:"Research VAWT (Vertical Axis Wind Turbines) vs HAWT designs. What are the efficiency, maintenance, and installation advantages and disadvantages of each architecture?"} }
+  },
+
+  "Calculating caloric needs for your family": {
+    gradeHooks: {
+      low: "Different people need different amounts of food energy. Children, adults, and elderly people all have different caloric needs!",
+      mid: "Accurate caloric need calculation enables proper emergency food storage, long-term meal planning, and nutritional adequacy assessment.",
+      high: "Metabolic rate calculation, the Mifflin-St Jeor equation, activity adjustments, and the nutritional science of macronutrient requirements are important topics."
+    },
+    materials: ["Calculator", "Family member ages and activity levels"],
+    steps: [
+      "Basal Metabolic Rate (BMR): the calories burned at rest. Use the Mifflin-St Jeor equation: Men: (10 x weight kg) + (6.25 x height cm) - (5 x age) + 5. Women: same - 161.",
+      "Activity multiplier: sedentary x 1.2, lightly active x 1.375, moderately active x 1.55, very active x 1.725.",
+      "Total Daily Energy Expenditure (TDEE) = BMR x activity multiplier.",
+      "Emergency caloric minimum: 1,200\u20131,500 calories/day for survival. 2,000+ for sustained function. Physical labor (emergency response) may require 3,000+.",
+      "Calculate your family\u2019s total daily caloric need and multiply by 30 days for a one-month food supply requirement."
+    ],
+    discussion: [
+      {q:"How does caloric need change in an emergency scenario compared to normal life?", answers:["During physical emergencies (clearing debris, evacuating on foot, managing manual water systems), caloric need increases significantly. Cold exposure also increases caloric demand. Conversely, stress and reduced access to favorite foods can suppress appetite. Emergency food planning should account for higher physical activity while acknowledging appetite variability."]},
+      {q:"What happens to cognitive and physical function when calories are chronically below BMR during an extended emergency?", answers:["Below-BMR intake leads to progressive muscle catabolism (body breaking down muscle for energy), immune function decline, reduced cognitive performance, slower wound healing, and depression. Maintaining adequate calories is not just comfort — it maintains the capability to respond effectively to the emergency."]}
+    ],
+    challenge: "Calculate the exact TDEE for every family member. Sum the total daily caloric requirement. Calculate food supply needed for 30, 60, and 90 days.",
+    tuesday:   { low: {title:"BMR calculation practice", activity:"Calculate BMR for 3 family members using the Mifflin-St Jeor equation. Apply appropriate activity multipliers for each person."}, mid: {title:"Macro distribution", activity:"Research the recommended macronutrient distribution for emergency conditions: carbohydrates for energy, protein for muscle preservation, and fat for caloric density. How does the ideal distribution change during heavy physical activity?"}, high: {title:"Metabolic adaptation research", activity:"Research metabolic adaptation: how the body reduces BMR during caloric restriction. What is the starvation response and how does it affect performance during extended food scarcity?"} },
+    wednesday: { low: {title:"Per-person food storage calculation", activity:"Using each family member\u2019s TDEE, calculate the caloric requirement for your household per day, per week, and per month."}, mid: {title:"Caloric density optimization", activity:"Research the caloric density (kcal/lb) of major food groups. Rank them from most to least dense. How does this ranking change your emergency food storage priorities?"}, high: {title:"TDEE precision research", activity:"Research the accuracy limitations of TDEE equations. What is the typical error range of the Mifflin-St Jeor equation and what factors cause individual variation?"} },
+    thursday:  { low: {title:"30-day food audit", activity:"Using your household caloric requirement and your pantry inventory, calculate how many days your current pantry could sustain your family at their TDEE."}, mid: {title:"Deficiency scenario planning", activity:"If your food supply is 30% below TDEE for 2 weeks, what prioritization strategy maximizes performance? Who in the family gets full rations vs reduced rations?"}, high: {title:"Emergency nutrition guidelines", activity:"Research WHO and SPHERE humanitarian standard minimum daily caloric requirements for emergency rations. How do they differ for adults, children, and pregnant/lactating women?"} }
+  },
+
+  "Water table — wells and aquifers": {
+    gradeHooks: {
+      low: "Underground water is stored in spaces between rocks and soil. Wells reach down to this underground water!",
+      mid: "Understanding aquifer types, water table dynamics, and well construction principles enables informed decision-making about water systems.",
+      high: "Hydrogeology, aquifer hydraulics, Darcy\u2019s Law, and the management of Florida\u2019s Floridan Aquifer are important water science topics."
+    },
+    materials: ["Florida geology map", "Well depth data for your area"],
+    steps: [
+      "Aquifer types: unconfined (water table directly below surface, recharged locally), confined (sandwiched between impermeable layers, artesian pressure).",
+      "Florida geology: the Floridan Aquifer System is a confined aquifer in porous limestone, 100\u20132,000+ feet deep. The surficial aquifer is shallow and vulnerable to contamination.",
+      "Water table dynamics: the water table rises after rain and falls during droughts. Seasonal fluctuations can affect shallow well performance.",
+      "Cone of depression: heavy pumping creates a localized depression in the water table around a well. Nearby wells can be affected.",
+      "Saltwater intrusion: coastal pumping can draw saltwater inland into the aquifer, permanently contaminating the supply."
+    ],
+    discussion: [
+      {q:"Why is the Floridan Aquifer considered a particularly valuable water resource?", answers:["The Floridan Aquifer holds 100 times more water than Lake Michigan and is recharged by rain percolating through limestone in central Florida. It has supported South Florida\u2019s enormous population growth. However, it is being mined faster than it recharges in some areas, threatening long-term availability."]},
+      {q:"What is the Dupuit assumption in groundwater modeling and why is it useful?", answers:["The Dupuit assumption simplifies groundwater flow calculations by assuming flow is primarily horizontal (not vertical). This allows two-dimensional analysis of aquifer behavior rather than fully three-dimensional modeling. It is accurate for shallow aquifers with small head gradients."]}
+    ],
+    challenge: "Research your local water management district\u2019s data on the aquifer beneath your home. What is the depth, current water level trend, and any contamination concerns?",
+    tuesday:   { low: {title:"Aquifer diagram", activity:"Draw a cross-section showing an unconfined aquifer, a confined aquifer, the water table, potentiometric surface, and a flowing artesian well."}, mid: {title:"Darcy\u2019s Law application", activity:"Research Darcy\u2019s Law: Q = KiA. How does hydraulic conductivity, hydraulic gradient, and cross-sectional area determine groundwater flow rate?"}, high: {title:"Aquifer depletion research", activity:"Research aquifer depletion in the US: the Ogallala Aquifer in the High Plains, the Central Valley in California, and Florida\u2019s Floridan. What are the depletion rates and projected exhaustion timelines?"} },
+    wednesday: { low: {title:"Saltwater intrusion mapping", activity:"Research the saltwater intrusion front in the Biscayne Aquifer in South Florida. How far inland has saltwater penetrated and what has caused this?"}, mid: {title:"Spring flow data", activity:"Research Florida\u2019s springs as indicators of Floridan Aquifer health. How have spring flow rates changed over the past 50 years and what does this indicate about aquifer health?"}, high: {title:"Managed aquifer recharge", activity:"Research managed aquifer recharge (MAR): intentionally recharging aquifers with treated surface water. How does Florida use this technology and what are the regulatory and technical challenges?"} },
+    thursday:  { low: {title:"Water management district", activity:"Research your regional water management district. What permits are required to use groundwater? Are there use restrictions during droughts?"}, mid: {title:"Virtual water concept", activity:"Research virtual water: the water embedded in agricultural and industrial products. How does this concept change our understanding of Florida\u2019s water exports through food production?"}, high: {title:"Groundwater governance", activity:"Research the governance of groundwater in Florida: the relationship between property rights to groundwater, public interest, and regulatory oversight. How do these principles compare to Western US prior appropriation doctrine?"} }
+  },
+
+  "Building a raised garden bed": {
+    gradeHooks: {
+      low: "A raised garden bed is a box filled with great soil where plants grow beautifully even if the ground underneath is poor.",
+      mid: "Raised garden beds provide drainage control, soil optimization, and ergonomic advantages that increase yield and reduce maintenance.",
+      high: "Raised bed design, soil engineering for plant nutrition, and the economics of raised bed construction vs in-ground gardening are important topics."
+    },
+    materials: ["Rot-resistant lumber (cedar, redwood, or composite)", "Hardware cloth (for bottom if needed)", "Quality soil mix"],
+    steps: [
+      "Frame construction: 4x4 or 4x8 feet is standard. Height: 6\u201312 inches for most crops, 18\u201324 inches for root vegetables or ergonomic access.",
+      "Material selection: cedar is the premium choice (natural rot resistance, 10+ years). Untreated pine lasts 3\u20135 years. Composite lumber lasts 20+ years. Avoid treated lumber for food gardens.",
+      "Soil mix: 1/3 compost, 1/3 coarse vermiculite, 1/3 peat moss (Mel\u2019s Mix) or 60% topsoil, 30% compost, 10% coarse sand for larger beds.",
+      "Hardware cloth bottom: optional, prevents burrowing animals and gophers from below.",
+      "Location: minimum 6 hours direct sun. Near water source. Accessible from all sides."
+    ],
+    discussion: [
+      {q:"Why do raised beds typically produce higher yields per square foot than traditional row gardening?", answers:["Raised beds use intensive spacing without the space wasted in rows and aisles. The improved soil allows deeper root growth. Better drainage prevents root diseases. Never walking on the bed prevents soil compaction. Together these factors can produce 2\u20134x the yield per square foot of row gardening."]},
+      {q:"Why is cedar preferred over pressure-treated lumber despite the cost premium?", answers:["Pressure-treated lumber (especially older CCA-treated wood) contains preservatives that can leach into soil. Modern ACQ and CA treatments are considered safer but still introduce chemicals. Cedar contains natural oils (thujaplicins) that resist decay without any added chemicals, making it the safest choice for edible garden use."]}
+    ],
+    challenge: "Build a 4x8 raised garden bed using rot-resistant lumber. Fill it with a quality soil mix. Plant it with the current season\u2019s appropriate crops.",
+    tuesday:   { low: {title:"Material cost comparison", activity:"Price the materials for a 4x8 raised bed in cedar, pine, and composite lumber. Calculate the cost per year of service life for each."}, mid: {title:"Soil mix calculation", activity:"Calculate the cubic feet of soil needed for a 4x8x12-inch bed. How many bags of each Mel\u2019s Mix component do you need? What is the total material cost?"}, high: {title:"Irrigation system design", activity:"Design a drip irrigation system for your raised bed. Research emitter spacing, flow rates, and how to connect to a timer and hose bib for automated watering."} },
+    wednesday: { low: {title:"Corner joinery options", activity:"Research joinery options for raised bed corners: deck screws, corner brackets, and timber screws. Which provides the most strength and longevity?"}, mid: {title:"Multi-year soil amendment plan", activity:"Research how raised bed soil changes over time and how to amend it annually: adding compost each season, adjusting pH, and preventing nutrient depletion."}, high: {title:"Keyhole bed design", activity:"Research keyhole garden beds: circular designs with a central compost core that allows access to all areas from a central path. What yield and water efficiency advantages do they offer?"} },
+    thursday:  { low: {title:"Planting day", activity:"Plant your completed raised bed with appropriate seasonal crops. Set up a watering schedule and begin a garden journal."}, mid: {title:"Yield tracking", activity:"Set up a yield tracking system for your raised bed. Record every harvest by weight and variety. At season\u2019s end, calculate yield per square foot."}, high: {title:"Economic analysis", activity:"Calculate the 5-year economics of your raised bed: construction cost, soil cost, seed and plant cost, irrigation, and time investment vs projected yield value at current grocery prices."} }
+  },
+
+  "Filing a simple tax return — 1040EZ": {
+    gradeHooks: {
+      low: "A tax return is a form we file to tell the government how much money we made and whether we owe taxes or get some back.",
+      mid: "Filing a simple tax return involves gathering documents, understanding the major form sections, and knowing when you can use simplified forms vs detailed ones.",
+      high: "Tax return preparation, the standard deduction vs itemizing analysis, and the tax implications of different income types are important financial literacy topics."
+    },
+    materials: ["Sample W-2 or 1099", "IRS Form 1040 (or free fillable form)"],
+    steps: [
+      "Note: the 1040EZ was eliminated in 2018. The standard 1040 now has simplified versions (Schedules A, B, etc. only required if needed).",
+      "Gather documents: W-2 from employer, 1099 forms, and any other income documentation.",
+      "Personal information section: name, SSN, filing status (single, married filing jointly, etc.)",
+      "Income section: transfer income from W-2 lines 1 and 2 to the appropriate Form 1040 lines.",
+      "Deductions: choose standard deduction ($14,600 for single filers in 2024) or itemize if deductions exceed the standard amount.",
+      "Tax calculation: use the tax tables or tax computation worksheet."
+    ],
+    discussion: [
+      {q:"When is itemizing deductions better than taking the standard deduction?", answers:["Itemizing is beneficial when your deductible expenses (mortgage interest, charitable contributions, state and local taxes up to $10,000, significant medical expenses) exceed your standard deduction. For most young adults and renters, the standard deduction is larger and simpler."]},
+      {q:"What is a refund and what does it actually represent?", answers:["A refund is excess withholding returned to you. It is not free money — it represents money you overpaid throughout the year. You gave the government an interest-free loan. Many financial advisors consider a large refund a sign of improperly calibrated W-4 withholding."]}
+    ],
+    challenge: "Complete a sample tax return using a practice W-2 from the IRS website or a made-up scenario. Use free tax software like FreeTaxUSA or IRS Free File to check your work.",
+    tuesday:   { low: {title:"Document identification", activity:"Identify every tax document relevant to a simple tax scenario: W-2, 1099-INT, 1098 (mortgage), 1099-DIV. What information does each provide?"}, mid: {title:"Standard vs itemized comparison", activity:"Given: $8,000 mortgage interest, $3,000 state taxes, $2,500 charitable contributions. Should this taxpayer itemize or take the standard deduction (single filer)?"}, high: {title:"Schedule analysis", activity:"Research the Schedule C (self-employment), Schedule D (capital gains), and Schedule E (rental income). What additional complexity does each add to a tax return?"} },
+    wednesday: { low: {title:"Filing status impact", activity:"Calculate the tax owed on $45,000 income for a single filer vs married filing jointly (combined $90,000). What is the marriage bonus or penalty in each scenario?"}, mid: {title:"Tax software comparison", activity:"Research free tax filing options: IRS Free File, FreeTaxUSA, and TurboTax Free Edition. What income limits apply and what forms does each support for free?"}, high: {title:"Tax avoidance vs tax evasion", activity:"Research the legal distinction between tax avoidance (legal reduction of tax liability through deductions and planning) and tax evasion (illegal non-reporting of income). What are the penalties for evasion?"} },
+    thursday:  { low: {title:"Practice return completion", activity:"Complete a practice tax return using free IRS fillable forms or software with a sample W-2 scenario. What is the refund or amount owed?"}, mid: {title:"Future tax events", activity:"Research tax events that will affect a young adult\u2019s return: first job, marriage, home purchase, child. What changes when each event occurs?"}, high: {title:"Capital gains taxation", activity:"Research short-term vs long-term capital gains tax rates. How does holding an investment for more than 1 year change the tax rate? Calculate the tax on a $10,000 gain for both holding periods."} }
+  },
+
+  "Pace count for distance measurement": {
+    gradeHooks: {
+      low: "We can measure how far we\u2019ve walked by counting our steps. Every person\u2019s pace is a little different!",
+      mid: "Pace count is a fundamental dead reckoning tool. Accurate personal pace count calibration enables distance measurement without instruments.",
+      high: "Error analysis of pace counting, environmental variables affecting pace, and the integration of pace count with other dead reckoning techniques are important navigation topics."
+    },
+    materials: ["Measured 100m course (tape measure or GPS)", "Notebook for recording"],
+    steps: [
+      "Definition: in military dead reckoning, a pace count counts every other step (double paces). 100 meters = approximately 60\u201370 double paces depending on height and stride.",
+      "Calibration: walk a precisely measured 100-meter course 3 times. Record the double pace count each time. Average the 3 counts.",
+      "Personal pace = 100 meters \u00f7 your average double pace count = meters per double pace.",
+      "Terrain adjustment: uphill (add 5\u201310%), downhill (subtract 3\u20135%), dense vegetation (add 10\u201315%), night (add 5\u201310%), heavy load (add 5\u201310%).",
+      "Tracking: use beads (Ranger beads), knots in a cord, or a written log to count paces over long distances."
+    ],
+    discussion: [
+      {q:"Why do military navigators count every other step (double paces) rather than every step?", answers:["Double paces prevent counting errors in challenging conditions. Counting every step requires more cognitive attention and is more prone to losing count. Double paces halve the count number, simplifying arithmetic and reducing counting fatigue over long distances."]},
+      {q:"What is the cumulative error of pace counting over 1,000 meters and how can it be reduced?", answers:["A ±2% pace count error accumulates to ±20 meters per 1,000 meters. Over 5,000 meters without a position fix, error can reach 100+ meters. Regular cross-checks against mapped features reset accumulated error and prevent it from compounding beyond useful limits."]}
+    ],
+    challenge: "Calibrate your pace count over a measured 100-meter course. Then navigate a 1-kilometer course using only pace count and azimuth. Verify your endpoint with GPS.",
+    tuesday:   { low: {title:"Calibration methodology", activity:"Walk your calibration course 5 times on flat ground. Calculate the standard deviation of your counts. Is your pace consistent or variable?"}, mid: {title:"Ranger beads construction", activity:"Research Ranger beads (pace counters). Construct a set from paracord and beads. Practice using them: 9 lower beads for hundreds of meters, 4 upper beads for kilometers."}, high: {title:"Systematic error analysis", activity:"Research systematic vs random errors in pace counting. Which can be calibrated out and which cannot? How does this affect long-distance position accuracy?"} },
+    wednesday: { low: {title:"Terrain variation testing", activity:"Measure your pace count on: flat ground, 15\u00b0 uphill, 15\u00b0 downhill, and through dense vegetation. Calculate the correction factor for each terrain type."}, mid: {title:"Night pace calibration", activity:"Walk your calibration course at night and compare your night pace count to your daytime count. What percentage does it differ? Why does nighttime affect stride length?"}, high: {title:"Inertial dead reckoning comparison", activity:"Research personal navigation devices using inertial dead reckoning (foot-mounted IMU systems). How do they compare to manual pace counting in accuracy over extended distances?"} },
+    thursday:  { low: {title:"Course navigation", activity:"Navigate a 1km course using only compass and pace count. Record each leg in a dead reckoning log. Compare endpoint to GPS position."}, mid: {title:"Distance formula integration", activity:"Integrate pace count with slope correction: if you walk 100 paces up a 30\u00b0 slope, how much horizontal distance have you covered? Research the trigonometric correction."}, high: {title:"Military land navigation standards", activity:"Research US Army land navigation standards. What accuracy is required on a military land navigation course and how is it assessed?"} }
+  },
+
+  "Medicinal herbs — echinacea elderberry yarrow": {
+    gradeHooks: {
+      low: "Some plants have been used as medicine for thousands of years. Echinacea, elderberry, and yarrow are 3 plants with well-known traditional uses.",
+      mid: "These three herbs have documented traditional uses and some scientific evidence. Understanding both the evidence and the limits is important for informed use.",
+      high: "Phytopharmacology, the clinical evidence for these herbs, potential drug interactions, and the regulatory status of herbal medicines are important topics."
+    },
+    materials: ["Samples or photos of each plant", "Research resources"],
+    steps: [
+      "Echinacea (Echinacea purpurea): traditional use for immune support. Some evidence for reducing duration of upper respiratory infections. Available as tea, tincture, or capsules.",
+      "Elderberry (Sambucus nigra): traditional use for flu and cold. Some clinical evidence for reducing influenza duration. Flowers and ripe berries are safe; raw berries, leaves, and stems contain cyanogenic glycosides.",
+      "Yarrow (Achillea millefolium): traditional use for wound care, fever, and menstrual regulation. Antispasmodic, antimicrobial properties. Applied topically for bleeding wounds.",
+      "Safety: even \u2018natural\u2019 herbs can interact with medications and have contraindications. Always research interactions.",
+      "Quality control: herbal products are regulated as dietary supplements, not drugs. Purity and potency vary widely by brand."
+    ],
+    discussion: [
+      {q:"What is the scientific evidence for elderberry\u2019s effectiveness against influenza?", answers:["Several randomized controlled trials have shown elderberry syrup reduces influenza duration by 2\u20134 days and symptom severity. A 2016 meta-analysis of 180 participants found significant effects. However, most trials are small and industry-funded. Current evidence is promising but not definitive."]},
+      {q:"Why should you always inform your doctor about herbal supplements you take?", answers:["Herbs contain active compounds that can interact with prescription medications. Echinacea can affect immunosuppressant drug levels. St. John\u2019s Wort (another common herb) is a powerful inducer of liver enzymes that can dramatically reduce the effectiveness of many medications including birth control pills and antiretrovirals."]}
+    ],
+    challenge: "Research one herbal remedy you\u2019re interested in. Find: traditional uses, proposed mechanism, clinical evidence (PubMed), safety concerns, and drug interactions.",
+    tuesday:   { low: {title:"Plant identification", activity:"Research the identification of each plant. What does each look like at different growth stages? Are there look-alikes?"}, mid: {title:"Clinical evidence review", activity:"Find 2 peer-reviewed studies on each herb\u2019s primary traditional use. Summarize: study design, sample size, outcome, and limitations."}, high: {title:"Pharmacological mechanisms", activity:"Research the proposed pharmacological mechanisms for each herb: what compounds are active, what receptors or pathways do they affect, and how well is the mechanism established?"} },
+    wednesday: { low: {title:"Preparation methods", activity:"Research preparation methods for each herb: fresh vs dried, tea vs tincture vs capsule. How does preparation method affect potency and what parts of the plant are used?"}, mid: {title:"Drug interaction research", activity:"Research documented drug interactions for all 3 herbs. Which interact with common medications (blood thinners, immunosuppressants, diabetes medications)?"}, high: {title:"Regulatory landscape", activity:"Research how the FDA regulates herbal supplements under DSHEA (Dietary Supplement Health and Education Act of 1994). What does the law require manufacturers to prove and what do they not have to demonstrate?"} },
+    thursday:  { low: {title:"Herbal first aid kit", activity:"Research what herbs would be most useful in a basic herbal first aid kit. What forms (dried, tincture, salve) are most practical and shelf-stable?"}, mid: {title:"Growing medicinal herbs", activity:"Research which of these 3 herbs grows in Florida. What are the growing conditions and when can each be harvested? Can you grow your own?"}, high: {title:"Ethnopharmacology research", activity:"Research ethnopharmacology: the study of traditional plant medicines across cultures. How do researchers validate traditional knowledge and convert it into evidence-based practice?"} }
+  },
+
+  "FRS vs GMRS vs Ham radio differences": {
+    gradeHooks: {
+      low: "FRS radios are free to use. GMRS radios need a license but are more powerful. Ham radio lets you talk worldwide with the right equipment!",
+      mid: "Understanding the three radio service tiers enables choosing the right equipment and operating legally for emergency communication.",
+      high: "Radio regulatory structure, RF propagation differences between services, and the operational capabilities of each service for emergency communication are important topics."
+    },
+    materials: ["FRS/GMRS radios", "FCC regulation reference"],
+    steps: [
+      "FRS (Family Radio Service): 22 channels, maximum 2 watts, no license required. Channels 1\u201314 shared with GMRS. Built-in antennas only. Range: 0.5\u20132 miles typical.",
+      "GMRS (General Mobile Radio Service): 22 channels plus 8 repeater channels, up to 50 watts, requires FCC license ($35 for 10-year family license). Can use repeaters. Range: up to 5+ miles, much farther via repeaters.",
+      "Amateur (Ham) radio: vast frequency spectrum, any power level up to legal limits, requires FCC exam and license. Can access worldwide HF propagation. Serves ARES, CERT, and formal emergency communication.",
+      "Emergency use: all three services designate GMRS Channel 1 and FRS Channel 1 as common calling channels. NOAA weather alerts received on dedicated weather channels.",
+      "Practical recommendation: GMRS license for family emergency communication, Ham Technician for serious emergency preparedness involvement."
+    ],
+    discussion: [
+      {q:"Why does the GMRS license cover your entire family while a Ham license is individual?", answers:["GMRS is intended as a family/personal communication service. The FCC grants the GMRS license to an individual who can then authorize family members to use the same FRN (FCC Registration Number). Ham radio is a personal communication service based on individual technical competency demonstrated through an exam."]},
+      {q:"What is a GMRS repeater and how does it extend range compared to direct FRS communication?", answers:["A GMRS repeater is a high-elevation, high-power radio that receives on one frequency and simultaneously retransmits on another from a hilltop or tower. A handheld radio that might reach 1\u20132 miles direct can reach 30\u2013100 miles via a repeater network. FRS radios cannot access repeaters."]}
+    ],
+    challenge: "Research the GMRS repeater network in your county. Map the repeater locations and their coverage. Compare this to FRS direct communication range.",
+    tuesday:   { low: {title:"FRS channel plan", activity:"Research FRS channels 1\u201322. Which are exclusive to FRS? Which are shared with GMRS? Which are designated for specific uses (weather, emergency calling)?"}, mid: {title:"GMRS license application", activity:"Research the process for getting a GMRS license. What information is required, what is the cost, and how long does it take to process?"}, high: {title:"Interoperability between services", activity:"Research whether FRS and GMRS radios can communicate with each other. What channels allow cross-service communication and what power limits apply to shared channels?"} },
+    wednesday: { low: {title:"Range testing", activity:"Test your FRS radio range in different environments: open field, suburban streets, inside buildings. Document range vs environment."}, mid: {title:"GMRS repeater directory", activity:"Research MyGMRS.com and GMRS repeater directories. Find the 3 nearest GMRS repeaters to your home and research their access tones and coverage."}, high: {title:"Digital vs analog radio comparison", activity:"Research digital radio modes available in GMRS and amateur radio (DMR, System Fusion, D-STAR). What advantages do digital modes provide for emergency communication?"} },
+    thursday:  { low: {title:"Family radio plan", activity:"Create a family radio plan: which channel for primary, which for secondary, what CTCSS/DCS tone to reduce interference, and what the check-in schedule is."}, mid: {title:"Emergency cache setup", activity:"Research building a radio emergency cache: programmed radios, extra batteries, charging options, and documentation of all programmed channels."}, high: {title:"Winlink research", activity:"Research Winlink: the email-over-radio system used heavily in emergency communication. How does it work, what license is required, and what capability does it provide when internet fails?"} }
+  },
+
+  "Traction splint — when and how": {
+    gradeHooks: {
+      low: "A broken thigh bone can cause dangerous internal bleeding. A traction splint straightens the leg and reduces that bleeding!",
+      mid: "Traction splints are indicated for isolated mid-shaft femur fractures. They reduce internal hemorrhage by straightening and stabilizing the fracture.",
+      high: "Femur fracture pathophysiology, traction splint mechanics, contraindications, and the evidence for traction splints in pre-hospital care are important topics."
+    },
+    materials: ["Commercial traction splint (Sager or Hare) or improvised materials for training"],
+    steps: [
+      "Indication: isolated mid-shaft femur fracture. NOT for hip fractures, knee fractures, or open fractures.",
+      "Why traction: the thigh has the largest muscle mass in the body. A fractured femur allows the muscles to spasm, shortening the leg and forcing the bone ends into the surrounding tissue, increasing hemorrhage. Traction overcomes the muscle spasm.",
+      "Sager traction splint application: establish distal pulse before application. Apply ankle hitch. Extend the splint against the ischial tuberosity. Apply traction until leg length equalizes and pain decreases (3\u20136 lbs for average adult).",
+      "Check neurovascular status every 15 minutes after application.",
+      "Transport: patient must be transported supine with the splint in place."
+    ],
+    discussion: [
+      {q:"How much blood can be lost into the thigh from a femur fracture?", answers:["1\u20132 liters of blood can hemorrhage into the thigh compartment from a mid-shaft femur fracture. This represents 20\u201340% of the average adult\u2019s blood volume and can cause hemorrhagic shock without any external bleeding."]},
+      {q:"Why is a traction splint contraindicated for a hip fracture?", answers:["Traction pulls in the direction of the long axis of the femur. For a hip fracture (typically the femoral neck or intertrochanteric region), this traction force would be directed at the fracture site, worsening rather than helping. Hip fractures require immobilization without traction."]}
+    ],
+    challenge: "Practice traction splint application using a commercial splint or an improvised version. Complete the application with a neurovascular check before and after.",
+    tuesday:   { low: {title:"Femur anatomy", activity:"Research femur anatomy: length, surrounding muscles, and the major blood vessels in the thigh. Why is the thigh capable of holding so much blood?"}, mid: {title:"Sager vs Hare vs Kendrick", activity:"Research the 3 main commercial traction splints: Sager (bipolar), Hare (unipolar), and Kendrick (improvised). What are the application differences and advantages of each?"}, high: {title:"Traction splint evidence review", activity:"Research the clinical evidence for traction splints. What do recent trauma studies show about their benefit? Has the indication narrowed in recent EMS protocols?"} },
+    wednesday: { low: {title:"Improvised traction splint", activity:"Research how to improvise a traction splint using available materials (two long rigid poles and webbing). Practice construction and application."}, mid: {title:"Contraindications drill", activity:"Present 5 lower extremity fracture scenarios. For each, determine whether traction splint is indicated, contraindicated, or requires further assessment."}, high: {title:"Damage control resuscitation connection", activity:"Research how traction splinting fits into damage control resuscitation for multi-system trauma. When is hemorrhage control prioritized over splinting?"} },
+    thursday:  { low: {title:"Full scenario practice", activity:"Act out a complete femur fracture response: scene assessment, mechanism, assessment, traction splint application, neurovascular checks, and transport decision."}, mid: {title:"TCCC protocols", activity:"Research Tactical Combat Casualty Care (TCCC) protocols for femur fractures. How do combat conditions change the priorities of traction splint application?"}, high: {title:"Intramedullary nailing", activity:"Research the definitive surgical treatment for femur fractures: intramedullary nailing. What does the pre-hospital traction splint enable in terms of surgical timing and outcome?"} }
+  },
+
+  "Community resilience — what makes neighborhoods survive?": {
+    gradeHooks: {
+      low: "Some neighborhoods recover from disasters much faster than others. What makes the difference?",
+      mid: "Community resilience is determined by physical, social, economic, and institutional factors that can be measured and improved.",
+      high: "Resilience theory, the BRIC (Baseline Resilience Indicators for Communities) index, equity dimensions of resilience, and disaster recovery research are important topics."
+    },
+    materials: ["Community resilience assessment tools"],
+    steps: [
+      "Define resilience: the ability to absorb disturbance, adapt, and reorganize while undergoing change. A resilient community returns to function faster.",
+      "Physical resilience: housing quality, infrastructure redundancy, hazard mitigation measures.",
+      "Social resilience: social networks, trust, civic participation, shared norms. This is social capital.",
+      "Economic resilience: income diversity, local economic capacity, employment diversity.",
+      "Institutional resilience: quality of emergency planning, community organizational capacity.",
+      "Equity dimension: disadvantaged communities often have lower resilience on all dimensions despite having greater need."
+    ],
+    discussion: [
+      {q:"What did research on post-hurricane communities find about the relationship between social capital and recovery speed?", answers:["Communities with higher pre-disaster social capital (neighborhood associations, community events, neighbor networks, civic participation) recovered measurably faster. They shared resources more efficiently, had lower mental health impacts, and rebuilt social fabric faster. Physical reconstruction followed social recovery."]},
+      {q:"Why do wealthy communities often have lower social resilience despite having higher economic and physical resilience?", answers:["Wealth enables physical preparation (better housing, home hardening) and economic recovery. But wealth is often associated with lower social cohesion — neighbors in wealthy areas often don\u2019t know each other, have fewer local relationships, and rely more on individual resources than community support."]}
+    ],
+    challenge: "Conduct a community resilience self-assessment using the BRIC framework or a similar tool. Identify your neighborhood\u2019s 3 strongest and 3 weakest resilience dimensions.",
+    tuesday:   { low: {title:"Resilience dimensions", activity:"Research the 4 dimensions of community resilience. For your neighborhood, rate each dimension 1\u201310. What are your highest and lowest scores?"}, mid: {title:"BRIC index research", activity:"Research the BRIC (Baseline Resilience Indicators for Communities) index developed by Susan Cutter at USC. What indicators does it measure and how are they aggregated?"}, high: {title:"Resilience equity research", activity:"Research how social vulnerability and community resilience are related. What structural factors (income inequality, segregation, housing insecurity) reduce resilience and how do policy interventions address them?"} },
+    wednesday: { low: {title:"Social capital inventory", activity:"Inventory your neighborhood\u2019s social capital: neighborhood associations, faith organizations, community events, informal networks. How strong are they?"}, mid: {title:"Disaster recovery timeline", activity:"Research the typical recovery timeline for communities after major disasters. What phases (emergency response, restoration, reconstruction, development) occur and how long does each take?"}, high: {title:"Build Back Better concept", activity:"Research the \u2018Build Back Better\u2019 principle in disaster recovery. What does it mean to improve resilience through reconstruction rather than simply restoring pre-disaster conditions?"} },
+    thursday:  { low: {title:"Resilience improvement project", activity:"Identify the single most impactful action your family or neighborhood could take to improve resilience. Create an action plan with specific steps."}, mid: {title:"Resilience metrics over time", activity:"Research how resilience can be measured over time to track whether community preparedness investments are working. What before-and-after metrics do researchers use?"}, high: {title:"Cross-cultural resilience", activity:"Research how community resilience manifests differently across cultural contexts. What indigenous resilience practices have been studied and what do they reveal about social resilience mechanisms?"} }
+  },
+
+  "Wildfire preparedness — defensible space": {
+    gradeHooks: {
+      low: "Defensible space is the area around our home that we clear of brush and debris so a wildfire is less likely to reach our house.",
+      mid: "Defensible space uses zonal vegetation management to reduce fire intensity reaching a structure and provide space for firefighters to work.",
+      high: "Fire behavior, fuel moisture, structure ignitability, and the science of defensible space design are important wildfire preparedness topics."
+    },
+    materials: ["Property map or aerial photo", "Florida Forest Service guidelines"],
+    steps: [
+      "Zone 1 (0\u201330 feet): immediate zone. Remove all dead vegetation, flammable mulch near foundation, firewood storage, wooden deck furniture. Space plants so fire cannot spread continuously.",
+      "Zone 2 (30\u2013100 feet): intermediate zone. Reduce fuel density: thin trees, remove dead wood, create breaks in vegetation.",
+      "Home hardening: ember-resistant vents, non-combustible roofing, enclosed eaves, fire-resistant siding. 90% of home ignitions during wildfires are from embers, not direct flame contact.",
+      "Florida context: palmetto scrub, pine flatwoods, and dry prairies are fire-adapted but can carry intense fires during drought. Florida has approximately 2,500 wildfires annually.",
+      "Evacuation timing: leave early, before the evacuation order. Wildfires can outrun vehicles in the wrong conditions."
+    ],
+    discussion: [
+      {q:"Why do embers cause most structure ignitions in wildfires rather than direct flame contact?", answers:["Wildfires generate millions of embers that can travel 1\u20132 miles ahead of the fire front on wind. These embers land on or near structures and ignite in gaps: vents, gutters with debris, wooden decks, and combustible mulch. The fire front itself rarely reaches structures that burn — they were ignited by advance embers hours earlier."]},
+      {q:"Why is early evacuation (before the official order) generally the safer choice?", answers:["Once an evacuation order is issued, roads immediately congest. Wildfires move fast: a 15 mph wind-driven fire in dry grass can advance a mile in 4 minutes. Evacuating early means leaving on clear roads before the fire is close. Waiting for an order means evacuating in heavy traffic when the fire may be nearby."]}
+    ],
+    challenge: "Conduct a Zone 1 defensible space assessment of your home. Identify every combustible material within 30 feet and create a prioritized clearing plan.",
+    tuesday:   { low: {title:"Zone 1 audit", activity:"Walk your property\u2019s Zone 1 (0\u201330 feet from your home). List every item that could contribute to a wildfire approaching the structure."}, mid: {title:"Home hardening assessment", activity:"Research the most vulnerable ignition points on a home: vents, roof valleys, wood fencing touching the house, combustible decking. Assess your home for each."}, high: {title:"Fire behavior modeling", activity:"Research how fire behavior models (FARSITE, FlamMap) predict fire spread. What inputs do they use and how are they used in evacuation planning?"} },
+    wednesday: { low: {title:"Vegetation spacing guide", activity:"Research the California and Florida recommended plant spacing for defensible space. What spacing prevents fire from spreading continuously between plants?"}, mid: {title:"Ember-resistant vent installation", activity:"Research ember-resistant vents (1/16 inch mesh) for attic and foundation openings. What is the cost and installation process?"}, high: {title:"Community-level defensible space", activity:"Research how community-level fuel management programs (Firewise USA communities) complement individual property defensible space. What is the collective action problem and how do programs address it?"} },
+    thursday:  { low: {title:"Evacuation plan", activity:"Create a wildfire-specific evacuation plan: trigger conditions (Red Flag Warning + approaching fire), route, destination, and what to take."}, mid: {title:"Go bag for wildfire", activity:"Research how a wildfire go-bag differs from a hurricane go-bag. What additional items (N95 masks, goggles, documentation of home condition before fire) are specific to wildfire evacuation?"}, high: {title:"Climate change and wildfire risk", activity:"Research how climate change is affecting wildfire risk in Florida and nationally. What changes in fire season length, intensity, and geographic range are being observed and projected?"} }
+  },
+
+  "Fermented beverages — water kefir": {
+    gradeHooks: {
+      low: "Water kefir is a fizzy probiotic drink made from sugar water and special kefir grains. We grow our own culture and brew our own!",
+      mid: "Water kefir fermentation uses a SCOBY of bacteria and yeast that ferments sugars into organic acids, CO2, and trace alcohol.",
+      high: "Kefir grain microbiology, the biochemistry of polysaccharide matrix formation, and the comparative probiotic profile of water kefir vs dairy kefir are important topics."
+    },
+    materials: ["Water kefir grains", "Sugar (cane sugar or coconut sugar)", "Filtered water", "Glass jar", "Dried fruit or mineral drops"],
+    steps: [
+      "Prepare sugar water: dissolve 1/4 cup sugar in 4 cups filtered water. Cool to room temperature.",
+      "Add kefir grains (1/4 cup) and optional mineral source (dried fig, apricot, or 1/4 tsp molasses).",
+      "Cover with cloth and ferment at 65\u201375\u00b0F for 24\u201348 hours. Taste at 24 hours — less sweet, slightly fizzy is the goal.",
+      "Strain the grains and bottle the liquid. Add fruit juice for secondary fermentation and more fizz.",
+      "Store grains in fresh sugar water in the refrigerator when not actively brewing."
+    ],
+    discussion: [
+      {q:"What is a kefir grain and how does it differ from a SCOBY?", answers:["A kefir grain is a cauliflower-shaped matrix of polysaccharide (kefiran) produced by Lactobacillus bacteria. The matrix harbors a complex community of bacteria and yeasts in a symbiotic relationship. Unlike a kombucha SCOBY (flat cellulose mat), kefir grains are granular and must be strained out between batches."]},
+      {q:"Why is mineral supplementation important for water kefir culture health?", answers:["Kefir grains require trace minerals for enzyme function and matrix production. Tap water often lacks sufficient minerals, and filtered water removes them. Dried fruit provides minerals naturally. Without minerals, grains become slimy or fail to produce kefir."]}
+    ],
+    challenge: "Brew 3 consecutive batches of water kefir. Document pH, taste, carbonation level, and grain growth over the 3 batches. How do the grains change?",
+    tuesday:   { low: {title:"Grain health assessment", activity:"Assess your kefir grains after each batch: are they growing, white and rubbery, or slimy and falling apart? What does each condition indicate?"}, mid: {title:"Secondary fermentation", activity:"Research water kefir secondary fermentation. Add fruit juice or ginger beer plant and bottle. Time until desired carbonation. What creates the carbonation?"}, high: {title:"Kefir grain microbiology", activity:"Research the microbial community of water kefir grains. What Lactobacillus, Leuconostoc, and yeast species are typically present? How does community composition affect flavor?"} },
+    wednesday: { low: {title:"Flavor variation experiment", activity:"Brew 3 identical batches with different fruit additions in secondary fermentation. Compare flavor, carbonation, and color."}, mid: {title:"Probiotic comparison", activity:"Research and compare the probiotic profiles of water kefir, dairy kefir, kombucha, and yogurt. Which provides the most diverse bacterial strains?"}, high: {title:"Polysaccharide kefiran research", activity:"Research the polysaccharide kefiran produced by Lactobacillus kefiranofaciens. What are its physical properties and what potential health effects have been studied in vitro and in vivo?"} },
+    thursday:  { low: {title:"Long-term grain storage", activity:"Research how to put kefir grains into long-term storage: refrigerator (weeks), freezer (months), and dehydration (indefinitely). Practice one storage method."}, mid: {title:"Troubleshooting guide", activity:"Create a troubleshooting guide for water kefir: under-fermented (too sweet), over-fermented (too sour/alcoholic), slimy grains, insufficient carbonation."}, high: {title:"Comparison study design", activity:"Design a controlled experiment comparing water kefir brewed with different mineral sources: molasses, dried fruit, mineral drops, and mineral water. What variables would you measure?"} }
+  },
+
+  "Electrical panel safety — breakers and fuses": {
+    gradeHooks: {
+      low: "Our electrical panel is the brain of our home\u2019s electricity. Understanding it helps us stay safe and fix simple problems!",
+      mid: "Electrical panel safety involves knowing how to safely work with breakers, identifying hazards, and understanding the limits of DIY electrical work.",
+      high: "Electrical panel design, busbar systems, main disconnect requirements, and the evolution from fuse panels to modern breaker panels are important electrical topics."
+    },
+    materials: ["Access to your electrical panel (exterior only for safety)"],
+    steps: [
+      "Safety ground rules: never touch the bus bars behind the breakers, never work in the panel with the main breaker on unless you are qualified. The wires at the top of the panel (service entrance wires) cannot be de-energized by the homeowner.",
+      "Panel identification: find the main breaker (usually at the top, 100\u2013200+ amps), individual circuit breakers, and the service entrance wires.",
+      "Tripped breaker: a tripped breaker is in the middle position. Reset by turning fully off, then fully on. Never tape a breaker in the on position.",
+      "Fuse panels: older homes may have screw-in or cartridge fuses. Fuses are one-time devices — when they blow, they must be replaced with the correct amperage.",
+      "Warning signs: double-tapped breakers (two wires on one breaker), aluminum wiring, corrosion, burning smell, or heat require an electrician."
+    ],
+    discussion: [
+      {q:"Why must the service entrance wires (entering from the utility at the top of the panel) always be assumed energized?", answers:["The service entrance conductors are energized at 120/240V from the utility transformer. The main breaker can disconnect the panel from these wires, but cannot de-energize the wires themselves. Only the utility company can de-energize service entrance conductors by pulling the meter."]},
+      {q:"What is double-tapping and why is it a safety hazard?", answers:["Double-tapping is connecting two circuit wires to a single breaker terminal. This is a NEC violation in most cases because: the breaker may not trip at the correct current for both circuits, the terminal may not make proper contact with both wires, and it bypasses the protection intended for each circuit."]}
+    ],
+    challenge: "Create a complete circuit directory for your electrical panel. Label what each breaker controls. Note any hazards observed (without touching anything).",
+    tuesday:   { low: {title:"Panel directory project", activity:"Test each circuit by briefly switching it off and identifying what loses power. Create a permanent labeled directory for the panel door."}, mid: {title:"Breaker types and ratings", activity:"Research the different breaker types: standard, GFCI, AFCI, and CAFCI (combination). What does each protect against and where is each required by NEC?"}, high: {title:"Arc fault circuit interrupters", activity:"Research AFCI breaker technology. How does it distinguish between normal arcing (motor start, relay contact) and dangerous arcing (damaged insulation, loose connection)? What is the false trip controversy?"} },
+    wednesday: { low: {title:"Fuse identification", activity:"Research the types of fuses used in older panels: plug fuses, time-delay fuses, cartridge fuses. What is the danger of replacing a blown fuse with one of higher amperage?"}, mid: {title:"Panel upgrade considerations", activity:"Research when a panel upgrade (service upgrade) is warranted. What are the signs that a 100-amp panel is insufficient and what is the cost of upgrading to 200 amps?"}, high: {title:"Bus bar and neutral/ground separation", activity:"Research the main panel vs subpanel grounding requirements. Why must neutral and ground be separate in a subpanel but bonded in the main panel?"} },
+    thursday:  { low: {title:"DIY limits", activity:"Research the specific electrical work that Florida allows homeowners to DIY vs what requires a licensed electrician. What permits are required and what inspections follow?"}, mid: {title:"Load calculation", activity:"Calculate the total demand load on your electrical panel using NEC Article 220 methodology. Is your service adequate for your actual load plus growth?"}, high: {title:"Smart panel technology", activity:"Research smart electrical panels (Leviton, Span, Lumin). What monitoring and load management capabilities do they provide and how do they integrate with solar and EV charging?"} }
+  },
+
+  "Negotiating a price — practical economics": {
+    gradeHooks: {
+      low: "Prices aren\u2019t always fixed! Learning to ask for a better deal politely can save money on big purchases.",
+      mid: "Price negotiation is a practical economic skill applicable to car purchases, contractor bids, salaries, and large retail purchases.",
+      high: "Negotiation theory, BATNA (Best Alternative to a Negotiated Agreement), anchoring effects, and the psychology of persuasion are important topics."
+    },
+    materials: ["Price research resources", "Practice scenarios"],
+    steps: [
+      "Research first: know the fair market price before negotiating. Never negotiate from ignorance.",
+      "Anchoring: the first number mentioned anchors the negotiation. For purchases, make the first offer lower than your target. For salary negotiation, make the first offer higher.",
+      "BATNA: know your Best Alternative To a Negotiated Agreement. The more alternatives you have, the more power you have.",
+      "Silence is powerful: after making an offer, wait. Don\u2019t fill the silence by improving your own offer.",
+      "Specific numbers work better than round numbers: an offer of $18,750 is perceived as researched, not arbitrary."
+    ],
+    discussion: [
+      {q:"Why is knowledge of fair market value the most important preparation for negotiation?", answers:["Without knowing what something is worth, you cannot recognize a fair deal or an exploitative one. Market research establishes your anchor point and your BATNA. It also signals to the other party that you\u2019re an informed buyer/seller, which changes their negotiating posture."]},
+      {q:"What does BATNA mean and why does having a strong one give you more negotiating power?", answers:["BATNA is the Best Alternative to a Negotiated Agreement — what you\u2019ll do if you can\u2019t reach a deal. If you have multiple competitive bids from contractors, your BATNA is strong. The other party knows you can walk away. If you have no alternatives, your BATNA is weak and you\u2019re negotiating from weakness."]}
+    ],
+    challenge: "Practice negotiation in a real or role-played scenario: ask for a discount on a large purchase, negotiate a contractor bid, or role-play a salary negotiation.",
+    tuesday:   { low: {title:"Market price research", activity:"Research the fair market price for a used car you\u2019re interested in (or a hypothetical scenario). Use KBB, Edmunds, and 3 local listings. What is the realistic price range?"}, mid: {title:"Car negotiation role play", activity:"Role-play a used car negotiation. One person is the buyer, one is the seller. Practice anchoring, silence, and counter-offering. Debrief: what tactics were used?"}, high: {title:"Negotiation theory research", activity:"Research Roger Fisher and William Ury\u2019s principled negotiation model from \u2018Getting to Yes.\u2019 What are the 4 key principles and how do they differ from positional bargaining?"} },
+    wednesday: { low: {title:"Contractor bid negotiation", activity:"Research how homeowners negotiate contractor bids. What questions reduce price? What terms add value without reducing price (payment schedule, scope clarity)?"}, mid: {title:"Salary negotiation script", activity:"Write a salary negotiation script for a job offer that is 15% below your target. Practice delivering it with confidence. What are the key phrases?"}, high: {title:"Anchoring psychology", activity:"Research anchoring bias in negotiation. What does research show about the effect of the first number mentioned on final outcomes? How do professional negotiators counteract anchoring?"} },
+    thursday:  { low: {title:"Healthcare bill negotiation", activity:"Research how to negotiate medical bills. What percentage reduction is typically achievable and what script works best with hospital billing departments?"}, mid: {title:"Subscription negotiation", activity:"Practice negotiating retention offers with subscription services (cable, internet, streaming). Call and request a discount or cancellation. What worked?"}, high: {title:"Game theory in negotiation", activity:"Research how game theory applies to negotiation. What is the prisoner\u2019s dilemma and how does it explain the tension between cooperation and defection in multi-round negotiations?"} }
+  },
+
+
+
+  "Advanced CPR — adult child infant": {
+    gradeHooks: {
+      low: "CPR changes depending on whether the victim is an adult, child, or baby. We learn the key differences for each!",
+      mid: "Adult, pediatric, and infant CPR differ in compression depth, rate, ratio, and rescue breath technique. Knowing all three enables response regardless of the victim\u2019s age.",
+      high: "Age-specific CPR physiological rationale, the evidence base for compression-only vs conventional CPR, and pediatric resuscitation guidelines are important topics."
+    },
+    materials: ["Adult CPR mannequin", "Child CPR mannequin or small pillow", "Infant mannequin or doll"],
+    steps: [
+      "Adult CPR: 2 inches deep, 100\u2013120/min, heel of both hands on center of sternum.",
+      "Child CPR (1\u201312 years): 2 inches deep (or 1/3 chest depth), same rate, one or two hands depending on child size.",
+      "Infant CPR (under 1 year): 1.5 inches deep, 2 fingers on center of chest just below nipple line, or thumb-encircling technique.",
+      "Compression-to-breath ratio: healthcare providers 30:2 for lone rescuer, 15:2 for 2-rescuer pediatric.",
+      "AED: use pediatric pads for children under 8 or 55 lbs if available. If only adult pads available, use them rather than no AED."
+    ],
+    discussion: [
+      {q:"Why is the compression depth for infants only 1.5 inches when they are much smaller than adults?", answers:["The 1.5-inch depth represents approximately 1/3 of an infant\u2019s chest AP diameter, which is the same proportional target as adults. Absolute depth scales with body size, but the relative compression depth (1/3 of chest) is consistent across age groups."]},
+      {q:"When should you begin CPR on an infant who is unresponsive vs calling 911 first?", answers:["For infants and children, pediatric cardiac arrest is usually caused by respiratory failure. Give 2 minutes of CPR first to address the respiratory cause, then call 911 if alone. For adults, sudden cardiac arrest is more common and calling 911 first is usually appropriate."]}
+    ],
+    challenge: "Practice all 3 CPR variations in a single session: 2 minutes adult, 2 minutes child, 2 minutes infant. Demonstrate the key differences in technique for each.",
+    tuesday:   { low: {title:"Age comparison chart", activity:"Create a reference chart: adult vs child vs infant CPR. Include compression depth, hand position, rate, and rescue breath technique for each."}, mid: {title:"Two-rescuer pediatric CPR", activity:"Practice two-rescuer infant CPR: one performs 15 compressions with thumb-encircling technique, the other delivers 2 rescue breaths at each cycle."}, high: {title:"Pediatric chain of survival", activity:"Research how the pediatric chain of survival differs from the adult chain. Why is prevention and early recognition the first link in pediatric cardiac arrest?"} },
+    wednesday: { low: {title:"Rescue breathing technique", activity:"Practice rescue breathing on a mannequin: proper head-tilt-chin-lift, seal, and breath size that causes visible chest rise without excess air."}, mid: {title:"Hands-only CPR age threshold", activity:"Research the AHA\u2019s guidance on when hands-only CPR is appropriate vs conventional CPR with rescue breaths. Why does age and cause of arrest change the recommendation?"}, high: {title:"ROSC predictors in pediatric arrest", activity:"Research the predictors of Return of Spontaneous Circulation (ROSC) in pediatric out-of-hospital cardiac arrest. What factors most influence survival to discharge?"} },
+    thursday:  { low: {title:"Certification preparation", activity:"Research the content of an AHA Heartsaver or BLS certification course. What does the course cover and what skills are tested?"}, mid: {title:"Choking response across ages", activity:"Review the choking response for adults, children, and infants. What is different about the infant response and why are abdominal thrusts contraindicated?"}, high: {title:"Post-resuscitation care in pediatrics", activity:"Research targeted temperature management in pediatric post-cardiac arrest care. What are the current guidelines and the evidence behind them?"} }
+  },
+
+  "Neighborhood emergency network": {
+    gradeHooks: {
+      low: "A neighborhood emergency network connects all the homes on a block so everyone can help each other in a crisis.",
+      mid: "An organized neighborhood emergency network assigns roles, maps resources, establishes communication, and practices together before an emergency occurs.",
+      high: "Community resilience research, social capital theory, and the organizational design of effective neighborhood preparedness networks are important topics."
+    },
+    materials: ["Neighborhood map", "Contact list template"],
+    steps: [
+      "Network structure: identify a block captain and 2\u20133 area leaders for every 8\u201310 homes.",
+      "Resource inventory: systematically identify what every household can contribute: skills (medical, construction, mechanical), tools, food storage, fuel, shelter capacity.",
+      "Vulnerable population map: identify every household with elderly, disabled, or medically dependent members. Assign check-in partners.",
+      "Communication plan: primary (cell/text), secondary (walkie-talkies), tertiary (in-person runners). Establish check-in times.",
+      "Practice: quarterly neighborhood check-in meeting, annual drill."
+    ],
+    discussion: [
+      {q:"What is the difference between a neighborhood network and CERT, and how do they work together?", answers:["CERT volunteers are trained by professional emergency management and deploy under ICS. A neighborhood network is self-organized and operates independently before official response arrives. CERT members in a neighborhood can serve as trained leaders within the informal network."]},
+      {q:"How does including all neighbors, not just the motivated ones, strengthen a network?", answers:["A network is only as good as its least-connected member. Isolated neighbors — especially vulnerable ones — who aren\u2019t integrated into the network become the gaps where tragedy occurs in disasters. Inclusion requires proactive outreach, not just waiting for volunteers."]}
+    ],
+    challenge: "Design and begin building a neighborhood emergency network on your block. Hold an initial meeting with at least 3 neighbors to establish communication contacts.",
+    tuesday:   { low: {title:"Resource inventory template", activity:"Create a household resource inventory template. What categories should it include? Test it on your own household."}, mid: {title:"Communication tree design", activity:"Design a communication tree for 20 households: each person contacts 2 others. What happens if one link fails? How do you build redundancy into the tree?"}, high: {title:"Network activation protocols", activity:"Research how emergency networks activate: what events trigger activation, who makes that decision, and how is the all-clear communicated?"} },
+    wednesday: { low: {title:"Vulnerable household mapping", activity:"Identify vulnerable households on your block (with permission or from knowledge). Assign each a neighbor partner for emergency check-in."}, mid: {title:"Quarterly meeting design", activity:"Design the agenda for a quarterly neighborhood preparedness meeting. What should be covered, updated, and practiced each quarter?"}, high: {title:"Social capital research", activity:"Research Robert Putnam\u2019s work on social capital and community resilience. What specific aspects of social capital most strongly predict disaster recovery outcomes?"} },
+    thursday:  { low: {title:"Network launch", activity:"Hold an introductory neighborhood meeting. Present the concept, gather contacts, and identify one person willing to be the block captain."}, mid: {title:"Integration with county plans", activity:"Research how neighborhood networks integrate with your county\u2019s official emergency management plans. Are there formal recognition or training programs for neighborhood networks?"}, high: {title:"Post-disaster network activation case study", activity:"Research a documented case of a successful neighborhood emergency network activation during a disaster. What organizational features enabled its effectiveness?"} }
+  },
+
+  "Solar and wind energy basics": {
+    gradeHooks: {
+      low: "Solar panels use sunlight and wind turbines use moving air to make electricity. Both are clean and renewable!",
+      mid: "Solar and wind energy convert different forms of natural energy to electricity using different physical principles. Each has distinct advantages and limitations.",
+      high: "Photovoltaic physics, wind turbine aerodynamics, capacity factors, and the complementary nature of solar and wind resources are important renewable energy topics."
+    },
+    materials: ["Small solar panel and voltmeter", "Research on wind speeds"],
+    steps: [
+      "Solar PV: photons excite electrons in silicon, creating DC current. Panel output depends on irradiance, temperature (higher temp = lower output), and angle.",
+      "Wind turbine: kinetic energy of wind rotates blades, driving a generator. Power output scales with the cube of wind speed (double the wind = 8x the power).",
+      "Florida specifics: excellent solar resource (5.5 peak sun hours/day average). Wind resource is modest except on coasts and elevated areas.",
+      "Capacity factor: solar panels operate at full output only when sun is at maximum. Annual capacity factor for Florida solar is approximately 18\u201322%.",
+      "Complementary profiles: solar peaks at midday, wind often peaks at night and in different seasons. Combining both reduces storage needs."
+    ],
+    discussion: [
+      {q:"Why does wind power output scale with the cube of wind speed while solar output scales linearly with irradiance?", answers:["Wind power is proportional to the kinetic energy of air mass moving through the turbine, which is (1/2)mv\u00b2. Since mass flow rate is also proportional to velocity, total power is proportional to v\u00b3. Solar is simpler: more photons = proportionally more electron excitation."]},
+      {q:"What is a capacity factor and why is it important for comparing energy sources?", answers:["Capacity factor is the ratio of actual energy produced to maximum possible output if the plant ran at full capacity 24/7. Solar has a capacity factor of 15\u201325% while natural gas peaker plants run at 10\u201315% but on demand. Comparing nameplate capacity without capacity factor is misleading."]}
+    ],
+    challenge: "Using local solar irradiance and wind speed data, determine which renewable source would be more productive at your specific location. Justify your answer with data.",
+    tuesday:   { low: {title:"Panel output measurement", activity:"Measure solar panel output at different times of day and with different cloud cover. Plot irradiance vs output power. Is the relationship linear?"}, mid: {title:"Wind resource assessment", activity:"Research Florida\u2019s wind resource map. What average wind speeds exist at your location at 50m and 100m hub heights? Is this sufficient for small wind turbines?"}, high: {title:"Betz limit", activity:"Research the Betz limit: the theoretical maximum efficiency of a wind turbine (59.3%). What aerodynamic principle establishes this limit and how do modern turbines approach it?"} },
+    wednesday: { low: {title:"Energy mix research", activity:"Research Florida\u2019s current electricity generation mix. What percentage comes from solar, wind, natural gas, and nuclear? How has it changed in the past 10 years?"}, mid: {title:"Levelized cost of energy", activity:"Research the Levelized Cost of Energy (LCOE) for solar and wind vs fossil fuels. How has the LCOE for solar changed over the past decade?"}, high: {title:"Grid integration challenges", activity:"Research the duck curve in grid management. Why does high solar penetration create grid stability challenges and what technologies address them?"} },
+    thursday:  { low: {title:"Home energy audit", activity:"Calculate your home\u2019s energy use. What size solar system would be needed to offset 50% of your electricity consumption?"}, mid: {title:"Hybrid system design", activity:"Design a hybrid solar-wind system for a Florida home. What combination of solar panels and small wind turbine would maximize renewable generation?"}, high: {title:"Variability and storage", activity:"Research how battery storage and demand response programs address the intermittency of solar and wind. What storage capacity is needed to achieve 100% renewable reliability?"} }
+  },
+
+  "Full meal planning from pantry": {
+    gradeHooks: {
+      low: "A full week of meals from our pantry means we can eat well even if we can\u2019t get to the store!",
+      mid: "Planning a week of nutritious meals using only pantry ingredients requires understanding caloric density, protein sources, and meal variety.",
+      high: "Pantry-based meal planning integrates nutrition science, food cost optimization, and the logistics of shelf-stable food systems."
+    },
+    materials: ["Pantry inventory", "Meal planning template", "Nutrition calculator"],
+    steps: [
+      "Conduct a full pantry inventory: list every shelf-stable item with quantity and expiration date.",
+      "Calculate daily caloric needs for your family: adults need 2,000\u20132,500 calories/day.",
+      "Plan 21 meals (7 breakfasts, lunches, dinners) using only pantry items. Aim for variety and nutritional balance.",
+      "Identify nutritional gaps: what vitamins and minerals might be lacking from an all-pantry diet? (Likely: fresh vegetables, vitamin C, vitamin D)",
+      "Optimize for variety: rotate protein sources (beans, canned fish, canned meat), use spices creatively, make different preparations from the same base ingredients."
+    ],
+    discussion: [
+      {q:"What are the primary nutritional challenges of eating from stored pantry foods for an extended period?", answers:["Most pantry foods are low in fresh vitamins (especially C, which degrades in canned food over time), lack probiotics, and may be high in sodium. Adding multivitamins to the pantry, including canned tomatoes and citrus juice, and diversifying protein sources addresses most gaps."]},
+      {q:"How does the concept of \u2018emergency eating\u2019 differ from optimal nutrition and why does that distinction matter?", answers:["In a true emergency, meeting caloric needs and morale (comfort foods) may temporarily outweigh optimal nutrition balance. However, extended emergency eating lasting weeks requires nutritional adequacy to maintain immune function, cognitive performance, and physical capability."]}
+    ],
+    challenge: "Execute your 7-day pantry meal plan. Actually cook and eat only from the pantry for one week. Document what worked, what was boring, and what gaps you found.",
+    tuesday:   { low: {title:"Pantry inventory", activity:"Conduct a complete pantry inventory. Create a spreadsheet: item, quantity, calories per serving, servings per container, and expiration date."}, mid: {title:"Caloric audit", activity:"Total the calories in your entire pantry. How many days could your family eat at 2,000 calories/person/day? Where are the protein sources?"}, high: {title:"Nutrient density analysis", activity:"Analyze your pantry\u2019s nutrient density. Which vitamins and minerals are well represented? Which are lacking? What additions would most improve nutritional completeness?"} },
+    wednesday: { low: {title:"Recipe development", activity:"Create 5 complete recipes using only items in your current pantry. Each must provide a reasonable caloric content and use different base ingredients."}, mid: {title:"Flavor fatigue prevention", activity:"Research flavor fatigue: why monotonous emergency food leads to reduced appetite and lower caloric intake. What pantry items (hot sauce, dried herbs, vinegar) most effectively add variety?"}, high: {title:"Emergency nutrition research", activity:"Research FEMA and Red Cross guidance on emergency food nutrition. What caloric and macronutrient minimums do emergency relief organizations use for extended food assistance planning?"} },
+    thursday:  { low: {title:"Shopping list gap fill", activity:"Based on your pantry analysis, create a prioritized shopping list to fill the most critical gaps. What 10 items would most improve your pantry\u2019s completeness?"}, mid: {title:"Rotation calendar", activity:"Create a pantry rotation calendar: which items expire soonest and need to be used in regular cooking? How do you maintain a rolling stock of emergency food?"}, high: {title:"Caloric density optimization", activity:"Research the caloric density of different food categories. Create an optimized emergency food list maximizing calories per dollar, calories per pound, and nutritional completeness simultaneously."} }
+  },
+
+  "Water well basics and maintenance": {
+    gradeHooks: {
+      low: "Many homes get water from a well that draws it from underground. Wells need maintenance to keep the water clean and safe!",
+      mid: "Understanding well construction, pump systems, and maintenance enables homeowners to maintain water quality and respond to system failures.",
+      high: "Hydrogeology, well construction standards, pump engineering, and water quality testing protocols are important topics for water system management."
+    },
+    materials: ["Well inspection checklist", "Water test kit (optional)"],
+    steps: [
+      "Well anatomy: casing (steel or PVC tube), grout seal (prevents surface contamination), pump (submersible or jet), pressure tank, pressure switch.",
+      "Annual maintenance: inspect wellhead for cracks or gaps, test water quality (coliform bacteria, nitrates, pH), check pressure tank operation.",
+      "Pressure tank: the tank maintains system pressure between pump cycles. Loss of pressure fluctuations or constant pump cycling indicates a waterlogged tank.",
+      "Power failure: during outages, the pump stops. A hand pump accessory, stored water, or a generator are options.",
+      "Florida aquifer: most Florida wells draw from the Floridan Aquifer, one of the most productive in the world. Know your well\u2019s depth and yield."
+    ],
+    discussion: [
+      {q:"Why should wells be tested annually even when the water tastes and looks fine?", answers:["Many well water contaminants — including bacteria, nitrates, and arsenic — are colorless, odorless, and tasteless. Bacterial contamination can occur after heavy rains or flooding without any sensory warning. Annual testing is the only reliable way to catch contamination early."]},
+      {q:"What causes a pressure tank to become waterlogged and how does it affect the pump?", answers:["Pressure tanks have a bladder or air charge that maintains pressure. Over time, the bladder can fail or air can be absorbed, leaving only water in the tank. Without the air cushion, the pump must cycle on/off for every small water draw, causing rapid wear and eventual pump failure."]}
+    ],
+    challenge: "Inspect your family\u2019s well system (if applicable) or research your municipal water source. Identify the well depth, aquifer, and last water quality test results.",
+    tuesday:   { low: {title:"Well anatomy diagram", activity:"Draw and label a complete residential well system: casing, screen, pump, drop pipe, pressure tank, pressure switch, and distribution line."}, mid: {title:"Water quality testing", activity:"Research the standard water quality tests for private wells. What parameters does the EPA recommend testing and how often? Find a certified lab in your area."}, high: {title:"Floridan Aquifer", activity:"Research the Floridan Aquifer system. What is its extent, depth, geology, and current status regarding over-pumping and saltwater intrusion?"} },
+    wednesday: { low: {title:"Pressure tank test", activity:"Test your pressure tank: turn off power, open a faucet until pressure drops. Pressure should cycle back up. Describe what happens and what it tells you about the system."}, mid: {title:"Well contamination sources", activity:"Research the most common private well contamination sources in Florida: septic system proximity, agricultural runoff, and saltwater intrusion. What setback distances are required?"}, high: {title:"Pump curve analysis", activity:"Research pump curves: graphs showing the relationship between flow rate and head pressure for a pump. How do you select a pump for a specific well depth and household demand?"} },
+    thursday:  { low: {title:"Emergency water plan", activity:"If your well pump fails, what is your family\u2019s water supply plan? How many gallons are stored? How long would they last?"}, mid: {title:"Hand pump options", activity:"Research hand pump accessories for modern drilled wells. What products are available, what depths can they reach, and how much do they cost?"}, high: {title:"Well construction standards", activity:"Research Florida Well Construction Rule (62-532 FAC). What casing materials, depths, setback distances, and grouting requirements are mandated for new well construction?"} }
+  },
+
+  "Basic carpentry project — shelf or box": {
+    gradeHooks: {
+      low: "Building a real shelf or box teaches us to measure, cut, drill, and assemble — all the skills of carpentry!",
+      mid: "A basic carpentry project integrates measuring, cutting, joinery, and finishing into a functional result. The process builds systematic thinking as much as hand skills.",
+      high: "Project planning, material estimation, joinery selection, and quality control are engineering principles applied to carpentry."
+    },
+    materials: ["Pine or plywood boards", "Saw", "Drill", "Screws or nails", "Sandpaper", "Square and measuring tape"],
+    steps: [
+      "Design: sketch the project with all dimensions. Calculate the cut list: every piece with its exact dimensions.",
+      "Material selection: solid wood vs plywood vs MDF. Each has different strength, appearance, and workability characteristics.",
+      "Cutting: cut all pieces to dimension before assembly. Check each piece against the cut list.",
+      "Joinery: butt joints with pocket screws are the easiest. Dado joints (routed channel) are stronger for shelves. Dovetails are the strongest for boxes.",
+      "Assembly: dry fit all pieces first to catch errors. Glue and fasten. Check square before glue sets."
+    ],
+    discussion: [
+      {q:"Why should you always dry-fit a project before applying glue?", answers:["Glue sets fast and you may have only minutes to correct errors. Dry fitting reveals misaligned pieces, incorrect angles, and parts that don\u2019t fit as planned. Correcting these before glue is applied saves the project."]},
+      {q:"What is the advantage of pocket screw joinery for a beginner compared to traditional joinery like mortise and tenon?", answers:["Pocket screws are fast, require inexpensive tooling (a pocket jig and drill), and produce very strong right-angle joints without the precision woodworking skills required for mortise and tenon or dovetail joinery. They allow beginners to build structurally sound furniture."]}
+    ],
+    challenge: "Complete a shelf or small box project from design to finish. It must be functional, square, and finished (sanded and painted or stained).",
+    tuesday:   { low: {title:"Cut list creation", activity:"Design a small box (8x6x4 inches). Create a complete cut list: every piece with dimensions, wood thickness, and how many of each piece."}, mid: {title:"Joinery comparison", activity:"Research 5 box/shelf joinery methods: butt joint, rabbet joint, dado joint, finger joint, and dovetail. Compare strength, difficulty, and appropriate tools."}, high: {title:"Wood movement calculation", activity:"Research wood movement: how solid wood expands and contracts with humidity changes. How does this affect furniture design, particularly wide panels and long runs of solid wood?"} },
+    wednesday: { low: {title:"Pocket jig practice", activity:"Practice making pocket holes in scrap wood. Drive pocket screws into the joint. Pull test the joint. How strong is it compared to a butt joint with no fastener?"}, mid: {title:"Square and level checking", activity:"Practice checking assemblies for square using a diagonal measurement check. If diagonals are equal, the assembly is square. What do you adjust if they\u2019re not equal?"}, high: {title:"Wood finishing science", activity:"Research the chemistry of wood finishes: oil (penetrating), shellac, varnish, lacquer, and polyurethane. What does each do to the wood surface at a molecular level?"} },
+    thursday:  { low: {title:"Finishing project", activity:"Sand your project through grits 80, 120, and 220. Apply one coat of finish. Describe how each sanding grit changes the surface."}, mid: {title:"Material cost estimation", activity:"For your completed project, calculate the material cost. Compare to the cost of a similar item purchased at a store. What was your labor cost per hour if you tracked time?"}, high: {title:"Quality control checklist", activity:"Create a quality control checklist for your carpentry project: square within 1/16 inch, no visible glue, all surfaces smooth, finish applied evenly. Apply it to your completed project."} }
+  },
+
+  "Income and taxes intro": {
+    gradeHooks: {
+      low: "When we earn money, some goes to the government as taxes to pay for roads, schools, and other public services.",
+      mid: "Understanding gross vs net income, the different types of taxes, and how tax brackets work is fundamental financial literacy.",
+      high: "Progressive taxation, marginal vs effective tax rates, tax policy economics, and the role of taxes in funding public goods are important topics."
+    },
+    materials: ["Sample paycheck and tax forms"],
+    steps: [
+      "Types of taxes: income tax (federal and state), FICA (Social Security + Medicare), sales tax, property tax.",
+      "Gross vs net income: gross is what you earn. Net (take-home) is what remains after taxes and deductions. Often 25\u201335% less than gross.",
+      "Tax brackets: the US uses progressive brackets. You pay different rates on different portions of income. The marginal rate is the rate on the last dollar. The effective rate is your total tax as a percentage of income.",
+      "W-4: this form tells your employer how much to withhold. Getting it right means neither owing a large amount nor getting a large refund.",
+      "Florida advantage: no state income tax. This saves 4\u20136% compared to high-tax states."
+    ],
+    discussion: [
+      {q:"What is the difference between a marginal tax rate and an effective tax rate?", answers:["Marginal rate is the rate applied to your highest dollar of income. If you\u2019re in the 22% bracket, not all your income is taxed at 22% — only the portion above the threshold. Your effective rate is your total tax divided by total income. It is always lower than your marginal rate in a progressive system."]},
+      {q:"Why do some people prefer to get a large tax refund while financial advisors generally advise against it?", answers:["A large refund means you overpaid throughout the year — essentially giving the government an interest-free loan. That money sitting in your account all year could have earned interest or been used to pay down debt. However, many people prefer refunds as a forced savings mechanism."]}
+    ],
+    challenge: "Calculate the federal income tax owed by a person with $45,000 of gross income using the current tax brackets. Find their effective tax rate.",
+    tuesday:   { low: {title:"Tax bracket calculation", activity:"Using current federal tax brackets, calculate the tax owed on incomes of $20,000, $45,000, $80,000, and $150,000. Calculate the effective rate for each."}, mid: {title:"All taxes totaled", activity:"Calculate the total tax burden for a $50,000 income in Florida: federal income tax, FICA, and any other applicable taxes. What percentage goes to taxes total?"}, high: {title:"Tax policy analysis", activity:"Research the arguments for and against progressive taxation. What economic theories support flat vs progressive taxation? What does empirical research say about tax policy and economic growth?"} },
+    wednesday: { low: {title:"W-4 worksheet", activity:"Research how to fill out a W-4 correctly for a single person with one job. What number of allowances minimizes the chance of owing or getting a large refund?"}, mid: {title:"Deductions vs credits", activity:"Research the difference between tax deductions (reduce taxable income) and tax credits (reduce tax owed dollar for dollar). Which is more valuable and why?"}, high: {title:"Corporate tax structure", activity:"Research the corporate income tax: what rate applies, what deductions are available, and how dividend taxation creates the \u2018double taxation\u2019 debate. What is pass-through taxation?"} },
+    thursday:  { low: {title:"Public goods funding", activity:"Research what federal income tax pays for: what percentage goes to defense, Social Security, Medicare, interest on debt, and discretionary spending? What surprises you?"}, mid: {title:"Tax calendar", activity:"Create a personal tax calendar: when W-2s arrive, estimated tax payment due dates, and the filing deadline. What happens if you miss the deadline?"}, high: {title:"Tax incidence", activity:"Research tax incidence: the economic concept that the person who pays a tax is not necessarily the person who bears its economic burden. How does this apply to corporate taxes and sales taxes?"} }
+  },
+
+  "Land navigation — no GPS azimuth walking": {
+    gradeHooks: {
+      low: "We can walk to a destination using only a compass direction (azimuth) and counting our steps, no phone needed!",
+      mid: "Azimuth walking integrates compass bearing, pace count, and terrain reading to navigate precisely to a destination without GPS.",
+      high: "Advanced land navigation combines azimuth, pace count, resection, dead reckoning, and terrain association to maintain accurate position tracking over extended distances."
+    },
+    materials: ["Compass with degree bezel", "Measured pace count", "Protractor and map"],
+    steps: [
+      "Review: an azimuth is a direction expressed in degrees (0\u2013360). North = 0/360, East = 90, South = 180, West = 270.",
+      "Set an azimuth: rotate the compass bezel until the desired bearing aligns with the index mark. Walk keeping the magnetic needle aligned with the orienting arrow.",
+      "Pace count: count every other step (double paces). Know your pace count per 100 meters on flat terrain.",
+      "Obstacles: when an obstacle blocks your path, use the detour technique: turn 90\u00b0, count paces past the obstacle, turn back to original azimuth, walk same number of paces, resume.",
+      "Verification: periodically cross-check position against map features. Azimuth error accumulates with distance."
+    ],
+    discussion: [
+      {q:"What is the practical accuracy of azimuth walking for a trained navigator over 1,000 meters?", answers:["A trained navigator can typically maintain ±2\u00b0 azimuth accuracy and ±2\u20133% pace count accuracy. Over 1,000 meters, this translates to a position error of roughly 35\u201360 meters. This is sufficient to locate a mapped feature but requires precise technique."]},
+      {q:"When is azimuth walking more reliable than terrain association?", answers:["In featureless terrain (flat desert, dense forest with no landmarks, darkness, fog), terrain association fails because there are no features to match. Azimuth walking is the primary navigation technique in these conditions and is the basis of military land navigation."]}
+    ],
+    challenge: "Complete a 5-point azimuth course without any GPS device. Record each azimuth and pace count. Compare your final position to GPS. Target: within 50 meters.",
+    tuesday:   { low: {title:"Azimuth accuracy drill", activity:"Set 5 different azimuths and walk 50 meters on each. Check with GPS. What is your average error? What causes deviations?"}, mid: {title:"Pace count on different terrain", activity:"Calibrate your pace count on flat ground, uphill, downhill, and through vegetation. How much does terrain affect your pace?"}, high: {title:"Military STX lane design", activity:"Research how the US Army designs Situational Training Exercise (STX) land navigation lanes. What criteria determine control point placement and what scoring standards are used?"} },
+    wednesday: { low: {title:"Obstacle bypass practice", activity:"Set up an obstacle (a tarp or rope line). Practice the 90-degree bypass technique. How accurately can you return to your original line of travel?"}, mid: {title:"Night navigation planning", activity:"Plan a 4-point night navigation course. What changes in technique when visual terrain association is impossible? What additional cues do experienced navigators use?"}, high: {title:"Systematic error analysis", activity:"Research systematic errors in compass navigation: magnetic declination, compass deviation from metal objects, and pace count variation by fitness. How do navigators calibrate for each?"} },
+    thursday:  { low: {title:"Timed course", activity:"Run a timed 3-point azimuth course. Compare your time and accuracy to a baseline. What slows you down most?"}, mid: {title:"Combined technique navigation", activity:"Navigate a course using alternating azimuth walking and terrain association. Which technique is faster? When do you switch between them?"}, high: {title:"GPS denied navigation", activity:"Research military GPS-denied navigation scenarios. What technologies (inertial navigation, star trackers) and techniques (precision dead reckoning) are used when GPS is unavailable?"} }
+  },
+
+  "Foraging walk — neighborhood plants": {
+    gradeHooks: {
+      low: "Our neighborhood is full of plants! Some are edible, some are medicinal, and some are dangerous. Let\u2019s learn to tell them apart.",
+      mid: "A neighborhood foraging walk applies systematic identification skills to the plants most accessible to daily life, building practical local knowledge.",
+      high: "Urban plant ecology, the distribution of edible and invasive species in human-modified environments, and the ethics of urban foraging are important topics."
+    },
+    materials: ["Field guide", "iNaturalist app", "Camera", "Collection bags for edible samples"],
+    steps: [
+      "Walk a 1-mile radius of your home with identification tools. Document every plant you can identify.",
+      "For each plant: photograph from multiple angles, note the location, research identification using 3 sources.",
+      "Classify: edible, medicinal, toxic, or ornamental/unknown.",
+      "Location evaluation: are identified edibles in safe locations (no pesticide treatment, not near heavy traffic, not in contaminated soil)?",
+      "Build a local plant knowledge document: photo, identification features, edibility status, location, and any uses."
+    ],
+    discussion: [
+      {q:"What makes urban foraging more complex than wilderness foraging?", answers:["Urban plants may be treated with pesticides or herbicides, grow in potentially contaminated soil (heavy metals, industrial residue), and may be on private property. Urban foragers must research land use history, look for herbicide application flags, and get permission for private land."]},
+      {q:"How does knowing the local plants in your immediate environment contribute to preparedness?", answers:["Local plant knowledge provides backup food and medicine sources that don\u2019t depend on supply chains. It also enables you to identify hazards — toxic plants that could be mistakenly consumed. The knowledge is entirely local and immediately applicable."]}
+    ],
+    challenge: "Document 20 plants within 1 mile of your home. For each: identification, location, edibility status, and any preparation notes. Build a personal neighborhood plant guide.",
+    tuesday:   { low: {title:"iNaturalist contribution", activity:"Upload your neighborhood plant photos to iNaturalist. How many are identified by AI? How many are confirmed by human experts?"}, mid: {title:"Seasonal availability map", activity:"For each edible plant you found, research when it is available. Create a neighborhood foraging calendar showing availability by month."}, high: {title:"Urban ecology research", activity:"Research urban ecology: how plants colonize human-modified environments. What species are most common in urban settings and why are many of them edible introductions from other continents?"} },
+    wednesday: { low: {title:"Contamination assessment", activity:"Research soil contamination indicators: what previous land uses (gas stations, industrial facilities) indicate potential contamination? Research the history of your neighborhood\u2019s land use."}, mid: {title:"Invasive edibles focus", activity:"Identify the edible invasive species in your area (Brazilian pepper, air potato, kudzu if present). Research how harvesting invasives serves both nutrition and ecological goals."}, high: {title:"Permaculture neighborhood design", activity:"Research permaculture principles applied to neighborhood food systems. How could your neighborhood be redesigned to incorporate productive food plants into the landscape?"} },
+    thursday:  { low: {title:"Personal plant guide", activity:"Create a illustrated personal guide to the 10 most useful plants in your immediate neighborhood. Include photos, ID features, and preparation notes."}, mid: {title:"Foraging ethics in urban settings", activity:"Research urban foraging ethics and legal issues. What are the rules in public parks in your city? How do you engage with private landowners?"}, high: {title:"Ethnobotanical documentation", activity:"Research ethnobotanical documentation methodology. How would you formally document traditional plant knowledge for your community? What format and metadata are used?"} }
+  },
+
+  "Emergency communication frequencies": {
+    gradeHooks: {
+      low: "Emergency responders use specific radio frequencies to communicate. Knowing them helps us monitor for important information!",
+      mid: "Emergency communication uses designated frequencies across multiple bands. Understanding the frequency plan enables monitoring and, for licensed operators, participation.",
+      high: "Radio frequency allocation, emergency communication architecture, interoperability challenges, and the regulatory framework governing emergency radio use are important topics."
+    },
+    materials: ["Portable weather radio or scanner (optional)", "FCC frequency reference"],
+    steps: [
+      "NOAA Weather Radio: broadcasts on 7 frequencies between 162.400\u2013162.550 MHz. All-hazards information 24/7.",
+      "FRS/GMRS channels: FRS channels 1\u201314 (no license needed), GMRS channels 15\u201322 (license required). Channel 1 commonly used as a calling channel.",
+      "NOAA emergency alerts: most phones receive Wireless Emergency Alerts automatically. Weather radio provides backup when cell networks fail.",
+      "Amateur radio emergency frequencies: 146.520 MHz (2-meter national calling frequency), 52.525 MHz (6-meter calling), and local repeater systems.",
+      "Monitor vs transmit: anyone can listen to any frequency. Transmitting on licensed frequencies without a license is illegal."
+    ],
+    discussion: [
+      {q:"Why is the 2-meter amateur radio band particularly useful for local emergency communication?", answers:["2-meter (144\u2013148 MHz) VHF signals travel well within a region, can be repeated (received and retransmitted) by hilltop repeaters to dramatically extend range, and 2-meter radios are relatively inexpensive and portable. The band is heavily used by emergency communicators."]},
+      {q:"What is a repeater and why are repeaters critical for amateur radio emergency communication?", answers:["A repeater receives signals on one frequency and simultaneously retransmits them at higher power on another frequency from an elevated location. A handheld radio that might communicate 2\u20133 miles directly can reach 50\u2013100 miles via a repeater, transforming local communication capability."]}
+    ],
+    challenge: "Program your weather radio (or phone weather app) to alert for your county. Research the nearest amateur radio repeater frequencies for your area.",
+    tuesday:   { low: {title:"Weather radio programming", activity:"Program a NOAA weather radio or app for your specific county. Test the alert function. Research what alert types it covers beyond weather."}, mid: {title:"Frequency scanner research", activity:"Research portable frequency scanners. What frequencies would you program for emergency monitoring in your area: police, fire, EMS, weather, and amateur radio?"}, high: {title:"FCC frequency allocation", activity:"Research the FCC National Frequency Allocation Table. How are radio frequencies allocated between government, licensed services, and unlicensed uses? What principles govern allocation?"} },
+    wednesday: { low: {title:"FRS radio exercise", activity:"Set up FRS walkie-talkies on the same channel. Test communication range in your neighborhood. At what distance does signal quality degrade significantly?"}, mid: {title:"Interoperability research", activity:"Research radio interoperability challenges in emergency response. What technology solutions (cross-band repeaters, P25 digital radio) address the problem of incompatible agency radios?"}, high: {title:"FirstNet architecture", activity:"Research FirstNet: the nationwide public safety broadband network. How does it differ from commercial LTE and what priority and preemption capabilities does it provide emergency responders?"} },
+    thursday:  { low: {title:"Emergency frequency card", activity:"Create a laminated reference card for your family: NOAA weather frequencies, local FRS channel plan, and any other relevant local frequencies."}, mid: {title:"Digital modes in emergency comms", activity:"Research digital radio modes used in emergency communication: APRS (Automatic Packet Reporting System), Winlink (email over radio), and digital voice modes."}, high: {title:"EAS architecture", activity:"Research the Emergency Alert System (EAS) architecture. How does an alert from the President cascade from the national level to local broadcast stations and wireless providers?"} }
+  },
+
+  "CPR with two rescuers": {
+    gradeHooks: {
+      low: "When two people do CPR together, one compresses the chest and one breathes. They switch regularly to prevent fatigue!",
+      mid: "Two-rescuer CPR improves compression quality through regular switching and allows integration of an AED with minimal interruption.",
+      high: "Two-rescuer CPR biomechanics, team communication protocols, and the research on compression fraction and quality maintenance are important resuscitation topics."
+    },
+    materials: ["CPR mannequin", "AED trainer (optional)", "Timer"],
+    steps: [
+      "Rescuer 1: compressions. Rescuer 2: airway management and rescue breaths.",
+      "Ratio: 30 compressions : 2 breaths for adults. Switch every 2 minutes to prevent fatigue-related quality decline.",
+      "Switching protocol: Rescuer 2 calls the switch at 28 compressions (\u2018switch on next cycle\u2019). At 30, R2 moves to compressions while R1 moves to airway. Interruption < 5 seconds.",
+      "AED integration: when AED arrives, R2 applies pads while R1 continues compressions. R1 pauses for analysis. Immediate resumption after shock.",
+      "Communication: regular verbal updates (\u2018Good compressions,\u2019 \u2018Pulse check now,\u2019 \u2018Switching in 5\u2019) keep both rescuers coordinated."
+    ],
+    discussion: [
+      {q:"Why do two rescuers maintain better compression quality than one rescuer continuing alone?", answers:["Chest compression quality — especially depth — degrades after 90\u2013120 seconds due to muscle fatigue. Two rescuers switching every 2 minutes means compressions are always performed by a relatively fresh provider. Studies show significantly better compression depth with regular switching."]},
+      {q:"What is the target chest compression fraction (CCF) and why does it matter?", answers:["CCF is the proportion of time compressions are being performed during resuscitation. Target is >80% for conventional CPR. Every pause (pulse checks, rhythm analysis, airway management) reduces CCF and potentially reduces survival. Two-rescuer CPR with smooth transitions helps maintain high CCF."]}
+    ],
+    challenge: "Run a 10-minute two-rescuer CPR simulation with 3 switching cycles and one AED integration. Debrief on compression quality, communication, and CCF.",
+    tuesday:   { low: {title:"Communication protocol practice", activity:"Practice the verbal switching protocol: rescuer 2 counts down to switch, both move simultaneously, no pause in compressions. Time the transition: target < 5 seconds."}, mid: {title:"AED integration timing", activity:"Practice the complete sequence: CPR, AED arrives, pads applied during compressions, analysis pause, shock, immediate resumption. Total AED hands-off time should be < 10 seconds."}, high: {title:"High-performance CPR research", activity:"Research high-performance CPR (HP-CPR) as practiced by advanced EMS teams. What are the measurable targets for compression fraction, depth, rate, and recoil?"} },
+    wednesday: { low: {title:"Role assignment practice", activity:"Practice rapid role assignment: when two rescuers arrive simultaneously, how do they quickly divide tasks without verbal confusion? Research the standard protocol."}, mid: {title:"Three-rescuer CPR", activity:"Research how 3 rescuers integrate: compressions, airway, and AED/logistics. How does the third rescuer improve overall care quality beyond two-rescuer CPR?"}, high: {title:"CPR feedback devices", activity:"Research CPR feedback devices (Zoll CPR-D, Laerdal CPR meter). What metrics do they provide in real time and what studies show their impact on compression quality during actual resuscitations?"} },
+    thursday:  { low: {title:"Full scenario", activity:"Run a complete two-rescuer scenario from initial response through 5 minutes of CPR with 2 switches and AED integration. Debrief on every element."}, mid: {title:"Fatigue measurement research", activity:"Research how compression depth changes over time in single rescuer vs switching protocols. What does the data show about the optimal switching interval?"}, high: {title:"Mechanical CPR devices", activity:"Research mechanical CPR devices (LUCAS, AutoPulse). How do they maintain consistent compression quality and what is their role in prolonged resuscitation and ECPR?"} }
+  },
+
+  "Mapping neighborhood resources — water food shelter": {
+    gradeHooks: {
+      low: "A neighborhood resource map shows where water, food, and shelter are available near us in an emergency.",
+      mid: "Mapping community resources identifies distribution of critical supplies, vulnerable populations, and gaps that emergency planning must address.",
+      high: "Community resource mapping methodology, GIS-based vulnerability analysis, and the use of participatory mapping in disaster preparedness are important topics."
+    },
+    materials: ["Large paper or digital mapping tool", "Neighborhood research"],
+    steps: [
+      "Define the mapping area: within 1 mile of your home as a starting point.",
+      "Water sources: identify municipal water access points, natural water sources (ponds, streams), stores with water inventory, homes with large storage.",
+      "Food resources: grocery stores, food banks, community gardens, home gardens willing to share, restaurants and their commercial inventory.",
+      "Shelter resources: public shelters (schools, community centers), churches, neighbors with extra space, hotels.",
+      "Gap analysis: what resources are missing or insufficiently distributed? Where are the underserved areas?"
+    ],
+    discussion: [
+      {q:"What is the \u2018last mile\u2019 problem in emergency resource distribution and how does local mapping help solve it?", answers:["The last mile problem: official emergency resources may reach the neighborhood but not reach individuals who can\u2019t travel to distribution points (elderly, disabled, no transportation). Local resource maps identify both the resources and the people who need them brought to their door."]},
+      {q:"How does a pre-disaster resource map reduce coordination costs during an actual emergency?", answers:["During a disaster, communication is disrupted and decision-making is constrained. A pre-disaster map allows immediate action without requiring real-time coordination: responders know exactly where resources are and can deploy efficiently without discovery and communication overhead."]}
+    ],
+    challenge: "Create a comprehensive resource map for a 1-mile radius of your home. Include at least 5 resources in each of the 3 categories. Identify 2 critical gaps.",
+    tuesday:   { low: {title:"Water source mapping", activity:"Identify and map every water source within 1 mile: stores, natural sources, neighbors with stored water, fire hydrants. Note which would be accessible without power."}, mid: {title:"Food access mapping", activity:"Map every food access point within 1 mile. Include stores, food banks, restaurants, and any community gardens. Note hours, capacity, and which would operate during a power outage."}, high: {title:"GIS vulnerability mapping", activity:"Research how GIS tools are used by emergency managers for vulnerability mapping. How are social vulnerability indicators combined with resource data to prioritize response efforts?"} },
+    wednesday: { low: {title:"Shelter mapping", activity:"Identify and map all potential shelter locations within 1 mile. Note capacity, accessibility, and whether they are designated emergency shelters."}, mid: {title:"Gap analysis", activity:"Based on your resource map, identify the 3 most critical gaps. What resources are missing or poorly distributed? Who is most affected by each gap?"}, high: {title:"Participatory mapping methodology", activity:"Research participatory mapping in disaster preparedness. How do communities create resource maps together and what is the benefit of local knowledge vs professionally created maps?"} },
+    thursday:  { low: {title:"Map sharing", activity:"Share your resource map with at least 5 neighbors. Does anyone have corrections or additions? Iterate the map based on feedback."}, mid: {title:"Integration with county plans", activity:"Research how your county\u2019s emergency management office maps resources. How does their official resource map compare to your locally created version?"}, high: {title:"Dynamic resource tracking", activity:"Research technologies for dynamic resource tracking during disasters (Sahana Eden, WebEOC). How do they enable real-time resource status updates during active events?"} }
+  },
+
+  "Sizing a solar system for a home": {
+    gradeHooks: {
+      low: "Before installing solar panels, we calculate how much electricity our home uses to figure out how many panels we need!",
+      mid: "Solar system sizing requires calculating load, applying site-specific solar irradiance, accounting for system losses, and determining battery capacity.",
+      high: "Solar system engineering, NEC wiring requirements for PV systems, string sizing, and the economics of grid-tied vs off-grid systems are important topics."
+    },
+    materials: ["Utility bill", "Solar irradiance data for your location", "Calculator"],
+    steps: [
+      "Step 1: determine daily kWh consumption from utility bills. Divide annual kWh by 365.",
+      "Step 2: find your location\u2019s peak sun hours. Florida: 5\u20135.5 hours/day average.",
+      "Step 3: account for system losses (inverter, wiring, soiling, temperature): assume 80% efficiency.",
+      "Formula: system size (kW) = daily kWh \u00f7 peak sun hours \u00f7 efficiency.",
+      "Step 4: determine panel count: system size (kW) \u00f7 individual panel wattage (e.g., 400W) = number of panels."
+    ],
+    discussion: [
+      {q:"Why does system temperature affect solar panel output and how is this accounted for in Florida\u2019s hot climate?", answers:["Silicon solar cells produce less voltage as temperature increases. Florida panels regularly reach 50\u201360\u00b0C (vs the 25\u00b0C STC rating temperature), reducing output by 10\u201320% from rated conditions. This is captured in the temperature correction factor used in sizing calculations."]},
+      {q:"What is the difference between grid-tied and off-grid solar in terms of sizing philosophy?", answers:["Grid-tied solar sizes for average annual production to offset utility bills, relying on the grid as infinite backup storage. Off-grid must size for the worst-case scenario (least solar in winter, maximum consumption) and carry 3\u20135 days of battery storage. Off-grid systems are typically much larger and more expensive for the same average consumption."]}
+    ],
+    challenge: "Calculate the solar system size needed for your home. Research 3 local solar installers and get quotes. Compare quoted system size to your calculated size.",
+    tuesday:   { low: {title:"Load calculation", activity:"Pull 12 months of electricity bills. Calculate average monthly and daily kWh usage. Identify the highest-use month and determine what drives it."}, mid: {title:"Panel selection research", activity:"Research current residential solar panel options. Compare 3 panels by wattage, efficiency, temperature coefficient, warranty, and price per watt."}, high: {title:"NEC Article 690", activity:"Research NEC Article 690 governing photovoltaic systems. What are the key requirements for rapid shutdown, wiring methods, and interconnection with utility systems?"} },
+    wednesday: { low: {title:"Roof assessment", activity:"Assess your roof for solar: direction (south-facing is best in Florida), tilt angle, shading from trees or other obstructions, and available unshaded area."}, mid: {title:"String sizing basics", activity:"Research how solar panels are connected in strings. What is the relationship between string voltage, inverter input range, and panel count per string?"}, high: {title:"Net metering economics", activity:"Research Florida\u2019s net metering policy (CS/HB 741 changes in 2022). How does the new avoided cost compensation affect solar ROI compared to previous 1:1 net metering?"} },
+    thursday:  { low: {title:"System cost estimation", activity:"Research the current average installed cost per watt for residential solar in Florida. Calculate the estimated cost and simple payback for your calculated system size."}, mid: {title:"Federal tax credit", activity:"Research the Residential Clean Energy Credit. What percentage of system cost can be credited, through what year, and what documentation is required?"}, high: {title:"Solar + storage economics", activity:"Research the economics of adding battery storage to a grid-tied solar system. What changes in the value proposition when net metering rates are reduced?"} }
+  },
+
+  "One-week pantry meal plan — no grocery store": {
+    gradeHooks: {
+      low: "Can we make a whole week of tasty meals from what\u2019s already in our pantry? The challenge is real — and delicious!",
+      mid: "A strict pantry-only meal plan reveals both the depth of your emergency food supply and the culinary creativity required to maintain variety and nutrition.",
+      high: "Emergency nutrition, shelf-stable food systems, and the psychological dimensions of food monotony during extended crises are important topics."
+    },
+    materials: ["Pantry inventory", "Recipes", "Nutritional calculator"],
+    steps: [
+      "Complete pantry inventory before starting. Count every item.",
+      "Calculate caloric adequacy: 2,000+ calories/person/day. Protein target: 50\u201360g/day for adults.",
+      "Plan 21 meals with variety: rotate protein sources, use different cooking methods, apply different spices.",
+      "Nutritional gap strategy: multivitamins, canned tomatoes for vitamin C, variety of canned vegetables.",
+      "Post-week debrief: what ran out first? What was most popular? What was missed most? Use findings to improve the pantry."
+    ],
+    discussion: [
+      {q:"What is \u2018appetite fatigue\u2019 and why is it a serious concern in extended emergency food situations?", answers:["Appetite fatigue occurs when a monotonous diet causes reduced appetite despite caloric need. In disaster situations, people may eat less than they need because the available food is unpalatable through repetition. This leads to caloric deficit, weakness, and reduced cognitive function at exactly the time when full capability is most needed."]},
+      {q:"How does morale food differ from survival food and why should both be in a pantry?", answers:["Survival food provides calories and nutrition. Morale food (coffee, chocolate, favorite condiments, comfort foods) provides psychological resilience. Research on extended emergency situations consistently shows that morale food significantly improves stress management, cooperation, and overall function."]}
+    ],
+    challenge: "Execute the one-week pantry-only challenge as a family. Keep a daily food log. Document the experience: what was satisfying, what was difficult, what you\u2019ll change.",
+    tuesday:   { low: {title:"Day 1\u20133 plan", activity:"Plan the first 3 days of meals in detail. Write out every recipe with quantities consumed."}, mid: {title:"Macro tracking", activity:"Track daily protein, carbohydrate, and fat intake against targets. Are you meeting nutritional goals? Where are the shortfalls?"}, high: {title:"Psychological food research", activity:"Research studies on food behavior in extended emergencies. What psychological factors affect food intake during crises? How do emergency feeding programs address these?"} },
+    wednesday: { low: {title:"Meal variety strategy", activity:"With half the week remaining, review what\u2019s left. How do you maintain variety for the second half? What new combinations haven\u2019t you tried yet?"}, mid: {title:"Caloric density review", activity:"Which pantry items provided the most calories per serving? Which were most efficient in terms of calories per dollar? Revise your restocking priorities."}, high: {title:"Shelf-stable nutrition science", activity:"Research the nutritional content of canned vs fresh vs frozen vegetables. What vitamins degrade during canning and heat processing? What nutrients are preserved or concentrated?"} },
+    thursday:  { low: {title:"Week debrief", activity:"At the end of the challenge, write a full debrief: what worked, what failed, what ran out, what you missed, and what you\u2019ll change in your pantry."}, mid: {title:"Restocking strategy", activity:"Based on the challenge, create a prioritized restocking list. What 20 items would most improve your pantry\u2019s depth, variety, and nutritional completeness?"}, high: {title:"Emergency food supply design", activity:"Research how military and emergency relief organizations design food supply systems. What considerations (caloric density, cultural acceptability, shelf life, ease of preparation) go into institutional emergency food planning?"} }
+  },
+
+  "Hand pump well basics": {
+    gradeHooks: {
+      low: "A hand pump lets us get water from our well even when the electricity is out. No power needed — just muscle!",
+      mid: "Hand pump well systems provide resilient water access during power outages. Understanding pump types, installation, and depth limits enables informed system design.",
+      high: "Pump hydraulics, suction lift limits, positive displacement pump mechanics, and the engineering of deep well hand pumps are important topics."
+    },
+    materials: ["Hand pump specifications", "Well depth data"],
+    steps: [
+      "Suction lift limit: atmospheric pressure limits suction-type pumps to approximately 25 feet of water lift. Deeper wells require a positive displacement pump.",
+      "Common hand pumps: Simple Force Pump (shallow wells under 25 feet), Bison Deep Well Pump (up to 200+ feet), Flojak (flexible shaft, works alongside submersible pumps).",
+      "Installation: most deep hand pumps are installed alongside the existing submersible pump using a dedicated drop pipe.",
+      "Flojak design: uses a flexible shaft that drops down the existing well casing alongside the electrical pump. Can be installed without removing the submersible.",
+      "Output: expect 1\u20132 gallons per minute for hand pumping — adequate for emergency use but not for normal household demand."
+    ],
+    discussion: [
+      {q:"Why can\u2019t a suction pump lift water more than approximately 25 feet?", answers:["A suction pump creates a partial vacuum above the water. Atmospheric pressure (14.7 PSI at sea level) pushes water up into the vacuum. This can push water a maximum of about 33.9 feet in theory, but practical limitations reduce this to 25 feet for reliable operation."]},
+      {q:"What makes the Flojak design particularly appealing for existing well owners?", answers:["Most hand pumps require removing the submersible pump to install a parallel drop pipe. The Flojak uses a flexible shaft that fits alongside existing components without removing the submersible, making installation much simpler and less expensive."]}
+    ],
+    challenge: "Research the specifications for a hand pump appropriate for your well depth. Calculate the cost and compare to the amount of water stored you would need to achieve equivalent 72-hour resilience.",
+    tuesday:   { low: {title:"Pump selection guide", activity:"Research hand pump options for wells of different depths: 0\u201325 feet, 25\u2013150 feet, and 150+ feet. Which pump is appropriate for each depth range?"}, mid: {title:"Installation research", activity:"Research the installation process for a Bison or Baker MonkeyPump deep well hand pump. What tools and expertise are required? Could a homeowner DIY?"}, high: {title:"Pump hydraulics", activity:"Research the hydraulics of a double-acting positive displacement pump. How does the piston create both draw and discharge in a single stroke cycle?"} },
+    wednesday: { low: {title:"Output calculation", activity:"If a hand pump delivers 1.5 gallons per minute and you pump for 15 minutes twice per day, what is your daily water supply? Is this adequate for your family?"}, mid: {title:"Maintenance requirements", activity:"Research the maintenance requirements for deep well hand pumps. What components wear and what is the expected service life with proper maintenance?"}, high: {title:"Solar vs hand pump comparison", activity:"Compare the cost and resilience of a solar-powered submersible pump vs a hand pump for emergency water supply. What failure modes does each face and which is more reliable during extended outages?"} },
+    thursday:  { low: {title:"Emergency water calculator", activity:"Calculate your family\u2019s minimum daily water needs in an emergency (drinking and basic sanitation). How does this compare to what a hand pump could provide?"}, mid: {title:"Community well sharing", activity:"Research how shared well agreements work. If neighbors share a well, how is maintenance cost and water allocation managed? What legal agreements govern shared wells?"}, high: {title:"Gravity-fed well system", activity:"Design a gravity-fed water system using an elevated storage tank filled by hand pump. What tank volume and elevation provides adequate pressure for basic household use?"} }
+  },
+
+  "Reading a level and plumb line": {
+    gradeHooks: {
+      low: "A level tells us if something is perfectly horizontal. A plumb line tells us if something is perfectly vertical. Both are essential in construction!",
+      mid: "Accurate leveling and plumbing are foundational construction skills. Modern tools range from traditional bubble levels to laser levels.",
+      high: "The physics of leveling instruments, tolerance specifications in construction, and the relationship between precise leveling and structural integrity are important topics."
+    },
+    materials: ["Bubble level (4-foot if available)", "Plumb bob and string", "Tape measure"],
+    steps: [
+      "Bubble level: the bubble must be centered between the reference lines. If left of center, the right side is higher. If right of center, the left side is higher.",
+      "Checking the level itself: place on a surface, note position. Flip 180\u00b0 and place on the same surface. If the bubble is in the same position relative to the marks, the level is accurate.",
+      "Plumb bob: hang a weight on a string. When it stops swinging, the string is perfectly vertical. Use it to transfer a point from floor to ceiling or verify that a wall is plumb.",
+      "Spirit level for plumb: most 4-foot levels have a vertical bubble vial. Hold the level against a wall and check for plumb.",
+      "Laser level: projects a horizontal line across an entire room. More efficient for installing multiple objects at the same height."
+    ],
+    discussion: [
+      {q:"Why is checking a level\u2019s accuracy (by flipping it) important before using it for critical work?", answers:["Level vials can be knocked out of calibration. If a level is off by even 0.5\u00b0, a long level run can accumulate significant error. Checking accuracy takes 10 seconds and prevents costly mistakes."]},
+      {q:"What happens structurally if a foundation is not level?", answers:["An out-of-level foundation creates differential settlement, causing doors to stick, cracks in walls, water drainage toward the foundation, and in severe cases, structural failure. Framing compounds errors from an unlevel base through the entire structure."]}
+    ],
+    challenge: "Check 5 surfaces in your home for level and 3 walls for plumb. Document any that are significantly out of spec. What would need to be done to correct them?",
+    tuesday:   { low: {title:"Level calibration check", activity:"Calibrate your level using the flip test. Is it accurate? If not, most levels have adjustment screws. Research how to calibrate your specific level."}, mid: {title:"Laser level operation", activity:"Research how rotary laser levels work. How do they project a level plane across an entire room and what accuracy do professional-grade instruments achieve?"}, high: {title:"Optical surveying instruments", activity:"Research optical levels and theodolites used by surveyors. How do they achieve much higher precision than construction levels?"} },
+    wednesday: { low: {title:"Plumb wall installation", activity:"Install a piece of trim or a board on the wall, verified plumb with a level. Check the installation with a plumb bob."}, mid: {title:"Out-of-level floor consequences", activity:"Research how an out-of-level floor affects door installation, cabinet installation, and stair construction. What shim techniques compensate for unlevel surfaces?"}, high: {title:"Settlement measurement", activity:"Research how building settlement is monitored over time. What instruments measure differential settlement and at what rates does settlement become concerning?"} },
+    thursday:  { low: {title:"Level applications survey", activity:"Walk through a construction or renovation project (in person or via video). Identify every place where a level or plumb bob is used. What would happen without each check?"}, mid: {title:"Digital level technology", activity:"Research digital levels and inclinometers. What accuracy do they achieve and what applications benefit from digital readout vs bubble level?"}, high: {title:"Geoid and mean sea level", activity:"Research the geoid: the theoretical surface of constant gravity potential that defines sea level globally. How is this reference surface used in precision surveying and GPS elevation data?"} }
+  },
+
+  "W-2 vs 1099 — employee vs contractor": {
+    gradeHooks: {
+      low: "W-2 employees have taxes taken out automatically. 1099 contractors get all their money but must pay their own taxes!",
+      mid: "The employment classification distinction between W-2 employee and 1099 independent contractor has significant financial, legal, and benefits implications.",
+      high: "Employment classification law, the IRS\u2019s 20-factor test, the gig economy\u2019s classification challenges, and the tax implications of each status are important topics."
+    },
+    materials: ["Sample W-2 and 1099 forms", "Self-employment tax calculator"],
+    steps: [
+      "W-2 employee: employer withholds federal income tax, Social Security (6.2%), and Medicare (1.45%). Employer also pays the matching 6.2% + 1.45% FICA. Employee gets benefits (may include health insurance, retirement, PTO).",
+      "1099 contractor: receives full gross pay, no withholding. Must pay self-employment tax: 15.3% on net income (both employee AND employer portions of FICA). Must file quarterly estimated taxes.",
+      "Benefits gap: 1099 contractors typically receive no employer-sponsored health insurance, retirement contributions, or workers\u2019 compensation.",
+      "Business expenses: contractors can deduct legitimate business expenses, reducing taxable income.",
+      "Rule of thumb: to compare offers, a 1099 rate should be 20\u201330% higher than an equivalent W-2 rate to account for taxes and benefits."
+    ],
+    discussion: [
+      {q:"Why do 1099 workers pay 15.3% self-employment tax instead of the 7.65% that employees pay?", answers:["Employees pay 7.65% FICA, but their employer also pays a matching 7.65%. Independent contractors are both the employer and the employee, so they pay both portions — the full 15.3%. They can deduct half of this as a business expense."]},
+      {q:"What is the significant financial risk that many new contractors underestimate?", answers:["Quarterly estimated taxes. W-2 employees have taxes withheld automatically throughout the year. Contractors receive the full payment and must voluntarily save for taxes and pay them quarterly. Contractors who spend all their income and then face a large April tax bill can face financial crisis."]}
+    ],
+    challenge: "Compare two hypothetical job offers: $60,000 W-2 with health insurance vs $72,000 1099 with no benefits. Calculate the true take-home comparison.",
+    tuesday:   { low: {title:"Self-employment tax calculation", activity:"Calculate the self-employment tax on net contractor income of $40,000, $60,000, and $80,000 (after the deductible portion)."}, mid: {title:"Business deductions research", activity:"Research deductible business expenses for a self-employed person: home office, vehicle mileage, professional development, equipment. How do deductions reduce taxable income?"}, high: {title:"IRS classification test", activity:"Research the IRS\u2019s worker classification criteria. What factors distinguish employees from independent contractors? What are the consequences of misclassification for employers?"} },
+    wednesday: { low: {title:"Quarterly tax calendar", activity:"Create a quarterly estimated tax calendar for a self-employed person. What are the due dates and how do you calculate the payment amount?"}, mid: {title:"Benefits value calculation", activity:"Estimate the value of typical employee benefits: employer health insurance contribution (~$7,000/year), 401k match (3% of salary), PTO (2 weeks), payroll tax savings. How much higher must a 1099 rate be to equal a W-2 offer?"}, high: {title:"Gig economy classification battles", activity:"Research the legal battles over worker classification for gig economy workers (Uber, Lyft, DoorDash). What are the arguments for each classification and what are the implications of each for workers and platforms?"} },
+    thursday:  { low: {title:"Invoice and record keeping", activity:"Research how 1099 contractors document income and expenses. Why is meticulous record-keeping critical for tax purposes?"}, mid: {title:"S-Corp election strategy", activity:"Research the S-Corporation election strategy for self-employed individuals. How does it reduce self-employment tax and at what income level does it become beneficial?"}, high: {title:"Portable benefits research", activity:"Research the policy concept of portable benefits: benefits that are tied to the worker rather than the employer relationship. What models exist and what legislation has been proposed?"} }
+  },
+
+  "Declination-adjusted compass work": {
+    gradeHooks: {
+      low: "We adjust our compass for the difference between magnetic north and true north so our navigation is accurate.",
+      mid: "Declination adjustment ensures compass bearings align with map bearings. The technique varies depending on whether declination is east or west.",
+      high: "Magnetic declination mathematics, the difference between magnetic, grid, and true north, and the application of declination correction in precision navigation are important topics."
+    },
+    materials: ["Adjustable declination compass or baseplate compass", "Topographic map with declination diagram", "NOAA magnetic declination data"],
+    steps: [
+      "Find your current declination: NOAA magnetic declination calculator gives the exact value for your location and date.",
+      "Florida\u2019s current declination: approximately 5\u20136\u00b0 west (varies slightly by location and year).",
+      "Adjustable compass: set the declination offset on the compass bezel. The compass now reads in true bearings that match the map.",
+      "Non-adjustable compass method: for west declination, add the declination to magnetic bearing to get true bearing (for map use). Subtract to convert map bearing to compass bearing.",
+      "Memory aid: \u2018East is least, west is best\u2019 — for east declination subtract from magnetic, for west declination add to magnetic (to get true)."
+    ],
+    discussion: [
+      {q:"Why does magnetic declination change over time, requiring periodic updates?", answers:["Earth\u2019s magnetic field is generated by fluid motion in the outer core. This fluid motion changes over decades, shifting the location of the magnetic poles. Florida\u2019s declination has shifted approximately 0.1\u00b0 per year westward over the past few decades. Maps and compasses should be updated with current declination."]},
+      {q:"What is the practical navigational error from ignoring 6\u00b0 of declination over 1,000 meters?", answers:["A 6\u00b0 error translates to sin(6\u00b0) x 1000 meters \u2248 105 meters of lateral error per 1,000 meters traveled. Over longer distances, this grows proportionally. For casual hiking near trails, this may be acceptable. For precision navigation in featureless terrain, it could mean missing a critical waypoint."]}
+    ],
+    challenge: "Navigate a 3-point course using declination-adjusted bearings. Compare your endpoint accuracy to a previous course run without declination adjustment. Quantify the improvement.",
+    tuesday:   { low: {title:"NOAA declination lookup", activity:"Look up the exact current declination for your home location using the NOAA magnetic declination calculator. Note how it changes 50 miles north and 50 miles south."}, mid: {title:"Declination conversion practice", activity:"Convert 10 map bearings to compass bearings using 6\u00b0 west declination. Then convert 10 compass bearings to map bearings. Check with the mnemonic."}, high: {title:"Grid magnetic angle (GMA)", activity:"Research Grid Magnetic Angle (GMA): the difference between grid north (map) and magnetic north. Why does this differ from the declination diagram shown on USGS maps?"} },
+    wednesday: { low: {title:"Adjustable compass setup", activity:"If your compass has an adjustable declination, set it to your local value. Navigate to 3 landmarks and compare accuracy to using an unadjusted compass."}, mid: {title:"Historical declination change", activity:"Research how Florida\u2019s declination has changed over the past 50 years. What does this tell you about using old maps without updating the declination?"}, high: {title:"Compass deviation", activity:"Research compass deviation: local magnetic anomalies caused by iron ore, steel structures, and metal objects near the compass. How do navigators detect and correct for deviation?"} },
+    thursday:  { low: {title:"Precision navigation course", activity:"Run a 5-point precision course with declination adjustment. Target: ending within 20 meters of the intended point."}, mid: {title:"Military mils vs degrees", activity:"Research the military angular measurement system using mils (6,400 in a full circle). What is the relationship between mils and degrees and what precision advantage do mils offer at typical military ranges?"}, high: {title:"Compass calibration", activity:"Research the process of calibrating a compass for deviation on a specific vessel or aircraft. What is a compass swing and how is a deviation card created?"} }
+  },
+
+  "Identifying invasive edibles in your area": {
+    gradeHooks: {
+      low: "Some invasive plants that are trying to take over our environment are actually delicious to eat! Foraging them is an ecological win.",
+      mid: "Invasive edibles provide abundant, ethically harvestable food while reducing the ecological impact of invasive species.",
+      high: "Invasion ecology, the food systems potential of invasive species, and the ecological ethics of large-scale invasive harvesting are important topics."
+    },
+    materials: ["Florida invasive species list", "Field guide", "Camera"],
+    steps: [
+      "Research Florida\u2019s invasive plant species list. Many are edible: air potato (Dioscorea bulbifera), Brazilian pepper (berries NOT edible, but great example of abundance), kudzu (leaves, shoots, flowers), Japanese honeysuckle (flowers), cattail (multiple edible parts).",
+      "Air potato: the bulbils (aerial tubers) are edible when cooked. Note: some Asian varieties are bitter/toxic. Test a tiny amount first.",
+      "Kudzu: not established throughout Florida but present in northern areas. Young leaves, shoots, and flowers are edible.",
+      "Harvest ethics for invasives: take as much as you want. There is no conservation concern for harvesting invasive plants.",
+      "Always verify identification. Invasive doesn\u2019t automatically mean edible."
+    ],
+    discussion: [
+      {q:"How does the \u2018ethical 10% rule\u2019 for native plants change when applied to invasive species?", answers:["The 10% rule protects native plant populations from over-harvesting. For invasive species, there is no population to protect — the goal is reduction. Harvesting invasives as heavily as possible serves both foraging and ecological goals. The more you take, the better."]},
+      {q:"What are the risks of promoting invasive species as food sources?", answers:["If promoting invasives as food leads to intentional planting or spread, it accelerates the invasion. The communication must emphasize that invasives should NEVER be planted or transplanted — only harvested from existing established populations."]}
+    ],
+    challenge: "Identify 3 invasive edible plants in your area. For each: photograph, confirm identification using 3 sources, research edible uses, and harvest a sample for preparation.",
+    tuesday:   { low: {title:"Florida invasive plant survey", activity:"Research the top 10 invasive plants in your county from the Florida Exotic Pest Plant Council (FLEPPC) list. Which are edible?"}, mid: {title:"Air potato identification and preparation", activity:"Research air potato identification: the heart-shaped leaves, aerial bulbils, and twining habit. Research edible preparation: must be cooked thoroughly. Taste test a prepared sample."}, high: {title:"Invasion ecology research", activity:"Research invasion ecology: what makes a species successful as an invader? What traits do many successful invasive plants share and why do so many of them turn out to be edible?"} },
+    wednesday: { low: {title:"Cattail uses", activity:"Research cattail (Typha species): which parts are edible by season, how to prepare each part, and how to identify the plant. Cattail is one of the most complete wild food plants."}, mid: {title:"Invasive species economics", activity:"Research the economic cost of invasive species to US agriculture and ecosystems. If invasives could be commercialized as food products, what economic opportunity would this represent?"}, high: {title:"Biocontrol and foraging", activity:"Research biological control of invasive plants. How does intentional foraging compare to biocontrol agents in terms of population reduction effectiveness? What are the ecological tradeoffs of each approach?"} },
+    thursday:  { low: {title:"Invasive recipe development", activity:"Develop one recipe using an invasive edible. Research preparation, cook it, and evaluate the result. Would you eat this regularly?"}, mid: {title:"Commercial invasive food products", activity:"Research companies selling invasive species as food products: Invasivore, commercial kudzu products, and lionfish fisheries. What business models have proven sustainable?"}, high: {title:"Rewilding food systems", activity:"Research the rewilding food movement: designing diets and food systems around abundant, resilient, and ecologically appropriate food sources including invasives. What are the nutritional and sustainability arguments?"} }
+  },
+
+  "Ham radio — Technician license overview": {
+    gradeHooks: {
+      low: "A ham radio license lets you use more powerful radios that can communicate across the world. The test is free and anyone can take it!",
+      mid: "The Technician class amateur radio license is the entry point to a vast communication network used heavily for emergency preparedness.",
+      high: "Amateur radio regulatory framework, frequency privileges by license class, propagation modes, and the role of amateur radio in emergency communications are important topics."
+    },
+    materials: ["ARRL Technician study guide or free online resources"],
+    steps: [
+      "The Technician exam: 35 multiple choice questions from a public question pool. 74% passing score (26 correct). No Morse code required.",
+      "Privileges: VHF/UHF frequencies (primarily 2-meter and 70-centimeter bands), plus some HF privileges.",
+      "Most useful for emergency: 2-meter band (144\u2013148 MHz) for local and repeater communication, 70-cm band (420\u2013450 MHz), and APRS (Automatic Packet Reporting System) on 144.390 MHz.",
+      "Study resources: ARRL Technician manual, HamStudy.org (free), ARRL exam sessions or online testing.",
+      "Cost: the exam fee is $15 or less through most clubs. License is free from the FCC and valid for 10 years."
+    ],
+    discussion: [
+      {q:"What makes amateur radio irreplaceable in disasters when cell networks fail?", answers:["Amateur radio operators provide communication that is independent of commercial infrastructure. They use repeaters on backup power, operate simplex (radio-to-radio with no intermediate infrastructure), and can link into WINLINK (email over radio) and digital modes. When everything else fails, ham operators keep communicating."]},
+      {q:"What is ARES and what role do licensed amateur operators play in emergency response?", answers:["ARES (Amateur Radio Emergency Service) is an ARRL-organized volunteer network of licensed operators trained to provide communication support for served agencies (Red Cross, hospitals, emergency management). ARES members train regularly and deploy under ICS when activated."]}
+    ],
+    challenge: "Create a study schedule to pass the Technician exam within 30 days. Complete at least 3 practice exams at HamStudy.org with passing scores.",
+    tuesday:   { low: {title:"Question pool study", activity:"Begin studying the Technician question pool at HamStudy.org. Complete the regulations and operating procedures sections in your first session."}, mid: {title:"Radio technology section", activity:"Study the radio technology questions: how VHF/UHF propagation works, what a repeater does, and how to read an S-meter. Take a practice exam."}, high: {title:"Propagation modes", activity:"Research the different propagation modes: line-of-sight, tropospheric ducting, ionospheric refraction (HF), and meteor scatter. What frequencies use each mode?"} },
+    wednesday: { low: {title:"License structure overview", activity:"Research the three US amateur license classes: Technician, General, and Extra. What additional privileges does each provide? What does passing each exam require?"}, mid: {title:"APRS introduction", activity:"Research APRS (Automatic Packet Reporting System): how it works, what it displays, and why it is valuable for emergency tracking and communication."}, high: {title:"Emergency communication protocols", activity:"Research the National Traffic System (NTS) and ARES/RACES structure. How do amateur operators integrate into ICS for formal emergency activations?"} },
+    thursday:  { low: {title:"Find an exam session", activity:"Find the next Technician exam session in your area (ARRL exam session search) or online. Register and schedule your exam."}, mid: {title:"Radio purchase research", activity:"Research entry-level 2-meter radios for a new Technician licensee. Compare the Baofeng UV-5R (cheap, functional) to a Yaesu FT-65 (higher quality) for emergency preparedness use."}, high: {title:"Digital modes research", activity:"Research digital modes accessible to Technician licensees: FT8, PSK31, Winlink. How do these modes extend communication range and capability beyond voice?"} }
+  },
+
+
+
+  "Calibrating a GPS device": {
+    gradeHooks: {
+      low: "We can make sure our GPS is showing the right place by checking it against known landmarks.",
+      mid: "GPS calibration includes datum selection, magnetic declination setting, and accuracy verification against known benchmarks.",
+      high: "GNSS accuracy factors, differential correction, and the systematic error sources in consumer GPS receivers are important navigation topics."
+    },
+    materials: ["GPS device or phone with GPS app", "Known benchmark or mapped location"],
+    steps: [
+      "Datum verification: confirm your GPS device and your map use the same datum (WGS84 for most modern GPS and maps).",
+      "Magnetic declination: if your GPS displays a compass, verify declination is set correctly for your location.",
+      "Accuracy check: navigate to a known benchmark (a mapped intersection, a survey marker). Compare GPS reading to known coordinates.",
+      "WAAS/SBAS: verify your GPS is receiving Wide Area Augmentation System corrections (increases accuracy from 10m to under 3m).",
+      "Position averaging: in areas of poor reception, use your device\u2019s position averaging function to improve accuracy."
+    ],
+    discussion: [
+      {q:"What is WAAS and how does it improve GPS accuracy?", answers:["The Wide Area Augmentation System (WAAS) uses ground stations across North America to calculate GPS error corrections, which are then transmitted via geostationary satellites to GPS receivers. WAAS corrections typically improve accuracy from ~10m to under 3m."]},
+      {q:"Why do GPS devices lose accuracy in urban canyons between tall buildings?", answers:["GPS requires a clear view of multiple satellites (at least 4 for 3D positioning). Buildings block satellite signals and create multipath errors: the GPS receiver receives both direct signals and signals reflected off building surfaces, confusing the position calculation."]}
+    ],
+    challenge: "Take your GPS to a known benchmark or mapped intersection. Record the GPS coordinates displayed. Compare to the actual coordinates. What is the error?",
+    tuesday:   { low: {title:"Coordinate system practice", activity:"Research the difference between decimal degrees (41.4025\u00b0N) and degrees-minutes-seconds (41\u00b024.15'N). Practice converting between the two formats."}, mid: {title:"Datum conversion exercise", activity:"Research the difference in coordinates between WGS84 and NAD27 datums. How many meters do the same coordinates shift between these datums? Why does this matter for maps printed before 1990?"}, high: {title:"Dilution of Precision (DOP)", activity:"Research Dilution of Precision (PDOP, HDOP, VDOP). How does satellite geometry affect GPS accuracy? What DOP value is acceptable for navigation vs surveying?"} },
+    wednesday: { low: {title:"WAAS verification", activity:"Check whether your GPS device shows WAAS reception. Research what WAAS satellite you should be receiving in Florida."}, mid: {title:"Multi-constellation comparison", activity:"Research how smartphones using multi-constellation GNSS (GPS + GLONASS + Galileo) achieve better accuracy and faster fix times than single-constellation devices."}, high: {title:"Differential GPS applications", activity:"Research how Differential GPS (DGPS) achieves sub-meter accuracy for precision agriculture, surveying, and autonomous vehicles. What are the infrastructure requirements?"} },
+    thursday:  { low: {title:"Accuracy test circuit", activity:"Walk a mapped route of known distance and shape. Compare your GPS track to the known route. Calculate the position error and track accuracy."}, mid: {title:"GPS error budget", activity:"Research the GPS error budget: satellite clock error, ephemeris error, ionospheric delay, tropospheric delay, multipath, and receiver noise. What is each error source\u2019s typical contribution?"}, high: {title:"RTK positioning", activity:"Research Real-Time Kinematic (RTK) GPS. How does it achieve centimeter accuracy? What are the base station requirements and what professional applications use RTK?"} }
+  },
+
+  "Fire lay types — teepee log cabin star": {
+    gradeHooks: {
+      low: "Different fire shapes burn differently. We choose the right shape for what we need: quick heat, cooking coals, or all-night warmth.",
+      mid: "Fire lay selection is based on purpose: teepee for fast ignition, log cabin for coals, star for extended burning with minimal wood splitting.",
+      high: "Fire behavior, heat transfer modes in different fire lay geometries, and the thermodynamics of combustion efficiency are interesting applied physics topics."
+    },
+    materials: ["Tinder bundle", "Kindling", "Hardwood fuel", "Water bucket for safety"],
+    steps: [
+      "Teepee: arrange fuel sticks around a central tinder bundle like a teepee. Burns hot and fast, excellent for quick warmth. Not ideal for cooking — collapses as it burns.",
+      "Log cabin: build alternating layers of fuel perpendicular to each other around a central tinder. Creates a stable structure with excellent airflow. Burns down to quality cooking coals.",
+      "Star fire: arrange 5\u20136 long fuel pieces radiating from a central fire like spokes on a wheel. Feed them inward as they burn. Minimal labor, burns all night, self-regulating.",
+      "Hybrid: start with a teepee for quick ignition, transition to log cabin when tinder is burning, progress to star for long duration.",
+      "Practice transitioning between lay types as the fire develops."
+    ],
+    discussion: [
+      {q:"Why does the log cabin lay produce better cooking coals than the teepee lay?", answers:["The log cabin\u2019s stable, layered structure maintains consistent airflow and even combustion as it burns down. The structure collapses inward in an orderly way, producing a deep bed of uniform coals rather than the scattered ash pattern from a collapsed teepee."]},
+      {q:"What is the advantage of the star fire in a survival situation?", answers:["The star fire requires no chopping or splitting: you simply lay full-length branches with the burning end in the center. As each burns, you push the piece inward. It requires the least energy and tool use while maintaining fire indefinitely."]}
+    ],
+    challenge: "Build and successfully cook a meal over each fire lay type in the same session. Which produces the best cooking surface? Which is easiest to maintain?",
+    tuesday:   { low: {title:"Wood splitting practice", activity:"Research axe and hatchet safety. Practice splitting kindling into uniform sizes under supervision."}, mid: {title:"Hardwood vs softwood comparison", activity:"Research the BTU content per cord of different wood species. Why do hardwoods (oak, hickory, maple) produce better cooking coals than softwoods (pine, spruce)?"}, high: {title:"Combustion efficiency analysis", activity:"Research the combustion efficiency of different fire geometries. How does the log cabin\u2019s controlled airflow compare to the teepee\u2019s open structure in terms of smoke production and heat output?"} },
+    wednesday: { low: {title:"Fire timing", activity:"Time each fire lay type from ignition to: full burning, peak heat, cooking coal stage, and burnout. Create a comparison chart."}, mid: {title:"Fire reflector construction", activity:"Research how to build a fire reflector from green logs or rocks. How much does a reflector increase usable heat toward the shelter?"}, high: {title:"Fire ecology and restoration", activity:"Research how prescribed burning uses specific fire behavior principles to achieve ecological restoration goals. What fire behavior characteristics (flame length, rate of spread) are targeted for different restoration objectives?"} },
+    thursday:  { low: {title:"Cooking project", activity:"Cook a complete meal using only a fire you built. Choose your lay based on what you\u2019re cooking. Adjust the fire as needed during cooking."}, mid: {title:"Fire without matches", activity:"Research fire-starting methods without matches: flint and steel, bow drill, hand drill, and fire piston. Which is most reliable and which is most physically demanding?"}, high: {title:"Fire behavior in wildland-urban interface", activity:"Research WUI (Wildland-Urban Interface) fire behavior. How do structure spacing, vegetation management, and building materials affect fire spread in communities adjacent to wildland?"} }
+  },
+
+  "Oil change — steps and why it matters": {
+    gradeHooks: {
+      low: "Changing the oil removes dirty, worn-out lubricant and replaces it with fresh oil that protects the engine. It\u2019s the most important maintenance task!",
+      mid: "An oil change involves draining old oil, replacing the oil filter, and adding the correct type and quantity of new oil.",
+      high: "Engine lubrication tribology, oil degradation mechanisms, and the comparison of synthetic vs conventional oil chemistry are important automotive topics."
+    },
+    materials: ["Vehicle lifted or with oil drain access", "Drain pan", "Oil filter wrench", "New oil filter and correct oil"],
+    steps: [
+      "Safety: warm the engine for 2 minutes (warm oil drains fully), then turn it off. Never work under a car supported only by a jack — use jack stands.",
+      "Locate the oil drain plug on the oil pan. Place the drain pan. Loosen the plug counterclockwise, then remove quickly while angling it away.",
+      "While draining, remove and replace the oil filter. Apply a thin layer of new oil to the new filter\u2019s gasket before installation. Tighten by hand plus 3/4 turn.",
+      "Reinstall the drain plug with a new crush washer if required. Add the correct amount and type of oil per owner\u2019s manual.",
+      "Start the engine briefly, check for leaks at the plug and filter, check the dipstick level."
+    ],
+    discussion: [
+      {q:"Why does engine oil need to be changed even if you haven\u2019t driven many miles?", answers:["Oil degrades from heat cycling, oxidation, and moisture accumulation even without high mileage. Time-based degradation means oil older than 1 year should be changed regardless of mileage — especially true for synthetic oils in modern engines."]},
+      {q:"What is the difference between 5W-30 and 10W-40 oil and when does viscosity matter?", answers:["The first number (5W or 10W) indicates cold-weather viscosity (W = winter). Lower numbers flow better in cold starts. The second number (30, 40) is operating temperature viscosity. Florida\u2019s climate rarely requires low cold-start viscosity, but always follow the manufacturer\u2019s specification."]}
+    ],
+    challenge: "Perform a complete oil change on your family vehicle under adult supervision. Document: oil type used, quantity, filter part number, and next service mileage.",
+    tuesday:   { low: {title:"Oil type research", activity:"Look up your vehicle\u2019s required oil type and capacity in the owner\u2019s manual. Find this oil at a local auto parts store. What does it cost per change vs a quick-lube service?"}, mid: {title:"Oil analysis", activity:"Research used oil analysis services. What can laboratory analysis of used oil reveal about engine condition? What parameters indicate wear before failure?"}, high: {title:"Synthetic oil chemistry", activity:"Research the molecular structure of synthetic base oils (PAO and ester-based). What specific chemical properties make synthetics superior in film strength, oxidation resistance, and low-temperature flow?"} },
+    wednesday: { low: {title:"Oil filter function", activity:"Research how an oil filter works: the bypass valve, the anti-drainback valve, and the filter media. What happens if you run without an oil filter?"}, mid: {title:"Extended drain intervals", activity:"Research whether extended oil change intervals (10,000\u201315,000 miles with synthetic) are safe. What does the evidence show and what conditions make extended intervals risky?"}, high: {title:"Tribology of engine lubrication", activity:"Research tribology: the science of friction, wear, and lubrication. How does the hydrodynamic lubrication film form in engine bearings and what happens at startup before full oil pressure is established?"} },
+    thursday:  { low: {title:"Proper disposal", activity:"Research used oil disposal. Where can you take used motor oil for recycling? What is prohibited by law regarding used oil disposal?"}, mid: {title:"DIY savings calculation", activity:"Calculate the annual savings of doing your own oil changes vs a quick-lube service. Factor in oil, filter, disposal, and time cost."}, high: {title:"Electric vehicle lubrication", activity:"Research lubrication in electric vehicles. While EVs don\u2019t have engine oil, what other lubricants do they use and what are the service intervals for gearbox fluid and thermal management fluid?"} }
+  },
+
+  "Infection signs — when to seek help": {
+    gradeHooks: {
+      low: "If a wound gets red, swollen, and warm, it might be infected. Some infections need a doctor right away!",
+      mid: "Recognizing the progression from localized infection to systemic infection and sepsis enables life-saving early intervention.",
+      high: "Infection pathophysiology, SIRS criteria, the sepsis cascade, and antimicrobial stewardship are critical medical topics."
+    },
+    materials: ["Reference card for infection signs"],
+    steps: [
+      "Local infection signs (seek care within 24 hours): expanding redness beyond wound edges, increasing warmth and swelling, purulent (pus) discharge, increasing pain despite immobilization.",
+      "Serious local signs (seek immediate care): red streaking (lymphangitis), fluctuance (fluid-filled pocket), foul odor, tissue discoloration (possible necrotizing fasciitis).",
+      "Systemic infection signs (call 911 or go to ER): fever over 101.5\u00b0F, chills and rigors, rapid heart rate, confusion or altered mental status, low blood pressure.",
+      "Sepsis red flags: fever OR hypothermia, heart rate > 90, respiratory rate > 20, altered consciousness.",
+      "Time matters: sepsis mortality increases significantly with each hour of untreated infection."
+    ],
+    discussion: [
+      {q:"What does red streaking from a wound indicate and how quickly can it become life-threatening?", answers:["Red streaking (lymphangitis) indicates bacterial spread through the lymphatic system. It is a serious early warning of potential sepsis. Without antibiotics, a limb infection can become septic in hours. It is a medical emergency."]},
+      {q:"What is necrotizing fasciitis and what makes it a true emergency?", answers:["Necrotizing fasciitis (\u2018flesh-eating bacteria\u2019) is a rapidly spreading bacterial infection that destroys skin, fat, and muscle fascia. It can advance several inches per hour. Without surgical debridement within hours, it is often fatal. Skin discoloration, severe pain disproportionate to appearance, and gas in tissues are key signs."]}
+    ],
+    challenge: "Create a tiered infection assessment card: local (24-hour care), serious local (immediate care), systemic (911). Include specific signs for each tier.",
+    tuesday:   { low: {title:"Wound assessment practice", activity:"Assess 5 simulated wound photos: note which signs of infection are present and determine care urgency level for each."}, mid: {title:"Sepsis statistics", activity:"Research sepsis statistics. How many Americans develop sepsis annually? What is the mortality rate and how does early treatment affect outcomes?"}, high: {title:"Sepsis cascade physiology", activity:"Research the sepsis cascade: how local infection leads to SIRS, to organ dysfunction, to multi-organ failure. What are the molecular mechanisms driving each transition?"} },
+    wednesday: { low: {title:"Antibiotic awareness", activity:"Research why not all infections require antibiotics. What determines whether a wound infection requires systemic antibiotics vs topical treatment vs observation?"}, mid: {title:"Culture and sensitivity", activity:"Research wound culture and sensitivity testing. How does it guide antibiotic selection and why is this important for antimicrobial stewardship?"}, high: {title:"MRSA epidemiology", activity:"Research community-acquired MRSA (methicillin-resistant Staphylococcus aureus). What are the risk factors, what does it look like clinically, and why is it harder to treat than MSSA?"} },
+    thursday:  { low: {title:"When to go to the ER card", activity:"Create a laminated \u2018When to go to the ER\u2019 reference card for wound infections. Post it in your first aid area."}, mid: {title:"Sepsis early warning tools", activity:"Research early warning scoring tools used in hospitals: qSOFA, NEWS, and MEWS. How do these tools help nurses identify deteriorating patients before sepsis is fully established?"}, high: {title:"Biomarker-based sepsis diagnosis", activity:"Research sepsis biomarkers: lactate, procalcitonin, and C-reactive protein. What does elevated lactate indicate mechanistically and how does it guide resuscitation decisions?"} }
+  },
+
+  "Disaster roles in the community": {
+    gradeHooks: {
+      low: "In a disaster, different people have different jobs. Some people rescue, some help medically, some organize. Everyone contributes!",
+      mid: "Community disaster response requires coordinated roles across government agencies, NGOs, private sector, and trained volunteers.",
+      high: "The National Incident Management System (NIMS), Emergency Support Functions, and the integration of governmental and nongovernmental organizations in disaster response are important topics."
+    },
+    materials: ["Paper for organizational chart"],
+    steps: [
+      "Emergency roles by sector: first responders (police, fire, EMS) \u2192 public health (nursing, medical) \u2192 emergency management (coordination, logistics) \u2192 public works (infrastructure) \u2192 community organizations (Red Cross, faith groups) \u2192 trained volunteers (CERT).",
+      "Incident Command System: all responders use a unified command structure regardless of organization.",
+      "Elected officials: mayors and county commissioners make major policy decisions (evacuation orders, curfews, resource allocation).",
+      "Non-governmental organizations: Red Cross provides mass care, Salvation Army provides food, VOAD (Voluntary Organizations Active in Disaster) coordinates volunteer groups.",
+      "Every individual: personal preparedness, community connection, and specific trained skills each contribute to community resilience."
+    ],
+    discussion: [
+      {q:"Why do all responding organizations use the Incident Command System regardless of their home structure?", answers:["ICS provides a common language and organizational structure that allows seamless integration of organizations that have never worked together. Without common command language, coordination failures occur: agencies duplicate effort, miss tasks, or work at cross-purposes."]},
+      {q:"What is the role of faith communities in disaster response that government agencies often cannot fulfill?", answers:["Faith communities have pre-existing relationships of trust with vulnerable community members, physical infrastructure (buildings), established volunteer networks, and cultural competence in specific communities. They often reach people that government programs miss."]}
+    ],
+    challenge: "Create an organizational chart showing how your county\u2019s emergency response is structured. Include all major agencies and their roles.",
+    tuesday:   { low: {title:"Local emergency management structure", activity:"Research your county\u2019s emergency management office. Who is the director? What agencies does it coordinate? How is it funded?"}, mid: {title:"VOAD research", activity:"Research your state\u2019s VOAD (Voluntary Organizations Active in Disaster). What member organizations does it include and what does each contribute?"}, high: {title:"Emergency Support Functions", activity:"Research FEMA\u2019s 15 Emergency Support Functions (ESFs). Which federal agencies lead each ESF and how do they coordinate with state and local counterparts?"} },
+    wednesday: { low: {title:"Spontaneous volunteer management", activity:"Research the challenge of managing spontaneous unaffiliated volunteers (SUVs) in disasters. Why can untrained well-meaning volunteers cause problems and how do emergency managers address this?"}, mid: {title:"Donations management", activity:"Research donations management in disasters. Why do unsolicited material donations often become a logistics problem and what should donors do instead?"}, high: {title:"National Response Framework", activity:"Research the National Response Framework (NRF). How does it establish roles and responsibilities across all levels of government and define the scope of federal disaster assistance?"} },
+    thursday:  { low: {title:"My role in disaster response", activity:"Based on your skills, training, and resources, write a 1-page \u2018my disaster role\u2019 document: what you can contribute at individual, family, neighborhood, and community levels."}, mid: {title:"Mutual aid agreements", activity:"Research mutual aid agreements between jurisdictions. How do they work legally and how do they enable neighboring counties to share resources during disasters?"}, high: {title:"Post-disaster governance challenges", activity:"Research the governance challenges that emerge in the aftermath of major disasters: temporary authority conflicts, reconstruction contracting, and the balance between speed and accountability."} }
+  },
+
+  "Propane safety and storage": {
+    gradeHooks: {
+      low: "Propane is a gas we use for grills and some generators. It needs careful storage because it is flammable!",
+      mid: "Propane safety covers cylinder inspection, connection procedures, leak detection, and storage requirements.",
+      high: "Propane chemistry, liquefied petroleum gas (LPG) properties, storage regulations, and the comparative risks of propane vs natural gas are important topics."
+    },
+    materials: ["Propane cylinder (safely stored)", "Soap solution for leak testing"],
+    steps: [
+      "Cylinder inspection: check for dents, corrosion, damaged valve, or the collar date stamp. Propane cylinders must be re-certified after 12 years (stamped on collar) or replaced.",
+      "Connection: ensure the appliance is off before connecting. Attach the regulator hand-tight plus 1/4 turn. Never use tools on the connection.",
+      "Leak test: apply soapy water to all connections. Bubbles indicate a leak. Never test with an open flame.",
+      "Storage: outdoors, upright, away from ignition sources and heat. Never store indoors, in a car trunk, or in a basement.",
+      "Emergency: if you smell gas, do not operate any switch. Leave immediately, leave the door open, call 911 from outside."
+    ],
+    discussion: [
+      {q:"Why must propane cylinders be stored and transported upright?", answers:["Propane cylinders have a pressure relief valve on the top of the cylinder. If stored on its side, the relief valve is submerged in liquid propane. A pressure relief event would release liquid rather than gas, creating a much more dangerous situation."]},
+      {q:"Why does propane accumulate at floor level rather than dispersing into the air?", answers:["Propane vapor is approximately 1.5x heavier than air. When it leaks, it settles into low points: under appliances, in basements, and along floors. This creates a fire hazard even from small leaks because the concentration can reach the flammable range before being noticed."]}
+    ],
+    challenge: "Conduct a safety inspection of every propane cylinder in your home. Check collar dates, look for damage, and test connections with soapy water.",
+    tuesday:   { low: {title:"Cylinder date check", activity:"Find the collar of your propane cylinder. Locate the manufacture date stamp. Is it within the 12-year recertification window?"}, mid: {title:"Propane appliance connection", activity:"Research the correct procedure for connecting and disconnecting a propane grill cylinder. What is the correct leak test procedure?"}, high: {title:"LPG vs natural gas properties", activity:"Research the differences between propane (LPG) and natural gas. Why does propane require higher pressure in the delivery system? Why does natural gas rise when it leaks while propane falls?"} },
+    wednesday: { low: {title:"Storage location audit", activity:"Identify all propane cylinders at your home. Are they stored correctly: outdoors, upright, away from ignition sources?"}, mid: {title:"Propane fire response", activity:"Research the response to a propane fire. Why should you NOT extinguish a propane fire if you cannot shut off the fuel supply? What is a BLEVE and why is it so dangerous?"}, high: {title:"BLEVE physics", activity:"Research Boiling Liquid Expanding Vapor Explosion (BLEVE). What thermodynamic conditions cause a BLEVE and why does it produce a fireball of the liquefied gas contents?"} },
+    thursday:  { low: {title:"Emergency response plan", activity:"Write a one-page propane emergency response plan: smell gas inside, smell gas outside, propane fire. What are the exact steps for each scenario?"}, mid: {title:"Generator propane conversion", activity:"Research dual-fuel generators that run on both gasoline and propane. What are the fuel storage advantages of propane for emergency preparedness?"}, high: {title:"Propane storage regulations", activity:"Research NFPA 58 (Liquefied Petroleum Gas Code). What are the maximum storage quantities allowed for residential use and what separation distances are required from structures?"} }
+  },
+
+  "Making kombucha from scratch": {
+    gradeHooks: {
+      low: "Kombucha is a fizzy fermented tea drink made with a SCOBY — a culture of bacteria and yeast. We grow our own culture and brew our own!",
+      mid: "Kombucha brewing involves symbiotic fermentation by bacteria and yeast, producing organic acids, CO2, and trace alcohol.",
+      high: "The microbiology of kombucha fermentation, the chemistry of acetic and gluconic acid production, and the health claims literature are important topics."
+    },
+    materials: ["SCOBY (Symbiotic Culture of Bacteria and Yeast) or starter culture", "Black or green tea", "Sugar", "Large glass jar", "Cloth cover"],
+    steps: [
+      "Brew sweet tea: steep 4\u20136 black tea bags in 1 gallon of boiling water. Add 1 cup of sugar. Stir until dissolved. Cool to room temperature.",
+      "Add SCOBY and 1\u20132 cups of starter liquid (previously brewed kombucha or distilled white vinegar) to a clean glass container.",
+      "Pour in the cooled sweet tea. The SCOBY floats or sinks — both are fine.",
+      "Cover with cloth secured with a rubber band (allows gas exchange, keeps insects out). Ferment at 72\u201380\u00b0F for 7\u201314 days.",
+      "Taste at day 7: less sweet and more sour = more fermented. When desired flavor is reached, remove SCOBY, bottle, and refrigerate."
+    ],
+    discussion: [
+      {q:"What is a SCOBY and what organisms does it contain?", answers:["A SCOBY (Symbiotic Culture of Bacteria and Yeast) is a rubbery cellulose mat produced by the bacteria. It contains multiple species of acetic acid bacteria (primarily Acetobacter and Gluconobacter) and yeasts (primarily Zygosaccharomyces and Brettanomyces). Each organism performs a different metabolic role."]},
+      {q:"Why should kombucha be brewed in glass containers rather than plastic or metal?", answers:["Kombucha is highly acidic (pH 2.5\u20133.5) and can leach chemicals from plastics (especially BPA) and corrode metals, contaminating the brew and potentially the SCOBY. Glass is inert and food-safe at this acidity level."]}
+    ],
+    challenge: "Complete a full first fermentation of kombucha. Document pH, flavor, and appearance at day 3, 7, 10, and 14. Compare to commercial kombucha.",
+    tuesday:   { low: {title:"SCOBY hotel management", activity:"Research how to maintain a SCOBY hotel: keeping extra SCOBYs in starter liquid for backup. How do you feed a SCOBY hotel and how long can SCOBYs be stored?"}, mid: {title:"Second fermentation", activity:"Research second fermentation for carbonation and flavor. How does bottling with fruit juice or ginger create natural carbonation? What creates the explosion risk of over-carbonation?"}, high: {title:"Fermentation chemistry deep dive", activity:"Research the dual fermentation pathway in kombucha: yeasts convert sugar to ethanol and CO2, then acetic acid bacteria convert ethanol to acetic acid. What other organic acids are produced?"} },
+    wednesday: { low: {title:"pH testing timeline", activity:"Test your kombucha pH every 2 days using pH strips. Chart the decline. What pH is typical for finished kombucha?"}, mid: {title:"Health claims research", activity:"Research the scientific evidence for health claims about kombucha. What does peer-reviewed research support and what claims are unsubstantiated?"}, high: {title:"Cellulose pellicle formation", activity:"Research how acetic acid bacteria produce the cellulose SCOBY pellicle. What genes are involved and what ecological purpose does cellulose production serve for the bacteria?"} },
+    thursday:  { low: {title:"Flavor variation experiment", activity:"Brew 3 small batches with different teas: black, green, and herbal. Compare flavor profiles. Which tea produces the most complex kombucha?"}, mid: {title:"Vinegar mother comparison", activity:"Research the relationship between kombucha SCOBY and the mother in apple cider vinegar. How are they similar and what makes kombucha\u2019s culture more complex?"}, high: {title:"Industrial kombucha production", activity:"Research how commercial kombucha is produced at scale. What quality control challenges exist and how do commercial producers maintain consistent culture and flavor profiles?"} }
+  },
+
+  "Greywater filtration for garden use": {
+    gradeHooks: {
+      low: "We can clean our sink and shower water enough to use it safely on garden plants!",
+      mid: "Greywater filtration removes solids, reduces pathogens, and improves water quality for safe garden application.",
+      high: "Greywater treatment engineering, pathogen removal mechanisms, and the soil treatment processes that complete purification are important topics."
+    },
+    materials: ["Collection container", "Mulch basin", "Gravel and sand for simple filter"],
+    steps: [
+      "Simple laundry-to-landscape: divert washing machine outlet through a mulch basin. No filter needed — mulch provides biological treatment.",
+      "Sink greywater: collect in a bucket. Allow to settle 15 minutes. Decant the clearer top portion for use (leave sediment).",
+      "Simple sand filter for improved quality: gravel layer (catches large particles), coarse sand, fine sand. Water gravity-feeds through all layers.",
+      "Application: apply to the soil, never to plant leaves or edible parts of food crops. Root vegetables require extra caution.",
+      "Timing: use greywater within 24 hours. Do not store long-term — pathogens multiply in warm standing water."
+    ],
+    discussion: [
+      {q:"Why does applying greywater to soil rather than spraying on plants provide natural treatment?", answers:["Soil particles filter out pathogens physically. Soil microorganisms break down organic matter and compete with or consume pathogens. The combination of filtration, biological activity, and UV exposure at the soil surface provides multi-stage treatment."]},
+      {q:"What soap ingredients should be avoided in greywater used for irrigation?", answers:["Sodium (causes soil salinity and structure damage), boron (toxic to plants even at low concentrations), chlorine bleach (kills soil microorganisms), and heavy fragrances. Choose plant-based, biodegradable soaps with no boron and low sodium."]}
+    ],
+    challenge: "Design and build a simple 3-stage greywater filtration system. Test by running shower water through it and comparing input and output clarity.",
+    tuesday:   { low: {title:"Simple filter construction", activity:"Build a basic greywater filter: gravel, coarse sand, fine sand in a bucket with a bottom drain. Run dirty water through and observe improvement."}, mid: {title:"Pathogen reduction research", activity:"Research how much pathogen reduction different greywater treatment systems achieve. What is the log reduction for E. coli in a properly designed mulch basin?"}, high: {title:"Constructed wetlands design", activity:"Research constructed wetland systems for greywater treatment. How do subsurface flow wetlands work and what plant species are used in tropical and subtropical climates?"} },
+    wednesday: { low: {title:"Application timing guide", activity:"Create a guide for safe greywater use: timing requirements (within 24 hours), application method (at soil surface), and crops to avoid (root vegetables, leafy greens)."}, mid: {title:"Florida regulation deep dive", activity:"Research Florida Administrative Code Section 64E-6.011 governing greywater reuse. What systems are permitted and what applications are prohibited?"}, high: {title:"Water quality parameter analysis", activity:"Research BOD (Biochemical Oxygen Demand), TSS (Total Suspended Solids), and fecal coliform as quality parameters for greywater. What levels does each category of treatment system typically achieve?"} },
+    thursday:  { low: {title:"Household water audit", activity:"Track all water use for one day. Calculate what percentage is greywater (reusable) vs blackwater (not reusable). What is the maximum garden irrigation potential?"}, mid: {title:"Drought resilience calculation", activity:"Calculate how many weeks of drought your greywater system could sustain your garden without rain. Compare to typical Florida dry season length."}, high: {title:"Net zero water design", activity:"Design a theoretical net zero water home: combining rainwater harvesting, greywater reuse, and demand reduction to eliminate municipal water use. What are the engineering and regulatory challenges?"} }
+  },
+
+  "Insulating pipes for winter": {
+    gradeHooks: {
+      low: "Pipe insulation keeps water in pipes from freezing on cold nights. Florida gets cold sometimes — we need to be ready!",
+      mid: "Pipe insulation prevents freezing, reduces heat loss from hot water pipes, and is one of the highest-ROI home improvements per dollar spent.",
+      high: "Heat transfer calculations, pipe insulation R-values, freeze protection strategies, and the economics of pipe insulation are important building science topics."
+    },
+    materials: ["Pipe insulation (foam tubes)", "Tape", "Scissors"],
+    steps: [
+      "Identify vulnerable pipes: outdoor hose bibs, pipes in unheated garages, pipes in exterior walls, and crawlspace pipes.",
+      "Measure pipe diameter: insulation is sized to pipe outer diameter (1/2\u201d, 3/4\u201d, 1\u201d are most common).",
+      "Installation: split foam tubes have a slit. Peel open and wrap around the pipe. Seal the slit with foam tape.",
+      "Hose bib protection: use an outdoor faucet cover in addition to insulating the pipe behind it.",
+      "Florida specific: even a few hours below 28\u00b0F can freeze exposed pipes. Florida pipe materials (PVC and CPVC) are more vulnerable than copper."
+    ],
+    discussion: [
+      {q:"Why are PVC and CPVC pipes more vulnerable to freeze damage than copper pipes?", answers:["PVC and CPVC are less thermally conductive than copper, so they cool down faster in cold air. They are also more brittle when cold and less able to accommodate the expansion of freezing water without cracking."]},
+      {q:"How long after temperatures drop below 32\u00b0F does a pipe freeze and burst?", answers:["Pipes typically freeze after 6 or more hours below 20\u00b0F without insulation. However, with wind chill and vulnerable locations (exterior walls, attics), pipes can freeze faster. In Florida, rare freezes can reach the danger zone for brief periods."]}
+    ],
+    challenge: "Identify and insulate every vulnerable pipe in your home before the winter season. Calculate the total cost of materials and estimate energy savings from hot water pipe insulation.",
+    tuesday:   { low: {title:"Vulnerable pipe identification", activity:"Walk your home and identify all pipes that could freeze: outdoor hose connections, garage pipes, crawlspace pipes, and pipes on exterior walls."}, mid: {title:"R-value of pipe insulation", activity:"Research the R-value per inch of foam pipe insulation. How does wall thickness affect protection? What R-value do you need for pipes in an unheated space at 20\u00b0F?"}, high: {title:"Heat loss calculation", activity:"Calculate the heat loss from an uninsulated 1/2\u201d hot water pipe running 20 feet in a 60\u00b0F space. Compare to the same pipe insulated with 1\u201d foam. What is the annual energy cost difference?"} },
+    wednesday: { low: {title:"Installation practice", activity:"Install foam pipe insulation on 5 feet of accessible piping. Focus on: snug fit, taped seams, and coverage of all fittings."}, mid: {title:"Hose bib winterization", activity:"Research how to properly winterize outdoor hose bibs in Florida. What is a frost-free hose bib and how does it work?"}, high: {title:"Condensation prevention", activity:"Research how pipe insulation prevents condensation on cold water pipes in humid Florida summers. What moisture barrier properties are important for insulation in this application?"} },
+    thursday:  { low: {title:"Emergency freeze response", activity:"Research what to do when a freeze warning is issued: drip faucets, disconnect hoses, open cabinet doors. Which of these actions is most effective?"}, mid: {title:"Insurance considerations", activity:"Research how pipe bursting during freezes affects homeowner\u2019s insurance. Is freeze damage typically covered and what documentation is required for a claim?"}, high: {title:"Passive freeze protection systems", activity:"Research heat tape and self-regulating heat cable systems. How does self-regulating cable adjust power consumption based on pipe temperature? When is active heating justified over insulation alone?"} }
+  },
+
+  "Credit cards — when they help and when they hurt": {
+    gradeHooks: {
+      low: "Credit cards can be helpful tools or debt traps. The difference is whether you pay the full balance every month!",
+      mid: "Credit cards offer consumer protections, rewards, and float. High interest rates make carrying a balance extremely expensive.",
+      high: "Credit card economics, interchange fees, rewards program profitability, and the regulatory framework governing credit cards are important financial topics."
+    },
+    materials: ["Calculator", "Sample credit card agreement"],
+    steps: [
+      "When credit cards help: fraud protection (stronger than debit), purchase protection, warranty extension, travel insurance, rewards (cash back, miles), building credit.",
+      "When credit cards hurt: when you carry a balance at 20\u201330% APR. $1,000 at 24% costs $240/year in interest if only minimum payments are made.",
+      "The golden rule: pay the full statement balance every month. You get all the benefits and pay zero interest.",
+      "Minimum payment trap: on a $5,000 balance at 22% APR with 2% minimum payments, it takes 25+ years to pay off and costs over $7,000 in interest.",
+      "Grace period: most cards offer 25\u201330 days after the statement closing date before interest accrues. Pay in full before the due date."
+    ],
+    discussion: [
+      {q:"Why do credit card companies offer generous rewards but still profit?", answers:["Rewards are funded by interchange fees paid by merchants (typically 1.5\u20132.5% of the purchase price) and by the significant interest income from the majority of cardholders who carry a balance. Cardholders who pay in full are essentially subsidized by those who don\u2019t."]},
+      {q:"What is the difference between credit card fraud protection and debit card fraud protection?", answers:["With credit cards, the money at risk is the bank\u2019s credit extended to you. Federal law (Fair Credit Billing Act) limits your liability to $50 if reported promptly. Debit card fraud involves your actual bank account money. While EFTA provides some protection, disputed debit charges can take 10 business days to resolve, leaving you without funds."]}
+    ],
+    challenge: "Read a full credit card agreement. Identify: the purchase APR, the minimum payment formula, the grace period, and the penalty APR for missed payments.",
+    tuesday:   { low: {title:"Interest cost calculator", activity:"Calculate the total interest paid on a $2,000 balance at 20% APR over 2 years with minimum payments only."}, mid: {title:"Rewards card comparison", activity:"Compare 3 rewards credit cards: cash back, travel miles, and a store card. Calculate the effective rewards rate and what annual spending is required for each to justify any annual fee."}, high: {title:"Interchange fee economics", activity:"Research how interchange fees work. How are they set, who pays them, and what regulation has been applied? How did the Durbin Amendment affect debit card interchange vs credit card interchange?"} },
+    wednesday: { low: {title:"Credit card vs debit card decision", activity:"Research 5 purchase scenarios. For each, determine whether a credit card or debit card offers better consumer protection and why."}, mid: {title:"Balance transfer analysis", activity:"Research balance transfer credit cards. Calculate whether transferring a $4,000 balance at 22% to a 0% APR card with a 3% transfer fee saves money over 18 months."}, high: {title:"CARD Act research", activity:"Research the Credit Card Accountability Responsibility and Disclosure (CARD) Act of 2009. What practices did it prohibit and what disclosures did it require?"} },
+    thursday:  { low: {title:"Credit card agreement review", activity:"Read the key terms of a credit card agreement. Identify: purchase APR, cash advance APR, grace period, minimum payment calculation, and penalty APR."}, mid: {title:"Authorized user strategy", activity:"Research how becoming an authorized user on a parent\u2019s card can help build credit. What are the risks to both the primary cardholder and the authorized user?"}, high: {title:"Subprime credit card economics", activity:"Research subprime credit cards targeting consumers with poor credit. How do predatory terms (high fees, low limits, aggressive penalty rates) extract wealth from financially vulnerable consumers?"} }
+  },
+
+  "Dead reckoning navigation — no GPS": {
+    gradeHooks: {
+      low: "Dead reckoning means we figure out where we are by tracking how far and in which direction we\u2019ve traveled from a known starting point.",
+      mid: "Dead reckoning combines compass bearing, pace count, and time to estimate position without GPS or landmarks.",
+      high: "Dead reckoning error accumulation, position uncertainty ellipses, and the integration of dead reckoning with inertial navigation systems are important navigation science topics."
+    },
+    materials: ["Compass", "Measured pace count", "Map with scale", "Paper for tracking"],
+    steps: [
+      "Dead reckoning formula: starting position + (distance traveled x direction of travel) = estimated current position.",
+      "Record keeping: maintain a DR log. For each leg: bearing, pace count (or time at known speed), and calculated new position.",
+      "Calibrate your pace count: count how many double paces you take over 100 meters on flat ground. Divide 100 by your count = meters per double pace.",
+      "Plot each leg on the map: from your starting position, draw a line in the direction of travel at the calculated distance.",
+      "Accumulated error: each leg introduces small errors. After several legs, cross-check against landmarks or GPS to reset your position."
+    ],
+    discussion: [
+      {q:"What is the cumulative error of dead reckoning and why does it grow with distance?", answers:["Each leg introduces measurement errors (bearing accuracy \u00b12\u00b0, pace count \u00b11\u20132%). These small errors compound with each additional leg. After 1 kilometer, error might be 50\u2013100 meters. After 5 kilometers without a position fix, error could exceed 500 meters."]},
+      {q:"Why do submarines use inertial navigation rather than GPS?", answers:["Submarines are underwater and cannot receive GPS signals. Inertial Navigation Systems (INS) use accelerometers and gyroscopes to measure every movement from a known starting position. They are essentially electronic dead reckoning with extreme precision, drifting only a fraction of a nautical mile per hour."]}
+    ],
+    challenge: "Navigate a 4-leg dead reckoning course without GPS. Record each leg\u2019s bearing and pace count. Compare your estimated end position to GPS. What was the error?",
+    tuesday:   { low: {title:"Pace count calibration", activity:"Calibrate your personal pace count on a 100m course. Measure 3 times and average. Calculate your pace per meter on uphill, flat, and downhill terrain."}, mid: {title:"DR log keeping", activity:"Create a proper dead reckoning log format: leg number, bearing, distance, and plotted position. Run a 3-leg course and fill it in."}, high: {title:"INS vs GPS error analysis", activity:"Research how inertial navigation system drift compares to GPS position error over time. What hybrid INS/GPS systems are used in aviation and submarines?"} },
+    wednesday: { low: {title:"Error accumulation demonstration", activity:"Run a 5-leg DR course. Plot each leg as you go. At the end, compare your plotted position to GPS. Which leg introduced the most error?"}, mid: {title:"Velocity dead reckoning", activity:"Research vehicle dead reckoning: how does an odometer reading + compass heading allow position tracking? What are the error sources different from foot navigation?"}, high: {title:"Kalman filter introduction", activity:"Research the Kalman filter used in navigation systems. How does it optimally combine multiple imperfect sensor inputs to produce a better position estimate than any single sensor alone?"} },
+    thursday:  { low: {title:"Urban dead reckoning", activity:"Practice dead reckoning in your neighborhood: start at a known corner, navigate 4 blocks by bearing and count only (no street signs). Can you identify where you end up?"}, mid: {title:"Night navigation DR", activity:"Research how dead reckoning becomes the primary navigation technique at night when terrain features are invisible. What additional disciplines become critical?"}, high: {title:"SLAM technology", activity:"Research Simultaneous Localization and Mapping (SLAM) used by autonomous robots. How does it combine dead reckoning with sensor-based map building to create a self-correcting navigation system?"} }
+  },
+
+  "Wet and dry fire starting methods": {
+    gradeHooks: {
+      low: "In wet weather, starting a fire is much harder. We learn tricks to find and use dry tinder even when everything seems wet.",
+      mid: "Wet weather fire starting requires understanding where dry fuel exists despite surface moisture, and using fire lay techniques that protect ignition.",
+      high: "The thermodynamics of wet wood combustion, the chemistry of fire-starting accelerants, and the physics of maintaining a fire in adverse conditions are interesting applied science topics."
+    },
+    materials: ["Dry fire starting materials", "Wet conditions simulation (or actual wet weather)"],
+    steps: [
+      "Finding dry tinder in wet conditions: the inner bark of standing dead trees, the underside of logs, fatwood (resin-saturated pine heartwood), and feather sticks (shaved from the dry interior of wet branches).",
+      "Making feather sticks: shave a dry stick into a fan of thin curls connected at one end. These provide dry surface area for ignition.",
+      "Fatwood: the resin-saturated heartwood of dead pine stumps and roots. It burns even when soaking wet.",
+      "Fire lay in wet conditions: build a platform of dry wood to elevate the fire off wet ground. Use a teepee or lean-to configuration that sheds rain.",
+      "Fanning and protecting the infant fire: shield from wind, add fuel gradually, ensure airflow is adequate but not excessive."
+    ],
+    discussion: [
+      {q:"Why does fatwood burn even when wet?", answers:["Fatwood is saturated with crystallized resin (rosin). The high energy density of the hydrocarbon resin burns intensely regardless of surface moisture. The heat from burning resin evaporates and burns the wood moisture as fuel is added. It is nature\u2019s fire starter."]},
+      {q:"What is the difference between wet wood not burning vs wet wood that won\u2019t ignite?", answers:["Even wet wood will eventually burn once it reaches the ignition temperature and the surface moisture has been driven off by heat. The challenge is sustained ignition — the initial heat source must be large enough to drive off moisture faster than the wood absorbs heat."]}
+    ],
+    challenge: "Attempt to start a fire using only naturally gathered materials after a rain event. Document what worked and what didn\u2019t. Identify the critical factor in your success or failure.",
+    tuesday:   { low: {title:"Fatwood identification and collection", activity:"Research how to identify fatwood in the field. What visual cues indicate a pine stump contains fatwood? Collect a sample and test its flammability."}, mid: {title:"Feather stick practice", activity:"Practice making feather sticks: shave thin, attached curls from a dry stick. How thin can you make the curls while keeping them attached? How does this increase surface area?"}, high: {title:"Combustion thermodynamics of wet wood", activity:"Research the energy balance of burning wet wood. How much energy is consumed by evaporating moisture vs producing heat? At what moisture content does wood become self-sustaining in combustion?"} },
+    wednesday: { low: {title:"Tinder identification", activity:"Research and find 5 types of wet-weather tinder in your environment: tree fungus, inner bark, dead grass tufts, dry leaf litter under sheltered areas, and cattail fluff."}, mid: {title:"Wind vs rain fire challenge", activity:"Which is more challenging: starting a fire in rain or starting a fire in wind? Design and test a fire lay that addresses both simultaneously."}, high: {title:"Fire accelerants chemistry", activity:"Research the chemistry of various fire-starting accelerants: petroleum jelly with cotton balls, hexamine tablets, and commercial firestarters. Compare energy density, burn time, and weather resistance."} },
+    thursday:  { low: {title:"Wet weather challenge", activity:"Start a fire using only materials gathered from outside after a morning rain. No artificial fire starters. Document the process and what you discovered."}, mid: {title:"Fire starting kit", activity:"Assemble a wet-weather fire starting kit: fatwood shavings, petroleum jelly cotton balls, waterproof matches, lighter, and tinder in a sealed bag. Explain the role of each item."}, high: {title:"Wood moisture content measurement", activity:"Research wood moisture meters. What moisture content percentage is ideal for firewood? How does green wood (fresh cut) compare to seasoned wood (1\u20132 years dried) in combustion properties?"} }
+  },
+
+  "Rotating car tires — when and why": {
+    gradeHooks: {
+      low: "Front tires wear differently than rear tires. Rotating them regularly means all 4 wear evenly and last longer!",
+      mid: "Tire rotation patterns depend on drivetrain (FWD, RWD, AWD) and tire directional design. Proper rotation extends tire life significantly.",
+      high: "Tire wear mechanics, the relationship between rotation pattern and wear characteristics, and the economics of tire rotation vs replacement are important automotive topics."
+    },
+    materials: ["Vehicle", "Jack and jack stands or lift", "Torque wrench"],
+    steps: [
+      "Why rotate: front tires on a FWD car do all the steering and most of the braking AND driving. They wear 2\u20133x faster than rears without rotation.",
+      "Rotation interval: every 5,000\u20138,000 miles or every other oil change.",
+      "FWD pattern: front tires move straight to the rear. Rear tires cross to the front (right rear to front left, left rear to front right).",
+      "RWD pattern: rear tires move straight to the front. Front tires cross to the rear.",
+      "AWD/4WD: typically follow the same cross pattern as FWD or RWD depending on the primary drive axle."
+    ],
+    discussion: [
+      {q:"Why do front-wheel drive cars wear front tires faster than rear tires?", answers:["FWD tires must simultaneously steer, transmit engine torque to the road, and assist with braking. This triple stress — especially the turning combined with power application — creates significantly more wear than rear tires which only brake."]},
+      {q:"Why do directional tires have their own rotation pattern that differs from standard tires?", answers:["Directional tires have a V-shaped tread pattern designed for water evacuation in a specific rotation direction. They can only move front-to-back on the same side of the car. To move them across, the tires must be dismounted and remounted on opposite rims — a more expensive process."]}
+    ],
+    challenge: "Determine the correct rotation pattern for your family vehicle. Research whether your tires are directional. Perform or observe a tire rotation.",
+    tuesday:   { low: {title:"Drivetrain identification", activity:"Determine your vehicle\u2019s drivetrain: FWD, RWD, AWD, or 4WD. Research the correct rotation pattern for each and apply it to your specific vehicle."}, mid: {title:"Tread wear pattern analysis", activity:"Check the tread depth and wear pattern across the width of each tire. What does center wear, edge wear, and diagonal wear indicate about pressure and alignment?"}, high: {title:"Tire wear mechanics", activity:"Research the tribology of tire wear. How does slip angle, camber, and load distribution affect tread wear patterns? What does diagnostic wear analysis reveal about suspension alignment?"} },
+    wednesday: { low: {title:"Rotation during oil change", activity:"Research which quick-lube chains include tire rotation with oil changes. Is this cost-effective or can you do it cheaper separately at a tire shop?"}, mid: {title:"Staggered tire setups", activity:"Research vehicles with staggered tire setups (wider rear tires, like many sports cars). Why can\u2019t these tires be rotated front to back and how does this affect tire cost?"}, high: {title:"Run-flat rotation considerations", activity:"Research why run-flat tires require special consideration in rotation. How does their reinforced sidewall affect wear patterns differently from conventional tires?"} },
+    thursday:  { low: {title:"Rotation cost comparison", activity:"Compare the cost of regular tire rotation (extending tire life 20\u201330%) to the cost of replacing 4 tires prematurely. Calculate the lifetime savings."}, mid: {title:"Wheel balancing connection", activity:"Research when tire balancing should accompany rotation. What causes a tire to become unbalanced and what symptoms does an unbalanced tire produce?"}, high: {title:"Tire life optimization modeling", activity:"Create a tire life cost model: cost of 4 new tires, rotation frequency, mileage per year, and expected tire life with and without rotation. Calculate the optimal rotation interval for cost minimization."} }
+  },
+
+  "Pressure points for bleeding control": {
+    gradeHooks: {
+      low: "If someone is bleeding a lot, pressing on a pressure point above the wound can slow or stop the blood flow.",
+      mid: "Pressure point hemostasis uses anatomical knowledge of arterial locations to reduce blood flow to extremities with severe bleeding.",
+      high: "Vascular anatomy, hemostatic physiology, and the evidence for pressure point effectiveness vs direct pressure and tourniquet use are important medical topics."
+    },
+    materials: ["Anatomy reference", "Partner for location practice"],
+    steps: [
+      "Primary technique: direct pressure on the wound remains the first-line intervention. Apply hard and direct — do not lift to check.",
+      "Pressure point technique: apply pressure between the wound and the heart at the nearest major artery point to reduce blood flow to the wound.",
+      "Brachial artery (upper arm bleeding): press against the humerus on the inner side of the upper arm.",
+      "Femoral artery (thigh bleeding): press deep in the crease of the hip/groin area against the femur.",
+      "Popliteal artery (knee/lower leg): press behind the knee in the popliteal fossa.",
+      "Important: pressure points are a supplementary technique. Tourniquet for extremity arterial bleeding is more reliable."
+    ],
+    discussion: [
+      {q:"When should you apply a tourniquet rather than relying on direct pressure and pressure points?", answers:["A tourniquet is indicated for arterial bleeding (bright red, pulsatile flow) that cannot be controlled by direct pressure, for amputations or near-amputations, and when direct pressure cannot be maintained (e.g., you must move the victim). Tourniquet is the definitive treatment for extremity arterial bleeding."]},
+      {q:"Why do pressure points have limited effectiveness against venous bleeding?", answers:["Pressure points compress arteries, which carry high-pressure blood toward the wound. Venous blood returns to the heart under low pressure from the other direction. Compressing the artery above the wound reduces input but doesn\u2019t address venous bleeding."]}
+    ],
+    challenge: "Locate and practice pressure point application on 3 major anatomical sites. Verify location by checking for a distal pulse change when pressure is applied.",
+    tuesday:   { low: {title:"Arterial anatomy map", activity:"Draw a body outline and mark the major pressure points with their corresponding artery names: brachial, radial, femoral, popliteal, and carotid."}, mid: {title:"Tourniquet application practice", activity:"Research and practice commercial tourniquet (CAT or SOFTT-W) application on an extremity. What is the correct placement and how tight is correct?"}, high: {title:"Wound packing technique", activity:"Research wound packing (hemostatic gauze) for junctional wounds where tourniquets cannot be applied (groin, axilla). What hemostatic agents are used and what is the application technique?"} },
+    wednesday: { low: {title:"Pulse location practice", activity:"Locate and feel 6 peripheral pulses on yourself: radial (wrist), brachial (arm), femoral (groin), popliteal (behind knee), dorsalis pedis (top of foot), and posterior tibial (inner ankle)."}, mid: {title:"Stop the Bleed program", activity:"Research the Stop the Bleed campaign. What 3 skills does it teach and what evidence supports its effectiveness in mass casualty events?"}, high: {title:"Coagulation cascade", activity:"Research the coagulation cascade. What are the intrinsic and extrinsic pathways and how do hemostatic dressings (Combat Gauze, QuikClot) interact with the clotting process?"} },
+    thursday:  { low: {title:"Bleeding control scenario", activity:"Act out a scenario: someone has a deep laceration on the inner upper arm with arterial bleeding. Walk through the complete response: direct pressure, pressure point, tourniquet decision."}, mid: {title:"Junctional hemorrhage management", activity:"Research junctional hemorrhage control devices (JETT, SAM Junctional Tourniquet). What wounds do they address that standard limb tourniquets cannot?"}, high: {title:"Damage control resuscitation", activity:"Research the evolution of military trauma care and damage control resuscitation. How has the \u2018golden hour\u2019 concept given way to hemorrhage control as the primary early intervention?"} }
+  },
+
+  "Mass casualty — triage basics": {
+    gradeHooks: {
+      low: "Triage means sorting injured people by how urgently they need help. We help the most people by treating those we can save first.",
+      mid: "The START triage system provides a rapid, systematic way to sort multiple victims in a mass casualty incident.",
+      high: "Triage ethics, SALT vs START algorithms, resource allocation under constraint, and the medical ethics of triage decisions are important topics."
+    },
+    materials: ["START triage reference card"],
+    steps: [
+      "Triage goal: do the greatest good for the greatest number. In a mass casualty event, resources are limited.",
+      "START (Simple Triage and Rapid Treatment) categories: RED (immediate, life-threatening but survivable), YELLOW (delayed, serious but stable), GREEN (minor, can wait), BLACK (deceased or unsalvageable).",
+      "START assessment sequence: 30 seconds per patient. Respirations (< 30/min?), Perfusion (radial pulse present?), Mental status (follows commands?).",
+      "Immediate (RED): any one of breathing only after repositioning, respiratory rate > 30, absent radial pulse, or unresponsive but breathing.",
+      "Black vs immediate decision: if a patient requires repositioning to breathe and does not breathe after, they are tagged black. Resources are allocated to those who will survive with intervention."
+    ],
+    discussion: [
+      {q:"What is the ethical justification for placing a severely injured but probably unsalvageable patient in the black category?", answers:["Triage is fundamentally utilitarian: it seeks to maximize the number of lives saved with limited resources. Using extensive resources on one patient who will likely die prevents saving multiple patients who would survive with intervention. This conflicts with individual-patient medicine but is the ethical standard in mass casualty events."]},
+      {q:"How does the triage category system change as additional resources arrive?", answers:["Triage is dynamic. As more responders and resources arrive, the situation changes from purely sorting to treating. Black-tagged patients may be upgraded if resuscitation resources become available. The primary triage officer continuously reassesses as the situation evolves."]}
+    ],
+    challenge: "Practice the START triage assessment algorithm on 5 simulated patients with different presentations. Assign each a triage category and justify each decision.",
+    tuesday:   { low: {title:"START algorithm practice", activity:"Using a flowchart of the START algorithm, practice triaging 10 patient descriptions. Verify your category assignments against the algorithm."}, mid: {title:"SALT vs START comparison", activity:"Research SALT (Sort, Assess, Lifesaving interventions, Treatment/Transport) triage. How does it differ from START and in what situations is each preferred?"}, high: {title:"Triage ethics research", activity:"Research the medical ethics literature on triage. What ethical frameworks (utilitarian, deontological) are used to justify triage decisions and what unresolved ethical tensions remain?"} },
+    wednesday: { low: {title:"Color category memorization", activity:"Memorize the START categories with a mnemonic. Be able to recall the defining characteristic of each color and the 3-step assessment sequence without notes."}, mid: {title:"Pediatric triage modifications", activity:"Research JumpSTART: the pediatric adaptation of START. Why is a separate algorithm needed for children and what key differences exist?"}, high: {title:"Mass shooting triage data", activity:"Research triage outcomes from recent mass casualty events. What percentage of victims in each START category survive and how does time-to-definitive-care affect outcomes?"} },
+    thursday:  { low: {title:"Mass casualty scenario", activity:"Simulate a 10-victim mass casualty scenario. Assign each a presentation. Go through START triage and sort them. Identify which should be treated first given 2 responders."}, mid: {title:"Triage officer role", activity:"Research the triage officer role in ICS. What does the triage officer do once initial sorting is complete? How do they communicate with incident command and transport?"}, high: {title:"Triage during pandemics", activity:"Research how triage protocols were adapted during COVID-19 for ventilator scarcity. What criteria were used for ventilator allocation and what ethical controversies emerged?"} }
+  },
+
+  "Hurricane preparedness — category differences": {
+    gradeHooks: {
+      low: "Hurricanes are ranked from Category 1 to 5 based on wind speed. Category 5 is the most dangerous!",
+      mid: "Hurricane categories describe wind speed and associated damage potential. But storm surge, which is affected by storm size and shape, is often the deadliest factor.",
+      high: "Hurricane meteorology, the Saffir-Simpson scale\u2019s limitations, storm surge modeling, and the integration of wind and surge forecasts in evacuation decision-making are important topics."
+    },
+    materials: ["Saffir-Simpson scale reference", "Florida evacuation zone map"],
+    steps: [
+      "Saffir-Simpson Wind Scale: Cat 1 (74\u201395 mph, some roof damage), Cat 2 (96\u2013110, extensive damage), Cat 3 (111\u2013129, devastating), Cat 4 (130\u2013156, catastrophic), Cat 5 (>157, catastrophic).",
+      "Discuss: the category only describes wind. A Cat 1 with a large footprint can produce larger storm surge than a Cat 3 compact storm.",
+      "Storm surge: the dome of ocean water pushed ashore by wind. Most hurricane deaths are from storm surge, not wind.",
+      "Evacuation zones: Zone A (most vulnerable to surge from any storm) through Zone D or E. Zone is NOT based on category — it\u2019s based on surge modeling.",
+      "Preparation by category: even a Cat 1 requires preparation. The decision to evacuate depends on your zone, not just the forecast category."
+    ],
+    discussion: [
+      {q:"Why can a smaller Category 1 hurricane produce less storm surge than a larger Category 4 storm in some cases?", answers:["Storm surge is determined not just by wind speed but by the storm\u2019s size (radius of tropical storm force winds), forward speed, and the angle it makes with the coastline. A large, slow-moving Cat 3 can produce catastrophic surge in a bay while a small Cat 4 with a curved track may produce less."]},
+      {q:"What is the maximum surge height possible from a major Florida hurricane and what areas are most vulnerable?", answers:["Major Florida hurricanes have produced surge heights of 20+ feet in Tampa Bay and Charlotte Harbor. These enclosed bays act as funnels that amplify surge. Low-lying areas within a mile of the coast and near bays are most vulnerable."]}
+    ],
+    challenge: "Look up Florida\u2019s storm surge maps for a Category 3 hurricane making landfall near your location. What surge height would your home experience? What evacuation zone are you in?",
+    tuesday:   { low: {title:"Category comparison chart", activity:"Create a chart showing the 5 hurricane categories with wind speeds, characteristic damage descriptions, and historical Florida examples of each."}, mid: {title:"Storm surge modeling", activity:"Research NOAA\u2019s SLOSH (Sea, Lake, and Overland Surges from Hurricanes) model. How is it used to create surge inundation maps and set evacuation zone boundaries?"}, high: {title:"Hurricane intensity factors", activity:"Research the meteorological factors that affect hurricane intensification: sea surface temperature, wind shear, humidity, and the rapid intensification phenomenon. How has rapid intensification prediction improved?"} },
+    wednesday: { low: {title:"Historical Florida hurricane research", activity:"Research 3 major Florida hurricanes: Okeechobee (1928), Andrew (1992), Irma (2017). What category was each and what was the primary cause of deaths in each?"}, mid: {title:"Surge evacuation decision tree", activity:"Create a decision tree for hurricane evacuation: starting with storm category, adjusting for zone, and incorporating track uncertainty (cone of uncertainty)."}, high: {title:"Climate change and hurricane intensity", activity:"Research the relationship between warming ocean temperatures and hurricane intensity. What does climate science project for hurricane frequency and intensity under different warming scenarios?"} },
+    thursday:  { low: {title:"72-hour hurricane preparation checklist", activity:"Create a complete 72-hour hurricane preparation checklist: shutters, supplies, go-bag, fuel, pets, and evacuation decision criteria."}, mid: {title:"Cone of uncertainty", activity:"Research the National Hurricane Center\u2019s cone of uncertainty. What probability does the cone represent and why do people frequently misinterpret it as describing storm size?"}, high: {title:"Tampa Bay surge vulnerability", activity:"Research Tampa Bay\u2019s specific storm surge vulnerability. Why does its geography make it one of the most at-risk areas in the US and what mitigation measures have been studied?"} }
+  },
+
+  "Curing and smoking meat": {
+    gradeHooks: {
+      low: "Curing and smoking preserves meat by removing moisture and adding antimicrobial compounds. Humans have done this for thousands of years!",
+      mid: "Meat curing uses salt, nitrates, and sometimes sugar to prevent spoilage and pathogen growth. Smoking adds flavor and additional antimicrobial compounds.",
+      high: "The biochemistry of meat curing, nitrate/nitrite chemistry, polycyclic aromatic hydrocarbon formation in smoke, and the USDA science behind curing guidelines are important topics."
+    },
+    materials: ["Pork belly or beef (for dry cure practice)", "Curing salt (Prague Powder)", "Kosher salt", "Brown sugar", "Smoker or oven (for cold or hot smoking)"],
+    steps: [
+      "Safety note: use tested USDA/extension service recipes. Curing salt (sodium nitrite/nitrate) must be measured precisely. Overdosage is toxic.",
+      "Dry cure: combine salt, sugar, and curing salt in correct proportions per the recipe. Rub onto meat, bag and refrigerate for the specified time (days to weeks depending on thickness).",
+      "Equalization: after curing time, pat dry and allow to rest refrigerated 24 hours to equalize the salt distribution.",
+      "Smoking: cold smoke (under 90\u00b0F, no cooking) for preservation flavor. Hot smoke (225\u2013250\u00b0F) cooks while adding smoke flavor. Internal temperature for safety: 160\u00b0F for cured pork.",
+      "Storage: properly cured bacon or ham can be refrigerated for weeks. Vacuum-sealed and frozen for months."
+    ],
+    discussion: [
+      {q:"What role does sodium nitrite play in cured meat and why is it important for food safety?", answers:["Sodium nitrite (pink curing salt) prevents Clostridium botulinum growth and spore germination in the anaerobic environment of cured meat. Without it, cured meat would be a prime habitat for botulism. It also contributes to the characteristic pink color and cured flavor."]},
+      {q:"What is the difference between hot smoking and cold smoking from a food safety perspective?", answers:["Hot smoking reaches internal temperatures that kill pathogens. Cold smoking (under 90\u00b0F) does not cook the meat and does not reliably kill all pathogens. Cold-smoked products must be previously cured and may still pose risk for immunocompromised individuals."]}
+    ],
+    challenge: "Cure a small piece of pork belly using a tested recipe. Document the cure time, salt distribution, and hot smoke internal temperature achieved.",
+    tuesday:   { low: {title:"Prague Powder calculations", activity:"Research the correct percentage of curing salt (Prague Powder #1) per pound of meat. Calculate the amount needed for a 5-pound pork belly."}, mid: {title:"Equilibrium curing vs excess cure", activity:"Research equilibrium curing: using a precisely calculated percentage of salt so the meat absorbs exactly the right amount. How does this prevent over-salting compared to excess cure methods?"}, high: {title:"Nitrate chemistry", activity:"Research the conversion pathway: sodium nitrate \u2192 nitrite \u2192 nitric oxide. How does nitric oxide inhibit bacterial metabolism and why does this reaction depend on pH and meat chemistry?"} },
+    wednesday: { low: {title:"Wood smoke flavor profiles", activity:"Research how different wood species produce different flavor compounds in smoke: applewood (mild, sweet), hickory (bold, bacon-like), mesquite (intense, earthy). Match wood to meat type."}, mid: {title:"Cold vs hot smoke comparison", activity:"Smoke two identical pieces of cured pork, one cold-smoked and one hot-smoked. Compare flavor, texture, color, and shelf life."}, high: {title:"PAH formation in smoking", activity:"Research how Polycyclic Aromatic Hydrocarbons (PAHs) form during wood combustion. What smoking techniques (indirect heat, temperature control, drip pan) minimize PAH deposition on meat?"} },
+    thursday:  { low: {title:"Long-term storage planning", activity:"Research how properly cured and smoked meats are stored: refrigerator times, vacuum sealing, freezer storage, and traditional methods like hanging in a cool cellar."}, mid: {title:"USDA curing guidelines", activity:"Research USDA guidelines for home curing of pork. What are the minimum curing times for different thicknesses and why is precision important for safety?"}, high: {title:"Traditional vs industrial curing", activity:"Compare traditional dry curing (weeks) to commercial injection curing (hours). What accelerated processes does industry use and what does this mean for the safety and flavor of commercially cured products?"} }
+  },
+
+  "Off-grid solar — basic panel setup": {
+    gradeHooks: {
+      low: "Solar panels turn sunlight into electricity. Even a small panel can charge phones and power lights!",
+      mid: "An off-grid solar system requires correctly sizing the panel, battery, charge controller, and inverter for the intended loads.",
+      high: "Photovoltaic cell physics, system sizing calculations, MPPT charge controller operation, and battery chemistry selection are important renewable energy topics."
+    },
+    materials: ["Solar panel (100W minimum)", "12V battery", "Charge controller", "Inverter (optional)", "Wire and connectors"],
+    steps: [
+      "System components: solar panel (generates DC power), charge controller (regulates charging), battery (stores energy), inverter (converts DC to AC for appliances).",
+      "Wiring sequence: panel \u2192 charge controller \u2192 battery \u2192 inverter or DC loads. NEVER connect panel directly to battery.",
+      "Sizing: calculate daily load in watt-hours. Divide by peak sun hours for your location (Florida: 5\u20135.5 hours/day). This gives minimum panel wattage.",
+      "Battery sizing: store 2\u20133 days of power (considering cloudy days). Multiply daily watt-hours by storage days, divide by battery depth of discharge (50% for lead-acid, 80% for lithium).",
+      "Safety: fuses on every connection, proper wire gauge, no parallel panel connections without diodes."
+    ],
+    discussion: [
+      {q:"Why must a charge controller always be used between the solar panel and the battery?", answers:["A solar panel can output 18\u201322V while a 12V battery charges at 12\u201315V. Without a charge controller, the panel would overcharge and damage the battery. The charge controller regulates voltage and current to safely charge the battery."]},
+      {q:"What is peak sun hours and why is it different from daylight hours?", answers:["Peak sun hours is the number of hours per day that the solar irradiance equals the standard test condition of 1,000 W/m\u00b2. Florida averages 5\u20135.5 peak sun hours despite having 12+ daylight hours. Early morning and late afternoon produce much less than peak irradiance."]}
+    ],
+    challenge: "Design and build a simple off-grid solar system to power a specific load for 3 days without sun. Calculate all component sizes and wire gauges.",
+    tuesday:   { low: {title:"System component identification", activity:"Research each component in an off-grid solar system. Draw a system diagram with each component labeled and the power flow direction shown."}, mid: {title:"Load calculation worksheet", activity:"Calculate the daily watt-hours for a specific off-grid application: emergency communications station, camping setup, or greenhouse lighting. Size the panel and battery accordingly."}, high: {title:"MPPT vs PWM charge controllers", activity:"Research Maximum Power Point Tracking (MPPT) vs Pulse Width Modulation (PWM) charge controllers. What efficiency advantage does MPPT provide and when does this justify the higher cost?"} },
+    wednesday: { low: {title:"Wiring diagram practice", activity:"Draw a complete wiring diagram for a 100W panel, 12V 100Ah battery, 20A charge controller, and 500W inverter. Include fuse locations and wire gauge selection."}, mid: {title:"Battery chemistry comparison", activity:"Compare flooded lead-acid, AGM, gel, and lithium iron phosphate (LiFePO4) batteries for off-grid solar. Compare depth of discharge, cycle life, temperature sensitivity, and cost per usable kWh."}, high: {title:"Photovoltaic cell physics", activity:"Research how a silicon photovoltaic cell converts photons to electrical current. What is the bandgap energy and why does it limit the theoretical maximum efficiency of silicon solar cells?"} },
+    thursday:  { low: {title:"Simple system build", activity:"Build a simple 12V solar charging system for a small device. Test it in sunlight and measure the charging current."}, mid: {title:"Shading effect analysis", activity:"Research how partial shading of a solar panel drastically reduces output. How do bypass diodes mitigate shading losses and how does microinverter technology eliminate them entirely?"}, high: {title:"Grid-tied vs off-grid economics", activity:"Compare the economics of grid-tied (with net metering) vs off-grid solar systems. What cost of electricity justifies off-grid vs grid-tied and how does this change with battery costs declining?"} }
+  },
+
+  "What is a mechanic's lien — knowing your rights": {
+    gradeHooks: {
+      low: "A mechanic\u2019s lien is a legal tool that lets a repair shop keep your car if you don\u2019t pay for the work they did.",
+      mid: "Understanding mechanic\u2019s liens, consumer protection laws, and the dispute process enables you to protect yourself in automotive repair disputes.",
+      high: "Mechanic\u2019s lien law, the intersection of contract law and property rights, and consumer protection statutes governing auto repair are important legal topics."
+    },
+    materials: ["Florida consumer protection resources"],
+    steps: [
+      "What is a mechanic\u2019s lien: when a repair shop fixes your car, they have a legal right to hold it until paid. This is the lien.",
+      "Florida repair shop requirements: written estimate required for repairs over $100. Shop must call you if repairs exceed the estimate by more than 10%. Verbal authorization must be documented.",
+      "Your rights: right to a written estimate, right to refuse additional work, right to get your car back if you dispute (after paying the undisputed portion).",
+      "Dispute process: if you believe you were overcharged or work was unauthorized, document everything, pay under protest in writing, then pursue a small claims court action.",
+      "Prevention: always get a written estimate, get a second opinion for major repairs, understand what you\u2019re authorizing."
+    ],
+    discussion: [
+      {q:"What should you do if a repair shop performs unauthorized work and demands payment before releasing your car?", answers:["Pay the undisputed amount (the originally authorized work) in writing with a notation that the additional charges are disputed. You can then pursue the disputed amount in small claims court. Do not leave your car as leverage — storage fees accrue."]},
+      {q:"Why is it important to get everything in writing at a repair shop rather than relying on verbal agreements?", answers:["Florida requires written estimates but verbal authorization can be legally binding in some circumstances. Written documentation of exactly what was authorized, what was quoted, and what was completed creates a clear record for any dispute."]}
+    ],
+    challenge: "Research Florida\u2019s Motor Vehicle Repair Act. List your 5 most important consumer rights when taking a car to a repair shop.",
+    tuesday:   { low: {title:"Florida Motor Vehicle Repair Act", activity:"Research the Florida Motor Vehicle Repair Act (section 559.904\u2013559.9221). What are the 5 most important consumer protections it provides?"}, mid: {title:"Written estimate exercise", activity:"Role-play taking a car to a repair shop. What information should you get in writing before leaving your vehicle? What questions should you ask?"}, high: {title:"Mechanic\u2019s lien law", activity:"Research how mechanic\u2019s lien law varies by state. What is the legal basis for the lien and what procedures must a shop follow to enforce it in Florida?"} },
+    wednesday: { low: {title:"Small claims court overview", activity:"Research Florida\u2019s small claims court process. What is the maximum claim amount, what are the filing fees, and what documentation do you need to bring?"}, mid: {title:"Repair authorization forms", activity:"Research what information must be included in a valid repair authorization form. What constitutes informed consent for vehicle repairs?"}, high: {title:"Consumer protection agencies", activity:"Research the Florida Department of Agriculture and Consumer Services and its role in automotive repair disputes. What complaints can it investigate and what remedies can it impose?"} },
+    thursday:  { low: {title:"Consumer rights card", activity:"Create a laminated consumer rights card for auto repair. Include: get a written estimate, authorize nothing verbally, inspect before paying, pay under protest if disputing."}, mid: {title:"Aftermarket vs OEM parts", activity:"Research your rights regarding aftermarket vs OEM (original equipment manufacturer) parts. Is a shop required to disclose when they use aftermarket parts? How does this affect your warranty?"}, high: {title:"Implied warranty of merchantability", activity:"Research how implied warranties apply to vehicle repairs. What is the implied warranty that repair work will be done in a workmanlike manner and how do you enforce it if the repair fails?"} }
+  },
+
+
+
+  "Wound care and infection prevention": {
+    gradeHooks: {
+      low: "Keeping wounds clean and covered prevents the bacteria that live everywhere from causing a serious infection.",
+      mid: "Proper wound care includes irrigation, dressing selection, and monitoring for infection. Biofilm formation makes untreated wounds progressively harder to manage.",
+      high: "Wound care science, antimicrobial resistance in wound infections, and the distinction between colonization, infection, and sepsis are important medical topics."
+    },
+    materials: ["Wound irrigation syringe or squeeze bottle", "Saline or clean water", "Various dressings", "Antibiotic ointment"],
+    steps: [
+      "Irrigate thoroughly: 60\u2013100 mL of saline per centimeter of wound length at 8\u201315 PSI. Visible debris must be removed.",
+      "Pat dry. Assess: clean vs contaminated, depth, whether closure is appropriate.",
+      "Dress appropriately: non-adherent dressing for moderate wounds, moisture-retentive for clean wounds (promotes faster healing), antimicrobial for contaminated.",
+      "Change dressings daily or when soiled. Gently irrigate each time to prevent biofilm.",
+      "Monitor for infection: increased redness expanding from wound edges, warmth, purulent (pus) discharge, fever, red streaking (lymphangitis = seek immediate care)."
+    ],
+    discussion: [
+      {q:"What is a biofilm and why does it make wound infections harder to treat?", answers:["A biofilm is a community of bacteria encased in a protective polysaccharide matrix. Inside biofilm, bacteria are up to 1,000 times more resistant to antibiotics than free-floating bacteria. Mechanical debridement (irrigation, scrubbing) is required to disrupt biofilm."]},
+      {q:"What does red streaking from a wound indicate and how urgent is it?", answers:["Red streaking (lymphangitis) indicates bacteria have entered the lymphatic system and are spreading systemically. This is a medical emergency requiring immediate antibiotic treatment. It can progress to sepsis within hours."]}
+    ],
+    challenge: "Practice advanced wound care on a simulated wound: full irrigation, dressing selection appropriate to the wound type, and a documented monitoring plan.",
+    tuesday:   { low: {title:"Dressing selection guide", activity:"Research 6 dressing types: non-adherent, hydrocolloid, foam, alginate, silver antimicrobial, and negative pressure. Create a guide: which wound type gets which dressing?"}, mid: {title:"Biofilm disruption technique", activity:"Research mechanical biofilm disruption. What irrigation pressure, tools, and frequency best prevent biofilm establishment in a wound?"}, high: {title:"Wound healing science", activity:"Research the 4 phases of wound healing at the cellular level: hemostasis, inflammation, proliferation, and remodeling. What cells are active in each phase and what growth factors drive them?"} },
+    wednesday: { low: {title:"Infection monitoring log", activity:"Create a wound monitoring log: date, appearance, size, discharge, pain level, and any systemic symptoms. Practice filling it out for a simulated wound."}, mid: {title:"Antibiotic stewardship", activity:"Research antibiotic resistance and why over-prescribing antibiotics for minor wounds contributes to resistance. What is antibiotic stewardship and why does it matter?"}, high: {title:"Sepsis recognition", activity:"Research the systemic inflammatory response syndrome (SIRS) and how it relates to sepsis. What are the qSOFA criteria and why is early recognition so critical?"} },
+    thursday:  { low: {title:"Wilderness wound care", activity:"Research how wound care changes in a wilderness setting: how to improvise irrigation, what natural materials can substitute for commercial dressings."}, mid: {title:"Tetanus prevention", activity:"Research tetanus: what wounds are high risk, how the toxin works, and current vaccination recommendations. When does a wound require a tetanus booster?"}, high: {title:"Wound infection microbiology", activity:"Research the most common wound pathogens by wound type: traumatic wounds (Staphylococcus, Streptococcus), bite wounds (Pasteurella, Capnocytophaga), and water-related wounds (Aeromonas, Vibrio)."} }
+  },
+
+  "Community disaster preparedness": {
+    gradeHooks: {
+      low: "A prepared community can take care of itself for days before outside help arrives. Everyone has a role!",
+      mid: "Community disaster preparedness integrates individual, neighborhood, and institutional planning to create resilient systems.",
+      high: "Community resilience theory, the research on social capital and disaster outcomes, and whole-community emergency management are important topics."
+    },
+    materials: ["Paper for planning"],
+    steps: [
+      "Explain the preparedness continuum: individual \u2192 family \u2192 neighborhood \u2192 community. Each level builds on the one below.",
+      "Community assets: identify hospitals, emergency shelters, community centers, faith organizations, and local businesses that could serve as resources.",
+      "Vulnerable populations: map who in the community needs extra assistance: elderly, disabled, non-English speakers, medically dependent.",
+      "Communication systems: community alert systems, neighborhood networks, social media backup plans.",
+      "Practice: how does your community get information before, during, and after a disaster?"
+    ],
+    discussion: [
+      {q:"What is the \u2018whole community\u2019 approach to emergency management?", answers:["FEMA\u2019s whole community approach recognizes that emergency management is most effective when it engages all community members: not just government agencies but faith communities, businesses, nonprofits, and individuals. Everyone has resources and knowledge to contribute."]},
+      {q:"Why do communities with higher social capital recover faster from disasters?", answers:["Social capital (trust, relationships, networks) enables faster resource sharing, better informal communication, quicker identification of needs, and more effective community action without waiting for institutional coordination."]}
+    ],
+    challenge: "Map your community\u2019s disaster resources: emergency shelters, hospitals, fuel stations, and community organizations. Identify 2 gaps in preparedness.",
+    tuesday:   { low: {title:"Community resource map", activity:"Create a map of emergency resources within 5 miles of your home. Include medical, shelter, fuel, and food resources."}, mid: {title:"CERT program research", activity:"Research your county\u2019s CERT program. What does the 3-day training cover and what roles do CERT volunteers play in disasters?"}, high: {title:"Social vulnerability index", activity:"Research FEMA\u2019s Social Vulnerability Index (SVI). What factors contribute to vulnerability and how do preparedness planners use SVI data to allocate resources?"} },
+    wednesday: { low: {title:"Faith community role", activity:"Research how faith-based organizations historically serve as disaster response hubs. What resources do they provide that government agencies often cannot?"}, mid: {title:"Private sector integration", activity:"Research public-private partnerships in disaster preparedness. How do companies like Home Depot, Walmart, and local businesses integrate into emergency plans?"}, high: {title:"Cascading infrastructure failures", activity:"Research how infrastructure failures cascade during disasters: power outages affect water pumping, which affects fire suppression, which affects hospitals. How do planners model and mitigate cascade risk?"} },
+    thursday:  { low: {title:"Community preparedness quiz", activity:"Quiz 5 neighbors: do they know the evacuation zone? The nearest shelter? The emergency alert system for your county? Report findings."}, mid: {title:"Tabletop exercise design", activity:"Design a community tabletop exercise: present a disaster scenario and walk through how the community would respond. What decisions must be made and by whom?"}, high: {title:"Equity in disaster preparedness", activity:"Research disparities in disaster preparedness and recovery across income, race, and disability. What structural barriers prevent equitable preparedness and what policy interventions address them?"} }
+  },
+
+  "Generator safety and operation": {
+    gradeHooks: {
+      low: "Generators make electricity when the power is out. But they must be used outside only — carbon monoxide from the exhaust is deadly!",
+      mid: "Generator safety covers CO hazards, load calculation, fuel storage, and the critical role of a transfer switch.",
+      high: "Generator electrical engineering, fuel efficiency optimization, automatic transfer switch technology, and inverter vs conventional generator technology are important topics."
+    },
+    materials: ["Generator manual or research", "Extension cord (heavy gauge)"],
+    steps: [
+      "CO warning: NEVER run a generator indoors, in a garage, or within 20 feet of any window or door. CO is odorless and can kill within minutes.",
+      "Load calculation: list what you will power. Check each appliance\u2019s wattage. Add starting watts (motors need 2\u20133x running watts to start).",
+      "Transfer switch: a transfer switch safely connects the generator to your home\u2019s wiring. Without one, backfeed can kill utility workers.",
+      "Fuel safety: store gasoline in approved containers in a detached structure. Rotate fuel with stabilizer every 3\u20136 months.",
+      "Maintenance: run the generator monthly for 20\u201330 minutes under load. Check oil level before every use."
+    ],
+    discussion: [
+      {q:"Why is backfeed from a generator so dangerous to utility workers?", answers:["A generator connected to home wiring without a transfer switch sends power backward through the meter onto the utility lines. Workers assume de-energized lines are safe to touch. Backfeed can deliver lethal voltage to anyone touching those lines miles away."]},
+      {q:"What is the starting watt surge for a central air conditioner and why does it matter for generator sizing?", answers:["A central AC unit may draw 5,000\u20137,000 running watts but require 15,000+ starting watts for the compressor motor to start. A generator sized only for running watts will shut down or be damaged when the AC compressor starts."]}
+    ],
+    challenge: "Calculate the watt load for your family\u2019s most critical appliances during a power outage. Size a generator that could handle this load including starting surge.",
+    tuesday:   { low: {title:"CO safety review", activity:"Research CO generator poisoning statistics. How many deaths occur annually from improper generator use? What are the most common mistakes?"}, mid: {title:"Load calculation worksheet", activity:"Create a load calculation worksheet for your home: list each critical appliance, running watts, starting watts, and whether it would be powered during an outage."}, high: {title:"Inverter generator technology", activity:"Research inverter generators. How do they differ from conventional generators in fuel efficiency, noise, and clean power output? Why are they better for sensitive electronics?"} },
+    wednesday: { low: {title:"Fuel storage safety", activity:"Research proper fuel storage: approved containers, ventilated storage, fuel stabilizer, and maximum storage amounts per local fire code."}, mid: {title:"Transfer switch types", activity:"Research manual vs automatic transfer switches. What does a whole-home automatic standby system cost and what does it offer over a portable generator with a manual transfer switch?"}, high: {title:"Generator paralleling", activity:"Research paralleling two inverter generators to double output capacity. What electrical conditions must be matched and what equipment is required?"} },
+    thursday:  { low: {title:"Monthly maintenance drill", activity:"Run through the monthly generator maintenance checklist: check oil, start and run under load for 20 minutes, check fuel level and stabilization."}, mid: {title:"Propane vs gasoline generators", activity:"Compare propane and gasoline generators for emergency use. What are the storage, runtime, and availability advantages of each fuel type during extended outages?"}, high: {title:"Microgrid integration", activity:"Research how home battery systems (Tesla Powerwall, Generac PWRcell) integrate with generators and solar panels to create a home microgrid. What are the cost-benefit economics?"} }
+  },
+
+  "Preserving food — fermentation basics": {
+    gradeHooks: {
+      low: "Fermentation uses beneficial bacteria to preserve food and even make it more nutritious. Yogurt, cheese, and pickles are all fermented!",
+      mid: "Fermentation is one of humanity\u2019s oldest preservation methods. Understanding the chemistry of lactic acid fermentation enables successful home fermentation.",
+      high: "Fermentation biochemistry, microbial ecology, and the health implications of fermented foods are important food science topics."
+    },
+    materials: ["Vegetables (cabbage, carrots, radishes)", "Non-iodized salt", "Glass jar", "Weight"],
+    steps: [
+      "Shred or chop vegetables. Weigh them.",
+      "Add 2% salt by weight: for 500g vegetables, add 10g salt. Massage vigorously until vegetables release liquid.",
+      "Pack tightly into a jar, pressing down until the brine covers the vegetables.",
+      "Weight the vegetables to keep them submerged. Cover loosely (not airtight) to allow CO2 to escape.",
+      "Ferment at room temperature (65\u201375\u00b0F) for 3\u201310 days. Taste daily. Refrigerate when desired sourness is reached."
+    ],
+    discussion: [
+      {q:"What makes lacto-fermentation safe without any heat treatment or commercial preservatives?", answers:["Salt creates an environment that favors Lactobacillus bacteria while inhibiting harmful pathogens. As Lactobacillus produces lactic acid, pH drops below 4.6 — the level at which botulinum toxin cannot form and most pathogens cannot survive."]},
+      {q:"What is the role of salt concentration in fermentation and what happens with too much or too little?", answers:["Too little salt: harmful bacteria outcompete Lactobacillus before sufficient acid is produced, causing rotting. Too much salt: inhibits Lactobacillus along with harmful bacteria, resulting in very slow or failed fermentation."]}
+    ],
+    challenge: "Ferment a batch of vegetables using the 2% salt method. Taste daily and document the pH change using pH strips. When does it reach proper acidity?",
+    tuesday:   { low: {title:"pH monitoring", activity:"Use pH strips to test your fermenting brine daily. Chart the pH drop over the first week. What pH indicates safe fermentation?"}, mid: {title:"Salt percentage experiments", activity:"Ferment identical batches at 1.5%, 2%, and 3% salt. Compare fermentation speed, flavor, and texture after 7 days."}, high: {title:"Lactobacillus metabolism", activity:"Research the Embden-Meyerhof-Parnas pathway in heterofermentative vs homofermentative Lactobacillus species. What byproducts are produced by each?"} },
+    wednesday: { low: {title:"Fermented food tasting", activity:"Taste 5 fermented foods: kimchi, sauerkraut, kefir, miso, and kombucha. Identify the flavor profile of each. What sourness level do you prefer?"}, mid: {title:"Brine vs dry salt method", activity:"Research when to use a dry salt rub (cabbage with its own juice) vs a prepared brine (harder vegetables like whole cucumbers). Why does each method work for its application?"}, high: {title:"Microbiome research", activity:"Research the gut microbiome and its relationship to fermented food consumption. What does current clinical research say about probiotics from food vs supplements?"} },
+    thursday:  { low: {title:"Fermentation troubleshooting", activity:"Research common fermentation problems: kahm yeast (harmless white film), too salty (slow fermentation), soft vegetables (too warm). How do you fix each?"}, mid: {title:"Long-term storage", activity:"Research how fermented vegetables can be stored: refrigerator (6\u201312 months), root cellar (months), or water bath canning the finished product. What does canning do to the probiotic content?"}, high: {title:"Industrial vs artisan fermentation", activity:"Compare industrial sauerkraut (vinegar acidification) to traditional lacto-fermented sauerkraut. What is preserved or lost in each process and what are the health implications?"} }
+  },
+
+  "Rainwater collection system": {
+    gradeHooks: {
+      low: "We can collect rain from our roof in a barrel and use it to water our garden for free!",
+      mid: "A rainwater collection system requires proper first-flush diversion, storage container selection, and overflow management.",
+      high: "Rainwater harvesting engineering, water quality management, Florida regulations, and system sizing calculations are important water security topics."
+    },
+    materials: ["55-gallon food-grade barrel", "Downspout diverter kit", "Overflow pipe", "Spigot"],
+    steps: [
+      "Site selection: choose a downspout that drains a large, clean roof section. Avoid sections near HVAC units or trees.",
+      "First flush diverter: the first flow of rain washes pollutants off the roof. A diverter directs this first 10\u201320 gallons away from the barrel, then redirects cleaner water.",
+      "Barrel preparation: drill a hole for the inlet (with screen), a hole for the overflow pipe, and install a spigot near the bottom.",
+      "Connect the downspout diverter to the barrel inlet.",
+      "Overflow management: the overflow pipe must direct excess water away from the foundation."
+    ],
+    discussion: [
+      {q:"Why is a first-flush diverter important for water quality?", answers:["The first rain after a dry period washes concentrated bird droppings, dust, pesticides, and debris from the roof. This first flush is the most contaminated. Diverting it dramatically improves the quality of water collected in the barrel."]},
+      {q:"How much water can a roof collect from 1 inch of rain?", answers:["Use the formula: roof area (sq ft) x 0.623 = gallons per inch of rain. A 1,500 sq ft roof can collect nearly 935 gallons from one inch of rain."]}
+    ],
+    challenge: "Calculate how much rainwater your home\u2019s roof can collect from a 2-inch storm. Install or design a single-barrel collection system.",
+    tuesday:   { low: {title:"Collection calculation", activity:"Measure your roof\u2019s footprint. Calculate the potential collection from 1 inch, 2 inches, and 4 inches of rain. Compare to a 55-gallon barrel\u2019s capacity."}, mid: {title:"First flush diverter design", activity:"Research first-flush diverter designs. How much water must be diverted per square foot of roof area to effectively remove pollutants?"}, high: {title:"Rainwater quality testing", activity:"Research what contaminants are typically found in collected rainwater. What treatment is required before it\u2019s used for irrigation vs potable use?"} },
+    wednesday: { low: {title:"Overflow engineering", activity:"Design the overflow pipe for your barrel. Where will it discharge? How do you prevent erosion at the outlet and flooding near the foundation?"}, mid: {title:"Multi-barrel system", activity:"Design a 3-barrel system connected in series. How does the overflow from barrel 1 feed barrel 2? What is the total storage capacity?"}, high: {title:"Florida rainwater law", activity:"Research Florida\u2019s rainwater harvesting statutes. What is allowed without a permit? What incentives or rebates are available from water management districts?"} },
+    thursday:  { low: {title:"Garden water savings", activity:"Calculate how many days of garden watering one 55-gallon barrel provides for your garden area. Research typical summer irrigation rates for Florida gardens."}, mid: {title:"Water quality management", activity:"Research mosquito prevention in rain barrels: screen requirements, Bti (biological larvicide) tablets, and how to prevent algae growth."}, high: {title:"Cistern sizing for resilience", activity:"Size a rainwater collection system to meet 50% of your household\u2019s non-potable water needs. What storage volume and roof area are required in Florida\u2019s climate?"} }
+  },
+
+  "Home weatherproofing": {
+    gradeHooks: {
+      low: "Weatherproofing our home keeps heat and cold out, lowers energy bills, and makes the house more comfortable!",
+      mid: "Home weatherproofing addresses air sealing, insulation, and window performance to reduce energy use and improve comfort.",
+      high: "Building science, the stack effect, blower door testing, and the economics of weatherproofing investments are important topics."
+    },
+    materials: ["Incense stick or smoke pencil for air leakage detection", "Weatherstripping materials", "Caulk"],
+    steps: [
+      "Air infiltration audit: on a windy day, hold an incense stick near door frames, window edges, electrical outlets, and attic hatches. Movement indicates air leaks.",
+      "Common leak locations: around door frames (caulk), at window sashes (weatherstripping), at penetrations for pipes and wires, at the attic hatch.",
+      "Weatherstripping doors: measure the gaps between the door and frame. Select the appropriate weatherstripping type (foam tape, V-strip, door sweep).",
+      "Caulking: exterior caulk around window frames where they meet siding. Interior caulk around pipes and wires.",
+      "Impact: sealing major air leaks can reduce heating and cooling costs by 10\u201320%."
+    ],
+    discussion: [
+      {q:"What is the stack effect and how does it drive air infiltration?", answers:["Warm air rises and escapes through the top of a building while cool air is drawn in at the bottom. This natural convection creates a pressure differential that drives infiltration. In summer in Florida, this process runs in reverse."]},
+      {q:"Why is air sealing often more cost-effective than adding insulation?", answers:["Insulation reduces conductive heat transfer but air leakage bypasses insulation entirely. A well-insulated but leaky attic wastes much of the insulation\u2019s benefit. Sealing air gaps first maximizes the value of any insulation."]}
+    ],
+    challenge: "Conduct a full air infiltration audit of your home. Document every leak found. Estimate the annual energy cost of the air leakage.",
+    tuesday:   { low: {title:"Smoke test", activity:"Use an incense stick near all potential air infiltration points. Mark each leak with a sticky note. How many did you find?"}, mid: {title:"Weatherstripping installation", activity:"Install or replace weatherstripping on your front door. Measure the energy gap before and after. Can you feel a difference in drafts?"}, high: {title:"Blower door test", activity:"Research blower door testing. How does it quantify air leakage in ACH50 (air changes per hour at 50 pascals)? What is the target for an energy-efficient home?"} },
+    wednesday: { low: {title:"Caulking practice", activity:"Caulk around one window or door frame. Practice a smooth, consistent bead. Tool the caulk smooth with a wet finger."}, mid: {title:"Window performance", activity:"Research window U-values and SHGC (Solar Heat Gain Coefficient). What ratings are appropriate for Florida\u2019s climate where solar gain is a bigger concern than cold?"}, high: {title:"Whole-building energy model", activity:"Research whole-building energy modeling tools (EnergyPlus, BEopt). How do they calculate the energy impact of different weatherproofing measures?"} },
+    thursday:  { low: {title:"Energy savings calculation", activity:"Research typical energy savings from weatherproofing. If your family spends $200/month on cooling and weatherproofing reduces it by 15%, what is the annual savings and payback period?"}, mid: {title:"Florida-specific weatherproofing", activity:"Research Florida building science best practices. How does Florida\u2019s hot-humid climate change weatherproofing priorities compared to cold climates? (Vapor barrier placement, ventilation, humidity control)"}, high: {title:"Energy retrofit economics", activity:"Research the energy audit process and typical return on investment for weatherproofing measures. Compare air sealing, attic insulation, and window replacement for Florida homes."} }
+  },
+
+  "Debt vs savings — interest explained": {
+    gradeHooks: {
+      low: "When we borrow money, we pay extra back called interest. When we save, we earn interest. The key is to earn more than we pay!",
+      mid: "Understanding interest rates on debt vs savings reveals why high-interest debt destroys wealth while savings builds it.",
+      high: "The time value of money, opportunity cost of debt payments, and the mathematics of compounding on both sides of the balance sheet are important financial concepts."
+    },
+    materials: ["Calculator"],
+    steps: [
+      "Interest on debt: credit card at 24% APR. On a $1,000 balance with only minimum payments, how long does it take to pay off and how much do you pay total?",
+      "Interest on savings: $1,000 at 4% compound interest for 10 years = approximately $1,480.",
+      "The debt trap: every dollar in high-interest debt costs 24 cents per year. A savings account earns 4 cents per year. The math strongly favors eliminating debt first.",
+      "Exception: low-interest debt (mortgage, student loans below 5%) may be worth maintaining while investing at higher returns.",
+      "Practical hierarchy: emergency fund, high-interest debt payoff, then investing."
+    ],
+    discussion: [
+      {q:"Why is paying off 24% credit card debt mathematically equivalent to earning a 24% guaranteed return?", answers:["Every dollar used to pay off a 24% debt eliminates 24 cents of annual interest cost. No investment offers a guaranteed 24% return. The debt payoff is the highest-return guaranteed financial move available."]},
+      {q:"What is the minimum payment trap?", answers:["Credit card minimum payments are typically 1\u20132% of the balance, mostly covering interest with little principal reduction. On a $5,000 balance at 24%, minimum payments can take 20+ years to pay off and result in paying 2\u20133x the original balance."]}
+    ],
+    challenge: "Calculate the total cost (principal + interest) of a $3,000 credit card balance at 22% APR with minimum payments of 2% of balance. Use an online credit card payoff calculator.",
+    tuesday:   { low: {title:"Compound interest comparison", activity:"Compare: $1,000 growing at 5% compound interest vs $1,000 of debt at 20% growing if unpaid. Graph both over 10 years."}, mid: {title:"Avalanche vs snowball method", activity:"Research the avalanche method (highest interest first) vs snowball method (smallest balance first) for debt payoff. Which saves more money? Which has better psychology?"}, high: {title:"Net worth calculation", activity:"Research how to calculate net worth: assets minus liabilities. How does carrying high-interest debt affect net worth trajectory over a 20-year career?"} },
+    wednesday: { low: {title:"Good debt vs bad debt", activity:"Research the distinction between good debt (appreciating asset, below-market rate: mortgage, student loans) and bad debt (depreciating asset, high rate: credit cards, payday loans). Is this distinction always clear?"}, mid: {title:"Total interest paid calculation", activity:"Calculate total interest paid on a $10,000 student loan at 5% over 10 years. Compare to the same amount on a credit card at 22% over 10 years."}, high: {title:"Debt-to-income ratio", activity:"Research how lenders use the debt-to-income (DTI) ratio to qualify borrowers. What is the maximum DTI for a mortgage? How does high consumer debt reduce mortgage borrowing capacity?"} },
+    thursday:  { low: {title:"Debt payoff plan", activity:"If you had $500 of debt at 20% and $500 in a savings account at 3%, what is the mathematically optimal action?"}, mid: {title:"Opportunity cost analysis", activity:"Research opportunity cost: if you have $1,000 in extra cash, what is the opportunity cost of paying off a 5% loan vs investing at an expected 8% return?"}, high: {title:"Behavioral economics of debt", activity:"Research why people maintain high-interest debt while simultaneously saving at low interest rates. What psychological mechanisms explain this irrational behavior?"} }
+  },
+
+  "GPS vs map navigation": {
+    gradeHooks: {
+      low: "GPS tells us exactly where we are using satellites. Maps work without any technology. Knowing both makes us better navigators!",
+      mid: "GPS and paper maps have complementary strengths. GPS provides real-time position; maps provide context, route planning, and offline reliability.",
+      high: "GPS technology, GNSS accuracy, selective availability, and the integration of electronic and traditional navigation systems are important topics."
+    },
+    materials: ["Phone with GPS", "Paper map of the same area"],
+    steps: [
+      "Compare: GPS shows your precise position in real time. A paper map shows context, terrain, and alternate routes.",
+      "GPS limitations: battery death, signal loss in canyons and buildings, satellite outage, jamming, and loss of spatial awareness.",
+      "Map limitations: you must know where you are to start, no real-time updates, requires skill to use efficiently.",
+      "Best practice: use GPS for precision position, use map for planning and context. Cross-reference both.",
+      "Practice: navigate to a destination using only the paper map. Then compare the route you took to what GPS would have shown."
+    ],
+    discussion: [
+      {q:"How does GPS determine your position?", answers:["A GPS receiver measures the time it takes for signals from at least 4 satellites to arrive. Since signals travel at the speed of light, the time difference translates to distance. The intersection of 4 spheres (one per satellite) gives a 3D position."]},
+      {q:"What is selective availability and why was it removed?", answers:["Selective availability was intentional degradation of civilian GPS accuracy (to 100m) by the US military for national security. It was removed in 2000, improving civilian accuracy to under 10m. Today, civilian GPS achieves 3\u20135m accuracy."]}
+    ],
+    challenge: "Navigate a 2-mile route using only a paper map. Record your time and errors. Then navigate the same route using GPS. Compare the experience.",
+    tuesday:   { low: {title:"GPS coordinate reading", activity:"Find your GPS coordinates on your phone. Research: what do latitude and longitude mean? How would you give your coordinates to emergency services?"}, mid: {title:"Datum comparison", activity:"Research WGS84 datum and why GPS coordinates in different map datum can differ by up to 200 meters. Why does datum matter for navigation?"}, high: {title:"GNSS constellation overview", activity:"Research the different global navigation satellite systems: GPS (US), GLONASS (Russia), Galileo (EU), and BeiDou (China). Why do modern receivers use multiple constellations simultaneously?"} },
+    wednesday: { low: {title:"Offline map download", activity:"Research how to download offline maps for your region using Google Maps, Gaia GPS, or CalTopo. Practice navigating to a local destination with no cell service."}, mid: {title:"GPS accuracy factors", activity:"Research the factors that affect GPS accuracy: satellite geometry (PDOP), multipath error from buildings, and atmospheric delay. What is differential GPS and how does it achieve sub-meter accuracy?"}, high: {title:"GPS jamming and spoofing", activity:"Research GPS jamming and spoofing. How are these techniques used in warfare and what are the civilian consequences? What is anti-spoofing technology?"} },
+    thursday:  { low: {title:"Dead reckoning comparison", activity:"Navigate 500 meters using dead reckoning (compass bearing + pace count). Check your endpoint with GPS. How far off were you?"}, mid: {title:"Navigation app comparison", activity:"Compare Gaia GPS, AllTrails, and Google Maps for backcountry navigation. What does each do better? Which works best without cell service?"}, high: {title:"Autonomous vehicle navigation", activity:"Research how autonomous vehicles integrate GPS, LiDAR, cameras, and HD maps for navigation. Why is GPS alone insufficient for lane-level accuracy?"} }
+  },
+
+  "Building a fire safely — fire triangle": {
+    gradeHooks: {
+      low: "A fire needs 3 things: fuel, heat, and oxygen. Remove any one of them and the fire goes out!",
+      mid: "Building a fire efficiently requires understanding the fire triangle, proper lay construction, and fire safety management.",
+      high: "Combustion chemistry, fire behavior, flame temperature, and wildfire dynamics are applications of the fire triangle concept."
+    },
+    materials: ["Tinder (dry grass, bark, paper)", "Kindling (small sticks)", "Fuel wood (larger sticks and logs)", "Matches or lighter"],
+    steps: [
+      "Site selection: clear a 10-foot radius of flammable material, use an existing fire ring if available.",
+      "Tinder bundle: create a bird\u2019s nest shape with the driest material you have. This is ignited first.",
+      "Choose a fire lay: teepee (best for quick cooking, burns fast), log cabin (longer burn, coals for cooking), star (self-feeding, minimal splitting).",
+      "Build from smallest to largest: lay tinder, build kindling around it, add fuel wood when kindling is established.",
+      "Fire safety: never leave unattended, keep water or dirt nearby, fully extinguish (drown and stir until cold to touch)."
+    ],
+    discussion: [
+      {q:"Why does removing oxygen extinguish a fire more quickly than removing fuel?", answers:["When you cut oxygen (smothering), combustion stops almost immediately. Removing fuel source requires waiting for what\u2019s already burning to burn out. Oxygen cutoff is the fastest extinguishing method for small fires."]},
+      {q:"Why does a teepee fire lay burn hotter and faster than a log cabin lay?", answers:["The teepee concentrates heat at the apex, creating a convective updraft that draws in oxygen from all sides simultaneously. The log cabin creates more surface area of fuel but less concentrated heat."]}
+    ],
+    challenge: "Build and safely manage a fire using each of the 3 fire lay types. Document which is best for quick heat, cooking coals, and extended burning.",
+    tuesday:   { low: {title:"Tinder identification", activity:"Research and collect 5 types of natural tinder available in Florida: Spanish moss, dry palm fronds, pine needles, bark shreddings, and dried grass. Test each for ignitability."}, mid: {title:"Fire lay comparison", activity:"Build all 3 fire lay types (teepee, log cabin, star) in succession. Compare time to ignition, heat output, and ember quality for cooking."}, high: {title:"Combustion chemistry", activity:"Research the combustion chemistry of wood. What compounds are released in each phase: water vapor, smoke (incomplete combustion), and the exothermic oxidation reactions?"} },
+    wednesday: { low: {title:"Fire safety audit", activity:"Assess your fire site for all safety requirements: clear radius, water/dirt nearby, wind direction awareness, and designated extinguishing point."}, mid: {title:"Fire extinguishing technique", activity:"Practice fully extinguishing a small fire: drown with water, stir the ashes, feel for heat, drown again. Repeat until completely cold."}, high: {title:"Wildfire behavior", activity:"Research how wildfires spread: spotting, crown fires, and fire weather (temperature, humidity, wind). How do prescribed burns prevent catastrophic wildfires?"} },
+    thursday:  { low: {title:"One-match challenge", activity:"Build a fire lay and ignite it with a single match. Focus on tinder quality and fire lay construction to ensure success."}, mid: {title:"Cooking fire management", activity:"Build a fire specifically for cooking: create a bed of coals by burning hardwood down. Practice maintaining appropriate cooking temperature."}, high: {title:"Fire ecology", activity:"Research fire ecology: the role of fire in maintaining certain ecosystems. How does prescribed burning restore fire-adapted ecosystems like longleaf pine forests?"} }
+  },
+
+  "Basic car maintenance schedule": {
+    gradeHooks: {
+      low: "Cars need regular maintenance to stay safe and reliable. Following a schedule prevents most breakdowns!",
+      mid: "A proactive car maintenance schedule prevents costly failures and maintains safety. Understanding what each service does enables informed decisions.",
+      high: "Preventive maintenance economics, wear mechanisms in vehicle components, and the cost-benefit analysis of maintenance vs deferred repair are important topics."
+    },
+    materials: ["Vehicle owner\u2019s manual", "Maintenance log"],
+    steps: [
+      "Every month: check tire pressure, check all fluid levels (oil, coolant, brake, power steering, washer), check all lights.",
+      "Every 3,000\u20135,000 miles (or per manufacturer): oil change. Check with owner\u2019s manual for synthetic vs conventional intervals.",
+      "Every 6 months: rotate tires (even wear extends life), check brake pad thickness, inspect battery terminals.",
+      "Every year: replace air filter (check condition), inspect belts and hoses, test battery.",
+      "Every 2 years: replace cabin air filter, flush coolant, replace brake fluid."
+    ],
+    discussion: [
+      {q:"Why is following the maintenance schedule important even when the car seems to be running fine?", answers:["Many failures occur gradually and invisibly. Oil degrades over time without visible symptoms until engine damage occurs. Brake pads wear without performance change until they reach metal-on-metal. Preventive maintenance catches invisible deterioration."]},
+      {q:"What is the total cost difference between maintaining a car proactively vs running it until components fail?", answers:["Research consistently shows that deferred maintenance results in 2\u20134x higher lifetime vehicle costs. A blown engine from oil neglect can cost $5,000\u201315,000 vs $50 for regular oil changes."]}
+    ],
+    challenge: "Create a complete maintenance log for your family\u2019s vehicle: record every service performed, the date, and mileage. Set calendar reminders for upcoming services.",
+    tuesday:   { low: {title:"Owner\u2019s manual review", activity:"Find and read the maintenance schedule section of your vehicle\u2019s owner\u2019s manual. What intervals does it specify for oil, transmission fluid, and major inspections?"}, mid: {title:"Brake inspection", activity:"Research how to inspect brake pad thickness. What thickness (in mm) indicates replacement is needed? How do you inspect rotors for warping?"}, high: {title:"Maintenance economics modeling", activity:"Build a 10-year cost model comparing proactive maintenance vs minimal maintenance for a typical family vehicle. Include all preventive costs vs expected failure costs."} },
+    wednesday: { low: {title:"Fluid levels check", activity:"Under adult supervision, check all fluid levels in your vehicle: oil, coolant, brake, power steering, and washer. Document current levels."}, mid: {title:"Belt and hose inspection", activity:"Research how to inspect serpentine belts (cracking, glazing, fraying) and coolant hoses (softness, cracks, swelling) for deterioration signs."}, high: {title:"Predictive maintenance technology", activity:"Research OBD-II (On-Board Diagnostics) and how modern vehicles report maintenance needs. What do scan tools reveal that cannot be seen in a visual inspection?"} },
+    thursday:  { low: {title:"Maintenance log creation", activity:"Create a physical or digital maintenance log for your family vehicle. Enter all known service history and upcoming due dates."}, mid: {title:"Dealer vs independent shop", activity:"Research the cost comparison between dealer maintenance and independent shops. When does dealer service offer value and when is an independent shop the better choice?"}, high: {title:"Electric vehicle maintenance differences", activity:"Research how electric vehicle maintenance differs from ICE vehicles. What components are eliminated? What new maintenance needs are introduced (battery management, regenerative brake inspection)?"} }
+  },
+
+  "Suture strips and wound closure": {
+    gradeHooks: {
+      low: "Suture strips (steri-strips) hold a cut closed so it heals in a straight line without stitches.",
+      mid: "Wound closure techniques range from adhesive strips to staples. Knowing which to use and when requires assessment of wound depth, location, and contamination level.",
+      high: "Wound closure biomechanics, tension management, and the criteria for primary vs secondary vs tertiary intention healing are important medical topics."
+    },
+    materials: ["Steri-strips or butterfly closures", "Skin tape or benzoin tincture", "Gauze and tape"],
+    steps: [
+      "Wound closure criteria: wound must be clean (no signs of infection), less than 6\u20138 hours old, edges can be approximated without tension.",
+      "Prepare the skin: dry thoroughly. Apply benzoin tincture 1 cm on each side of the wound if available (improves adhesion).",
+      "Apply steri-strips: pinch wound edges together. Apply strip across the wound, pulling one side first, then the other, holding edges closed.",
+      "Spacing: strips should be placed every 3\u20135 mm along the wound. Leave gaps for drainage.",
+      "Cover with a non-adherent dressing. Monitor for signs of infection at each dressing change."
+    ],
+    discussion: [
+      {q:"What wound locations are NOT appropriate for steri-strip closure?", answers:["Wounds over joints (constant movement opens the wound), in hairy areas (poor adhesion), on the face near the mouth (high movement), in areas of frequent moisture, or wounds under tension."  ]},
+      {q:"What is the \u2018golden period\u2019 for wound closure and why does it matter?", answers:["Wounds are typically safe to close primarily within 6\u20138 hours of injury. After this, bacterial counts in the wound increase to levels where closure would trap organisms and create a favorable environment for infection."]}
+    ],
+    challenge: "Practice steri-strip application on a simulated wound using tape on skin. Apply 5 strips correctly with proper spacing and tension.",
+    tuesday:   { low: {title:"Strip application practice", activity:"Practice applying steri-strips on a pen cap taped to your arm (simulated wound). Focus on: approximating edges, even tension, correct spacing."}, mid: {title:"Wound closure selection", activity:"For 5 different wound scenarios (depth, location, age, contamination), determine whether steri-strips, sutures, or secondary intention healing is most appropriate."}, high: {title:"Suture materials science", activity:"Research suture materials: absorbable (chromic gut, polyglactin 910) vs non-absorbable (nylon, polypropylene). What properties of each material make it appropriate for different tissue types?"} },
+    wednesday: { low: {title:"Benzoin application", activity:"Research compound benzoin tincture. How does it improve steri-strip adhesion and what is the application technique?"}, mid: {title:"Tissue adhesive (Dermabond)", activity:"Research cyanoacrylate tissue adhesive. How does it compare to steri-strips for superficial facial lacerations? What are the advantages and limitations?"}, high: {title:"Healing by intention", activity:"Research the 3 types of wound healing: primary intention (closed), secondary intention (open, granulates), and tertiary intention (delayed primary closure). When is each appropriate?"} },
+    thursday:  { low: {title:"Dressing over closure", activity:"Practice covering a steri-stripped wound with a non-adherent dressing. How do you secure the dressing without disturbing the closure strips?"}, mid: {title:"Strip removal", activity:"Research when and how to remove steri-strips. What signs indicate the wound is healed enough? How do you remove them without reopening the wound?"}, high: {title:"Negative pressure wound therapy", activity:"Research NPWT (vacuum-assisted closure). How does negative pressure accelerate wound healing and what wound types benefit most from this approach?"} }
+  },
+
+  "CERT — Community Emergency Response Team intro": {
+    gradeHooks: {
+      low: "CERT volunteers are trained neighbors who help their community right after a disaster until professional help arrives.",
+      mid: "CERT training covers basic first aid, fire suppression, light search and rescue, and disaster psychology.",
+      high: "CERT program structure, integration with the Incident Command System, and the research on volunteer emergency responder effectiveness are important topics."
+    },
+    materials: ["FEMA CERT program information"],
+    steps: [
+      "CERT background: created in Los Angeles after the 1985 Mexico City earthquake, formalized by FEMA in 1993. Free 3-day training for community members.",
+      "CERT curriculum: disaster preparedness, fire safety, basic first aid, light search and rescue (LSAR), disaster psychology, team organization.",
+      "When deployed: CERT teams operate under professional incident command. They handle tasks that don\u2019t require professional responders: checking on neighbors, documenting damage, providing basic first aid.",
+      "Certification: CERT volunteers receive a certificate and may receive recognition as a community resource.",
+      "Find your local program: fema.gov/cert or your county emergency management office."
+    ],
+    discussion: [
+      {q:"Why is CERT training specifically designed for laypersons without emergency background?", answers:["In a major disaster, professional responders are overwhelmed. CERT volunteers are not trained to replace professionals but to extend their reach: handling simple tasks so professionals can focus on complex ones. CERT training deliberately matches skills to that role."]},
+      {q:"What is the CERT team leader\u2019s relationship to professional incident command?", answers:["CERT teams operate under the direction of professional emergency management. The CERT team leader reports to the assigned professional supervisor in the ICS structure. CERT members never freelance independently."]}
+    ],
+    challenge: "Research your county\u2019s CERT program. When is the next training? What does it cost? Create a plan to get certified.",
+    tuesday:   { low: {title:"CERT skills inventory", activity:"Review the full CERT curriculum. Which skills would you be most confident in after training? Which would you want to practice more?"}, mid: {title:"LSAR basics", activity:"Research light search and rescue principles taught in CERT: survivor search patterns, shoring unstable structures, and victim extraction procedures."}, high: {title:"CERT effectiveness research", activity:"Research studies evaluating CERT volunteer effectiveness in actual disasters. What tasks do they perform most effectively and where are the gaps?"} },
+    wednesday: { low: {title:"Local CERT program contact", activity:"Call or email your local CERT coordinator. Ask when the next training is and what the time commitment involves."}, mid: {title:"CERT vs FEMA training integration", activity:"Research how CERT training integrates with other FEMA citizen preparedness programs: Community Emergency Response Teams, Medical Reserve Corps, and Citizen Corps."}, high: {title:"Disaster psychology module", activity:"Research the disaster psychology component of CERT training. What are the psychological phases of disaster and how do volunteers address both survivor and responder psychological needs?"} },
+    thursday:  { low: {title:"CERT go-bag", activity:"Research what CERT members are advised to keep in a personal go-bag for deployment. How does it differ from a standard 72-hour kit?"}, mid: {title:"Multi-team coordination", activity:"Research how multiple CERT teams coordinate in a large disaster through the ICS structure. What documentation and communication protocols keep teams from working at cross-purposes?"}, high: {title:"CERT funding and sustainability", activity:"Research how CERT programs are funded and what causes programs to succeed or fail long-term. What factors maintain volunteer engagement between activations?"} }
+  },
+
+  "Generator load calculation": {
+    gradeHooks: {
+      low: "We add up how many watts all our appliances need to make sure our generator is big enough to power them!",
+      mid: "Generator sizing requires understanding running vs starting watts, load prioritization, and the relationship between watts, amps, and volts.",
+      high: "Generator electrical engineering, power factor, harmonic distortion, and the sizing methodology for both resistive and reactive loads are important topics."
+    },
+    materials: ["Appliance wattage labels or research", "Calculator"],
+    steps: [
+      "List every appliance you want to power during an outage. Find the running wattage on the label or spec sheet.",
+      "Identify motor loads: refrigerator, AC, well pump, sump pump. These need 2\u20133x running watts for starting surge.",
+      "Calculate total running load and peak starting load (assuming the largest motor starts while others are running).",
+      "Generator selection: size at least 20% above your calculated peak load for headroom.",
+      "Load prioritization: if the generator can\u2019t power everything, what is essential vs nice-to-have?"
+    ],
+    discussion: [
+      {q:"Why does an air conditioner compressor require much more watts to start than to run?", answers:["The compressor motor must overcome static inertia (the refrigerant system\u2019s resistance to initial movement). Once spinning, the motor\u2019s back-EMF reduces current draw. Starting current can be 5\u20136x running current for large compressors."]},
+      {q:"What is the relationship between watts, volts, and amps (W = V x A)?", answers:["Watts is the power consumed. Volts is the electrical pressure. Amps is the current flow. A 1,200-watt microwave on a 120V circuit draws 10 amps. This relationship is essential for sizing extension cords and circuits."]}
+    ],
+    challenge: "Calculate the generator size needed to power your family\u2019s critical loads including the largest motor starting surge. Include a 20% safety margin.",
+    tuesday:   { low: {title:"Appliance wattage research", activity:"Look up the wattage of 10 common household appliances. Sort them from highest to lowest. Which 3 consume the most power?"}, mid: {title:"Starting vs running watts worksheet", activity:"Create a worksheet for 5 motor-driven appliances: refrigerator, window AC, well pump, dehumidifier, sump pump. Find both running and starting watts for each."}, high: {title:"Power factor and apparent power", activity:"Research power factor in AC circuits. What is the difference between real power (watts) and apparent power (VA)? Why do generators need to be sized for apparent power with inductive loads?"} },
+    wednesday: { low: {title:"Load prioritization exercise", activity:"Given a 5,000-watt generator, decide which loads to power from your full list. What is your priority order and why?"}, mid: {title:"Ohm\u2019s law application", activity:"Calculate the current draw (amps) of 10 different loads. This determines what gauge extension cord each requires. Research extension cord current ratings."}, high: {title:"Total harmonic distortion", activity:"Research THD (Total Harmonic Distortion) in generator output. Why do conventional generators produce high THD and why does this damage sensitive electronics? How do inverter generators solve this problem?"} },
+    thursday:  { low: {title:"Generator sizing recommendation", activity:"Based on your load calculation, recommend a specific generator size for your family. Justify the choice including headroom and prioritized loads."}, mid: {title:"Load shedding strategy", activity:"Design a load shedding strategy: what loads to connect first, what to disconnect when adding a large motor load, and how to maximize the generator\u2019s useful output."}, high: {title:"Diesel vs propane vs natural gas generators", activity:"Compare generator fuel types for standby use. What are the storage, cost, maintenance, and reliability differences for a whole-home standby system?"} }
+  },
+
+  "Lacto-fermented vegetables": {
+    gradeHooks: {
+      low: "Today we ferment vegetables using just salt and water. The bacteria that live on the vegetables do all the work!",
+      mid: "Lacto-fermentation uses naturally present Lactobacillus bacteria to acidify vegetables, creating both preservation and probiotic benefits.",
+      high: "Advanced lacto-fermentation covers microbial succession, salt concentration effects on microbial communities, and fermentation optimization."
+    },
+    materials: ["Various vegetables", "Non-iodized salt", "Filtered water (if using brine)", "Wide-mouth jars", "Fermentation weights"],
+    steps: [
+      "Choose your vegetables: classic options include cabbage (sauerkraut), cucumbers (pickles), carrots, radishes, beets, and green beans.",
+      "For shredded vegetables (sauerkraut): massage with 2% salt by weight until brine forms. Pack tightly.",
+      "For whole or chunked vegetables: use a 2\u20133% salt brine (20\u201330g salt per liter of water).",
+      "Submerge all vegetables below the brine. Weight them down. Cover loosely.",
+      "Ferment 3\u201314 days at 65\u201375\u00b0F, tasting daily. Refrigerate when flavor is right."
+    ],
+    discussion: [
+      {q:"What is the microbial succession in lacto-fermentation?", answers:["Early (days 1\u20132): salt-tolerant Leuconostoc and Weissella species begin producing CO2 and lactic acid. Middle (days 3\u20136): Lactobacillus mesenteroides takes over as acidity increases. Late: L. plantarum and L. brevis dominate and produce the final sour flavor."]},
+      {q:"Why does temperature affect fermentation speed and flavor?", answers:["Higher temperatures (80\u00b0F+) accelerate fermentation but produce more acetic acid (vinegary flavor) and can result in mushy texture. Lower temperatures (65\u00b0F) produce slower, more complex flavor development with firmer texture."]}
+    ],
+    challenge: "Ferment 3 different vegetable types simultaneously. Document daily observations: pH, taste, smell, and visual changes. Compare finished products.",
+    tuesday:   { low: {title:"Brine concentration comparison", activity:"Ferment identical cucumber batches at 2%, 3%, and 4% brine. Taste on days 5 and 10. How does salt concentration affect flavor and texture?"}, mid: {title:"pH curve documentation", activity:"Test pH daily during fermentation. Chart the pH drop curve. At what pH does the ferment become shelf-stable and safe from pathogens?"}, high: {title:"Microbial succession research", activity:"Research the specific bacterial species involved in each stage of sauerkraut fermentation. What metabolic products does each species produce?"} },
+    wednesday: { low: {title:"Kimchi variation", activity:"Research kimchi as a culturally distinct lacto-fermented vegetable dish. What vegetables, seasonings, and techniques distinguish it from European-style ferments?"}, mid: {title:"Troubleshooting guide creation", activity:"Create a troubleshooting guide for lacto-fermentation: too salty (solution), mushy texture (causes), kahm yeast (identification and management), pink color (explanation)."}, high: {title:"Competitive exclusion principle", activity:"Research how the competitive exclusion principle applies to fermentation: how Lactobacillus outcompetes pathogens, and what conditions can disrupt this protective mechanism."} },
+    thursday:  { low: {title:"Tasting panel", activity:"Organize a fermented vegetable tasting: your batch plus commercial ferments. Compare flavor complexity, sourness, texture. Which do you prefer?"}, mid: {title:"Long-term storage research", activity:"Research how finished lacto-ferments store: refrigerator (6\u201312+ months), root cellar (months), and the effect of heat pasteurization (destroys probiotics, extends shelf life)."}, high: {title:"Industrial fermentation scale-up", activity:"Research how commercial sauerkraut production differs from home fermentation. What temperature control, pH monitoring, and microbial management systems are used at industrial scale?"} }
+  },
+
+  "Rain barrel setup and first flush diverter": {
+    gradeHooks: {
+      low: "A first flush diverter throws away the dirty first rainwater from our roof before filling our rain barrel with cleaner water.",
+      mid: "Proper rain barrel installation with a first flush diverter significantly improves water quality and prevents barrel contamination.",
+      high: "First flush diverter sizing calculations, water quality improvement data, and the engineering of downspout-based collection systems are important topics."
+    },
+    materials: ["Downspout diverter kit or materials to build one", "PVC pipe for diverter chamber", "55-gallon barrel", "Spigot kit"],
+    steps: [
+      "Measure your roof area served by the target downspout. Calculate the first flush volume to divert: approximately 1 gallon per 100 square feet of roof.",
+      "Build or install the diverter: a vertical chamber below the diverter fitting that fills first. Once full, a float or ball seals the chamber and directs water to the barrel.",
+      "Install the overflow: water collected above the barrel\u2019s capacity must discharge away from the foundation.",
+      "Install a spigot: near the bottom for gravity-fed discharge. Add a screen on the inlet to exclude debris and mosquitoes.",
+      "Test with a garden hose: verify first flush fills diverter, then water flows to barrel, and overflow functions correctly."
+    ],
+    discussion: [
+      {q:"Why is the calculation of first flush volume based on roof area rather than a fixed amount?", answers:["Pollutants accumulate across the entire roof surface between rain events. Larger roof area means more total surface for bird droppings, dust, and debris to accumulate. The first flush volume must be proportional to the total contaminated area."]},
+      {q:"What happens to the water in the first flush diverter chamber after the rain event?", answers:["The chamber slowly drains through a small weep hole at the bottom over the following 12\u201324 hours. When the next rain begins, the chamber is empty and ready to capture the first flush again."]}
+    ],
+    challenge: "Install a first flush diverter on your rain barrel. Test it with a hose and document the sequence: diverter fills, barrel fills, overflow functions.",
+    tuesday:   { low: {title:"First flush volume calculation", activity:"Calculate the required first flush volume for your roof\u2019s downspout. What size PVC pipe and length creates the correct diverter chamber volume?"}, mid: {title:"DIY vs kit comparison", activity:"Compare the cost of building a first flush diverter from PVC fittings vs purchasing a commercial diverter kit. What are the performance differences?"}, high: {title:"Roofing material quality impact", activity:"Research how roofing material affects rainwater quality. How do asphalt shingles, metal roofs, and clay tiles compare in contaminant leaching into collected water?"} },
+    wednesday: { low: {title:"Mosquito prevention", activity:"Research mosquito prevention in rain barrels. What screen requirements (mesh size) prevent mosquitoes from entering? What is Bti and how does it kill larvae without affecting other organisms?"}, mid: {title:"Water quality testing", activity:"Research how to test collected rainwater. What parameters should be tested for garden use vs non-potable indoor use vs emergency potable use?"}, high: {title:"Pollutant removal efficiency", activity:"Research peer-reviewed studies on first flush diverter efficiency. What percentage reduction in heavy metals, bacteria, and PAHs does a properly designed first flush diverter achieve?"} },
+    thursday:  { low: {title:"System maintenance plan", activity:"Create a seasonal maintenance plan for your rain barrel system: cleaning schedule, winter preparation, screen inspection, and diverter weep hole check."}, mid: {title:"Permit research", activity:"Research your county\u2019s requirements for rain barrel installation. Is a permit required? Are there rebate programs from your water management district?"}, high: {title:"Integrated stormwater management", activity:"Research how rain barrels and cisterns integrate into urban stormwater management. What is their contribution to reducing combined sewer overflows and peak storm runoff?"} }
+  },
+
+  "Weatherstripping doors and windows": {
+    gradeHooks: {
+      low: "Weatherstripping seals the gaps around doors and windows so hot and cold air can\u2019t sneak in. It saves energy and money!",
+      mid: "Proper weatherstripping selection and installation requires understanding the gap type, door operation, and material durability requirements.",
+      high: "Air infiltration mechanics, weatherstripping material properties, and the energy audit methods for quantifying infiltration are important building science topics."
+    },
+    materials: ["Various weatherstripping types", "Scissors or utility knife", "Measuring tape", "Screwdriver or adhesive"],
+    steps: [
+      "Test existing weatherstripping: close a door on a dollar bill. If you can pull it out easily, the seal is inadequate.",
+      "Identify gap location and movement: the top and sides of doors need V-strip or foam tape. The bottom needs a door sweep.",
+      "Clean the surface where weatherstripping will adhere. Remove old weatherstripping completely.",
+      "Measure twice, cut once. Install the full length of each side.",
+      "Test after installation: repeat the dollar bill test. Can you feel a difference in drafts?"
+    ],
+    discussion: [
+      {q:"Why does door weatherstripping fail over time even when installed correctly?", answers:["Compression materials (foam) lose memory and no longer spring back. Wiper seals wear from repeated contact. UV degrades material flexibility. Most weatherstripping needs replacement every 2\u20135 years depending on use and material quality."]},
+      {q:"How does weatherstripping a door differ from weatherstripping a window?", answers:["Doors create a compression seal as they close. Window weatherstripping must accommodate both the sliding/opening motion and create a compression seal when closed. The material and attachment method must match the specific motion."]}
+    ],
+    challenge: "Replace the weatherstripping on one exterior door completely. Test before and after with the dollar bill method and feel for drafts. Document the improvement.",
+    tuesday:   { low: {title:"Weatherstripping type comparison", activity:"Research 6 weatherstripping types: foam tape, V-strip (tension seal), door sweep, door shoe, tubular gasket, and interlocking metal. When is each appropriate?"}, mid: {title:"Door sweep installation", activity:"Research and install a door sweep on an exterior door. What clearance from the floor is correct? How do you adjust it after installation?"}, high: {title:"Air infiltration measurement", activity:"Research how to measure air infiltration with a blower door test. What is the relationship between pressure difference and airflow and how does this quantify weatherstripping effectiveness?"} },
+    wednesday: { low: {title:"Energy savings calculation", activity:"Research that typical door and window weatherstripping can reduce infiltration losses by 10\u201315%. If heating/cooling costs $200/month, what is the annual savings potential?"}, mid: {title:"Window weatherstripping", activity:"Research weatherstripping for double-hung windows: felt pile for sliding sash channels and foam or rubber for the meeting rail. Install or replace weatherstripping on one window."}, high: {title:"Whole-building air sealing", activity:"Research the comprehensive air sealing approach to weatherproofing: rim joists, attic bypasses, electrical penetrations, and plumbing penetrations. What percentage of total infiltration does each area represent?"} },
+    thursday:  { low: {title:"Annual inspection", activity:"Create an annual weatherstripping inspection checklist for every exterior door and operable window. Set a calendar reminder."}, mid: {title:"Historic building weatherproofing", activity:"Research special weatherstripping considerations for older or historic buildings where permanent modifications are restricted."}, high: {title:"Energy modeling impact", activity:"Research how energy modeling software quantifies the impact of air sealing measures. What is the typical payback period for comprehensive weatherstripping in a Florida home?"} }
+  },
+
+  "Credit scores — what they are": {
+    gradeHooks: {
+      low: "A credit score is a number that tells banks and landlords how trustworthy you are with money. Higher is better!",
+      mid: "Credit scores are calculated from 5 factors. Understanding them enables deliberate credit building and maintenance.",
+      high: "Credit scoring models, the credit reporting industry, data accuracy concerns, and the policy debate around credit scores are important financial topics."
+    },
+    materials: ["Paper for calculation practice"],
+    steps: [
+      "Explain: credit scores range from 300\u2013850 (FICO). 670+ is good, 740+ is very good, 800+ is exceptional.",
+      "The 5 factors (FICO): payment history (35%), amounts owed/utilization (30%), length of credit history (15%), new credit inquiries (10%), credit mix (10%).",
+      "Payment history: even one missed payment can drop a score 50\u2013100 points. Consistent on-time payments are the most important factor.",
+      "Credit utilization: keep credit card balances below 30% of the credit limit. Ideally below 10%.",
+      "How to build credit: secured credit card, becoming an authorized user on a parent\u2019s account, or a credit-builder loan."
+    ],
+    discussion: [
+      {q:"Why does credit utilization matter so much and how does it affect your score?", answers:["High utilization signals financial stress to lenders. Using 90% of available credit suggests you may be dependent on debt. Using 10% or less signals that you could access more credit but choose not to. The utilization ratio is calculated both per card and overall."]},
+      {q:"How does the length of credit history affect your score and why does closing old accounts hurt?", answers:["Longer credit history demonstrates a track record of responsible use. Closing an old account reduces your average account age and may reduce your total available credit (increasing utilization). Both effects can lower your score even if you\u2019ve never missed a payment."]}
+    ],
+    challenge: "Research your rights under the Fair Credit Reporting Act. Request a free credit report at AnnualCreditReport.com. Review it for errors.",
+    tuesday:   { low: {title:"Score factor weighting", activity:"Draw a pie chart showing the 5 FICO factors with their percentages. Which single change would have the biggest positive impact on a low score?"}, mid: {title:"Credit utilization calculation", activity:"Calculate credit utilization for 5 scenarios with different balances and limits. At what dollar balance on a $5,000 limit card should you aim to keep your utilization below 30%?"}, high: {title:"VantageScore vs FICO", activity:"Research VantageScore and FICO. What are the differences in scoring models and why do different lenders use different scores? What is tri-merge credit reporting?"} },
+    wednesday: { low: {title:"Credit building strategies", activity:"Research 3 strategies for building credit from scratch: secured card, credit-builder loan, authorized user status. What are the risks and benefits of each?"}, mid: {title:"Credit report accuracy", activity:"Research the frequency of errors on credit reports. What types of errors most commonly appear and how do you dispute them under the FCRA?"}, high: {title:"Credit score policy debate", activity:"Research the policy debate over credit score use in employment, housing, and insurance. What are the arguments for and against these uses? What disparate impact concerns have been documented?"} },
+    thursday:  { low: {title:"Free credit report review", activity:"With a parent, request a free credit report at AnnualCreditReport.com. Review each section. Is all information accurate?"}, mid: {title:"Score simulation", activity:"Use a free credit score simulator (Credit Karma, NerdWallet) to model the impact of paying off debt, opening new credit, and missing a payment. What changes have the largest effect?"}, high: {title:"Alternative credit scoring", activity:"Research alternative credit scoring models that use non-traditional data: rent payments, utility payments, banking history. What are the arguments for and against expanding these data sources in credit decisions?"} }
+  },
+
+
+
   "Preparing wild greens — cooking safely": {
     gradeHooks: {
       low: "Some wild greens taste better and are safer when cooked. We learn which ones to cook and how to prepare them!",
