@@ -6672,12 +6672,8 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
               </div>
               <div style={{display:"flex",gap:"0.5rem"}}>
                 <button onClick={startLog}
-                  style={{flex:2,padding:"0.58rem",border:"none",borderRadius:"11px",background:"rgba(255,255,255,0.92)",color:pal.primary,fontWeight:"800",fontSize:"0.82rem",cursor:"pointer"}}>
+                  style={{flex:1,padding:"0.58rem",border:"none",borderRadius:"11px",background:"rgba(255,255,255,0.92)",color:pal.primary,fontWeight:"800",fontSize:"0.82rem",cursor:"pointer"}}>
                   {"📝 Log Today"}
-                </button>
-                <button onClick={()=>onTabChange("schedule")}
-                  style={{flex:1,padding:"0.58rem",border:"2px solid rgba(255,255,255,0.4)",borderRadius:"11px",background:"transparent",color:"#fff",fontWeight:"700",fontSize:"0.78rem",cursor:"pointer"}}>
-                  {"📅 Schedule"}
                 </button>
               </div>
             </div>
