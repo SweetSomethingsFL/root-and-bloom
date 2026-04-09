@@ -1925,11 +1925,12 @@ function OnbCurrBrands({ pal, data, upd, onNext }) {
     setFetchMsg("Checking out " + name + "’s website…");
     setFetchDone(false);
     try {
+      const fetchKey = (() => { try{ return localStorage.getItem("rootbloom_apikey")||AI_KEY; }catch(e){return AI_KEY;} })();
       const res = await fetch("https://api.anthropic.com/v1/messages", {
         method:"POST",
-        headers:{"Content-Type":"application/json"},
+        headers:{"Content-Type":"application/json","x-api-key":fetchKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
         body: JSON.stringify({
-          model:"claude-sonnet-4-5-20251001",
+          model:"claude-sonnet-4-6",
           max_tokens:600,
           tools:[{type:"web_search_20250305",name:"web_search"}],
           messages:[{
@@ -3095,11 +3096,12 @@ function CurriculumAddWidget({pal, local, updL}){
     setFetching(true);
     setMsg("Looking up "+n+"...");
     try {
+      const fetchKey2 = (() => { try{ return localStorage.getItem("rootbloom_apikey")||AI_KEY; }catch(e){return AI_KEY;} })();
       const res = await fetch("https://api.anthropic.com/v1/messages",{
         method:"POST",
-        headers:{"Content-Type":"application/json"},
+        headers:{"Content-Type":"application/json","x-api-key":fetchKey2,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
         body:JSON.stringify({
-          model:"claude-sonnet-4-5-20251001",
+          model:"claude-sonnet-4-6",
           max_tokens:400,
           tools:[{type:"web_search_20250305",name:"web_search"}],
           messages:[{role:"user",content:"Please visit "+u+" and give me a 2-3 sentence summary of what this homeschool curriculum covers, its teaching philosophy, grade levels, and what makes it unique. Be concise and practical."}]
@@ -4837,19 +4839,15 @@ function printPortfolioPDF(family, entries, child, attendanceDays, stateInfo, da
     html += "</div>";
   }
 
-  // Photos
-  html += "<div class='section-label'>Work Samples / Documentation</div>"
-    +"<div class='photo-row'>";
-  for(let i=0;i<3;i++){
-    html += "<div class='photo-box'>";
-    if(allPhotos[i]){
-      html += "<img src='"+allPhotos[i]+"' alt='work sample "+(i+1)+"'/>";
-    } else {
-      html += "<div class='photo-placeholder'>Sample "+(i+1)+"<br><span style='font-size:7pt'>Attach work here</span></div>";
-    }
+  // Photos — only show section if there are actual photos
+  if(allPhotos.length>0){
+    html += "<div class='section-label'>Work Samples / Documentation</div>"
+      +"<div class='photo-row'>";
+    allPhotos.forEach(function(src,i){
+      html += "<div class='photo-box'><img src='"+src+"' alt='work sample "+(i+1)+"'/></div>";
+    });
     html += "</div>";
   }
-  html += "</div>";
 
 
   // Footer
@@ -7868,7 +7866,7 @@ async function callClaude(prompt) {
       "anthropic-dangerous-direct-browser-access":"true"
     },
     body:JSON.stringify({
-      model:"claude-sonnet-4-5-20251001",
+      model:"claude-sonnet-4-6",
       max_tokens:1000,
       messages:[{role:"user",content:prompt}],
     }),
@@ -8226,7 +8224,8 @@ function AIChatModal({ pal, family, onClose }) {
   const send = async () => {
     const text = input.trim();
     if (!text || loading) return;
-    if(!AI_KEY){setMessages(m=>[...m,{role:"user",content:text},{role:"assistant",content:"AI features need an API key. Ask your app admin to add one in settings."}]);setInput("");return;}
+    const runtimeKey = (() => { try{ return localStorage.getItem("rootbloom_apikey")||AI_KEY; }catch(e){return AI_KEY;} })();
+    if(!runtimeKey){setMessages(m=>[...m,{role:"user",content:text},{role:"assistant",content:"AI features need an API key. Add one in Settings to get started!"}]);setInput("");return;}
     const {allowed,used,limit} = checkAILimit();
     if(!allowed){setMessages(m=>[...m,{role:"user",content:text},{role:"assistant",content:"Monthly AI limit of "+limit+" uses reached. Resets next month!"}]);setInput("");return;}
     setInput("");
@@ -8240,12 +8239,12 @@ function AIChatModal({ pal, family, onClose }) {
         method:"POST",
         headers:{
           "Content-Type":"application/json",
-          "x-api-key":AI_KEY,
+          "x-api-key":runtimeKey,
           "anthropic-version":"2023-06-01",
           "anthropic-dangerous-direct-browser-access":"true"
         },
         body:JSON.stringify({
-          model:"claude-sonnet-4-5-20251001",
+          model:"claude-sonnet-4-6",
           max_tokens:1500,
           system:"You are a warm, creative homeschool assistant for Root & Bloom app. You help homeschool families with worksheets, lesson plans, unit studies, discussion questions, project ideas, and any educational content they need.\n\n"
             +"Family info:\n"
@@ -11095,10 +11094,11 @@ function WeeklyPacket({pal,family,child,entries,onBack}){
       + "Under 120 words total. No bullet points."
 
     try {
+      const weekSummaryKey = (() => { try{ return localStorage.getItem("rootbloom_apikey")||AI_KEY; }catch(e){return AI_KEY;} })();
       const res = await fetch("https://api.anthropic.com/v1/messages",{
         method:"POST",
-        headers:{"Content-Type":"application/json","x-api-key":AI_KEY,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-        body:JSON.stringify({model:"claude-sonnet-4-5-20251001",max_tokens:400,messages:[{role:"user",content:prompt}]})
+        headers:{"Content-Type":"application/json","x-api-key":weekSummaryKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+        body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:400,messages:[{role:"user",content:prompt}]})
       });
       const data = await res.json();
       const text = data.content?.map(b=>b.text||"").join("")||"";
