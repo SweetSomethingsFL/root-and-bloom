@@ -139,6 +139,874 @@ const LS_KEY = "rootbloom_v1";
 
 const LR_LESSON_PLANS = {
 
+  "Improvised surgery — wound closure field conditions": {
+    gradeHooks: {
+      low: "In extreme field conditions with no evacuation possible, a trained provider may need to close a wound using improvised techniques.",
+      mid: "Advanced field wound management beyond steri-strips requires understanding tissue planes, suture technique, and infection management.",
+      high: "Wound closure biomechanics, infection risk stratification, and the ethical framework for invasive field procedures are important wilderness medicine topics."
+    },
+    materials: ["Suture practice pad", "Needle driver and forceps", "Suture material", "WFR or WEMT reference"],
+    steps: [
+      "This is Wilderness EMT or WFR scope in prolonged care: only when evacuation is impossible within 6 hours and the wound requires closure for healing.",
+      "Wound assessment before closure: clean wound, less than 6\u20138 hours old, no signs of infection, tension-free closure possible.",
+      "Simple interrupted suture technique: needle enters skin at 90 degrees, exits at the same depth opposite, tie with a square knot, trim tails to 3\u20134mm.",
+      "Knot security: minimum 3 throws (square knot + 2 additional throws). Each suture placed 3\u20135mm from the wound edge and 5\u201310mm apart.",
+      "Post-closure care: daily wound inspection, antibiotic ointment, and evacuation remains a priority even after closure."
+    ],
+    discussion: [
+      {q:"Under what circumstances would field wound closure be appropriate and what specific training does it require?", answers:["Field wound closure is appropriate only when: the wound requires closure (gaping, would not heal by secondary intention), definitive care is unavailable for 24+ hours, the provider has specific training (WFR extended, WEMT, or higher), and the wound is appropriate for closure (clean, recent, no signs of infection). Most first aid providers should not attempt suturing."]},
+      {q:"Why is delayed primary closure sometimes better than immediate closure in a wilderness context?", answers:["Wounds contaminated by soil, debris, or animal bites have high infection risk. Immediate closure traps bacteria in the wound. Delayed primary closure (cleaning and covering without closing, closing after 3\u20135 days if no infection develops) reduces infection risk while allowing drainage. This technique is used extensively in military wound management."]}
+    ],
+    challenge: "Practice simple interrupted suture technique on a suture pad. Achieve consistent spacing, depth, and tension. Research the specific indications and contraindications for field closure.",
+    tuesday:   { low: {title:"Suture technique practice", activity:"Practice simple interrupted sutures on a suture pad. Focus on: needle entry angle, consistent depth, consistent spacing, and square knot security."}, mid: {title:"Wound assessment for closure", activity:"Research the criteria that make a wound appropriate or inappropriate for field closure. For 10 wound descriptions, determine: appropriate for closure, delay closure, or do not close."}, high: {title:"Wound healing by intention", activity:"Research primary, secondary, and tertiary wound healing. What tissue processes occur in each and what wound characteristics favor each approach?"} },
+    wednesday: { low: {title:"Knot tying practice", activity:"Practice square knots and the instrument tie technique. A secure knot requires at least 3 throws. Practice until the technique is automatic."}, mid: {title:"Stapler comparison", activity:"Research skin stapler use as an alternative to suturing in field conditions. What wounds are appropriate for staples vs sutures? What is the wound closure speed comparison?"}, high: {title:"Antimicrobial prophylaxis research", activity:"Research indications for prophylactic antibiotics in wound management. What wound types (bite wounds, contaminated wounds, high-risk patients) have the strongest evidence for prophylaxis?"} },
+    thursday:  { low: {title:"Post-closure monitoring", activity:"Research post-closure wound monitoring: what signs of infection should be checked daily and what interventions are indicated if infection develops in a field setting?"}, mid: {title:"Tissue adhesive comparison", activity:"Compare tissue adhesive (Dermabond), staples, sutures, and steri-strips for facial lacerations. What evidence supports each choice for different wound characteristics?"}, high: {title:"Wound care research evolution", activity:"Research how wound management evidence has evolved over the last 30 years. How have wet wound healing, TIME framework, and biofilm management changed wound care practice?"} }
+  },
+
+  "Organizing a neighborhood preparedness group": {
+    gradeHooks: {
+      low: "A neighborhood preparedness group connects residents so they can support each other before, during, and after emergencies.",
+      mid: "Building a functional neighborhood preparedness group requires community organizing skills, sustainable structure design, and clear purpose.",
+      high: "Community organizing theory, voluntary organization sustainability research, and the social capital dimensions of neighborhood preparedness are important topics."
+    },
+    materials: ["Community organizing resources", "Meeting facilitation tools"],
+    steps: [
+      "Initial outreach: start with personal connections. A trusted neighbor reaches out to their neighbors. Organic growth from existing relationships is more durable than cold outreach.",
+      "First meeting: establish shared purpose. What do participants want from the group? What emergency scenarios are most relevant to this neighborhood?",
+      "Structure: minimal structure supports maximum participation. Rotating host, shared leadership, voluntary working groups for specific functions.",
+      "Action orientation: people stay engaged when they see results. Early wins: completing a neighborhood resource map, posting evacuation routes, connecting vulnerable residents.",
+      "Sustained engagement: regular light-touch events (neighborhood potluck, preparedness fair) maintain connections between emergencies."
+    ],
+    discussion: [
+      {q:"Why do neighborhood preparedness groups fail and what structural design prevents common failure modes?", answers:["Common failures: single leader burnout (solution: distributed leadership), loss of momentum between emergencies (solution: regular low-effort engagement events), and lack of tangible outcomes (solution: early visible wins). The most successful groups create social value beyond preparedness so members stay engaged for community reasons even when there is no immediate threat."]},
+      {q:"What is the relationship between neighborhood social capital and disaster resilience?", answers:["Research consistently shows that neighborhoods with higher social capital (trust, relationships, reciprocal norms) recover faster from disasters. Social capital enables faster informal resource sharing, better communication about needs, and more effective self-organization. Building social capital through a preparedness group is itself a preparedness intervention."]}
+    ],
+    challenge: "Organize a neighborhood preparedness meeting with at least 5 households. Complete one tangible outcome: a neighborhood resource map, a communication tree, or a shared emergency contacts list.",
+    tuesday:   { low: {title:"Neighbor outreach strategy", activity:"Research community organizing techniques for initial outreach. What messaging resonates with people who don\u2019t think of themselves as \u2018preppers\u2019?"}, mid: {title:"First meeting agenda design", activity:"Design the agenda for a neighborhood preparedness first meeting: purpose introduction, asset mapping activity, and working group formation."}, high: {title:"Community organizing theory", activity:"Research Saul Alinsky\u2019s community organizing principles and how they apply to neighborhood emergency preparedness. What does organizing theory say about power, relationships, and action?"} },
+    wednesday: { low: {title:"Meeting facilitation", activity:"Facilitate a neighborhood meeting. Practice: inclusive participation techniques, managing dominant voices, and building toward concrete outcomes."}, mid: {title:"Volunteer retention strategies", activity:"Research what motivates ongoing volunteer participation in community groups. What keeps people engaged beyond the initial enthusiasm?"}, high: {title:"Social capital measurement", activity:"Research how social capital is measured in communities. What metrics are used and how do they correlate with disaster recovery outcomes?"} },
+    thursday:  { low: {title:"First deliverable completion", activity:"Complete the group\u2019s first deliverable: a neighborhood resource map or contact directory. Distribute it to all participating households."}, mid: {title:"Sustainability planning", activity:"Design the group\u2019s 12-month calendar: what regular activities maintain engagement? What milestones build on each other?"}, high: {title:"Network analysis research", activity:"Research network analysis applied to neighborhood preparedness. How can you identify the most connected individuals (hubs) who maximize information spread?"} }
+  },
+
+  "Living off renewable energy for one week": {
+    gradeHooks: {
+      low: "A one-week renewable energy challenge tests whether our system can actually meet our family\u2019s needs in real conditions.",
+      mid: "A real-world renewable energy challenge reveals system limitations, load management requirements, and unexpected demands.",
+      high: "Energy system performance analysis, behavioral demand response, and the gap between theoretical design and actual performance are important topics."
+    },
+    materials: ["Fully operational renewable energy system", "Energy monitoring equipment", "Consumption log"],
+    steps: [
+      "Pre-challenge: confirm system is fully commissioned and fully charged. Establish monitoring (battery state of charge, production, consumption).",
+      "Day 1: establish baseline. What is actual daily consumption vs designed? Where are the surprises?",
+      "Load management: identify the largest loads. Schedule high-consumption activities (laundry, cooking) during peak production (solar noon).",
+      "Battery state of charge monitoring: maintain above 20% for lead-acid, 10% for lithium. Shed loads before hitting these limits.",
+      "Daily log: production, consumption, beginning and ending state of charge, and any load shedding decisions."
+    ],
+    discussion: [
+      {q:"What is the most common unexpected energy consumer discovered during a renewable energy challenge?", answers:["Vampire loads (devices consuming power in standby mode) are consistently underestimated. A cable box, gaming console, and several phone chargers can add 5\u201310 kWh per day to consumption that never appeared in the load analysis. Smart power strips or monitoring reveal these hidden loads."]},
+      {q:"What load management strategy provides the most benefit in a solar system during a cloudy day?", answers:["Time-shifting high-consumption loads: run the washing machine, dishwasher, or cooking appliances during the peak production window (10am\u20132pm). If the battery is at 80%+ from the previous sunny day, these loads can run from battery during cloudy periods. The key insight is that load timing is as important as load reduction."]}
+    ],
+    challenge: "Complete a full 7-day renewable energy challenge. Log production, consumption, and state of charge daily. Present a performance report at the end.",
+    tuesday:   { low: {title:"Day 1 monitoring setup", activity:"Establish daily monitoring: read battery voltage/SOC at 7am and 7pm. Record production and consumption from monitoring display. Start your log."}, mid: {title:"Vampire load audit", activity:"Measure standby power of every device in the home using a Kill A Watt meter. Calculate total standby consumption per day."}, high: {title:"Performance ratio calculation", activity:"After 3 days, calculate actual vs designed performance ratio. What is the gap and what factors explain it?"} },
+    wednesday: { low: {title:"Load scheduling optimization", activity:"Review your daily log. Identify high-consumption activities. Redesign the daily schedule to shift them to peak production hours."}, mid: {title:"Cloudy day management", activity:"Research load shedding protocols for cloudy days or low battery states. What loads are shed first, second, and last?"}, high: {title:"Energy independence calculation", activity:"After 7 days, calculate your energy independence ratio: days fully met by the system vs days requiring supplements from grid or generator."} },
+    thursday:  { low: {title:"Week performance summary", activity:"Compile your 7-day log into a performance summary: average daily production, consumption, and net balance. What surprised you?"}, mid: {title:"System improvement recommendations", activity:"Based on your week of experience, identify the 3 highest-value system improvements. What would have made the most difference?"}, high: {title:"Cost per kWh analysis", activity:"Calculate the total system cost and lifetime kWh production at your location. What is the cost per kWh over the system\u2019s 25-year life? Compare to utility rate."} }
+  },
+
+  "Preserving an entire harvest — all methods": {
+    gradeHooks: {
+      low: "When the garden produces more than we can eat, we preserve it using every method: canning, fermenting, drying, freezing, and root cellaring.",
+      mid: "Matching preservation method to each crop based on water content, acidity, and flavor characteristics maximizes quality and shelf life.",
+      high: "Food preservation science, the comparative efficacy of each method, and the nutritional impact of different preservation methods are important topics."
+    },
+    materials: ["Harvest from the garden", "Canning equipment", "Dehydrator", "Fermentation vessels", "Freezer space"],
+    steps: [
+      "Triage the harvest: sort by condition (best to worst). Best goes to fresh eating or long-term preservation. Overripe or damaged goes to immediate use or short-term preservation.",
+      "Match method to crop: tomatoes \u2192 canning or fermentation. Herbs \u2192 drying. Beans \u2192 fermenting (lacto) or pressure canning. Squash \u2192 curing and dry storage. Berries \u2192 freezing or jam.",
+      "Processing priority: process in order of perishability. Anything showing breakdown goes first.",
+      "Quality control: each method has quality indicators. Canning: sealed lids. Fermenting: no mold, appropriate sourness. Drying: completely brittle, no moisture.",
+      "Storage integration: label everything with contents and date. Organize storage so older products are used first (FIFO)."
+    ],
+    discussion: [
+      {q:"Why does matching preservation method to crop quality matter more than choosing the \u2018best\u2019 method?", answers:["Perfect produce can be preserved by any method. Overripe, bruised, or damaged produce has already begun deteriorating, and some preservation methods cannot stop or reverse this. Pressure canning damaged vegetables can result in spoiled jars. The best method is the one that matches the crop\u2019s current condition."]},
+      {q:"Which preservation method best retains nutritional value and which retains flavor?", answers:["Nutritional value: fermentation often increases certain nutrients (B vitamins, vitamin C) while reducing antinutrients. Freezing retains most nutrients if blanched properly. Canning causes some nutrient loss from heat. Drying retains most nutrients but concentrates sugars. Flavor: fermentation creates complex new flavors. Drying intensifies existing flavors. Freezing best preserves original fresh flavor."]}
+    ],
+    challenge: "Preserve one complete harvest by using at least 4 different methods for different crops. Document yields, methods, and quality assessments for each.",
+    tuesday:   { low: {title:"Harvest assessment", activity:"Sort your harvest by condition and crop type. Create a preservation plan: what method for each crop and what quantity."}, mid: {title:"Processing workflow design", activity:"Design a processing workflow that addresses the most perishable crops first and sequences preservation tasks efficiently over 2\u20133 days."}, high: {title:"Nutritional retention research", activity:"Research the comparative nutritional retention of each preservation method for 3 specific crops. Which method best preserves each crop\u2019s key nutrients?"} },
+    wednesday: { low: {title:"Multi-method preservation day", activity:"Execute preservation of 3 crops using 3 different methods in a single day. Document the time required for each."}, mid: {title:"Quality control protocol", activity:"Create a quality control checklist for each preservation method. What are the signs of success and failure for canning, fermenting, drying, and freezing?"}, high: {title:"Traditional preservation ethnography", activity:"Research how traditional cultures preserved harvests in your climate zone. What methods were used before refrigeration and electricity? What can be learned from them?"} },
+    thursday:  { low: {title:"Storage organization", activity:"Organize all preserved food with consistent labeling: contents, date, method, and quantity. Set up FIFO organization in your storage area."}, mid: {title:"Harvest accounting", activity:"Calculate the dollar value of your preserved harvest at grocery store prices. How does this compare to the cost of seeds, supplies, and preservation equipment?"}, high: {title:"Waste analysis", activity:"Calculate the percentage of your harvest that was preserved vs eaten fresh vs wasted. What changes to timing, processing, or preservation methods would reduce waste?"} }
+  },
+
+  "Water catchment to storage to use — full system": {
+    gradeHooks: {
+      low: "A complete water system catches rain, stores it, treats it, and delivers it where we need it. We design and build ours today.",
+      mid: "A functional full-cycle water system integrates collection, first flush, storage, treatment, pressure, and distribution into a reliable whole.",
+      high: "Systems engineering applied to water, hydraulic modeling, and quality management for a complete water system are important topics."
+    },
+    materials: ["Installed or planned complete water system components"],
+    steps: [
+      "System review: all components must work together. Confirm: collection yield \u2265 daily demand, storage \u2265 30-day demand, treatment appropriate for intended use, distribution at adequate pressure.",
+      "Commissioning sequence: fill the system with water. Check first flush diverter function. Check storage filling rate. Verify treatment system flow. Check pressure at all outlets.",
+      "Performance testing: measure actual flow rate at furthest outlet. Test water quality after full treatment train. Verify all shutoff valves function.",
+      "Documentation: create an as-built diagram showing all components, pipe sizes, valve locations, and treatment specifications.",
+      "Maintenance schedule: create a calendar with: filter replacement dates, tank inspection dates, UV lamp replacement, and annual water quality testing."
+    ],
+    discussion: [
+      {q:"What single point of failure in a complete water system poses the greatest risk and how do you design around it?", answers:["The treatment system (particularly UV if used for potable water) is the most critical single point of failure. UV lamp failure produces water that appears clean but is not disinfected. Design mitigations: redundant UV units, backup chemical disinfection (bleach dosing), bypass valves that prevent any untreated water from reaching drinking taps."]},
+      {q:"How does system documentation protect future users and maintainers?", answers:["An as-built diagram enables: diagnosing problems without guessing at the system layout, correctly sizing replacement components, understanding what the system does and doesn\u2019t treat, and training new users. Without documentation, a system handoff requires relearning everything through trial and error."]}
+    ],
+    challenge: "Commission a complete water system. Document the as-built diagram. Perform all quality tests. Create the maintenance schedule.",
+    tuesday:   { low: {title:"System walkthrough", activity:"Walk the complete water system from roof to tap. Identify every component, valve, filter, and connection. Create the as-built diagram."}, mid: {title:"Quality testing", activity:"Test water quality at 3 points: raw collection, post-filtration, post-UV. What parameters are you testing and what are the acceptable values?"}, high: {title:"Hydraulic pressure analysis", activity:"Measure water pressure at the furthest fixture. Is it adequate for normal use? What is the relationship between tank elevation and available pressure?"} },
+    wednesday: { low: {title:"Commissioning verification", activity:"Test every component function: first flush diverter filling and draining, all filter flow rates, UV indicator light, pump pressure switch cycling."}, mid: {title:"Failure mode planning", activity:"For each major component, develop a response plan for failure: what is the immediate workaround and how long can you operate on backup?"}, high: {title:"Water balance monitoring", activity:"Set up a simple water balance monitoring system: measure daily production input and consumption output. How does this help manage the system?"} },
+    thursday:  { low: {title:"Maintenance calendar", activity:"Create a complete maintenance calendar for the next 2 years. Include every scheduled task with component, action, and frequency."}, mid: {title:"System handover documentation", activity:"Create a user guide for the water system: what it does, how it works, normal operation, emergency procedures, and who to call if something fails."}, high: {title:"Performance report", activity:"Create a 12-month performance projection: expected monthly collection based on historical rainfall, expected consumption, and predicted storage levels throughout the year."} }
+  },
+
+  "Plumbing a bathroom — rough-in to finish": {
+    gradeHooks: {
+      low: "Roughing in plumbing means installing the pipes before the walls are closed. Finish plumbing installs the fixtures after the drywall is done.",
+      mid: "Bathroom plumbing rough-in requires understanding drain/vent/supply layout, code requirements, and the sequence of work.",
+      high: "Plumbing code requirements, drain venting principles, and DWV (drain-waste-vent) system design are important topics."
+    },
+    materials: ["Plumbing reference", "Sample pipe sections for demonstration"],
+    steps: [
+      "Rough-in sequence: establish all drain locations first (they\u2019re hardest to move). Then supply lines. Then vent connections.",
+      "Toilet rough-in: the flange sits on top of the finished floor. The center of the flange is typically 12 inches from the finished wall (standard rough-in).",
+      "Shower drain: must be connected to the P-trap before the liner or pan is installed. Verify drain location matches pan dimensions.",
+      "Vent requirements: every trap must be vented within a code-specified distance. A toilet, sink, and shower can often share a 3-inch vent stack.",
+      "Supply lines: hot on the left, cold on the right (universal standard). Valves at every fixture for isolation."
+    ],
+    discussion: [
+      {q:"Why does every trap require a vent in a plumbing system?", answers:["When water flows down a drain, it creates a partial vacuum behind it that would siphon the water seal out of the trap. The vent provides atmospheric pressure to prevent siphoning. Without a vent, the trap loses its water seal and sewer gases (hydrogen sulfide, methane) flow freely into the building."]},
+      {q:"Why is the toilet the first fixture to locate in bathroom rough-in and why is it hardest to change?", answers:["The toilet drain is a 3\u20134 inch cast iron or ABS pipe that must be cut into the subfloor and connected to the main drain stack. Moving it requires major subfloor work. All other fixtures (sink, shower) are more easily relocated. Additionally, the toilet\u2019s placement drives the room layout because of clearance requirements on each side."]}
+    ],
+    challenge: "Plan the complete rough-in layout for a bathroom addition on paper. Show all drain sizes, vent connections, supply lines, and cleanout locations.",
+    tuesday:   { low: {title:"DWV diagram creation", activity:"Draw a complete DWV (Drain-Waste-Vent) diagram for a bathroom with toilet, sink, and shower. Show pipe sizes and vent connections."}, mid: {title:"UPC/IPC code research", activity:"Research the Uniform Plumbing Code or International Plumbing Code requirements for bathroom rough-in: trap-to-vent distances, minimum pipe sizes, and slope requirements."}, high: {title:"Wet venting research", activity:"Research wet venting as an alternative to traditional individual venting. What is the maximum number of fixtures that can wet vent together and what are the size requirements?"} },
+    wednesday: { low: {title:"Supply layout", activity:"Design the hot and cold supply layout for your bathroom. Where do isolation valves go? What size pipe is required for each fixture?"}, mid: {title:"Fixture rough-in dimensions", activity:"Research rough-in dimensions for toilet, shower, and lavatory. What wall-to-flange dimensions and connection heights are standard?"}, high: {title:"ABS vs PVC vs cast iron", activity:"Compare ABS, PVC, and cast iron for drain applications. What are the sound transmission, fire rating, and code acceptance differences?"} },
+    thursday:  { low: {title:"Complete rough-in plan", activity:"Complete your rough-in plan. Have a parent or experienced person review it. Are all vents connected? Are all slopes correct (1/4\u201d per foot minimum)?"}, mid: {title:"Finish plumbing sequence", activity:"Research the sequence for finish plumbing: toilet installation, vanity connection, shower valve and trim, and final connection verification."}, high: {title:"Plumbing permit process", activity:"Research the permit and inspection process for bathroom plumbing rough-in. What inspections are required and at what stage of construction does each occur?"} }
+  },
+
+  "Passive income — rentals dividends businesses": {
+    gradeHooks: {
+      low: "Passive income is money that comes in regularly without requiring your active time. Building multiple income streams is financial resilience!",
+      mid: "Passive income sources have different risk, capital, and effort profiles. Understanding each enables informed wealth-building decisions.",
+      high: "The economics of different passive income vehicles, risk-adjusted return analysis, and the tax treatment of passive income are important topics."
+    },
+    materials: ["Passive income calculator", "Real estate and dividend yield data"],
+    steps: [
+      "Rental real estate: buy a property and rent it out. Cash flow = rent \u2013 (mortgage + taxes + insurance + maintenance). Positive cash flow is the goal.",
+      "Dividend investing: companies pay dividends to shareholders. A $100,000 portfolio yielding 3\u20134% produces $3,000\u20134,000/year in passive income.",
+      "Business ownership: own a business but not work in it (rare). Requires skilled management and reliable systems.",
+      "Digital products: create once, sell repeatedly. E-books, online courses, software, music, photography. High effort upfront, passive afterward.",
+      "Capital requirements: all passive income requires capital (money, time, or intellectual property) upfront before income flows."
+    ],
+    discussion: [
+      {q:"Why is truly passive income more difficult to achieve than it appears and what is the realistic definition?", answers:["Most \u2018passive\u2019 income requires ongoing effort: landlords manage tenants and maintenance, dividend investors must monitor portfolios, digital products need marketing and updates. True passive income is more accurately \u2018semi-passive\u2019 — significantly less time than active income but not zero. The correct expectation is important to avoid disappointment."]},
+      {q:"How does tax treatment of passive income differ from earned income?", answers:["Rental income is taxed as ordinary income but with significant deductions (depreciation, mortgage interest, expenses). Qualified dividends are taxed at lower capital gains rates (0%, 15%, or 20%). Long-term capital gains on investments are taxed at preferential rates. Digital product income is ordinary income. The tax efficiency of investment income is a significant advantage over earned income."]}
+    ],
+    challenge: "Analyze 3 specific passive income opportunities appropriate for your current financial situation. Calculate the required capital, expected return, and realistic time investment for each.",
+    tuesday:   { low: {title:"Rental cash flow calculation", activity:"Calculate the cash flow for a hypothetical rental property: $1,500/month rent, $1,100 mortgage, $200 taxes + insurance, $150 average maintenance. Is this cash flow positive?"}, mid: {title:"Dividend yield research", activity:"Research dividend yields for blue-chip stocks and dividend ETFs. Calculate annual income from a $50,000 portfolio at 3.5% yield. What is the total return including appreciation?"}, high: {title:"Cap rate analysis", activity:"Research cap rates for residential rental properties. How does cap rate relate to valuation and what minimum cap rate indicates a good investment in your market?"} },
+    wednesday: { low: {title:"Digital product business models", activity:"Research different digital product business models: online courses, e-books, stock photography, and software as a service (SaaS). What upfront investment does each require?"}, mid: {title:"Tax advantages of rental real estate", activity:"Research the tax advantages of rental real estate: depreciation deduction, 1031 exchange, qualified business income deduction. How do these improve after-tax returns?"}, high: {title:"Risk-adjusted return comparison", activity:"Compare risk-adjusted returns (Sharpe ratio) for rental real estate, dividend stocks, and a diversified index fund over 20-year periods. Which provides the best risk-adjusted return?"} },
+    thursday:  { low: {title:"Personal opportunity analysis", activity:"Given your current financial situation, which passive income source is most accessible? What is the minimum capital required to get started?"}, mid: {title:"House hacking research", activity:"Research house hacking: buying a multi-unit property, living in one unit, and renting the others. How does this strategy reduce the capital barrier to real estate investing?"}, high: {title:"Passive income portfolio design", activity:"Design a passive income portfolio that would replace $30,000 of annual earned income. What combination of asset types, required capital, and realistic timeline achieves this?"} }
+  },
+
+  "Land navigation teaching practicum": {
+    gradeHooks: {
+      low: "A teaching practicum applies your navigation knowledge by actually teaching it. Teaching is the ultimate test of mastery.",
+      mid: "A navigation teaching practicum integrates pedagogical skills with technical knowledge in a real instructional context.",
+      high: "Reflective practice in outdoor education, curriculum evaluation, and the development of teaching expertise are important topics."
+    },
+    materials: ["Curriculum from previous navigation teaching lesson", "Student group", "Navigation equipment for each student"],
+    steps: [
+      "Lesson preparation: review previous lesson feedback. Make specific improvements to content, activities, and assessment.",
+      "Pre-assessment: quickly determine student starting knowledge. Adjust your first 5 minutes based on what you find.",
+      "Deliver the lesson with conscious attention to: time management, pacing to the slowest learner, checking understanding before moving on.",
+      "Moment-to-moment adaptation: if a concept isn\u2019t landing, try a different approach rather than repeating the same explanation.",
+      "Summative assessment: have each student complete a solo navigation task at the end. Document their performance."
+    ],
+    discussion: [
+      {q:"What distinguishes a novice instructor from an expert instructor and how does a practicum develop expertise?", answers:["Novice instructors follow their lesson plan regardless of student response. Expert instructors monitor student understanding continuously and adapt content, pacing, and approach in real time. A practicum develops this adaptive expertise through the discipline of teaching, receiving feedback, and deliberately reflecting on what worked and why."]},
+      {q:"How does deliberate practice differ from simple repetition in skill development?", answers:["Deliberate practice (Ericsson) requires: a defined skill goal, concentration at the edge of your ability, immediate feedback, and specific effort to correct errors. Repeating the same lesson without analyzing its effectiveness is not deliberate practice. Reviewing recordings, collecting specific feedback, and making targeted improvements are deliberate practice applied to teaching."]}
+    ],
+    challenge: "Deliver the same navigation lesson twice to two different groups. Reflect on what changed between the first and second delivery. Document specific improvements.",
+    tuesday:   { low: {title:"Lesson revision", activity:"Review feedback from your previous navigation lesson delivery. Make specific, documented changes to improve 3 identified weaknesses."}, mid: {title:"Pre-assessment design", activity:"Design a 3-minute pre-assessment to quickly reveal student knowledge levels. How will you adjust your lesson based on different pre-assessment outcomes?"}, high: {title:"Expert teaching research", activity:"Research Anders Ericsson\u2019s work on expert performance and deliberate practice. How does it apply to developing expertise in outdoor education instruction?"} },
+    wednesday: { low: {title:"First delivery and observation", activity:"Deliver your revised lesson to the first group. Have a peer observe and complete an evaluation rubric."}, mid: {title:"Between-group reflection", activity:"Review your observer\u2019s feedback and your own notes immediately after the first delivery. Make 3 specific adjustments for the second delivery."}, high: {title:"Video analysis", activity:"Record both deliveries. Compare them side by side. What specific teaching behaviors changed? What didn\u2019t change despite your intention?"} },
+    thursday:  { low: {title:"Second delivery", activity:"Deliver the revised lesson to the second group. Note where your improvements made a difference."}, mid: {title:"Comparative analysis", activity:"Compare student performance on the summative navigation task between the two groups. Did the lesson improvements produce measurable learning differences?"}, high: {title:"Teaching portfolio development", activity:"Develop a teaching portfolio entry for this practicum: lesson plan, delivery notes, student assessment results, observer feedback, and self-reflection."} }
+  },
+
+  "Herbal first aid kit — build and document": {
+    gradeHooks: {
+      low: "An herbal first aid kit contains plant-based remedies for common minor injuries and illnesses. We build and document one today.",
+      mid: "A functional herbal first aid kit is evidence-based, contains appropriate preparations for specific conditions, and has clear usage documentation.",
+      high: "Formulary development, clinical decision rules for herbal intervention, and the integration of herbal first aid with conventional first aid are important topics."
+    },
+    materials: ["Prepared herbal products from previous lessons", "Kit container", "Documentation cards"],
+    steps: [
+      "Kit scope: an herbal first aid kit supplements, not replaces, conventional first aid. Define what conditions it addresses.",
+      "Evidence-based selection: include only preparations with reasonable clinical evidence for your intended uses.",
+      "Standard inclusions: aloe vera gel (burns, skin irritation), calendula salve (wound healing), echinacea tincture (immune support at onset of illness), elderberry syrup (flu duration reduction), yarrow (topical wound care).",
+      "Documentation card for each item: plant name, preparation, condition treated, dose/application, contraindications, and shelf life.",
+      "Integration with conventional kit: when does the herbal remedy support conventional care? When should conventional care be used instead?"
+    ],
+    discussion: [
+      {q:"How do you determine which herbal preparations belong in a first aid kit vs which are experimental or unsupported?", answers:["Apply the evidence hierarchy: in vitro only = do not include. Animal studies only = provisional. Human observational = consider. RCT evidence = include. For a first aid kit, you need at least observational human evidence and a reasonable safety profile. Preparing a topical from a traditional first aid plant (plantain, yarrow) is lower risk than including oral preparations with complex pharmacology."]},
+      {q:"What are the liability and legal considerations for using herbal preparations in a first aid context?", answers:["Good Samaritan laws typically protect first aid actions taken in good faith. Using well-established, topical preparations (aloe for a burn, calendula for a wound) falls within the general principles of first aid. Recommending herbal preparations as medical advice without a license crosses into the practice of medicine. Documentation cards that describe the basis for each preparation demonstrate thoughtful, evidence-based decision-making."]}
+    ],
+    challenge: "Complete your herbal first aid kit with at least 8 preparations. Create documentation cards for each. Present the complete kit with a justified rationale for each inclusion.",
+    tuesday:   { low: {title:"Kit inventory", activity:"List all herbal preparations you have available. For each, confirm: current quality, shelf life remaining, and the specific condition it addresses."}, mid: {title:"Documentation card creation", activity:"Create a standard documentation card format. Complete cards for 5 preparations: name, preparation type, condition, dose/application, contraindications, and shelf life."}, high: {title:"Clinical decision rule development", activity:"Develop a decision rule for each kit item: under what specific conditions should this preparation be used, and when should conventional care be chosen instead?"} },
+    wednesday: { low: {title:"Kit organization", activity:"Organize your kit for accessibility: most frequently needed items most accessible, all items clearly labeled, documentation cards attached to each item."}, mid: {title:"Contraindication chart", activity:"Create a contraindication summary for your entire kit. Which items should not be used in pregnancy, autoimmune conditions, or with specific medications?"}, high: {title:"Materia medica integration", activity:"Reference your personal materia medica to verify that every kit item\u2019s documentation accurately reflects the evidence. Update documentation where discrepancies exist."} },
+    thursday:  { low: {title:"Kit presentation", activity:"Present your complete herbal first aid kit. For each item, explain: what it is, what evidence supports it, and how to use it."}, mid: {title:"Training others to use the kit", activity:"Teach a family member to use every item in the kit correctly. Can they use it without your guidance if you are the patient?"}, high: {title:"Formulary review process", activity:"Design an annual formulary review process for your kit: what criteria warrant removing an item, what would prompt adding a new item, and how do you stay current with evidence?"} }
+  },
+
+  "Community resilience audit — gaps and solutions": {
+    gradeHooks: {
+      low: "A community resilience audit assesses how well-prepared a community is and identifies what\u2019s missing.",
+      mid: "A systematic resilience audit uses standardized tools to assess community strengths and vulnerabilities across multiple dimensions.",
+      high: "Community resilience assessment methodology, multi-dimensional resilience frameworks, and evidence-based resilience interventions are important topics."
+    },
+    materials: ["Community resilience assessment tool", "Local data sources"],
+    steps: [
+      "Framework: use an established resilience framework (Norris et al. 2008, BRIC index, CARRI model) to structure the audit.",
+      "Dimensions: assess social capital, economic capital, physical capital, human capital, institutional capacity, and natural capital.",
+      "Data collection: use available data (census, emergency management reports, community surveys) supplemented by key informant interviews.",
+      "Gap analysis: for each dimension, compare current status to a resilience standard. Identify gaps and their severity.",
+      "Prioritized recommendations: recommend interventions that address the highest-impact gaps with the most achievable solutions."
+    ],
+    discussion: [
+      {q:"Why does a multi-dimensional resilience audit provide more useful information than a single-focus preparedness assessment?", answers:["Resilience emerges from the interaction of multiple factors. A community with excellent physical infrastructure but low social cohesion will perform differently in a disaster than one with the reverse profile. Single-focus assessments miss these interactions. Multi-dimensional audits reveal which factors compensate for weaknesses in others and which gaps are truly critical."]},
+      {q:"What makes a resilience gap \u2018actionable\u2019 and why is prioritization essential?", answers:["An actionable gap has: a clear cause, available interventions, stakeholders with the authority to implement them, and measurable outcomes. Not all gaps are actionable (some require state or federal action). Prioritization focuses limited community resources on the highest-impact, most achievable improvements rather than attempting to address everything simultaneously."]}
+    ],
+    challenge: "Complete a community resilience audit of your neighborhood using the BRIC index or a similar framework. Present findings with prioritized recommendations.",
+    tuesday:   { low: {title:"BRIC index research", activity:"Research the Baseline Resilience Indicators for Communities (BRIC) index. What variables does it include and how is each measured?"}, mid: {title:"Data collection planning", activity:"Identify the data sources needed for each resilience dimension in your audit. What census data, local government reports, and community surveys are available?"}, high: {title:"Resilience theory research", activity:"Research Norris et al.\u2019s 4-component community resilience model. How do economic development, social capital, information/communication, and community competence interact?"} },
+    wednesday: { low: {title:"Social capital assessment", activity:"Assess social capital in your neighborhood: How many neighbors do you know by name? Are there active community organizations? What is the general level of trust?"}, mid: {title:"Infrastructure vulnerability assessment", activity:"Assess physical infrastructure resilience: how old is the housing stock, what is the utility redundancy, and what transportation alternatives exist?"}, high: {title:"Institutional capacity assessment", activity:"Assess local government and NGO capacity for disaster response: what trained personnel, equipment, and protocols exist? What gaps are identified in after-action reports?"} },
+    thursday:  { low: {title:"Gap summary report", activity:"Compile your audit findings into a gap summary report: current status, identified gaps, severity, and recommended interventions for each dimension."}, mid: {title:"Recommendation prioritization", activity:"Prioritize your recommendations using an impact-feasibility matrix. Which improvements would have the greatest impact and are most achievable with available resources?"}, high: {title:"Policy brief writing", activity:"Write a 1-page policy brief summarizing your audit findings and top 3 recommendations. Identify the decision-maker who should receive it."} }
+  },
+
+  "Obstetric emergencies — field delivery awareness": {
+    gradeHooks: {
+      low: "Occasionally babies are born before emergency services arrive. Knowing the basics of emergency delivery awareness can prevent panic and save lives.",
+      mid: "Emergency field delivery awareness covers the signs of imminent delivery, the normal delivery sequence, and emergencies that require immediate EMS.",
+      high: "Obstetric emergency physiology, the management of complicated deliveries, and the ethical framework for providing assistance are important topics."
+    },
+    materials: ["Obstetric emergency reference", "Clean towels and gloves"],
+    steps: [
+      "Call 911 immediately if delivery appears imminent. Dispatch can provide real-time coaching.",
+      "Signs of imminent delivery: crowning (baby\u2019s head visible), urge to push that cannot be resisted, rectal pressure, membranes ruptured with contractions 2\u20133 minutes apart.",
+      "Normal delivery sequence: head crowns, apply gentle downward pressure to prevent rapid expulsion, support the head as it emerges, check for cord around neck, body delivers with the next push.",
+      "After delivery: dry and stimulate the baby (crying is good), keep warm, place on mother\u2019s chest, do not cut the cord without sterile equipment.",
+      "Emergencies requiring immediate intervention: cord prolapse (call 911, knee-chest position for mother), shoulder dystocia (suprapubic pressure), prolonged delivery without progress."
+    ],
+    discussion: [
+      {q:"Why is the position of the umbilical cord immediately after the head emerges a critical check?", answers:["The umbilical cord can loop around the baby\u2019s neck (nuchal cord), which is present in about 25% of deliveries. If the cord is loose, it can often be slipped over the head. A tight cord requires assistance from EMS. Failure to check and address a nuchal cord can result in cord compression during delivery."]},
+      {q:"What is cord prolapse and why is it a dire emergency?", answers:["Cord prolapse is when the umbilical cord passes through the cervix before the baby, becoming compressed between the baby and the birth canal with each contraction. This cuts off fetal blood flow. The only immediate first aid is to relieve cord compression: knee-chest position for the mother to reduce fetal pressure on the cord. Emergency cesarean section is the definitive treatment."]}
+    ],
+    challenge: "Research and describe the complete normal delivery sequence from crowning to cord management. Identify the 3 obstetric emergencies requiring immediate 911 escalation and the first aid for each.",
+    tuesday:   { low: {title:"Normal delivery sequence", activity:"Research and write out the complete normal delivery sequence. What does the first responder do at each stage?"}, mid: {title:"Obstetric emergency identification", activity:"Research the signs and first aid for: cord prolapse, shoulder dystocia, placental abruption, and postpartum hemorrhage."}, high: {title:"Shoulder dystocia management", activity:"Research shoulder dystocia: what is it, what risk factors predict it, and what maneuvers (McRoberts, suprapubic pressure, Woods screw) are used to resolve it?"} },
+    wednesday: { low: {title:"Newborn assessment", activity:"Research initial newborn assessment: APGAR scoring and the stimulation required to encourage breathing in a newborn who doesn\u2019t cry immediately."}, mid: {title:"Postpartum hemorrhage management", activity:"Research the definition, causes, and first aid management of postpartum hemorrhage. What interventions are within first aid scope?"}, high: {title:"Maternal mortality research", activity:"Research maternal mortality rates and causes in the US. How do they compare to other developed countries and what does the data show about racial disparities?"} },
+    thursday:  { low: {title:"Complete scenario review", activity:"Walk through a scenario: a woman with strong contractions every 2 minutes who says she feels like pushing. What do you do, step by step?"}, mid: {title:"Dispatch coaching research", activity:"Research 911 dispatch obstetric coaching protocols. What guidance does dispatch provide and how does it interact with the first responder on scene?"}, high: {title:"Birth setting research", activity:"Research the evidence for different birth settings: hospital, birth center, and planned home birth. What does the data show about outcomes for low-risk and high-risk pregnancies in each setting?"} }
+  },
+
+  "Logistics and supply chain in disasters": {
+    gradeHooks: {
+      low: "Getting the right supplies to the right place at the right time is logistics. After a disaster, this is one of the biggest challenges.",
+      mid: "Disaster logistics involves procurement, transportation, warehousing, and last-mile delivery of critical supplies under constrained conditions.",
+      high: "Humanitarian logistics principles, supply chain disruption analysis, and the economics of disaster supply chain management are important topics."
+    },
+    materials: ["Disaster logistics case studies"],
+    steps: [
+      "The last mile problem: getting supplies from a distribution hub to affected households. This is the hardest, most expensive, and most often failed step.",
+      "Push vs pull logistics: push delivers supplies to affected areas based on estimated need. Pull distributes based on registered requests. Push is faster but wasteful; pull is more efficient but requires functioning communication.",
+      "Commodity types: life-sustaining (water, food, medicine) must be prioritized. Non-life-sustaining (clothes, furniture) can wait.",
+      "Pre-positioned supplies: FEMA and Red Cross pre-position supplies at strategic locations before predicted disasters (hurricanes). This dramatically reduces response time.",
+      "Voluntary donation problem: unsolicited material donations often overwhelm receiving warehouses and impede organized distribution. Cash donations are almost always more useful."
+    ],
+    discussion: [
+      {q:"Why do unsolicited material donations often harm rather than help disaster response?", answers:["Unsolicited donations arrive in the wrong sizes, wrong quantities, and wrong types. Sorting, storing, and eventually disposing of unwanted materials requires significant labor and warehouse space. Winter clothing sent to a tropical disaster zone takes up space that food and water need. Cash donations allow procurement officers to buy exactly what is needed."]},
+      {q:"What is the difference between the \u2018acute response\u2019 phase and the \u2018recovery\u2019 phase in disaster logistics?", answers:["Acute response (hours to days): life-sustaining supplies, speed is the priority, imperfect information is acceptable. Recovery (weeks to months): rebuilding materials, longer-lead items, economic recovery support. Supply chain strategies appropriate for acute response (air transport, pre-positioned stocks) are inefficient for recovery; ground transport and commercial supply chains become more efficient."]}
+    ],
+    challenge: "Research the logistics response to a major recent disaster. What worked? What failed? What specifically caused the supply chain breakdowns?",
+    tuesday:   { low: {title:"Disaster logistics case study", activity:"Research the logistics response to a specific disaster (Haiti earthquake, Hurricane Katrina, Puerto Rico after Maria). What were the key supply chain failures?"}, mid: {title:"Pre-positioning research", activity:"Research FEMA\u2019s pre-positioning strategy for Atlantic hurricane season. What supplies are pre-positioned, where, and how is the decision made to activate?"}, high: {title:"Humanitarian logistics literature", activity:"Research the humanitarian logistics academic literature. What frameworks (Tomasini and Van Wassenhove, Kovacs and Spens) have been developed for humanitarian supply chain management?"} },
+    wednesday: { low: {title:"Last-mile solution research", activity:"Research innovative last-mile delivery solutions used in disaster logistics: community distribution points, mobile distribution, and drone delivery trials."}, mid: {title:"Supply chain disruption analysis", activity:"Analyze how COVID-19 disrupted medical supply chains. What vulnerabilities were revealed and what changes have been made to improve resilience?"}, high: {title:"Procurement systems comparison", activity:"Compare centralized procurement (FEMA buys for all) vs decentralized (local governments buy with federal reimbursement). What are the efficiency, corruption risk, and responsiveness tradeoffs?"} },
+    thursday:  { low: {title:"Community-level logistics planning", activity:"Design a neighborhood supply distribution plan for a 200-household community after a hurricane. How do you distribute water, food, and medical supplies fairly and efficiently?"}, mid: {title:"Volunteer logistics coordination", activity:"Research how voluntary organizations coordinate logistics during disasters (VOAD, NVOAD). What prevents duplication and ensures coverage?"}, high: {title:"Supply chain resilience design", activity:"Research supply chain resilience principles. How do redundancy, flexibility, visibility, and collaboration each contribute to resilience and how are they applied in humanitarian logistics?"} }
+  },
+
+  "Net-zero home design principles": {
+    gradeHooks: {
+      low: "A net-zero home produces as much energy as it uses over the course of a year. Good design makes this possible without sacrifice.",
+      mid: "Net-zero home design integrates passive design principles, high-efficiency systems, and renewable energy generation into a whole-building approach.",
+      high: "Building energy modeling, whole-building optimization, and the economics of net-zero construction are important topics."
+    },
+    materials: ["Energy design reference", "Building energy modeling tools"],
+    steps: [
+      "Reduce first: the cheapest energy is the energy you don\u2019t use. Air sealing, insulation, and efficient systems reduce the generation needed.",
+      "Passive strategies: orientation, shading, thermal mass, natural ventilation. These work without any mechanical system.",
+      "High-efficiency mechanical: HVAC efficiency, heat pump water heaters, LED lighting, and Energy Star appliances reduce remaining load.",
+      "Renewable generation: solar PV sized to meet the reduced load. In Florida, this is typically 5\u201310kW for a well-designed home.",
+      "Net-zero vs net-positive: a net-zero home has zero annual energy balance. Net-positive produces more than it uses, feeding surplus to the grid."
+    ],
+    discussion: [
+      {q:"Why is the \u2018reduce first\u2019 principle economically important in net-zero design?", answers:["Every kilowatt-hour reduced costs approximately $0.03\u20130.10 through efficiency measures (better insulation, air sealing). Every kilowatt-hour generated costs $0.08\u20130.15 through solar panels. Reducing demand is almost always cheaper than generating equivalent supply. A net-zero home that is not well-insulated requires more solar capacity than necessary, adding cost."]},
+      {q:"What is the difference between a net-zero energy home and a Passive House?", answers:["A Passive House is designed to use so little energy that minimal mechanical heating and cooling is required — typically 90% less than standard construction. A net-zero energy home balances production and consumption without a specific target for consumption reduction. A Passive House may achieve net-zero with a much smaller solar array than a conventional home with solar added."]}
+    ],
+    challenge: "Design a net-zero home for your climate. Specify: insulation levels, window specifications, HVAC system, water heating, and solar system size. Calculate projected annual energy balance.",
+    tuesday:   { low: {title:"Energy use breakdown", activity:"Research the average breakdown of energy use in a Florida home: HVAC, water heating, lighting, appliances. What percentage does each represent and where are the biggest reduction opportunities?"}, mid: {title:"Insulation and air sealing specifications", activity:"Research recommended insulation and air sealing specifications for Florida\u2019s climate zone. What R-values and air changes per hour targets define a high-performance envelope?"}, high: {title:"Building energy modeling", activity:"Research ENERGY PLUS or BEopt building energy modeling tools. Set up a simulation for a simple home and model the impact of different efficiency measures."} },
+    wednesday: { low: {title:"Heat pump efficiency research", activity:"Research heat pump technology for heating, cooling, and water heating in Florida. What are the COP and EER values and how do they compare to conventional systems?"}, mid: {title:"Solar system sizing for net-zero", activity:"Using your projected reduced load after efficiency measures, size the solar array needed for net-zero at your location using NREL\u2019s PVWatts."}, high: {title:"Whole life cost analysis", activity:"Calculate the whole life cost of a net-zero home vs a code-minimum home over 30 years. Include construction premium, energy savings, and maintenance differences."} },
+    thursday:  { low: {title:"Net-zero home design", activity:"Draw a floor plan for a net-zero home optimized for Florida: orientation, window placement, shading, and location of renewable systems."}, mid: {title:"Zero Energy Ready Home research", activity:"Research the DOE Zero Energy Ready Home program. What certification requirements does it set and how does it compare to LEED and Passive House?"}, high: {title:"Grid decarbonization interaction", activity:"Research how widespread net-zero homes change the electricity grid\u2019s needs. How does distributed solar change the grid\u2019s supply-demand balance and what new infrastructure is needed?"} }
+  },
+
+  "Seed-to-table meal — 100% homegrown": {
+    gradeHooks: {
+      low: "A seed-to-table meal uses only food we grew or preserved ourselves. It represents the full circle of food production.",
+      mid: "Planning and executing a 100% homegrown meal requires integrating gardening, preservation, and cooking skills across multiple growing seasons.",
+      high: "Food system integration, the economics of food self-sufficiency, and the philosophical dimensions of food sovereignty are important topics.",
+    },
+    materials: ["Homegrown and home-preserved foods", "Kitchen equipment"],
+    steps: [
+      "Planning: identify which foods you have available from your garden, preservation, and homestead. What can you make from only these?",
+      "Menu design: create a menu that showcases your production. Multiple courses using different preservation methods shows depth.",
+      "Preparation: cook the meal using traditional techniques appropriate to the ingredients.",
+      "Documentation: photograph each ingredient with its source: what was grown, what was preserved, and how.",
+      "Reflection: what was most satisfying? What gaps revealed themselves? What would you grow differently next year?"
+    ],
+    discussion: [
+      {q:"What percentage of a modern person\u2019s diet can realistically be sourced from a home garden and why?", answers:["A well-managed home garden on 1/10 acre in Florida can provide most vegetable needs but only a small fraction of caloric needs (because vegetables are low calorie density). For full caloric self-sufficiency, 0.25\u20131 acre of production per person is needed, including caloric staples like sweet potato, cowpeas, and grain. A realistic target for most families is 30\u201350% of vegetable consumption and 5\u201310% of total calories."]},
+      {q:"Why is the seed-to-table meal a meaningful milestone in preparedness and homesteading?", answers:["It demonstrates the complete functional loop: saving seeds, growing food, preserving the harvest, and feeding the family from your own production. This loop is both a practical achievement and an experiential milestone that builds confidence in food self-reliance. The meal is proof of concept for the broader food security system."]}
+    ],
+    challenge: "Plan and prepare a complete meal from at least 8 homegrown or home-preserved ingredients. Document each ingredient\u2019s production origin.",
+    tuesday:   { low: {title:"Ingredient inventory", activity:"Survey your available homegrown and preserved foods. What ingredients can you contribute to a complete meal?"}, mid: {title:"Menu planning", activity:"Design a 3-course meal using only homegrown and home-preserved ingredients. Research recipes that use each ingredient."}, high: {title:"Food system self-sufficiency research", activity:"Research documented cases of family food self-sufficiency: what land area, production systems, and food processing were required for complete dietary independence?"} },
+    wednesday: { low: {title:"Preservation review", activity:"Review the quality of your preserved foods for the meal. Are ferments at the right sourness? Are dried herbs fragrant? Are canned goods properly sealed?"}, mid: {title:"Recipe adaptation", activity:"Adapt 3 standard recipes to use only homegrown and preserved ingredients. What substitutions are required and how do they change the dish?"}, high: {title:"Nutritional analysis", activity:"Analyze the nutritional completeness of your planned meal. What is the caloric content? What macronutrients and micronutrients does it contain?"} },
+    thursday:  { low: {title:"Meal execution", activity:"Prepare and serve the complete seed-to-table meal. Document each ingredient with its source."}, mid: {title:"Reflection and next year planning", activity:"After the meal, identify: what worked, what you\u2019d grow more of, what preservation you need more of, and what was most satisfying."}, high: {title:"Food sovereignty philosophy", activity:"Research the food sovereignty movement and its philosophical foundations. How does growing and eating your own food connect to broader questions of autonomy, ecology, and community?"} }
+  },
+
+  "Estate planning basics — wills and trusts": {
+    gradeHooks: {
+      low: "A will tells people what to do with your property after you die. A trust does the same thing but can do more, including while you\u2019re still alive.",
+      mid: "Basic estate planning documents protect your assets, minimize taxes, and ensure your wishes are carried out for your family.",
+      high: "Estate planning law, the federal estate tax exemption, and advanced estate planning strategies are important topics."
+    },
+    materials: ["Estate planning reference materials"],
+    steps: [
+      "Will: a legal document specifying who gets your assets after death. Requires witnesses and notarization. Goes through probate (public court process).",
+      "Living trust (revocable): holds your assets during your lifetime (you control them). Transfers to beneficiaries at death without probate. More private and often faster than a will.",
+      "Healthcare documents: advance directive (living will) specifies medical wishes. Healthcare proxy (medical power of attorney) designates who makes decisions if you cannot.",
+      "Beneficiary designations: retirement accounts, life insurance, and bank accounts can transfer directly to named beneficiaries, bypassing the will and probate.",
+      "Guardianship: the most important element for parents of minor children — who would raise them if both parents died?"
+    ],
+    discussion: [
+      {q:"Why do most financial advisors recommend a revocable living trust over a will-only estate plan for homeowners?", answers:["A home held in a trust avoids probate, which can take 6\u201318 months and cost 3\u20138% of the estate in attorney fees. A trust is also private (wills become public record). Trusts also avoid the \u2018pour-over will\u2019 problem where assets acquired after the will is written end up in probate because they weren\u2019t placed in the trust during lifetime."]},
+      {q:"What is the federal estate tax exemption and who actually pays estate taxes?", answers:["The federal estate tax exemption is $13.61 million per person (2024), indexed for inflation. Only estates above this amount owe federal estate tax. The top rate is 40%. In practice, fewer than 0.1% of estates pay federal estate tax. State estate taxes (in some states, with lower exemptions) affect a larger percentage. Most families do not need complex estate tax planning."]}
+    ],
+    challenge: "Research the estate planning documents your family currently has or lacks. What is missing? Research the cost of creating a basic estate plan in your state.",
+    tuesday:   { low: {title:"Document inventory", activity:"Research what estate planning documents your family currently has. Interview a parent: do they have a will? A trust? Healthcare directive? Beneficiary designations on all accounts?"}, mid: {title:"Probate process research", activity:"Research Florida\u2019s probate process. What are the timelines, costs, and steps? How does a trust avoid this process?"}, high: {title:"Asset protection strategies", activity:"Research asset protection planning: exempt assets in Florida (homestead, retirement accounts, life insurance cash value), LLCs for business assets, and domestic asset protection trusts."} },
+    wednesday: { low: {title:"Beneficiary designation audit", activity:"Research how to audit beneficiary designations on retirement accounts and life insurance. What happens when a beneficiary predeceases the account owner?"}, mid: {title:"Pour-over will function", activity:"Research the function of a pour-over will. How does it work in conjunction with a living trust? What assets must go through probate even with a trust?"}, high: {title:"Dynasty trust research", activity:"Research dynasty trusts and generation-skipping trusts. How do they preserve wealth across multiple generations while minimizing estate and generation-skipping transfer taxes?"} },
+    thursday:  { low: {title:"Healthcare directive creation", activity:"Research advance directive forms for Florida. Create a draft advance directive with specific healthcare wishes. Research who can serve as a healthcare proxy."}, mid: {title:"Minor children protection", activity:"Research guardianship designation. What happens to minor children if both parents die without a will? How do courts make guardianship decisions?"}, high: {title:"Estate planning attorney research", activity:"Research how to select an estate planning attorney. What certifications and experience should you look for? What does a basic estate plan cost in Florida?"} }
+  },
+
+  "Teaching personal finance to a younger student": {
+    gradeHooks: {
+      low: "Teaching personal finance to younger students applies your knowledge while helping them build a foundation for financial success.",
+      mid: "Age-appropriate financial literacy pedagogy requires understanding developmental readiness and connecting concepts to concrete, relevant decisions.",
+      high: "Financial education research, behavioral change theory applied to financial education, and curriculum design for different developmental stages are important topics."
+    },
+    materials: ["Age-appropriate teaching materials", "Real or simulated money"],
+    steps: [
+      "Assess readiness: what financial concepts is the student developmentally ready for? (6\u201310: earning/saving/spending. 11\u201315: budgeting, interest. 16+: investing, credit, taxes.)",
+      "Make it concrete and relevant: use their real money, their real decisions. \u2018You have $20 — what would you do with it?\u2019 is more engaging than hypothetical.",
+      "Use the teachable moment: financial lessons sink in when they connect to a current decision. Birthday money, earning from chores, first job — these are prime teaching moments.",
+      "Practice over theory: let them handle real money for real decisions with guidance. Failure with small amounts is valuable tuition.",
+      "Long-term thinking without abstraction: a young child cannot grasp \u2018retirement.\u2019 But they can grasp saving for a $50 toy over 10 weeks."
+    ],
+    discussion: [
+      {q:"What does developmental psychology tell us about the appropriate age for teaching different financial concepts?", answers:["Ages 3\u20135: basic counting money, wants vs needs. Ages 6\u201310: earning, saving for a goal, simple budgeting. Ages 11\u201315: interest (the cost of borrowing), delayed gratification and compound growth, working for pay. Ages 16+: credit scores, taxes, investing basics. Introducing concepts too early produces confusion; too late misses critical formation periods."]},
+      {q:"Why is the financial decisions a student is currently making the best teaching curriculum?", answers:["Just-in-time learning (delivering content immediately before a relevant decision) dramatically improves retention and application. A teenager with a job is motivated to understand taxes because they have a paycheck. A student saving for something specific understands the value of interest because it affects their timeline. Abstract financial education without a decision context has poor retention."]}
+    ],
+    challenge: "Design and deliver a 3-session financial literacy curriculum for a specific younger student. Document the student\u2019s starting knowledge, the lessons, and the visible behavior changes.",
+    tuesday:   { low: {title:"Student needs assessment", activity:"Interview your student: What do they know about money? What financial decisions are they currently making? What do they want to know?"}, mid: {title:"Age-appropriate curriculum design", activity:"Design a 3-session curriculum tailored to your specific student\u2019s age and current financial situation."}, high: {title:"Financial literacy research", activity:"Research Jump$tart Coalition standards and the National Endowment for Financial Education curricula. How do they sequence financial concepts across grade levels?"} },
+    wednesday: { low: {title:"Concrete activity design", activity:"Design at least one hands-on activity with real or simulated money for each session: a saving goal tracker, a spending comparison, or a simple budget."}, mid: {title:"Behavior change integration", activity:"Research which financial behaviors are most important to establish in childhood vs adolescence. How do you design lessons that influence behavior, not just knowledge?"}, high: {title:"Parent partnership research", activity:"Research how to engage parents as partners in financial literacy education for their children. What does research show about the relative impact of school vs family financial socialization?"} },
+    thursday:  { low: {title:"First session delivery", activity:"Deliver the first session of your curriculum. What engaged your student? What fell flat? What adjustments will you make for session 2?"}, mid: {title:"Progress documentation", activity:"Document your student\u2019s financial knowledge and behavior at the beginning and end of your curriculum. What changed?"}, high: {title:"Curriculum effectiveness evaluation", activity:"Design a 30-day follow-up to evaluate whether your curriculum produced lasting behavior change. What evidence would constitute success?"} }
+  },
+
+
+
+  "Wilderness medicine principles — improvised care": {
+    gradeHooks: {
+      low: "In the wilderness, we may need to care for a patient for hours or days. Improvised equipment and extended care principles make this possible.",
+      mid: "Wilderness medicine extends urban first aid by addressing prolonged care, improvised equipment, and evacuation decision-making.",
+      high: "The clinical and ethical framework of wilderness medicine, including scope of practice, standard of care in austere environments, and resource-limited decision-making."
+    },
+    materials: ["Available materials for improvisation exercise", "WFR protocol reference"],
+    steps: [
+      "Improvised litters: use poles and jackets, sleeping bags, or tarps. Maintain spinal precaution if mechanism of injury warrants.",
+      "Improvised splints: SAM splint alternatives: sleeping pads, sticks, tent poles, magazines, padded with clothing.",
+      "Wound care in the field: irrigation with the cleanest available water, debridement of visible debris, closure if clean and recent, dressing with cleanest available material.",
+      "Oral rehydration: a patient who can swallow can be kept hydrated even without IV access. WHO ORS formula: 1 liter water, 6 tsp sugar, 1/2 tsp salt.",
+      "Extended patient monitoring: vital signs every hour for stable patients, every 15 minutes for unstable. Document all changes in a patient report."
+    ],
+    discussion: [
+      {q:"How does the standard of care differ between a wilderness environment and an urban emergency?", answers:["In wilderness medicine, the standard of care is what a reasonably trained person would do given the available resources and the time to definitive care. Actions prohibited in urban EMS (medications, invasive procedures) may be appropriate for a WFR or WEMT when evacuation is days away. The environment defines what is reasonable."]},
+      {q:"What is the wilderness-urban interface in terms of evacuation decision-making?", answers:["Most wilderness patients should be evacuated. The key questions are: how fast (urgent, immediate, or can wait for morning) and by what means (self-evacuation, carry-out, helicopter). The evacuation decision depends on: patient stability trend, distance from definitive care, available resources, and whether the condition may deteriorate during evacuation."]}
+    ],
+    challenge: "Improvise a complete patient care kit from available materials: litter, 2 splints, wound irrigation system, and oral rehydration supplies. Demonstrate each on a simulated patient.",
+    tuesday:   { low: {title:"Improvised litter construction", activity:"Build a litter from two poles and a jacket, then from a sleeping bag. Test stability by carrying a willing partner 50 meters."}, mid: {title:"Extended patient monitoring", activity:"Monitor a simulated patient for 2 hours with vital signs every 15 minutes. Document all findings. Create a patient report suitable for handoff to EMS."}, high: {title:"WFR scope of practice research", activity:"Research the scope of practice for Wilderness First Responders. What skills are included that are outside standard BLS? What medications are authorized?"} },
+    wednesday: { low: {title:"Oral rehydration solution", activity:"Mix and taste an oral rehydration solution. Research WHO ORS vs commercial sports drinks for rehydrating a dehydrated patient."}, mid: {title:"Improvised wound closure", activity:"Research wound closure options in a wilderness setting: steri-strips made from athletic tape, wound closure with safety pins (in last resort), and butterfly closures from tape."}, high: {title:"Wilderness analgesia research", activity:"Research pain management options in wilderness settings: OTC medications, psychological techniques, and immobilization as pain reduction. What prescription medications do WEMTs carry?"} },
+    thursday:  { low: {title:"Full improvised care scenario", activity:"Complete a 30-minute wilderness medical scenario using only improvised equipment. Assess, treat, and plan evacuation for a simulated patient."}, mid: {title:"Evacuation decision exercise", activity:"For 5 wilderness patient scenarios, make and justify an evacuation decision: immediate, urgent, delayed, or self-evacuation. What criteria drive each decision?"}, high: {title:"Wilderness medicine ethics", activity:"Research ethical dilemmas in wilderness medicine: withholding CPR from a drowning victim after 30 minutes, resuscitating a patient when evacuation will take 12 hours. How does the WFR curriculum address these?"} }
+  },
+
+  "Community leadership in crisis — command and control": {
+    gradeHooks: {
+      low: "During a crisis, clear leadership prevents chaos. Effective command means gathering information, assigning tasks, and communicating clearly.",
+      mid: "Crisis leadership requires situational awareness, rapid decision-making under uncertainty, and maintaining command presence with limited information.",
+      high: "Command and control theory, naturalistic decision-making in crisis environments, and the organizational behavior of emergency leadership are important topics."
+    },
+    materials: ["Crisis scenario", "ICS reference"],
+    steps: [
+      "Establish command immediately: announce clearly, begin information gathering. Confusion about who is in charge is the most dangerous early failure.",
+      "Situational awareness (SA): constantly gather, process, and project information. What is happening? What will happen next?",
+      "Decision cycle (OODA): Observe, Orient, Decide, Act. Repeat continuously. Speed through the loop faster than the crisis evolves.",
+      "Delegated authority: assign tasks with clear authority. \u2018You are in charge of all medical. You have full authority to do what you need.\u2019",
+      "Adaptive management: as conditions change, update the plan. Acknowledge uncertainty explicitly. \u2018I don\u2019t know yet, but we are gathering information.\u2019"
+    ],
+    discussion: [
+      {q:"What is the difference between management and leadership in a crisis context?", answers:["Management focuses on processes, systems, and optimization in predictable situations. Crisis leadership operates in conditions of uncertainty, time pressure, and incomplete information where no existing process applies. Crisis leaders must improvise, decide with incomplete information, inspire confidence, and adapt continuously."]},
+      {q:"What is the OODA loop and why does the speed of cycling through it affect crisis outcomes?", answers:["OODA (Observe-Orient-Decide-Act) is a decision-making cycle developed by military strategist John Boyd. The faster you cycle through it, the faster you can adapt to changing conditions. A leader who cycles through OODA faster than the crisis evolves maintains control; one who cycles slower is always reacting to things that have already changed."]}
+    ],
+    challenge: "Lead a complex 20-person crisis scenario with multiple simultaneous problems. Document every decision point, who you assigned to what, and the outcome of each decision.",
+    tuesday:   { low: {title:"Situational awareness drill", activity:"Practice maintaining situational awareness while managing a task. Process a stream of incoming information while simultaneously directing 3 simulated subordinates."}, mid: {title:"Crisis communication scripting", activity:"Write scripts for 5 crisis communication scenarios: initial announcement, uncertainty acknowledgment, resource request, situation update, and all-clear. Practice delivering each."}, high: {title:"Incident command research", activity:"Research the psychological demands on Incident Commanders during major disasters. What cognitive and emotional factors affect performance and what training addresses them?"} },
+    wednesday: { low: {title:"Delegation practice", activity:"Practice delegating with authority. For 5 tasks, write a delegation statement: the task, the authority granted, the resources available, and the reporting requirement."}, mid: {title:"After-action leadership review", activity:"Research how military After Action Reviews are structured to improve leadership performance. Apply the format to a previous exercise."}, high: {title:"Crew resource management", activity:"Research Crew Resource Management (CRM) from aviation. How have CRM principles been adapted for emergency medicine, surgery, and emergency management?"} },
+    thursday:  { low: {title:"Complex scenario leadership", activity:"Lead a 20-minute complex scenario with 4 simultaneous problems requiring different responders. Debrief on: what was prioritized, who was assigned, and what was missed."}, mid: {title:"Leadership transition", activity:"Practice transitioning command to a newly arrived leader: brief them fully in under 2 minutes, confirm they have command, and become a subordinate."}, high: {title:"Crisis leadership failure research", activity:"Research documented crisis leadership failures. What specific decision-making errors and command failures contributed to each? What structural or training changes resulted?"} }
+  },
+
+  "Renewable energy project — design and install": {
+    gradeHooks: {
+      low: "We design and install a complete small renewable energy system from scratch. Every component must work together perfectly.",
+      mid: "A complete renewable energy installation project integrates design, component selection, installation, and verification into a practical system.",
+      high: "System integration engineering, commissioning and verification protocols, and performance monitoring for renewable energy installations are important topics."
+    },
+    materials: ["Solar panel, charge controller, battery, inverter", "Mounting hardware", "Wiring and overcurrent protection"],
+    steps: [
+      "Design review: confirm load analysis, component sizing, and wiring design before purchasing components.",
+      "Component procurement: verify all specifications match the design. Check compatibility.",
+      "Mounting: install panel mounts. Verify orientation (south-facing in northern hemisphere) and tilt angle.",
+      "Wiring: follow the design diagram precisely. Fuse each connection within 18 inches of the battery positive terminal.",
+      "Commissioning: test open-circuit voltage, test charge controller function, verify battery charging, test loads. Document all measurements."
+    ],
+    discussion: [
+      {q:"What is commissioning and why is it a distinct phase from installation?", answers:["Commissioning is systematic verification that every component performs as designed. Installation puts components in place; commissioning confirms they work correctly and safely. A system can be fully installed but have incorrect wiring, a failed component, or a mismatch between components that only appears under load. Commissioning catches these before relying on the system."]},
+      {q:"What is the minimum viable renewable energy system for emergency preparedness and what loads can it serve?", answers:["A 200W panel, 100Ah 12V battery, 20A charge controller, and a 1000W pure sine wave inverter can power: phone charging, LED lighting, a small fan, a CPAP, and a laptop. This costs approximately $500\u2013800 and provides meaningful emergency capability. It cannot power refrigerators or air conditioning without significant expansion."]}
+    ],
+    challenge: "Design, procure, install, and commission a complete solar charging system for a specific use case. Document every step with photos and measurements.",
+    tuesday:   { low: {title:"Component specification verification", activity:"For each component in your planned system, verify that the specifications are compatible: panel Voc vs charge controller max input, battery capacity vs charge controller rating."}, mid: {title:"Installation documentation", activity:"Create an as-built wiring diagram during installation. Document actual wire runs, fuse sizes, and connection points. This is required for any future maintenance."}, high: {title:"Performance ratio calculation", activity:"Research performance ratio (PR) as a system efficiency metric. After commissioning, calculate PR by comparing actual output to theoretical maximum output."} },
+    wednesday: { low: {title:"Commissioning checklist", activity:"Create and execute a commissioning checklist: open circuit voltage, short circuit current, charge controller LED indicators, load testing at different wattages."}, mid: {title:"Monitoring system setup", activity:"Research and set up a simple system monitoring solution: a battery monitor showing state of charge, daily production, and consumption."}, high: {title:"System failure mode analysis", activity:"Research failure mode and effects analysis (FMEA) for solar systems. What are the most common failure modes and how would each present during commissioning or operation?"} },
+    thursday:  { low: {title:"System operation training", activity:"Train every family member on system operation: what the indicators mean, how to turn it on and off, what loads it can support, and what to do if something is wrong."}, mid: {title:"Expansion planning", activity:"Plan a future system expansion: what would double the system\u2019s capacity? What components would need to be replaced or upgraded?"}, high: {title:"Grid interconnection research", activity:"Research the requirements for grid-tied solar interconnection. What utility interconnection agreement, anti-islanding protection, and utility approval are required?"} }
+  },
+
+  "Year-round food supply planning": {
+    gradeHooks: {
+      low: "A year-round food supply means we can feed our family from our own production and storage all year, not just during harvest season.",
+      mid: "A complete year-round food supply integrates fresh production, preservation, and strategic storage across all 12 months.",
+      high: "Food systems design, caloric and nutritional modeling, and the economics of food self-sufficiency are important topics."
+    },
+    materials: ["Annual food production/consumption data", "Garden planning calendar", "Food storage inventory"],
+    steps: [
+      "Caloric audit: calculate your family\u2019s annual caloric need. How many calories must your system produce or store per year?",
+      "Production calendar: map what your garden produces in each month. Identify gap months.",
+      "Preservation plan: what will be canned, fermented, dried, or frozen to bridge gap months?",
+      "Storage audit: what shelf-stable staples (rice, beans, grains) round out the plan?",
+      "Integration: combine all four elements into a 12-month calendar showing: fresh production, preserved stock being used, and staple usage."
+    ],
+    discussion: [
+      {q:"What is the caloric gap and how does it affect year-round food planning?", answers:["The caloric gap is the difference between what fresh production provides and what the family needs. Most home gardens produce primarily vegetables (low caloric density) and cannot provide the majority of caloric needs. Caloric staples (grains, legumes, root vegetables) must fill the gap. A complete food supply plan must address calories, not just variety."]},
+      {q:"Why is a year-round food supply plan more valuable than a 3-month emergency food supply?", answers:["A 3-month supply runs out. A year-round plan is a continuously regenerating system. Once established, the garden and preservation cycle produce food indefinitely with annual labor rather than periodic purchasing. It also builds the practical skills to produce food under any conditions."]}
+    ],
+    challenge: "Create a complete 12-month food supply calendar showing production, preservation, and storage for your family. Identify the 3 biggest gaps and how to address them.",
+    tuesday:   { low: {title:"Caloric needs calculation", activity:"Calculate your family\u2019s total annual caloric need. How does this break down by macronutrient? What foods in your garden and storage cover each?"}, mid: {title:"Garden production calendar", activity:"Create a month-by-month garden production calendar for Florida. What is available fresh in each month? Where are the gaps?"}, high: {title:"Food self-sufficiency modeling", activity:"Research historical examples of family food self-sufficiency. What land area, crop mix, and preservation methods were required for complete food independence?"} },
+    wednesday: { low: {title:"Preservation method matching", activity:"For your 10 most productive crops, identify the best preservation method for each: canning, fermenting, drying, freezing, or root cellar storage."}, mid: {title:"Staple storage calculation", activity:"Calculate how many pounds of rice, beans, and grains are needed to fill the caloric gap in your year-round plan. What storage space is required?"}, high: {title:"Nutritional completeness analysis", activity:"Analyze your year-round food plan for nutritional completeness. What micronutrients are most likely to be deficient and what crops or supplements address each?"} },
+    thursday:  { low: {title:"12-month calendar creation", activity:"Complete a 12-month food supply calendar. Each month shows: what is growing, what is being harvested, what is being preserved, and what preserved/stored foods are being consumed."}, mid: {title:"Economic analysis", activity:"Calculate the cost of establishing your year-round food system (seeds, supplies, preservation equipment) vs the grocery store value of all food produced over 5 years."}, high: {title:"Climate change adaptation", activity:"Research how climate change is affecting seasonal food production calendars. How should Florida\u2019s food production system adapt to projected changes in temperature and rainfall patterns?"} }
+  },
+
+  "Water systems engineering — off-grid design": {
+    gradeHooks: {
+      low: "An off-grid water system collects, filters, stores, and distributes water without any connection to a city system.",
+      mid: "Off-grid water system design requires integrating collection, storage, treatment, distribution, and waste management into a functional whole.",
+      high: "Hydraulic engineering, water quality management, and the regulatory framework for off-grid water systems are important topics."
+    },
+    materials: ["Site assessment data", "Water system design tools"],
+    steps: [
+      "Collection: primary source (well, rainwater, spring) and backup source. Yield must exceed peak daily demand.",
+      "Storage: sized for collection variability. Minimum: 30-day demand for a primary system. Tank types: poly, concrete, cistern.",
+      "Treatment: matched to source quality. Well: sediment + UV or chlorination. Rain: sediment + carbon + UV. Spring: same as rain plus testing.",
+      "Distribution: gravity-fed (preferable, no pump failure risk) or pump-fed. Pressure regulation. Backflow prevention.",
+      "Waste: greywater disposal system designed concurrently. Blackwater (septic or composting) must be code-compliant."
+    ],
+    discussion: [
+      {q:"Why is gravity-fed distribution preferred over pump-fed in off-grid systems?", answers:["Gravity-fed systems have no moving parts, no power requirement, and no failure modes beyond tank integrity and pipe leaks. Pump-fed systems require electricity, have mechanical components that fail, and lose function in a power outage unless the pump is on the emergency power system. For critical resilience, gravity-fed distribution eliminates a significant vulnerability."]},
+      {q:"How is the storage tank size calculated for a rainwater-based system?", answers:["Storage must bridge the gap between rainfall events. In Florida\u2019s dry season (Nov\u2013Apr), gaps of 30+ days between significant rainfall are possible. Tank size = daily consumption x dry season days. For a family using 50 gallons per day through a 30-day dry period: 1,500 gallons minimum. Larger storage provides more resilience."]}
+    ],
+    challenge: "Design a complete off-grid water system for a small cabin: specify collection source, storage volume, treatment train, distribution layout, and waste management.",
+    tuesday:   { low: {title:"System diagram", activity:"Draw a complete off-grid water system diagram from source to fixture to waste. Label every component."}, mid: {title:"Treatment train design", activity:"Design the appropriate treatment train for a Florida rainwater-based system. What contaminants are present and what treatment addresses each?"}, high: {title:"Hydraulic pressure calculation", activity:"Calculate the static water pressure available from a 500-gallon tank elevated 15 feet above a fixture. How does this compare to municipal pressure?"} },
+    wednesday: { low: {title:"Gravity distribution design", activity:"Design a gravity-fed distribution system from a 500-gallon elevated tank to kitchen, bathroom, and outdoor use points. Where does pressure become insufficient?"}, mid: {title:"First flush sizing", activity:"Calculate the correct first flush volume for a 2,000 sq ft roof. Research the ideal first flush diverter chamber volume."}, high: {title:"Water balance analysis", activity:"Perform a monthly water balance for your system design: monthly rainfall input vs monthly consumption. What is the minimum storage needed to prevent deficit?"} },
+    thursday:  { low: {title:"Code compliance research", activity:"Research the regulatory requirements for off-grid water systems in Florida. What permits are required for rainwater collection vs well water systems?"}, mid: {title:"System cost estimation", activity:"Estimate the material cost of your designed water system. Compare to the cost of municipal water service connection."}, high: {title:"Resilience redundancy design", activity:"Add redundancy to your designed system: a secondary collection method, backup storage, and an emergency treatment option. How does redundancy affect cost and complexity?"} }
+  },
+
+  "Home repair project — plan and execute": {
+    gradeHooks: {
+      low: "Planning a home repair project before starting means getting the right materials, having the right tools, and doing the job correctly.",
+      mid: "A complete home repair project involves assessment, planning, permitting (if required), execution, and quality verification.",
+      high: "Project management methodology applied to home repair, cost estimation, and quality control are important practical skills."
+    },
+    materials: ["Identified home repair need", "Tools and materials for the project"],
+    steps: [
+      "Assessment: define the scope. What exactly is broken or deficient? What is the root cause? (A symptom fix without addressing the cause will fail again.)",
+      "Plan: research the correct repair method. Watch 2\u20133 tutorial videos from reputable sources. Understand every step before starting.",
+      "Materials list: create a complete list with quantities. Add 10% waste factor for cut materials.",
+      "Permit check: research whether the repair requires a permit. Some repairs (electrical, plumbing, structural) require inspection in most jurisdictions.",
+      "Execute and verify: work methodically. Photograph before, during, and after. Test the repair under actual conditions before calling it complete."
+    ],
+    discussion: [
+      {q:"Why is understanding the root cause more important than fixing the symptom in home repair?", answers:["A symptom fix provides temporary relief while the underlying cause continues. Water stains on a ceiling indicate a leak; patching the stain without finding the leak means the ceiling will stain again. Rot on a window sill means water infiltration; replacing the sill without fixing the flashing means the replacement will also rot. Root cause analysis prevents repeated failures."]},
+      {q:"When does a home repair project benefit from a professional, even if you could do it yourself?", answers:["When: the project requires permits and inspections (guarantees code compliance), when liability risk is high (structural, electrical service), when specialized tools or training are needed, when your time cost exceeds the labor savings, or when the consequences of a mistake are severe (gas line work, load-bearing elements)."]}
+    ],
+    challenge: "Complete a substantial home repair project from assessment through verification. Document every phase with photos and a written project log.",
+    tuesday:   { low: {title:"Project selection and assessment", activity:"Identify a home repair project. Document: what the problem is, what is causing it, what the correct fix is, and what materials and tools are needed."}, mid: {title:"Cost estimation", activity:"Create a detailed cost estimate for your project: materials with unit prices, tool rental if needed, and estimated time. Compare to a contractor quote if possible."}, high: {title:"Project management plan", activity:"Create a formal project management plan: scope, schedule, resource requirements, risk identification, and quality criteria."} },
+    wednesday: { low: {title:"Materials procurement", activity:"Purchase all materials for your project. What did you get right on the first list? What did you have to make additional trips for?"}, mid: {title:"Permit research", activity:"Research permit requirements for your specific project type in your jurisdiction. What is the application process and what does the inspection cover?"}, high: {title:"Quality control standards", activity:"Research applicable quality standards for your repair type. What performance criteria define a successful repair?"} },
+    thursday:  { low: {title:"Project execution", activity:"Execute your repair project. Photograph each major step. Stop and reassess if anything doesn\u2019t match the plan."}, mid: {title:"Quality verification", activity:"Verify your repair against your defined quality criteria. Does it solve the root cause? Does it meet code? Will it last?"}, high: {title:"Project retrospective", activity:"Conduct a formal project retrospective. What went according to plan? What required adaptation? What would you do differently? What did you learn?"} }
+  },
+
+  "Financial independence roadmap — FIRE basics": {
+    gradeHooks: {
+      low: "FIRE stands for Financial Independence, Retire Early. It\u2019s the idea that by saving aggressively and investing wisely, you can stop needing a job sooner.",
+      mid: "The FIRE movement applies mathematical principles (savings rate, the 4% rule, and compound growth) to achieve financial independence decades early.",
+      high: "The economics of early retirement, safe withdrawal rate research, and the life planning dimensions of financial independence are important topics."
+    },
+    materials: ["FIRE calculator", "Compound interest calculator"],
+    steps: [
+      "The core equation: years to retirement depends almost entirely on your savings rate (percentage of income saved), not your income level.",
+      "The 4% rule: research shows you can withdraw 4% of your investment portfolio annually with high probability of it lasting 30+ years.",
+      "FI number: your Financial Independence number = annual expenses x 25. This is the portfolio size that supports 4% withdrawal indefinitely.",
+      "Savings rate math: at 50% savings rate, you reach FI in approximately 17 years. At 70%, approximately 8.5 years.",
+      "The path: reduce expenses, increase income, invest the difference in low-cost index funds, minimize taxes."
+    ],
+    discussion: [
+      {q:"Why does the savings rate matter more than income level for the timeline to financial independence?", answers:["At any income level, savings rate determines both how fast you accumulate wealth AND how little you need to sustain yourself (because a higher savings rate implies lower expenses). Someone earning $60,000 and saving 50% reaches FI in the same time as someone earning $120,000 and saving 50%, because their FI number is also half as large."]},
+      {q:"What is the 4% rule and what are its limitations for early retirees?", answers:["The 4% rule comes from the Trinity Study: 4% annual withdrawal from a balanced portfolio had a ~96% success rate over 30-year periods. For a 40-year retirement (retiring at 35), the success rate is somewhat lower. Many FIRE practitioners use 3\u20133.5% for safety, or plan for part-time income. Sequence of returns risk (early retirement during a bear market) is the primary threat."]}
+    ],
+    challenge: "Calculate your FI number based on your projected future annual expenses. At a 50% savings rate starting from $0, when would you reach it?",
+    tuesday:   { low: {title:"FI number calculation", activity:"Research your estimated future annual expenses. Calculate your FI number (expenses x 25). How does this change if you reduce expenses by 20%?"}, mid: {title:"Savings rate vs timeline", activity:"Create a table showing FI timeline at savings rates from 10% to 70%. What is the breakeven rate where you are roughly at FI in your 40s vs 60s?"}, high: {title:"Trinity Study research", activity:"Read and summarize the Trinity Study and subsequent research on safe withdrawal rates. What market conditions most threaten early retirees?"} },
+    wednesday: { low: {title:"Expense optimization", activity:"Research the \u2018big three\u2019 expenses that FIRE advocates target first: housing, transportation, and food. How much is typically saved by optimizing each?"}, mid: {title:"Tax optimization for FIRE", activity:"Research tax strategies for early retirees: Roth conversion ladders, capital gains management, and HSA strategies. How can taxes be minimized in the accumulation and withdrawal phases?"}, high: {title:"Geographic arbitrage research", activity:"Research geographic arbitrage in the FIRE community. How do people use cost-of-living differences to retire earlier or with a smaller portfolio?"} },
+    thursday:  { low: {title:"Personal FIRE roadmap", activity:"Create a personal FIRE roadmap: current net worth, target FI number, required annual savings, and projected timeline."}, mid: {title:"Lean FIRE vs Fat FIRE", activity:"Research LeanFIRE (minimal expenses, early retirement) vs FatFIRE (comfortable expenses, later retirement) vs BaristaFIRE (partial early retirement with part-time work). What does each require?"}, high: {title:"FIRE critique research", activity:"Research critiques of the FIRE movement: healthcare risk, cognitive challenges of managing investments in decline, social isolation, and identity challenges. How do FIRE practitioners address these?"} }
+  },
+
+  "Teaching navigation to others": {
+    gradeHooks: {
+      low: "Teaching navigation requires breaking complex skills into simple steps and letting students practice with feedback.",
+      mid: "Navigation pedagogy requires understanding common learner errors, progressive skill building, and real-terrain application.",
+      high: "Skill transfer in outdoor education, cognitive science applied to navigation teaching, and curriculum design for navigation instruction are important topics."
+    },
+    materials: ["Maps and compasses for student use", "Practice navigation course"],
+    steps: [
+      "Assess prior knowledge: what does your student already know? Start from their current level.",
+      "Build concepts before skills: ensure the student understands why before they practice how.",
+      "Progressive complexity: map orientation \u2192 terrain association \u2192 compass bearings \u2192 pace count \u2192 dead reckoning \u2192 night navigation.",
+      "Provide guided practice, then solo practice: work alongside the student first, then let them navigate while you observe.",
+      "Debrief every navigation attempt: what did they do well? What needs improvement? Focus on one thing at a time."
+    ],
+    discussion: [
+      {q:"What are the most common errors beginner navigators make and how do you address them pedagogically?", answers:["The three most common errors: not orienting the map (rotating the map to match terrain), overconfidence from a single landmark match (confirmation bias), and not maintaining continuous situational awareness (getting absorbed in one task and losing the big picture). Address each through specific drills that isolate the skill and provide immediate feedback."]},
+      {q:"Why is teaching someone a skill different from being skilled at it yourself?", answers:["Expert performance is often automatic and intuitive. Experts struggle to articulate what they do because the skill is below conscious awareness. Teaching requires decomposing automatic behavior into explicit, teachable steps. A common error is teaching from personal intuition rather than from the student\u2019s perspective."]}
+    ],
+    challenge: "Teach navigation to a beginner from zero to running a 3-point orienteering course. Document your lesson sequence, the student\u2019s progress, and what teaching approaches worked.",
+    tuesday:   { low: {title:"Lesson plan creation", activity:"Write a 3-lesson navigation curriculum from map orientation to a basic compass bearing. For each lesson: objectives, content, activity, and assessment."}, mid: {title:"Common error identification", activity:"Research the 5 most common navigation errors made by beginners. For each error, design a specific drill that addresses it."}, high: {title:"Navigation pedagogy research", activity:"Research how outdoor education programs structure navigation curriculum. What is the evidence for teaching map and compass vs GPS-first approaches?"} },
+    wednesday: { low: {title:"Teaching the map", activity:"Teach someone who has never used a topo map to: orient the map, identify their location, and identify 3 terrain features. Document the teaching process."}, mid: {title:"Compass teaching sequence", activity:"Teach someone to take a bearing, follow it for 100 meters, and arrive at the target. What are the most common errors at each step?"}, high: {title:"Assessment design", activity:"Design a practical assessment for a navigation student. What minimum competencies must they demonstrate before navigating independently?"} },
+    thursday:  { low: {title:"Full curriculum delivery", activity:"Deliver your complete 3-lesson navigation curriculum to a willing learner. Debrief after each lesson and adjust the next based on what you observed."}, mid: {title:"Orienteering course design", activity:"Design and mark a 5-point orienteering course appropriate for a beginner. Include control descriptions and map preparation."}, high: {title:"Transfer of learning research", activity:"Research the cognitive science of skill transfer. What conditions maximize the likelihood that navigation skills taught in one environment transfer to different environments?"} }
+  },
+
+  "Herbalism and natural remedies — materia medica": {
+    gradeHooks: {
+      low: "A materia medica is a personal reference guide to medicinal plants: what they treat, how to prepare them, and safety information.",
+      mid: "A personal materia medica integrates botany, phytochemistry, evidence, and safety into a usable clinical reference.",
+      high: "The structure of a traditional materia medica, comparative pharmacological research, and the evidence hierarchy for botanical medicine are important topics."
+    },
+    materials: ["Blank materia medica template", "Research resources"],
+    steps: [
+      "Materia medica entry format: plant name (common and Latin), plant family, identifying features, parts used, preparation methods, constituents, traditional uses, evidence review, dosing, safety/contraindications, and personal notes.",
+      "Select 12\u201315 plants for your personal materia medica: 5\u20138 Florida natives or naturalized, the rest important herbs with good evidence.",
+      "Research each plant through: NCBI PubMed, Memorial Sloan Kettering\u2019s About Herbs database, and at least one printed reference.",
+      "Evidence hierarchy: in vitro studies (weakest) \u2192 animal studies \u2192 human observational studies \u2192 randomized controlled trials (strongest).",
+      "Safety integration: for each plant, research: known herb-drug interactions, contraindications (pregnancy, autoimmune, liver disease), and quality concerns."
+    ],
+    discussion: [
+      {q:"Why is the Latin binomial name (e.g., Echinacea purpurea) important in herbal medicine rather than just the common name?", answers:["Common names are inconsistent and applied to multiple plants. Echinacea purpurea, E. angustifolia, and E. pallida all go by \u2018Echinacea\u2019 but have different phytochemical profiles and different levels of clinical evidence. Latin binomials identify the exact species and cultivar, which is critical for safety and therapeutic consistency."]},
+      {q:"What is the difference between traditional use evidence and clinical evidence and when should each guide your practice?", answers:["Traditional use evidence (ethnobotany) documents historical safety across populations and suggests possible efficacy. It is valuable for identifying candidates for research but cannot establish efficacy. Clinical evidence (controlled trials) establishes whether a plant works for a specific indication. Traditional use without clinical evidence supports cautious use for minor conditions; clinical evidence is required for serious conditions."]}
+    ],
+    challenge: "Complete a personal materia medica with 12 plant entries. Each entry must include Latin name, evidence review summary, preparation method, dosing, and safety notes.",
+    tuesday:   { low: {title:"PubMed research skill", activity:"Learn to search PubMed for clinical studies on a specific herb. Find 3 relevant studies on echinacea for cold prevention. Summarize each study."}, mid: {title:"Evidence quality assessment", activity:"For 5 herbs, find the highest quality evidence available. Classify each as: RCT evidence, observational only, or traditional use only. How does this affect clinical recommendations?"}, high: {title:"Phytochemical constituent research", activity:"For 5 plants in your materia medica, research the primary active constituents and their proposed mechanisms of action. How does the phytochemistry explain the traditional uses?"} },
+    wednesday: { low: {title:"Herb safety database", activity:"Use the Natural Medicines database or Memorial Sloan Kettering\u2019s About Herbs to research contraindications and interactions for 5 herbs. What are the most clinically significant interactions?"}, mid: {title:"Materia medica formatting", activity:"Complete 5 full materia medica entries using your research. Focus on clinical usefulness: what preparation, what dose, for what condition."}, high: {title:"Systematic review analysis", activity:"Find and analyze a Cochrane systematic review of an herbal medicine. How does the review methodology assess study quality and what conclusions does it draw?"} },
+    thursday:  { low: {title:"Complete materia medica", activity:"Complete your 12-plant materia medica. Present it as a bound reference document with consistent formatting."}, mid: {title:"Practitioner integration", activity:"Research how licensed medical herbalists, naturopathic physicians, and integrative medicine physicians integrate herbal medicine with conventional care. What training and clinical frameworks do they use?"}, high: {title:"Regulatory research", activity:"Research FDA regulation of herbal dietary supplements (DSHEA 1994). What manufacturers are required to prove and what are the documented problems with supplement quality?"} }
+  },
+
+  "Emergency preparedness presentation to community": {
+    gradeHooks: {
+      low: "Sharing what you know about emergency preparedness with your community multiplies the impact of your learning.",
+      mid: "An effective community preparedness presentation requires audience analysis, compelling content design, and practical calls to action.",
+      high: "Health communication, behavior change theory, and the evidence for different community preparedness messaging strategies are important topics."
+    },
+    materials: ["Presentation tools", "Community audience"],
+    steps: [
+      "Audience analysis: who is your audience? What do they already know? What do they most need? What motivates them?",
+      "Key messages: choose 3\u20135 actionable messages. More than 5 and nothing is remembered.",
+      "Threat relevance: lead with threats specific to your community (in Florida: hurricanes, flooding, extended power outages).",
+      "Practical vs theoretical: audiences retain practical information (specific products, specific steps) better than principles.",
+      "Call to action: end with a specific, achievable action they can take within the next 7 days."
+    ],
+    discussion: [
+      {q:"Why do most emergency preparedness campaigns fail to change behavior even when they raise awareness?", answers:["Awareness rarely drives behavior change. People know they should be prepared but face: present bias (future disasters are not psychologically real), optimism bias (\u2018it won\u2019t happen to me\u2019), and the intention-action gap (meaning to do something vs doing it). Effective campaigns address these barriers directly: making the threat feel real, providing specific low-friction actions, and using social norms."]},
+      {q:"What makes a community preparedness message memorable and action-producing?", answers:["Research in health communication identifies: narrative (stories are remembered more than statistics), vividness (specific and concrete beats abstract), personal relevance (local examples over national statistics), social proof (what others in your community are doing), and specific action steps (exactly what to do, when, and how)."]}
+    ],
+    challenge: "Develop and deliver a 20-minute emergency preparedness presentation to a community audience. Collect feedback and measure: what did they commit to doing?",
+    tuesday:   { low: {title:"Audience needs assessment", activity:"Interview 5 community members about their current preparedness. What are their biggest concerns? What do they not know? What would motivate them to act?"}, mid: {title:"Presentation design", activity:"Design your presentation using the rule of 3: 3 main messages, 3 supporting points each, 3 actionable steps. Apply behavior change principles to each action step."}, high: {title:"Health communication research", activity:"Research the Extended Parallel Process Model and the Health Belief Model in public health communication. How do they apply to emergency preparedness messaging?"} },
+    wednesday: { low: {title:"Visual aids creation", activity:"Create 3 visual aids for your presentation that make abstract risks concrete: a hurricane surge map, a power outage duration chart, or a supply kit photo."}, mid: {title:"Social proof integration", activity:"Research community preparedness norms in Florida. What percentage of households have a 72-hour kit? How can you use this information (or its absence) as social proof in your presentation?"}, high: {title:"Behavior change framework", activity:"Apply the COM-B model (Capability, Opportunity, Motivation, Behavior) to design a preparedness intervention. What barriers does each component address?"} },
+    thursday:  { low: {title:"Presentation delivery", activity:"Deliver your presentation to your community audience. Record it for review."}, mid: {title:"Feedback analysis", activity:"Collect structured feedback: what did people find most useful, what committed actions were stated, and what questions did you get that you hadn\u2019t prepared for?"}, high: {title:"Effectiveness measurement", activity:"Design a follow-up process to measure actual behavior change from your presentation. How would you survey participants 30 days later to assess what actions were taken?"} }
+  },
+
+  "Improvised medical equipment in the field": {
+    gradeHooks: {
+      low: "When commercial medical supplies are unavailable, improvised equipment can save lives. Knowing what works and how to use it is critical.",
+      mid: "Improvised medical equipment requires understanding the functional requirements of each item and adapting available materials to meet them.",
+      high: "The biomechanics of improvised medical devices, quality and safety limitations of field improvisation, and documentation standards are important topics."
+    },
+    materials: ["Available materials for improvisation exercises"],
+    steps: [
+      "Functional analysis: what does the commercial item do? What are its functional requirements? (A splint: rigid, conforming, padded, secured at 2 joints)",
+      "Improvised stretcher: poles + clothing, rolled sleeping bag, tarp + tent poles. Test before loading a patient.",
+      "Improvised tourniquet: minimum 2-inch wide material. Never use cord or wire. Windlass must be secured. Write the time.",
+      "Improvised cervical collar: foam sleeping pad rolled and secured, rolled clothing wrapped and taped. Adequate only as partial restriction.",
+      "Improvised wound irrigation: a zip-lock bag with a pinhole creates adequate irrigation pressure. Any clean container with a small opening works."
+    ],
+    discussion: [
+      {q:"What is the key principle that determines whether an improvised device is acceptable to use?", answers:["The improvised device must meet the functional requirements of the commercial item without creating additional hazards. A tourniquet must occlude arterial flow without cutting into tissue. A litter must support the patient\u2019s weight without collapsing. If the improvised device cannot meet the functional requirement, it should not be used."]},
+      {q:"What are the limitations of improvised equipment that should be communicated during patient handoff?", answers:["Improvised devices have not been tested to standards, may fail, and are often less effective than commercial items. The receiving medical team needs to know: what improvised devices are in place, what they were made from, how long they\u2019ve been applied, and whether they are adequate or need replacement."]}
+    ],
+    challenge: "Improvise a complete wilderness medical kit from available materials: stretcher, tourniquet, wound irrigation system, cervical stabilization, and splinting materials for both upper and lower extremity fractures.",
+    tuesday:   { low: {title:"Stretcher load test", activity:"Build a stretcher using 2 different improvised methods. Load it with a sandbag equal to a patient\u2019s weight and carry 50 meters. Which method is more stable?"}, mid: {title:"Tourniquet comparison", activity:"Apply a commercial CAT tourniquet and an improvised tourniquet (cloth strip and windlass) to a training limb. Which provides more reliable compression?"}, high: {title:"Improvised device standards research", activity:"Research testing standards for commercial medical devices (FDA clearance). What tests do tourniquets, backboards, and cervical collars have to pass and how do improvised devices compare?"} },
+    wednesday: { low: {title:"Irrigation system test", activity:"Test improvised wound irrigation: compare a pinhole zip-lock bag, a syringe, and a squeeze bottle for flow rate and splash pattern."}, mid: {title:"Splint quality assessment", activity:"For 5 different improvised splints, assess: rigidity (does it bend under load?), padding adequacy, joint immobilization, and security of attachment."}, high: {title:"Field medical documentation", activity:"Create a field medical documentation form that captures improvised device type, materials, application time, neurovascular checks, and any changes during transport."} },
+    thursday:  { low: {title:"Complete improvised kit scenario", activity:"Complete a full wilderness medical scenario using only improvised equipment. Assess, treat, and prepare a patient for evacuation with complete improvised care."}, mid: {title:"Improvisation training program", activity:"Design a training program for teaching improvised medical skills to a CERT team. What skills should be prioritized and how would you assess competency?"}, high: {title:"Remote damage control research", activity:"Research remote damage control resuscitation: managing severe trauma in austere settings with limited resources. What interventions are prioritized when resources are severely constrained?"} }
+  },
+
+  "After-action review — what went well what did not": {
+    gradeHooks: {
+      low: "An After Action Review helps us learn from exercises and real events by honestly asking: what happened, what should have happened, and what will we change?",
+      mid: "The After Action Review is a systematic learning tool that extracts actionable lessons from any significant event or exercise.",
+      high: "AAR methodology, organizational learning theory, and the evidence for after-action review effectiveness in different domains are important topics."
+    },
+    materials: ["Recent exercise or event to review", "AAR template"],
+    steps: [
+      "Timing: conduct the AAR as soon as possible after the event. Within hours for critical incidents, within 24 hours for exercises.",
+      "Ground rules: the AAR is not a critique of individuals. It examines systems, processes, and plans — not people.",
+      "Structure: 1) What was planned? 2) What actually happened? 3) Why was there a difference? 4) What will we do differently?",
+      "Specific over general: \u2018We didn\u2019t have the right information at the right time\u2019 is less useful than \u2018The EOC didn\u2019t know the shelter was full for 45 minutes because there was no communication protocol.\u2019",
+      "Corrective actions: assign each identified improvement to a specific person with a specific due date."
+    ],
+    discussion: [
+      {q:"Why is the AAR described as psychologically safe when participants fear blame?", answers:["The AAR must be genuinely focused on system improvement. Leaders model the way by self-disclosing their own decision-making errors first. Explicit ground rules prohibit blame. Without psychological safety, participants either don\u2019t participate honestly or don\u2019t surface the most important lessons. The facilitator\u2019s job is to maintain safety while still extracting honest analysis."]},
+      {q:"What is the difference between a sustain and an improve in AAR terminology?", answers:["Sustains are things that worked as planned and should be repeated. Improves (not \u2018failures\u2019) are things that didn\u2019t work as planned and need to change. The language difference is deliberate: focusing on \u2018improves\u2019 rather than \u2018failures\u2019 maintains psychological safety and reinforces that the goal is learning, not blame."]}
+    ],
+    challenge: "Facilitate a full AAR for a recent exercise or drill. Write the complete AAR document with specific sustains, improves, and corrective actions with owners and due dates.",
+    tuesday:   { low: {title:"AAR format practice", activity:"Conduct a 15-minute AAR of a recent family activity (a meal, a project, any shared task). Use the 4 questions: plan, actual, gap, change."}, mid: {title:"Corrective action planning", activity:"For 5 identified improvement areas, write SMART corrective actions: Specific, Measurable, Achievable, Relevant, and Time-bound."}, high: {title:"AAR research", activity:"Research the evidence base for AAR effectiveness across military, healthcare, and business domains. What conditions make AARs most effective?"} },
+    wednesday: { low: {title:"Facilitator role practice", activity:"Facilitate an AAR for a small group drill. Focus on: maintaining psychological safety, encouraging specific observations, and generating actionable improvements."}, mid: {title:"After Action Report writing", activity:"Write a formal After Action Report from your facilitated AAR. What format is used by FEMA, military units, and hospital rapid response teams?"}, high: {title:"Organizational learning theory", activity:"Research organizational learning theory (Argyris and Sch\u00f6n, Senge). How does the AAR implement single-loop vs double-loop learning?"} },
+    thursday:  { low: {title:"AAR follow-up system", activity:"Create a tracking system for AAR corrective actions. How do you ensure assigned improvements are actually implemented?"}, mid: {title:"Complex incident AAR design", activity:"Design the AAR process for a major community exercise with 100 participants from 10 organizations. What additional challenges arise at scale?"}, high: {title:"Hot wash vs formal AAR research", activity:"Research the difference between a hot wash (immediate, informal) and a formal after action report. When is each appropriate and how do they complement each other?"} }
+  },
+
+  "Microhydro and biogas energy overview": {
+    gradeHooks: {
+      low: "Microhydro uses flowing water to generate electricity. Biogas uses decomposing organic matter to produce cooking fuel. Both are renewable!",
+      mid: "Microhydro and biogas are site-specific renewable energy technologies that provide continuous power where conditions are right.",
+      high: "Hydraulic power calculation, anaerobic digestion biochemistry, and the niche applications of each technology are important renewable energy topics."
+    },
+    materials: ["Flow rate and head measurement tools (for microhydro assessment)", "Biogas digester design resources"],
+    steps: [
+      "Microhydro: requires flowing water with both head (elevation drop) and flow. Power = head (meters) x flow (liters/sec) x 9.81 x efficiency (0.5\u20130.8).",
+      "Microhydro advantages: continuous 24/7 generation (unlike solar or wind). Scales from 200W to 10kW for residential use.",
+      "Biogas: anaerobic digestion of organic waste (food scraps, animal manure) produces methane-rich biogas (55\u201365% CH4) for cooking and heating.",
+      "Biogas digester design: simple fixed-dome or floating drum designs. Feed rate, temperature (optimal 35\u201337\u00b0C), and carbon:nitrogen ratio affect output.",
+      "Florida context: Florida has minimal elevation change, making microhydro impractical for most locations. Biogas is viable where organic waste is abundant."
+    ],
+    discussion: [
+      {q:"Why is microhydro considered the most reliable of all small-scale renewable energy technologies?", answers:["Microhydro generates power continuously, 24 hours per day, 7 days per week, regardless of weather. Solar and wind are intermittent. A stream that flows year-round provides a predictable, reliable power source. A 1kW microhydro system produces as much annual energy as approximately 4kW of solar panels."]},
+      {q:"What is the carbon:nitrogen ratio requirement for biogas production and why does it matter?", answers:["Optimal C:N ratio for anaerobic digestion is 25\u201330:1. Too much carbon (high C:N, like straw alone) results in slow, incomplete digestion. Too much nitrogen (low C:N, like urine alone) produces excess ammonia that inhibits methanogenic bacteria. Mixing food waste, manure, and crop residue achieves the right balance."]}
+    ],
+    challenge: "Assess a site for microhydro potential (measure flow and head if a stream is available) OR design a basic biogas digester for your family\u2019s organic waste production.",
+    tuesday:   { low: {title:"Microhydro power calculation", activity:"For a stream with 3 meters of head and 5 liters per second flow, calculate potential power output at 60% efficiency. What loads could this power?"}, mid: {title:"Biogas digester design", activity:"Design a simple biogas digester sized for a family producing 3 kg/day of organic waste. Calculate tank volume, daily gas production, and heat requirements."}, high: {title:"Run-of-river vs dam microhydro", activity:"Research run-of-river microhydro systems vs small dam systems. What are the environmental, legal, and technical differences?"} },
+    wednesday: { low: {title:"Biogas applications research", activity:"Research biogas applications beyond cooking: electricity generation, vehicle fuel, and pipeline injection. What are the efficiency and cost considerations for each?"}, mid: {title:"Florida stream assessment", activity:"Research Florida\u2019s stream and spring systems. Are any viable for microhydro? What legal restrictions govern water flow diversion in Florida?"}, high: {title:"Anaerobic digestion biochemistry", activity:"Research the 4 stages of anaerobic digestion: hydrolysis, acidogenesis, acetogenesis, and methanogenesis. What organisms perform each stage and what inhibits each?"} },
+    thursday:  { low: {title:"Community-scale biogas research", activity:"Research community-scale biogas systems used in India and China. What community size and waste volume are required for viable community biogas?"}, mid: {title:"Microhydro site assessment", activity:"Research how to perform a microhydro site assessment. What measurements are taken and what analysis determines viability?"}, high: {title:"Biogas grid injection", activity:"Research biogas upgrading to biomethane for pipeline injection. What purification steps are required and what economic and regulatory framework governs it?"} }
+  },
+
+  "Caloric and nutritional year-round food audit": {
+    gradeHooks: {
+      low: "A food audit tells us exactly how much of what kinds of food we eat and produce over a year. It reveals gaps we need to fill.",
+      mid: "A complete nutritional audit of year-round food production and consumption reveals caloric and micronutrient adequacy.",
+      high: "Nutritional epidemiology methodology, dietary assessment tools, and food system adequacy analysis are important topics."
+    },
+    materials: ["Food production records", "Dietary reference intakes (DRIs)", "Food composition database (USDA)"],
+    steps: [
+      "Production audit: total pounds produced of each crop over the past year. Use the USDA Food Composition Database to convert to calories and nutrients.",
+      "Consumption audit: one month of detailed food tracking for the family. Extrapolate to annual totals.",
+      "Gap analysis: compare production calories to consumption calories. Which nutrients are deficient?",
+      "Micronutrient check: most home gardens are rich in vitamins A and C but may be low in vitamins D and B12, calcium, iron, and zinc.",
+      "Action plan: what crops, storage additions, or supplements address identified gaps?"
+    ],
+    discussion: [
+      {q:"Why do most home vegetable gardens fail to meet caloric needs despite producing a wide variety of food?", answers:["Vegetables are high in water content (80\u201395%) and low in caloric density (20\u2013100 calories per pound). A diet based primarily on vegetables would require eating 20\u201340 pounds per day to meet caloric needs. Caloric staples (grains, legumes, root vegetables, fats) must form the foundation. Most home gardeners grow the supplement, not the staple."]},
+      {q:"What specific micronutrients are most commonly deficient in vegetable-heavy home food systems?", answers:["Vitamin B12 (found only in animal products), vitamin D (sunlight and fatty fish), calcium (dairy, some vegetables), iron (meat, legumes), and zinc (meat, legumes, seeds). A purely plant-based home food system requires specific attention to these nutrients and may require supplements."]}
+    ],
+    challenge: "Conduct a complete caloric and nutritional audit for one month. Calculate the annual production value of your garden. Identify the 3 most significant nutritional gaps.",
+    tuesday:   { low: {title:"Production record review", activity:"Review your garden\u2019s production records for the past season. Convert pounds of each crop to calories using the USDA food composition database."}, mid: {title:"DRI research", activity:"Research Dietary Reference Intakes for your family composition. What are the caloric and major nutrient needs for each family member by age and sex?"}, high: {title:"24-hour recall methodology", activity:"Research the 24-hour dietary recall method used in nutritional epidemiology. What are its limitations and how does the multiple-pass method improve accuracy?"} },
+    wednesday: { low: {title:"Food tracking exercise", activity:"Track all food consumed by your family for 3 days. Calculate calories per day and major macronutrients. Compare to DRI recommendations."}, mid: {title:"Micronutrient gap analysis", activity:"Using your dietary tracking data, calculate intake of: vitamin D, B12, calcium, iron, zinc, and omega-3s. What is each person\u2019s gap relative to DRI?"}, high: {title:"Food composition database mastery", activity:"Research the USDA FoodData Central database. What data sources does it integrate and how accurate are the nutrient values for home-grown produce vs commercial produce?"} },
+    thursday:  { low: {title:"Gap remediation plan", activity:"Create a specific plan to address the 3 most significant gaps: what crops to add, what storage foods to acquire, or what supplements to consider."}, mid: {title:"Seasonal nutritional variation", activity:"Research how Florida\u2019s seasonal production cycle creates nutritional variation throughout the year. In which months are specific nutrients most abundant vs scarce?"}, high: {title:"Micronutrient bioavailability research", activity:"Research how cooking methods, food combinations, and fermentation affect micronutrient bioavailability. How can preparation techniques maximize nutritional value from home-grown food?"} }
+  },
+
+  "Designing a rainwater to tap system": {
+    gradeHooks: {
+      low: "A rainwater-to-tap system collects rain, filters it, stores it, and pumps it to faucets inside the home. We design the whole system.",
+      mid: "A potable rainwater system requires first flush diversion, multi-stage filtration, disinfection, storage, and pressure delivery for code compliance.",
+      high: "Potable rainwater system design, NSF/ANSI standards for components, and the regulatory pathway for permitted potable rainwater systems are important topics."
+    },
+    materials: ["Site assessment", "System design tools", "Florida DEP regulations"],
+    steps: [
+      "Collection area: calculate roof catchment area. Subtract the first-flush volume. Net collection = (roof area in sq ft x 0.623 x rainfall in inches) \u2013 first-flush losses.",
+      "Storage: size for 30\u201360 days of household use. Florida average household: 100 gallons/day. 30-day storage: 3,000 gallons minimum.",
+      "Treatment train for potable use: first flush diverter \u2192 sediment pre-filter (5 micron) \u2192 carbon filter \u2192 UV disinfection \u2192 final 1-micron filter.",
+      "Pressure system: submersible pump in tank or pressure tank with demand pump. Pressure tank eliminates constant pump cycling.",
+      "Code compliance: most Florida jurisdictions do not permit rainwater as primary potable supply. Research your specific jurisdiction."
+    ],
+    discussion: [
+      {q:"What treatment steps specifically address viral contamination in a rainwater-to-tap system?", answers:["UV disinfection is the primary viral treatment in residential rainwater systems. UV at 40 mJ/cm\u00b2 achieves 4-log reduction (99.99%) for most viruses. Carbon filtration removes organic compounds but does not inactivate viruses. Sediment filtration removes particles but not viruses. UV is the critical pathogen barrier."]},
+      {q:"Why is Florida the exception to the general rule that US states permit residential rainwater collection?", answers:["Florida permits rainwater collection for non-potable uses but is more restrictive about potable systems due to the high quality and reliability of the Floridan Aquifer supply. State building codes also require connection to public water where available. However, Florida has been moving toward greater acceptance of rainwater systems as part of water conservation efforts."]}
+    ],
+    challenge: "Design a complete rainwater-to-tap system for a 3-bedroom home. Specify every component, size, and connection. Calculate the annual yield and what percentage of household water needs it covers.",
+    tuesday:   { low: {title:"Annual yield calculation", activity:"Calculate annual rainwater yield for a 2,500 sq ft Florida roof. Use average rainfall data. How many gallons per year would a properly designed system collect?"}, mid: {title:"Treatment train design", activity:"Specify every component in the treatment train for a potable system: manufacturer, model, flow rate, and the contaminants each addresses."}, high: {title:"NSF/ANSI standards research", activity:"Research NSF/ANSI 61 and NSF/ANSI 372 for water contact components. Why must system components be certified and what do these certifications verify?"} },
+    wednesday: { low: {title:"Pressure system design", activity:"Design the pressure delivery system: pump selection, pressure tank sizing, and pressure switch settings. What flow rate and pressure are needed for household use?"}, mid: {title:"Maintenance schedule", activity:"Create a complete maintenance schedule for a potable rainwater system: filter replacement, UV lamp replacement, tank cleaning, and annual testing."}, high: {title:"Florida regulatory research", activity:"Research the regulatory pathway for approving a potable rainwater system in Florida. What Florida DEP and county health department permits are required?"} },
+    thursday:  { low: {title:"Cost-benefit analysis", activity:"Calculate the installed cost of the designed system. Compare to the annual cost of equivalent municipal water. What is the payback period?"}, mid: {title:"System integration", activity:"Integrate the rainwater system with a greywater reuse system for maximum water independence. What percentage of total household water demand can be met?"}, high: {title:"Water quality testing protocol", activity:"Design a water quality testing protocol for a commissioned potable rainwater system. What parameters must be tested, at what frequency, and what are the action levels for each?"} }
+  },
+
+  "Electrical inspection — what inspectors look for": {
+    gradeHooks: {
+      low: "Electrical inspectors check that all wiring is safe and meets code before you cover it with drywall. Knowing what they look for helps you do it right.",
+      mid: "Understanding electrical inspection criteria enables quality work that passes the first time and reveals code violations in existing wiring.",
+      high: "NEC inspection criteria, common inspection failures, and the code adoption and enforcement process are important topics."
+    },
+    materials: ["NEC reference", "Electrical inspection checklist"],
+    steps: [
+      "Rough-in inspection (before drywall): box fill compliance, nail plate protection for wires within 1.25 inches of stud face, grounded boxes, proper wire support, no damaged insulation.",
+      "Service entrance: proper weatherhead height, drip loop, meter socket condition, grounding electrode system.",
+      "Panel inspection: proper breaker sizing for wire gauge, no double-tapping (two wires under one breaker terminal unless approved), breaker fill, AFCI and GFCI requirements met.",
+      "Final inspection (after drywall): all boxes covered, GFCI outlets tested, AFCI breakers installed per code, smoke detector placement.",
+      "Common failures: missing nail plates, improper box fill, missing grounds, missing GFCI/AFCI protection, improper wire support."
+    ],
+    discussion: [
+      {q:"What is double-tapping and why does the inspector flag it?", answers:["Double-tapping means two conductors connected to a single breaker terminal. Standard breaker terminals are rated for one conductor. Two conductors may not make reliable contact, causing intermittent overloads or arcing at the connection point. Some Square D breakers specifically allow double-tapping; this is indicated on the breaker. Unapproved double-tapping is a fire hazard."]},
+      {q:"What is a nail plate and when is it required?", answers:["A nail plate is a steel plate nailed over a stud where wiring passes within 1.25 inches of the nailing surface. Without it, drywall screws or nails can penetrate the cable. Nail plates are required when wire routing doesn\u2019t maintain 1.25 inches of clearance from the stud surface. They\u2019re a common item on rough-in inspection failure lists because they\u2019re easy to forget."]}
+    ],
+    challenge: "Perform a self-inspection of your home\u2019s electrical panel using an inspection checklist. Identify and document any code violations or safety concerns.",
+    tuesday:   { low: {title:"Panel inspection practice", activity:"Inspect your home\u2019s electrical panel against a checklist. Check: breaker sizing, labeling completeness, double-tapping, and physical condition."}, mid: {title:"GFCI and AFCI compliance audit", activity:"Audit your home for GFCI and AFCI compliance. Which locations require protection? Are all required locations protected?"}, high: {title:"NEC Article 110 research", activity:"Research NEC Article 110 (Requirements for Electrical Installations). What general installation requirements apply to all electrical work regardless of system type?"} },
+    wednesday: { low: {title:"Box fill audit", activity:"Open 5 electrical boxes in your home. Count conductors and calculate fill. Are any boxes overfilled?"}, mid: {title:"Wire support requirements", activity:"Research NEC requirements for wire support: maximum support spacing for different cable types and how they differ for vertical vs horizontal runs."}, high: {title:"Inspection failure statistics", activity:"Research the most common residential electrical inspection failures. What percentage of rough-in inspections fail on the first inspection and what are the most cited violations?"} },
+    thursday:  { low: {title:"Complete electrical audit report", activity:"Write a complete electrical safety audit report for your home. Include: items passing, items failing, and priority recommendations for corrections."}, mid: {title:"Arc flash hazard assessment", activity:"Research residential arc flash hazards. What work practices reduce arc flash risk when working in an energized panel?"}, high: {title:"Code adoption process research", activity:"Research how NEC is adopted at the state and local level. Why do different jurisdictions use different NEC editions and how does this affect electrical work done in different states?"} }
+  },
+
+  "Building a 10-year financial plan": {
+    gradeHooks: {
+      low: "A 10-year financial plan sets specific goals and maps out the steps to reach them. Without a plan, financial progress is left to chance.",
+      mid: "A comprehensive 10-year financial plan integrates income projection, expense management, debt elimination, savings, and investment.",
+      high: "Financial planning methodology, scenario modeling, and the behavioral finance of long-term planning are important topics."
+    },
+    materials: ["Financial planning spreadsheet", "Calculators"],
+    steps: [
+      "Starting position: current income, expenses, assets, and liabilities. Net worth calculation.",
+      "Income trajectory: realistic income growth projection for 10 years. Account for career stage, industry, and planned changes.",
+      "Debt elimination plan: payoff schedule for all debts using avalanche or snowball method.",
+      "Savings and investment targets: emergency fund completion date, retirement savings rate, specific savings goals (home purchase, education).",
+      "Year-by-year projections: build out the 10-year picture: income, expenses, debt, savings, and net worth for each year."
+    ],
+    discussion: [
+      {q:"Why should a 10-year financial plan be revised annually rather than set once and followed rigidly?", answers:["Life rarely follows 10-year projections. Income changes, unexpected expenses occur, market returns vary, and personal priorities evolve. Annual review allows the plan to adapt to reality while maintaining direction. A plan that is never revised becomes irrelevant; one that is revised too often loses its anchoring effect on long-term behavior."]},
+      {q:"What is the difference between a financial goal and a financial wish?", answers:["A financial goal is specific, measurable, achievable, relevant, and time-bound (SMART). \u2018I want to save money\u2019 is a wish. \u2018I will save $500 per month and accumulate a $12,000 emergency fund within 2 years by automating a transfer on the 1st of each month\u2019 is a goal. The specificity of SMART goals is what enables action."]}
+    ],
+    challenge: "Build a complete 10-year financial plan with year-by-year projections for: income, major expenses, debt balances, savings balances, and net worth.",
+    tuesday:   { low: {title:"Net worth baseline", activity:"Calculate your family\u2019s current net worth as the starting point for the 10-year plan."}, mid: {title:"Income projection", activity:"Research career salary progression for 3 career paths you might pursue. Create realistic income projections for each over 10 years."}, high: {title:"Monte Carlo scenario modeling", activity:"Research how financial planners use Monte Carlo simulation to stress-test 10-year plans against different market return scenarios."} },
+    wednesday: { low: {title:"Debt payoff schedule", activity:"Create a detailed payoff schedule for all debts in the plan: each debt, the payoff method, monthly payment, and payoff date."}, mid: {title:"Investment growth modeling", activity:"Build a year-by-year investment growth model for your planned savings contributions. Use historical average returns and model the range of outcomes."}, high: {title:"Tax efficiency over 10 years", activity:"Model the tax impact of different account mixes (taxable, traditional, Roth) over 10 years. What allocation minimizes lifetime taxes paid?"} },
+    thursday:  { low: {title:"Complete 10-year projection", activity:"Complete your full 10-year financial plan. Present it visually: a net worth growth chart and a debt payoff timeline."}, mid: {title:"Sensitivity analysis", activity:"Test your 10-year plan against 3 scenarios: income drops 20%, major unexpected expense of $20,000, and market return of 3% instead of 7%. How does the plan perform in each scenario?"}, high: {title:"Financial plan vs life plan integration", activity:"Research the concept of life planning vs financial planning. How do life goals (family, location, values) drive financial decisions rather than the reverse?"} }
+  },
+
+  "Teaching map and compass to a group": {
+    gradeHooks: {
+      low: "Teaching map and compass to a group requires managing multiple students at different skill levels while keeping everyone engaged.",
+      mid: "Group navigation instruction requires structured progression, common error anticipation, and field practice design.",
+      high: "Group outdoor education curriculum design, progressive skill development methodology, and assessment in field settings are important topics."
+    },
+    materials: ["Maps and compasses for each student", "Designed orienteering course"],
+    steps: [
+      "Group assessment: test prior knowledge quickly. What maps have they used? Have they ever used a compass?",
+      "Structured introduction: map orientation first (always). Orient the map before any instruction. Demonstrate, then have students do.",
+      "Peer teaching moments: once any student demonstrates a skill confidently, pair them with someone who hasn\u2019t.",
+      "Progressive field practice: marked trails with map \u2192 simple terrain features \u2192 compass bearing to distant feature \u2192 full course.",
+      "Common error management: watch for: map not oriented, reading compass without stabilizing it, confusing magnetic north vs true north."
+    ],
+    discussion: [
+      {q:"Why does peer teaching improve learning for both the teacher and the student?", answers:["Teaching requires articulating tacit knowledge. A student who can do a skill but teaches it must make their implicit understanding explicit, deepening their own mastery. The student being taught benefits from explanation by someone who recently learned it and understands the confusion points better than an expert."]},
+      {q:"How does group dynamics affect outdoor education performance and what facilitation techniques address it?", answers:["Group dynamics in outdoor education include: dominant learners who rush others, timid learners who defer, competitive dynamics that undermine cooperation, and social anxiety in skill demonstrations. Facilitation techniques: structured turns (everyone demonstrates before anyone goes twice), paired practice (reduces audience pressure), and framing errors as learning rather than failure."]}
+    ],
+    challenge: "Design and facilitate a 3-hour navigation curriculum for a group of 8\u201310 beginners. Complete from map introduction to solo orienteering course.",
+    tuesday:   { low: {title:"Group curriculum design", activity:"Write a 3-hour navigation curriculum for 10 beginners. Time each activity and build in margin for questions and slower learners."}, mid: {title:"Station-based learning design", activity:"Design 4 learning stations for group navigation instruction: each station has a specific skill focus and accommodates 2\u20133 students simultaneously."}, high: {title:"Adaptive instruction research", activity:"Research adaptive instruction techniques for mixed-ability groups. How do you challenge advanced students while supporting beginners in the same session?"} },
+    wednesday: { low: {title:"Error anticipation planning", activity:"List the 10 most common errors beginners make with map and compass. For each, prepare a specific correction phrase and a remedial exercise."}, mid: {title:"Assessment criteria development", activity:"Develop objective assessment criteria for group navigation instruction. What minimum performance standards define successful completion?"}, high: {title:"Experiential education theory", activity:"Research Kolb\u2019s Experiential Learning Cycle. How does it apply to navigation instruction design and how do you ensure all 4 stages occur?"} },
+    thursday:  { low: {title:"Group instruction delivery", activity:"Deliver your 3-hour navigation curriculum. Debrief: what worked, what didn\u2019t, and what adjustments would improve the experience."}, mid: {title:"Documentation and certification", activity:"Create a skills checklist that documents each student\u2019s demonstrated competencies. How would you certify a student as navigation-proficient?"}, high: {title:"Land navigation course design", activity:"Design a permanent orienteering course for a park or public space. What control placement, course design, and maintenance requirements apply?"} }
+  },
+
+  "Growing and drying a medicinal herb garden": {
+    gradeHooks: {
+      low: "A medicinal herb garden produces plants we use for health and wellness. Growing and drying them preserves their potency for year-round use.",
+      mid: "A functional medicinal herb garden requires variety selection for your climate, appropriate growing conditions, and proper harvest and drying protocols.",
+      high: "Medicinal plant agronomy, the effect of growing conditions on phytochemical content, and drying process optimization for potency preservation are important topics."
+    },
+    materials: ["Garden space", "Medicinal herb seeds or transplants", "Drying rack"],
+    steps: [
+      "Florida-appropriate medicinal herbs: holy basil (adaptogen), lemon balm (calming), elderberry (immune), rosemary (cognitive), echinacea (cold), calendula (wound healing), lavender (calming).",
+      "Growing conditions: most medicinal herbs need 6+ hours of direct sun. Well-drained soil. Moderate fertility — excessive nitrogen produces lush growth but lower essential oil content.",
+      "Harvest timing: harvest aerial parts (leaves, flowers) at peak potency. Leaves: just before flowering. Flowers: just as they open. Roots: fall, after the plant has stored maximum reserves.",
+      "Drying: tie small bundles and hang in a warm, dark, well-ventilated location. Or use a dehydrator at 95\u2013105\u00b0F. Done when brittle.",
+      "Storage: glass jars with tight lids, labeled with plant name, part, date. Cool, dark location."
+    ],
+    discussion: [
+      {q:"Why does excessive nitrogen fertilization reduce the medicinal potency of herbs?", answers:["Medicinal compounds (essential oils, resins, alkaloids) are often secondary metabolites produced under mild stress conditions. Abundant nitrogen produces rapid vegetative growth (diluting secondary metabolites in more plant tissue) and reduces the metabolic conditions that trigger secondary metabolite production. Lower fertility produces smaller but more potent plants."]},
+      {q:"Why should medicinal herbs be dried in the dark rather than in direct sunlight?", answers:["UV light and heat rapidly degrade volatile aromatic compounds (essential oils), chlorophyll, and many other medicinally active compounds. Slow, dark drying preserves these compounds better. Quick, hot drying (as in a hot car or direct sun) may achieve dryness but produces a product with significantly degraded potency."]}
+    ],
+    challenge: "Establish a medicinal herb garden with 8\u201310 species. Harvest and dry a portion of each. Conduct a sensory quality assessment (color, aroma, brittleness) and compare to commercial dried herbs.",
+    tuesday:   { low: {title:"Garden establishment", activity:"Plant your medicinal herb garden. Document: species, planting date, spacing, and soil preparation for each."}, mid: {title:"Growing condition optimization", activity:"Research optimal growing conditions for 5 herbs in your garden. How do soil fertility, water, and sun exposure affect potency?"}, high: {title:"Phytochemical production research", activity:"Research how environmental stress affects secondary metabolite production in plants. What agronomic practices increase essential oil content in lavender and chamomile?"} },
+    wednesday: { low: {title:"Harvest timing observation", activity:"Observe your herbs at different growth stages. Document the visible and aromatic changes at pre-flower, full flower, and post-flower stages."}, mid: {title:"Drying quality comparison", activity:"Dry the same herb using 3 methods: air drying at room temperature, dehydrator at 95\u00b0F, and dehydrator at 135\u00b0F. Compare color, aroma, and taste after drying."}, high: {title:"Essential oil content measurement", activity:"Research how to use a Clevenger apparatus to extract and quantify essential oil content from fresh vs dried herb material. What does this tell you about drying quality?"} },
+    thursday:  { low: {title:"Complete harvest and storage", activity:"Complete the harvest and drying of your first herb. Store properly labeled in glass. Document the entire process."}, mid: {title:"Commercial herb quality comparison", activity:"Compare your home-dried herb to equivalent commercial products. Research quality indicators: color, aroma, brittleness, and any available standardization data."}, high: {title:"Certified organic production research", activity:"Research organic certification requirements for medicinal herb production. What documentation and practices are required and how does certification affect market value?"} }
+  },
+
+  "Presenting your family emergency plan": {
+    gradeHooks: {
+      low: "Presenting your family emergency plan to others tests your own knowledge and helps others prepare. Teaching reinforces learning!",
+      mid: "A compelling family emergency plan presentation demonstrates mastery, communicates actionability, and motivates others to prepare.",
+      high: "Preparedness communication pedagogy, persuasive design, and the behavioral change implications of emergency preparedness education are important topics."
+    },
+    materials: ["Family emergency plan documentation", "Presentation materials"],
+    steps: [
+      "Presentation structure: your hazard environment, your family\u2019s vulnerabilities, your plan components (communication, evacuation, shelter-in-place, supplies), and what you learned through the process.",
+      "Make it personal: audiences connect with specific stories. Share a moment when your preparedness was tested or when you realized a gap.",
+      "Show, don\u2019t just tell: bring your go-bag, your communication plan card, your emergency contacts. Physical objects create memorable anchors.",
+      "Acknowledge gaps: honest acknowledgment of what you haven\u2019t yet done makes you credible. \u2018We still need to...\u2019 is more believable than a perfect plan.",
+      "Call to action: what specific step can your audience take this week? Give them a card with 3 first steps."
+    ],
+    discussion: [
+      {q:"Why is sharing your own preparedness journey (including mistakes and gaps) more persuasive than presenting a perfect plan?", answers:["Audiences connect with authentic human experience. Sharing your learning process creates identification (\u2018I could do that too\u2019) and social proof from someone relatable rather than an authority figure. Research in persuasion shows that self-disclosure and vulnerability increase credibility and likability."]},
+      {q:"What is the best structure for a call to action in a preparedness presentation?", answers:["The most effective call to action is: specific (not \u2018prepare more\u2019 but \u2018buy one gallon of water and put it under the kitchen sink today\u2019), small (achievable this week), and provided in writing (a take-away card). Research in behavior change shows that small commitments made publicly are more likely to be followed."]}
+    ],
+    challenge: "Deliver a 30-minute presentation of your family\u2019s emergency plan to a real audience. Collect feedback and measure: what specific commitment did each audience member make?",
+    tuesday:   { low: {title:"Content organization", activity:"Organize your family emergency plan into a presentation outline. What are the 5 most important things your audience needs to know?"}, mid: {title:"Story integration", activity:"Identify 2\u20133 personal stories from your preparedness journey that illustrate key points. How does each story make a principle concrete?"}, high: {title:"Audience psychology research", activity:"Research why people fail to prepare despite knowing they should. How does your presentation design address each psychological barrier?"} },
+    wednesday: { low: {title:"Visual materials creation", activity:"Create 3 visual materials: your evacuation route map, your communication plan card, and a photo of your go-bag contents."}, mid: {title:"Q&A preparation", activity:"Generate a list of 10 questions your audience might ask. Prepare answers for each. What questions reveal gaps in your plan?"}, high: {title:"Message testing", activity:"Test your key messages with a small group before the full presentation. What resonated? What fell flat? What questions revealed unclear thinking?"} },
+    thursday:  { low: {title:"Full presentation delivery", activity:"Deliver your 30-minute presentation. Record it for self-review."}, mid: {title:"Commitment measurement", activity:"Survey your audience 7 days after your presentation. How many completed the specific action you asked them to take?"}, high: {title:"Presentation improvement analysis", activity:"Watch your recorded presentation. Identify 5 specific improvements for delivery, content, and structure. Deliver again to a new audience with improvements applied."} }
+  },
+
+
+
   "Chest seals — open vs closed wounds": {
     gradeHooks: {
       low: "A sucking chest wound lets air into the chest and can collapse a lung. A chest seal covers the wound to stop this.",
