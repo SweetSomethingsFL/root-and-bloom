@@ -139,6 +139,1404 @@ const LS_KEY = "rootbloom_v1";
 
 const LR_LESSON_PLANS = {
 
+  "Designing a food forest": {
+    gradeHooks: {
+      low: "A food forest mimics the layers of a natural forest but produces food. Every layer from canopy to ground cover serves a purpose.",
+      mid: "Designing a food forest requires integrating permaculture principles, plant selection, guild relationships, and long-term succession planning.",
+      high: "Agroforestry systems design, food forest establishment research, and the ecological dynamics of designed forest ecosystems are important topics."
+    },
+    materials: ["Site map", "Plant selection resources", "Permaculture design tools"],
+    steps: [
+      "Layer inventory: plan all 7 layers. Canopy (fruit trees): peach, citrus, mulberry. Understory: elderberry, paw paw. Shrub: blueberry, rosemary. Herbaceous: comfrey, yarrow. Ground cover: strawberry, mint. Vine: muscadine, passion fruit. Root: sweet potato, Jerusalem artichoke.",
+      "Florida-adapted species: prioritize heat and humidity tolerance. Citrus, mulberry, elderberry, fig, loquat, pineapple guava, feijoa, moringa, chaya.",
+      "Guild relationships: plant nitrogen fixers (pigeon pea, mimosa) near heavy feeders. Plant dynamic accumulators (comfrey) to mine deep minerals.",
+      "Succession planning: the food forest changes over decades. Pioneer species enable the canopy. Annual clearings become permanent perennials.",
+      "Water design: swales on contour slow water. Mulch rings capture moisture. Design for Florida\u2019s wet-dry seasonal pattern."
+    ],
+    discussion: [
+      {q:"Why does a food forest become more productive and less labor-intensive over time, unlike a conventional garden?", answers:["A food forest establishes self-reinforcing ecological processes over time: nitrogen fixers enrich the soil, ground covers suppress weeds, deep-rooted accumulators cycle nutrients from subsoil, and mulch from chop-and-drop species builds fertility continuously. After the establishment phase (3\u20135 years), the system maintains itself and produces more with less intervention each year."]},
+      {q:"Why is comfrey considered one of the most valuable plants in a food forest system?", answers:["Comfrey is a dynamic accumulator with roots reaching 6\u20138 feet deep, mining minerals that shallow-rooted plants cannot access. Its large leaves can be cut multiple times per year and left as mulch (chop-and-drop), cycling deep minerals to the surface. It also attracts pollinators, suppresses weeds, and provides medicinal leaves. A single plant provides multiple functions simultaneously."]}
+    ],
+    challenge: "Design a complete food forest for your property or a 1/4-acre hypothetical site. Map all 7 layers, specify plant selection, and document expected succession over 10 years.",
+    tuesday:   { low: {title:"Layer planning", activity:"Design each of the 7 food forest layers for your site. For each layer, select 3\u20135 species appropriate for Florida."}, mid: {title:"Guild mapping", activity:"Create plant guild maps for your design. Show how nitrogen fixers, dynamic accumulators, and beneficial insect attractors are placed relative to their target companions."}, high: {title:"Agroforestry research", activity:"Research the peer-reviewed agroforestry literature. What yield, biodiversity, and soil health outcomes do established food forests achieve compared to monoculture orchards?"} },
+    wednesday: { low: {title:"Florida species selection", activity:"Research 20 food-producing plants that thrive in Florida\u2019s climate. For each: what it produces, when, and what maintenance it requires."}, mid: {title:"Succession planning", activity:"Create a 10-year succession plan for your food forest. What is planted in year 1? What matures and what is added in years 3, 5, and 10?"}, high: {title:"Soil food web research", activity:"Research the soil food web and how food forest management affects it. How does no-till, deep mulching, and diverse plantings compare to conventional orchard management in soil biology?"} },
+    thursday:  { low: {title:"Water harvesting integration", activity:"Design water harvesting features for your food forest: swale placement on contour, mulch basin locations, and pond siting if applicable."}, mid: {title:"Establishment plan", activity:"Write a detailed establishment plan: what to plant first, what soil preparation is needed, what irrigation is required during establishment, and when each area becomes self-sustaining."}, high: {title:"Economic analysis", activity:"Estimate the long-term productivity of your food forest: caloric output, market value of yields, and comparison to the cost of establishment. When does the food forest reach maximum production?"} }
+  },
+
+  "Presenting your capstone to the community": {
+    gradeHooks: {
+      low: "Presenting your capstone project to the community is the culmination of years of learning. It demonstrates mastery and creates real impact.",
+      mid: "A community capstone presentation requires professional communication, honest documentation of process and outcomes, and genuine engagement with audience questions.",
+      high: "Public scholarship, community-engaged learning outcomes, and the design of impactful public presentations are important topics."
+    },
+    materials: ["Completed capstone project", "Presentation materials", "Community venue"],
+    steps: [
+      "Presentation design: structure your presentation to tell the story of your project. Problem, approach, process, outcomes, and implications.",
+      "Evidence: present your evidence honestly. What worked as planned? What didn\u2019t? What did you learn from the gaps?",
+      "Community relevance: connect your work to what the community cares about. How does your capstone make their lives safer, more resilient, or more connected?",
+      "Audience engagement: plan for questions. The best questions often reveal things you hadn\u2019t considered.",
+      "Legacy: what happens to the work after the presentation? Who continues it? What documentation enables others to build on it?"
+    ],
+    discussion: [
+      {q:"Why is presenting your failures and challenges as important as presenting your successes in a capstone presentation?", answers:["Honest presentation of challenges and failures builds credibility, provides the most useful learning for the audience, and demonstrates genuine mastery (you understand what went wrong and why). A presentation of only successes is incomplete and often less believable. Audiences trust presenters who acknowledge complexity and difficulty."]},
+      {q:"What does \u2018community impact\u2019 mean in the context of a high school capstone project and why does it matter?", answers:["Community impact means your work changes something real for real people beyond yourself. A family better prepared for hurricanes is community impact. A neighborhood network that connected 15 households is community impact. A training program that taught 40 people to control bleeding is community impact. The standard that matters is not the grade — it is whether anything in the world is different because of the work."]}
+    ],
+    challenge: "Present your capstone project to a public community audience of at least 20 people. Collect and respond to questions. Document the event and its outcomes.",
+    tuesday:   { low: {title:"Presentation preparation", activity:"Prepare your complete capstone presentation. Practice delivering it in under 20 minutes. What visual evidence documents your work?"}, mid: {title:"Q&A preparation", activity:"Anticipate 15 questions your audience might ask. Prepare honest, specific answers. What questions reveal gaps in your work?"}, high: {title:"Impact documentation", activity:"Design a method to document and communicate the real-world impact of your project. What changed because of your work? How do you measure it?"} },
+    wednesday: { low: {title:"Venue and audience preparation", activity:"Identify your presentation venue. Invite your audience. What setup is needed? Who specifically should attend to maximize your community impact?"}, mid: {title:"Legacy documentation", activity:"Create the documentation that will allow your work to continue after your presentation: written plan, resource list, and contact information for those who can continue the work."}, high: {title:"Public scholarship research", activity:"Research the concept of public scholarship in higher education. How does community-engaged learning differ from traditional academic work in its goals and assessment?"} },
+    thursday:  { low: {title:"Capstone presentation delivery", activity:"Deliver your capstone presentation. Receive questions. Document the audience and their responses."}, mid: {title:"Post-presentation reflection", activity:"After the presentation: What was the audience\u2019s most important question? What did it reveal about your project? What would you have done differently?"}, high: {title:"Capstone legacy plan", activity:"Create a formal legacy plan for your capstone: who inherits the work, what documentation supports them, and how will you know if the impact continues?"} }
+  },
+
+  "First aid curriculum design — create a lesson": {
+    gradeHooks: {
+      low: "Designing a first aid lesson from scratch applies your medical knowledge and teaching skills together.",
+      mid: "A well-designed first aid lesson has clear objectives, evidence-based content, skill practice built in, and a competency assessment.",
+      high: "Instructional design for procedural skill training, the role of spaced practice in skill retention, and the fidelity requirements of first aid simulation are important topics."
+    },
+    materials: ["First aid content references", "Lesson design template"],
+    steps: [
+      "Identify the learning objective: what specific skill or knowledge will students demonstrate at the end? (Not \u2018understand CPR\u2019 but \u2018perform 2 minutes of hands-only CPR at correct rate and depth.\u2019)",
+      "Evidence base: every technique taught must be from the current evidence-based guidelines (AHA, ILCOR, TCCC as appropriate).",
+      "Cognitive load management: introduce concepts before skills. Limit new information to 3\u20135 items per session.",
+      "Practice design: students practice each skill enough times to approach automaticity. For CPR: minimum 4 practice cycles. For tourniquet: minimum 5 repetitions to time standard.",
+      "Assessment: every student demonstrates the skill to standard. Define \u2018standard\u2019 before the session begins."
+    ],
+    discussion: [
+      {q:"What is spaced practice and why does it produce better skill retention than massed practice?", answers:["Massed practice (practicing a skill for hours in one session) produces rapid initial acquisition but rapid forgetting. Spaced practice (shorter sessions spread across days or weeks) produces slower acquisition but much better long-term retention. For first aid skills that must be available months or years after training, spaced practice is far more effective. Brief refreshers every 3\u20136 months maintain skills far better than an annual multi-hour session."]},
+      {q:"What is the minimum simulation fidelity required for first aid skill training and how does it affect learning?", answers:["Minimum fidelity means the training scenario must reproduce the key features that students will encounter in the real situation. For CPR: a mannequin that responds to correct depth is minimum. For tourniquet application: a training limb or a training tourniquet is minimum. Higher fidelity (bleeding simulators, realistic moulage) improves transfer to real scenarios but has diminishing returns. The minimum fidelity threshold is what enables transfer."]}
+    ],
+    challenge: "Design a complete first aid lesson from scratch. Include: objectives, content outline, demonstration script, practice protocol, and assessment rubric. Deliver it.",
+    tuesday:   { low: {title:"Objective writing", activity:"Write 5 first aid lesson objectives using Bloom\u2019s Taxonomy action verbs. Transform vague goals into specific, measurable, observable behaviors."}, mid: {title:"Evidence-based content research", activity:"Research current AHA or ILCOR guidelines for the skill you\u2019re teaching. What specific technique elements are evidence-based? What outdated techniques should you avoid?"}, high: {title:"Instructional design research", activity:"Research ADDIE (Analyze, Design, Develop, Implement, Evaluate) instructional design model. How does it apply to first aid curriculum development?"} },
+    wednesday: { low: {title:"Practice protocol design", activity:"Design a practice protocol for your chosen skill. How many repetitions? Timed or untimed? With a partner or individual? How do you monitor quality?"}, mid: {title:"Common error analysis", activity:"Research the most common errors made when learning your chosen first aid skill. Design specific correction phrases and exercises that address each."}, high: {title:"Simulation scenario design", activity:"Design a realistic scenario that creates the need for your chosen skill. What context elements make the scenario realistic? How do you brief students without giving away the answer?"} },
+    thursday:  { low: {title:"Complete lesson delivery", activity:"Deliver your complete first aid lesson. Assess every student. Document: who passed, who needs additional practice, and what curriculum elements worked best."}, mid: {title:"Curriculum revision", activity:"Revise your lesson based on delivery experience. What would you change in content, timing, practice design, or assessment?"}, high: {title:"Spaced practice program design", activity:"Design a spaced practice program for your first aid skill: initial training plus 3 refreshers over 12 months. What content and practice is included in each refresher?"} }
+  },
+
+  "Mutual aid organization — legal structure": {
+    gradeHooks: {
+      low: "Mutual aid is people helping people. A mutual aid organization creates a formal structure for that help.",
+      mid: "Legal structure for a mutual aid organization affects liability, tax status, fundraising ability, and operational legitimacy.",
+      high: "Nonprofit law, mutual aid vs charity distinctions, and the organizational design of community resilience organizations are important topics."
+    },
+    materials: ["Nonprofit formation resources", "Florida Division of Corporations resources"],
+    steps: [
+      "Mutual aid defined: voluntary reciprocal exchange of resources and services without expectation of direct repayment. Differs from charity (one-directional giving).",
+      "Informal operation: many mutual aid networks operate informally. No legal structure required for neighbor-to-neighbor help.",
+      "Formal options: unincorporated association (simplest), nonprofit corporation (501c3 status enables tax-deductible donations), and fiscal sponsorship (operating under an existing 501c3).",
+      "Florida nonprofit formation: file Articles of Incorporation with the Florida Division of Corporations ($70 fee). Draft bylaws. Elect board. Apply for 501c3 with IRS (Form 1023 or 1023-EZ).",
+      "Governance: board of directors governs. Officers manage operations. Members vote on major decisions. Conflict of interest policy required."
+    ],
+    discussion: [
+      {q:"Why do some mutual aid advocates resist formal legal structure and what is the argument on the other side?", answers:["Against formalization: formal structure creates hierarchy, bureaucracy, and power imbalances that undermine mutual aid\u2019s egalitarian ethos. It can also make the organization subject to government requirements that compromise operational flexibility. For formalization: 501c3 status enables larger donations and grants, provides legal liability protection for members, creates institutional durability, and enables official partnerships with government and established organizations."]},
+      {q:"What is the difference between a 501c3 public charity and a mutual aid organization from a legal and operational standpoint?", answers:["A 501c3 public charity must serve the \u2018public benefit\u2019 and cannot primarily benefit its own members. A mutual aid organization primarily benefits its members through reciprocal exchange. This is a fundamental tension — true mutual aid may not qualify for 501c3 status. Organizations often resolve this by describing their work as serving a broad community (which qualifies) rather than just their members."]}
+    ],
+    challenge: "Research the legal structure options for a mutual aid organization in your community. Prepare a recommendation memo: what structure is most appropriate and why.",
+    tuesday:   { low: {title:"Mutual aid model research", activity:"Research 5 documented mutual aid organizations. What structures do they use? How do they manage resources and make decisions?"}, mid: {title:"Florida nonprofit formation research", activity:"Research the complete process for forming a Florida nonprofit: Articles of Incorporation, bylaws, board requirements, and 501c3 application."}, high: {title:"Mutual aid legal theory research", activity:"Research the legal scholarship on mutual aid organizations. How do courts distinguish mutual aid from charity and what are the tax implications?"} },
+    wednesday: { low: {title:"Governance document research", activity:"Research what governance documents a nonprofit requires: articles of incorporation, bylaws, conflict of interest policy, and whistleblower policy."}, mid: {title:"Fiscal sponsorship research", activity:"Research fiscal sponsorship as an alternative to direct 501c3 incorporation. What organizations offer fiscal sponsorship and what are the terms?"}, high: {title:"501c3 vs 501c4 comparison", activity:"Research the difference between 501c3 (charitable) and 501c4 (social welfare) organizations. When is each appropriate and what are the advocacy restrictions of each?"} },
+    thursday:  { low: {title:"Structure recommendation", activity:"Write a 1-page recommendation memo: what legal structure would you recommend for your mutual aid organization and why?"}, mid: {title:"Liability protection research", activity:"Research personal liability protection for mutual aid organization board members and volunteers. What insurance products protect against liability claims?"}, high: {title:"Dissolution planning", activity:"Research what happens to a nonprofit\u2019s assets if it dissolves. What legal requirements govern asset distribution and why does this matter for organizational design?"} }
+  },
+
+  "Renewable energy ROI calculation": {
+    gradeHooks: {
+      low: "Return on investment tells you when your solar panels have paid for themselves and start making money. We calculate it precisely.",
+      mid: "A complete renewable energy ROI calculation accounts for incentives, financing, avoided costs, and the time value of money.",
+      high: "Discounted cash flow analysis, sensitivity modeling, and the investment analysis of distributed renewable energy systems are important topics."
+    },
+    materials: ["System cost data", "Utility rate data", "Financial calculator"],
+    steps: [
+      "System cost: equipment plus installation. Subtract federal tax credit (30% ITC as of 2024). Subtract any state incentives or utility rebates.",
+      "Annual production: use PVWatts to calculate annual kWh production for your specific system and location.",
+      "Annual savings: multiply annual kWh by current utility rate. Add any net metering credits.",
+      "Simple payback: net system cost \u00f7 annual savings = years to payback. Typical: 6\u201310 years for Florida.",
+      "25-year NPV: discount all future savings to present value. At 5% discount rate, a dollar saved in year 15 is worth only $0.48 today."
+    ],
+    discussion: [
+      {q:"Why is simple payback period an incomplete metric for renewable energy investment evaluation?", answers:["Simple payback ignores the time value of money (a dollar saved in year 20 is worth less than a dollar saved today), the cost of financing (interest paid on a loan reduces real returns), and the comparison to alternative investments. NPV and IRR capture these factors. A 7-year simple payback with financing at 8% interest may have a negative NPV if the cost of capital exceeds the returns."]},
+      {q:"What is the Internal Rate of Return (IRR) and how does it help compare a solar investment to other uses of capital?", answers:["IRR is the discount rate that makes the NPV of an investment equal to zero — essentially the investment\u2019s return expressed as an annual percentage. A solar system with an IRR of 8% returns 8% annually on the invested capital. Compared to a savings account at 4% or an expected stock market return of 7%, IRR enables direct comparison of solar to other investment options."]}
+    ],
+    challenge: "Complete a full ROI analysis for a real solar system quote. Calculate simple payback, NPV at 5% discount rate, and IRR. Compare to investing the same capital in index funds.",
+    tuesday:   { low: {title:"System cost calculation", activity:"Get a real solar quote (or use a sample) for a Florida home. Calculate the net cost after federal ITC (30% of installed cost)."}, mid: {title:"PVWatts production calculation", activity:"Use PVWatts to calculate annual production for the quoted system at the specific address. How many kWh per year does the system produce?"}, high: {title:"Discounted cash flow model", activity:"Build a 25-year discounted cash flow model. For each year, calculate: production value, maintenance cost, financing payment (if financed), and net cash flow. Discount to NPV."} },
+    wednesday: { low: {title:"Simple payback calculation", activity:"Calculate simple payback. Net system cost \u00f7 annual savings = payback period. How does financing change this calculation?"}, mid: {title:"Utility rate escalation modeling", activity:"Model how 3% annual utility rate increases affect the ROI over 25 years. How much does the IRR improve if rates rise 3% annually vs staying flat?"}, high: {title:"IRR calculation", activity:"Calculate the IRR for your solar investment. Use trial-and-error or a financial calculator. Compare to S&P 500 historical returns and current bond yields."} },
+    thursday:  { low: {title:"Solar vs index fund comparison", activity:"Compare investing the same capital in the solar system vs in an index fund at 7% annual return. Which accumulates more value at year 25?"}, mid: {title:"Financing options comparison", activity:"Compare the ROI with: cash purchase, 5% solar loan, and HELOC at current rate. How does cost of capital affect the investment case?"}, high: {title:"Sensitivity analysis", activity:"Model how the solar ROI changes with: 20% higher system cost, electricity rates rising 5% vs flat, system producing 10% less than estimated. What are the most impactful variables?"} }
+  },
+
+  "Commercial-scale food preservation methods": {
+    gradeHooks: {
+      low: "Commercial preservation uses industrial versions of the same methods we use at home: canning, freezing, drying, and fermentation at much larger scale.",
+      mid: "Commercial food preservation adds HACCP systems, critical control points, and regulatory oversight to the basic preservation science.",
+      high: "Food science, thermal process validation, HACCP program design, and the regulatory framework for commercial food production are important topics."
+    },
+    materials: ["HACCP reference materials", "Commercial food preservation research"],
+    steps: [
+      "Commercial canning: continuous retort systems process thousands of cans per hour. Thermal process validation uses inoculated packs and thermocouples to confirm adequate lethality.",
+      "Commercial freezing: individual quick freezing (IQF) freezes individual pieces in seconds using cryogenic tunnels or blast freezers. Prevents clumping and preserves texture.",
+      "Commercial drying: spray drying (powders), drum drying, tunnel dryers, and freeze drying at industrial scale.",
+      "HACCP: Hazard Analysis and Critical Control Points. Mandatory for most commercial food processors. Identifies biological, chemical, and physical hazards and establishes controls.",
+      "FDA/USDA oversight: FDA regulates most packaged food. USDA FSIS regulates meat and poultry. Both require process registration and compliance with specific standards."
+    ],
+    discussion: [
+      {q:"What is a critical control point in HACCP and how does it differ from a regular quality control step?", answers:["A critical control point (CCP) is a step in a food process where a control measure can be applied to prevent, eliminate, or reduce a food safety hazard to an acceptable level. It is critical because failure at this point would result in an unsafe product. Regular quality steps (appearance, weight) affect product quality but not safety. CCPs have specific critical limits, monitoring requirements, corrective actions, and verification procedures."]},
+      {q:"What is the D-value in thermal processing and how does it determine required processing time?", answers:["The D-value is the time at a specific temperature required to reduce a microbial population by 90% (one log reduction). For Clostridium botulinum spores at 250\u00b0F: D = 0.21 minutes. To achieve 12-log reduction (the botulinum cook standard), you need 12 x 0.21 = 2.52 minutes at 250\u00b0F. This is the science behind the 12D botulinum cook requirement for low-acid canned foods."]}
+    ],
+    challenge: "Research the process for scaling a home preservation recipe to commercial production. What regulatory steps, process validation, and equipment would be required?",
+    tuesday:   { low: {title:"Retort canning research", activity:"Research commercial retort canning. How does a continuous rotary retort differ from a batch retort and what throughput do commercial systems achieve?"}, mid: {title:"HACCP plan development", activity:"Develop a simplified HACCP plan for a hypothetical commercial product (salsa, fermented vegetables, or dried herbs). Identify hazards, CCPs, critical limits, and monitoring."}, high: {title:"Thermal process validation research", activity:"Research inoculated pack studies for thermal process validation. How does the USDA process authority validate that a new canned product achieves adequate lethality?"} },
+    wednesday: { low: {title:"IQF vs blast freeze comparison", activity:"Research individual quick freezing (IQF) technology. How does freezing speed affect ice crystal formation and final product quality?"}, mid: {title:"FDA registration research", activity:"Research FDA food facility registration requirements. What is required before a commercial food manufacturer can sell products? When is a PCQI (Preventive Controls Qualified Individual) required?"}, high: {title:"FSMA compliance research", activity:"Research the FDA Food Safety Modernization Act (FSMA). What new requirements did it create for food manufacturers and how does it shift the regulatory focus from response to prevention?"} },
+    thursday:  { low: {title:"Commercial vs home preservation comparison", activity:"Compare a home preservation process to its commercial equivalent. What equipment, controls, and scale differences exist?"}, mid: {title:"Cottage food law research", activity:"Research Florida\u2019s Cottage Food Law. What products can be made and sold from home kitchens? What exemptions and restrictions apply?"}, high: {title:"Scaling calculation", activity:"Calculate what commercial equipment is needed to produce 10,000 jars per day of a product you could currently make at home. What is the capital requirement and regulatory burden?"} }
+  },
+
+  "Water catchment system build — final project": {
+    gradeHooks: {
+      low: "The final water catchment project puts everything together: design, materials, installation, and commissioning of a complete working system.",
+      mid: "A final water catchment project demonstrates integrated system design, proper installation technique, and commissioned performance.",
+      high: "Project management for water infrastructure, commissioning validation, and performance documentation for a functional water system are important topics."
+    },
+    materials: ["All system components from design phase", "Installation tools", "Testing equipment"],
+    steps: [
+      "Pre-installation review: confirm all components are on hand and match specifications. Review installation sequence before starting.",
+      "Roof preparation: clean gutters and downspouts. Install leaf guards if not already present.",
+      "First flush installation: plumb the first flush diverter according to manufacturer specifications. Verify drain direction.",
+      "Storage tank installation: level pad, anchor the tank if required, connect inlet and outlet at correct heights.",
+      "Treatment system: install in correct sequence (sediment \u2192 carbon \u2192 UV). Verify flow direction on all components.",
+      "Commissioning: fill the system. Run water through the complete treatment train. Test all valves. Measure flow and pressure."
+    ],
+    discussion: [
+      {q:"What is the most critical installation step for long-term system reliability and why does it have disproportionate impact?", answers:["The first flush diverter installation is most critical. If it is plumbed incorrectly (backwards, not draining, or sized too small), every rain event sends contaminated roof water directly to the storage tank. All downstream treatment must then work much harder to address contamination that could have been excluded. Correct first flush installation is the single cheapest, most impactful quality step."]},
+      {q:"What is the appropriate water quality test to confirm system readiness for potable use and what are the action levels?", answers:["For a system intended for potable use, minimum testing includes: total coliform bacteria (should be zero in finished water), E. coli (should be zero), turbidity (below 0.3 NTU after filtration), and pH (6.5\u20138.5). Positive coliform test requires system shutdown, investigation, and disinfection. These are EPA standards for community water systems and appropriate benchmarks for residential systems."]}
+    ],
+    challenge: "Install and commission a complete water catchment system. Document every installation step with photos. Conduct and document water quality testing.",
+    tuesday:   { low: {title:"Pre-installation preparation", activity:"Verify all components are present and correct. Clean gutters and downspouts. Prepare the tank pad. Review installation sequence."}, mid: {title:"First flush and storage installation", activity:"Install the first flush diverter and storage tank. Test first flush function with a hose. Verify inlet, overflow, and outlet connections."}, high: {title:"Treatment system installation", activity:"Install the complete treatment train in correct sequence. Verify flow direction on each component. Test individual component function before connecting them."} },
+    wednesday: { low: {title:"System commissioning", activity:"Perform the full commissioning sequence: fill system, run water through treatment train, test all valves, measure pressure and flow."}, mid: {title:"Water quality sampling", activity:"Collect water samples: raw (before first flush), post-storage (before treatment), and finished (after full treatment). Submit to a certified lab if available."}, high: {title:"Performance documentation", activity:"Create a complete commissioning report: as-built diagram, all measurements, water quality results, and identified deficiencies with corrective actions."} },
+    thursday:  { low: {title:"System handover", activity:"Train every family member on system operation and maintenance. Create a quick-reference card posted near the system."}, mid: {title:"Maintenance schedule implementation", activity:"Implement the maintenance schedule: first filter change date, UV lamp replacement date, and annual tank inspection date."}, high: {title:"Performance monitoring plan", activity:"Design a quarterly performance monitoring plan: what measurements, what water quality tests, and what triggers a system review?"} }
+  },
+
+  "Apprentice home repair — work alongside a tradesperson": {
+    gradeHooks: {
+      low: "Working alongside an experienced tradesperson teaches things no book or video can: how professionals work, what they watch for, and how they solve problems.",
+      mid: "An apprenticeship with a licensed tradesperson develops practical skills, professional standards awareness, and career pathway knowledge.",
+      high: "Apprenticeship learning, tacit knowledge transfer, and the career pathways in skilled trades are important topics."
+    },
+    materials: ["Arrangements to work with a licensed tradesperson"],
+    steps: [
+      "Preparation: research the trade before your apprenticeship day. Know the vocabulary, tools, and common tasks.",
+      "Safety: follow every safety instruction. No exceptions. A professional\u2019s site has different hazards than a DIY project.",
+      "Observation first, then participation: watch the first task completely before participating. Ask to try after you\u2019ve seen it done.",
+      "Ask questions: \u2018Why did you do it that way?\u2019 and \u2018What would go wrong if...\u2019 unlock the professional\u2019s problem-solving knowledge.",
+      "Reflection: after each significant task, write in your apprenticeship journal: what was done, why, and what you learned."
+    ],
+    discussion: [
+      {q:"What is tacit knowledge and why can it only be learned through hands-on apprenticeship rather than books or videos?", answers:["Tacit knowledge is the expert\u2019s know-how that cannot be fully articulated. A master electrician can tell when a wire pull will be difficult by the feel of resistance before the problem develops. A master plumber can hear a water leak behind a wall. These perceptual skills, judgment calls, and learned intuitions develop only through experience and can only be transmitted through working alongside an expert."]},
+      {q:"Why is the skilled trades sector facing a critical shortage and what does this mean for the economy and for individuals who choose these careers?", answers:["The skilled trades have suffered from cultural de-emphasis (everyone advised to go to college) while the baby boomer generation retires. Plumbers, electricians, HVAC technicians, and welders are retiring faster than new tradespeople are being trained. This creates: higher wages for skilled tradespeople, growing unmet demand, and significant opportunity for people entering the trades. A plumber or electrician can earn $80,000\u2013120,000 without college debt."]}
+    ],
+    challenge: "Complete a full day of apprentice work alongside a licensed tradesperson. Document every task observed and participated in. Write a 2-page reflection on what you learned.",
+    tuesday:   { low: {title:"Apprenticeship preparation", activity:"Research the trade you will apprentice in. Study the vocabulary, tools, common tasks, and safety requirements. Arrive prepared to ask intelligent questions."}, mid: {title:"Apprenticeship journal design", activity:"Design your apprenticeship journal format. What will you record: task description, technique observed, reason given, and personal learning."}, high: {title:"Apprenticeship pathways research", activity:"Research formal apprenticeship pathways in your trade of interest: union apprenticeships (IBEW, UA, carpenters), JATC programs, and non-union options. What are the wages, training structure, and journeyman outcomes?"} },
+    wednesday: { low: {title:"Apprenticeship day", activity:"Complete your full apprenticeship day. Follow every safety instruction. Ask at least 5 \u2018why\u2019 questions. Observe carefully before participating."}, mid: {title:"Journal completion", activity:"Complete your apprenticeship journal with every significant task. What was most different from what you expected?"}, high: {title:"Licensing research", activity:"Research licensing requirements for your trade in Florida: number of hours required for apprentice and journeyman licenses, exam content, and mutual recognition with other states."} },
+    thursday:  { low: {title:"Apprenticeship reflection", activity:"Write your 2-page apprenticeship reflection. What tacit knowledge did you observe that cannot be learned from books? What changed your understanding of the trade?"}, mid: {title:"Career pathway analysis", activity:"Compare the financial outcome of the skilled trade career path vs a 4-year college path for the same starting point. Include: training cost, time to first income, starting wage, 10-year and 20-year earnings trajectory."}, high: {title:"Mentorship continuation", activity:"Research how to maintain a professional relationship with the tradesperson you apprenticed with. What mutual value enables an ongoing mentorship relationship?"} }
+  },
+
+  "Negotiating salary and benefits": {
+    gradeHooks: {
+      low: "Negotiating your salary is one of the most valuable skills you\u2019ll ever learn. The difference between accepting the first offer and negotiating can be hundreds of thousands of dollars over a career.",
+      mid: "Effective salary negotiation requires research, confident delivery, and understanding the full compensation package beyond base salary.",
+      high: "The economics of wage negotiation, research on negotiation outcomes by demographic, and total compensation modeling are important topics."
+    },
+    materials: ["Salary research resources (BLS, Glassdoor, LinkedIn Salary)", "Practice scenario"],
+    steps: [
+      "Research first: know the market rate for the role, your experience level, and the specific location before any conversation.",
+      "Never give the first number if possible: \u2018What is your salary range for this role?\u2019 is always better than disclosing first.",
+      "Anchor high: when you do give a number, anchor at the top of the justifiable range. It\u2019s easier to come down than to go up.",
+      "Counter every offer: rarely is the first offer the best offer. Counter at least once. \u2018I was expecting X based on my research. Is there flexibility?\u2019",
+      "Consider total compensation: base salary + equity/bonus + benefits (health insurance value, 401k match, PTO, remote work, training budget)."
+    ],
+    discussion: [
+      {q:"What does research show about who negotiates salary and what are the outcomes of negotiation vs non-negotiation?", answers:["Studies show 55\u201368% of employers expect negotiation and are prepared to offer more than the initial offer. People who negotiate their starting salary earn an average of $5,000\u201310,000 more on the first job. With 3% annual raises compounding on this higher base, the lifetime earnings difference from one negotiation can exceed $250,000. Women and people of color negotiate at lower rates, contributing to documented pay gaps."]},
+      {q:"Why is the total compensation calculation more important than the base salary number and what are the most commonly undervalued benefits?", answers:["A $70,000 job with full health insurance (worth $15,000\u201320,000/year), 5% 401k match ($3,500/year), and 4 weeks PTO is substantially more valuable than $75,000 with minimal benefits. Most undervalued: employer health insurance premium contribution, 401k match (literally free money), and remote work (eliminates commute cost and enables geographic arbitrage). Total compensation can differ by $20,000\u201330,000 between two similarly-titled jobs."]}
+    ],
+    challenge: "Role-play a complete salary negotiation from offer to acceptance. Research the market rate, counter the offer, and negotiate at least one non-salary benefit.",
+    tuesday:   { low: {title:"Market rate research", activity:"Research the market rate for an entry-level position in your target field in your target city. Use: BLS Occupational Employment Statistics, Glassdoor, LinkedIn Salary, and Indeed."}, mid: {title:"Total compensation calculation", activity:"For 3 sample job offers, calculate total compensation: base salary + benefits value + PTO value + 401k match. Which offer has the highest total compensation?"}, high: {title:"Negotiation research", activity:"Research the academic and behavioral literature on salary negotiation. What specific phrases and techniques are supported by research as most effective?"} },
+    wednesday: { low: {title:"Negotiation script development", activity:"Write a salary negotiation script for a specific scenario. Practice delivering it until you sound confident, not scripted."}, mid: {title:"Benefit negotiation research", activity:"Research which benefits are most negotiable: signing bonus, PTO, remote work, training budget, and equity. What is the typical range of flexibility for each?"}, high: {title:"Demographic negotiation gap research", activity:"Research the documented gender and racial pay gap in salary negotiation. What structural factors create the gap and what individual strategies have evidence for closing it?"} },
+    thursday:  { low: {title:"Negotiation role-play", activity:"Complete a full salary negotiation role-play with a partner. One plays the hiring manager, one the candidate. Record and review."}, mid: {title:"Counter-offer preparation", activity:"Prepare for a counter-offer scenario: the employer counters your counter. How do you respond to common tactics like \u2018that\u2019s the best we can do\u2019 or \u2018we\u2019ve already stretched the budget\u2019?"}, high: {title:"Total compensation negotiation", activity:"Negotiate a complete compensation package including: base salary, signing bonus, equity (if applicable), remote work arrangement, and one additional benefit. Document the value of each element."} }
+  },
+
+  "Wilderness survival course design": {
+    gradeHooks: {
+      low: "Designing a complete wilderness survival course integrates everything you know into a curriculum that can teach others.",
+      mid: "A complete wilderness survival course design addresses content scope, skill sequencing, safety management, and participant assessment.",
+      high: "Experiential education curriculum design, risk management frameworks for outdoor programs, and the learning outcomes of wilderness survival education are important topics."
+    },
+    materials: ["Course design template", "Wilderness survival curriculum resources"],
+    steps: [
+      "Define the audience: what is the target participant? Their baseline knowledge, physical fitness, and the context they\u2019ll apply these skills in.",
+      "Learning outcomes: what will participants be able to DO after completing this course? Specific, measurable, realistic.",
+      "Content scope: what is in and what is out? A 2-day course cannot teach everything. Prioritize survival priorities (STOP, shelter, fire, water, signaling).",
+      "Safety management plan: site assessment, emergency procedures, participant screening, equipment requirements, and go/no-go criteria.",
+      "Assessment: how do you know participants have met the learning outcomes? Field demonstration is the gold standard."
+    ],
+    discussion: [
+      {q:"What is the appropriate scope for a 2-day wilderness survival course vs a 5-day course and why?", answers:["A 2-day course can establish the foundational mindset (STOP), basic shelter construction in 1\u20132 techniques, fire by friction in favorable conditions, water procurement and treatment awareness, and basic navigation. A 5-day course can add: multiple shelter types across conditions, consistent friction fire in varied conditions, water procurement from diverse sources, navigation to a standard, and food procurement awareness. Scope must match time to avoid teaching skills superficially that students believe they can rely on."]},
+      {q:"What is the instructors\u2019 primary responsibility in a wilderness survival field course and how does it differ from classroom instruction?", answers:["In a field course, the instructors\u2019 primary responsibility is participant safety. All teaching decisions are subordinate to this. A classroom failure is an instructional problem; a field safety failure can be life-threatening. This means: site assessment before every activity, weather monitoring, equipment verification, and the authority to stop any activity that creates unacceptable risk."]}
+    ],
+    challenge: "Design a complete 2-day wilderness survival course from objectives through assessment. Include: curriculum schedule, safety management plan, equipment list, and participant assessment rubric.",
+    tuesday:   { low: {title:"Audience analysis", activity:"Define your target participant profile. What baseline do you assume? What motivates them to take a survival course? What will they do with the skills?"}, mid: {title:"Learning outcome development", activity:"Write 10 specific learning outcomes for your 2-day course. Each must be observable and measurable in a field setting."}, high: {title:"Curriculum sequencing research", activity:"Research how NOLS and other wilderness education organizations sequence skill development. What principles guide the order in which survival skills are taught?"} },
+    wednesday: { low: {title:"Day-by-day schedule", activity:"Design the complete 2-day schedule: every activity with time allocations, instructor notes, and participant materials."}, mid: {title:"Safety management plan", activity:"Write a complete safety management plan: site hazards, emergency procedures, participant screening criteria, equipment requirements, and weather cancellation criteria."}, high: {title:"Assessment rubric development", activity:"Develop assessment rubrics for each learning outcome. What observable criteria distinguish passing from failing performance in a field setting?"} },
+    thursday:  { low: {title:"Equipment list", activity:"Create a complete equipment list for the course: instructor equipment, participant equipment, safety equipment, and teaching props."}, mid: {title:"Course pilot design", activity:"Design a 4-hour pilot of your most critical session. What would a pilot teach you about the curriculum before running the full 2-day course?"}, high: {title:"Certification pathway research", activity:"Research Leave No Trace, NOLS, and Wilderness Education Association certifications. What professional credentials validate wilderness survival instruction?"} }
+  },
+
+  "Ethnobotany — local plant knowledge documentation": {
+    gradeHooks: {
+      low: "Ethnobotany studies how people use plants. Documenting your community\u2019s plant knowledge preserves wisdom that might otherwise be lost.",
+      mid: "Ethnobotanical documentation requires systematic interviewing, botanical verification, and ethical protocols for indigenous or traditional knowledge.",
+      high: "Ethnobotanical methodology, intellectual property rights for traditional knowledge, and the interface between ethnobotany and conservation biology are important topics."
+    },
+    materials: ["Interview protocol", "Botanical reference materials", "Documentation forms"],
+    steps: [
+      "Define scope: which community? Which plants? (Florida native, naturalized, garden plants.) Which uses? (Food, medicine, craft, spiritual.)",
+      "Interview methodology: semi-structured interviews with community knowledge holders. Record with permission. Include: plant name (vernacular and Latin), use, preparation, source, and when learned.",
+      "Botanical voucher: for each documented plant, press and identify a herbarium specimen. This provides scientific verification of the identified species.",
+      "Documentation ethics: informed consent from all interviewees. Return findings to the community. Discuss any commercialization rights before documenting.",
+      "Archive: create a searchable database or document. Share with a library, university, or community organization for long-term preservation."
+    ],
+    discussion: [
+      {q:"What is prior informed consent in ethnobotanical research and why is it both ethically and legally required?", answers:["Prior informed consent (PIC) means that knowledge holders are fully informed about how their knowledge will be used before they agree to share it. They must understand: who will access it, whether it will be published, whether it will be commercialized, and what rights they retain. Without PIC, ethnobotanical documentation can constitute theft of intellectual property. The Nagoya Protocol (2010) establishes international standards for access and benefit sharing of traditional knowledge."]},
+      {q:"What is the risk of documenting traditional plant knowledge without botanical voucher specimens?", answers:["Without voucher specimens, the documented plant is identified only by vernacular name. Different people use the same name for different species. A \u2018pain relief tea\u2019 documented without a voucher could be any of dozens of species with different safety profiles. Botanical verification with a pressed, identified specimen is the scientific minimum for credible documentation."]}
+    ],
+    challenge: "Document the plant knowledge of at least 3 community knowledge holders. Create a database with at least 15 plant entries, each with vernacular name, Latin name, use, and preparation.",
+    tuesday:   { low: {title:"Interview protocol design", activity:"Design a semi-structured interview protocol for ethnobotanical documentation. What questions elicit useful information without leading the respondent?"}, mid: {title:"Informed consent process", activity:"Design an informed consent process appropriate for your community. What must interviewees understand before agreeing to participate?"}, high: {title:"Ethnobotany methodology research", activity:"Research standard ethnobotanical documentation methodologies: specimen collection, interview protocols, and database design. What do peer-reviewed ethnobotanical studies use as their standard methods?"} },
+    wednesday: { low: {title:"Interview execution", activity:"Conduct 3 ethnobotanical interviews. Apply your informed consent process. Document all plants mentioned."}, mid: {title:"Botanical verification", activity:"For each documented plant, verify the Latin binomial using your field guide, iNaturalist, and at least one additional source."}, high: {title:"Traditional knowledge intellectual property research", activity:"Research the Nagoya Protocol and the Convention on Biological Diversity\u2019s provisions on traditional knowledge. What rights do indigenous communities have over documented knowledge?"} },
+    thursday:  { low: {title:"Database creation", activity:"Compile your documentation into a searchable database or document. Include all required fields for each entry."}, mid: {title:"Community return", activity:"Return your documentation to the community members who participated. Present your findings and get feedback. Is anything incorrect or incomplete?"}, high: {title:"Biocultural conservation research", activity:"Research biocultural conservation approaches that preserve both plant species and the cultural knowledge about them simultaneously. What successful examples exist in Florida or adjacent regions?"} }
+  },
+
+  "Capstone: full community preparedness guide": {
+    gradeHooks: {
+      low: "A complete community preparedness guide synthesizes everything you know into a usable resource for your community.",
+      mid: "A professional-quality community preparedness guide requires original research, professional formatting, and real community utility.",
+      high: "Technical writing, community risk communication, and the design of effective public preparedness resources are important topics."
+    },
+    materials: ["All previous research and project documentation", "Writing and design tools"],
+    steps: [
+      "Audience definition: who is this guide for? What do they know, what do they need, and how will they use it?",
+      "Structure: local hazard overview, family preparedness basics, community resource directory, evacuation routes and shelters, communication plan, and skill resources.",
+      "Local specificity: a guide specific to your county, city, and neighborhood is infinitely more useful than a generic national guide.",
+      "Professional quality: readable design, accurate information, clear formatting, and regular revision cycle.",
+      "Distribution: print and digital versions. Distributed to households, posted to community websites, and provided to local emergency management."
+    ],
+    discussion: [
+      {q:"What makes a local preparedness guide useful vs one that gets filed away and forgotten?", answers:["Useful guides: are specific to local hazards and resources (not generic), have local phone numbers and addresses that are currently accurate, are organized so users can find what they need under stress, are short enough to be read in one sitting, and are designed to be posted on a refrigerator or saved on a phone. Forgotten guides: are too long, too generic, too formal, or arrive without context or relationship."]},
+      {q:"How often should a community preparedness guide be updated and what process ensures accuracy?", answers:["Annual review minimum. After every significant local emergency. After any major change to evacuation routes, shelter locations, or emergency management contacts. A living document process: name a specific owner, set a calendar reminder, and document what was reviewed and when. Outdated information in a preparedness guide is worse than no guide — it sends people to the wrong place."]}
+    ],
+    challenge: "Write and publish a complete community preparedness guide for your specific neighborhood or community. Distribute it to at least 25 households.",
+    tuesday:   { low: {title:"Research compilation", activity:"Compile all research you\u2019ve done this year into an organized outline for the guide. What sections will it include? What information already exists?"}, mid: {title:"Gaps research", activity:"Identify information gaps in your planned guide. Research: current evacuation routes, shelter locations, local emergency contacts, and community resources."}, high: {title:"Design standards research", activity:"Research emergency communication design standards. What font sizes, contrast ratios, and layout principles make emergency documents more usable under stress?"} },
+    wednesday: { low: {title:"Guide writing", activity:"Write the complete guide draft. Write for a general audience — no jargon without explanation. Focus on actionability."}, mid: {title:"Local verification", activity:"Verify every local fact in the guide: shelter addresses, phone numbers, and evacuation routes. Call the relevant agencies to confirm current accuracy."}, high: {title:"Community review process", activity:"Design a community review process for the guide. Who reviews it for accuracy? Who reviews it for usability? How do you incorporate feedback without losing quality control?"} },
+    thursday:  { low: {title:"Guide finalization and distribution", activity:"Finalize the guide in print-ready format. Distribute to at least 25 households. Document the distribution list."}, mid: {title:"Maintenance plan", activity:"Create a maintenance plan: who owns updates, what calendar triggers a review, and how is the distribution list managed."}, high: {title:"Impact assessment", activity:"Design a way to measure whether the guide actually improves preparedness in your community. What would you measure and how?"} }
+  },
+
+  "Mass casualty simulation — lead the response": {
+    gradeHooks: {
+      low: "A mass casualty simulation tests your ability to manage multiple patients and a team under realistic pressure.",
+      mid: "Leading a mass casualty response requires ICS command skills, triage management, resource allocation, and EMS coordination.",
+      high: "Mass casualty incident management research, simulation-based training effectiveness, and disaster medicine systems are important topics."
+    },
+    materials: ["MCI scenario", "Simulated patients", "Triage tags", "ICS documentation forms"],
+    steps: [
+      "Scene size-up: establish command, estimate patient count, call for resources early (always better to cancel resources than to wait for them).",
+      "Triage: deploy team members for primary triage. Use START. Every patient tagged within the first 5 minutes.",
+      "Treatment sectors: establish RED, YELLOW, GREEN treatment areas. Assign personnel. Monitor all patients.",
+      "Transport coordination: communicate with incoming EMS. Provide patient count by category and hospital destination guidance.",
+      "Documentation: FEMA S-211 ICS forms. Track every patient from triage through transport."
+    ],
+    discussion: [
+      {q:"What is the most common command failure in mass casualty incidents and what practice prevents it?", answers:["Task fixation: the Incident Commander gets absorbed in a specific patient or problem and loses awareness of the overall scene. Prevention: appoint a deputy or operations chief to manage tactical actions, freeing the IC to maintain situational awareness. Physically positioning the IC away from direct patient care (at the command post) prevents task fixation."]},
+      {q:"What is the difference between a tactical MCI (contained crime scene) and a natural disaster MCI in terms of command structure?", answers:["A tactical MCI (active shooter, bombing) requires Unified Command with law enforcement (scene safety), fire (search and rescue), and EMS (medical). Law enforcement controls scene access. A natural disaster MCI may have no security concerns but involves larger geographic scope, unknown patient counts, and complex evacuation logistics. The command structures and priorities differ significantly."]}
+    ],
+    challenge: "Lead a 20-patient mass casualty simulation from scene size-up through patient transport. Document every command decision. Conduct a full AAR afterward.",
+    tuesday:   { low: {title:"MCI command structure review", activity:"Review ICS structure for mass casualty. Draw the complete org chart for a 20-patient MCI with CERT support."}, mid: {title:"Triage management simulation", activity:"Run a 10-patient triage simulation. Manage the triage team rather than performing triage yourself. What information do you need from your team and how often?"}, high: {title:"MCI research", activity:"Research documented mass casualty incidents. What command decisions most affected patient outcomes in 3 different events?"} },
+    wednesday: { low: {title:"Resource calculation practice", activity:"Calculate resource needs for a 20-patient MCI: how many RED patients can one ALS unit handle? How many ambulances are needed to transport all RED patients within 30 minutes?"}, mid: {title:"Hospital coordination protocol", activity:"Research how the incident commander coordinates with receiving hospitals during an MCI. What information is communicated and in what format?"}, high: {title:"Simulation training research", activity:"Research the evidence for simulation-based training in mass casualty management. What fidelity and debrief structure produces the greatest learning transfer?"} },
+    thursday:  { low: {title:"Full MCI simulation leadership", activity:"Lead the complete 20-patient MCI simulation. Document: time of first triage, resource requests made, patient disposition by category, and final AAR."}, mid: {title:"After-action review", activity:"Facilitate a complete AAR of the MCI simulation. What worked? What failed? What specific changes would improve the response?"}, high: {title:"MCI preparedness program design", activity:"Design a community MCI preparedness program. What training, exercises, and resources would prepare your community for a real mass casualty event?"} }
+  },
+
+  "Disaster mental health — long-term recovery": {
+    gradeHooks: {
+      low: "After a disaster, the emotional recovery continues long after the physical rebuilding. Understanding this helps us support ourselves and our communities.",
+      mid: "Long-term psychological recovery from disasters follows predictable phases and responds to specific interventions.",
+      high: "Disaster mental health research, post-traumatic growth, and community-level resilience interventions are important topics."
+    },
+    materials: ["Disaster mental health research resources"],
+    steps: [
+      "Phases of disaster mental health: heroic (altruism and action), honeymoon (community cohesion), disillusionment (reality sets in, depression peaks), and reconstruction (gradual recovery).",
+      "Disillusionment phase recognition: 1\u20133 months after the disaster. Grief, anger, blame, substance use, and relationship strain peak here. Most mental health resources are gone by this point.",
+      "PTSD vs normal stress response: most people have stress responses that resolve within weeks. PTSD (intrusive memories, avoidance, hyperarousal lasting 1+ month) requires professional treatment.",
+      "Community resilience factors: social support networks, community cohesion, access to information, sense of meaning/purpose, and leadership.",
+      "Self-care for responders: secondary traumatic stress and compassion fatigue are real. Regular supervision, peer support, and self-monitoring are protective."
+    ],
+    discussion: [
+      {q:"Why does the disillusionment phase in disaster recovery occur and how can communities prepare for it?", answers:["The initial disaster and response activate community solidarity, external resources, and media attention. As media moves on, external resources withdraw, and the reality of the rebuilding timeline sets in, the gap between what survivors expected and what they\u2019ve received produces grief and anger. Communities that are educated about this phase, have long-term mental health resources, and sustain social connection through recovery are more resilient."]},
+      {q:"What is post-traumatic growth and how does it coexist with post-traumatic stress?", answers:["Post-traumatic growth (PTG) is positive psychological change experienced as a result of struggling with highly challenging life circumstances. People report: deeper relationships, new possibilities, personal strength, spiritual change, and appreciation for life. PTG and PTSD can coexist — the same survivor may experience both struggle and growth. PTG is not the absence of suffering; it emerges from processing it."]}
+    ],
+    challenge: "Research a specific disaster\u2019s long-term mental health impact. Document the phase progression, what interventions helped, what was missing, and what a better community mental health response would have looked like.",
+    tuesday:   { low: {title:"Phase model research", activity:"Research the Zunin and Myers phases of disaster mental health response. How have subsequent researchers modified or validated the phase model?"}, mid: {title:"PTSD vs acute stress research", activity:"Research the diagnostic distinction between Acute Stress Disorder (ASD) and PTSD. What is the natural history of each and what predicts transition from ASD to PTSD?"}, high: {title:"Community mental health intervention research", activity:"Research population-level mental health interventions after disasters. What does the evidence show about screening programs, psychological first aid, and community support models?"} },
+    wednesday: { low: {title:"Disillusionment phase case study", activity:"Research a specific disaster (e.g., Hurricane Katrina, 9/11, Superstorm Sandy) and document evidence of the disillusionment phase. What data shows its occurrence?"}, mid: {title:"Post-traumatic growth research", activity:"Research Tedeschi and Calhoun\u2019s post-traumatic growth model. What domains of growth do survivors report and what factors facilitate vs impede growth?"}, high: {title:"Social determinants of mental health after disasters", activity:"Research how pre-existing social determinants (poverty, racism, social isolation) affect disaster mental health outcomes. What does the evidence show about differential recovery rates?"} },
+    thursday:  { low: {title:"Community mental health resource mapping", activity:"Map mental health resources available in your community for long-term disaster recovery. What is the capacity? What populations are underserved?"}, mid: {title:"Responder self-care protocol design", activity:"Design a self-care protocol for community emergency responders: what warning signs of compassion fatigue, what peer support structure, and what professional resources should be available?"}, high: {title:"Mental health policy research", activity:"Research disaster mental health policy at the federal level: SAMHSA Crisis Counseling Program, stafford Act mental health provisions. What funding and resources are available and what gaps remain?"} }
+  },
+
+  "Passive house certification overview": {
+    gradeHooks: {
+      low: "Passive House is a building standard so efficient that the home barely needs mechanical heating or cooling. We explore how it works.",
+      mid: "Passive House certification requires meeting specific energy performance targets through building envelope, ventilation, and thermal bridge management.",
+      high: "Passive House physics, certification pathways, and the economics of ultra-low energy construction are important topics."
+    },
+    materials: ["PHIUS or PHI Passive House standards", "Building energy design tools"],
+    steps: [
+      "Passive House concept: reduce heating and cooling demand by 80\u201390% through extreme insulation, airtightness, and heat recovery ventilation.",
+      "Five principles: super-insulation, thermal bridge-free design, high-performance windows, airtight construction, and mechanical ventilation with heat recovery (MVHR).",
+      "Florida adaptation: Florida Passive House focuses primarily on cooling and humidity control rather than heating. Airtightness + dehumidification + solar shading is the Florida strategy.",
+      "PHIUS vs PHI: PHIUS (Passive House Institute US) has climate-specific targets for each US climate zone. PHI (Passive House Institute, Germany) uses single global targets. PHIUS is better adapted for Florida.",
+      "Certification process: energy modeling (WUFI Passive or PHPP), third-party verification, blower door test (target < 0.6 ACH50), and documentation submission."
+    ],
+    discussion: [
+      {q:"What is the relationship between airtightness and ventilation in a Passive House and why must they be designed together?", answers:["A Passive House must be extremely airtight to prevent uncontrolled energy loss through infiltration. But airtight buildings without ventilation have poor indoor air quality. MVHR (heat recovery ventilation) provides continuous fresh air while recovering 75\u201395% of the energy from exhaust air. The airtightness enables the energy performance; the MVHR ensures healthy indoor air. They must be designed as an integrated system."]},
+      {q:"Why does Florida\u2019s hot-humid climate require different Passive House strategies than Germany\u2019s cold climate?", answers:["Germany\u2019s climate requires minimizing heating energy loss in winter. Super-insulation and airtightness retain heat. In Florida, the energy load is cooling and dehumidification. Super-insulation reduces unwanted heat gain. Airtightness prevents humid outdoor air from infiltrating and overloading the dehumidification system. The principles are the same but the thermal and moisture management strategies are reversed."]}
+    ],
+    challenge: "Research the requirements for PHIUS certification for a Florida home. Model the energy performance of a simple Passive House design using PHIUS targets.",
+    tuesday:   { low: {title:"Five principles deep dive", activity:"Research each of the 5 Passive House principles in detail. For each, describe: what it accomplishes, how it is specified, and how it is different from standard construction."}, mid: {title:"PHIUS climate targets research", activity:"Look up PHIUS source energy targets for your Florida climate zone. What are the heating demand, cooling demand, and source energy limits?"}, high: {title:"Energy modeling software research", activity:"Research WUFI Passive and PHPP (Passive House Planning Package) modeling software. What inputs are required and what outputs do they produce?"} },
+    wednesday: { low: {title:"Airtightness testing research", activity:"Research blower door testing. What is the test procedure, what does 0.6 ACH50 mean, and how does it compare to typical new construction?"}, mid: {title:"Florida-specific strategies", activity:"Research PHIUS-certified projects in Florida. What specific strategies do Florida designers use to achieve certification in a hot-humid climate?"}, high: {title:"Thermal bridge analysis", activity:"Research thermal bridge analysis in Passive House design. What are the most common thermal bridges in residential construction and how are they eliminated?"} },
+    thursday:  { low: {title:"Cost premium research", activity:"Research the cost premium for building to Passive House standard. What is the typical construction cost increase and what is the lifecycle cost savings from reduced energy bills?"}, mid: {title:"PHIUS certification process", activity:"Research the complete PHIUS certification process: documentation requirements, third-party verifier role, blower door test protocol, and fee structure."}, high: {title:"Code adoption research", activity:"Research how Passive House standards are being incorporated into building codes. What jurisdictions have adopted Passive House requirements and what is the trajectory for broader adoption?"} }
+  },
+
+  "Farm-to-table supply chain — design your own": {
+    gradeHooks: {
+      low: "A farm-to-table supply chain connects your food production directly to your table without going through a grocery store.",
+      mid: "Designing a farm-to-table supply chain requires mapping every step from seed selection through meal preparation with quality and logistics in mind.",
+      high: "Supply chain design, food hub logistics, and the economics of direct agricultural marketing are important topics."
+    },
+    materials: ["Supply chain mapping tools", "Local food system resources"],
+    steps: [
+      "Source mapping: what do you produce? What can you source from neighbors, CSAs, farmers markets, or local farms?",
+      "Processing steps: what transformation happens between field and table? Washing, preservation, fermentation, cooking.",
+      "Logistics: how does food move from source to table? What storage is needed at each step?",
+      "Quality management: what quality criteria apply at each step? How do you reject inputs that don\u2019t meet the standard?",
+      "Cost analysis: what does each step of your supply chain cost? Where are the inefficiencies?"
+    ],
+    discussion: [
+      {q:"What is the true cost of a locally-sourced meal compared to an industrially-produced equivalent and how do you think about the difference?", answers:["Local food typically costs more per unit due to smaller scale, higher labor costs, and lack of industrial subsidies. However, the comparison omits: ecological externalities (soil health, water quality, carbon emissions), social value (local economic circulation, community food security), and resilience value (local supply chains are less vulnerable to global disruption). The decision of how to weigh these factors is a values question with no single correct answer."]},
+      {q:"What is a food hub and how does it change the economics of local food production?", answers:["A food hub aggregates, stores, processes, and distributes food from multiple local producers to multiple buyers. It solves the coordination problem that prevents individual farmers from serving large buyers (restaurants, schools, hospitals) that need consistent supply, quality, and delivery. Food hubs enable local producers to access larger markets without building their own distribution infrastructure."]}
+    ],
+    challenge: "Design a complete farm-to-table supply chain that provides at least 50% of your family\u2019s vegetable needs from local or home sources. Map every step from seed to table.",
+    tuesday:   { low: {title:"Local food source mapping", activity:"Map all local food sources within 50 miles: farms, CSAs, farmers markets, food hubs, and community gardens. What is the total available local food production?"}, mid: {title:"Supply chain mapping", activity:"Create a detailed supply chain map for 5 food items you currently eat. For each: origin, all processing steps, transportation, and final delivery to your table."}, high: {title:"Food hub research", activity:"Research food hubs in Florida or your region. How do they operate, what services do they provide, and what economic model sustains them?"} },
+    wednesday: { low: {title:"Quality management design", activity:"Design quality criteria for your supply chain: what conditions must fresh vegetables, preserved foods, and eggs meet at each transfer point?"}, mid: {title:"Economic comparison", activity:"Calculate the cost of your designed farm-to-table supply chain vs equivalent food from a grocery store. Account for your labor time at a realistic hourly rate."}, high: {title:"Supply chain resilience analysis", activity:"Analyze the resilience of your designed supply chain. What events would disrupt each element? How does local sourcing compare to grocery store supply chains in resilience?"} },
+    thursday:  { low: {title:"Complete supply chain design", activity:"Complete your farm-to-table supply chain design document. Show every step from seed to table for 10 foods your family eats."}, mid: {title:"Seasonal alignment", activity:"Align your supply chain with Florida\u2019s seasonal production calendar. What foods are available when and how does your supply chain adapt seasonally?"}, high: {title:"Community food system design", activity:"Scale your farm-to-table thinking to the community level. What would a 50% locally-sourced food system look like for your city? What infrastructure, policy, and economic changes would it require?"} }
+  },
+
+  "Financial independence milestone check — are you on track?": {
+    gradeHooks: {
+      low: "A financial milestone check compares your current financial position to where you should be at your age to reach your goals.",
+      mid: "A financial independence milestone review uses specific benchmarks to assess progress and identify adjustments needed.",
+      high: "Financial planning benchmark analysis, the research basis for common savings rate recommendations, and adaptive financial planning are important topics."
+    },
+    materials: ["Current financial data", "Financial planning benchmarks"],
+    steps: [
+      "Net worth benchmark: Fidelity\u2019s rule of thumb: 1x salary by 30, 3x by 40, 6x by 50, 8x by 60, 10x by 67.",
+      "Emergency fund: 3\u20136 months of expenses in liquid savings. Where do you stand?",
+      "Retirement savings rate: at minimum, capture full employer match. Target 15% of gross income.",
+      "Debt status: high-interest debt (above 7%) should be eliminated before significant investing.",
+      "FI number progress: where is your current portfolio relative to your financial independence number (annual expenses x 25)?"
+    ],
+    discussion: [
+      {q:"What are the limitations of age-based savings benchmarks and how should you interpret them?", answers:["Age-based benchmarks assume average income growth, average investment returns, and average career trajectories. They also assume a traditional retirement at 65\u201367. If you want to retire earlier, have higher income, or started late, these benchmarks need adjustment. They are useful as quick sanity checks, not precise targets."]},
+      {q:"What is the most important adjustment to make when a milestone review reveals you are behind target?", answers:["Increase savings rate immediately, even by 2\u20133%, and automate it. Don\u2019t try to compensate for being behind through higher-risk investments. The most reliable path to catching up is more savings, not more risk. Increasing savings rate from 10% to 15% provides more certainty of improved outcomes than shifting from index funds to individual stock picking."]}
+    ],
+    challenge: "Complete a full financial independence milestone review against all 5 benchmarks. Create a specific action plan for any areas where you are behind target.",
+    tuesday:   { low: {title:"Benchmark research", activity:"Research Fidelity, T. Rowe Price, and Vanguard retirement savings benchmarks. What are the similarities and differences? What assumptions underlie each?"}, mid: {title:"Personal benchmark calculation", activity:"Calculate your current status against each of the 5 milestones. Document: current status, benchmark, gap or surplus, and trend direction."}, high: {title:"Benchmark sensitivity analysis", activity:"Research how the standard benchmarks change if you target retirement at 55 instead of 65. What savings rate is required to maintain the same retirement income at a 10-year-earlier retirement?"} },
+    wednesday: { low: {title:"Gap analysis", activity:"For each benchmark where you are below target, calculate: the gap in dollars, the savings rate increase needed to close it over 5 years, and the impact of doing nothing."}, mid: {title:"Behavioral adjustment planning", activity:"Design specific behavioral changes to improve milestone progress: which specific expenses to reduce, which accounts to increase contributions to, and what automations to implement."}, high: {title:"FIRE path comparison", activity:"Compare your current trajectory to LeanFIRE, FatFIRE, and traditional retirement at 65 paths. What does each require in terms of current savings rate and lifestyle choices?"} },
+    thursday:  { low: {title:"Action plan creation", activity:"Create a specific 12-month action plan: what changes you\u2019ll make, by when, and how you\u2019ll verify they\u2019ve happened."}, mid: {title:"Review calendar setup", activity:"Set up a calendar system for ongoing financial milestone reviews: monthly net worth tracking, quarterly investment review, and annual plan review."}, high: {title:"Professional plan comparison", activity:"Research what a fee-only financial planner would recommend given your current situation. Compare their typical recommendations to your own action plan."} }
+  },
+
+  "Legacy project — what did you build this year?": {
+    gradeHooks: {
+      low: "The legacy project documents everything you built, learned, and accomplished this year. It is your permanent record of becoming capable.",
+      mid: "A legacy project synthesizes the year\u2019s learning into a lasting contribution to your family and community.",
+      high: "Portfolio development, reflective practice, and the articulation of learning for future impact are important topics."
+    },
+    materials: ["All project documentation", "Photos and records from the full year", "Portfolio design tools"],
+    steps: [
+      "Year in review: what projects did you complete? What skills did you develop? What do you know and can do now that you couldn\u2019t before?",
+      "Portfolio documentation: assemble evidence of your most significant work: photos, written plans, assessment results, and community impact.",
+      "What endures: what systems, relationships, or knowledge did you create that will continue to produce value after this year?",
+      "What you\u2019d do differently: honest reflection on what you would change. This demonstrates maturity and real learning.",
+      "Future commitments: based on this year, what will you continue, deepen, or share?"
+    ],
+    discussion: [
+      {q:"What is the difference between a record of completed assignments and a genuine learning portfolio?", answers:["A record of completed assignments lists what was done. A learning portfolio shows how you changed, what you can now do that you couldn\u2019t before, and what evidence demonstrates that change. The portfolio tells the story of your development as a competent person. It is organized around growth, not compliance."]},
+      {q:"What is the most valuable thing you built this year that cannot be put in a portfolio and why does it matter?", answers:["Relationships, reputation for reliability, earned trust, and the confidence that comes from having done hard things successfully cannot be photographed or filed. These are the most durable outcomes of the year\u2019s work. A neighbor who knows you can set a tourniquet, a community that knows you completed a preparedness presentation, a family whose water system you installed — these are the legacy that outlasts any document."]}
+    ],
+    challenge: "Create a complete legacy portfolio documenting your year\u2019s work. Present it to your family and any community members who participated in your projects. Write a letter to a future student who will follow this curriculum.",
+    tuesday:   { low: {title:"Year review", activity:"List every significant project completed this year. For each: what you did, what you learned, and what real-world impact it had."}, mid: {title:"Portfolio curation", activity:"Select the 5\u20137 projects that best represent your growth and impact this year. Gather all documentation, photos, and evidence for each."}, high: {title:"Learning narrative development", activity:"Write a narrative of your learning this year. What was your starting point? What were the hardest challenges? How did you change? What can you do now?"} },
+    wednesday: { low: {title:"Portfolio design", activity:"Design your legacy portfolio: how is it organized? What does each section contain? What format (physical binder, digital, presentation) best serves its audience?"}, mid: {title:"Community contribution documentation", activity:"Document specifically what your community gained from your work this year. Who is better prepared? What systems now exist that didn\u2019t before?"}, high: {title:"Future student letter", activity:"Write a letter to a future student who will follow this curriculum. What do you wish you had known at the beginning? What advice would have helped? What was most worthwhile?"} },
+    thursday:  { low: {title:"Legacy portfolio presentation", activity:"Present your legacy portfolio to your family and any community members who participated in your projects. This is not a report — it is a celebration of what you built."}, mid: {title:"Continuation planning", activity:"Create a plan for continuing your most important work. What systems do you maintain? What skills do you continue to develop? What community roles will you take on?"}, high: {title:"Mastery reflection", activity:"Write a final reflection: What does it mean to you to have developed these competencies? How do you understand your own responsibility in your family and community now that you have these capabilities?"} }
+  },
+
+
+
+  "Teaching first aid to others — become a trainer": {
+    gradeHooks: {
+      low: "The best way to extend your first aid skills is to teach them. A trainer can multiply the impact of one person\u2019s training across a whole community.",
+      mid: "Becoming a first aid trainer requires mastery of the content, instructional design skills, and the ability to assess learner competency.",
+      high: "First aid instructor certification pathways, adult learning theory applied to emergency skills training, and program sustainability design are important topics."
+    },
+    materials: ["First aid curriculum", "Training mannequins or training pads", "Student assessment forms"],
+    steps: [
+      "Content mastery: a trainer must know the content deeply enough to answer unexpected questions and correct student errors in real time.",
+      "Instructional design: adult learners need to understand why before how. Build rationale into every skill before demonstrating technique.",
+      "Demonstration-practice cycle: demonstrate slowly and clearly, then have students practice while you observe and correct.",
+      "Competency assessment: every student must demonstrate each skill, not just observe it. Define minimum competency standards before the session.",
+      "Certification pathways: Red Cross First Aid Instructor, American Heart Association BLS Instructor, Stop the Bleed Instructor. Each has specific prerequisites and renewal requirements."
+    ],
+    discussion: [
+      {q:"What is the difference between a subject matter expert and an effective trainer, and why do some experts make poor trainers?", answers:["Subject matter experts have deep content knowledge. Effective trainers can decompose that knowledge into teachable steps, adapt to learner confusion in real time, and assess whether learning has occurred. Experts often suffer from the \u2018curse of knowledge\u2019: they\u2019ve forgotten what it was like not to know, making them poor at anticipating learner confusion or explaining foundational concepts."]},
+      {q:"Why must every student physically demonstrate each skill rather than simply observe a demonstration?", answers:["Motor skills are acquired through physical practice, not observation. Watching CPR does not build the muscle memory and proprioception needed to perform it correctly under stress. Research shows retention of demonstrated skills drops to near zero within weeks without personal practice. Competency assessment through demonstration is the only way to verify that learning has occurred."]}
+    ],
+    challenge: "Design and deliver a 2-hour first aid training session for community members. Assess every student\u2019s competency on at least 3 skills. Document attendance and results.",
+    tuesday:   { low: {title:"Curriculum design", activity:"Design a 2-hour first aid curriculum. What 5 skills will you teach? In what order? How much time for demonstration vs practice for each skill?"}, mid: {title:"Instructor certification research", activity:"Research the Red Cross or AHA instructor certification pathways. What prerequisites, training, and renewal requirements apply?"}, high: {title:"Adult learning theory application", activity:"Research Malcolm Knowles\u2019 andragogy principles. How does adult learning theory specifically change how you design emergency skills training?"} },
+    wednesday: { low: {title:"Demonstration practice", activity:"Practice demonstrating each skill you will teach. Record yourself and review: is your pace appropriate? Are the critical steps clearly visible?"}, mid: {title:"Assessment tool design", activity:"Create a competency assessment checklist for each skill. What specific observable behaviors define passing performance?"}, high: {title:"Training program sustainability", activity:"Design a sustainable community first aid training program: frequency, instructor pipeline, equipment maintenance, and participant tracking."} },
+    thursday:  { low: {title:"Training delivery", activity:"Deliver your first aid training session. Assess each student. Document who passed, who needs more practice, and any curriculum gaps revealed."}, mid: {title:"After-action review", activity:"Conduct an AAR of your training session. What instructional moments worked? What would you change? Document specific curriculum revisions."}, high: {title:"Train-the-trainer cascade", activity:"Research how train-the-trainer cascades work. Design a program where 5 people you train each train 5 more. What quality controls prevent skill degradation across generations?"} }
+  },
+
+  "Building a neighborhood emergency network": {
+    gradeHooks: {
+      low: "A neighborhood emergency network connects residents with skills, resources, and communication channels before a crisis occurs.",
+      mid: "Building a functional emergency network requires mapping resources, establishing communication trees, and defining activation protocols.",
+      high: "Social network theory, community resilience research, and the organizational design of informal emergency networks are important topics."
+    },
+    materials: ["Neighborhood map", "Resource inventory form", "Communication tree template"],
+    steps: [
+      "Asset mapping: survey neighbors for skills (medical training, language, trades), equipment (generators, chainsaws, water storage), and vulnerabilities (mobility limitations, medical dependence).",
+      "Communication tree: design a redundant communication system. Primary: text/phone. Backup: door-to-door. Each household connects to 2 neighbors.",
+      "Resource sharing agreements: who will share what and under what conditions? Generators, tools, water storage?",
+      "Activation protocol: what event triggers the network? Who declares it active? What is the first action?",
+      "Ongoing maintenance: quarterly check-ins to update the resource inventory and verify communication tree contacts are current."
+    ],
+    discussion: [
+      {q:"Why is redundancy in the communication tree more important than efficiency?", answers:["In an emergency, some communication channels will fail: cell networks overload, power outages disable routers, individuals are unavailable. A tree designed for efficiency (each person contacts one other) fails completely if one node is unavailable. Redundancy (each household connects to 2 or more neighbors) ensures that even with failures, information still propagates through the network."]},
+      {q:"How does identifying vulnerable neighbors during non-emergency planning change emergency outcomes?", answers:["Knowing that a neighbor depends on oxygen concentrators, is mobility-limited, or speaks limited English before a disaster enables proactive outreach rather than reactive discovery. First responders cannot know every vulnerable resident; local neighbors can. Pre-identification allows targeted welfare checks and tailored assistance to begin immediately rather than after an assessment period."]}
+    ],
+    challenge: "Build a functional neighborhood emergency network covering at least 10 households. Document the resource map, communication tree, and activation protocol.",
+    tuesday:   { low: {title:"Neighbor survey design", activity:"Design a neighbor survey to inventory: emergency skills, key equipment, vulnerabilities, and willingness to participate in a mutual aid network."}, mid: {title:"Resource mapping", activity:"Create a neighborhood resource map: household by household, listing relevant skills, equipment, and vulnerabilities. What gaps does it reveal?"}, high: {title:"Social network analysis", activity:"Research social network analysis applied to community resilience. How does network centrality, density, and bridge structure affect information flow during emergencies?"} },
+    wednesday: { low: {title:"Communication tree construction", activity:"Design the neighborhood communication tree. Test it with a non-emergency message. How long did it take to reach all 10 households?"}, mid: {title:"Resource sharing protocol", activity:"Draft a simple resource-sharing agreement for the network. What terms define access, return, and liability for shared equipment?"}, high: {title:"Network activation criteria", activity:"Research how informal community networks determine activation thresholds. What specific conditions trigger network activation vs individual preparation?"} },
+    thursday:  { low: {title:"Network launch meeting", activity:"Host a neighborhood meeting to launch the emergency network. Get commitments from households and distribute the communication tree."}, mid: {title:"Maintenance system design", activity:"Design a system to keep the network current: who conducts quarterly check-ins, how are changes recorded, and how is the updated directory distributed?"}, high: {title:"Network effectiveness research", activity:"Research documented cases of neighborhood emergency networks in action. What factors determined their effectiveness? What failed and why?"} }
+  },
+
+  "Off-grid living plan — full design": {
+    gradeHooks: {
+      low: "A full off-grid living plan covers every system a home needs: energy, water, food, waste, and communication. Today we design the whole thing.",
+      mid: "A complete off-grid living design integrates all systems into a coherent, cost-analyzed plan specific to a real location.",
+      high: "Systems integration engineering, interdependency analysis, and the economics of complete off-grid living are important topics."
+    },
+    materials: ["Site data", "Off-grid system design tools", "Budget spreadsheet"],
+    steps: [
+      "Site analysis: location, climate, solar resource, water availability, soil quality, and access.",
+      "Energy system: solar + storage sized for location and load. Include backup (generator or wind).",
+      "Water system: primary source, treatment train, storage, and distribution.",
+      "Food system: garden plan, preservation capacity, and storage for gaps.",
+      "Waste system: composting toilet or septic, greywater reuse, solid waste composting.",
+      "Communication: ham radio, satellite internet, or mesh network for connectivity."
+    ],
+    discussion: [
+      {q:"What is the most common mistake people make in off-grid system design and how does integrated planning prevent it?", answers:["Designing systems in isolation. A household that installs solar without accounting for the water pump load underestimates energy needs. One that designs water storage without accounting for solar pump power availability creates a non-functional system. Integrated planning calculates all loads together, accounts for system interactions, and sizes everything as a whole."]},
+      {q:"What is the realistic first-year cost of establishing a complete off-grid homestead vs the long-term operating cost?", answers:["Establishment costs are high: well or rainwater system ($5,000\u201320,000), solar system ($10,000\u201330,000), septic or composting system ($3,000\u201315,000), garden infrastructure ($1,000\u20135,000). Total: $20,000\u201370,000+. Long-term operating costs drop dramatically: no utility bills, reduced food costs, but ongoing maintenance, replacement parts, and propane or other consumables."]}
+    ],
+    challenge: "Create a complete off-grid living plan for a 2-bedroom homestead at a specific Florida location. Include all systems, cost estimate, and implementation timeline.",
+    tuesday:   { low: {title:"Site analysis", activity:"Select a real or hypothetical Florida site. Research: average rainfall, solar resource, soil type, water table depth, and regulatory environment for off-grid living."}, mid: {title:"Integrated load analysis", activity:"Calculate all energy loads for the off-grid home. Include seasonal variation (more cooling in summer, less light in winter)."}, high: {title:"Systems interdependency analysis", activity:"Map all interdependencies between systems in your design. Where does failure of one system affect others? Design redundancies to address the most critical dependencies."} },
+    wednesday: { low: {title:"Water-energy interaction", activity:"Calculate the energy required to operate your water system: pump startup power, daily runtime, and annual kWh. How does this affect solar system sizing?"}, mid: {title:"Food system gap analysis", activity:"For your planned location, calculate the caloric gap between garden production and family needs in each month. What storage and preservation fills each gap?"}, high: {title:"Financial modeling", activity:"Build a 20-year financial model for your off-grid homestead. Compare total cost to equivalent on-grid lifestyle. When does off-grid become cheaper?"} },
+    thursday:  { low: {title:"Complete plan documentation", activity:"Compile your complete off-grid plan into a single document: all system specifications, costs, and implementation sequence."}, mid: {title:"Phased implementation plan", activity:"Design a phased implementation: what do you build first, second, and third? What is the minimum viable system you could live in while completing the rest?"}, high: {title:"Regulatory research", activity:"Research Florida regulations affecting off-grid living: minimum property size, required connections to utilities, composting toilet permits, and building code requirements."} }
+  },
+
+  "Full family food supply audit — one year": {
+    gradeHooks: {
+      low: "A full-year food supply audit adds up everything your family eats in a year and compares it to what you produce and store.",
+      mid: "A comprehensive family food supply audit reveals caloric self-sufficiency, nutritional completeness, and strategic storage gaps.",
+      high: "Food system modeling, supply chain resilience analysis, and the food security frameworks used by emergency managers are important topics."
+    },
+    materials: ["One year of food production and purchase records", "Dietary reference intakes", "Food storage inventory"],
+    steps: [
+      "Annual consumption: track all food entering the household for one month. Multiply by 12 for an annual estimate. Account for seasonal variation.",
+      "Annual production: total your garden\u2019s output for the year. Convert to calories and key nutrients using the USDA database.",
+      "Annual storage: inventory current storage. Calculate how many days each category of stored food covers.",
+      "Gap analysis: compare consumption to (production + storage). What is the shortfall in calories, protein, fat, and key micronutrients?",
+      "Action plan: what changes to production, preservation, or storage address the most significant gaps?"
+    ],
+    discussion: [
+      {q:"What is the difference between food security and food self-sufficiency and why is the distinction important for planning?", answers:["Food security means reliable access to sufficient, nutritious food. It can be achieved through purchasing, community support, or production. Food self-sufficiency means producing all of your own food. Most families can achieve meaningful food security with a combination of production, preservation, and strategic storage without achieving full self-sufficiency. The planning target should match the resilience goal."]},
+      {q:"Why is a one-year horizon the appropriate planning window for a food supply audit rather than 72 hours or 3 months?", answers:["72 hours addresses short emergencies (storms, power outages). Three months addresses medium disruptions (job loss, supply chain disruption). One year addresses long-duration disruptions and reveals the full seasonal production cycle. Only a one-year audit reveals the true gaps between production seasons and the actual preservation quantities needed to bridge them."]}
+    ],
+    challenge: "Complete a full one-year food supply audit. Calculate your family\u2019s caloric and nutritional self-sufficiency percentage. Present findings with a prioritized improvement plan.",
+    tuesday:   { low: {title:"Consumption tracking", activity:"Track all food entering your household for one week. Categorize by food group. Project to annual consumption by food group."}, mid: {title:"Production-to-calorie conversion", activity:"Convert your garden\u2019s annual production records (pounds by crop) to calories and macronutrients using the USDA FoodData Central database."}, high: {title:"Food security framework research", activity:"Research the FAO\u2019s four pillars of food security: availability, access, utilization, and stability. How does each apply to a family-level food supply audit?"} },
+    wednesday: { low: {title:"Storage inventory", activity:"Complete a detailed storage inventory: category, quantity, calories per unit, total calories, and days of coverage for each category."}, mid: {title:"Seasonal gap analysis", activity:"Map production and storage month by month. In which months does production fall short? What preservation quantity is needed to bridge each gap?"}, high: {title:"Supply chain disruption modeling", activity:"Model the impact of a 6-month supply chain disruption on your family\u2019s food supply. What percentage of needs can you meet? What does the shortfall look like?"} },
+    thursday:  { low: {title:"Audit report", activity:"Write a complete food supply audit report: current status, gaps identified, and prioritized recommendations."}, mid: {title:"Implementation planning", activity:"Create a specific 12-month plan to address your top 3 food supply gaps. What crops to add, what preservation to increase, what storage to build?"}, high: {title:"Community food security analysis", activity:"Research community food security assessment methods. How do emergency managers assess community food resilience and what interventions have the most impact?"} }
+  },
+
+  "Water independence plan — full system": {
+    gradeHooks: {
+      low: "A water independence plan maps every source, storage, treatment, and conservation measure into a complete strategy for water resilience.",
+      mid: "A complete water independence plan addresses both normal operations and emergency scenarios with redundant systems at each level.",
+      high: "Water systems engineering, risk-based redundancy design, and the economics of complete water independence are important topics."
+    },
+    materials: ["Site water assessment", "System design tools", "Florida regulations reference"],
+    steps: [
+      "Current system assessment: what is your current water source? What are its vulnerabilities?",
+      "Primary alternative: design or evaluate a primary alternative (well, rainwater collection, spring).",
+      "Secondary backup: what is your backup if the primary fails? (Stored water, neighbor\u2019s well, community source.)",
+      "Treatment redundancy: at least two independent treatment methods for potable use.",
+      "Conservation: water use audit and reduction plan. Less consumption means smaller systems needed."
+    ],
+    discussion: [
+      {q:"What is the PACE framework and how does it apply to water independence planning?", answers:["PACE (Primary, Alternate, Contingency, Emergency) is a planning framework from military communications now applied broadly to resilience. For water: Primary = municipal connection or private well. Alternate = rainwater collection system. Contingency = stored water reserves (minimum 2 weeks). Emergency = water procurement from streams or other sources with treatment. Each level activates when the level above fails."]},
+      {q:"Why must water treatment be designed with redundancy rather than relying on a single technology?", answers:["Every treatment technology has failure modes and limitations. UV fails when the lamp burns out or power is lost. Carbon filters become saturated. Sediment filters clog. A single-technology system fails completely when the technology fails. Redundant treatment (UV + chemical disinfection backup, or UV + ceramic filter) ensures that treatment continues even when one component fails."]}
+    ],
+    challenge: "Create a complete water independence plan using the PACE framework. Design all 4 levels with specific capacities, costs, and activation criteria.",
+    tuesday:   { low: {title:"Current system vulnerability analysis", activity:"Analyze your current water supply\u2019s single points of failure. What events would interrupt each element of your supply chain?"}, mid: {title:"PACE framework design", activity:"Design all 4 PACE levels for your water supply. Specify: source, storage capacity, treatment method, and activation criteria for each level."}, high: {title:"Redundancy cost-benefit analysis", activity:"Calculate the cost of implementing each PACE level. What is the probability of needing each level? Calculate expected value of each investment."} },
+    wednesday: { low: {title:"Storage capacity planning", activity:"Calculate water storage needed for each PACE level. How many gallons cover 2 weeks? 30 days? 90 days? What physical space does this require?"}, mid: {title:"Treatment redundancy design", activity:"Design redundant treatment for your primary water source. What 2 independent methods together provide reliable potable water?"}, high: {title:"Well and rainwater integration", activity:"Design a system that integrates a shallow well and rainwater collection for maximum combined yield. How do you switch between sources when one is unavailable?"} },
+    thursday:  { low: {title:"Complete plan documentation", activity:"Create a one-page water independence plan summary: all sources, storage, treatment, daily consumption, and days of coverage at each PACE level."}, mid: {title:"Emergency water procurement", activity:"Research emergency water procurement for Level 4: what surface water sources are within walking distance? What treatment is required for each?"}, high: {title:"Water quality testing program", activity:"Design an annual water quality testing program for your independence system. What parameters, what frequency, and what action levels define your testing protocol?"} }
+  },
+
+  "Full home maintenance audit and plan": {
+    gradeHooks: {
+      low: "A full home maintenance audit catches problems before they become expensive failures. Regular maintenance protects your home and your budget.",
+      mid: "A comprehensive home maintenance plan covers all systems on an appropriate schedule, budgets realistically for repairs, and prioritizes by risk.",
+      high: "Facilities management methodology, building envelope failure modes, and the economics of preventive vs reactive maintenance are important topics."
+    },
+    materials: ["Home maintenance checklist", "Inspection tools (flashlight, ladder, moisture meter)"],
+    steps: [
+      "Roof inspection: missing or damaged shingles, flashing condition, gutter and downspout function, soffit and fascia condition.",
+      "Foundation and exterior: cracks in foundation, grading away from foundation, siding condition, caulking around windows and doors.",
+      "Mechanical systems: HVAC filter replacement, condenser coil cleaning, water heater sediment flush, smoke and CO detector testing.",
+      "Plumbing: all shutoff valves exercised, water heater temperature, exterior hose bibs, signs of leaks under sinks and at toilets.",
+      "Electrical: panel condition, GFCI testing, smoke detector testing, outdoor receptacle covers."
+    ],
+    discussion: [
+      {q:"What is the economic argument for preventive maintenance vs reactive repair?", answers:["Preventive maintenance costs consistently; reactive repair costs unpredictably and usually more. Replacing a $25 air filter on schedule prevents a $500 coil cleaning or a $3,000 compressor replacement. Sealing a $15 roof flashing crack prevents a $10,000 rot repair. Studies show that $1 of preventive maintenance prevents $4\u201310 of reactive repair costs. Deferred maintenance is a debt that compounds."]},
+      {q:"What is the 1% rule for home maintenance budgeting and when should it be adjusted?", answers:["The 1% rule suggests budgeting 1% of the home\u2019s value per year for maintenance. A $300,000 home needs $3,000/year in maintenance on average. Older homes (more component failure risk), homes in harsh climates, and homes with deferred maintenance history need higher budgets (1.5\u20132%). New homes with warranties may need less initially."]}
+    ],
+    challenge: "Complete a full home maintenance audit using a comprehensive checklist. Prioritize findings by risk and cost. Build a 3-year maintenance plan with budget.",
+    tuesday:   { low: {title:"Roof and exterior audit", activity:"Inspect the roof (from the ground or ladder), gutters, siding, windows, doors, and foundation. Document every finding with photos."}, mid: {title:"Mechanical systems audit", activity:"Inspect all mechanical systems: HVAC (filter, coil, condensate drain), water heater (age, anode rod, temperature setting), and exhaust fans."}, high: {title:"Maintenance ROI analysis", activity:"Research the ROI of specific maintenance items: HVAC filter replacement, gutter cleaning, roof sealing, and water heater maintenance. Calculate cost avoided per dollar spent."} },
+    wednesday: { low: {title:"Plumbing and electrical audit", activity:"Inspect all plumbing shutoffs, look for leaks, test all GFCIs, check smoke/CO detectors, and inspect the electrical panel."}, mid: {title:"Finding prioritization", activity:"Prioritize all audit findings using an impact-urgency matrix. What needs immediate attention? What can wait for the annual plan?"}, high: {title:"Building envelope failure mode analysis", activity:"Research the most common building envelope failure modes in Florida\u2019s climate: flashing failures, wood rot pathways, and mold conditions. How does each present and what prevents each?"} },
+    thursday:  { low: {title:"3-year maintenance plan", activity:"Create a 3-year maintenance plan: monthly tasks, annual tasks, and scheduled replacements (water heater, HVAC, roof) with projected costs."}, mid: {title:"Contractor selection research", activity:"Research how to select and vet contractors for major home maintenance work: licensing verification, insurance requirements, and red flags."}, high: {title:"Maintenance management systems", activity:"Research property management software used for maintenance tracking. How do professional property managers schedule, document, and budget maintenance? What can homeowners learn from their systems?"} }
+  },
+
+  "Complete personal finance plan — net worth to retirement": {
+    gradeHooks: {
+      low: "A complete personal finance plan starts with where you are today (net worth) and maps the path to financial security in retirement.",
+      mid: "A comprehensive personal finance plan integrates all financial dimensions: income, expenses, debt, savings, investing, insurance, and estate planning.",
+      high: "Integrated financial planning methodology, Monte Carlo simulation for retirement, and the behavioral dimensions of financial plan adherence are important topics."
+    },
+    materials: ["Complete financial data", "Financial planning software or spreadsheet"],
+    steps: [
+      "Current state: net worth statement (all assets and liabilities), monthly cash flow, insurance coverage inventory, and existing accounts.",
+      "Goals: retirement age, desired retirement income, major near-term goals (home, education), and estate planning wishes.",
+      "Gap analysis: what savings rate achieves retirement goals? What debt payoff timeline maximizes wealth? What insurance gaps exist?",
+      "Integrated strategy: prioritize contributions (match first, HSA, Roth IRA, 401k), build emergency fund, pay off high-interest debt, and invest the difference.",
+      "Review schedule: annual plan review. Major life events trigger immediate review: job change, marriage, child, inheritance, health change."
+    ],
+    discussion: [
+      {q:"What is the single most important financial behavior and why does it matter more than investment selection?", answers:["Savings rate. A person who saves 20% of income in low-cost index funds will vastly outperform a person who saves 5% in perfectly selected investments. Time in the market and amount invested dominate investment selection in determining long-term outcomes. Savings rate is also the behavior most directly under individual control."]},
+      {q:"What does Monte Carlo simulation add to financial planning that simple projection cannot provide?", answers:["Simple projection assumes a fixed rate of return each year. Monte Carlo simulation runs thousands of scenarios with variable annual returns (following historical distributions). It shows the probability distribution of outcomes: \u2018there\u2019s a 90% chance you\u2019ll have at least $X at retirement.\u2019 This gives planners and clients a realistic sense of both the upside and the risk."]}
+    ],
+    challenge: "Build a complete personal financial plan. Include all components: net worth baseline, cash flow, debt payoff, savings/investment strategy, insurance review, and retirement projection.",
+    tuesday:   { low: {title:"Complete net worth statement", activity:"Build a complete net worth statement with every asset and liability at current market value. This is the starting point for the full plan."}, mid: {title:"Retirement projection", activity:"Project your retirement account balance at 65 given your current age, current savings, planned contributions, and 7% average return. Compare to your retirement income target."}, high: {title:"Monte Carlo analysis", activity:"Research how to run a Monte Carlo retirement simulation using free tools (Portfolio Visualizer, FIRECalc). What probability of success is typically targeted and why?"} },
+    wednesday: { low: {title:"Cash flow optimization", activity:"Identify 3 specific changes to your projected cash flow that would most improve your financial trajectory. Calculate the 20-year impact of each."}, mid: {title:"Insurance gap analysis", activity:"Compare your current insurance coverage to your identified needs: life, disability, health, property, and liability. What are the gaps and their estimated costs?"}, high: {title:"Tax-efficient withdrawal strategy", activity:"Research optimal withdrawal sequencing in retirement. In what order should you withdraw from taxable, traditional, and Roth accounts to minimize lifetime taxes?"} },
+    thursday:  { low: {title:"Complete plan document", activity:"Compile your complete financial plan into a single organized document. Include all components."}, mid: {title:"Annual review process design", activity:"Design your annual financial review process: what do you review, when, and what triggers an interim review? Create a calendar reminder system."}, high: {title:"Fee-only advisor research", activity:"Research fee-only financial planners (NAPFA). How do they differ from commission-based advisors? What does a comprehensive financial plan cost and when is it worth the fee?"} }
+  },
+
+  "Survival skills teaching practicum": {
+    gradeHooks: {
+      low: "A survival skills teaching practicum puts your survival knowledge to the test by teaching it to others in real field conditions.",
+      mid: "Teaching survival skills in the field requires managing student safety, adapting to real terrain, and assessing actual competency.",
+      high: "Outdoor education leadership, risk management in experiential education, and competency-based assessment in field settings are important topics."
+    },
+    materials: ["Field location", "Survival skills curriculum", "Safety plan"],
+    steps: [
+      "Pre-field preparation: site assessment, safety plan, emergency procedures, communication plan with a non-participating contact.",
+      "Student assessment: assess prior knowledge. What does each student know? Differentiate instruction accordingly.",
+      "Skill sequence: STOP mindset first. Then shelter, fire, water, food (the survival priority order). Never skip the mindset lesson.",
+      "Supervised practice: demonstrate in real conditions, then supervise student practice. Intervene before safety issues occur.",
+      "Assessment: have each student complete a solo survival scenario. Observe and evaluate without assisting."
+    ],
+    discussion: [
+      {q:"What is the most important safety management principle in field survival instruction?", answers:["Briefing students on the boundaries of acceptable experimentation before any field work begins. Students trying to start a fire with unfamiliar materials or testing improvised equipment without supervision create preventable hazards. Pre-brief: what you may try, what requires instructor observation, and what is not permitted during this session."]},
+      {q:"How does teaching in real field conditions differ from teaching in a classroom and what specific adaptations are required?", answers:["Real field conditions introduce variability: changing weather, uneven terrain, tired students, and actual discomfort. Students may struggle with skills that seemed straightforward in theory. Real conditions require adaptive pacing, real-time safety awareness, and the willingness to abort an activity that isn\u2019t working safely."]}
+    ],
+    challenge: "Lead a full-day field survival skills course for a group of 4\u20136 students. Cover shelter, fire, water, and navigation. Assess each student\u2019s competency. Document the day.",
+    tuesday:   { low: {title:"Curriculum design", activity:"Design a full-day survival curriculum: morning mindset and shelter, midday fire and water, afternoon navigation and scenario. Include time allocations and safety notes."}, mid: {title:"Safety plan creation", activity:"Create a safety plan for your field day: site hazards, emergency procedures, communication plan, and go/no-go criteria for each activity."}, high: {title:"Risk management research", activity:"Research the NOLS risk management framework. How do they categorize and manage risks in expedition education?"} },
+    wednesday: { low: {title:"Competency assessment design", activity:"Design a survival skills competency assessment for each skill. What specific observable behaviors define passing performance for shelter, fire, water procurement, and navigation?"}, mid: {title:"Student differentiation planning", activity:"Plan how you will differentiate instruction for students with different prior knowledge levels. What extensions do you have for advanced students?"}, high: {title:"Liability and permission research", activity:"Research the liability framework for outdoor education. What waivers, permits, and supervision ratios apply to teaching survival skills to minors?"} },
+    thursday:  { low: {title:"Field day delivery", activity:"Deliver the full-day survival curriculum. Document: each activity, student engagement, any safety issues, and competency assessment results."}, mid: {title:"Student performance analysis", activity:"Review each student\u2019s performance across all assessed skills. What patterns do you see? What should the curriculum emphasize more next time?"}, high: {title:"Curriculum revision", activity:"Based on your field day experience, revise your curriculum. What would you change in sequence, timing, activities, and assessment? Document all changes and rationale."} }
+  },
+
+  "Foraging and permaculture design": {
+    gradeHooks: {
+      low: "Foraging means harvesting wild plants for food. Permaculture designs landscapes to produce food sustainably, like a forest ecosystem.",
+      mid: "Foraging and permaculture together create a food system that leverages natural processes to minimize labor while maximizing production.",
+      high: "Permaculture design methodology, the ethics and principles of the permaculture framework, and the integration of foraging into designed food systems are important topics."
+    },
+    materials: ["Permaculture design tools", "Site map", "Regional foraging guide"],
+    steps: [
+      "Permaculture ethics: Earth Care, People Care, Fair Share. The design philosophy is rooted in these 3 ethics.",
+      "Permaculture principles: observe and interact, catch and store energy, obtain a yield, apply self-regulation, use and value renewable resources.",
+      "Zone planning: Zone 0 (home) through Zone 5 (wilderness). Each zone\u2019s design reflects visit frequency and management intensity.",
+      "Guilds: plant communities that support each other. The classic food forest guild: canopy tree, understory tree, shrub, herb, ground cover, vine, and root layers.",
+      "Florida foraging: elderberry, muscadine grape, sea purslane, prickly pear cactus, passion fruit, cattail. Always verify identification with multiple sources."
+    ],
+    discussion: [
+      {q:"How does the permaculture concept of \u2018stacking functions\u2019 differ from conventional landscape design?", answers:["Conventional design assigns each plant one function: ornamental, shade, or edible. Permaculture stacks multiple functions: an elderberry provides food, medicine, pollinator habitat, windbreak, and privacy screen simultaneously. Stacking functions increases productivity per square foot and reduces inputs because each element serves multiple roles."]},
+      {q:"What are the ethical guidelines for responsible foraging and why are they essential for sustainable wild harvesting?", answers:["Responsible foraging guidelines: never harvest more than 10\u201320% of a plant population in any area. Leave the plant in better condition than you found it. Never harvest rare or endangered species. Ensure 100% positive identification before consuming anything. Harvest only from clean, unpolluted areas. These guidelines prevent overharvesting and ecosystem damage while ensuring personal safety."]}
+    ],
+    challenge: "Design a permaculture food system for your property or a hypothetical 1-acre site. Map all zones, identify key guilds, and document local foraging resources.",
+    tuesday:   { low: {title:"Site observation", activity:"Observe your site at different times of day over 3 days. Document: sun patterns, water flow, wind direction, soil quality, and existing plants. This is the foundation of design."}, mid: {title:"Zone mapping", activity:"Create a zone map for your site based on actual visit frequency and management intensity. What functions belong in each zone?"}, high: {title:"Permaculture design principles deep dive", activity:"Research Bill Mollison\u2019s and David Holmgren\u2019s permaculture design principles in depth. How do the principles apply to your specific site design decisions?"} },
+    wednesday: { low: {title:"Guild design", activity:"Design a food forest guild for Zone 2 of your site. Select 7 plants (one for each layer) that are mutually beneficial, productive, and appropriate for Florida."}, mid: {title:"Water harvesting design", activity:"Design water catchment features for your site: swales on contour, rain gardens, and pond placement. How does water harvesting reduce irrigation needs?"}, high: {title:"Succession planting", activity:"Research ecological succession and how it applies to permaculture design. How do pioneer species establish conditions for more complex communities over time?"} },
+    thursday:  { low: {title:"Local foraging survey", activity:"Identify 10 edible plants growing within walking distance of your home. Document: identification, harvest season, edible parts, and preparation."}, mid: {title:"Complete design document", activity:"Complete your permaculture design document: site analysis, zone map, guild selections, water features, and annual production estimates."}, high: {title:"Permaculture certification research", activity:"Research Permaculture Design Certificate (PDC) courses. What does a full PDC cover and how does it build on self-directed learning?"} }
+  },
+
+  "Emergency preparedness capstone project": {
+    gradeHooks: {
+      low: "The capstone project demonstrates everything you\u2019ve learned about emergency preparedness through a substantial real-world project.",
+      mid: "A capstone project applies multiple skills and disciplines to solve a real preparedness challenge for your family or community.",
+      high: "Capstone project design, integrative application of learning, and the documentation of complex projects are important topics."
+    },
+    materials: ["Project planning tools", "All skills and knowledge from previous lessons"],
+    steps: [
+      "Project selection: choose a project that is substantial, realistic, and demonstrates multiple competencies.",
+      "Suggested capstone options: complete family emergency operations plan with tested drills; off-grid energy system installation; complete water independence system; community preparedness program delivered to 30+ people.",
+      "Project planning: define scope, deliverables, timeline, resource requirements, and success criteria before starting.",
+      "Execution: document the project process with regular progress notes, photos, and challenges encountered.",
+      "Presentation: present the completed project to an audience that includes people outside your family."
+    ],
+    discussion: [
+      {q:"What makes a capstone project different from a regular assignment and why does the distinction matter?", answers:["A capstone project integrates multiple domains, is open-ended (no single correct answer), produces a real-world deliverable, and requires sustained effort over time. Unlike an assignment with a defined answer, a capstone requires judgment, adaptation, and genuine problem-solving. The distinction matters because it develops fundamentally different capabilities."]},
+      {q:"How does presenting your project to an external audience change the quality of your work?", answers:["Knowing that people outside your household will evaluate your work raises the standard. You must be able to explain your decisions to people who don\u2019t share your assumptions. Audience questions reveal gaps in your reasoning that self-evaluation misses. External presentation creates accountability that drives quality."]}
+    ],
+    challenge: "Complete a substantial capstone project and present it to a community audience. The project must demonstrate competencies from at least 5 different course topics.",
+    tuesday:   { low: {title:"Project selection and scoping", activity:"Select your capstone project. Write a project brief: what you will build or create, why it matters, what skills it demonstrates, and how you will know it\u2019s done."}, mid: {title:"Project planning", activity:"Create a full project plan: work breakdown structure, timeline, resource list, risk identification, and success criteria."}, high: {title:"Portfolio integration", activity:"Design how your capstone integrates with a broader learning portfolio. What evidence from the full year of learning does it demonstrate and synthesize?"} },
+    wednesday: { low: {title:"Project execution week 1", activity:"Begin project execution. Document daily progress, challenges encountered, and decisions made."}, mid: {title:"Midpoint review", activity:"At the project midpoint, review progress against plan. What is ahead of schedule? What is behind? What adjustments are needed?"}, high: {title:"Documentation standards", activity:"Research professional project documentation standards. How do engineers, emergency managers, and architects document complex projects? Apply relevant standards to your project."} },
+    thursday:  { low: {title:"Project completion and presentation", activity:"Complete your capstone project and present it. Collect audience feedback and document it."}, mid: {title:"Lessons learned documentation", activity:"Write a formal lessons learned report: what went well, what you would do differently, and what you would tell someone starting the same project."}, high: {title:"Impact assessment", activity:"Assess the real-world impact of your capstone project. What changed as a result? How will you measure whether the impact is sustained?"} }
+  },
+
+  "Stop the bleed instructor certification prep": {
+    gradeHooks: {
+      low: "The Stop the Bleed Instructor program trains you to teach hemorrhage control to the public. It multiplies your impact enormously.",
+      mid: "Becoming a certified Stop the Bleed instructor involves specific certification requirements, training delivery skills, and program administration.",
+      high: "Public health training cascade design, fidelity vs adaptation in evidence-based program delivery, and the epidemiology of preventable hemorrhage death are important topics."
+    },
+    materials: ["NAEMT or ACS Stop the Bleed course materials", "Training kit (tourniquet, wound packing materials)"],
+    steps: [
+      "Instructor requirements: current Stop the Bleed student certification, completion of the instructor course, and affiliation with an authorized training center.",
+      "Authorized Training Centers: hospitals, fire departments, community organizations. Instructors operate under their sponsorship.",
+      "Training delivery fidelity: the curriculum is standardized. Instructors follow the approved lesson plan. Modifications require authorization.",
+      "Equipment requirements: each student must practice with hands-on equipment: training tourniquet, wound packing trainer, pressure bandage.",
+      "Program administration: class registration, course completion documentation, and submission to the ACS for national records."
+    ],
+    discussion: [
+      {q:"Why does the Stop the Bleed program use a highly standardized curriculum rather than allowing instructor customization?", answers:["Standardization ensures that every student nationwide receives the same quality and content of training. It enables public health impact measurement. It prevents instructors from inadvertently teaching incorrect or outdated techniques. The program was designed from evidence about hemorrhage control and tested with specific content — arbitrary customization risks diluting its effectiveness."]},
+      {q:"What is the public health impact potential of the Stop the Bleed program and how is it measured?", answers:["Hemorrhage is the leading cause of preventable death in trauma. If 20% of bystanders were trained in hemorrhage control, modeling suggests thousands of additional lives could be saved annually. Impact is measured through course completion numbers, but ideally through trauma outcome data showing increased bystander intervention rates and decreased hemorrhage-related preventable deaths."]}
+    ],
+    challenge: "Complete all prerequisites for Stop the Bleed instructor certification. Design a training delivery plan for your first 5 community classes.",
+    tuesday:   { low: {title:"Certification pathway research", activity:"Research the complete Stop the Bleed instructor certification pathway. What courses, affiliations, and documentation are required?"}, mid: {title:"Training center affiliation", activity:"Research authorized training centers in your community. Contact one to discuss instructor affiliation possibilities."}, high: {title:"Hemorrhage epidemiology research", activity:"Research the epidemiology of preventable hemorrhage death in civilian trauma. What percentage of trauma deaths could potentially be prevented by bystander hemorrhage control?"} },
+    wednesday: { low: {title:"Equipment familiarization", activity:"Practice with all training equipment until your technique is expert-level. You must be able to demonstrate and correct any error your students make."}, mid: {title:"Lesson plan mastery", activity:"Study the approved Stop the Bleed lesson plan until you can deliver it from memory. Practice transitions between sections."}, high: {title:"Program cascade design", activity:"Design a community Stop the Bleed training cascade: how would you train 500 community members in 12 months using 5 certified instructors?"} },
+    thursday:  { low: {title:"Mock instruction delivery", activity:"Deliver a complete Stop the Bleed class to 3\u20135 people. Film it for review. Identify 5 specific improvements."}, mid: {title:"Student management practice", activity:"Practice managing common student challenges: the disengaged student, the squeamish student, and the student who argues with the technique."}, high: {title:"Impact measurement design", activity:"Design a program impact measurement system for your community Stop the Bleed program. What metrics track both reach and effectiveness?"} }
+  },
+
+  "Community emergency plan — write and present": {
+    gradeHooks: {
+      low: "A community emergency plan documents how a neighborhood or organization will prepare for, respond to, and recover from emergencies.",
+      mid: "A functional community emergency plan is actionable, widely distributed, regularly tested, and maintained by an accountable team.",
+      high: "Emergency planning standards (FEMA CPG 101), community engagement in planning, and plan maintenance systems are important topics."
+    },
+    materials: ["FEMA CPG 101 guide", "Community stakeholder data"],
+    steps: [
+      "Plan structure: purpose and scope, hazard and threat analysis, concept of operations, organization and assignment of responsibilities, direction and control, and plan maintenance.",
+      "Hazard analysis: for your community, what are the specific threats? (In Florida: hurricanes, flooding, extreme heat, power outages, wildfires in rural areas.)",
+      "Concept of operations: who does what, in what sequence, when an emergency occurs? The most important section — it must be specific enough to be usable.",
+      "Stakeholder engagement: the plan must reflect input from all affected parties. A plan written by one person for a community that didn\u2019t participate is rarely followed.",
+      "Testing and maintenance: an untested plan is a hypothesis. Test with drills and tabletop exercises. Update after every test and every activation."
+    ],
+    discussion: [
+      {q:"Why does FEMA emphasize community engagement in emergency plan development rather than having experts write plans for communities?", answers:["Community members know their own vulnerabilities, resources, and capabilities better than outside experts. Plans developed without community input often contain incorrect assumptions about what resources are actually available, what capabilities exist, and what actions people will actually take. Community engagement also builds ownership and improves plan compliance."]},
+      {q:"What makes an emergency plan \u2018living\u2019 vs \u2018binder on a shelf\u2019?", answers:["A living plan: is regularly tested through drills and exercises, is updated after every test and every activation, has named individuals responsible for each section, is accessible to everyone it affects (not locked in an administrator\u2019s office), and has a defined review cycle. A binder plan is written once and never revisited."]}
+    ],
+    challenge: "Write a complete community emergency plan for your neighborhood association, faith community, or school. Present it to the community and get formal adoption.",
+    tuesday:   { low: {title:"Hazard analysis", activity:"Conduct a hazard analysis for your community. Research historical disasters, identify current vulnerabilities, and rank threats by probability and impact."}, mid: {title:"Plan structure design", activity:"Design the structure of your community emergency plan following FEMA CPG 101 guidance. What sections will it contain and who will be responsible for each?"}, high: {title:"CPG 101 research", activity:"Research FEMA\u2019s Comprehensive Preparedness Guide 101. What planning standards does it establish and how does it structure the planning process?"} },
+    wednesday: { low: {title:"Concept of operations writing", activity:"Write the concept of operations section for your plan: what happens step by step for your community\u2019s highest-probability hazard."}, mid: {title:"Stakeholder engagement process", activity:"Design a stakeholder engagement process for your plan. Who must be consulted? How will you gather input and build consensus?"}, high: {title:"Plan maintenance system", activity:"Design a plan maintenance system: review schedule, responsible parties, testing calendar, and revision documentation process."} },
+    thursday:  { low: {title:"Plan completion and adoption", activity:"Complete your plan and present it to the community organization it covers. Seek formal adoption by the organization\u2019s leadership."}, mid: {title:"First test design", activity:"Design the first tabletop exercise to test your plan. What scenario will you use? What do you hope to learn about the plan\u2019s strengths and weaknesses?"}, high: {title:"Plan legal and liability context", activity:"Research the legal context for community emergency plans. What liability do plan writers and plan adopters have? How does NIMS compliance affect federal funding eligibility?"} }
+  },
+
+  "Off-grid budget — cost of energy independence": {
+    gradeHooks: {
+      low: "Going off-grid costs money upfront but saves money over time. Today we calculate exactly what it costs and when it pays off.",
+      mid: "A complete off-grid budget analyzes first cost, ongoing cost, financing, and the break-even compared to utility service.",
+      high: "Levelized cost of energy analysis, net present value of off-grid investment, and sensitivity analysis for key variables are important financial topics."
+    },
+    materials: ["Off-grid system design specifications", "Cost data", "Financial analysis tools"],
+    steps: [
+      "Component costs: solar panels, batteries, charge controller, inverter, mounting, wiring, and installation labor.",
+      "Ongoing costs: battery replacement (8\u201315 years for lithium), inverter replacement (10\u201315 years), panel cleaning and inspection.",
+      "Opportunity cost: the capital invested in an off-grid system could earn returns elsewhere. This is the opportunity cost.",
+      "Grid comparison: what would utility service cost over the same period? Calculate avoided utility costs.",
+      "Net present value: discount future cash flows to present value. This accounts for the time value of money."
+    ],
+    discussion: [
+      {q:"What is the levelized cost of energy (LCOE) and how does it enable comparison between off-grid systems and grid electricity?", answers:["LCOE is the total lifecycle cost of a system divided by the total lifetime energy produced, expressed in $/kWh. It enables apples-to-apples comparison: an off-grid system with $40,000 total lifecycle cost producing 200,000 kWh over 25 years has an LCOE of $0.20/kWh. If grid electricity costs $0.15/kWh, grid is cheaper. If grid costs $0.25/kWh (and rising), off-grid is competitive."]},
+      {q:"Why does the economics of off-grid vs grid vary so much by location and what are the key variables?", answers:["Solar resource (more sun = more production), utility electricity rates (higher rates favor off-grid), grid connection cost (expensive connections favor off-grid), demand patterns, and battery replacement schedules all affect economics. Off-grid is most competitive in high-sun, high-rate, expensive-to-connect locations. Florida\u2019s moderate rates and good solar resource create a marginal economic case unless grid connection is expensive."]}
+    ],
+    challenge: "Build a complete off-grid budget and financial analysis. Calculate LCOE, NPV, and break-even year. Compare to continuing grid service.",
+    tuesday:   { low: {title:"Component cost research", activity:"Research current retail prices for all components in your designed off-grid system. Build a complete bill of materials with costs."}, mid: {title:"Lifecycle cost calculation", activity:"Calculate the total lifecycle cost of your system over 25 years: initial cost + battery replacements + maintenance. What is the total?"}, high: {title:"LCOE calculation", activity:"Calculate the LCOE of your designed system. What is the cost per kWh over the system\u2019s life? How does this compare to current and projected grid rates?"} },
+    wednesday: { low: {title:"Grid cost comparison", activity:"Calculate what utility electricity would cost over 25 years assuming 3% annual rate increases. Compare total to your off-grid lifecycle cost."}, mid: {title:"NPV analysis", activity:"Calculate the net present value of the off-grid investment at a 5% discount rate. Is the NPV positive? What does this mean?"}, high: {title:"Sensitivity analysis", activity:"Model how the economics change with: electricity rate increases of 5% vs 2% annually, battery replacement at year 10 vs year 15, and 20% lower panel costs."} },
+    thursday:  { low: {title:"Break-even calculation", activity:"Calculate the break-even year: when does the cumulative cost of off-grid fall below cumulative grid cost? What assumptions most affect this?"}, mid: {title:"Financing options research", activity:"Research financing options for off-grid systems: cash purchase, HELOC, solar loan, and lease. How does financing affect the break-even and NPV?"}, high: {title:"Real estate value research", activity:"Research whether off-grid systems increase home resale value. What does the data show about buyer willingness to pay a premium for energy-independent homes?"} }
+  },
+
+  "Caloric storage for one year — family of four": {
+    gradeHooks: {
+      low: "We calculate exactly how many calories a family of four needs for one year and plan the specific foods to store.",
+      mid: "A one-year caloric storage plan balances caloric density, nutritional completeness, palatability, storage requirements, and budget.",
+      high: "Food storage science, caloric density optimization, and the logistics of managing a year-long rotating food supply are important topics."
+    },
+    materials: ["Caloric reference data", "Storage inventory", "Budget spreadsheet"],
+    steps: [
+      "Caloric needs: adult male ~2,500 cal/day, adult female ~2,000, child 8\u201312 ~1,600, child 4\u20137 ~1,400. Total family per day and per year.",
+      "Caloric density leaders: white rice (1,640 cal/lb), rolled oats (1,680 cal/lb), hard red wheat (1,400 cal/lb), dried beans (1,500 cal/lb), sugar (1,748 cal/lb), cooking oil (3,500+ cal/lb).",
+      "Storage allocation: 60\u201370% calories from grains and legumes. 15\u201320% from fats and oils. 10\u201315% from sugars and flavoring. Supplemented by vitamins.",
+      "Container selection: mylar bags in 5-gallon buckets for bulk grains. Commercially sealed cans for some items. Oxygen absorbers to prevent rancidity.",
+      "Rotation: label everything with purchase date. Use oldest first. Restock as you use. Living rotation is more practical than static storage."
+    ],
+    discussion: [
+      {q:"Why is cooking oil the most important item to include in a long-term food storage plan from a caloric density standpoint?", answers:["At 3,500+ calories per pound, oils are the most calorie-dense food storage item. A 5-gallon bucket of white rice weighs 33 lbs and contains ~54,000 calories. A gallon of vegetable oil weighs 7.5 lbs and contains 30,000 calories. Adding oil to a grain-heavy storage plan dramatically increases caloric density without requiring much space. Fat is also essential for fat-soluble vitamin absorption."]},
+      {q:"What are the most common nutritional deficiencies in a white rice and beans long-term storage scenario?", answers:["Vitamin C (no fresh produce), vitamin D (no sun exposure if sheltering), vitamin B12 (no animal products unless stored), calcium (no dairy), and essential fatty acids (limited fat diversity). A good long-term storage plan includes: multivitamins, vitamin C powder, and diverse fats. Sprouting seeds (easily stored) provides fresh greens and vitamin C."]}
+    ],
+    challenge: "Calculate the complete one-year caloric storage plan for your family. Specify all items, quantities, costs, and storage requirements. Budget the total cost.",
+    tuesday:   { low: {title:"Family caloric needs calculation", activity:"Calculate your family\u2019s total daily and annual caloric needs. How does this vary by season if activity levels change?"}, mid: {title:"Caloric density research", activity:"Research the top 15 caloric density foods for storage. Create a comparison table: food, calories per pound, shelf life, and storage requirements."}, high: {title:"Nutritional completeness analysis", activity:"Analyze the nutritional completeness of a basic rice-beans-oil storage plan. What vitamins and minerals are deficient and what additions address each gap?"} },
+    wednesday: { low: {title:"Storage allocation plan", activity:"Create a specific storage allocation: pounds of each food category needed for your family for one year. Calculate total weight and volume."}, mid: {title:"Container and packaging research", activity:"Research long-term food storage containers: mylar bags + oxygen absorbers + buckets, #10 cans, and commercial freeze-dried options. Compare cost per calorie and shelf life."}, high: {title:"Freeze-dried vs bulk grain comparison", activity:"Compare commercial freeze-dried food storage systems to bulk grain storage on: cost per calorie, nutritional completeness, palatability, preparation requirements, and total weight."} },
+    thursday:  { low: {title:"Budget calculation", activity:"Price out your complete one-year storage plan at current retail prices. What is the total cost? What is the cost per day per person?"}, mid: {title:"Rotation system design", activity:"Design a practical rotation system for your storage. How do you ensure FIFO without rebuilding the entire system regularly?"}, high: {title:"Caloric storage ROI analysis", activity:"Calculate the ROI of one-year caloric storage: current cost vs projected food price increases. At 5% annual food inflation, when does the stored food become worth more than its purchase price?"} }
+  },
+
+  "Well drilling basics — shallow vs deep": {
+    gradeHooks: {
+      low: "Wells provide water directly from underground aquifers. Shallow wells reach the water table; deep wells reach confined aquifers far below.",
+      mid: "Understanding well types, drilling methods, casing requirements, and water quality differences enables informed decisions about water independence.",
+      high: "Hydrogeology, well construction standards, and Florida\u2019s aquifer system characteristics are important topics."
+    },
+    materials: ["Florida aquifer maps", "Well construction reference"],
+    steps: [
+      "Shallow wells: penetrate the unconfined water table (surficial aquifer). In Florida, often 10\u201350 feet. Susceptible to drought, surface contamination, and saltwater intrusion near coasts.",
+      "Deep wells: penetrate a confined aquifer separated from the surface by impermeable rock. In Florida, the Floridan Aquifer at 60\u2013200+ feet. More reliable and typically better water quality.",
+      "Drilling methods: rotary drilling (most common, requires specialized equipment), cable tool (older, slower), hand drilling (shallow only).",
+      "Casing: steel or PVC pipe lining the well hole. Prevents collapse and surface contamination. Must be grouted at the surface.",
+      "Permitting: Florida requires permits for most well drilling. The county health department or water management district issues permits."
+    ],
+    discussion: [
+      {q:"Why is the Floridan Aquifer considered one of the most productive aquifers in the world?", answers:["The Floridan Aquifer is a massive karst limestone system that extends across most of Florida and into adjacent states. Its porous limestone dissolves readily, creating large conduits and cavities that store and transmit enormous volumes of water. Natural springs throughout Florida where the aquifer is under pressure discharge thousands of gallons per minute."]},
+      {q:"What are the specific risks of a shallow well in coastal Florida that do not apply to deep wells?", answers:["Saltwater intrusion from rising sea levels and overpumping of coastal aquifers can contaminate shallow wells rapidly. Surface contamination from septic systems, pesticides, and fertilizers reaches shallow wells much faster than deep confined aquifers. Drought reduces the shallow water table while deep confined aquifers maintain pressure. Coastal flood events can directly contaminate shallow wells."]}
+    ],
+    challenge: "Research the well drilling regulations and aquifer conditions for your county. Determine whether a shallow or deep well is appropriate and the estimated cost.",
+    tuesday:   { low: {title:"Florida aquifer mapping", activity:"Research the aquifer map for your county. What aquifer systems are present? At what depth is each? What water quality does each typically produce?"}, mid: {title:"Well construction standards", activity:"Research Florida\u2019s well construction standards (Chapter 62-532 FAC). What casing depth, grouting requirements, and setback distances are required?"}, high: {title:"Karst hydrogeology research", activity:"Research karst hydrogeology. How does limestone dissolution create Florida\u2019s aquifer system and springs? What features indicate karst topography?"} },
+    wednesday: { low: {title:"Drilling method comparison", activity:"Compare rotary drilling, cable tool drilling, and hand drilling. What are the depth limits, cost, and equipment requirements for each?"}, mid: {title:"Well permit process research", activity:"Research the well drilling permit process in your county. What is required, how long does it take, and what does it cost?"}, high: {title:"Groundwater contamination research", activity:"Research documented groundwater contamination events in Florida. What contaminant sources have affected which aquifers and what remediation has been done?"} },
+    thursday:  { low: {title:"Well installation cost research", activity:"Research the cost of drilling and installing a complete well system in your county: drilling, casing, pump, pressure tank, and electrical connection."}, mid: {title:"Water quality testing requirements", activity:"Research what water quality tests are required for a new well before use. What parameters are tested and what are the EPA maximum contaminant levels?"}, high: {title:"Saltwater intrusion research", activity:"Research saltwater intrusion in Florida\u2019s coastal aquifers. What areas are most at risk and how does climate change affect the threat?"} }
+  },
+
+  "Home systems audit — HVAC plumbing electrical": {
+    gradeHooks: {
+      low: "A complete home systems audit documents the condition of every major system so you know what to maintain and what to plan to replace.",
+      mid: "A professional-quality home systems audit requires understanding each system\u2019s expected lifespan, current condition indicators, and replacement planning.",
+      high: "Building systems lifecycle analysis, predictive maintenance methodology, and the economics of planned replacement vs emergency repair are important topics."
+    },
+    materials: ["Home systems inspection checklist", "Age and specification records for all major systems"],
+    steps: [
+      "HVAC: age and remaining life, efficiency (SEER rating), filter condition, coil condition, ductwork leakage, thermostat function, and refrigerant charge.",
+      "Plumbing: pipe material and condition (galvanized steel corrodes, older PVC becomes brittle), water heater age and condition, pressure, and any evidence of leaks or corrosion.",
+      "Electrical: panel age and brand (certain old brands [Zinsco, Federal Pacific] are fire hazards), service size adequacy, GFCI/AFCI compliance, and grounding.",
+      "Major appliances: age vs expected lifespan. Budget for replacements within the planning horizon.",
+      "Documentation: create a home systems binder with model numbers, installation dates, warranty information, and maintenance records."
+    ],
+    discussion: [
+      {q:"Why do certain electrical panel brands from the 1960s\u20131980s represent an ongoing fire hazard regardless of their current condition?", answers:["Federal Pacific Electric (FPE) Stab-Lok and Zinsco panels have documented defects: breakers that fail to trip during overcurrent events. This means circuit protection doesn\u2019t work. These panels have been linked to thousands of house fires. Unlike a component that fails and is obvious, these panels appear to function normally while failing their core safety function."]},
+      {q:"What is the economic case for documenting all home systems and creating a replacement schedule?", answers:["Systems fail expensively when they are not anticipated. An HVAC system that fails in August requires emergency replacement at premium prices with extended lead times. A planned replacement in the spring allows competitive bidding, optimal timing, and avoiding emergency surcharges. Documentation also supports homeowner\u2019s insurance claims and increases resale value."]}
+    ],
+    challenge: "Complete a comprehensive home systems audit. Create a systems binder with all documentation. Build a 10-year replacement budget based on current system ages.",
+    tuesday:   { low: {title:"HVAC system audit", activity:"Document your HVAC system: manufacturer, model, installation date, SEER rating, last service date, and current condition indicators. Research its expected remaining life."}, mid: {title:"Plumbing system audit", activity:"Audit all plumbing: pipe material throughout the house (check under sinks), water heater age and anode rod condition, and evidence of any past or current leaks."}, high: {title:"Electrical panel safety research", activity:"Research FPE and Zinsco electrical panel hazards. How do you identify these panels? What does panel replacement cost and when is it mandatory?"} },
+    wednesday: { low: {title:"Electrical system audit", activity:"Document your electrical panel: manufacturer, installation date, service size, and condition. Test all GFCIs. Identify any code compliance gaps."}, mid: {title:"System lifespan research", activity:"Research expected lifespans for: HVAC (15\u201320 years), water heater (8\u201312 years), main electrical panel (25\u201340 years), and roof (15\u201330 years depending on material)."}, high: {title:"Predictive failure indicators", activity:"Research predictive failure indicators for each major system. What observable signs predict impending failure for HVAC, water heaters, and electrical systems?"} },
+    thursday:  { low: {title:"Systems binder creation", activity:"Create a home systems binder. For each major system: photo, model/serial numbers, installation date, warranty status, and maintenance log."}, mid: {title:"10-year replacement budget", activity:"Build a 10-year replacement budget. For each system approaching end of life, calculate: estimated replacement cost, likely year of replacement, and budget needed per year."}, high: {title:"Return on improvement research", activity:"Research which home system upgrades provide the highest return on investment for resale: HVAC replacement, electrical upgrades, plumbing updates. What does real estate data show?"} }
+  },
+
+  "Budgeting for life after high school": {
+    gradeHooks: {
+      low: "Life after high school means paying for things that used to be free: housing, food, insurance, and much more. A budget prepares you for this.",
+      mid: "A realistic post-high school budget must account for every expense category and is calibrated to actual income from a realistic first job.",
+      high: "The economics of early adulthood, the long-term cost of financial decisions made at 18\u201325, and the behavioral dimensions of first-time budgeting are important topics."
+    },
+    materials: ["Cost of living data for your target location", "Entry-level salary data for target career"],
+    steps: [
+      "Income side: research realistic first-year income for your career path. Use net income (after taxes and any benefits deductions).",
+      "Mandatory fixed costs: rent (target 30% or less of gross income), renter\u2019s insurance, utilities, phone, transportation (car payment + insurance + gas + maintenance or transit pass).",
+      "Variable necessities: food (groceries + restaurants), healthcare co-pays and prescriptions, clothing.",
+      "Financial priorities: emergency fund contribution, student loan payments, retirement contribution (at minimum to capture employer match).",
+      "Reality check: if mandatory + necessities + financial priorities exceed income, something must change (earn more, spend less, live differently)."
+    ],
+    discussion: [
+      {q:"What is the most common financial mistake of young adults and why does it compound so severely?", answers:["Failing to start retirement savings early. A 22-year-old who delays saving until 32 must contribute 2\u20133x as much to achieve the same retirement outcome. The \u2018I\u2019ll start when I\u2019m more stable\u2019 mindset delays 10 years of compounding that can never be recovered. The cost of delay is not linear — it is exponential."]},
+      {q:"How does geographic location affect the viability of post-high school financial independence?", answers:["Rent to income ratios vary enormously by location. In San Francisco or New York, entry-level salaries may not support independent living. In mid-size Florida cities, the same income is viable. Geographic arbitrage (choosing to live in a lower-cost location early in your career) can allow savings rates 2\u20133x higher than high-cost cities, compounding into dramatically different long-term outcomes."]}
+    ],
+    challenge: "Build a complete budget for your first year living independently in a specific city with a specific first job. Can you make it work? What tradeoffs did you make?",
+    tuesday:   { low: {title:"Target career income research", activity:"Research realistic first-year income for 3 career paths you\u2019re considering. Include gross income, estimated taxes, and net take-home in your target city."}, mid: {title:"Housing cost research", activity:"Research rental costs in your target city. What does a 1-bedroom apartment cost? A shared house? How does this compare to 30% of your projected income?"}, high: {title:"Cost of living calculator comparison", activity:"Use multiple cost of living calculators to compare your target city to alternatives. What would you earn and spend in 3 different cities for the same career?"} },
+    wednesday: { low: {title:"Transportation budget", activity:"Calculate transportation costs for your target city: car ownership (payment, insurance, fuel, maintenance) vs public transit + rideshare. Which is viable on your projected income?"}, mid: {title:"Student loan payment calculation", activity:"Calculate the monthly payment on different student loan amounts at current rates with the standard 10-year repayment plan. How does debt burden affect the budget?"}, high: {title:"Savings rate optimization", activity:"Optimize your projected budget for maximum savings rate while maintaining a realistic lifestyle. What minimum savings rate is achievable while living independently in your target city?"} },
+    thursday:  { low: {title:"Complete post-high school budget", activity:"Build your complete first-year budget. Does it balance? What were the hardest tradeoffs?"}, mid: {title:"5-year trajectory modeling", activity:"Project your financial trajectory over 5 years: income growth, debt paydown, savings accumulation, and net worth at year 5."}, high: {title:"Lifestyle inflation research", activity:"Research lifestyle inflation. What does behavioral economics research show about how spending increases with income? How do people protect themselves from lifestyle inflation?"} }
+  },
+
+  "Teaching a land navigation course": {
+    gradeHooks: {
+      low: "Teaching a full land navigation course integrates all your navigation knowledge and teaching skills into a complete multi-day curriculum.",
+      mid: "Designing and teaching a comprehensive navigation course requires curriculum architecture, progressive skill building, and formal competency assessment.",
+      high: "Navigation curriculum design, the cognitive architecture of spatial learning, and assessment validity in outdoor education are important topics."
+    },
+    materials: ["Complete navigation curriculum", "Student group", "Orienteering course or diverse terrain"],
+    steps: [
+      "Course architecture: design a 3\u20135 session progression from basic map reading to solo cross-country navigation.",
+      "Progressive challenge: each session builds on the previous. Students should not attempt skills they have not been prepared for.",
+      "Multiple terrain types: if possible, teach in flat terrain, then introduce hills, forest, and mixed terrain.",
+      "Student portfolio: have each student maintain a navigation journal documenting their route choices, errors, and corrections.",
+      "Final assessment: a solo navigation course with multiple controls. The student must navigate independently with the instructor observing only."
+    ],
+    discussion: [
+      {q:"What is the argument for teaching map and compass before GPS even in a world where GPS is ubiquitous?", answers:["Map and compass develops spatial cognition, terrain reading, and mental modeling of 3D space from 2D representations. These cognitive skills transfer to GPS use and to problem-solving when GPS fails. Students who learn GPS first often have poor terrain awareness and are helpless without technology. The foundational skills develop capabilities that GPS never can."]},
+      {q:"How do you design a navigation assessment that tests actual navigational competency rather than luck or memorization?", answers:["Use novel terrain the student has not seen before. Require the student to navigate to unmarked controls using only the map description. Assess process, not just outcome: did the student make a plan, maintain terrain association, use the compass deliberately? Assess in conditions that resemble real navigation: mild time pressure, some uncertainty, and natural decision points."]}
+    ],
+    challenge: "Design and teach a complete 3-session land navigation course to a group of students. Run a formal final assessment with a pass/fail result for each student.",
+    tuesday:   { low: {title:"Complete curriculum design", activity:"Design a 3-session land navigation curriculum from zero to solo course completion. Specify objectives, activities, materials, and time allocations for each session."}, mid: {title:"Navigation journal design", activity:"Design a student navigation journal template. What should students record at each decision point during practice navigation?"}, high: {title:"Cognitive spatial learning research", activity:"Research the cognitive science of spatial learning. What does research show about how map reading ability develops and what instruction approaches accelerate it?"} },
+    wednesday: { low: {title:"Course design", activity:"Design the final assessment orienteering course. Select control locations that require genuine navigation, not just trail following. Write the course description card."}, mid: {title:"Rubric development", activity:"Develop a detailed assessment rubric for the final navigation course. How do you evaluate navigation process, not just successful control finds?"}, high: {title:"Transfer of learning design", activity:"Research transfer of learning in outdoor education. How do you design navigation instruction that transfers to navigation in unfamiliar terrain?"} },
+    thursday:  { low: {title:"Course delivery and assessment", activity:"Deliver all 3 sessions and run the final assessment. Document each student\u2019s journey and final result."}, mid: {title:"Course evaluation", activity:"Evaluate your course after completion. What progression gaps revealed themselves? What would you restructure?"}, high: {title:"Curriculum publication", activity:"Develop your navigation curriculum into a shareable format. What documentation, map packages, and instructor notes would allow another instructor to deliver it?"} }
+  },
+
+
+  "Off-grid budget — cost of energy independence": {
+    gradeHooks: {
+      low: "Energy independence has a real cost. A complete budget shows exactly what it takes to produce your own power.",
+      mid: "A complete off-grid energy budget integrates capital costs, operating costs, and opportunity costs to reveal the true economics.",
+      high: "Lifecycle cost analysis, levelized cost of energy, and the financial decision framework for energy independence investment are important topics."
+    },
+    materials: ["All system specifications and pricing", "Financial modeling tools"],
+    steps: [
+      "Capital cost inventory: all hardware, installation, permitting, and professional services. Total cost to achieve energy independence.",
+      "Financing analysis: cash purchase vs loan vs lease. How does each option affect monthly cash flow and total lifetime cost?",
+      "Operating costs: maintenance, filter and battery replacement schedule, insurance, and monitoring.",
+      "Energy production value: kWh produced per year multiplied by current utility rate equals annual electricity value produced.",
+      "Payback and IRR: simple payback = capital cost divided by annual savings. Internal rate of return accounts for the time value of money."
+    ],
+    discussion: [
+      {q:"How does the federal solar tax credit change the financial analysis of an off-grid solar system?", answers:["The 30% federal Investment Tax Credit reduces the net cost of the system by 30%. A $20,000 system nets to $14,000 after the credit. This dramatically improves the payback period and IRR. The credit applies to the full installed cost including panels, batteries, inverter, and installation labor."]},
+      {q:"What non-financial benefits should be included in an off-grid energy investment analysis?", answers:["Energy security (immunity from utility outages), price stability (protection from utility rate increases), reduced carbon footprint, and resilience value (functioning during grid emergencies). These benefits have real value but are not fully captured in a simple financial analysis."]}
+    ],
+    challenge: "Build a complete 20-year financial model for your off-grid energy system. Calculate simple payback, NPV at 5% discount rate, and IRR. Identify the assumptions that most affect the analysis.",
+    tuesday:   { low: {title:"Capital cost summary", activity:"Compile all capital costs for your energy system broken down by component: panels, batteries, inverter, wiring, mounting, installation, and permits."}, mid: {title:"Operating cost projection", activity:"Project annual operating costs for 20 years: maintenance labor, component replacement schedule, insurance, and monitoring."}, high: {title:"IRR calculation", activity:"Calculate the Internal Rate of Return for your off-grid energy investment. Compare to alternative investment returns such as a diversified index fund."} },
+    wednesday: { low: {title:"Tax credit analysis", activity:"Research the federal Investment Tax Credit in detail. What qualifies, how is it claimed, and what happens if you have insufficient tax liability?"}, mid: {title:"Utility rate escalation modeling", activity:"Research historical utility rate escalation (typically 2\u20133% per year). Model how increasing utility rates change the financial analysis over 20 years."}, high: {title:"Sensitivity analysis", activity:"Perform sensitivity analysis on your model. Which assumptions most affect the result? What is the break-even utility rate for your system to achieve positive NPV?"} },
+    thursday:  { low: {title:"Complete financial model", activity:"Complete your 20-year financial model. Present the key findings: payback period, NPV, and IRR."}, mid: {title:"Financing option comparison", activity:"Compare 3 financing options: cash purchase, 7% loan over 10 years, and solar lease. Calculate the total 20-year cost for each."}, high: {title:"Value of resilience quantification", activity:"Research methods for quantifying the value of energy resilience. How do economists estimate the value of backup power for specific critical applications?"} }
+  },
+
+  "Caloric storage for one year — family of four": {
+    gradeHooks: {
+      low: "A one-year caloric storage plan provides a complete food supply for the family if external food sources are unavailable for a full year.",
+      mid: "Designing a one-year caloric storage plan requires integrating caloric density, nutritional completeness, shelf life, and cost.",
+      high: "Long-duration food storage science, nutritional adequacy modeling, and the logistics of large-scale home food storage are important topics."
+    },
+    materials: ["Caloric needs calculations", "Food storage cost data", "Storage space assessment"],
+    steps: [
+      "Caloric requirement: a family of 4 (2 adults, 2 children) needs approximately 7,500\u20138,000 calories per day, or 2.7\u20133.0 million calories per year.",
+      "Caloric staples: white rice (1,600 cal/lb), dried beans (1,500 cal/lb), rolled oats (1,700 cal/lb), pasta (1,600 cal/lb).",
+      "Quantity example: rice alone would require 1,700\u20131,900 lbs. A diversified mix of staples is more nutritious and manageable.",
+      "Nutritional supplementation: vitamins (especially B12, D, C), stored fats (olive oil, peanut butter), and proteins (canned fish, dried legumes).",
+      "Storage requirements: 1,700 lbs of rice occupies approximately 25 cubic feet. A complete 1-year supply may require 50\u201380 cubic feet."
+    ],
+    discussion: [
+      {q:"Why is a mix of caloric staples superior to a single-staple storage plan?", answers:["Nutritional completeness: rice alone can cause thiamine deficiency over months. Beans provide protein and B vitamins. Oats provide fiber and micronutrients. A mix also addresses food fatigue — the psychological and physiological reduction in appetite with monotonous diet — which causes people to eat less than needed even when hungry."]},
+      {q:"What is the most significant constraint on a one-year caloric storage plan?", answers:["Physical space: 50\u201380 cubic feet of food storage is a significant portion of a typical home\u2019s available storage. The second constraint is budget: $2,000\u20135,000 to fully stock a year\u2019s caloric supply. The third is rotation: without regular use and replacement, food reaches the end of its shelf life without being consumed."]}
+    ],
+    challenge: "Design and cost a complete one-year caloric storage plan for your family. Calculate space requirements, total cost, and a rotation schedule that integrates stored food into regular cooking.",
+    tuesday:   { low: {title:"Caloric needs calculation", activity:"Calculate your family\u2019s total annual caloric need broken down by family member. What is the total daily and annual requirement?"}, mid: {title:"Storage volume calculation", activity:"Calculate the volume and weight of each staple needed for a one-year supply. What storage space does the complete plan require?"}, high: {title:"Nutritional modeling", activity:"Model the nutritional completeness of your storage plan. Which micronutrients are deficient and what additions address each deficit?"} },
+    wednesday: { low: {title:"Cost estimation", activity:"Calculate the current cost of your one-year storage plan using bulk pricing. What is the cost per day of feeding your family from storage?"}, mid: {title:"Rotation system design", activity:"Design a rotation system that ensures all stored food is consumed before expiration by integrating it into regular cooking."}, high: {title:"Long-term storage degradation research", activity:"Research how nutritional content degrades over time in stored foods. When do vitamins become significantly depleted in properly stored grains and legumes?"} },
+    thursday:  { low: {title:"Complete storage plan", activity:"Complete your one-year storage plan document: quantity, cost, storage location, and rotation schedule for each category."}, mid: {title:"Phased acquisition plan", activity:"Design a 12-month phased acquisition plan. What is the monthly budget and purchase sequence that builds toward a full year\u2019s supply?"}, high: {title:"Food storage economics research", activity:"Research the economics of group food storage cooperatives. How does bulk buying cooperatively reduce per-family cost and what governance structures work?"} }
+  },
+
+  "Well drilling basics — shallow vs deep": {
+    gradeHooks: {
+      low: "Drilling a well provides a private water source independent of city water. Shallow wells and deep wells use different methods and reach different aquifers.",
+      mid: "Understanding well drilling methodology, pump selection, and regulatory requirements enables informed decisions about private water supply.",
+      high: "Hydrogeology applied to well siting, drilling methods, well construction standards, and Florida water law are important topics."
+    },
+    materials: ["Florida geological survey data", "Well drilling regulations"],
+    steps: [
+      "Shallow wells (under 50 feet): reach the surficial aquifer. Less reliable (fluctuates with rainfall), more vulnerable to contamination, lower cost.",
+      "Deep wells (50\u2013700+ feet in Florida): reach the Floridan Aquifer System. More reliable, naturally filtered, higher quality. Higher cost.",
+      "Drilling methods: rotary drilling (most common for deep wells), cable tool (older method, slower), air rotary (for consolidated rock).",
+      "Well construction: casing prevents contamination from shallow soils, grout seals the annulus, screen prevents sand entry, submersible pump delivers water.",
+      "Regulation: Florida requires permits for new wells, licensed contractors, and well registration with the state."
+    ],
+    discussion: [
+      {q:"Why does Florida\u2019s geology make the Floridan Aquifer the preferred source for deep private wells?", answers:["The Floridan Aquifer is a highly productive karst limestone aquifer with excellent natural filtration and consistent water quality. It is under artesian pressure in many locations and is typically below the shallow surficial aquifer\u2019s contamination zone, separated from it by confining clay layers in most areas of Florida."]},
+      {q:"What is well casing grouting and why is it required by Florida law?", answers:["Grouting fills the annular space between the well casing and the borehole wall with sealing material (cement grout). Without grouting, surface water and shallow contaminated water can travel down the outside of the casing directly to the aquifer, bypassing the protective soil layers. Florida requires grouting at least the top 50 feet of any well."]}
+    ],
+    challenge: "Research the specific hydrogeology of your county. What aquifer would a new well reach? What is the typical well depth and water quality? What is the current cost of a complete well installation?",
+    tuesday:   { low: {title:"Florida aquifer map research", activity:"Research the aquifer geology of your county. What aquifer is typically tapped for private wells? How deep is the casing typically set?"}, mid: {title:"Well construction standard research", activity:"Research Florida Administrative Code 62-532 (Water Well Permitting, Construction, and Repair). What construction standards are required for residential wells?"}, high: {title:"Hydrogeological site assessment", activity:"Research the factors that influence optimal well siting: avoiding contamination sources, aquifer fracture zones, and local groundwater flow direction."} },
+    wednesday: { low: {title:"Well drilling cost research", activity:"Research current costs for well drilling in your county. Get quotes from 2\u20133 licensed well contractors. What does a complete installation cost?"}, mid: {title:"Pump selection", activity:"Research submersible pump selection for a deep Florida well. What factors determine pump sizing: aquifer depth, yield, household demand, and pressure requirements?"}, high: {title:"Artesian well research", activity:"Research artesian conditions in the Floridan Aquifer. Where in Florida are artesian wells common and how is this managed in well construction?"} },
+    thursday:  { low: {title:"Well permit process research", activity:"Research the well permit process in your county. Who issues the permit, what is required, and how long does the process take?"}, mid: {title:"Water quality testing protocol", activity:"Research the recommended water quality testing protocol for a new private well: what parameters are tested initially and on what ongoing schedule?"}, high: {title:"Wellhead protection zone", activity:"Research wellhead protection zones for private wells. What land uses are prohibited within the protection zone and how far does it extend?"} }
+  },
+
+  "Home systems audit — HVAC plumbing electrical": {
+    gradeHooks: {
+      low: "The three major mechanical systems in a home are HVAC, plumbing, and electrical. A comprehensive audit assesses all three and creates a maintenance and replacement plan.",
+      mid: "A systems audit integrates inspection, age-based replacement planning, and energy efficiency assessment into a comprehensive home maintenance plan.",
+      high: "Building systems lifecycle management, condition-based vs time-based maintenance, and home energy audit methodology are important topics."
+    },
+    materials: ["Home systems inspection checklist", "Manufacturer documentation"],
+    steps: [
+      "HVAC audit: filter condition, coil cleanliness, ductwork condition and leakage, system age, and estimated remaining life.",
+      "Plumbing audit: supply pipe material and age, water heater age and efficiency rating, drain pipe condition, water pressure, and leak detection.",
+      "Electrical audit: panel age and condition, GFCI and AFCI compliance, circuit loading, wiring age and method, and smoke and CO detector placement.",
+      "Cross-system assessment: where do systems interact? Electrical powers HVAC and water heater; plumbing connects to HVAC for condensate.",
+      "Prioritized action plan: what needs immediate attention, what in 1 year, and what in 5 years?"
+    ],
+    discussion: [
+      {q:"What is the typical service life of the major home systems and how does this affect replacement planning?", answers:["HVAC: 15\u201320 years. Water heater: 10\u201315 years. Asphalt shingle roof: 20\u201325 years. Electrical panel: 25\u201340 years if not upgraded. Knowing age and expected service life enables proactive replacement planning before failure occurs and allows you to save monthly toward these known future expenses."]},
+      {q:"Why is duct sealing often the most cost-effective HVAC improvement in Florida homes?", answers:["Florida homes lose 20\u201330% of conditioned air through duct leaks in typical construction. This is air you\u2019ve paid to cool that escapes into unconditioned attic space. Sealing ducts with mastic can reduce HVAC energy consumption by 15\u201325% at relatively low cost, typically more cost-effective than replacing the HVAC unit itself."]}
+    ],
+    challenge: "Complete a full three-system home audit. Produce a prioritized action plan with cost estimates for all findings and a monthly savings plan for upcoming major replacements.",
+    tuesday:   { low: {title:"HVAC inspection", activity:"Inspect your HVAC system: filter, coil, condensate drain, outdoor unit condition, and duct accessibility. Document all findings."}, mid: {title:"Plumbing inspection", activity:"Inspect all accessible plumbing: pipe materials and condition, water heater age and efficiency, water pressure, and any evidence of leaks."}, high: {title:"Energy audit integration", activity:"Research whole-home energy audit methodology. How does a comprehensive audit integrate HVAC, building envelope, and lighting into a prioritized improvement plan?"} },
+    wednesday: { low: {title:"Electrical inspection", activity:"Inspect the electrical system: panel age and condition, GFCI and AFCI compliance, and smoke and CO detector placement and test."}, mid: {title:"System age analysis", activity:"Compile the age of every major system component. Compare to typical service life. What is approaching end of life within 5 years?"}, high: {title:"Condition-based maintenance research", activity:"Research condition-based vs time-based maintenance. When is each approach appropriate for home systems and how do professional property managers decide?"} },
+    thursday:  { low: {title:"Complete audit report", activity:"Write a complete home systems audit report with prioritized findings, cost estimates, and recommended timelines."}, mid: {title:"Replacement reserve funding", activity:"Calculate the monthly savings required to fund each major system replacement when it occurs. What total monthly reserve is needed?"}, high: {title:"Home systems integration design", activity:"Research integrated home systems technology that links HVAC, electrical, and water systems for optimized performance and early fault detection."} }
+  },
+
+  "Budgeting for life after high school": {
+    gradeHooks: {
+      low: "Life after high school means paying for everything yourself. A budget for your first year of independence shows exactly what you need to earn.",
+      mid: "A realistic post-high-school budget integrates housing, transportation, food, healthcare, insurance, and personal costs into a complete financial plan.",
+      high: "The economics of early adulthood, the lifetime financial impact of early financial decisions, and the behavioral finance of financial independence are important topics."
+    },
+    materials: ["Cost of living data", "Salary data for planned career", "Budget template"],
+    steps: [
+      "Housing: rent plus utilities plus renter\u2019s insurance. Research actual rents in your planned location.",
+      "Transportation: car payment, insurance, fuel, maintenance. Or public transit plus occasional rideshare.",
+      "Food: groceries (home cooking is dramatically less expensive than dining out) plus occasional dining.",
+      "Healthcare: employer health insurance premium plus deductible plus out-of-pocket costs.",
+      "Personal: phone, internet, clothing, entertainment, and savings. Build in 10\u201315% for savings from day 1."
+    ],
+    discussion: [
+      {q:"What is the most common financial mistake new graduates make and how does it affect their long-term trajectory?", answers:["Lifestyle inflation: immediately spending the entire first paycheck on housing, car, and lifestyle that leaves no margin for savings. Research shows that the savings rate established in the first 2 years of working predicts long-term wealth accumulation more accurately than later income level. Early habits compound over decades."]},
+      {q:"How does the housing decision affect all other budget decisions?", answers:["Housing cost ripples through the entire budget. High rent leaves less for all other categories. Choosing a location with lower cost of living can free $500\u20131,000 per month for savings. The decision to live alone vs with roommates, or in an expensive vs affordable city, is often the single most impactful financial decision a new graduate makes."]}
+    ],
+    challenge: "Build a complete post-high-school budget for your specific situation: actual planned location, actual expected income, and realistic costs. Identify the biggest financial risks in your plan.",
+    tuesday:   { low: {title:"Income research", activity:"Research starting salaries for your planned career path in your planned location. What is the realistic range and what does take-home pay look like after taxes?"}, mid: {title:"Housing cost research", activity:"Research actual rental costs in your planned location. What is the cost of a studio, 1-bedroom, and room in a shared apartment? How does each affect your budget?"}, high: {title:"Location arbitrage analysis", activity:"Compare cost of living and starting salaries in 3 different cities for your intended career. Where does the math work best for early wealth building?"} },
+    wednesday: { low: {title:"Complete budget construction", activity:"Build your complete month-by-month first-year budget. Does income exceed expenses? What is the monthly savings amount?"}, mid: {title:"Emergency fund timeline", activity:"Based on your budget surplus, calculate when you will reach a 3-month emergency fund. What changes to expenses would accelerate this timeline?"}, high: {title:"Student loan impact analysis", activity:"If you will have student loans, model their impact on your budget. What percentage of income goes to loan payments? What income would allow aggressive payoff?"} },
+    thursday:  { low: {title:"Budget stress test", activity:"Stress test your first-year budget: what if rent is 20% higher than expected? What if your car needs $1,500 in repairs? How does your plan handle each?"}, mid: {title:"Financial milestone timeline", activity:"Based on your budget, project when you will reach: 3-month emergency fund, $10,000 net worth, $50,000 net worth. What changes these timelines most?"}, high: {title:"Early financial decision lifetime impact", activity:"Model the lifetime impact of different early financial decisions: starting to invest at 22 vs 32, choosing a lower-cost city, and buying vs renting a first home. What does each choice compound to by age 65?"} }
+  },
+
+  "Teaching a land navigation course": {
+    gradeHooks: {
+      low: "A complete land navigation course teaches students to navigate independently from beginner to confidence in the field.",
+      mid: "Designing and delivering a complete navigation course requires integrating all navigation skills into a coherent progression with field application.",
+      high: "Curriculum design for outdoor skills, assessment methodology in field settings, and the certification pathway for navigation instruction are important topics."
+    },
+    materials: ["Complete navigation curriculum", "Course area with topo maps", "Compass sets for each student"],
+    steps: [
+      "Curriculum design: from map orientation to full dead reckoning course. 8\u201310 hours of instruction total for competency.",
+      "Field area selection: terrain with clear features for beginners and interesting navigation for advanced students. Assess all safety factors.",
+      "Assessment progression: each lesson has an assessment. The final assessment is an unsupported orienteering course.",
+      "Differentiated instruction: shorter, simpler courses for beginners on the same terrain, longer and more technical for advanced students.",
+      "Competency documentation: document each student\u2019s demonstrated skills with specific, observable criteria."
+    ],
+    discussion: [
+      {q:"What is the appropriate final assessment for a navigation course that demonstrates real competency?", answers:["An unsupported orienteering course: the student navigates independently from control to control, making all decisions without instructor assistance. The instructor observes but does not intervene except for safety. Time and accuracy are measured. This is the only assessment that demonstrates whether skills transfer to independent application."]},
+      {q:"How do you design a navigation course for mixed ability groups?", answers:["Differentiated instruction: shorter, simpler courses for beginners on the same terrain, longer and more technical courses for advanced students. Pair beginners with experienced students during early lessons but assess each individually at the end. Design multiple final assessment courses so all students are appropriately challenged."]}
+    ],
+    challenge: "Design and deliver a complete 3-session land navigation course. Every student completes a solo final orienteering course. Document competency for each student.",
+    tuesday:   { low: {title:"Final curriculum design", activity:"Write a complete 3-session navigation curriculum with specific learning objectives, activities, and assessments for each session."}, mid: {title:"Field area reconnaissance", activity:"Conduct a field reconnaissance of your navigation course area. Select control locations, verify safety, and prepare maps."}, high: {title:"Assessment validity research", activity:"Research assessment validity in outdoor education. What assessment approaches most accurately predict whether a student can navigate independently in novel terrain?"} },
+    wednesday: { low: {title:"Session 1 delivery", activity:"Deliver session 1: map orientation, terrain association, and basic position finding. Assess each student at the end."}, mid: {title:"Session 2 delivery", activity:"Deliver session 2: compass bearing, pace count, and dead reckoning. Assess competency and identify who needs additional practice before session 3."}, high: {title:"Differentiated assessment design", activity:"Design differentiated final assessment courses for beginner, intermediate, and advanced students using the same terrain area."} },
+    thursday:  { low: {title:"Final assessment delivery", activity:"Deliver session 3 and the final solo orienteering assessment. Document each student\u2019s performance objectively."}, mid: {title:"Competency documentation", activity:"Create signed competency records for each student documenting what they can now do independently."}, high: {title:"Course certification research", activity:"Research formal outdoor leadership and navigation certifications: NOLS, Leave No Trace. What certifications authorize teaching navigation in professional contexts?"} }
+  },
+
+  "Designing a food forest": {
+    gradeHooks: {
+      low: "A food forest is a garden designed to look and function like a natural forest, with layers of food-producing plants that support each other.",
+      mid: "A designed food forest integrates species selection, guild design, and succession planning into a resilient, low-maintenance food production system.",
+      high: "Agroforestry science, polyculture productivity research, and the ecological services provided by food forest systems are important topics."
+    },
+    materials: ["Site assessment data", "Species database for Florida food forests", "Design tools"],
+    steps: [
+      "Site assessment: sun exposure, soil type, water movement, existing vegetation, and microclimate variations across the site.",
+      "Canopy selection: large fruit and nut trees that define the microclimate below. For Florida: avocado, citrus, fig, mulberry, pecan.",
+      "Sub-canopy: smaller trees that thrive under partial shade. Papaya, guava, elderberry, moringa.",
+      "Shrub layer: blueberry, pigeon pea (nitrogen fixer), surinam cherry.",
+      "Ground layer and beyond: sweet potato, comfrey (dynamic accumulator), herbs, nitrogen-fixing cover crops, vine layer (passionfruit, muscadine)."
+    ],
+    discussion: [
+      {q:"What is ecological succession and how does it inform food forest design?", answers:["Ecological succession is the predictable sequence of plant communities that develops over time on a site. Pioneer species establish first, modifying the environment for longer-lived species. A food forest design mimics this sequence: fast-growing pioneers planted first create the conditions for slower-growing permanent species. Understanding succession allows you to plant for multiple time horizons simultaneously."]},
+      {q:"How does the diversity of a food forest contribute to resilience compared to a monoculture orchard?", answers:["Diversity creates resilience through multiple mechanisms: different species peak at different times (continuous yield across seasons), pest and disease pressure is distributed (no single failure collapses the system), root depth diversity enables efficient water and nutrient capture, and biodiversity supports beneficial insects that provide natural pest control."]}
+    ],
+    challenge: "Complete a final food forest design for a real or hypothetical Florida site. Specify every species in every layer with its ecological function and expected yield at maturity.",
+    tuesday:   { low: {title:"Site analysis", activity:"Complete a full site analysis: measure the site, document sun patterns, identify water flows, and note all existing vegetation."}, mid: {title:"Species selection by layer", activity:"Select species for each of the 7 layers appropriate for Florida\u2019s climate. Research the stacking functions of each species."}, high: {title:"Agroforestry research", activity:"Research the agroforestry science literature. What does research show about productivity of food forest systems vs equivalent monoculture?"} },
+    wednesday: { low: {title:"Guild design", activity:"Design 3 plant guilds for your food forest. Each guild centers on a major productive species surrounded by mutually supportive plants."}, mid: {title:"Succession planting plan", activity:"Design a planting sequence that establishes pioneers first, then transitions to permanent species as conditions develop."}, high: {title:"Ecosystem services analysis", activity:"Analyze the ecosystem services your food forest will provide: carbon sequestration, water infiltration, biodiversity support, and microclimate moderation."} },
+    thursday:  { low: {title:"Complete design document", activity:"Complete your food forest design document with site map, species list, planting plan, and 5-year development timeline."}, mid: {title:"Yield projection", activity:"Project annual food yields from your food forest at years 5, 10, and 20. How does yield change as the canopy matures?"}, high: {title:"Food forest economics research", activity:"Research the economics of established food forests. What is the typical yield per acre and labor input at maturity compared to conventional fruit production?"} }
+  },
+
+  "Presenting your capstone to the community": {
+    gradeHooks: {
+      low: "Presenting your capstone project to the community is the culmination of your preparedness education. You share what you built and what you learned.",
+      mid: "A community capstone presentation demonstrates mastery, inspires others to act, and creates lasting impact beyond your household.",
+      high: "Public scholarship, community impact communication, and the design of lasting institutional contributions are important topics."
+    },
+    materials: ["Complete capstone documentation", "Presentation materials", "Community audience"],
+    steps: [
+      "Final preparation: your presentation should demonstrate mastery. Can you answer any question about your project from any angle?",
+      "Story structure: present the problem (why this mattered), what you did (the process), what resulted (the impact), and what you learned.",
+      "Evidence of impact: present specific, measurable evidence that your project changed something. Numbers, testimonials, before and after comparisons.",
+      "Sustainability: how will this continue after you? Who is responsible for what you created? What documentation ensures continuity?",
+      "Invitation to action: what can your audience do right now that your project enables or inspires?"
+    ],
+    discussion: [
+      {q:"What is the difference between a project presentation and a public scholarship contribution?", answers:["A project presentation describes what you did. A public scholarship contribution documents what was learned in a way that others can build on. Presentations are ephemeral; documentation and knowledge products persist. The most valuable capstones produce both a community impact and a documented contribution that advances the field for others."]},
+      {q:"How do you measure the legacy of a preparedness education capstone project?", answers:["Immediate impact: number of people trained, plans written, resources mapped. Short-term: actions taken by community members as a result. Long-term legacy: is the work institutionalized? Is it being maintained? Did it inspire others to continue it? The most durable impacts are embedded in organizational processes rather than depending on a single person."]}
+    ],
+    challenge: "Deliver your capstone presentation to a community audience. Collect evidence of impact. Submit documentation that makes your work accessible to future community members.",
+    tuesday:   { low: {title:"Presentation preparation", activity:"Prepare your capstone presentation. Rehearse it until you can deliver it without notes. Prepare answers to 10 questions the audience might ask."}, mid: {title:"Impact documentation", activity:"Compile all evidence of your project\u2019s impact: quantitative metrics, testimonials, before-and-after comparisons, and committed actions from participants."}, high: {title:"Knowledge product creation", activity:"Create a guide, template, trained team, or documented process that others can use after you leave the role."} },
+    wednesday: { low: {title:"Presentation delivery", activity:"Deliver your capstone presentation to your community audience."}, mid: {title:"Legacy documentation", activity:"Complete the documentation package: all deliverables, contact information for continuing the work, and maintenance requirements."}, high: {title:"Institutional integration", activity:"Identify the institution (local emergency management, neighborhood association, school) that should formally adopt what you created. Make the pitch for formal adoption."} },
+    thursday:  { low: {title:"Post-presentation reflection", activity:"Write a reflection on your capstone: what you set out to accomplish, what you actually accomplished, what you would do differently, and what you learned about leadership and community change."}, mid: {title:"Mentorship planning", activity:"Identify who will continue your work. Create a transition plan and commit to mentoring the person who takes it forward."}, high: {title:"Future impact projection", activity:"Project the potential future impact of your work. If it continues for 5 years at its current trajectory, what is the cumulative community impact?"} }
+  },
+
+  "First aid curriculum design — create a lesson": {
+    gradeHooks: {
+      low: "Creating a first aid lesson requires understanding your audience, building skills progressively, and ensuring every student can perform the skill.",
+      mid: "First aid curriculum design applies adult learning principles, skill sequencing, and competency assessment to produce effective training.",
+      high: "Instructional design methodology, the evidence for different training modalities, and curriculum quality evaluation are important topics."
+    },
+    materials: ["Instructional design reference", "First aid content", "Curriculum template"],
+    steps: [
+      "Needs analysis: what skill does this audience need? What is the gap between current and target performance?",
+      "Learning objectives: ABCD format — Audience, Behavior, Condition, Degree. For example: given a simulated cardiac arrest, the learner will perform CPR to AHA standards for 2 minutes without prompting.",
+      "Content sequencing: simple to complex, known to unknown, concrete to abstract. Demonstrate before you explain.",
+      "Practice design: how many repetitions, in what conditions, with what feedback? The practice design determines whether skills transfer.",
+      "Assessment design: observable, objective performance criteria. Competency is a pass or fail behavioral standard, not a test score."
+    ],
+    discussion: [
+      {q:"What is the most important element of an effective first aid lesson and why?", answers:["Adequate practice time with specific feedback. Most first aid training fails not because of bad content but because the ratio of explanation to practice is inverted. A 2-hour CPR class with 90 minutes of lecture and 30 minutes of practice is far less effective than the same class with 30 minutes of explanation and 90 minutes of supervised practice with feedback."]},
+      {q:"What is the difference between an objective and an activity in curriculum design?", answers:["An objective describes what the learner will be able to DO after instruction — it is observable and measurable. An activity describes what happens during the lesson. The activity (practicing application) serves the objective but is not the same as the objective. Bad example: students will learn about tourniquets. Good example: students will apply a tourniquet in under 60 seconds."]}
+    ],
+    challenge: "Design a complete 60-minute first aid lesson using the ADDIE instructional design model. Include needs analysis, objectives, content outline, practice activities, and assessment criteria.",
+    tuesday:   { low: {title:"Needs analysis", activity:"Conduct a needs analysis for a specific first aid topic and audience. What is the performance gap? What is the consequence of not addressing it?"}, mid: {title:"Learning objective writing", activity:"Write 5 ABCD format learning objectives for your lesson. Have a peer review each for observability and measurability."}, high: {title:"Instructional design model research", activity:"Research ADDIE and Dick and Carey instructional design models. How do they compare in process and outputs? Which is more appropriate for a first aid lesson?"} },
+    wednesday: { low: {title:"Content and activity design", activity:"Design the content and activities for your lesson. How much time is allocated to each? What is the explanation-to-practice ratio?"}, mid: {title:"Assessment instrument design", activity:"Design a competency assessment for each objective. What does mastery look like? How will you assess it objectively and consistently?"}, high: {title:"Formative assessment integration", activity:"Research formative assessment techniques for skills training. How do you check understanding during the lesson rather than only at the end?"} },
+    thursday:  { low: {title:"Complete lesson plan", activity:"Complete your full lesson plan document including: objectives, timeline, materials, activities, assessment, and differentiation for different learner needs."}, mid: {title:"Peer review", activity:"Exchange lesson plans with a peer. Provide structured feedback on: alignment between objectives and assessment, adequacy of practice time, and assessment validity."}, high: {title:"Lesson plan quality evaluation", activity:"Research lesson plan quality rubrics from nursing education or EMS training programs. Evaluate your lesson plan against a professional standard rubric."} }
+  },
+
+  "Mutual aid organization — legal structure": {
+    gradeHooks: {
+      low: "A mutual aid organization is a group of people who formally agree to help each other. Choosing the right legal structure determines how it operates.",
+      mid: "Legal structure determines a mutual aid organization\u2019s governance, tax status, liability protection, and ability to receive donations.",
+      high: "Nonprofit law, organizational governance, and the legal and tax frameworks for different community organization structures are important topics."
+    },
+    materials: ["Nonprofit formation guides", "Florida nonprofit law resources"],
+    steps: [
+      "Informal mutual aid: no legal structure needed for neighbor-to-neighbor mutual support. Handshake agreements and trust. Limited to small, trusted groups.",
+      "Unincorporated association: a formal agreement between members without legal entity formation. Limited liability protection.",
+      "Nonprofit corporation (501c3): tax-exempt status, ability to receive tax-deductible donations, formal governance requirements. Suitable for organizations planning fundraising.",
+      "LLC: can be used for some community organizations. Different tax treatment. No tax-exempt status without additional filings.",
+      "Cooperative: member-owned, democratically governed. Well-suited for resource-sharing mutual aid structures."
+    ],
+    discussion: [
+      {q:"When does a mutual aid group need a formal legal structure and when is it unnecessary overhead?", answers:["Small groups of neighbors sharing resources and providing informal support rarely need formal structure. The overhead of incorporation, governance, and tax compliance is only justified when the organization: receives significant donations requiring tax-exempt status, employs people, holds property or significant assets, or needs legal protection from liability for its activities."]},
+      {q:"What is the difference between a 501c3 and a 501c4 organization?", answers:["Both are tax-exempt. A 501c3 (charitable organization) allows donors to deduct their contributions, cannot engage in significant political activity, and must serve a charitable or educational purpose. A 501c4 (social welfare organization) does not allow tax-deductible donations but can engage in political activities without limits and must primarily promote community welfare."]}
+    ],
+    challenge: "Design the legal structure for your neighborhood emergency network. Which structure is appropriate and why? Research the formation process and costs in Florida.",
+    tuesday:   { low: {title:"Structure options comparison", activity:"Create a comparison chart of the 5 legal structure options. For each: pros, cons, cost to form, governance requirements, and tax implications."}, mid: {title:"Nonprofit formation research", activity:"Research the process for forming a Florida nonprofit corporation. What documents are required, what are the filing fees, and how long does the process take?"}, high: {title:"501c3 application research", activity:"Research IRS Form 1023 (application for 501c3 status). What organizational and financial documentation is required and what are the common reasons for rejection?"} },
+    wednesday: { low: {title:"Governance document design", activity:"Draft bylaws for your mutual aid organization. What must bylaws include? Research Florida\u2019s requirements for nonprofit bylaws."}, mid: {title:"Cooperative structure research", activity:"Research cooperative organizations specifically. What are the 7 Rochdale Principles and how do they apply to a mutual aid cooperative?"}, high: {title:"Fiscal sponsorship research", activity:"Research fiscal sponsorship as an alternative to forming an independent nonprofit. How does it work and when is it the most appropriate option?"} },
+    thursday:  { low: {title:"Structure recommendation", activity:"Write a recommendation for the appropriate legal structure for your neighborhood emergency network with specific justification for your choice."}, mid: {title:"Board composition planning", activity:"Design the board of directors for your organization. What roles are needed? What skills should the board collectively have? How are directors elected?"}, high: {title:"Fiduciary duty research", activity:"Research fiduciary duty for nonprofit board members. What are the duties of care, loyalty, and obedience? What are the consequences of breach?"} }
+  },
+
+  "Teaching first aid to others — become a trainer": {
+    gradeHooks: {
+      low: "Teaching first aid multiplies your impact. Every person you train is someone who can save a life when you\u2019re not there.",
+      mid: "Becoming a first aid trainer requires mastery of both the content and adult learning principles that make training effective.",
+      high: "First aid training pedagogy, the evidence for different training formats, and the public health impact of community first aid training are important topics."
+    },
+    materials: ["First aid curriculum", "Mannequins", "Teaching materials"],
+    steps: [
+      "Content mastery: you must be able to answer any question confidently. Know the material at least one level beyond what you teach.",
+      "Skill breakdown: each skill must be broken into teachable steps with clear performance criteria. What does correct look like?",
+      "Demonstration-practice-feedback loop: demonstrate the skill, have students practice, provide immediate specific feedback.",
+      "Scenario-based learning: embed skills in realistic scenarios. Skills practiced in context transfer better to real situations.",
+      "Assessment: every student must demonstrate competency before leaving. Verbal knowledge alone is insufficient for skills-based training."
+    ],
+    discussion: [
+      {q:"What is the most effective training format for skills-based first aid instruction?", answers:["Research consistently shows that hands-on practice with immediate feedback produces better skill retention than lecture or video alone. For trained providers, spaced practice over a longer time produces better long-term retention than single intensive sessions."]},
+      {q:"What distinguishes a trainer who produces skill retention from one who only produces knowledge?", answers:["Trainers who produce skill retention: focus on practice quantity over explanation quantity, give specific behavioral feedback rather than evaluative feedback, use deliberate errors followed by correction, test under realistic stress, and design for transfer by practicing in realistic scenarios."]}
+    ],
+    challenge: "Design and deliver a 2-hour first aid training for 6\u20138 people. Every student must demonstrate CPR and bleeding control competency. Collect and document competency data.",
+    tuesday:   { low: {title:"Training needs assessment", activity:"Survey your intended training audience. What first aid skills do they most need? Design your curriculum around their actual needs."}, mid: {title:"Skill breakdown exercise", activity:"Break CPR into a sequence of 8\u201310 discrete, observable steps with specific performance criteria for each. This is the foundation of skill-based instruction."}, high: {title:"Adult learning theory", activity:"Research Knowles\u2019 andragogy principles. How do adult learners differ from children and how does this change first aid training design?"} },
+    wednesday: { low: {title:"Demonstration preparation", activity:"Practice your skill demonstrations until they are smooth. Where do you need to slow down for student visibility?"}, mid: {title:"Feedback language practice", activity:"Research effective feedback language. Practice giving descriptive rather than evaluative feedback on skill performance."}, high: {title:"Training effectiveness research", activity:"Research CPR training skill retention over time. How does performance change at 3, 6, and 12 months post-training? What retraining interval is evidence-based?"} },
+    thursday:  { low: {title:"Full training delivery", activity:"Deliver your 2-hour first aid training. Document what worked well and where students struggled most."}, mid: {title:"Competency assessment", activity:"Assess each student at the end of training. What percentage met your performance criteria? What is your plan for those who did not?"}, high: {title:"Train the trainer pathway", activity:"Research AHA Instructor certification. What does it require and what populations does it authorize you to train?"} }
+  },
+
+  "Building a neighborhood emergency network": {
+    gradeHooks: {
+      low: "A fully functional neighborhood emergency network is built on relationships, roles, resources, and communication. Today we bring it all together.",
+      mid: "A mature neighborhood emergency network has completed the organizational cycle: assessment, planning, training, exercises, and continuous improvement.",
+      high: "Network maturity models, sustaining volunteer organizations, and the long-term social capital effects of neighborhood emergency networks are important topics."
+    },
+    materials: ["Network documentation", "Communication system", "Resource map"],
+    steps: [
+      "Assess the current state: how many households are actively participating? What roles are filled? What resources are mapped?",
+      "Identify critical gaps: which households are not connected? What roles lack coverage? What resources are missing?",
+      "Formalize communication: every participant has a tested communication path. No single point of failure.",
+      "Conduct an exercise: a tabletop or functional exercise tests the network under simulated conditions and reveals real gaps.",
+      "Continuous improvement: regular meetings, annual assessment, and deliberate recruitment maintain network function over time."
+    ],
+    discussion: [
+      {q:"What is the most common point of failure in neighborhood emergency networks and how does mature network design address it?", answers:["Single-leader dependence: when the founding leader moves or loses interest, the network collapses. Mature networks distribute leadership across multiple households, document all network knowledge in shared systems, and maintain a succession plan for every key role."]},
+      {q:"How do you maintain engagement between emergencies?", answers:["Research shows that social bonds maintained through regular, low-effort gatherings are the strongest predictor of network longevity. People stay engaged for social reasons even when there is no immediate emergency threat. The preparedness activities are embedded in a broader community people value."]}
+    ],
+    challenge: "Bring your neighborhood emergency network to a mature state: 10+ households, all roles filled, communication tested, one completed exercise, and a written succession plan.",
+    tuesday:   { low: {title:"Network maturity assessment", activity:"Assess your network against a maturity model. Where is it strong? Where are the critical gaps that must be addressed?"}, mid: {title:"Succession planning", activity:"Create a succession plan for every key network role. Who is the backup for each critical function? How is knowledge transferred?"}, high: {title:"Network sustainability research", activity:"Research the literature on voluntary organization sustainability. What governance structures and engagement strategies produce the longest-lived neighborhood organizations?"} },
+    wednesday: { low: {title:"Exercise design and execution", activity:"Design and run a functional exercise for your network. Include all active households. Debrief immediately afterward."}, mid: {title:"Communication system test", activity:"Test your network\u2019s communication system end-to-end. Can every household be reached within 30 minutes? Document the failure rate."}, high: {title:"Social capital measurement", activity:"Research methods for measuring social capital in a neighborhood. Conduct a simple assessment of your network\u2019s social capital."} },
+    thursday:  { low: {title:"Documentation completion", activity:"Complete all network documentation: contact directory, resource map, role assignments, communication tree, and after-action reports."}, mid: {title:"Annual assessment design", activity:"Design an annual network assessment process. What questions does it ask, who conducts it, and how are results used to improve the network?"}, high: {title:"Network effect research", activity:"Research how neighborhood emergency networks affect broader community resilience outcomes. What longitudinal studies exist on long-term effects?"} }
+  },
+
+  "Off-grid living plan — full design": {
+    gradeHooks: {
+      low: "A full off-grid living plan addresses every system: energy, water, food, waste, shelter, and communication. This is a complete alternative to grid dependence.",
+      mid: "A complete off-grid design integrates all systems into a functional, sustainable, and resilient whole with realistic cost and maintenance plans.",
+      high: "Systems integration design, off-grid economics, and the trade-offs between resilience and complexity in off-grid systems are important topics."
+    },
+    materials: ["Site assessment data", "All system design documents from previous lessons"],
+    steps: [
+      "Integrate all systems: energy, water, food, waste management, shelter, and communication. Identify where each system interacts with others.",
+      "Redundancy analysis: for each critical system, what is the backup? Single points of failure in off-grid systems are unacceptable.",
+      "Annual maintenance calendar: every system requires maintenance. What must be done monthly, quarterly, and annually?",
+      "Cost analysis: total capital cost, annual operating cost, and comparison to grid-connected equivalent.",
+      "Skills and knowledge requirements: what skills must the household maintain to operate the complete system?"
+    ],
+    discussion: [
+      {q:"Why does adding complexity to an off-grid system sometimes reduce its resilience rather than increase it?", answers:["Each added component is a potential failure point. A simple rainwater system has fewer failure modes than a complex treatment train. Resilience often comes from simplicity plus redundancy rather than one complex system. The sweet spot is the minimum complexity that meets the requirement."]},
+      {q:"What is the realistic cost comparison between full off-grid living and grid-connected living over 20 years?", answers:["Off-grid systems have high upfront capital costs ($50,000\u2013150,000+ for a complete installation) but lower ongoing utility costs. Over 20 years, total cost is often comparable to grid connection, but with significant resilience and independence benefits. Remote properties where grid connection is expensive may see cost parity."]}
+    ],
+    challenge: "Compile your complete off-grid living design: every system specified, integrated, and costed. Present it as a comprehensive document with an executive summary.",
+    tuesday:   { low: {title:"Systems integration diagram", activity:"Draw a complete systems integration diagram showing how energy, water, food, waste, and communication systems interact with each other."}, mid: {title:"Redundancy audit", activity:"Audit your design for single points of failure. For every critical function, verify that a backup exists and has been planned for."}, high: {title:"Lifecycle cost analysis", activity:"Calculate the 20-year total cost of ownership for your complete off-grid design. Compare to the equivalent grid-connected home over the same period."} },
+    wednesday: { low: {title:"Maintenance calendar", activity:"Create a complete annual maintenance calendar for all systems: what must be done monthly, quarterly, and annually?"}, mid: {title:"Skills inventory", activity:"List all skills required to maintain your complete off-grid system. What training is required? What skills must be maintained through regular practice?"}, high: {title:"Complexity vs resilience analysis", activity:"Analyze each subsystem for the complexity-resilience tradeoff. Where could simplification improve resilience without unacceptable capability loss?"} },
+    thursday:  { low: {title:"Complete design document", activity:"Compile all system designs into a single complete off-grid living plan document with an executive summary."}, mid: {title:"Design review presentation", activity:"Present your complete off-grid design to a panel and defend every major design decision."}, high: {title:"Phased implementation plan", activity:"Design a phased implementation plan that builds toward full off-grid capability over 5\u201310 years, sequencing for maximum resilience per dollar invested."} }
+  },
+
+  "Full family food supply audit — one year": {
+    gradeHooks: {
+      low: "A full year food supply audit calculates exactly what our family needs and has, and builds a complete plan to close every gap.",
+      mid: "A one-year food supply audit integrates production, preservation, storage, and nutrition into a comprehensive self-sufficiency assessment.",
+      high: "Food system design, nutritional modeling, and the economics of food self-sufficiency are integrated in a complete annual audit."
+    },
+    materials: ["All food production and storage records", "Nutritional databases", "Supply planning tools"],
+    steps: [
+      "Annual consumption audit: how many pounds of each food category does your family consume per year? Use purchase records and tracking data.",
+      "Annual production audit: what did the garden and orchard produce this year? Convert to calories and pounds.",
+      "Storage audit: what is currently in storage? Expiration dates, condition, and quantity for each category.",
+      "Gap calculation: consumption minus (production + storage) = the gap that must be acquired, grown, or preserved.",
+      "Action plan: for each gap category, what specific steps close the gap within the next 12 months?"
+    ],
+    discussion: [
+      {q:"What is the most common finding when families complete their first comprehensive food supply audit?", answers:["Most families discover that their caloric staple storage is either absent or far smaller than realized, while vegetable production is reasonable. The audit also reveals significant nutritional gaps (vitamin B12, D, calcium) that vegetable production alone cannot address. The audit almost always motivates specific, targeted improvements."]},
+      {q:"How does a rolling annual audit differ from a one-time assessment?", answers:["A rolling audit compares this year to last year, revealing trends: Is production increasing? Is consumption changing? Are storage quantities growing toward the target? The trend data reveals whether the food system is improving and where the constraints on improvement lie."]}
+    ],
+    challenge: "Complete a full 12-month family food supply audit. Present a 1-page summary showing production, consumption, storage, and identified gaps with specific action items.",
+    tuesday:   { low: {title:"Consumption data collection", activity:"Compile consumption data for the past year from grocery receipts, production logs, and purchasing records. Calculate annual totals by food category."}, mid: {title:"Caloric adequacy analysis", activity:"Calculate total annual caloric supply from all sources. Compare to your family\u2019s annual caloric requirement. What is the self-sufficiency percentage?"}, high: {title:"Nutritional completeness modeling", activity:"Model nutritional completeness of your home-produced supply. What micronutrients are most deficient and what production or storage changes would address each?"} },
+    wednesday: { low: {title:"Production vs consumption comparison", activity:"For each food category, calculate production as a percentage of consumption. Where are you most self-sufficient? Where are the biggest gaps?"}, mid: {title:"Storage adequacy assessment", activity:"Assess storage adequacy: does your current storage represent at least 90 days of consumption for each category? Which categories are most vulnerable?"}, high: {title:"5-year supply plan", activity:"Design a 5-year plan to reach 90% food self-sufficiency. What production increases, preservation investments, and storage builds are required and in what sequence?"} },
+    thursday:  { low: {title:"Action plan creation", activity:"Create a specific 12-month action plan to close your top 5 food supply gaps. Each action item should be specific, measurable, and time-bound."}, mid: {title:"Economic analysis", activity:"Calculate the dollar value of your home food production at grocery store prices. What is the return on your garden and preservation investment?"}, high: {title:"Resilience scenario testing", activity:"Test your food supply plan against 3 disruption scenarios: 1-month supply chain failure, drought reducing production by 50%, and loss of refrigeration. How does each affect your plan?"} }
+  },
+
+  "Water independence plan — full system": {
+    gradeHooks: {
+      low: "A complete water independence plan means we can provide clean water for our family regardless of whether the city supply is working.",
+      mid: "A complete water independence plan integrates collection, storage, treatment, distribution, and waste management into a sustainable whole.",
+      high: "Water system design, quality management, regulatory compliance, and lifecycle economics of water independence are important topics."
+    },
+    materials: ["All water system design documents", "Local water law research", "Quality testing data"],
+    steps: [
+      "System inventory: document every component of your current or planned water system. Where are the gaps?",
+      "Yield vs demand analysis: annual collection capacity vs annual household demand. What is the deficit month?",
+      "Treatment adequacy: is the treatment train appropriate for the intended use (irrigation, non-potable, potable)?",
+      "Redundancy: what is the backup for each critical component and each collection source?",
+      "Legal and regulatory compliance: what permits are required? What code applies to the system?"
+    ],
+    discussion: [
+      {q:"What is the critical difference between water security and water independence?", answers:["Water security means having reliable access to sufficient safe water, which can come from any source including municipal supply. Water independence means not being dependent on external infrastructure. True independence requires sufficient collection for all needs, which in Florida requires large storage capacity due to seasonal dry periods."]},
+      {q:"How does Florida\u2019s climate affect the feasibility of complete water independence?", answers:["Florida\u2019s dry season (November through April) creates a 5\u20136 month window with minimal rainfall. Meeting all household water needs through rainwater alone requires very large storage capacity (5,000\u201310,000+ gallons for a family of 4). A well plus rainwater hybrid system is more practical for most households."]}
+    ],
+    challenge: "Complete your water independence plan: document every component, verify legal compliance, calculate yield vs demand month by month, and identify every remaining gap.",
+    tuesday:   { low: {title:"Water system documentation", activity:"Create a complete as-built documentation package for your water system: system diagram, component specifications, and maintenance requirements."}, mid: {title:"Yield-demand analysis", activity:"Calculate your system\u2019s annual yield based on local rainfall data. Compare to annual household demand month by month. In which month is the deficit greatest?"}, high: {title:"Redundancy design review", activity:"Review your water system for single points of failure. For each critical component, is there a backup? How long can the system operate during each failure mode?"} },
+    wednesday: { low: {title:"Quality testing protocol", activity:"Establish a water quality testing protocol: what parameters are tested, at what frequency, and what are the action levels for each?"}, mid: {title:"Legal compliance audit", activity:"Research all applicable permits and codes for your water system. What compliance documentation must be maintained?"}, high: {title:"Economic analysis", activity:"Calculate the 20-year lifecycle cost of your water system including capital, maintenance, filter replacement, and testing. Compare to municipal water cost over the same period."} },
+    thursday:  { low: {title:"Emergency water plan", activity:"Create an emergency water plan for 3 scenarios: pump failure, contamination event, and extended drought."}, mid: {title:"Capacity expansion planning", activity:"Design the next phase of your water system. What additions would most improve yield, redundancy, or quality?"}, high: {title:"Water independence assessment", activity:"Rate your household\u2019s water independence: what percentage of normal household water needs can you meet independently? What would achieving 90% independence require?"} }
+  },
+
+  "Full home maintenance audit and plan": {
+    gradeHooks: {
+      low: "A comprehensive home maintenance audit identifies everything that needs attention in the next year and creates a prioritized plan to address it.",
+      mid: "A systematic home maintenance plan prevents major failures through proactive inspection and scheduled maintenance.",
+      high: "Building systems lifecycle management, preventive vs corrective maintenance economics, and home inspection methodology are important topics."
+    },
+    materials: ["Home maintenance inspection checklist", "Repair cost estimates"],
+    steps: [
+      "Exterior: roof (missing shingles, flashing, gutters), siding (damage, caulking), foundation (cracks, drainage), and windows (seal failure).",
+      "Mechanical systems: HVAC (filter, coil cleaning, age), plumbing (water heater, supply line condition), electrical (panel condition, GFCI testing).",
+      "Interior: attic (insulation, ventilation, pests, moisture), all doors and windows (operation, weatherstripping).",
+      "Prioritization: categorize findings as immediate safety, required within 90 days, within 1 year, and planned capital improvements.",
+      "Budget planning: estimate costs. Maintain a reserve of 1\u20131.5% of home value per year for maintenance."
+    ],
+    discussion: [
+      {q:"Why does deferred home maintenance typically cost more than proactive maintenance?", answers:["Deferred maintenance allows problems to cascade. A missing shingle allows water infiltration that damages sheathing, insulation, and drywall. What a $15 shingle replacement would have prevented becomes a $3,000\u20135,000 repair. Most home systems have a maintenance window where early intervention is inexpensive and late intervention is expensive."]},
+      {q:"What is the appropriate home maintenance reserve and how should it be managed?", answers:["The 1\u20131.5% of home value annual reserve is a long-term average. Major systems fail infrequently but expensively. A sinking fund approach — saving monthly toward known future expenses — prevents financial shock when systems eventually fail."]}
+    ],
+    challenge: "Complete a full home maintenance audit. Produce a prioritized list with cost estimates. Create a 1-year and 5-year maintenance plan.",
+    tuesday:   { low: {title:"Exterior inspection", activity:"Complete a thorough exterior inspection. Document every finding with photographs. Categorize each by urgency."}, mid: {title:"Mechanical systems inspection", activity:"Inspect all mechanical systems: HVAC, water heater, electrical panel. When was each last serviced? What is the remaining service life?"}, high: {title:"Building envelope analysis", activity:"Analyze your home\u2019s building envelope performance. Where is air infiltrating? Where is moisture entering? What are the energy and durability implications?"} },
+    wednesday: { low: {title:"Interior inspection", activity:"Inspect attic and all interior spaces. Look for moisture staining, pest evidence, insulation gaps, and structural concerns."}, mid: {title:"Maintenance schedule creation", activity:"Create a complete 12-month maintenance schedule. What must be done monthly, quarterly, seasonally, and annually for each home system?"}, high: {title:"Maintenance reserve calculation", activity:"Calculate the monthly savings required to fund each major system replacement when it occurs. What total monthly reserve is needed?"} },
+    thursday:  { low: {title:"Prioritized repair list", activity:"Compile all findings into a prioritized repair list with cost estimates. What are the top 5 items that must be addressed in the next 90 days?"}, mid: {title:"DIY vs professional decision", activity:"For each identified repair, determine: can this be done as a DIY project or does it require a professional? What skills or tools make the difference?"}, high: {title:"5-year capital plan", activity:"Create a 5-year capital improvement plan: which major systems are approaching end of life? What is the projected replacement cost and monthly savings schedule?"} }
+  },
+
+  "Complete personal finance plan — net worth to retirement": {
+    gradeHooks: {
+      low: "A complete personal finance plan traces the path from where you are today to financial independence: every step and every milestone.",
+      mid: "A comprehensive financial plan integrates income, expenses, debt, savings, investing, insurance, and estate planning into a coherent whole.",
+      high: "Financial planning methodology, comprehensive financial plan construction, and the behavioral economics of plan adherence are important topics."
+    },
+    materials: ["All financial data and plans from previous lessons", "Financial planning software"],
+    steps: [
+      "Current net worth: assets minus liabilities. This is the starting point for everything.",
+      "Income and expense trajectory: projected income growth, expense management, and savings rate over 10, 20, and 30 years.",
+      "Debt elimination schedule: when is each debt paid off and what does that free up for investing?",
+      "Investment plan: account selection, asset allocation, contribution schedule, and projected growth to retirement.",
+      "Protection plan: life insurance (if dependents), disability insurance, and estate documents completed."
+    ],
+    discussion: [
+      {q:"What is the single most important financial decision a young adult makes?", answers:["Starting to save and invest early. The mathematical advantage of compound growth over 40+ years is so large that a 22-year-old who saves modestly consistently will almost certainly accumulate more than a 35-year-old who saves aggressively. Time in the market is the most powerful variable in wealth building."]},
+      {q:"Why do financial plans require annual review and update rather than being set once?", answers:["Income changes, expenses change, market returns vary, tax laws change, family circumstances evolve, and financial goals shift. A plan set 5 years ago that has never been updated is likely significantly misaligned with current reality. Annual review keeps the plan relevant while maintaining long-term direction."]}
+    ],
+    challenge: "Complete a full personal financial plan document: net worth statement, 10-year projection, investment plan, insurance inventory, and estate document checklist.",
+    tuesday:   { low: {title:"Complete net worth statement", activity:"Compile a current net worth statement with every asset and liability. This is the definitive starting point for your financial plan."}, mid: {title:"30-year projection model", activity:"Build a 30-year financial projection: income, savings rate, debt payoff, investment contributions, and net worth milestones at each decade."}, high: {title:"Monte Carlo plan testing", activity:"Use a Monte Carlo simulation to test your financial plan against 1,000 different market return scenarios. What is the probability of reaching your target at each milestone?"} },
+    wednesday: { low: {title:"Investment allocation plan", activity:"Specify your investment allocation: which accounts, which funds, contribution amounts, and rebalancing approach."}, mid: {title:"Insurance review", activity:"Complete an insurance review: what coverage do you have, what do you need, and what gaps exist? Calculate premium cost and coverage adequacy for each type."}, high: {title:"Tax-efficient withdrawal sequencing", activity:"Model tax-efficient withdrawal sequencing for retirement. Which accounts should be drawn from first, second, and last to minimize lifetime tax burden?"} },
+    thursday:  { low: {title:"Complete financial plan document", activity:"Compile all components into a complete written financial plan. This is a living document to be reviewed annually."}, mid: {title:"Advisor selection research", activity:"Research when and how to select a financial advisor. What is a fiduciary? What credentials matter? What does a comprehensive financial plan typically cost?"}, high: {title:"Plan adherence research", activity:"Research the behavioral finance factors that predict financial plan adherence. What habits, systems, and accountability structures most improve the likelihood of following a long-term plan?"} }
+  },
+
+  "Survival skills teaching practicum": {
+    gradeHooks: {
+      low: "A survival skills teaching practicum combines everything you\u2019ve learned into a comprehensive instructional experience for others.",
+      mid: "Teaching a comprehensive survival skills curriculum requires integrating technical knowledge, pedagogy, and field judgment.",
+      high: "Outdoor education curriculum design, risk management in field instruction, and reflective practice in survival skills teaching are important topics."
+    },
+    materials: ["Complete survival curriculum", "Field materials", "Student group"],
+    steps: [
+      "Curriculum design: select 5\u20136 core survival skills that form a coherent sequence. Each skill builds on the previous.",
+      "Risk management plan: for field instruction, identify all hazards and document your mitigation for each.",
+      "Scenario integration: design 2\u20133 scenarios that require students to apply multiple skills simultaneously.",
+      "Assessment design: what does competency look like for each skill? How will you assess each student objectively?",
+      "Reflective practice: document what you observe, what you adjust, and what you will do differently next time."
+    ],
+    discussion: [
+      {q:"What risk management responsibilities does a field instructor have that a classroom instructor does not?", answers:["Field instructors must: assess and manage environmental hazards, maintain supervision ratios appropriate for the activity, have emergency action plans for injury and weather emergencies, ensure all participants are physically capable of the activity, and have communication with the outside world. The standard of care is higher because the consequences of failure are more severe."]},
+      {q:"How does teaching a skill in a controlled setting differ from teaching it in realistic field conditions?", answers:["Controlled settings remove the cognitive load of managing multiple variables simultaneously. Field conditions add weather stress, physical fatigue, navigation demands, and real consequences. Good survival instruction progressively adds realistic stressors to bridge the gap between controlled practice and actual need."]}
+    ],
+    challenge: "Design and deliver a full-day survival skills field course for a group of students. Include fire, water, shelter, navigation, and foraging with a final integrated scenario.",
+    tuesday:   { low: {title:"Full curriculum design", activity:"Design a full-day survival skills curriculum. What are the learning objectives for each module? How much time does each require?"}, mid: {title:"Risk management plan", activity:"Complete a risk management plan for your field course. What are the hazards, mitigations, and emergency action plan?"}, high: {title:"Scenario design", activity:"Design 2 integrated scenarios that require students to apply all 5 skills simultaneously. What realistic framing and decisions are required?"} },
+    wednesday: { low: {title:"Equipment preparation", activity:"Prepare all equipment and materials for the field course. What does each student need? What does the instructor bring?"}, mid: {title:"Assessment rubric development", activity:"Develop a skills assessment rubric with clear performance criteria for each skill. What is the minimum acceptable performance?"}, high: {title:"Reflective practice framework", activity:"Research Schon\u2019s reflective practice theory. How do you implement reflection-in-action and reflection-on-action to improve your teaching?"} },
+    thursday:  { low: {title:"Course delivery", activity:"Deliver your full-day field course. Document adaptations made in real time and your observations of student performance."}, mid: {title:"Student assessment summary", activity:"Compile your student assessment data. What percentage met the performance criteria for each skill?"}, high: {title:"Course improvement report", activity:"Write a comprehensive course improvement report: what went well, what failed, what would you change, and what new risks did you identify?"} }
+  },
+
+  "Foraging and permaculture design": {
+    gradeHooks: {
+      low: "Permaculture designs systems that work like nature: plants supporting each other, producing food, and needing little maintenance.",
+      mid: "A permaculture design integrates wild foraging, food production, and ecological principles into a resilient, low-maintenance food system.",
+      high: "Agroforestry science, polyculture productivity research, and the ecological services provided by food forest systems are important topics."
+    },
+    materials: ["Site assessment data", "Permaculture design reference"],
+    steps: [
+      "Permaculture principles: observe and interact, catch and store energy, obtain a yield, apply self-regulation, produce no waste.",
+      "Zone design: Zone 0 (home) through Zone 5 (wilderness). Design activities match the frequency you visit each zone.",
+      "Stacking functions: every element serves multiple purposes. An elderberry hedge provides food, wildlife habitat, windbreak, and medicine.",
+      "Food forest layers: canopy, sub-canopy, shrub, herbaceous, ground cover, root, and vine layers.",
+      "Foraging integration: identify wild edibles already present and plan the design to support and expand them."
+    ],
+    discussion: [
+      {q:"What is the principle of stacking functions and why is it central to permaculture design?", answers:["Stacking functions means every element in a design serves multiple purposes. A fruit tree provides food, shade, carbon sequestration, wildlife habitat, and beauty. Designs where every element serves only one function are inefficient. Stacking functions increases the productivity and resilience of the system per unit of land."]},
+      {q:"How does a food forest differ from an orchard and why does the difference matter for resilience?", answers:["An orchard is a monoculture managed for maximum yield of a single species. A food forest is a diverse ecosystem with multiple species in multiple vertical layers, mimicking natural forest structure. The food forest requires less external input and is more resilient to pest, disease, and weather events."]}
+    ],
+    challenge: "Design a complete permaculture system for your property or a hypothetical property. Include all 7 layers of the food forest and document the stacking functions of each major element.",
+    tuesday:   { low: {title:"Zone mapping", activity:"Map your property into permaculture zones based on how frequently you visit each area."}, mid: {title:"Food forest species selection", activity:"Select species for each layer appropriate for Florida\u2019s climate. Research the stacking functions of each species."}, high: {title:"Permaculture design methodology", activity:"Research formal permaculture design process. What observation period, analysis tools, and design principles are standard?"} },
+    wednesday: { low: {title:"Guild design", activity:"Design a plant guild: a group of plants that mutually support each other. Research the Three Sisters and design a Florida equivalent."}, mid: {title:"Wild foraging integration", activity:"Walk your design site and identify existing wild edibles. How does the design support and expand them while meeting food production goals?"}, high: {title:"Permaculture evidence base", activity:"Research the scientific evidence for permaculture\u2019s yield and resilience claims. What studies compare permaculture systems to conventional agriculture?"} },
+    thursday:  { low: {title:"Complete design document", activity:"Complete your permaculture design document with site map, species list, planting plan, and 5-year development timeline."}, mid: {title:"Implementation phasing", activity:"Design the implementation sequence for your permaculture system. What is planted in year 1, year 3, year 5 as the system evolves?"}, high: {title:"Ecological function analysis", activity:"Analyze the ecological functions of your designed system: carbon sequestration, biodiversity support, and watershed functions."} }
+  },
+
+  "Emergency preparedness capstone project": {
+    gradeHooks: {
+      low: "The capstone project demonstrates everything you\u2019ve learned by creating something that helps your community be better prepared.",
+      mid: "A capstone project integrates all areas of preparedness study into a significant, community-relevant deliverable.",
+      high: "Capstone project design, scope management, and the demonstration of integrated competency across multiple domains are important topics."
+    },
+    materials: ["Capstone project plan", "All accumulated resources"],
+    steps: [
+      "Project selection: choose a project that addresses a real gap in your community\u2019s preparedness. It must be significant, achievable, and leave a lasting contribution.",
+      "Project planning: define scope, timeline, resources needed, and success criteria. What does completion look like?",
+      "Execution: complete the project with documentation at each major milestone.",
+      "Community presentation: present your project to an audience that includes community members who will benefit from it.",
+      "Reflection: what did you build, what did you learn, and what impact will it have?"
+    ],
+    discussion: [
+      {q:"What makes a capstone project significant rather than a routine exercise?", answers:["A significant capstone project: addresses a real need (not hypothetical), produces a lasting tangible or documented deliverable, requires integration of multiple skills, involves real community members, and has measurable impact. A routine exercise is completed within the household for learning purposes. A capstone extends beyond the household into the community."]},
+      {q:"How do you measure the impact of a preparedness capstone project?", answers:["Impact measurement might include: number of people trained, number of households that completed a specific preparedness action, resources mapped and shared, plans written and adopted, or community connections made. The measurement method should be designed before the project begins."]}
+    ],
+    challenge: "Complete your capstone project. Present it to a community audience. Document the impact: what is different in your community because you did this project?",
+    tuesday:   { low: {title:"Project scope finalization", activity:"Finalize your project scope. What exactly will be delivered? What will not be included? What does success look like?"}, mid: {title:"Milestone planning", activity:"Break your project into milestones. What must be completed by each date? What are the dependencies between milestones?"}, high: {title:"Impact measurement design", activity:"Design your impact measurement methodology before project execution. How will you measure whether the project achieved its goals?"} },
+    wednesday: { low: {title:"Project execution", activity:"Work on your capstone project. Document progress at each milestone."}, mid: {title:"Stakeholder engagement", activity:"Engage the community stakeholders your project affects. Collect input, share progress, and build ownership."}, high: {title:"Documentation standards", activity:"Research documentation standards for community emergency planning projects. What format and content are required for official adoption?"} },
+    thursday:  { low: {title:"Completion and presentation", activity:"Complete your project and present it to a community audience. Collect structured feedback."}, mid: {title:"Impact report", activity:"Write an impact report: what was delivered, who was affected, what changed, and what follow-up is needed."}, high: {title:"Legacy documentation", activity:"Create documentation that allows your project to continue without you: contact information, maintenance requirements, successor information, and all technical documentation."} }
+  },
+
+  "Stop the bleed instructor certification prep": {
+    gradeHooks: {
+      low: "Becoming a Stop the Bleed instructor means you can officially train others to save lives from bleeding emergencies.",
+      mid: "Stop the Bleed instructor certification requires demonstrated teaching competency and content mastery beyond the learner level.",
+      high: "The Stop the Bleed instructor certification pathway, program governance, and the public health impact of the program are important topics."
+    },
+    materials: ["Stop the Bleed instructor materials", "Mannequins and training supplies"],
+    steps: [
+      "Instructor pathway: complete Learner course + Instructor course offered by ACS, hospitals, and official course sites.",
+      "Content mastery at instructor level: know the evidence behind each recommendation, not just the technique.",
+      "Teaching demonstration: instructor certification requires demonstrating that you can teach all 3 core skills effectively.",
+      "Course administration: know how to register participants, document training, and issue completion cards.",
+      "Program expansion: as an instructor, your role is to multiply the program. How many people will you train in the next year?"
+    ],
+    discussion: [
+      {q:"What is the public health impact model behind Stop the Bleed?", answers:["Each instructor trains many learners, each learner is positioned to act at a future bleeding emergency. Hemorrhage is the leading cause of preventable trauma death and most deaths occur before EMS arrives. The intervention with the highest leverage is training the bystanders who will be present first. Each instructor multiplies their personal impact by 10x or more."]},
+      {q:"Why is instructor-level content mastery qualitatively different from learner-level mastery?", answers:["A learner needs to know what to do. An instructor needs to know why, what the evidence says, what the most common errors are, how to correct those errors in real time, and how to answer edge case questions. Instructor mastery requires understanding the clinical rationale behind each step well enough to explain it from first principles."]}
+    ],
+    challenge: "Complete the Stop the Bleed Instructor course or equivalent preparation. Deliver a full Stop the Bleed course to at least 8 people. Document your training records.",
+    tuesday:   { low: {title:"Instructor course registration", activity:"Research Stop the Bleed instructor training opportunities in your area. Register for the next available course."}, mid: {title:"Evidence review", activity:"Review the clinical evidence behind Stop the Bleed: tourniquet efficacy data, wound packing studies, and bystander effectiveness research."}, high: {title:"Program governance research", activity:"Research the Stop the Bleed program governance structure. Who owns the curriculum and what are the requirements for authorized training sites?"} },
+    wednesday: { low: {title:"Teaching demonstration preparation", activity:"Prepare your instructor-level teaching demonstration for each of the 3 skills. Practice until demonstration is smooth and explanations are fluent."}, mid: {title:"Scenario development", activity:"Develop 5 realistic scenarios for your Stop the Bleed course. Each should present a different bleeding emergency requiring a different intervention."}, high: {title:"Community training plan", activity:"Develop a 12-month community training plan. What venues, populations, and frequencies will maximize trained individuals in your area?"} },
+    thursday:  { low: {title:"Full course delivery", activity:"Deliver a complete Stop the Bleed course. Document attendance, competency assessment, and any teaching challenges."}, mid: {title:"Training record management", activity:"Complete all training records and issue completion documentation to all participants."}, high: {title:"Program expansion strategy", activity:"Develop a strategy for expanding Stop the Bleed training in your community. What institutional partnerships could host courses?"} }
+  },
+
+  "Community emergency plan — write and present": {
+    gradeHooks: {
+      low: "A community emergency plan documents how a neighborhood or organization will prepare for, respond to, and recover from emergencies.",
+      mid: "Writing a community emergency plan requires stakeholder engagement, hazard analysis, and clear role and resource documentation.",
+      high: "Emergency planning standards (NFPA 1600), stakeholder engagement methodology, and plan exercise requirements are important topics."
+    },
+    materials: ["Hazard analysis data", "Stakeholder input", "Plan template"],
+    steps: [
+      "Hazard analysis: what are the most likely and most severe threats to your community? In Florida: hurricane, flooding, wildfire, extended power outage.",
+      "Capability assessment: what resources and capabilities exist? What are the gaps?",
+      "Plan components: purpose and scope, authorities and responsibilities, concept of operations, resource management, and communications.",
+      "Stakeholder review: draft plan must be reviewed by all organizations with roles in it before finalization.",
+      "Plan maintenance: a plan that is never exercised or updated is not a functional plan. Schedule exercises and annual review."
+    ],
+    discussion: [
+      {q:"Why do community emergency plans often fail during actual emergencies even when they look complete on paper?", answers:["Plans fail when they: were written by one person without stakeholder input (others don\u2019t know them), have never been exercised (gaps only discovered in real events), are not maintained (phone numbers change, personnel rotate), use complexity that impedes rapid use, or assume resources that don\u2019t actually exist."]},
+      {q:"What makes a community emergency plan functional vs compliant?", answers:["A compliant plan meets formal requirements. A functional plan actually changes behavior and improves outcomes. Functional plans are: short enough to be read quickly, specific enough to be actionable, owned by the people who will use them, exercised regularly, and updated based on lessons learned."]}
+    ],
+    challenge: "Write a complete community emergency plan for your neighborhood. Present it to the stakeholders and conduct a tabletop exercise to test it.",
+    tuesday:   { low: {title:"Hazard analysis", activity:"Complete a hazard analysis: what are the top 5 threats to your community, their probability, and their potential impact?"}, mid: {title:"Stakeholder mapping", activity:"Identify all stakeholders who must be involved in the plan: who has a role, who has authority, and who will be affected?"}, high: {title:"NFPA 1600 research", activity:"Research NFPA 1600 (Standard on Continuity, Emergency, and Crisis Management). What elements does it require for a compliant emergency plan?"} },
+    wednesday: { low: {title:"Plan drafting", activity:"Draft the core components: purpose, roles, concept of operations, and communication procedures."}, mid: {title:"Resource inventory", activity:"Inventory all resources that the plan relies on. For each resource, verify that it actually exists and is accessible."}, high: {title:"Plan exercise design", activity:"Design a tabletop exercise that tests every major element of your plan. What injects will reveal the most important gaps?"} },
+    thursday:  { low: {title:"Stakeholder presentation", activity:"Present your draft plan to all stakeholders. Incorporate their feedback and produce a final version."}, mid: {title:"Plan exercise execution", activity:"Execute the tabletop exercise. Document all gaps, questions, and improvements identified."}, high: {title:"Plan adoption strategy", activity:"Develop a strategy for formal plan adoption by relevant authorities. What is required for your plan to become the official community emergency plan?"} }
+  },
+
+
   "Improvised surgery — wound closure field conditions": {
     gradeHooks: {
       low: "In extreme field conditions with no evacuation possible, a trained provider may need to close a wound using improvised techniques.",
