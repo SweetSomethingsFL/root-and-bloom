@@ -6719,8 +6719,8 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
           );
         })()}
 
-        {/* ── Weekly Subject Grid ── */}
-        {(()=>{
+        {/* ── Weekly Subject Grid — removed (redundant with This Week lesson progress card) ── */}
+        {false && (()=>{
           const today2   = new Date();
           const dow2     = today2.getDay();
           const wkStart  = new Date(today2); wkStart.setDate(today2.getDate()-(dow2===0?6:dow2-1)); wkStart.setHours(0,0,0,0);
@@ -6791,6 +6791,117 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
             </div>
           );
         })()}
+
+        {/* ── This Week: lesson progress ── */}
+        {(()=>{
+          const lessonGoals  = family.lessonGoals||{};
+          const hasGoals     = Object.keys(lessonGoals).length>0;
+          const activeSubjIds= family.subjects||[];
+          const customSubjs2 = family.customSubjects||[];
+          const allSubjMap2  = Object.fromEntries([...SUBJECT_OPTIONS,...customSubjs2].map(s=>[s.id,s]));
+          const activeSubjList2 = activeSubjIds.map(id=>allSubjMap2[id]).filter(Boolean);
+          if(activeSubjList2.length===0) return null;
+          if(portfolioEntries.length===0) return null;
+
+          // Week boundaries
+          const weekStart2 = new Date();
+          weekStart2.setDate(weekStart2.getDate()-(weekStart2.getDay()===0?6:weekStart2.getDay()-1));
+          weekStart2.setHours(0,0,0,0);
+          const yr2 = new Date().getFullYear();
+          const todayDow = new Date().getDay(); // 0=Sun,1=Mon...6=Sat
+
+          // Filter entries by active child
+          const ci2 = child==="all" ? -1 : family.children.findIndex(c=>c.id===child);
+          const relevantEntries = (ci2>=0
+            ? portfolioEntries.filter(e=>e.childIdx===ci2&&!e.isDay)
+            : portfolioEntries.filter(e=>!e.isDay)
+          ).filter(e=>{ try{ return new Date(e.date+", "+yr2)>=weekStart2; }catch{ return false; } });
+
+          // Compute weekly target per subject from lessonGoals {subjId: {dow: count}}
+          // dow 0=Mon ... 4=Fri in our system
+          const getWeeklyTarget = (subjId) => {
+            if(!hasGoals||!lessonGoals[subjId]) return null;
+            const dayMap = lessonGoals[subjId];
+            // Only count days that have already passed this week (Mon=1...today)
+            // For "target by end of week" sum all 5 days
+            return [0,1,2,3,4].reduce((sum,d)=>sum+(dayMap[d]||0),0);
+          };
+
+          // Compute lessons logged per subject this week
+          const loggedPerSubj = {};
+          relevantEntries.forEach(e=>{
+            if(!e.subj) return;
+            loggedPerSubj[e.subj] = (loggedPerSubj[e.subj]||0) + (e.lessonCount||1);
+          });
+
+          // Build subject cards
+          const cards = activeSubjList2.map(s=>{
+            const logged = loggedPerSubj[s.label]||0;
+            const target = getWeeklyTarget(s.id);
+            const touched = logged>0;
+            const onTrack = target===null ? touched : logged>=target;
+            const pct     = target ? Math.min(100,Math.round(logged/target*100)) : (touched?100:0);
+            return {s, logged, target, touched, onTrack, pct};
+          });
+
+          const allOnTrack = cards.every(c=>c.onTrack);
+          const hasAnyData = cards.some(c=>c.touched);
+
+          return (
+            <>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.5rem"}}>
+                <span style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>
+                  {"This Week"}
+                </span>
+                <button onClick={()=>onTabChange("portfolio")} style={{fontSize:"0.72rem",color:pal.primary,fontWeight:"700",background:"transparent",border:"none",cursor:"pointer"}}>Portfolio {"→"}</button>
+              </div>
+              <div style={{background:pal.linen,borderRadius:"16px",padding:"0.9rem 1rem",border:`1.5px solid ${allOnTrack&&hasAnyData?pal.good+"50":pal.stone+"45"}`,marginBottom:"1rem"}}>
+                {allOnTrack&&hasAnyData?(
+                  <div style={{display:"flex",gap:"0.65rem",alignItems:"center",marginBottom:"0.75rem"}}>
+                    <div style={{width:"38px",height:"38px",borderRadius:"10px",background:pal.goodBg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.2rem",flexShrink:0}}>{"🌟"}</div>
+                    <div>
+                      <div style={{fontWeight:"700",color:pal.good,fontSize:"0.85rem"}}>
+                        {hasGoals?"All lesson goals hit this week!":"All subjects covered this week!"}
+                      </div>
+                      <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"2px"}}>
+                        {hasGoals?"Every subject is on track. Keep it up!":"Every subject has at least one entry."}
+                      </div>
+                    </div>
+                  </div>
+                ):null}
+                <div style={{display:"flex",flexDirection:"column",gap:"0.45rem"}}>
+                  {cards.map(({s,logged,target,touched,onTrack,pct})=>(
+                    <div key={s.id}
+                      onClick={!onTrack?startLog:undefined}
+                      style={{background:onTrack?"#fff":touched?"#fff":"#fff8e6",borderRadius:"11px",padding:"0.55rem 0.7rem",border:`1.5px solid ${onTrack?pal.good+"40":touched?pal.stone+"30":"#f5c842"}`,cursor:!onTrack?"pointer":"default",transition:"all 0.12s"}}>
+                      <div style={{display:"flex",alignItems:"center",gap:"0.5rem",marginBottom:target!==null?"0.3rem":"0"}}>
+                        <span style={{fontSize:"1rem",flexShrink:0}}>{s.icon}</span>
+                        <span style={{flex:1,fontWeight:"700",color:onTrack?pal.good:touched?pal.inkM:"#7a5500",fontSize:"0.8rem"}}>{s.label}</span>
+                        <span style={{fontSize:"0.74rem",fontWeight:"800",color:onTrack?pal.good:touched?pal.primary:"#b07800"}}>
+                          {target!==null
+                            ? logged+"/"+target+" lessons"
+                            : touched?"✓ logged":"Not yet"}
+                        </span>
+                        {onTrack&&<span style={{fontSize:"0.75rem",color:pal.good}}>{"✓"}</span>}
+                      </div>
+                      {target!==null&&(
+                        <div style={{height:"4px",borderRadius:"99px",background:pal.stone+"30",overflow:"hidden"}}>
+                          <div style={{height:"100%",width:pct+"%",borderRadius:"99px",background:onTrack?pal.good:pct>50?pal.primary:"#f5c842",transition:"width 0.4s"}}/>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                {!hasGoals&&(
+                  <div style={{marginTop:"0.55rem",fontSize:"0.68rem",color:pal.slate,fontStyle:"italic",textAlign:"center"}}>
+                    {"Set lesson goals in Settings to track progress here."}
+                  </div>
+                )}
+              </div>
+            </>
+          );
+        })()}
+
 
         {/* ── Smart Today Card — single unified action ── */}
         {(()=>{
@@ -7053,115 +7164,6 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
           </div>
         </>)}
 
-        {/* ── This Week: lesson progress ── */}
-        {(()=>{
-          const lessonGoals  = family.lessonGoals||{};
-          const hasGoals     = Object.keys(lessonGoals).length>0;
-          const activeSubjIds= family.subjects||[];
-          const customSubjs2 = family.customSubjects||[];
-          const allSubjMap2  = Object.fromEntries([...SUBJECT_OPTIONS,...customSubjs2].map(s=>[s.id,s]));
-          const activeSubjList2 = activeSubjIds.map(id=>allSubjMap2[id]).filter(Boolean);
-          if(activeSubjList2.length===0) return null;
-          if(portfolioEntries.length===0) return null;
-
-          // Week boundaries
-          const weekStart2 = new Date();
-          weekStart2.setDate(weekStart2.getDate()-(weekStart2.getDay()===0?6:weekStart2.getDay()-1));
-          weekStart2.setHours(0,0,0,0);
-          const yr2 = new Date().getFullYear();
-          const todayDow = new Date().getDay(); // 0=Sun,1=Mon...6=Sat
-
-          // Filter entries by active child
-          const ci2 = child==="all" ? -1 : family.children.findIndex(c=>c.id===child);
-          const relevantEntries = (ci2>=0
-            ? portfolioEntries.filter(e=>e.childIdx===ci2&&!e.isDay)
-            : portfolioEntries.filter(e=>!e.isDay)
-          ).filter(e=>{ try{ return new Date(e.date+", "+yr2)>=weekStart2; }catch{ return false; } });
-
-          // Compute weekly target per subject from lessonGoals {subjId: {dow: count}}
-          // dow 0=Mon ... 4=Fri in our system
-          const getWeeklyTarget = (subjId) => {
-            if(!hasGoals||!lessonGoals[subjId]) return null;
-            const dayMap = lessonGoals[subjId];
-            // Only count days that have already passed this week (Mon=1...today)
-            // For "target by end of week" sum all 5 days
-            return [0,1,2,3,4].reduce((sum,d)=>sum+(dayMap[d]||0),0);
-          };
-
-          // Compute lessons logged per subject this week
-          const loggedPerSubj = {};
-          relevantEntries.forEach(e=>{
-            if(!e.subj) return;
-            loggedPerSubj[e.subj] = (loggedPerSubj[e.subj]||0) + (e.lessonCount||1);
-          });
-
-          // Build subject cards
-          const cards = activeSubjList2.map(s=>{
-            const logged = loggedPerSubj[s.label]||0;
-            const target = getWeeklyTarget(s.id);
-            const touched = logged>0;
-            const onTrack = target===null ? touched : logged>=target;
-            const pct     = target ? Math.min(100,Math.round(logged/target*100)) : (touched?100:0);
-            return {s, logged, target, touched, onTrack, pct};
-          });
-
-          const allOnTrack = cards.every(c=>c.onTrack);
-          const hasAnyData = cards.some(c=>c.touched);
-
-          return (
-            <>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.5rem"}}>
-                <span style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>
-                  {"This Week"}
-                </span>
-                <button onClick={()=>onTabChange("portfolio")} style={{fontSize:"0.72rem",color:pal.primary,fontWeight:"700",background:"transparent",border:"none",cursor:"pointer"}}>Portfolio {"→"}</button>
-              </div>
-              <div style={{background:pal.linen,borderRadius:"16px",padding:"0.9rem 1rem",border:`1.5px solid ${allOnTrack&&hasAnyData?pal.good+"50":pal.stone+"45"}`,marginBottom:"1rem"}}>
-                {allOnTrack&&hasAnyData?(
-                  <div style={{display:"flex",gap:"0.65rem",alignItems:"center",marginBottom:"0.75rem"}}>
-                    <div style={{width:"38px",height:"38px",borderRadius:"10px",background:pal.goodBg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.2rem",flexShrink:0}}>{"🌟"}</div>
-                    <div>
-                      <div style={{fontWeight:"700",color:pal.good,fontSize:"0.85rem"}}>
-                        {hasGoals?"All lesson goals hit this week!":"All subjects covered this week!"}
-                      </div>
-                      <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"2px"}}>
-                        {hasGoals?"Every subject is on track. Keep it up!":"Every subject has at least one entry."}
-                      </div>
-                    </div>
-                  </div>
-                ):null}
-                <div style={{display:"flex",flexDirection:"column",gap:"0.45rem"}}>
-                  {cards.map(({s,logged,target,touched,onTrack,pct})=>(
-                    <div key={s.id}
-                      onClick={!onTrack?startLog:undefined}
-                      style={{background:onTrack?"#fff":touched?"#fff":"#fff8e6",borderRadius:"11px",padding:"0.55rem 0.7rem",border:`1.5px solid ${onTrack?pal.good+"40":touched?pal.stone+"30":"#f5c842"}`,cursor:!onTrack?"pointer":"default",transition:"all 0.12s"}}>
-                      <div style={{display:"flex",alignItems:"center",gap:"0.5rem",marginBottom:target!==null?"0.3rem":"0"}}>
-                        <span style={{fontSize:"1rem",flexShrink:0}}>{s.icon}</span>
-                        <span style={{flex:1,fontWeight:"700",color:onTrack?pal.good:touched?pal.inkM:"#7a5500",fontSize:"0.8rem"}}>{s.label}</span>
-                        <span style={{fontSize:"0.74rem",fontWeight:"800",color:onTrack?pal.good:touched?pal.primary:"#b07800"}}>
-                          {target!==null
-                            ? logged+"/"+target+" lessons"
-                            : touched?"✓ logged":"Not yet"}
-                        </span>
-                        {onTrack&&<span style={{fontSize:"0.75rem",color:pal.good}}>{"✓"}</span>}
-                      </div>
-                      {target!==null&&(
-                        <div style={{height:"4px",borderRadius:"99px",background:pal.stone+"30",overflow:"hidden"}}>
-                          <div style={{height:"100%",width:pct+"%",borderRadius:"99px",background:onTrack?pal.good:pct>50?pal.primary:"#f5c842",transition:"width 0.4s"}}/>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                {!hasGoals&&(
-                  <div style={{marginTop:"0.55rem",fontSize:"0.68rem",color:pal.slate,fontStyle:"italic",textAlign:"center"}}>
-                    {"Set lesson goals in Settings to track progress here."}
-                  </div>
-                )}
-              </div>
-            </>
-          );
-        })()}
 
         {/* ── P&C This Week ── */}
         {family.lifeReady && (()=>{
