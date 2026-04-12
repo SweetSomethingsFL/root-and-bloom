@@ -12434,11 +12434,7 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
       return;
     }
 
-    const prompt = "You are a warm, insightful homeschool assistant. Based on this week’s parent notes, write a short progress pulse for each child. For each child: 1-2 sentences on what stood out this week, and 1 sentence noting any subject that seems light or worth attention. Be warm, specific, and encouraging. Use the parent’s own words when helpful. Plain text, no markdown, no bullet points.
-
-This week’s notes:
-"+noteLines.join("
-");
+    const prompt = "You are a warm, insightful homeschool assistant. Based on this week\u2019s parent notes, write a short progress pulse for each child. For each child: 1-2 sentences on what stood out this week, and 1 sentence noting any subject that seems light or worth attention. Be warm, specific, and encouraging. Use the parent\u2019s own words when helpful. Plain text, no markdown, no bullet points.\n\nThis week\u2019s notes:\n"+noteLines.join("\n");
 
     try {
       const result = await callClaude(prompt);
@@ -12692,7 +12688,7 @@ This week’s notes:
           return (
             <div>
               <div style={{background:"linear-gradient(135deg,"+cp.c1+"18,"+cp.c2+"12)",borderRadius:"16px",padding:"0.9rem 1rem",marginBottom:"1rem",border:"1.5px solid "+cp.c1+"25"}}>
-                <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.88rem",marginBottom:"3px"}}>{"🌟 "+ch?.name+{"'"}+"s Milestones"}</div>
+                <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.88rem",marginBottom:"3px"}}>{"🌟 "+ch?.name+"’s Milestones"}</div>
                 <div style={{fontSize:"0.75rem",color:pal.slate,lineHeight:1.55}}>{"Moments worth remembering — tag any log entry as a milestone using the 🌟 button when logging."}</div>
               </div>
 
