@@ -290,6 +290,7 @@ function RootAndBloom() {
   const [view,           setView]           = useState("splash");
   const [activeTab,      setActiveTab]      = useState("home");
   const [navIds,         setNavIds]         = useState(saved?.navIds||["home","progress","portfolio","more"]);
+  const [homeLayout,     setHomeLayout]     = useState(saved?.homeLayout||["thisweek","todaycard","progress_nudge","consistency","missedday","behindweek","goals","pandc"]);
   const [childFilt,      setChildFilt]      = useState("all");
   const [lastCheckinDate,setLastCheckinDate]= useState(saved?.lastCheckinDate||null);
   const [checkinStreak,  setCheckinStreak]  = useState(saved?.checkinStreak||0);
@@ -369,7 +370,7 @@ function RootAndBloom() {
 
   // Auto-save whenever key state changes
   useEffect(()=>{
-    savePersist({family,navIds,portfolio:portfolioEntries,coopLog,attendanceDays,attendanceLog,observationLog,checkinDates,studentVisits,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed});
+    savePersist({family,navIds,homeLayout,portfolio:portfolioEntries,coopLog,attendanceDays,attendanceLog,observationLog,checkinDates,studentVisits,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed});
   },[family,navIds,portfolioEntries,coopLog,attendanceDays,attendanceLog,observationLog,checkinDates,studentVisits,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed]);
 
   // Auto-show New Year prompt when yearEnd has passed
@@ -460,6 +461,9 @@ function RootAndBloom() {
     entries.forEach(e => addPortfolioEntry(e));
     // increment attendance
     const todayStr = new Date().toDateString();
+  const [layoutEdit,   setLayoutEdit]   = useState(false);
+  const [dragIdx,      setDragIdx]      = useState(null);
+  const [dragOverIdx,  setDragOverIdx]  = useState(null);
     setAttendanceDays(d => d + (lastCheckinDate===todayStr ? 0 : 1));
     // update streak
     const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
@@ -2553,10 +2557,31 @@ function OnbWeeklySchedule({ pal, data, upd, onNext }) {
 
       {/* Day panel */}
       {isCoop ? (
-        <div style={{background:"#fff8e6",borderRadius:"16px",padding:"1.2rem 1rem",border:"1.5px solid #f5c84250",textAlign:"center"}}>
-          <div style={{fontSize:"1.8rem",marginBottom:"0.4rem"}}>{"🏫"}</div>
-          <div style={{fontWeight:"800",color:"#7a5500",fontSize:"0.88rem",marginBottom:"0.25rem"}}>{DOW_FULL[activeDay]} is your Co-op day</div>
-          <div style={{fontSize:"0.74rem",color:"#b07800",lineHeight:1.6}}>Co-op subjects are set up in the next step. Regular subjects are paused on this day.</div>
+        <div style={{background:"#fff8e6",borderRadius:"16px",padding:"0.9rem 1rem",border:"1.5px solid #f5c84250"}}>
+          <div style={{display:"flex",alignItems:"center",gap:"0.5rem",marginBottom:"0.65rem"}}>
+            <span style={{fontSize:"1.1rem"}}>{"🏫"}</span>
+            <div style={{fontWeight:"800",color:"#7a5500",fontSize:"0.86rem"}}>{DOW_FULL[activeDay]} — Co-op Day</div>
+          </div>
+          <div style={{fontSize:"0.73rem",color:"#b07800",marginBottom:"0.6rem",lineHeight:1.5}}>{"Which of your subjects do you cover at co-op?"}</div>
+          <div style={{display:"flex",flexDirection:"column",gap:"0.25rem"}}>
+            {activeSubjs.map(s=>{
+              const coopSubjs = data.coopSubjects||[];
+              const sel = coopSubjs.includes(s.id);
+              return (
+                <button key={s.id} onClick={()=>{
+                  const cur = data.coopSubjects||[];
+                  upd("coopSubjects", sel?cur.filter(x=>x!==s.id):[...cur,s.id]);
+                }} style={{display:"flex",gap:"0.5rem",alignItems:"center",padding:"0.4rem 0.55rem",border:`1.5px solid ${sel?"#b07800":"#f5c84280"}`,borderRadius:"8px",background:sel?"#fff3cc":"#fff8e6",cursor:"pointer",textAlign:"left",transition:"all 0.12s"}}>
+                  <span style={{fontSize:"0.9rem",width:"18px",textAlign:"center",flexShrink:0}}>{s.icon}</span>
+                  <span style={{flex:1,fontWeight:sel?"700":"400",color:sel?"#7a5500":"#b07800",fontSize:"0.78rem"}}>{s.label}</span>
+                  <div style={{width:"16px",height:"16px",borderRadius:"4px",border:`2px solid ${sel?"#b07800":"#f5c842"}`,background:sel?"#b07800":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                    {sel&&<span style={{color:"#fff",fontSize:"0.6rem",fontWeight:"900"}}>{"✓"}</span>}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+          {(data.coopSubjects||[]).length===0&&<div style={{fontSize:"0.68rem",color:"#b07800",marginTop:"0.5rem",fontStyle:"italic",textAlign:"center"}}>{"Tap subjects above, or leave empty if you don't do regular subjects at co-op."}</div>}
         </div>
       ) : (
         <div style={{background:pal.linen,borderRadius:"16px",padding:"0.9rem 1rem",border:`1.5px solid ${pal.stone}30`}}>
@@ -3652,8 +3677,28 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                     </div>
                     {/* Day panel */}
                     {isCoop3 ? (
-                      <div style={{background:"#fff8e6",borderRadius:"11px",padding:"0.65rem 0.85rem",border:"1.5px solid #f5c84240",fontSize:"0.74rem",color:"#b07800",fontWeight:"600"}}>
-                        {"🏫 Co-op day — regular subjects paused"}
+                      <div style={{background:"#fff8e6",borderRadius:"11px",padding:"0.65rem 0.85rem",border:"1.5px solid #f5c84240"}}>
+                        <div style={{fontSize:"0.73rem",color:"#7a5500",fontWeight:"700",marginBottom:"0.5rem"}}>{"🏫 Co-op Subjects"}</div>
+                        <div style={{fontSize:"0.68rem",color:"#b07800",marginBottom:"0.45rem"}}>{"Which subjects do you cover at co-op? These will show on your schedule on co-op day."}</div>
+                        <div style={{display:"flex",flexDirection:"column",gap:"0.2rem"}}>
+                          {asj3.map(s=>{
+                            const coopSubjs3 = local.coopSubjects||[];
+                            const sel3 = coopSubjs3.includes(s.id);
+                            return (
+                              <button key={s.id} onClick={()=>{
+                                const cur3 = local.coopSubjects||[];
+                                updL("coopSubjects", sel3?cur3.filter(x=>x!==s.id):[...cur3,s.id]);
+                              }} style={{display:"flex",gap:"0.45rem",alignItems:"center",padding:"0.35rem 0.5rem",border:`1.5px solid ${sel3?"#b07800":"#f5c84270"}`,borderRadius:"7px",background:sel3?"#fff3cc":"transparent",cursor:"pointer",textAlign:"left",transition:"all 0.1s"}}>
+                                <span style={{fontSize:"0.85rem",width:"16px",textAlign:"center",flexShrink:0}}>{s.icon}</span>
+                                <span style={{flex:1,fontWeight:sel3?"700":"400",color:sel3?"#7a5500":"#b07800",fontSize:"0.74rem"}}>{s.label}</span>
+                                <div style={{width:"14px",height:"14px",borderRadius:"3px",border:`2px solid ${sel3?"#b07800":"#f5c842"}`,background:sel3?"#b07800":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                                  {sel3&&<span style={{color:"#fff",fontSize:"0.55rem",fontWeight:"900"}}>{"✓"}</span>}
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                        {(local.coopSubjects||[]).length===0&&<div style={{fontSize:"0.65rem",color:"#b07800",marginTop:"0.4rem",fontStyle:"italic"}}>{"Tap to select subjects, or leave empty if you don't do regular subjects at co-op."}</div>}
                       </div>
                     ) : (
                       <div style={{background:pal.parchm,borderRadius:"11px",padding:"0.55rem 0.75rem"}}>
@@ -4019,8 +4064,14 @@ function generateSchedule(family, childId) {
     if(todayIdx!==null) {
       const daySubjs = family.weeklySchedule[todayIdx];
       if(daySubjs===null) {
-        // Day marked as off — return empty (caller handles co-op separately)
-        subjects = [];
+        // Co-op day or day off — use coopSubjects if set, otherwise empty
+        const coopSubjs = family.coopSubjects||[];
+        const coopDowCheck = ["Monday","Tuesday","Wednesday","Thursday","Friday"].indexOf(family.coopDay??"");
+        if(todayIdx===coopDowCheck && coopSubjs.length>0) {
+          subjects = coopSubjs; // show co-op subjects on co-op day
+        } else {
+          subjects = [];
+        }
       } else if(Array.isArray(daySubjs) && daySubjs.length>0) {
         subjects = daySubjs; // use only today's subjects (already IDs)
       }
@@ -6444,7 +6495,7 @@ function GoalsNudgeCard({pal,family,portfolioEntries,todayStr,onTabChange}){
   );
 }
 
-function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress, navIds=[], onAddEntry, onCheckin, checkinDates={}, observationLog=[], onOpenJournal, attendanceLog=[], studentVisits={} }) {
+function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress, navIds=[], onAddEntry, onCheckin, checkinDates={}, observationLog=[], onOpenJournal, attendanceLog=[], studentVisits={}, homeLayout=["thisweek","todaycard","progress_nudge","consistency","missedday","behindweek","goals","pandc"], onSetHomeLayout }) {
   const stateInfo  = getStateInfo(family.state||"");
   const stateHours = stateInfo.hours||"";
   const dayMatch   = stateHours.match(/(\d+)\s*day/i);
@@ -6526,6 +6577,545 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
     return m ? parseInt(m[1]) : 3;
   })();
   const hoursEst = dailyHrs ? Math.round(attendanceDays * dailyHrs) : null;
+
+
+  // ── Section render functions ──────────────────────────────────────────────
+  const renderSection_progress_nudge = () => (
+    <div key="progress_nudge" data-section="progress_nudge">
+      {/* ── Progress check-in nudge — fires after 3+ notes, no pulse yet this week ── */}
+        {(()=>{
+          const wkStart2  = new Date(); const dow3=wkStart2.getDay(); wkStart2.setDate(wkStart2.getDate()-(dow3===0?6:dow3-1)); wkStart2.setHours(0,0,0,0);
+          const savedPW   = (() => { try{ return localStorage.getItem("rootbloom_pulse_week")||""; }catch(e){return "";} })();
+          const alreadyDone = savedPW===wkStart2.toDateString();
+          if(alreadyDone) return null;
+          const ci3 = child==="all" ? 0 : family.children.findIndex(c=>c.id===child);
+          const wkEntries3 = portfolioEntries.filter(e=>!e.isDay&&e.note&&e.note.trim()&&(()=>{
+            try{const d=new Date(e.date+", "+new Date().getFullYear());return d>=wkStart2;}catch(ex){return false;}
+          })());
+          if(wkEntries3.length<3) return null;
+          return (
+            <div onClick={()=>onTabChange("progress")}
+              style={{background:"linear-gradient(135deg,"+pal.primary+"12,"+pal.accent+"08)",borderRadius:"13px",padding:"0.7rem 0.9rem",marginBottom:"0.85rem",border:"1.5px solid "+pal.primary+"25",cursor:"pointer",display:"flex",gap:"0.6rem",alignItems:"center"}}>
+              <span style={{fontSize:"1.2rem",flexShrink:0}}>{"\u2728"}</span>
+              <div style={{flex:1}}>
+                <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.8rem"}}>{"Progress check-in ready"}</div>
+                <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>{wkEntries3.length+" notes this week \u2014 tap to generate a summary"}</div>
+              </div>
+              <span style={{fontSize:"0.8rem",color:pal.primary}}>{"\u203a"}</span>
+            </div>
+          );
+        })()}
+    </div>
+  );
+
+  const renderSection_thisweek = () => (
+    <div key="thisweek" data-section="thisweek">
+      {/* ── This Week: lesson progress ── */}
+        {(()=>{
+          const lessonGoals  = family.lessonGoals||{};
+          const hasGoals     = Object.keys(lessonGoals).length>0;
+          const activeSubjIds= family.subjects||[];
+          const customSubjs2 = family.customSubjects||[];
+          const allSubjMap2  = Object.fromEntries([...SUBJECT_OPTIONS,...customSubjs2].map(s=>[s.id,s]));
+          const activeSubjList2 = activeSubjIds.map(id=>allSubjMap2[id]).filter(Boolean);
+          if(activeSubjList2.length===0) return null;
+          if(portfolioEntries.length===0) return null;
+
+          // Week boundaries
+          const weekStart2 = new Date();
+          weekStart2.setDate(weekStart2.getDate()-(weekStart2.getDay()===0?6:weekStart2.getDay()-1));
+          weekStart2.setHours(0,0,0,0);
+          const yr2 = new Date().getFullYear();
+          const todayDow = new Date().getDay(); // 0=Sun,1=Mon...6=Sat
+
+          // Filter entries by active child
+          const ci2 = child==="all" ? -1 : family.children.findIndex(c=>c.id===child);
+          const relevantEntries = (ci2>=0
+            ? portfolioEntries.filter(e=>e.childIdx===ci2&&!e.isDay)
+            : portfolioEntries.filter(e=>!e.isDay)
+          ).filter(e=>{ try{ return new Date(e.date+", "+yr2)>=weekStart2; }catch{ return false; } });
+
+          // Compute weekly target per subject from lessonGoals {subjId: {dow: count}}
+          // dow 0=Mon ... 4=Fri in our system
+          const getWeeklyTarget = (subjId) => {
+            if(!hasGoals||!lessonGoals[subjId]) return null;
+            const dayMap = lessonGoals[subjId];
+            // Only count days that have already passed this week (Mon=1...today)
+            // For "target by end of week" sum all 5 days
+            return [0,1,2,3,4].reduce((sum,d)=>sum+(dayMap[d]||0),0);
+          };
+
+          // Compute lessons logged per subject this week
+          const loggedPerSubj = {};
+          relevantEntries.forEach(e=>{
+            if(!e.subj) return;
+            loggedPerSubj[e.subj] = (loggedPerSubj[e.subj]||0) + (e.lessonCount||1);
+          });
+
+          // Build subject cards
+          const cards = activeSubjList2.map(s=>{
+            const logged = loggedPerSubj[s.label]||0;
+            const target = getWeeklyTarget(s.id);
+            const touched = logged>0;
+            const onTrack = target===null ? touched : logged>=target;
+            const pct     = target ? Math.min(100,Math.round(logged/target*100)) : (touched?100:0);
+            return {s, logged, target, touched, onTrack, pct};
+          });
+
+          const allOnTrack = cards.every(c=>c.onTrack);
+          const hasAnyData = cards.some(c=>c.touched);
+
+          return (
+            <>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.5rem"}}>
+                <span style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>
+                  {"This Week"}
+                </span>
+                <button onClick={()=>onTabChange("portfolio")} style={{fontSize:"0.72rem",color:pal.primary,fontWeight:"700",background:"transparent",border:"none",cursor:"pointer"}}>Portfolio {"→"}</button>
+              </div>
+              <div style={{background:pal.linen,borderRadius:"16px",padding:"0.9rem 1rem",border:`1.5px solid ${allOnTrack&&hasAnyData?pal.good+"50":pal.stone+"45"}`,marginBottom:"1rem"}}>
+                {allOnTrack&&hasAnyData?(
+                  <div style={{display:"flex",gap:"0.65rem",alignItems:"center",marginBottom:"0.75rem"}}>
+                    <div style={{width:"38px",height:"38px",borderRadius:"10px",background:pal.goodBg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.2rem",flexShrink:0}}>{"🌟"}</div>
+                    <div>
+                      <div style={{fontWeight:"700",color:pal.good,fontSize:"0.85rem"}}>
+                        {hasGoals?"All lesson goals hit this week!":"All subjects covered this week!"}
+                      </div>
+                      <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"2px"}}>
+                        {hasGoals?"Every subject is on track. Keep it up!":"Every subject has at least one entry."}
+                      </div>
+                    </div>
+                  </div>
+                ):null}
+                <div style={{display:"flex",flexDirection:"column",gap:"0.45rem"}}>
+                  {cards.map(({s,logged,target,touched,onTrack,pct})=>(
+                    <div key={s.id}
+                      onClick={!onTrack?startLog:undefined}
+                      style={{background:onTrack?"#fff":touched?"#fff":"#fff8e6",borderRadius:"11px",padding:"0.55rem 0.7rem",border:`1.5px solid ${onTrack?pal.good+"40":touched?pal.stone+"30":"#f5c842"}`,cursor:!onTrack?"pointer":"default",transition:"all 0.12s"}}>
+                      <div style={{display:"flex",alignItems:"center",gap:"0.5rem",marginBottom:target!==null?"0.3rem":"0"}}>
+                        <span style={{fontSize:"1rem",flexShrink:0}}>{s.icon}</span>
+                        <span style={{flex:1,fontWeight:"700",color:onTrack?pal.good:touched?pal.inkM:"#7a5500",fontSize:"0.8rem"}}>{s.label}</span>
+                        <span style={{fontSize:"0.74rem",fontWeight:"800",color:onTrack?pal.good:touched?pal.primary:"#b07800"}}>
+                          {target!==null
+                            ? logged+"/"+target+" lessons"
+                            : touched?"✓ logged":"Not yet"}
+                        </span>
+                        {onTrack&&<span style={{fontSize:"0.75rem",color:pal.good}}>{"✓"}</span>}
+                      </div>
+                      {target!==null&&(
+                        <div style={{height:"4px",borderRadius:"99px",background:pal.stone+"30",overflow:"hidden"}}>
+                          <div style={{height:"100%",width:pct+"%",borderRadius:"99px",background:onTrack?pal.good:pct>50?pal.primary:"#f5c842",transition:"width 0.4s"}}/>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                {!hasGoals&&(
+                  <div style={{marginTop:"0.55rem",fontSize:"0.68rem",color:pal.slate,fontStyle:"italic",textAlign:"center"}}>
+                    {"Set lesson goals in Settings to track progress here."}
+                  </div>
+                )}
+              </div>
+            </>
+          );
+        })()}
+    </div>
+  );
+
+  const renderSection_todaycard = () => (
+    <div key="todaycard" data-section="todaycard">
+      {/* ── Smart Today Card — single unified action ── */}
+        {(()=>{
+          const prog = (todayProgress && todayProgress.date===todayStr) ? todayProgress : null;
+          const schedDone = prog && prog.total>0 && prog.count>=prog.total;
+          const inProgress = prog && prog.count>0 && !schedDone;
+
+          if(schedDone || checkedInToday) {
+            // State 3: All done for the day
+            return (
+              <div style={{background:pal.goodBg,borderRadius:"16px",padding:"0.95rem 1.1rem",marginBottom:"1rem",border:`2px solid ${pal.good}40`}}>
+                <div style={{display:"flex",gap:"0.85rem",alignItems:"center",marginBottom:"0.65rem"}}>
+                  <div style={{width:"46px",height:"46px",borderRadius:"13px",background:pal.good,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.5rem",flexShrink:0}}>{"🌟"}</div>
+                  <div style={{flex:1}}>
+                    <div style={{fontWeight:"800",color:pal.good,fontSize:"0.92rem"}}>{"Day logged!"}</div>
+                    <div style={{fontSize:"0.71rem",color:pal.inkM,marginTop:"2px"}}>
+                      {checkinStreak>0 ? "🔥 "+checkinStreak+" day streak — amazing!" : "Great work today."}
+                    </div>
+                  </div>
+                </div>
+                <div style={{display:"flex",gap:"0.5rem"}}>
+                  <button onClick={startLog}
+                    style={{flex:1,padding:"0.48rem",border:`2px solid ${pal.good}50`,borderRadius:"10px",background:"transparent",color:pal.good,fontSize:"0.74rem",fontWeight:"700",cursor:"pointer"}}>
+                    {"+ Add More"}
+                  </button>
+                  <button onClick={()=>onTabChange("progress")}
+                    style={{flex:1,padding:"0.48rem",border:`2px solid ${pal.good}50`,borderRadius:"10px",background:"transparent",color:pal.good,fontSize:"0.74rem",fontWeight:"700",cursor:"pointer"}}>
+                    {"📈 Progress"}
+                  </button>
+                </div>
+              </div>
+            );
+          }
+
+          if(inProgress) {
+            // State 2: In progress — show bar + subjects left
+            // Only tappable/navigates to schedule if that tab is in nav
+            const hasScheduleTab = navIds.includes("schedule");
+            const pct2 = Math.round(prog.count/prog.total*100);
+            return (
+              <div onClick={()=>hasScheduleTab&&onTabChange("schedule")}
+                style={{background:pal.linen,borderRadius:"16px",padding:"0.95rem 1.1rem",marginBottom:"1rem",border:`2px solid ${pal.primary}30`,cursor:hasScheduleTab?"pointer":"default"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"7px"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:"0.5rem"}}>
+                    <span style={{fontSize:"1.1rem"}}>{"📋"}</span>
+                    <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.88rem"}}>{"In progress"}</div>
+                  </div>
+                  <span style={{fontSize:"0.78rem",fontWeight:"900",color:pal.primary}}>{prog.count}/{prog.total}</span>
+                </div>
+                <div style={{height:"9px",borderRadius:"99px",background:pal.parchm,overflow:"hidden",marginBottom:"6px"}}>
+                  <div style={{height:"100%",width:`${pct2}%`,borderRadius:"99px",background:pal.accentGrad,transition:"width 0.4s"}}/>
+                </div>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                  <div style={{fontSize:"0.7rem",color:pal.slate}}>
+                    {prog.total-prog.count} subject{prog.total-prog.count!==1?"s":""} left
+                    {checkinStreak>0?" · 🔥 "+checkinStreak+" day streak":""}
+                  </div>
+                  {hasScheduleTab&&<div style={{fontSize:"0.7rem",fontWeight:"700",color:pal.primary}}>{"Continue →"}</div>}
+                </div>
+              </div>
+            );
+          }
+
+          // State 1: Haven't started yet
+          return (
+            <div style={{background:pal.accentGrad,borderRadius:"16px",padding:"1rem 1.1rem",marginBottom:"1rem",border:"none",boxShadow:`0 5px 20px ${pal.accent}30`}}>
+              <div style={{display:"flex",alignItems:"center",gap:"0.75rem",marginBottom:"0.75rem"}}>
+                <div style={{width:"44px",height:"44px",borderRadius:"12px",background:"rgba(255,255,255,0.18)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0}}>{"📋"}</div>
+                <div style={{flex:1,textAlign:"left"}}>
+                  <div style={{fontWeight:"800",color:"#fff",fontSize:"0.92rem",marginBottom:"2px"}}>{"Start today's school day"}</div>
+                  <div style={{fontSize:"0.72rem",color:"rgba(255,255,255,0.75)"}}>
+                    {checkinStreak>0 ? "🔥 "+checkinStreak+" day streak — keep it going!" : navIds.includes("schedule") ? "Log what you did or check off the schedule" : "Tap below to log today’s school day"}
+                  </div>
+                </div>
+              </div>
+              <div style={{display:"flex",gap:"0.5rem"}}>
+                <button onClick={startLog}
+                  style={{flex:1,padding:"0.58rem",border:"none",borderRadius:"11px",background:"rgba(255,255,255,0.92)",color:pal.primary,fontWeight:"800",fontSize:"0.82rem",cursor:"pointer"}}>
+                  {"📝 Log Today"}
+                </button>
+              </div>
+            </div>
+          );
+        })()}
+    </div>
+  );
+
+  const renderSection_consistency = () => (
+    <div key="consistency" data-section="consistency">
+      {/* ── Consistency Nudge ── */}
+        {(()=>{
+          if(checkedInToday) return null;
+          const lastDate = lastCheckinDate ? new Date(lastCheckinDate) : null;
+          if(!lastDate) return null;
+          const daysSince = Math.floor((new Date() - lastDate) / (24*60*60*1000));
+          if(daysSince < 2) return null;
+          const msg = daysSince===2
+            ? "Yesterday was a skip day — no worries! Ready to log today?"
+            : daysSince<=4
+              ? "It's been "+daysSince+" days — pick up where you left off 🌱"
+              : "Welcome back! It’s been a while — even a quick log keeps the streak alive.";
+          return (
+            <div style={{background:"#fffbeb",borderRadius:"13px",padding:"0.7rem 1rem",marginBottom:"1rem",border:"1.5px solid #f5c842",display:"flex",gap:"0.65rem",alignItems:"center"}}>
+              <span style={{fontSize:"1.1rem",flexShrink:0}}>{"💛"}</span>
+              <div style={{flex:1}}>
+                <div style={{fontWeight:"700",color:"#7a5500",fontSize:"0.79rem"}}>{msg}</div>
+              </div>
+              <button onClick={startLog}
+                style={{padding:"0.3rem 0.7rem",border:"none",borderRadius:"9px",background:"#f5c842",color:"#5a3d00",fontWeight:"800",fontSize:"0.72rem",cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}}>
+                {"Log now"}
+              </button>
+            </div>
+          );
+        })()}
+    </div>
+  );
+
+  const renderSection_missedday = () => (
+    <div key="missedday" data-section="missedday">
+      {/* ── Missed Day Nudge ── */}
+        {(()=>{
+          if(!attendanceLog||attendanceLog.length===0) return null;
+          const yr = new Date().getFullYear();
+          const weekStart3 = new Date();
+          weekStart3.setDate(weekStart3.getDate()-(weekStart3.getDay()===0?6:weekStart3.getDay()-1));
+          weekStart3.setHours(0,0,0,0);
+          const today3 = new Date(); today3.setHours(23,59,59,999);
+          const loggedPortfolioDates = new Set(portfolioEntries.filter(e=>e.date).map(e=>e.date));
+          // Find attendance days this week (school days only) with no portfolio entries
+          const missedDays = attendanceLog.filter(e=>{
+            if(!["School Day","Field Trip"].includes(e.type)) return false;
+            try{
+              const d=new Date(e.date+", "+yr);
+              return d>=weekStart3 && d<today3 && !loggedPortfolioDates.has(e.date);
+            }catch{return false;}
+          }).map(e=>e.date);
+          if(missedDays.length===0) return null;
+          const label = missedDays.length===1
+            ? missedDays[0]+" isn\u2019t logged yet"
+            : missedDays.length+" days this week aren\u2019t logged yet";
+          return (
+            <div style={{background:"#fff8e6",borderRadius:"13px",padding:"0.7rem 1rem",marginBottom:"1rem",border:"1.5px solid #f5c842",display:"flex",gap:"0.65rem",alignItems:"center"}}>
+              <span style={{fontSize:"1.1rem",flexShrink:0}}>{"📅"}</span>
+              <div style={{flex:1}}>
+                <div style={{fontWeight:"700",color:"#7a5500",fontSize:"0.79rem"}}>{label}</div>
+                <div style={{fontSize:"0.68rem",color:"#b07800",marginTop:"2px"}}>{"Go to Attendance to log the details."}</div>
+              </div>
+              <button onClick={()=>onTabChange("attendance")}
+                style={{padding:"0.3rem 0.7rem",border:"none",borderRadius:"9px",background:"#f5c842",color:"#5a3d00",fontWeight:"800",fontSize:"0.72rem",cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}}>
+                {"Log it"}
+              </button>
+            </div>
+          );
+        })()}
+    </div>
+  );
+
+  const renderSection_behindweek = () => (
+    <div key="behindweek" data-section="behindweek">
+      {/* ── Behind This Week Nudge ── */}
+        {(()=>{
+          const lessonGoals2 = family.lessonGoals||{};
+          if(Object.keys(lessonGoals2).length===0) return null;
+          const activeSubjIds2 = family.subjects||[];
+          const customSubjs3   = family.customSubjects||[];
+          const allSubjMap3    = Object.fromEntries([...SUBJECT_OPTIONS,...customSubjs3].map(s=>[s.id,s]));
+          const yr3 = new Date().getFullYear();
+          const weekStart4 = new Date();
+          weekStart4.setDate(weekStart4.getDate()-(weekStart4.getDay()===0?6:weekStart4.getDay()-1));
+          weekStart4.setHours(0,0,0,0);
+          const todayDow2 = new Date().getDay(); // 0=Sun ... 6=Sat
+          // Days elapsed this week Mon=0...today (capped at Fri=4)
+          const daysElapsed = todayDow2===0 ? 0 : Math.min(todayDow2-1, 4); // Mon-based, 0=Mon
+          const ci3 = child==="all" ? -1 : family.children.findIndex(c=>c.id===child);
+          const weekEntries3 = (ci3>=0
+            ? portfolioEntries.filter(e=>e.childIdx===ci3&&!e.isDay)
+            : portfolioEntries.filter(e=>!e.isDay)
+          ).filter(e=>{ try{ return new Date(e.date+", "+yr3)>=weekStart4; }catch{return false;} });
+          const loggedPerSubj3 = {};
+          weekEntries3.forEach(e=>{ if(e.subj) loggedPerSubj3[e.subj]=(loggedPerSubj3[e.subj]||0)+(e.lessonCount||1); });
+          // Compute target through today (days 0..daysElapsed)
+          const behindSubjs = activeSubjIds2.map(id=>allSubjMap3[id]).filter(Boolean).filter(s=>{
+            const dayMap = lessonGoals2[s.id];
+            if(!dayMap) return false;
+            const targetSoFar = [0,1,2,3,4].slice(0,daysElapsed+1).reduce((sum,d)=>sum+(dayMap[d]||0),0);
+            if(targetSoFar===0) return false;
+            const logged = loggedPerSubj3[s.label]||0;
+            return logged < targetSoFar;
+          });
+          if(behindSubjs.length===0) return null;
+          const names = behindSubjs.map(s=>s.icon+" "+s.label).join(", ");
+          return (
+            <div style={{background:pal.pale,borderRadius:"13px",padding:"0.7rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.primary}30`,display:"flex",gap:"0.65rem",alignItems:"center"}}>
+              <span style={{fontSize:"1.1rem",flexShrink:0}}>{"📚"}</span>
+              <div style={{flex:1}}>
+                <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.79rem"}}>
+                  {behindSubjs.length===1 ? names+" is behind this week" : "A few subjects are behind this week"}
+                </div>
+                <div style={{fontSize:"0.68rem",color:pal.inkM,marginTop:"2px",lineHeight:1.4}}>
+                  {behindSubjs.length>1 ? names : "Tap to log a lesson and catch up."}
+                </div>
+              </div>
+              <button onClick={startLog}
+                style={{padding:"0.3rem 0.7rem",border:"none",borderRadius:"9px",background:pal.primary,color:"#fff",fontWeight:"800",fontSize:"0.72rem",cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}}>
+                {"Log now"}
+              </button>
+            </div>
+          );
+        })()}
+    </div>
+  );
+
+  const renderSection_goals = () => (
+    <div key="goals" data-section="goals">
+      {/* ── Goals Nudge Card ── */}
+        <GoalsNudgeCard pal={pal} family={family} portfolioEntries={portfolioEntries} todayStr={todayStr} onTabChange={onTabChange}/>
+
+        {/* Today schedule preview */}
+        {(()=>{
+          // Check if today is a co-op day or day-off per weeklySchedule
+          const todayJs2 = new Date().getDay();
+          const todayIdx2 = todayJs2===0||todayJs2===6 ? null : todayJs2-1;
+          const ws2 = family.weeklySchedule;
+          const todayDaySubjs = (ws2&&todayIdx2!==null) ? ws2[todayIdx2] : undefined;
+          const isTodayCoop2 = family.coopDay && ["Monday","Tuesday","Wednesday","Thursday","Friday"][todayIdx2??-1]===family.coopDay;
+          const isTodayOff   = todayDaySubjs===null && !isTodayCoop2;
+          if(isTodayOff) {
+            return (
+              <div style={{background:pal.parchm,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}30`,display:"flex",gap:"0.6rem",alignItems:"center"}}>
+                <span style={{fontSize:"1.2rem"}}>{"🛋"}</span>
+                <div>
+                  <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.84rem"}}>{"No school today"}</div>
+                  <div style={{fontSize:"0.72rem",color:pal.slate,marginTop:"2px"}}>{"Rest day — nothing scheduled."}</div>
+                </div>
+              </div>
+            );
+          }
+          if(isTodayCoop2) {
+            const coopSubjsList = family.coopClasses||[];
+            return (
+              <div style={{background:"#fff8e6",borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:"1.5px solid #f5c84250"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.45rem"}}>
+                  <span style={{fontWeight:"800",color:"#7a5500",fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>{"Co-op Day 🏫"}</span>
+                  <button onClick={()=>onTabChange("schedule")} style={{fontSize:"0.72rem",color:"#b07800",fontWeight:"700",background:"transparent",border:"none",cursor:"pointer"}}>{"Schedule →"}</button>
+                </div>
+                {coopSubjsList.length>0 ? (
+                  <div style={{display:"flex",flexWrap:"wrap",gap:"0.3rem"}}>
+                    {coopSubjsList.slice(0,6).map(s=>(
+                      <span key={s} style={{padding:"0.22rem 0.6rem",background:"rgba(245,200,66,0.15)",borderRadius:"20px",fontSize:"0.74rem",fontWeight:"700",color:"#7a5500",border:"1px solid #f5c84240"}}>{s}</span>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{fontSize:"0.74rem",color:"#b07800"}}>{"Co-op classes set up in Settings → School."}</div>
+                )}
+              </div>
+            );
+          }
+          return null;
+        })()}
+        {visible.length > 0 && (<>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.5rem"}}>
+            <span style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>{"Today's Plan"}</span>
+            <button onClick={()=>onTabChange("schedule")} style={{fontSize:"0.72rem",color:pal.primary,fontWeight:"700",background:"transparent",border:"none",cursor:"pointer"}}>See all →</button>
+          </div>
+          <div style={{display:"flex",flexDirection:"column",gap:"0.42rem",marginBottom:"1rem"}}>
+            {visible.slice(0,4).map((b,i)=>(
+              <div key={i} onClick={()=>onTabChange("schedule")} style={{background:pal.linen,borderRadius:"13px",padding:"0.65rem 0.85rem",display:"flex",gap:"0.75rem",alignItems:"center",border:`1.5px solid ${pal.stone}45`,cursor:"pointer"}}>
+                <div style={{width:"36px",height:"36px",borderRadius:"9px",background:`${pal.primary}18`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.1rem",flexShrink:0}}>{b.i}</div>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.84rem",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{b.s}</div>
+                  <div style={{fontSize:"0.7rem",color:pal.slate}}>{b.t?h12(b.t)+" · ":""}{b.dur} min</div>
+                </div>
+              </div>
+            ))}
+            {visible.length > 4 && <div style={{textAlign:"center",fontSize:"0.72rem",color:pal.slate,fontStyle:"italic"}}>+{visible.length-4} more blocks</div>}
+          </div>
+        </>)}
+    </div>
+  );
+
+  const renderSection_pandc = () => (
+    <div key="pandc" data-section="pandc">
+      {/* ── P&C This Week ── */}
+        {family.lifeReady && (()=>{
+          const ch    = family.children[0];
+          const grade = ch?.grade||"5th";
+          const topic = getLRTopicForWeek(grade);
+          const week  = getLRWeekNumber(grade);
+          return (<>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.5rem"}}>
+              <span style={{fontWeight:"800",color:pcDone?pal.good:LR_COLOR,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>
+                {pcDone?"✓":LR_ICON} Prepared {"&"} Capable
+              </span>
+              <button onClick={()=>onTabChange("preparedcapable")} style={{fontSize:"0.72rem",color:LR_COLOR,fontWeight:"700",background:"transparent",border:"none",cursor:"pointer"}}>Open →</button>
+            </div>
+            {pcDone ? (
+              /* Completed state */
+              <div style={{background:pal.goodBg,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.good}40`,display:"flex",gap:"0.75rem",alignItems:"center"}}>
+                <div style={{width:"42px",height:"42px",borderRadius:"11px",background:pal.good,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0}}>✓</div>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontWeight:"800",color:pal.good,fontSize:"0.86rem"}}>Week {week} complete!</div>
+                  <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"2px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{topic}</div>
+                </div>
+                <button onClick={()=>onTabChange("preparedcapable")} style={{padding:"0.3rem 0.65rem",border:`1.5px solid ${pal.good}50`,borderRadius:"9px",background:"transparent",color:pal.good,fontSize:"0.68rem",fontWeight:"700",cursor:"pointer",flexShrink:0}}>Review</button>
+              </div>
+            ) : (
+              /* Active / not yet done state */
+              <div style={{background:`linear-gradient(135deg,${LR_COLOR}12,${LR_COLOR2}08)`,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:`1.5px solid ${LR_COLOR}25`}}>
+                <div style={{display:"flex",gap:"0.75rem",alignItems:"center"}}>
+                  <div style={{width:"42px",height:"42px",borderRadius:"11px",background:`linear-gradient(135deg,${LR_COLOR},${LR_COLOR2})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0}}>{LR_ICON}</div>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:"0.65rem",fontWeight:"700",color:LR_COLOR,textTransform:"uppercase",letterSpacing:"0.05em",marginBottom:"1px"}}>This Week · Week {week}</div>
+                    <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.86rem",lineHeight:1.3}}>{topic}</div>
+                    <div style={{fontSize:"0.67rem",color:pal.slate,marginTop:"2px"}}>{grade} · {ch?.name||"your student"}</div>
+                  </div>
+                  <button onClick={e=>{e.stopPropagation();markPCDone();}}
+                    style={{padding:"0.38rem 0.65rem",border:"none",borderRadius:"10px",background:`linear-gradient(135deg,${LR_COLOR},${LR_COLOR2})`,color:"#fff",fontSize:"0.68rem",fontWeight:"800",cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}}>
+                    Done ✓
+                  </button>
+                </div>
+              </div>
+            )}
+          </>);
+        })()}
+
+        {/* Recent portfolio entries */}
+        {portfolioEntries.length > 0 && (<>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.5rem"}}>
+            <span style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>Recent Work</span>
+            <button onClick={()=>onTabChange("portfolio")} style={{fontSize:"0.72rem",color:pal.primary,fontWeight:"700",background:"transparent",border:"none",cursor:"pointer"}}>All →</button>
+          </div>
+          <div style={{display:"flex",flexDirection:"column",gap:"0.42rem",marginBottom:"1rem"}}>
+            {portfolioEntries.slice(0,3).map((p,i)=>{
+              const ch = family.children[p.childIdx];
+              return (
+                <div key={p.id} style={{background:pal.linen,borderRadius:"13px",padding:"0.65rem 0.85rem",display:"flex",gap:"0.75rem",alignItems:"center",border:`1.5px solid ${pal.stone}35`}}>
+                  <div style={{width:"36px",height:"36px",borderRadius:"9px",background:pal.pale,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.2rem",flexShrink:0}}>{p.thumb||"📋"}</div>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.82rem",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</div>
+                    <div style={{fontSize:"0.68rem",color:pal.slate}}>{p.subj} · {p.date} {ch?"· "+ch.avatar+" "+ch.name:""}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>)}
+    </div>
+  );
+
+  // ── Layout editor drag handlers ───────────────────────────────────────────
+  const handleDragStart = (i) => setDragIdx(i);
+  const handleDragOver  = (e, i) => { e.preventDefault(); setDragOverIdx(i); };
+  const handleDrop      = (i) => {
+    if(dragIdx===null || dragIdx===i) { setDragIdx(null); setDragOverIdx(null); return; }
+    const next = [...homeLayout];
+    const [moved] = next.splice(dragIdx, 1);
+    next.splice(i, 0, moved);
+    onSetHomeLayout && onSetHomeLayout(next);
+    setDragIdx(null); setDragOverIdx(null);
+  };
+
+  // Touch drag state
+  const touchDragIdx = React.useRef(null);
+  const touchStartY  = React.useRef(null);
+  const handleTouchStart = (e, i) => { touchDragIdx.current = i; touchStartY.current = e.touches[0].clientY; };
+  const handleTouchMove  = (e) => {
+    if(touchDragIdx.current === null) return;
+    const el = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+    const row = el?.closest('[data-drag-idx]');
+    if(row) setDragOverIdx(parseInt(row.dataset.dragIdx));
+  };
+  const handleTouchEnd = () => {
+    if(touchDragIdx.current !== null && dragOverIdx !== null && touchDragIdx.current !== dragOverIdx) {
+      const next = [...homeLayout];
+      const [moved] = next.splice(touchDragIdx.current, 1);
+      next.splice(dragOverIdx, 0, moved);
+      onSetHomeLayout && onSetHomeLayout(next);
+    }
+    touchDragIdx.current = null; setDragIdx(null); setDragOverIdx(null);
+  };
+
+  const SECTION_LABELS = {"progress_nudge":"Progress Nudge","thisweek":"This Week","todaycard":"Today\u2019s Plan","consistency":"Consistency Nudge","missedday":"Missed Day Alert","behindweek":"Behind This Week","goals":"Goals Nudge","pandc":"Practical \u0026 Creative"};
+  const SECTION_ICONS  = {"progress_nudge":"\u2728","thisweek":"\ud83d\udcc5","todaycard":"\ud83d\udccb","consistency":"\ud83d\udd25","missedday":"\ud83d\udcc6","behindweek":"\u26a0\ufe0f","goals":"\ud83c\udf1f","pandc":"\ud83c\udfa8"};
+  const sectionRenderMap = {
+    progress_nudge: renderSection_progress_nudge,
+    thisweek:       renderSection_thisweek,
+    todaycard:      renderSection_todaycard,
+    consistency:    renderSection_consistency,
+    missedday:      renderSection_missedday,
+    behindweek:     renderSection_behindweek,
+    goals:          renderSection_goals,
+    pandc:          renderSection_pandc,
+  };
 
   return (
     <div style={{animation:"fadeUp 0.24s ease"}}>
@@ -6695,540 +7285,44 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
           </div>
         )}
 
-        {/* ── Progress check-in nudge — fires after 3+ notes, no pulse yet this week ── */}
-        {(()=>{
-          const wkStart2  = new Date(); const dow3=wkStart2.getDay(); wkStart2.setDate(wkStart2.getDate()-(dow3===0?6:dow3-1)); wkStart2.setHours(0,0,0,0);
-          const savedPW   = (() => { try{ return localStorage.getItem("rootbloom_pulse_week")||""; }catch(e){return "";} })();
-          const alreadyDone = savedPW===wkStart2.toDateString();
-          if(alreadyDone) return null;
-          const ci3 = child==="all" ? 0 : family.children.findIndex(c=>c.id===child);
-          const wkEntries3 = portfolioEntries.filter(e=>!e.isDay&&e.note&&e.note.trim()&&(()=>{
-            try{const d=new Date(e.date+", "+new Date().getFullYear());return d>=wkStart2;}catch(ex){return false;}
-          })());
-          if(wkEntries3.length<3) return null;
-          return (
-            <div onClick={()=>onTabChange("progress")}
-              style={{background:"linear-gradient(135deg,"+pal.primary+"12,"+pal.accent+"08)",borderRadius:"13px",padding:"0.7rem 0.9rem",marginBottom:"0.85rem",border:"1.5px solid "+pal.primary+"25",cursor:"pointer",display:"flex",gap:"0.6rem",alignItems:"center"}}>
-              <span style={{fontSize:"1.2rem",flexShrink:0}}>{"\u2728"}</span>
-              <div style={{flex:1}}>
-                <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.8rem"}}>{"Progress check-in ready"}</div>
-                <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>{wkEntries3.length+" notes this week \u2014 tap to generate a summary"}</div>
-              </div>
-              <span style={{fontSize:"0.8rem",color:pal.primary}}>{"\u203a"}</span>
+
+      {/* ── Layout edit toggle ── */}
+      <div style={{display:"flex",justifyContent:"flex-end",marginBottom:"0.5rem"}}>
+        <button onClick={()=>setLayoutEdit(v=>!v)}
+          style={{display:"flex",alignItems:"center",gap:"0.3rem",padding:"0.25rem 0.65rem",border:`1.5px solid ${layoutEdit?pal.primary:pal.stone+"60"}`,borderRadius:"20px",background:layoutEdit?pal.pale:"transparent",color:layoutEdit?pal.primary:pal.slate,fontSize:"0.68rem",fontWeight:"700",cursor:"pointer",transition:"all 0.15s"}}>
+          <span>{layoutEdit?"✓ Done":"⠿ Edit Layout"}</span>
+        </button>
+      </div>
+
+      {layoutEdit ? (
+        /* ── Drag-to-reorder editor ── */
+        <div>
+          {homeLayout.map((sid,i)=>(
+            <div key={sid} data-drag-idx={i}
+              draggable
+              onDragStart={()=>handleDragStart(i)}
+              onDragOver={e=>handleDragOver(e,i)}
+              onDrop={()=>handleDrop(i)}
+              onTouchStart={e=>handleTouchStart(e,i)}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              style={{display:"flex",alignItems:"center",gap:"0.65rem",background:dragOverIdx===i?pal.pale:pal.linen,borderRadius:"13px",padding:"0.7rem 0.85rem",marginBottom:"0.5rem",border:`1.5px solid ${dragOverIdx===i?pal.primary:pal.stone+"40"}`,cursor:"grab",transition:"all 0.12s",userSelect:"none",touchAction:"none"}}>
+              <span style={{fontSize:"1.1rem",flexShrink:0}}>{SECTION_ICONS[sid]||"📌"}</span>
+              <span style={{flex:1,fontWeight:"700",color:pal.inkM,fontSize:"0.82rem"}}>{SECTION_LABELS[sid]||sid}</span>
+              <span style={{fontSize:"1.2rem",color:pal.stone,flexShrink:0,letterSpacing:"-1px"}}>{"≡"}</span>
             </div>
-          );
-        })()}
-
-        {/* ── Weekly Subject Grid — removed (redundant with This Week lesson progress card) ── */}
-        {false && (()=>{
-          const today2   = new Date();
-          const dow2     = today2.getDay();
-          const wkStart  = new Date(today2); wkStart.setDate(today2.getDate()-(dow2===0?6:dow2-1)); wkStart.setHours(0,0,0,0);
-          const yr2      = today2.getFullYear();
-          const DAYS_SHORT = ["M","T","W","T","F"];
-          const activeSubjIds = family.subjects||[];
-          const allSubjOpts   = [...SUBJECT_OPTIONS,...(family.customSubjects||[])];
-          const activeSubjs   = activeSubjIds.map(id=>allSubjOpts.find(s=>s.id===id)).filter(Boolean);
-          if(activeSubjs.length===0) return null;
-
-          // For each day this week, which subjects were logged?
-          const weekDays = Array.from({length:5},(_,i)=>{
-            const d = new Date(wkStart); d.setDate(wkStart.getDate()+i);
-            return d.toLocaleDateString("en-US",{month:"short",day:"numeric"});
-          });
-
-          // Which child index to show
-          const ci2 = child==="all" ? 0 : family.children.findIndex(c=>c.id===child);
-          const cp2 = CHILD_COLOR_PALETTES.find(p=>p.id===(family.children[ci2]?.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
-          const cEntries = portfolioEntries.filter(e=>e.childIdx===(ci2<0?0:ci2)&&!e.isDay);
-
-          // Build coverage map: {subjLabel: Set of dateStrs logged this week}
-          const coverage = {};
-          activeSubjs.forEach(s=>{ coverage[s.label]=new Set(); });
-          cEntries.forEach(e=>{
-            if(coverage[e.subj] && weekDays.includes(e.date)) coverage[e.subj].add(e.date);
-          });
-
-          // Only show subjects that have at least one entry ever (avoid cluttering with unused subjects)
-          const subjsToShow = activeSubjs.filter(s=>cEntries.some(e=>e.subj===s.label)).slice(0,8);
-          if(subjsToShow.length===0) return null;
-
-          const todayDayIdx = today2.getDay()===0?4:today2.getDay()-1; // 0=Mon…4=Fri
-
-          return (
-            <div style={{background:pal.linen,borderRadius:"14px",padding:"0.75rem 0.85rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}30`}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.6rem"}}>
-                <span style={{fontSize:"0.72rem",fontWeight:"700",color:pal.inkM}}>{"This week"+(family.children.length>1?" · "+(family.children[ci2<0?0:ci2]?.name||""):"")}</span>
-                <button onClick={()=>onTabChange("progress")}
-                  style={{fontSize:"0.65rem",color:pal.primary,fontWeight:"700",background:"transparent",border:"none",cursor:"pointer"}}>{"Full progress →"}</button>
-              </div>
-              {/* Header row — day labels */}
-              <div style={{display:"grid",gridTemplateColumns:"1fr repeat(5,28px)",gap:"3px",alignItems:"center",marginBottom:"4px"}}>
-                <div/>
-                {DAYS_SHORT.map((d,i)=>(
-                  <div key={i} style={{textAlign:"center",fontSize:"0.58rem",fontWeight:i===todayDayIdx?"800":"600",color:i===todayDayIdx?pal.primary:pal.stone,textTransform:"uppercase"}}>{d}</div>
-                ))}
-              </div>
-              {/* Subject rows */}
-              {subjsToShow.map(s=>(
-                <div key={s.id} style={{display:"grid",gridTemplateColumns:"1fr repeat(5,28px)",gap:"3px",alignItems:"center",marginBottom:"3px"}}>
-                  <div style={{display:"flex",alignItems:"center",gap:"0.3rem",minWidth:0}}>
-                    <span style={{fontSize:"0.8rem",flexShrink:0}}>{s.icon}</span>
-                    <span style={{fontSize:"0.67rem",color:pal.inkM,fontWeight:"600",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s.label}</span>
-                  </div>
-                  {weekDays.map((dateStr,di)=>{
-                    const done = coverage[s.label]?.has(dateStr);
-                    const isTdy = di===todayDayIdx;
-                    const future = di>todayDayIdx;
-                    return (
-                      <div key={di} style={{width:"24px",height:"24px",borderRadius:"6px",margin:"0 auto",background:done?cp2.c1:future?"transparent":pal.parchm,border:done?`2px solid ${cp2.c1}`:isTdy?`2px solid ${pal.primary}40`:`1.5px solid ${pal.stone}30`,display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.15s"}}>
-                        {done&&<span style={{fontSize:"0.6rem",color:"#fff",fontWeight:"900"}}>{"✓"}</span>}
-                      </div>
-                    );
-                  })}
-                </div>
-              ))}
-            </div>
-          );
-        })()}
-
-        {/* ── This Week: lesson progress ── */}
-        {(()=>{
-          const lessonGoals  = family.lessonGoals||{};
-          const hasGoals     = Object.keys(lessonGoals).length>0;
-          const activeSubjIds= family.subjects||[];
-          const customSubjs2 = family.customSubjects||[];
-          const allSubjMap2  = Object.fromEntries([...SUBJECT_OPTIONS,...customSubjs2].map(s=>[s.id,s]));
-          const activeSubjList2 = activeSubjIds.map(id=>allSubjMap2[id]).filter(Boolean);
-          if(activeSubjList2.length===0) return null;
-          if(portfolioEntries.length===0) return null;
-
-          // Week boundaries
-          const weekStart2 = new Date();
-          weekStart2.setDate(weekStart2.getDate()-(weekStart2.getDay()===0?6:weekStart2.getDay()-1));
-          weekStart2.setHours(0,0,0,0);
-          const yr2 = new Date().getFullYear();
-          const todayDow = new Date().getDay(); // 0=Sun,1=Mon...6=Sat
-
-          // Filter entries by active child
-          const ci2 = child==="all" ? -1 : family.children.findIndex(c=>c.id===child);
-          const relevantEntries = (ci2>=0
-            ? portfolioEntries.filter(e=>e.childIdx===ci2&&!e.isDay)
-            : portfolioEntries.filter(e=>!e.isDay)
-          ).filter(e=>{ try{ return new Date(e.date+", "+yr2)>=weekStart2; }catch{ return false; } });
-
-          // Compute weekly target per subject from lessonGoals {subjId: {dow: count}}
-          // dow 0=Mon ... 4=Fri in our system
-          const getWeeklyTarget = (subjId) => {
-            if(!hasGoals||!lessonGoals[subjId]) return null;
-            const dayMap = lessonGoals[subjId];
-            // Only count days that have already passed this week (Mon=1...today)
-            // For "target by end of week" sum all 5 days
-            return [0,1,2,3,4].reduce((sum,d)=>sum+(dayMap[d]||0),0);
-          };
-
-          // Compute lessons logged per subject this week
-          const loggedPerSubj = {};
-          relevantEntries.forEach(e=>{
-            if(!e.subj) return;
-            loggedPerSubj[e.subj] = (loggedPerSubj[e.subj]||0) + (e.lessonCount||1);
-          });
-
-          // Build subject cards
-          const cards = activeSubjList2.map(s=>{
-            const logged = loggedPerSubj[s.label]||0;
-            const target = getWeeklyTarget(s.id);
-            const touched = logged>0;
-            const onTrack = target===null ? touched : logged>=target;
-            const pct     = target ? Math.min(100,Math.round(logged/target*100)) : (touched?100:0);
-            return {s, logged, target, touched, onTrack, pct};
-          });
-
-          const allOnTrack = cards.every(c=>c.onTrack);
-          const hasAnyData = cards.some(c=>c.touched);
-
-          return (
-            <>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.5rem"}}>
-                <span style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>
-                  {"This Week"}
-                </span>
-                <button onClick={()=>onTabChange("portfolio")} style={{fontSize:"0.72rem",color:pal.primary,fontWeight:"700",background:"transparent",border:"none",cursor:"pointer"}}>Portfolio {"→"}</button>
-              </div>
-              <div style={{background:pal.linen,borderRadius:"16px",padding:"0.9rem 1rem",border:`1.5px solid ${allOnTrack&&hasAnyData?pal.good+"50":pal.stone+"45"}`,marginBottom:"1rem"}}>
-                {allOnTrack&&hasAnyData?(
-                  <div style={{display:"flex",gap:"0.65rem",alignItems:"center",marginBottom:"0.75rem"}}>
-                    <div style={{width:"38px",height:"38px",borderRadius:"10px",background:pal.goodBg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.2rem",flexShrink:0}}>{"🌟"}</div>
-                    <div>
-                      <div style={{fontWeight:"700",color:pal.good,fontSize:"0.85rem"}}>
-                        {hasGoals?"All lesson goals hit this week!":"All subjects covered this week!"}
-                      </div>
-                      <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"2px"}}>
-                        {hasGoals?"Every subject is on track. Keep it up!":"Every subject has at least one entry."}
-                      </div>
-                    </div>
-                  </div>
-                ):null}
-                <div style={{display:"flex",flexDirection:"column",gap:"0.45rem"}}>
-                  {cards.map(({s,logged,target,touched,onTrack,pct})=>(
-                    <div key={s.id}
-                      onClick={!onTrack?startLog:undefined}
-                      style={{background:onTrack?"#fff":touched?"#fff":"#fff8e6",borderRadius:"11px",padding:"0.55rem 0.7rem",border:`1.5px solid ${onTrack?pal.good+"40":touched?pal.stone+"30":"#f5c842"}`,cursor:!onTrack?"pointer":"default",transition:"all 0.12s"}}>
-                      <div style={{display:"flex",alignItems:"center",gap:"0.5rem",marginBottom:target!==null?"0.3rem":"0"}}>
-                        <span style={{fontSize:"1rem",flexShrink:0}}>{s.icon}</span>
-                        <span style={{flex:1,fontWeight:"700",color:onTrack?pal.good:touched?pal.inkM:"#7a5500",fontSize:"0.8rem"}}>{s.label}</span>
-                        <span style={{fontSize:"0.74rem",fontWeight:"800",color:onTrack?pal.good:touched?pal.primary:"#b07800"}}>
-                          {target!==null
-                            ? logged+"/"+target+" lessons"
-                            : touched?"✓ logged":"Not yet"}
-                        </span>
-                        {onTrack&&<span style={{fontSize:"0.75rem",color:pal.good}}>{"✓"}</span>}
-                      </div>
-                      {target!==null&&(
-                        <div style={{height:"4px",borderRadius:"99px",background:pal.stone+"30",overflow:"hidden"}}>
-                          <div style={{height:"100%",width:pct+"%",borderRadius:"99px",background:onTrack?pal.good:pct>50?pal.primary:"#f5c842",transition:"width 0.4s"}}/>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                {!hasGoals&&(
-                  <div style={{marginTop:"0.55rem",fontSize:"0.68rem",color:pal.slate,fontStyle:"italic",textAlign:"center"}}>
-                    {"Set lesson goals in Settings to track progress here."}
-                  </div>
-                )}
-              </div>
-            </>
-          );
-        })()}
-
-
-        {/* ── Smart Today Card — single unified action ── */}
-        {(()=>{
-          const prog = (todayProgress && todayProgress.date===todayStr) ? todayProgress : null;
-          const schedDone = prog && prog.total>0 && prog.count>=prog.total;
-          const inProgress = prog && prog.count>0 && !schedDone;
-
-          if(schedDone || checkedInToday) {
-            // State 3: All done for the day
-            return (
-              <div style={{background:pal.goodBg,borderRadius:"16px",padding:"0.95rem 1.1rem",marginBottom:"1rem",border:`2px solid ${pal.good}40`}}>
-                <div style={{display:"flex",gap:"0.85rem",alignItems:"center",marginBottom:"0.65rem"}}>
-                  <div style={{width:"46px",height:"46px",borderRadius:"13px",background:pal.good,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.5rem",flexShrink:0}}>{"🌟"}</div>
-                  <div style={{flex:1}}>
-                    <div style={{fontWeight:"800",color:pal.good,fontSize:"0.92rem"}}>{"Day logged!"}</div>
-                    <div style={{fontSize:"0.71rem",color:pal.inkM,marginTop:"2px"}}>
-                      {checkinStreak>0 ? "🔥 "+checkinStreak+" day streak — amazing!" : "Great work today."}
-                    </div>
-                  </div>
-                </div>
-                <div style={{display:"flex",gap:"0.5rem"}}>
-                  <button onClick={startLog}
-                    style={{flex:1,padding:"0.48rem",border:`2px solid ${pal.good}50`,borderRadius:"10px",background:"transparent",color:pal.good,fontSize:"0.74rem",fontWeight:"700",cursor:"pointer"}}>
-                    {"+ Add More"}
-                  </button>
-                  <button onClick={()=>onTabChange("progress")}
-                    style={{flex:1,padding:"0.48rem",border:`2px solid ${pal.good}50`,borderRadius:"10px",background:"transparent",color:pal.good,fontSize:"0.74rem",fontWeight:"700",cursor:"pointer"}}>
-                    {"📈 Progress"}
-                  </button>
-                </div>
-              </div>
-            );
-          }
-
-          if(inProgress) {
-            // State 2: In progress — show bar + subjects left
-            // Only tappable/navigates to schedule if that tab is in nav
-            const hasScheduleTab = navIds.includes("schedule");
-            const pct2 = Math.round(prog.count/prog.total*100);
-            return (
-              <div onClick={()=>hasScheduleTab&&onTabChange("schedule")}
-                style={{background:pal.linen,borderRadius:"16px",padding:"0.95rem 1.1rem",marginBottom:"1rem",border:`2px solid ${pal.primary}30`,cursor:hasScheduleTab?"pointer":"default"}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"7px"}}>
-                  <div style={{display:"flex",alignItems:"center",gap:"0.5rem"}}>
-                    <span style={{fontSize:"1.1rem"}}>{"📋"}</span>
-                    <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.88rem"}}>{"In progress"}</div>
-                  </div>
-                  <span style={{fontSize:"0.78rem",fontWeight:"900",color:pal.primary}}>{prog.count}/{prog.total}</span>
-                </div>
-                <div style={{height:"9px",borderRadius:"99px",background:pal.parchm,overflow:"hidden",marginBottom:"6px"}}>
-                  <div style={{height:"100%",width:`${pct2}%`,borderRadius:"99px",background:pal.accentGrad,transition:"width 0.4s"}}/>
-                </div>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                  <div style={{fontSize:"0.7rem",color:pal.slate}}>
-                    {prog.total-prog.count} subject{prog.total-prog.count!==1?"s":""} left
-                    {checkinStreak>0?" · 🔥 "+checkinStreak+" day streak":""}
-                  </div>
-                  {hasScheduleTab&&<div style={{fontSize:"0.7rem",fontWeight:"700",color:pal.primary}}>{"Continue →"}</div>}
-                </div>
-              </div>
-            );
-          }
-
-          // State 1: Haven't started yet
-          return (
-            <div style={{background:pal.accentGrad,borderRadius:"16px",padding:"1rem 1.1rem",marginBottom:"1rem",border:"none",boxShadow:`0 5px 20px ${pal.accent}30`}}>
-              <div style={{display:"flex",alignItems:"center",gap:"0.75rem",marginBottom:"0.75rem"}}>
-                <div style={{width:"44px",height:"44px",borderRadius:"12px",background:"rgba(255,255,255,0.18)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0}}>{"📋"}</div>
-                <div style={{flex:1,textAlign:"left"}}>
-                  <div style={{fontWeight:"800",color:"#fff",fontSize:"0.92rem",marginBottom:"2px"}}>{"Start today's school day"}</div>
-                  <div style={{fontSize:"0.72rem",color:"rgba(255,255,255,0.75)"}}>
-                    {checkinStreak>0 ? "🔥 "+checkinStreak+" day streak — keep it going!" : navIds.includes("schedule") ? "Log what you did or check off the schedule" : "Tap below to log today’s school day"}
-                  </div>
-                </div>
-              </div>
-              <div style={{display:"flex",gap:"0.5rem"}}>
-                <button onClick={startLog}
-                  style={{flex:1,padding:"0.58rem",border:"none",borderRadius:"11px",background:"rgba(255,255,255,0.92)",color:pal.primary,fontWeight:"800",fontSize:"0.82rem",cursor:"pointer"}}>
-                  {"📝 Log Today"}
-                </button>
-              </div>
-            </div>
-          );
-        })()}
-
-        {/* ── Consistency Nudge ── */}
-        {(()=>{
-          if(checkedInToday) return null;
-          const lastDate = lastCheckinDate ? new Date(lastCheckinDate) : null;
-          if(!lastDate) return null;
-          const daysSince = Math.floor((new Date() - lastDate) / (24*60*60*1000));
-          if(daysSince < 2) return null;
-          const msg = daysSince===2
-            ? "Yesterday was a skip day — no worries! Ready to log today?"
-            : daysSince<=4
-              ? "It's been "+daysSince+" days — pick up where you left off 🌱"
-              : "Welcome back! It’s been a while — even a quick log keeps the streak alive.";
-          return (
-            <div style={{background:"#fffbeb",borderRadius:"13px",padding:"0.7rem 1rem",marginBottom:"1rem",border:"1.5px solid #f5c842",display:"flex",gap:"0.65rem",alignItems:"center"}}>
-              <span style={{fontSize:"1.1rem",flexShrink:0}}>{"💛"}</span>
-              <div style={{flex:1}}>
-                <div style={{fontWeight:"700",color:"#7a5500",fontSize:"0.79rem"}}>{msg}</div>
-              </div>
-              <button onClick={startLog}
-                style={{padding:"0.3rem 0.7rem",border:"none",borderRadius:"9px",background:"#f5c842",color:"#5a3d00",fontWeight:"800",fontSize:"0.72rem",cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}}>
-                {"Log now"}
-              </button>
-            </div>
-          );
-        })()}
-
-        {/* ── Missed Day Nudge ── */}
-        {(()=>{
-          if(!attendanceLog||attendanceLog.length===0) return null;
-          const yr = new Date().getFullYear();
-          const weekStart3 = new Date();
-          weekStart3.setDate(weekStart3.getDate()-(weekStart3.getDay()===0?6:weekStart3.getDay()-1));
-          weekStart3.setHours(0,0,0,0);
-          const today3 = new Date(); today3.setHours(23,59,59,999);
-          const loggedPortfolioDates = new Set(portfolioEntries.filter(e=>e.date).map(e=>e.date));
-          // Find attendance days this week (school days only) with no portfolio entries
-          const missedDays = attendanceLog.filter(e=>{
-            if(!["School Day","Field Trip"].includes(e.type)) return false;
-            try{
-              const d=new Date(e.date+", "+yr);
-              return d>=weekStart3 && d<today3 && !loggedPortfolioDates.has(e.date);
-            }catch{return false;}
-          }).map(e=>e.date);
-          if(missedDays.length===0) return null;
-          const label = missedDays.length===1
-            ? missedDays[0]+" isn\u2019t logged yet"
-            : missedDays.length+" days this week aren\u2019t logged yet";
-          return (
-            <div style={{background:"#fff8e6",borderRadius:"13px",padding:"0.7rem 1rem",marginBottom:"1rem",border:"1.5px solid #f5c842",display:"flex",gap:"0.65rem",alignItems:"center"}}>
-              <span style={{fontSize:"1.1rem",flexShrink:0}}>{"📅"}</span>
-              <div style={{flex:1}}>
-                <div style={{fontWeight:"700",color:"#7a5500",fontSize:"0.79rem"}}>{label}</div>
-                <div style={{fontSize:"0.68rem",color:"#b07800",marginTop:"2px"}}>{"Go to Attendance to log the details."}</div>
-              </div>
-              <button onClick={()=>onTabChange("attendance")}
-                style={{padding:"0.3rem 0.7rem",border:"none",borderRadius:"9px",background:"#f5c842",color:"#5a3d00",fontWeight:"800",fontSize:"0.72rem",cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}}>
-                {"Log it"}
-              </button>
-            </div>
-          );
-        })()}
-
-        {/* ── Behind This Week Nudge ── */}
-        {(()=>{
-          const lessonGoals2 = family.lessonGoals||{};
-          if(Object.keys(lessonGoals2).length===0) return null;
-          const activeSubjIds2 = family.subjects||[];
-          const customSubjs3   = family.customSubjects||[];
-          const allSubjMap3    = Object.fromEntries([...SUBJECT_OPTIONS,...customSubjs3].map(s=>[s.id,s]));
-          const yr3 = new Date().getFullYear();
-          const weekStart4 = new Date();
-          weekStart4.setDate(weekStart4.getDate()-(weekStart4.getDay()===0?6:weekStart4.getDay()-1));
-          weekStart4.setHours(0,0,0,0);
-          const todayDow2 = new Date().getDay(); // 0=Sun ... 6=Sat
-          // Days elapsed this week Mon=0...today (capped at Fri=4)
-          const daysElapsed = todayDow2===0 ? 0 : Math.min(todayDow2-1, 4); // Mon-based, 0=Mon
-          const ci3 = child==="all" ? -1 : family.children.findIndex(c=>c.id===child);
-          const weekEntries3 = (ci3>=0
-            ? portfolioEntries.filter(e=>e.childIdx===ci3&&!e.isDay)
-            : portfolioEntries.filter(e=>!e.isDay)
-          ).filter(e=>{ try{ return new Date(e.date+", "+yr3)>=weekStart4; }catch{return false;} });
-          const loggedPerSubj3 = {};
-          weekEntries3.forEach(e=>{ if(e.subj) loggedPerSubj3[e.subj]=(loggedPerSubj3[e.subj]||0)+(e.lessonCount||1); });
-          // Compute target through today (days 0..daysElapsed)
-          const behindSubjs = activeSubjIds2.map(id=>allSubjMap3[id]).filter(Boolean).filter(s=>{
-            const dayMap = lessonGoals2[s.id];
-            if(!dayMap) return false;
-            const targetSoFar = [0,1,2,3,4].slice(0,daysElapsed+1).reduce((sum,d)=>sum+(dayMap[d]||0),0);
-            if(targetSoFar===0) return false;
-            const logged = loggedPerSubj3[s.label]||0;
-            return logged < targetSoFar;
-          });
-          if(behindSubjs.length===0) return null;
-          const names = behindSubjs.map(s=>s.icon+" "+s.label).join(", ");
-          return (
-            <div style={{background:pal.pale,borderRadius:"13px",padding:"0.7rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.primary}30`,display:"flex",gap:"0.65rem",alignItems:"center"}}>
-              <span style={{fontSize:"1.1rem",flexShrink:0}}>{"📚"}</span>
-              <div style={{flex:1}}>
-                <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.79rem"}}>
-                  {behindSubjs.length===1 ? names+" is behind this week" : "A few subjects are behind this week"}
-                </div>
-                <div style={{fontSize:"0.68rem",color:pal.inkM,marginTop:"2px",lineHeight:1.4}}>
-                  {behindSubjs.length>1 ? names : "Tap to log a lesson and catch up."}
-                </div>
-              </div>
-              <button onClick={startLog}
-                style={{padding:"0.3rem 0.7rem",border:"none",borderRadius:"9px",background:pal.primary,color:"#fff",fontWeight:"800",fontSize:"0.72rem",cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}}>
-                {"Log now"}
-              </button>
-            </div>
-          );
-        })()}
-
-        {/* ── Goals Nudge Card ── */}
-        <GoalsNudgeCard pal={pal} family={family} portfolioEntries={portfolioEntries} todayStr={todayStr} onTabChange={onTabChange}/>
-
-        {/* Today schedule preview */}
-        {(()=>{
-          // Check if today is a co-op day or day-off per weeklySchedule
-          const todayJs2 = new Date().getDay();
-          const todayIdx2 = todayJs2===0||todayJs2===6 ? null : todayJs2-1;
-          const ws2 = family.weeklySchedule;
-          const todayDaySubjs = (ws2&&todayIdx2!==null) ? ws2[todayIdx2] : undefined;
-          const isTodayCoop2 = family.coopDay && ["Monday","Tuesday","Wednesday","Thursday","Friday"][todayIdx2??-1]===family.coopDay;
-          const isTodayOff   = todayDaySubjs===null && !isTodayCoop2;
-          if(isTodayOff) {
-            return (
-              <div style={{background:pal.parchm,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}30`,display:"flex",gap:"0.6rem",alignItems:"center"}}>
-                <span style={{fontSize:"1.2rem"}}>{"🛋"}</span>
-                <div>
-                  <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.84rem"}}>{"No school today"}</div>
-                  <div style={{fontSize:"0.72rem",color:pal.slate,marginTop:"2px"}}>{"Rest day — nothing scheduled."}</div>
-                </div>
-              </div>
-            );
-          }
-          if(isTodayCoop2) {
-            const coopSubjsList = family.coopClasses||[];
-            return (
-              <div style={{background:"#fff8e6",borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:"1.5px solid #f5c84250"}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.45rem"}}>
-                  <span style={{fontWeight:"800",color:"#7a5500",fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>{"Co-op Day 🏫"}</span>
-                  <button onClick={()=>onTabChange("schedule")} style={{fontSize:"0.72rem",color:"#b07800",fontWeight:"700",background:"transparent",border:"none",cursor:"pointer"}}>{"Schedule →"}</button>
-                </div>
-                {coopSubjsList.length>0 ? (
-                  <div style={{display:"flex",flexWrap:"wrap",gap:"0.3rem"}}>
-                    {coopSubjsList.slice(0,6).map(s=>(
-                      <span key={s} style={{padding:"0.22rem 0.6rem",background:"rgba(245,200,66,0.15)",borderRadius:"20px",fontSize:"0.74rem",fontWeight:"700",color:"#7a5500",border:"1px solid #f5c84240"}}>{s}</span>
-                    ))}
-                  </div>
-                ) : (
-                  <div style={{fontSize:"0.74rem",color:"#b07800"}}>{"Co-op classes set up in Settings → School."}</div>
-                )}
-              </div>
-            );
-          }
-          return null;
-        })()}
-        {visible.length > 0 && (<>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.5rem"}}>
-            <span style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>{"Today's Plan"}</span>
-            <button onClick={()=>onTabChange("schedule")} style={{fontSize:"0.72rem",color:pal.primary,fontWeight:"700",background:"transparent",border:"none",cursor:"pointer"}}>See all →</button>
-          </div>
-          <div style={{display:"flex",flexDirection:"column",gap:"0.42rem",marginBottom:"1rem"}}>
-            {visible.slice(0,4).map((b,i)=>(
-              <div key={i} onClick={()=>onTabChange("schedule")} style={{background:pal.linen,borderRadius:"13px",padding:"0.65rem 0.85rem",display:"flex",gap:"0.75rem",alignItems:"center",border:`1.5px solid ${pal.stone}45`,cursor:"pointer"}}>
-                <div style={{width:"36px",height:"36px",borderRadius:"9px",background:`${pal.primary}18`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.1rem",flexShrink:0}}>{b.i}</div>
-                <div style={{flex:1,minWidth:0}}>
-                  <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.84rem",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{b.s}</div>
-                  <div style={{fontSize:"0.7rem",color:pal.slate}}>{b.t?h12(b.t)+" · ":""}{b.dur} min</div>
-                </div>
-              </div>
-            ))}
-            {visible.length > 4 && <div style={{textAlign:"center",fontSize:"0.72rem",color:pal.slate,fontStyle:"italic"}}>+{visible.length-4} more blocks</div>}
-          </div>
-        </>)}
-
-
-        {/* ── P&C This Week ── */}
-        {family.lifeReady && (()=>{
-          const ch    = family.children[0];
-          const grade = ch?.grade||"5th";
-          const topic = getLRTopicForWeek(grade);
-          const week  = getLRWeekNumber(grade);
-          return (<>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.5rem"}}>
-              <span style={{fontWeight:"800",color:pcDone?pal.good:LR_COLOR,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>
-                {pcDone?"✓":LR_ICON} Prepared {"&"} Capable
-              </span>
-              <button onClick={()=>onTabChange("preparedcapable")} style={{fontSize:"0.72rem",color:LR_COLOR,fontWeight:"700",background:"transparent",border:"none",cursor:"pointer"}}>Open →</button>
-            </div>
-            {pcDone ? (
-              /* Completed state */
-              <div style={{background:pal.goodBg,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.good}40`,display:"flex",gap:"0.75rem",alignItems:"center"}}>
-                <div style={{width:"42px",height:"42px",borderRadius:"11px",background:pal.good,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0}}>✓</div>
-                <div style={{flex:1,minWidth:0}}>
-                  <div style={{fontWeight:"800",color:pal.good,fontSize:"0.86rem"}}>Week {week} complete!</div>
-                  <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"2px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{topic}</div>
-                </div>
-                <button onClick={()=>onTabChange("preparedcapable")} style={{padding:"0.3rem 0.65rem",border:`1.5px solid ${pal.good}50`,borderRadius:"9px",background:"transparent",color:pal.good,fontSize:"0.68rem",fontWeight:"700",cursor:"pointer",flexShrink:0}}>Review</button>
-              </div>
-            ) : (
-              /* Active / not yet done state */
-              <div style={{background:`linear-gradient(135deg,${LR_COLOR}12,${LR_COLOR2}08)`,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:`1.5px solid ${LR_COLOR}25`}}>
-                <div style={{display:"flex",gap:"0.75rem",alignItems:"center"}}>
-                  <div style={{width:"42px",height:"42px",borderRadius:"11px",background:`linear-gradient(135deg,${LR_COLOR},${LR_COLOR2})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0}}>{LR_ICON}</div>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:"0.65rem",fontWeight:"700",color:LR_COLOR,textTransform:"uppercase",letterSpacing:"0.05em",marginBottom:"1px"}}>This Week · Week {week}</div>
-                    <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.86rem",lineHeight:1.3}}>{topic}</div>
-                    <div style={{fontSize:"0.67rem",color:pal.slate,marginTop:"2px"}}>{grade} · {ch?.name||"your student"}</div>
-                  </div>
-                  <button onClick={e=>{e.stopPropagation();markPCDone();}}
-                    style={{padding:"0.38rem 0.65rem",border:"none",borderRadius:"10px",background:`linear-gradient(135deg,${LR_COLOR},${LR_COLOR2})`,color:"#fff",fontSize:"0.68rem",fontWeight:"800",cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}}>
-                    Done ✓
-                  </button>
-                </div>
-              </div>
-            )}
-          </>);
-        })()}
-
-        {/* Recent portfolio entries */}
-        {portfolioEntries.length > 0 && (<>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.5rem"}}>
-            <span style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>Recent Work</span>
-            <button onClick={()=>onTabChange("portfolio")} style={{fontSize:"0.72rem",color:pal.primary,fontWeight:"700",background:"transparent",border:"none",cursor:"pointer"}}>All →</button>
-          </div>
-          <div style={{display:"flex",flexDirection:"column",gap:"0.42rem",marginBottom:"1rem"}}>
-            {portfolioEntries.slice(0,3).map((p,i)=>{
-              const ch = family.children[p.childIdx];
-              return (
-                <div key={p.id} style={{background:pal.linen,borderRadius:"13px",padding:"0.65rem 0.85rem",display:"flex",gap:"0.75rem",alignItems:"center",border:`1.5px solid ${pal.stone}35`}}>
-                  <div style={{width:"36px",height:"36px",borderRadius:"9px",background:pal.pale,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.2rem",flexShrink:0}}>{p.thumb||"📋"}</div>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.82rem",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</div>
-                    <div style={{fontSize:"0.68rem",color:pal.slate}}>{p.subj} · {p.date} {ch?"· "+ch.avatar+" "+ch.name:""}</div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </>)}
+          ))}
+          <div style={{textAlign:"center",fontSize:"0.68rem",color:pal.slate,marginTop:"0.5rem",fontStyle:"italic"}}>{"Drag cards to reorder your home screen"}</div>
+        </div>
+      ) : (
+        /* ── Normal rendered sections in user-defined order ── */
+        <div>
+          {homeLayout.map(sid => {
+            const fn = sectionRenderMap[sid];
+            return fn ? fn() : null;
+          })}
+        </div>
+      )}
 
         <div style={{height:"0.5rem"}}/>
       </div>
@@ -11830,13 +11924,14 @@ function AttendanceScreen({pal,family,days,attendanceLog=[],portfolioEntries=[],
 }
 /* ---- Co-op Setup Card (inline editor on Co-op screen) ---- */
 function CoopSetupCard({pal,family,onSave,onCancel}){
-  const [freq,     setFreq]     = useState(family.coopFreq||"Once a week");
-  const [day,      setDay]      = useState(family.coopDay||"");
-  const [time,     setTime]     = useState(family.coopTime||"");
-  const [name,     setName]     = useState(family.coopName||"");
-  const [kids,     setKids]     = useState(family.coopKids||(family.children||[]).map(c=>c.id));
-  const [classes,  setClasses]  = useState(family.coopClasses||[]);
-  const [classVal, setClassVal] = useState("");
+  const [freq,        setFreq]       = useState(family.coopFreq||"Once a week");
+  const [day,         setDay]        = useState(family.coopDay||"");
+  const [time,        setTime]       = useState(family.coopTime||"");
+  const [name,        setName]       = useState(family.coopName||"");
+  const [kids,        setKids]       = useState(family.coopKids||(family.children||[]).map(c=>c.id));
+  const [classes,     setClasses]    = useState(family.coopClasses||[]);
+  const [classVal,    setClassVal]   = useState("");
+  const [coopSubjects,setCoopSubjects] = useState(family.coopSubjects||[]);
 
   const DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
   const TIMES = ["7:00 AM","7:30 AM","8:00 AM","8:30 AM","9:00 AM","9:30 AM","10:00 AM","10:30 AM","11:00 AM","11:30 AM","12:00 PM","12:30 PM","1:00 PM","1:30 PM","2:00 PM"];
@@ -11937,12 +12032,42 @@ function CoopSetupCard({pal,family,onSave,onCancel}){
         </div>
       )}
 
+      {/* Co-op subjects — which regular subjects happen at co-op */}
+      {day&&(()=>{
+        const allSubjOpts = [...SUBJECT_OPTIONS,...(family.customSubjects||[])];
+        const activeSubjIds = family.subjects||[];
+        const activeSubjs = activeSubjIds.map(id=>allSubjOpts.find(s=>s.id===id)).filter(Boolean);
+        if(activeSubjs.length===0) return null;
+        return (
+          <div style={{marginBottom:"0.75rem"}}>
+            <Lbl pal={pal}>Which subjects do you do at co-op?</Lbl>
+            <div style={{fontSize:"0.7rem",color:pal.slate,marginBottom:"0.45rem"}}>{"These will appear on your schedule on co-op day instead of your regular subjects."}</div>
+            <div style={{display:"flex",flexDirection:"column",gap:"0.25rem"}}>
+              {activeSubjs.map(s=>{
+                const sel = coopSubjects.includes(s.id);
+                return (
+                  <button key={s.id} onClick={()=>setCoopSubjects(cs=>sel?cs.filter(x=>x!==s.id):[...cs,s.id])}
+                    style={{display:"flex",gap:"0.5rem",alignItems:"center",padding:"0.38rem 0.55rem",border:`1.5px solid ${sel?pal.primary:pal.stone+"40"}`,borderRadius:"8px",background:sel?pal.pale:"transparent",cursor:"pointer",textAlign:"left",transition:"all 0.12s"}}>
+                    <span style={{fontSize:"0.85rem",width:"18px",textAlign:"center",flexShrink:0}}>{s.icon}</span>
+                    <span style={{flex:1,fontWeight:sel?"700":"400",color:sel?pal.primary:pal.inkM,fontSize:"0.78rem"}}>{s.label}</span>
+                    <div style={{width:"15px",height:"15px",borderRadius:"4px",border:`2px solid ${sel?pal.primary:pal.stone}`,background:sel?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                      {sel&&<span style={{color:"#fff",fontSize:"0.6rem",fontWeight:"900"}}>{"✓"}</span>}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+            {coopSubjects.length===0&&<div style={{fontSize:"0.65rem",color:pal.slate,marginTop:"0.35rem",fontStyle:"italic"}}>{"None selected — leave empty if co-op classes are separate from your regular subjects."}</div>}
+          </div>
+        );
+      })()}
+
       <div style={{display:"flex",gap:"0.5rem",marginTop:"0.5rem"}}>
         <button onClick={onCancel}
           style={{padding:"0.6rem 1rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.82rem",cursor:"pointer"}}>
           Cancel
         </button>
-        <button onClick={()=>onSave({coopFreq:freq,coopDay:day,coopTime:time,coopName:name,coopKids:kids,coopClasses:classes})}
+        <button onClick={()=>onSave({coopFreq:freq,coopDay:day,coopTime:time,coopName:name,coopKids:kids,coopClasses:classes,coopSubjects})}
           style={{flex:1,padding:"0.6rem",border:"none",borderRadius:"11px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.84rem",cursor:"pointer"}}>
           Save Co-op Info
         </button>
@@ -12031,6 +12156,21 @@ function CoopScreen({pal,family,coopLog,onLog,onUpdateFamily,onAddEntry}){
                       ))}
                     </div>
                   )}
+                  {(family.coopSubjects||[]).length>0&&(()=>{
+                    const allSubjOpts2=[...SUBJECT_OPTIONS,...(family.customSubjects||[])];
+                    const coopSubjLabels=(family.coopSubjects||[]).map(id=>allSubjOpts2.find(s=>s.id===id)).filter(Boolean);
+                    if(coopSubjLabels.length===0) return null;
+                    return (
+                      <div style={{marginTop:"0.4rem"}}>
+                        <div style={{fontSize:"0.6rem",color:pal.slate,fontWeight:"600",marginBottom:"0.2rem",textTransform:"uppercase",letterSpacing:"0.05em"}}>{"On schedule:"}</div>
+                        <div style={{display:"flex",flexWrap:"wrap",gap:"0.22rem"}}>
+                          {coopSubjLabels.map(s=>(
+                            <span key={s.id} style={{padding:"0.1rem 0.4rem",background:pal.good+"18",borderRadius:"20px",fontSize:"0.63rem",fontWeight:"600",color:pal.good}}>{s.icon} {s.label}</span>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
               <button onClick={()=>setShowSetup(true)}
