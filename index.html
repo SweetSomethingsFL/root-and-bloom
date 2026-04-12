@@ -635,7 +635,7 @@ function RootAndBloom() {
           {activeTab==="progress"    && <ProgressScreen   pal={pal} family={family} child={childFilt} setChild={setChildFilt} portfolioEntries={portfolioEntries} attendanceDays={attendanceDays} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} />}
           {activeTab==="learn"       && <LearnScreen       pal={pal} family={family} child={childFilt} setChild={setChildFilt} learnTab={learnTab} setLearnTab={setLearnTab} portfolioEntries={portfolioEntries} />}
           {activeTab==="portfolio"   && <PortfolioScreen   pal={pal} family={family} child={childFilt} setChild={setChildFilt} entries={portfolioEntries} onAddEntry={addPortfolioEntry} onEditEntry={editPortfolioEntry} attendanceDays={attendanceDays}
-            lastCheckinDate={lastCheckinDate}
+            lastCheckinDate={lastCheckinDate} coopLog={coopLog}
             onCheckin={()=>handleChildCheckin(childFilt!=="all"?childFilt:family.children?.[0]?.id)}/>}
           {activeTab==="attendance"  && <AttendanceScreen  pal={pal} family={family} days={attendanceDays} attendanceLog={attendanceLog} portfolioEntries={portfolioEntries} coopLog={coopLog}
             onAddDay={(entry)=>{
@@ -3765,6 +3765,23 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
               <Input pal={pal} value={local.schoolName||""} onChange={v=>updL("schoolName",v)} placeholder="e.g. Thornwood Academy" />
             </SCard>
 
+            <SCard pal={pal} title="Progress Report" note="Settings for the printable progress report">
+              <Lbl pal={pal}>Grading mode</Lbl>
+              <div style={{display:"flex",gap:"0.38rem",marginBottom:"0.75rem"}}>
+                {[["narrative","Narrative only"],["letter","Letter grades"]].map(([id,label])=>{
+                  const sel=(local.reportGradeMode||"narrative")===id;
+                  return (
+                    <button key={id} onClick={()=>updL("reportGradeMode",id)}
+                      style={{flex:1,padding:"0.5rem 0.5rem",border:`2px solid ${sel?pal.primary:pal.stone+"50"}`,borderRadius:"10px",background:sel?pal.pale:"transparent",color:sel?pal.primary:pal.inkM,fontWeight:sel?"700":"400",fontSize:"0.78rem",cursor:"pointer"}}>
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+              <Lbl pal={pal}>Administrator name (optional)</Lbl>
+              <Input pal={pal} value={local.reportAdminName||""} onChange={v=>updL("reportAdminName",v)} placeholder="For signature line on report" />
+            </SCard>
+
             <SCard pal={pal} title="Learning Philosophy">
               <div style={{fontSize:"0.72rem",color:pal.slate,marginBottom:"0.5rem"}}>Select all that apply</div>
               <div style={{display:"flex",flexDirection:"column",gap:"0.38rem"}}>
@@ -5114,6 +5131,205 @@ function printFullPortfolio(family, entries, child, attendanceDays, stateInfoUnu
 
 
 /* ---- Print Evaluator Letter separately ---- */
+
+async function printProgressReport(family, entries, child, attendanceDays, coopLog) {
+  const schoolName   = family.schoolName||(family.familyName+" Academy")||"Home School";
+  const adminName    = family.reportAdminName||family.parentName||"";
+  const gradeMode    = family.reportGradeMode||"narrative"; // "letter" | "narrative"
+  const childName    = child?.name||"Student";
+  const grade        = child?.grade||"";
+  const childId      = child?.id||"";
+  const yearStart    = family.yearStart ? new Date(family.yearStart).toLocaleDateString("en-US",{month:"long",year:"numeric"}) : "";
+  const yearEnd      = family.yearEnd   ? new Date(family.yearEnd).toLocaleDateString("en-US",{month:"long",year:"numeric"})   : "";
+  const today        = new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
+  const state        = family.state||"";
+  const si           = getStateInfo(state);
+  const REQUIRED     = parseInt((si.hours||"180").match(/\d+/)?.[0]||"180");
+  const pct          = REQUIRED ? Math.min(100,Math.round(attendanceDays/REQUIRED*100)) : null;
+  const childIdx     = (family.children||[]).findIndex(c=>c.id===childId);
+  const subjEntries  = entries.filter(e=>e.childIdx===childIdx&&!e.isDay&&e.subj&&e.subj!=="Daily Notes");
+
+  // Load saved subject grades
+  const GRADES_KEY = "rootbloom_subj_grades_"+childId+"_"+(family.yearEnd||"");
+  let subjGrades = {};
+  try { subjGrades = JSON.parse(localStorage.getItem(GRADES_KEY)||"{}"); } catch(e){}
+
+  // Build subject list with entry counts and notes
+  const allSubjOpts = [...(window.SUBJECT_OPTIONS||[]),...(family.customSubjects||[])];
+  const activeSubjIds = family.subjects||[];
+  const activeSubjs = activeSubjIds.map(id=>allSubjOpts.find(s=>s.id===id)).filter(Boolean);
+
+  const subjData = activeSubjs.map(s=>{
+    const sEntries = subjEntries.filter(e=>e.subj===s.label);
+    const notes    = sEntries.filter(e=>e.note&&e.note.trim().length>10).map(e=>e.note.replace("AI Summary:","").trim());
+    const milestones = sEntries.filter(e=>e.isMilestone).map(e=>e.note||"").filter(Boolean);
+    const sg = subjGrades[s.label]||{};
+    return {label:s.label, icon:s.icon||"", count:sEntries.length, notes, milestones, grade:sg.grade||"", credits:sg.credits||""};
+  });
+
+  // Generate AI narratives per subject
+  const runtimeKey = (() => { try{ return localStorage.getItem("rootbloom_apikey")||""; }catch(e){return "";} })();
+
+  const generateNarrative = async (subj, notes, milestones) => {
+    if(!runtimeKey || notes.length===0) return "";
+    const noteBlock = notes.slice(0,8).join(" | ");
+    const msBlock   = milestones.length>0 ? " Milestones: "+milestones.slice(0,2).join("; ")+"." : "";
+    const prompt = "You are writing a formal homeschool progress report for "+childName+" in "+subj+". "
+      + "Based on these parent notes, write 2-3 sentences in formal, evaluator-appropriate language describing "
+      + "the student's progress and engagement. Mention specific concepts or activities when possible. "
+      + "Do not use bullet points. Plain text only."+msBlock+"\n\nParent notes: "+noteBlock;
+    try {
+      const res = await fetch("https://api.anthropic.com/v1/messages",{
+        method:"POST",
+        headers:{"Content-Type":"application/json","x-api-key":runtimeKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+        body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:200,messages:[{role:"user",content:prompt}]})
+      });
+      const d = await res.json();
+      return (d.content||[]).map(b=>b.text||"").join("").trim();
+    } catch(e){ return ""; }
+  };
+
+  // Overall summary
+  const generateOverall = async () => {
+    if(!runtimeKey) return "";
+    const allNotes = subjEntries.filter(e=>e.note&&e.note.trim().length>10).slice(0,30).map(e=>e.subj+": "+e.note.replace("AI Summary:","").trim()).join(" | ");
+    if(!allNotes) return "";
+    const prompt = "Write a 2-3 sentence overall progress summary paragraph for "+childName+"'s homeschool progress report. "
+      + "This goes on a formal progress report seen by evaluators or businesses. "
+      + "Be warm, specific, and professional. Plain text only.\n\nNotes: "+allNotes;
+    try {
+      const res = await fetch("https://api.anthropic.com/v1/messages",{
+        method:"POST",
+        headers:{"Content-Type":"application/json","x-api-key":runtimeKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+        body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:200,messages:[{role:"user",content:prompt}]})
+      });
+      const d = await res.json();
+      return (d.content||[]).map(b=>b.text||"").join("").trim();
+    } catch(e){ return ""; }
+  };
+
+  // Show loading window
+  const win = window.open("","_blank","width=860,height=1100,scrollbars=yes");
+  if(!win) return;
+  win.document.write("<html><head><title>Generating Progress Report...</title><style>body{font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;color:#555;font-size:1rem;}</style></head><body><div style='text-align:center'><div style='font-size:2rem;margin-bottom:1rem'>&#9200;</div><div>Generating progress report with AI narratives...</div><div style='font-size:0.8rem;color:#aaa;margin-top:0.5rem'>This takes about 15-20 seconds</div></div></body></html>");
+
+  // Generate all narratives in parallel
+  const narratives = {};
+  await Promise.all(subjData.map(async s=>{
+    if(s.count>0) narratives[s.label] = await generateNarrative(s.label, s.notes, s.milestones);
+  }));
+  const overallNarr = await generateOverall();
+
+  const LETTER_COLORS = {A:"#2a6a2a",B:"#1a5a8a",C:"#7a5500",D:"#8a3a00",F:"#8a0000"};
+
+  const css = ""
+    +"*{box-sizing:border-box;margin:0;padding:0}"
+    +"body{font-family:Georgia,serif;color:#1a1a1a;font-size:10.5pt;line-height:1.6;background:#fff}"
+    +"@media print{@page{margin:1.8cm 1.5cm;size:letter}body{font-size:10pt}.no-print{display:none!important}}"
+    +".header{background:#1e3a2a;padding:24px 28px 20px;color:#fff}"
+    +".h-school{font-size:8pt;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.55);margin-bottom:5px;font-family:Arial,sans-serif}"
+    +".h-title{font-size:20pt;font-weight:700;margin-bottom:4px}"
+    +".h-sub{font-size:9pt;color:rgba(255,255,255,0.65);font-family:Arial,sans-serif}"
+    +".h-meta{display:flex;gap:24px;margin-top:14px;font-family:Arial,sans-serif}"
+    +".h-meta-item{font-size:8pt;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.1em}"
+    +".h-meta-val{font-size:10.5pt;font-weight:700;color:#fff;margin-top:2px}"
+    +".body{padding:24px 28px;background:#faf8f4}"
+    +".section-hdr{font-size:7.5pt;font-family:Arial,sans-serif;letter-spacing:0.15em;text-transform:uppercase;font-weight:700;color:#888;margin:20px 0 10px;border-bottom:1px solid #ddd;padding-bottom:5px}"
+    +".section-hdr:first-child{margin-top:0}"
+    +".subj-row{background:#fff;border-radius:8px;border:1px solid #e2ddd8;padding:13px 16px;margin-bottom:10px;page-break-inside:avoid}"
+    +".subj-top{display:flex;align-items:center;gap:10px;margin-bottom:6px}"
+    +".subj-name{font-family:Arial,sans-serif;font-weight:700;font-size:10.5pt;color:#1a1a1a;flex:1}"
+    +".subj-grade{font-family:Arial,sans-serif;font-weight:900;font-size:13pt;min-width:28px;text-align:center}"
+    +".subj-count{font-family:Arial,sans-serif;font-size:7.5pt;color:#999;text-align:right}"
+    +".subj-narr{font-size:10pt;color:#333;line-height:1.7;font-style:italic}"
+    +".subj-narr-empty{font-size:9.5pt;color:#bbb;font-style:italic}"
+    +".milestone-tag{display:inline-block;background:#fffbeb;border:1px solid #f5c842;border-radius:4px;padding:1px 7px;font-size:7.5pt;font-family:Arial,sans-serif;color:#7a5500;font-weight:700;margin-top:5px;margin-right:4px}"
+    +".overall-box{background:#f0f8f0;border-left:4px solid #2a6a2a;border-radius:0 8px 8px 0;padding:14px 16px;margin-bottom:14px}"
+    +".overall-label{font-family:Arial,sans-serif;font-size:7.5pt;letter-spacing:0.12em;text-transform:uppercase;color:#2a6a2a;font-weight:700;margin-bottom:5px}"
+    +".stats-row{display:flex;gap:16px;margin-bottom:14px}"
+    +".stat-box{flex:1;background:#fff;border:1px solid #e2ddd8;border-radius:7px;padding:10px 12px;text-align:center}"
+    +".stat-val{font-family:Arial,sans-serif;font-size:14pt;font-weight:900;color:#2a6a2a}"
+    +".stat-lbl{font-family:Arial,sans-serif;font-size:7pt;text-transform:uppercase;letter-spacing:0.1em;color:#999;margin-top:2px}"
+    +".sig-block{margin-top:24px;padding-top:16px;border-top:1px solid #ddd;display:flex;gap:32px}"
+    +".sig-line{flex:1;border-bottom:1px solid #555;padding-bottom:2px;margin-bottom:4px;min-width:140px;height:28px}"
+    +".sig-label{font-family:Arial,sans-serif;font-size:8pt;color:#888}"
+    +".footer-bar{padding:10px 28px;background:#f5f3ef;border-top:1px solid #e0dbd4;display:flex;justify-content:space-between;font-family:Arial,sans-serif;font-size:7.5pt;color:#aaa}"
+    +".print-btn{margin:16px 28px;padding:10px 22px;background:#1e3a2a;color:#fff;border:none;border-radius:8px;font-size:10pt;cursor:pointer;font-family:Arial,sans-serif}"
+    ;
+
+  const attendanceLine = REQUIRED
+    ? attendanceDays+" of "+REQUIRED+" required days ("+pct+"%)"
+    : attendanceDays+" days logged";
+
+  const coopHrs = (coopLog||[]).reduce((s,l)=>s+(parseFloat(l.hrs)||0),0);
+
+  let subjRows = "";
+  subjData.forEach(s=>{
+    if(s.count===0 && !s.grade) return; // skip subjects with zero activity and no grade
+    const gradeColor = LETTER_COLORS[s.grade]||"#555";
+    const gradeCell = (gradeMode==="letter"&&s.grade)
+      ? "<span class='subj-grade' style='color:"+gradeColor+"'>"+s.grade+"</span>"
+      : (gradeMode==="letter" ? "<span class='subj-grade' style='color:#ccc'>—</span>" : "");
+    const creditCell = (gradeMode==="letter"&&s.credits)
+      ? "<span style='font-family:Arial,sans-serif;font-size:8pt;color:#888;margin-left:4px'>"+s.credits+" cr</span>"
+      : "";
+    const narr = narratives[s.label]||"";
+    const msHtml = s.milestones.slice(0,2).map(m=>"<span class='milestone-tag'>&#9733; "+m.slice(0,60)+(m.length>60?"...":"")+"</span>").join("");
+    subjRows += "<div class='subj-row'>"
+      +"<div class='subj-top'>"
+      +"<span style='font-size:14pt'>"+s.icon+"</span>"
+      +"<span class='subj-name'>"+s.label+"</span>"
+      +gradeCell+creditCell
+      +"<span class='subj-count'>"+s.count+" session"+(s.count!==1?"s":"")+"</span>"
+      +"</div>"
+      +(narr ? "<p class='subj-narr'>"+narr+"</p>" : "<p class='subj-narr-empty'>No detailed notes logged for this subject.</p>")
+      +(msHtml ? "<div style='margin-top:6px'>"+msHtml+"</div>" : "")
+      +"</div>";
+  });
+
+  const html = "<!DOCTYPE html><html lang='en'><head>"
+    +"<meta charset='utf-8'><title>Progress Report &mdash; "+childName+"</title>"
+    +"<style>"+css+"</style></head><body>"
+    +"<div class='header'>"
+    +"<div class='h-school'>"+schoolName+"</div>"
+    +"<div class='h-title'>Progress Report</div>"
+    +"<div class='h-sub'>"+childName+" &bull; "+grade+(state?" &bull; "+state:"")+"</div>"
+    +"<div class='h-meta'>"
+    +"<div class='h-meta-item'>Academic Year<div class='h-meta-val'>"+(yearStart&&yearEnd?yearStart+" &ndash; "+yearEnd:new Date().getFullYear())+"</div></div>"
+    +"<div class='h-meta-item'>Date Generated<div class='h-meta-val'>"+today+"</div></div>"
+    +(gradeMode==="letter"?"<div class='h-meta-item'>Grading<div class='h-meta-val'>Letter Grades</div></div>":"<div class='h-meta-item'>Grading<div class='h-meta-val'>Narrative Only</div></div>")
+    +"</div>"
+    +"</div>"
+    +"<div class='body'>"
+    +"<div class='section-hdr'>Attendance &amp; Overview</div>"
+    +"<div class='stats-row'>"
+    +"<div class='stat-box'><div class='stat-val'>"+attendanceDays+"</div><div class='stat-lbl'>Days Logged</div></div>"
+    +(pct!==null?"<div class='stat-box'><div class='stat-val'>"+pct+"%</div><div class='stat-lbl'>State Requirement</div></div>":"")
+    +"<div class='stat-box'><div class='stat-val'>"+subjEntries.length+"</div><div class='stat-lbl'>Total Sessions</div></div>"
+    +(coopHrs>0?"<div class='stat-box'><div class='stat-val'>"+coopHrs+"h</div><div class='stat-lbl'>Co-op Hours</div></div>":"")
+    +"</div>"
+    +(overallNarr?"<div class='overall-box'><div class='overall-label'>Overall Summary</div><p>"+overallNarr+"</p></div>":"")
+    +"<div class='section-hdr'>Subject Progress</div>"
+    +subjRows
+    +"<div class='sig-block'>"
+    +"<div><div class='sig-line'></div><div class='sig-label'>Parent / Educator Signature</div></div>"
+    +(adminName?"<div><div class='sig-line'></div><div class='sig-label'>"+adminName+" &mdash; Administrator</div></div>":"")
+    +"<div><div class='sig-line'></div><div class='sig-label'>Date</div></div>"
+    +"</div>"
+    +"</div>"
+    +"<div class='footer-bar'>"
+    +"<span>Generated by Root &amp; Bloom &bull; "+schoolName+"</span>"
+    +"<span>"+state+" Homeschool Record</span>"
+    +"</div>"
+    +"<button class='print-btn no-print' onclick='window.print()'>&#128424; Print / Save as PDF</button>"
+    +"<script>window.SUBJECT_OPTIONS=[];<\/script>"
+    +"</body></html>";
+
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
+}
+
 function printEvaluatorLetter(family, child, attendanceDays) {
   const schoolName = family.schoolName||(family.familyName+" Academy")||"Home School";
   const yearStart  = family.yearStart ? new Date(family.yearStart).getFullYear() : new Date().getFullYear();
@@ -9183,7 +9399,7 @@ function AIWorksheetModal({ pal, family, activeChild, wsType, onClose }) {
 }
 
 
-function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEditEntry,attendanceDays=0,lastCheckinDate,onCheckin}){
+function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEditEntry,attendanceDays=0,lastCheckinDate,coopLog=[],onCheckin}){
   const [showDailyLog,   setShowDailyLog]   = useState(false);
   const [showAdd,        setShowAdd]        = useState(false);
   const [showAddExtra,   setShowAddExtra]   = useState(false);
@@ -9307,8 +9523,12 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
                       ):null;
                     })()}
                     <button onClick={()=>{setShowPrintMenu(false);setShowFullYearPrint(true);}}
-                      style={{width:"100%",padding:"0.65rem 0.9rem",border:"none",background:"transparent",color:pal.ink,fontSize:"0.78rem",fontWeight:"600",cursor:"pointer",textAlign:"left",display:"flex",gap:"0.5rem",alignItems:"center"}}>
+                      style={{width:"100%",padding:"0.65rem 0.9rem",border:"none",background:"transparent",color:pal.ink,fontSize:"0.78rem",fontWeight:"600",cursor:"pointer",textAlign:"left",display:"flex",gap:"0.5rem",alignItems:"center",borderBottom:`1px solid ${pal.stone}20`}}>
                       <span>{"📚"}</span><span>{"Full year portfolio"}</span>
+                    </button>
+                    <button onClick={()=>{setShowPrintMenu(false);printProgressReport(family,portfolioEntries,activeCh,attendanceDays,coopLog);}}
+                      style={{width:"100%",padding:"0.65rem 0.9rem",border:"none",background:"transparent",color:pal.ink,fontSize:"0.78rem",fontWeight:"600",cursor:"pointer",textAlign:"left",display:"flex",gap:"0.5rem",alignItems:"center"}}>
+                      <span>{"📊"}</span><span>{"Progress report"}</span>
                     </button>
                   </div>
                 )}
