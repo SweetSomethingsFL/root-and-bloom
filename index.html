@@ -401,6 +401,30 @@ function RootAndBloom() {
     return buildTheme(p.isCustom?customA:p.a, p.isCustom?customB:p.b);
   }, [paletteId,customA,customB]);
 
+  // ── One-time migration: ensure progress tab is in nav, schedule is optional ──
+  React.useEffect(()=>{
+    setNavIds(prev=>{
+      const hasProgress = prev.includes("progress");
+      const hasSchedule = prev.includes("schedule");
+      if(hasProgress) return prev; // already migrated
+      // Add progress where schedule was, or after home
+      let updated = [...prev];
+      if(hasSchedule) {
+        // Insert progress next to schedule, keep schedule if they want it
+        const idx = updated.indexOf("schedule");
+        updated.splice(idx, 0, "progress");
+      } else {
+        // Insert progress after home
+        const homeIdx = updated.indexOf("home");
+        updated.splice(homeIdx+1, 0, "progress");
+      }
+      // Cap at 5
+      if(updated.length>5) updated = updated.filter(id=>id!=="schedule").slice(0,5);
+      return updated;
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[]);
+
   const navTabs = ALL_SECTIONS.filter(s=>navIds.includes(s.id));
 
   // Listen for in-app navigation events (e.g. "View in Portfolio" links)
