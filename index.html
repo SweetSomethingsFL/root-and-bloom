@@ -2005,7 +2005,8 @@ function OnbCurrBrands({ pal, data, upd, onNext }) {
     setFetchMsg("Checking out " + name + "’s website…");
     setFetchDone(false);
     try {
-      const fetchKey = (() => { try{ return localStorage.getItem("rootbloom_apikey")||AI_KEY; }catch(e){return AI_KEY;} })();
+      const fetchKey = (() => { try{ return localStorage.getItem("rootbloom_apikey")||""; }catch(e){return "";} })();
+      if(!fetchKey) { setFetchMsg("Add an API key in Settings to use AI features."); setFetchDone(true); return; }
       const res = await fetch("https://api.anthropic.com/v1/messages", {
         method:"POST",
         headers:{"Content-Type":"application/json","x-api-key":fetchKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
@@ -3176,7 +3177,8 @@ function CurriculumAddWidget({pal, local, updL}){
     setFetching(true);
     setMsg("Looking up "+n+"...");
     try {
-      const fetchKey2 = (() => { try{ return localStorage.getItem("rootbloom_apikey")||AI_KEY; }catch(e){return AI_KEY;} })();
+      const fetchKey2 = (() => { try{ return localStorage.getItem("rootbloom_apikey")||""; }catch(e){return "";} })();
+      if(!fetchKey2) { setMsg("Add an API key in Settings to use AI features."); setFetching(false); return; }
       const res = await fetch("https://api.anthropic.com/v1/messages",{
         method:"POST",
         headers:{"Content-Type":"application/json","x-api-key":fetchKey2,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
@@ -8055,7 +8057,7 @@ function curriculumContext(family) {
 }
 
 async function callClaude(prompt) {
-  const runtimeKey = (() => { try{ return localStorage.getItem("rootbloom_apikey")||AI_KEY; }catch(e){return AI_KEY;} })();
+  const runtimeKey = (() => { try{ return localStorage.getItem("rootbloom_apikey")||""; }catch(e){return "";} })();
   const runtimeLimit = (() => { try{ return parseInt(localStorage.getItem("rootbloom_ailimit")||"50"); }catch(e){return 50;} })();
   if(!runtimeKey) throw new Error("NO_KEY");
   const { allowed, monthKey } = checkAILimit(runtimeLimit);
@@ -8427,7 +8429,7 @@ function AIChatModal({ pal, family, onClose }) {
   const send = async () => {
     const text = input.trim();
     if (!text || loading) return;
-    const runtimeKey = (() => { try{ return localStorage.getItem("rootbloom_apikey")||AI_KEY; }catch(e){return AI_KEY;} })();
+    const runtimeKey = (() => { try{ return localStorage.getItem("rootbloom_apikey")||""; }catch(e){return "";} })();
     if(!runtimeKey){setMessages(m=>[...m,{role:"user",content:text},{role:"assistant",content:"AI features need an API key. Add one in Settings to get started!"}]);setInput("");return;}
     const {allowed,used,limit} = checkAILimit();
     if(!allowed){setMessages(m=>[...m,{role:"user",content:text},{role:"assistant",content:"Monthly AI limit of "+limit+" uses reached. Resets next month!"}]);setInput("");return;}
@@ -11301,7 +11303,8 @@ function WeeklyPacket({pal,family,child,entries,onBack}){
       + "Under 120 words total. No bullet points."
 
     try {
-      const weekSummaryKey = (() => { try{ return localStorage.getItem("rootbloom_apikey")||AI_KEY; }catch(e){return AI_KEY;} })();
+      const weekSummaryKey = (() => { try{ return localStorage.getItem("rootbloom_apikey")||""; }catch(e){return "";} })();
+      if(!weekSummaryKey) { setError("Add an API key in Settings to use AI features."); return; }
       const res = await fetch("https://api.anthropic.com/v1/messages",{
         method:"POST",
         headers:{"Content-Type":"application/json","x-api-key":weekSummaryKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
