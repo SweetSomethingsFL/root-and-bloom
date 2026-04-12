@@ -579,7 +579,7 @@ function RootAndBloom() {
 
         {/* Main content */}
         <div ref={mainScrollRef} style={{flex:1,overflowY:"auto",paddingBottom:"72px"}}>
-          {activeTab==="home" && <HomeScreen pal={pal} family={family} child={childFilt} setChild={setChildFilt} onTheme={()=>setShowTheme(true)} attendanceDays={attendanceDays} checkinStreak={checkinStreak} lastCheckinDate={lastCheckinDate} portfolioEntries={portfolioEntries} onTabChange={setActiveTab} todayProgress={todayProgress}
+          {activeTab==="home" && <HomeScreen pal={pal} family={family} child={childFilt} setChild={setChildFilt} onTheme={()=>setShowTheme(true)} attendanceDays={attendanceDays} checkinStreak={checkinStreak} lastCheckinDate={lastCheckinDate} portfolioEntries={portfolioEntries} onTabChange={setActiveTab} todayProgress={todayProgress} navIds={navIds}
             attendanceLog={attendanceLog}
             onAddEntry={addPortfolioEntry}
             onCheckin={handleChildCheckin}
@@ -6418,7 +6418,7 @@ function GoalsNudgeCard({pal,family,portfolioEntries,todayStr,onTabChange}){
   );
 }
 
-function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress, onAddEntry, onCheckin, checkinDates={}, observationLog=[], onOpenJournal, attendanceLog=[], studentVisits={} }) {
+function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress, navIds=[], onAddEntry, onCheckin, checkinDates={}, observationLog=[], onOpenJournal, attendanceLog=[], studentVisits={} }) {
   const stateInfo  = getStateInfo(family.state||"");
   const stateHours = stateInfo.hours||"";
   const dayMatch   = stateHours.match(/(\d+)\s*day/i);
@@ -6669,6 +6669,79 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
           </div>
         )}
 
+        {/* ── Weekly Subject Grid ── */}
+        {(()=>{
+          const today2   = new Date();
+          const dow2     = today2.getDay();
+          const wkStart  = new Date(today2); wkStart.setDate(today2.getDate()-(dow2===0?6:dow2-1)); wkStart.setHours(0,0,0,0);
+          const yr2      = today2.getFullYear();
+          const DAYS_SHORT = ["M","T","W","T","F"];
+          const activeSubjIds = family.subjects||[];
+          const allSubjOpts   = [...SUBJECT_OPTIONS,...(family.customSubjects||[])];
+          const activeSubjs   = activeSubjIds.map(id=>allSubjOpts.find(s=>s.id===id)).filter(Boolean);
+          if(activeSubjs.length===0) return null;
+
+          // For each day this week, which subjects were logged?
+          const weekDays = Array.from({length:5},(_,i)=>{
+            const d = new Date(wkStart); d.setDate(wkStart.getDate()+i);
+            return d.toLocaleDateString("en-US",{month:"short",day:"numeric"});
+          });
+
+          // Which child index to show
+          const ci2 = child==="all" ? 0 : family.children.findIndex(c=>c.id===child);
+          const cp2 = CHILD_COLOR_PALETTES.find(p=>p.id===(family.children[ci2]?.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+          const cEntries = portfolioEntries.filter(e=>e.childIdx===(ci2<0?0:ci2)&&!e.isDay);
+
+          // Build coverage map: {subjLabel: Set of dateStrs logged this week}
+          const coverage = {};
+          activeSubjs.forEach(s=>{ coverage[s.label]=new Set(); });
+          cEntries.forEach(e=>{
+            if(coverage[e.subj] && weekDays.includes(e.date)) coverage[e.subj].add(e.date);
+          });
+
+          // Only show subjects that have at least one entry ever (avoid cluttering with unused subjects)
+          const subjsToShow = activeSubjs.filter(s=>cEntries.some(e=>e.subj===s.label)).slice(0,8);
+          if(subjsToShow.length===0) return null;
+
+          const todayDayIdx = today2.getDay()===0?4:today2.getDay()-1; // 0=Mon…4=Fri
+
+          return (
+            <div style={{background:pal.linen,borderRadius:"14px",padding:"0.75rem 0.85rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}30`}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.6rem"}}>
+                <span style={{fontSize:"0.72rem",fontWeight:"700",color:pal.inkM}}>{"This week"+(family.children.length>1?" · "+(family.children[ci2<0?0:ci2]?.name||""):"")}</span>
+                <button onClick={()=>onTabChange("progress")}
+                  style={{fontSize:"0.65rem",color:pal.primary,fontWeight:"700",background:"transparent",border:"none",cursor:"pointer"}}>{"Full progress →"}</button>
+              </div>
+              {/* Header row — day labels */}
+              <div style={{display:"grid",gridTemplateColumns:"1fr repeat(5,28px)",gap:"3px",alignItems:"center",marginBottom:"4px"}}>
+                <div/>
+                {DAYS_SHORT.map((d,i)=>(
+                  <div key={i} style={{textAlign:"center",fontSize:"0.58rem",fontWeight:i===todayDayIdx?"800":"600",color:i===todayDayIdx?pal.primary:pal.stone,textTransform:"uppercase"}}>{d}</div>
+                ))}
+              </div>
+              {/* Subject rows */}
+              {subjsToShow.map(s=>(
+                <div key={s.id} style={{display:"grid",gridTemplateColumns:"1fr repeat(5,28px)",gap:"3px",alignItems:"center",marginBottom:"3px"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:"0.3rem",minWidth:0}}>
+                    <span style={{fontSize:"0.8rem",flexShrink:0}}>{s.icon}</span>
+                    <span style={{fontSize:"0.67rem",color:pal.inkM,fontWeight:"600",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s.label}</span>
+                  </div>
+                  {weekDays.map((dateStr,di)=>{
+                    const done = coverage[s.label]?.has(dateStr);
+                    const isTdy = di===todayDayIdx;
+                    const future = di>todayDayIdx;
+                    return (
+                      <div key={di} style={{width:"24px",height:"24px",borderRadius:"6px",margin:"0 auto",background:done?cp2.c1:future?"transparent":pal.parchm,border:done?`2px solid ${cp2.c1}`:isTdy?`2px solid ${pal.primary}40`:`1.5px solid ${pal.stone}30`,display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.15s"}}>
+                        {done&&<span style={{fontSize:"0.6rem",color:"#fff",fontWeight:"900"}}>{"✓"}</span>}
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+          );
+        })()}
+
         {/* ── Smart Today Card — single unified action ── */}
         {(()=>{
           const prog = (todayProgress && todayProgress.date===todayStr) ? todayProgress : null;
@@ -6693,9 +6766,9 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
                     style={{flex:1,padding:"0.48rem",border:`2px solid ${pal.good}50`,borderRadius:"10px",background:"transparent",color:pal.good,fontSize:"0.74rem",fontWeight:"700",cursor:"pointer"}}>
                     {"+ Add More"}
                   </button>
-                  <button onClick={()=>onTabChange("schedule")}
+                  <button onClick={()=>onTabChange("progress")}
                     style={{flex:1,padding:"0.48rem",border:`2px solid ${pal.good}50`,borderRadius:"10px",background:"transparent",color:pal.good,fontSize:"0.74rem",fontWeight:"700",cursor:"pointer"}}>
-                    {"View Schedule"}
+                    {"📈 Progress"}
                   </button>
                 </div>
               </div>
@@ -6704,10 +6777,12 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
 
           if(inProgress) {
             // State 2: In progress — show bar + subjects left
+            // Only tappable/navigates to schedule if that tab is in nav
+            const hasScheduleTab = navIds.includes("schedule");
             const pct2 = Math.round(prog.count/prog.total*100);
             return (
-              <div onClick={()=>onTabChange("schedule")}
-                style={{background:pal.linen,borderRadius:"16px",padding:"0.95rem 1.1rem",marginBottom:"1rem",border:`2px solid ${pal.primary}30`,cursor:"pointer"}}>
+              <div onClick={()=>hasScheduleTab&&onTabChange("schedule")}
+                style={{background:pal.linen,borderRadius:"16px",padding:"0.95rem 1.1rem",marginBottom:"1rem",border:`2px solid ${pal.primary}30`,cursor:hasScheduleTab?"pointer":"default"}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"7px"}}>
                   <div style={{display:"flex",alignItems:"center",gap:"0.5rem"}}>
                     <span style={{fontSize:"1.1rem"}}>{"📋"}</span>
@@ -6723,7 +6798,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
                     {prog.total-prog.count} subject{prog.total-prog.count!==1?"s":""} left
                     {checkinStreak>0?" · 🔥 "+checkinStreak+" day streak":""}
                   </div>
-                  <div style={{fontSize:"0.7rem",fontWeight:"700",color:pal.primary}}>{"Continue →"}</div>
+                  {hasScheduleTab&&<div style={{fontSize:"0.7rem",fontWeight:"700",color:pal.primary}}>{"Continue →"}</div>}
                 </div>
               </div>
             );
@@ -6737,7 +6812,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
                 <div style={{flex:1,textAlign:"left"}}>
                   <div style={{fontWeight:"800",color:"#fff",fontSize:"0.92rem",marginBottom:"2px"}}>{"Start today's school day"}</div>
                   <div style={{fontSize:"0.72rem",color:"rgba(255,255,255,0.75)"}}>
-                    {checkinStreak>0 ? "🔥 "+checkinStreak+" day streak — keep it going!" : "Log what you did or check off the schedule"}
+                    {checkinStreak>0 ? "🔥 "+checkinStreak+" day streak — keep it going!" : navIds.includes("schedule") ? "Log what you did or check off the schedule" : "Tap below to log today’s school day"}
                   </div>
                 </div>
               </div>
