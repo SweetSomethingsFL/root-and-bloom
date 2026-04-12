@@ -461,9 +461,6 @@ function RootAndBloom() {
     entries.forEach(e => addPortfolioEntry(e));
     // increment attendance
     const todayStr = new Date().toDateString();
-  const [layoutEdit,   setLayoutEdit]   = useState(false);
-  const [dragIdx,      setDragIdx]      = useState(null);
-  const [dragOverIdx,  setDragOverIdx]  = useState(null);
     setAttendanceDays(d => d + (lastCheckinDate===todayStr ? 0 : 1));
     // update streak
     const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
@@ -6506,6 +6503,9 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
   const [nextChildPrompt, setNextChildPrompt] = useState(null); // {nextChildId, prevEntries, queue}
   const [carryOverSubjs,  setCarryOverSubjs]  = useState([]);
   const todayStr = new Date().toDateString();
+  const [layoutEdit,   setLayoutEdit]   = useState(false);
+  const [dragIdx,      setDragIdx]      = useState(null);
+  const [dragOverIdx,  setDragOverIdx]  = useState(null);
 
   // Start logging — build queue of children who haven't been logged today
   const startLog = () => {
