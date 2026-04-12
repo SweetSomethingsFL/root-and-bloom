@@ -291,6 +291,7 @@ function RootAndBloom() {
   const [activeTab,      setActiveTab]      = useState("home");
   const [navIds,         setNavIds]         = useState(saved?.navIds||["home","progress","portfolio","more"]);
   const [homeLayout,     setHomeLayout]     = useState(saved?.homeLayout||["thisweek","todaycard","progress_nudge","consistency","missedday","behindweek","goals","pandc"]);
+  const [portfolioLayout,setPortfolioLayout]= useState(saved?.portfolioLayout||["yearoverview","subjects","photosextras","worksheetreminder","statereminder"]);
   const [childFilt,      setChildFilt]      = useState("all");
   const [lastCheckinDate,setLastCheckinDate]= useState(saved?.lastCheckinDate||null);
   const [checkinStreak,  setCheckinStreak]  = useState(saved?.checkinStreak||0);
@@ -370,7 +371,7 @@ function RootAndBloom() {
 
   // Auto-save whenever key state changes
   useEffect(()=>{
-    savePersist({family,navIds,homeLayout,portfolio:portfolioEntries,coopLog,attendanceDays,attendanceLog,observationLog,checkinDates,studentVisits,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed});
+    savePersist({family,navIds,homeLayout,portfolioLayout,portfolio:portfolioEntries,coopLog,attendanceDays,attendanceLog,observationLog,checkinDates,studentVisits,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed});
   },[family,navIds,portfolioEntries,coopLog,attendanceDays,attendanceLog,observationLog,checkinDates,studentVisits,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed]);
 
   // Auto-show New Year prompt when yearEnd has passed
@@ -635,7 +636,7 @@ function RootAndBloom() {
           {activeTab==="progress"    && <ProgressScreen   pal={pal} family={family} child={childFilt} setChild={setChildFilt} portfolioEntries={portfolioEntries} attendanceDays={attendanceDays} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} />}
           {activeTab==="learn"       && <LearnScreen       pal={pal} family={family} child={childFilt} setChild={setChildFilt} learnTab={learnTab} setLearnTab={setLearnTab} portfolioEntries={portfolioEntries} />}
           {activeTab==="portfolio"   && <PortfolioScreen   pal={pal} family={family} child={childFilt} setChild={setChildFilt} entries={portfolioEntries} onAddEntry={addPortfolioEntry} onEditEntry={editPortfolioEntry} attendanceDays={attendanceDays}
-            lastCheckinDate={lastCheckinDate} coopLog={coopLog}
+            lastCheckinDate={lastCheckinDate} coopLog={coopLog} portfolioLayout={portfolioLayout} onSetPortfolioLayout={setPortfolioLayout}
             onCheckin={()=>handleChildCheckin(childFilt!=="all"?childFilt:family.children?.[0]?.id)}/>}
           {activeTab==="attendance"  && <AttendanceScreen  pal={pal} family={family} days={attendanceDays} attendanceLog={attendanceLog} portfolioEntries={portfolioEntries} coopLog={coopLog}
             onAddDay={(entry)=>{
@@ -9410,7 +9411,7 @@ function AIWorksheetModal({ pal, family, activeChild, wsType, onClose }) {
 }
 
 
-function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEditEntry,attendanceDays=0,lastCheckinDate,coopLog=[],onCheckin}){
+function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEditEntry,attendanceDays=0,lastCheckinDate,coopLog=[],portfolioLayout=["yearoverview","subjects","photosextras","worksheetreminder","statereminder"],onSetPortfolioLayout,onCheckin}){
   const [showDailyLog,   setShowDailyLog]   = useState(false);
   const [showAdd,        setShowAdd]        = useState(false);
   const [showAddExtra,   setShowAddExtra]   = useState(false);
@@ -9419,6 +9420,11 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
   const [detailEntry,    setDetail]         = useState(null);
   const [expandedSubj,   setExpandedSubj]   = useState(null);
   const [showYearView,   setShowYearView]   = useState(false);
+  const [portfolioEdit,  setPortfolioEdit]  = useState(false);
+  const [pDragIdx,       setPDragIdx]       = useState(null);
+  const [pDragOverIdx,   setPDragOverIdx]   = useState(null);
+  const pTouchDragIdx = React.useRef(null);
+
   const [dayDetail,      setDayDetail]      = useState(null);
   const [searchQuery,    setSearchQuery]    = useState("");
   const [showPrintMenu,  setShowPrintMenu]  = useState(false);
@@ -9448,6 +9454,179 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
 
   if(showYearView) return <YearOverview pal={pal} family={family} activeCh={activeCh} cp={cp}
     entries={childEntries} attendanceDays={attendanceDays} onBack={()=>setShowYearView(false)}/>;
+
+
+  const renderPortfolio_yearoverview = () => (
+    <div key="yearoverview">
+      {/* ── YEAR OVERVIEW BUTTON ── */}
+        <button onClick={()=>setShowYearView(true)}
+          style={{width:"100%",display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0.7rem 0.9rem",background:pal.linen,border:`1.5px solid ${pal.stone}30`,borderRadius:"13px",cursor:"pointer",marginBottom:"1rem"}}>
+          <div style={{display:"flex",alignItems:"center",gap:"0.55rem"}}>
+            <span style={{fontSize:"1.2rem"}}>{"📅"}</span>
+            <div style={{textAlign:"left"}}>
+              <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.84rem"}}>Year Overview</div>
+              <div style={{fontSize:"0.64rem",color:pal.slate,marginTop:"1px"}}>{attendanceDays} days logged {"\u2022"} See what{"'"}s done {"&"} what{"'"}s left</div>
+            </div>
+          </div>
+          <span style={{color:pal.stone,fontSize:"1rem"}}>{"›"}</span>
+        </button>
+    </div>
+  );
+
+  const renderPortfolio_subjects = () => (
+    <div key="subjects">
+      {/* ── SUBJECTS CARD ── */}
+        {!searchQuery.trim()&&<PortfolioCard pal={pal} icon="📚" title="Subjects" count={subjEntries.length}>
+          {subjectList.length===0 ? (
+            <div style={{textAlign:"center",padding:"1.2rem 0.5rem"}}>
+              <div style={{fontSize:"1.8rem",marginBottom:"0.35rem"}}>📖</div>
+              <div style={{fontSize:"0.78rem",color:pal.slate}}>No subjects logged yet. Tap {"\""}Log Today{"\""}!</div>
+            </div>
+          ) : subjectList.map((sd)=>(
+            <PortfolioSubjectRow key={sd.subj} sd={sd} cp={cp} pal={pal} family={family}
+              expanded={expandedSubj===sd.subj}
+              onToggle={()=>setExpandedSubj(expandedSubj===sd.subj?null:sd.subj)}
+              onDetail={setDetail}/>
+          ))}
+        </PortfolioCard>}
+
+        {!searchQuery.trim()&&<PortfolioCard pal={pal} icon="📖" title="Book List" count={readingEntries.length}
+          note="Reading titles logged">
+          {readingEntries.length===0 ? (
+            <div style={{padding:"0.85rem 0",textAlign:"center"}}>
+              <div style={{fontSize:"0.78rem",color:pal.slate,marginBottom:"0.65rem"}}>No books logged yet.</div>
+              <button onClick={()=>setShowAddBook(true)}
+                style={{padding:"0.42rem 1rem",border:`1.5px solid ${pal.primary}`,borderRadius:"10px",background:"transparent",color:pal.primary,fontSize:"0.76rem",fontWeight:"700",cursor:"pointer"}}>
+                + Add Book
+              </button>
+            </div>
+          ) : (
+            <div style={{display:"flex",flexDirection:"column",gap:"0.3rem",paddingTop:"0.1rem"}}>
+              <button onClick={()=>setShowAddBook(true)}
+                style={{padding:"0.32rem 0.75rem",border:`1.5px solid ${pal.primary}`,borderRadius:"20px",background:"transparent",color:pal.primary,fontSize:"0.72rem",fontWeight:"700",cursor:"pointer",marginBottom:"0.5rem",display:"inline-block"}}>
+                + Add Book
+              </button>
+              {readingEntries.slice().reverse().map((e,i)=>(
+                <div key={e.id||i}
+                  style={{display:"flex",gap:"0.55rem",alignItems:"center",padding:"0.45rem 0.6rem",borderRadius:"10px",background:"#fff",border:`1px solid ${pal.stone}20`}}>
+                  <span style={{fontSize:"1rem",flexShrink:0}}>{"📖"}</span>
+                  <div style={{flex:1,minWidth:0,cursor:"pointer"}} onClick={()=>setDetail(e)}>
+                    <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.8rem",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.readingTitle||e.title}</div>
+                    <div style={{fontSize:"0.62rem",color:pal.slate}}>{e.subj} {"\u2022"} {e.date}</div>
+                  </div>
+                  <button onClick={()=>setEditEntry(e)}
+                    style={{padding:"0.2rem 0.5rem",border:`1.5px solid ${pal.stone}`,borderRadius:"7px",background:"transparent",color:pal.slate,fontSize:"0.65rem",fontWeight:"700",cursor:"pointer",flexShrink:0}}>
+                    Edit
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </PortfolioCard>}
+    </div>
+  );
+
+  const renderPortfolio_photosextras = () => (
+    <div key="photosextras">
+      {!searchQuery.trim()&&(<>{/* ── PHOTOS CARD ── */}
+        <PortfolioPhotosCard pal={pal} cp={cp} entries={photoEntries} onDetail={setDetail} onEdit={(e)=>setEditEntry(e)} onAdd={()=>setShowAdd(true)}/>
+
+        {/* ── EXTRACURRICULARS CARD ── */}
+        <PortfolioCard pal={pal} icon="🏆" title="Extracurriculars" count={extraEntries.length}>
+          {extraEntries.length===0 ? (
+            <div style={{padding:"0.5rem 0",textAlign:"center"}}>
+              <div style={{fontSize:"0.78rem",color:pal.slate,marginBottom:"0.65rem"}}>Sports, music, co-op, field trips {"\u2014"} log them here.</div>
+              <button onClick={()=>setShowAddExtra(true)}
+                style={{padding:"0.42rem 1rem",border:`1.5px solid ${pal.primary}`,borderRadius:"10px",background:"transparent",color:pal.primary,fontSize:"0.76rem",fontWeight:"700",cursor:"pointer"}}>
+                + Add Extracurricular
+              </button>
+            </div>
+          ) : (
+            <div style={{display:"flex",flexDirection:"column",gap:"0.3rem",paddingTop:"0.1rem"}}>
+              <button onClick={()=>setShowAddExtra(true)}
+                style={{padding:"0.32rem 0.75rem",border:`1.5px solid ${pal.primary}`,borderRadius:"20px",background:"transparent",color:pal.primary,fontSize:"0.72rem",fontWeight:"700",cursor:"pointer",marginBottom:"0.5rem",display:"inline-block"}}>
+                + Add
+              </button>
+              {extraEntries.slice().reverse().map((e,i)=>(
+                <div key={e.id||i}
+                  style={{display:"flex",gap:"0.55rem",alignItems:"center",padding:"0.45rem 0.6rem",borderRadius:"10px",background:"#fff",border:`1px solid ${pal.stone}20`}}>
+                  <span style={{fontSize:"1rem",flexShrink:0}}>{e.thumb||"🏆"}</span>
+                  <div style={{flex:1,minWidth:0,cursor:"pointer"}} onClick={()=>setDetail(e)}>
+                    <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.72rem",marginBottom:"1px"}}>{e.date}</div>
+                    <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.8rem",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.title}</div>
+                  </div>
+                  <button onClick={()=>setEditEntry(e)}
+                    style={{padding:"0.2rem 0.5rem",border:`1.5px solid ${pal.stone}`,borderRadius:"7px",background:"transparent",color:pal.slate,fontSize:"0.65rem",fontWeight:"700",cursor:"pointer",flexShrink:0}}>
+                    Edit
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </PortfolioCard>
+
+        {/* ── ADDITIONAL NOTES ── */}
+        {!searchQuery.trim()&&<MasteryCard pal={pal} family={family} child={activeCh} cp={cp}/>}
+        <AdditionalNotes pal={pal} family={family} child={activeCh}/>
+        </>)}
+    </div>
+  );
+
+  const renderPortfolio_worksheetreminder = () => (
+    <div key="worksheetreminder">
+      {/* ── WORKSHEET REMINDER ── */}
+        <div style={{background:"#fffbeb",border:"1.5px solid #f5c842",borderRadius:"13px",padding:"0.85rem 1rem",marginBottom:"1rem",display:"flex",gap:"0.6rem",alignItems:"flex-start"}}>
+          <span style={{fontSize:"1.1rem",flexShrink:0,marginTop:"1px"}}>{"📎"}</span>
+          <div>
+            <div style={{fontWeight:"800",color:"#7a5500",fontSize:"0.82rem",marginBottom:"2px"}}>Add Worksheets to Your Binder</div>
+            <div style={{fontSize:"0.72rem",color:"#a07020",lineHeight:1.55}}>When you print your portfolio, add completed worksheets, tests, and work samples behind each section. Physical evidence strengthens your portfolio for evaluation.</div>
+          </div>
+        </div>
+    </div>
+  );
+
+  const renderPortfolio_statereminder = () => (
+    <div key="statereminder">
+      {/* ── STATE REMINDER ── */}
+        <StateReminder pal={pal} stateInfo={stateInfo} state={family.state||""}/>
+    </div>
+  );
+
+  const handlePDragStart = (i) => setPDragIdx(i);
+  const handlePDragOver  = (e,i) => { e.preventDefault(); setPDragOverIdx(i); };
+  const handlePDrop      = (i) => {
+    if(pDragIdx===null||pDragIdx===i){setPDragIdx(null);setPDragOverIdx(null);return;}
+    const next=[...portfolioLayout];
+    const [moved]=next.splice(pDragIdx,1);
+    next.splice(i,0,moved);
+    onSetPortfolioLayout&&onSetPortfolioLayout(next);
+    setPDragIdx(null);setPDragOverIdx(null);
+  };
+  const handlePTouchStart=(e,i)=>{pTouchDragIdx.current=i;};
+  const handlePTouchMove=(e)=>{
+    if(pTouchDragIdx.current===null)return;
+    const el=document.elementFromPoint(e.touches[0].clientX,e.touches[0].clientY);
+    const row=el?.closest("[data-pdrag]");
+    if(row) setPDragOverIdx(parseInt(row.dataset.pdrag));
+  };
+  const handlePTouchEnd=()=>{
+    if(pTouchDragIdx.current!==null&&pDragOverIdx!==null&&pTouchDragIdx.current!==pDragOverIdx){
+      const next=[...portfolioLayout];
+      const [moved]=next.splice(pTouchDragIdx.current,1);
+      next.splice(pDragOverIdx,0,moved);
+      onSetPortfolioLayout&&onSetPortfolioLayout(next);
+    }
+    pTouchDragIdx.current=null;setPDragIdx(null);setPDragOverIdx(null);
+  };
+  const PORTFOLIO_LABELS={"yearoverview":"Year Overview","subjects":"Subjects","photosextras":"Photos & Extras","worksheetreminder":"Worksheet Reminder","statereminder":"State Reminder"};
+  const PORTFOLIO_ICONS={"yearoverview":"\ud83d\udcc5","subjects":"\ud83d\udcda","photosextras":"\ud83d\uddbc\ufe0f","worksheetreminder":"\ud83d\udcce","statereminder":"\ud83d\uddfa\ufe0f"};
+  const portfolioRenderMap={
+    yearoverview:renderPortfolio_yearoverview,
+    subjects:renderPortfolio_subjects,
+    photosextras:renderPortfolio_photosextras,
+    worksheetreminder:renderPortfolio_worksheetreminder,
+    statereminder:renderPortfolio_statereminder,
+  };
 
   return (
     <div style={{animation:"fadeUp 0.22s ease"}}>
@@ -9605,121 +9784,42 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
           );
         })()}
 
-        {/* ── YEAR OVERVIEW BUTTON ── */}
-        <button onClick={()=>setShowYearView(true)}
-          style={{width:"100%",display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0.7rem 0.9rem",background:pal.linen,border:`1.5px solid ${pal.stone}30`,borderRadius:"13px",cursor:"pointer",marginBottom:"1rem"}}>
-          <div style={{display:"flex",alignItems:"center",gap:"0.55rem"}}>
-            <span style={{fontSize:"1.2rem"}}>{"📅"}</span>
-            <div style={{textAlign:"left"}}>
-              <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.84rem"}}>Year Overview</div>
-              <div style={{fontSize:"0.64rem",color:pal.slate,marginTop:"1px"}}>{attendanceDays} days logged {"\u2022"} See what{"'"}s done {"&"} what{"'"}s left</div>
-            </div>
-          </div>
-          <span style={{color:pal.stone,fontSize:"1rem"}}>{"›"}</span>
+
+      {/* Layout edit toggle */}
+      <div style={{display:"flex",justifyContent:"flex-end",marginBottom:"0.5rem"}}>
+        <button onClick={()=>setPortfolioEdit(v=>!v)}
+          style={{display:"flex",alignItems:"center",gap:"0.3rem",padding:"0.25rem 0.65rem",border:`1.5px solid ${portfolioEdit?pal.primary:pal.stone+"60"}`,borderRadius:"20px",background:portfolioEdit?pal.pale:"transparent",color:portfolioEdit?pal.primary:pal.slate,fontSize:"0.68rem",fontWeight:"700",cursor:"pointer",transition:"all 0.15s"}}>
+          <span>{portfolioEdit?"\u2713 Done":"\u2836 Edit Layout"}</span>
         </button>
+      </div>
 
-        {/* ── SUBJECTS CARD ── */}
-        {!searchQuery.trim()&&<PortfolioCard pal={pal} icon="📚" title="Subjects" count={subjEntries.length}>
-          {subjectList.length===0 ? (
-            <div style={{textAlign:"center",padding:"1.2rem 0.5rem"}}>
-              <div style={{fontSize:"1.8rem",marginBottom:"0.35rem"}}>📖</div>
-              <div style={{fontSize:"0.78rem",color:pal.slate}}>No subjects logged yet. Tap {"\""}Log Today{"\""}!</div>
+      {portfolioEdit ? (
+        <div>
+          {portfolioLayout.map((sid,i)=>(
+            <div key={sid} data-pdrag={i}
+              draggable
+              onDragStart={()=>handlePDragStart(i)}
+              onDragOver={e=>handlePDragOver(e,i)}
+              onDrop={()=>handlePDrop(i)}
+              onTouchStart={e=>handlePTouchStart(e,i)}
+              onTouchMove={handlePTouchMove}
+              onTouchEnd={handlePTouchEnd}
+              style={{display:"flex",alignItems:"center",gap:"0.65rem",background:pDragOverIdx===i?pal.pale:pal.linen,borderRadius:"13px",padding:"0.7rem 0.85rem",marginBottom:"0.5rem",border:`1.5px solid ${pDragOverIdx===i?pal.primary:pal.stone+"40"}`,cursor:"grab",transition:"all 0.12s",userSelect:"none",touchAction:"none"}}>
+              <span style={{fontSize:"1.1rem",flexShrink:0}}>{PORTFOLIO_ICONS[sid]||"\ud83d\udccc"}</span>
+              <span style={{flex:1,fontWeight:"700",color:pal.inkM,fontSize:"0.82rem"}}>{PORTFOLIO_LABELS[sid]||sid}</span>
+              <span style={{fontSize:"1.2rem",color:pal.stone,flexShrink:0,letterSpacing:"-1px"}}>{"\u2261"}</span>
             </div>
-          ) : subjectList.map((sd)=>(
-            <PortfolioSubjectRow key={sd.subj} sd={sd} cp={cp} pal={pal} family={family}
-              expanded={expandedSubj===sd.subj}
-              onToggle={()=>setExpandedSubj(expandedSubj===sd.subj?null:sd.subj)}
-              onDetail={setDetail}/>
           ))}
-        </PortfolioCard>}
-
-        {!searchQuery.trim()&&<PortfolioCard pal={pal} icon="📖" title="Book List" count={readingEntries.length}
-          note="Reading titles logged">
-          {readingEntries.length===0 ? (
-            <div style={{padding:"0.85rem 0",textAlign:"center"}}>
-              <div style={{fontSize:"0.78rem",color:pal.slate,marginBottom:"0.65rem"}}>No books logged yet.</div>
-              <button onClick={()=>setShowAddBook(true)}
-                style={{padding:"0.42rem 1rem",border:`1.5px solid ${pal.primary}`,borderRadius:"10px",background:"transparent",color:pal.primary,fontSize:"0.76rem",fontWeight:"700",cursor:"pointer"}}>
-                + Add Book
-              </button>
-            </div>
-          ) : (
-            <div style={{display:"flex",flexDirection:"column",gap:"0.3rem",paddingTop:"0.1rem"}}>
-              <button onClick={()=>setShowAddBook(true)}
-                style={{padding:"0.32rem 0.75rem",border:`1.5px solid ${pal.primary}`,borderRadius:"20px",background:"transparent",color:pal.primary,fontSize:"0.72rem",fontWeight:"700",cursor:"pointer",marginBottom:"0.5rem",display:"inline-block"}}>
-                + Add Book
-              </button>
-              {readingEntries.slice().reverse().map((e,i)=>(
-                <div key={e.id||i}
-                  style={{display:"flex",gap:"0.55rem",alignItems:"center",padding:"0.45rem 0.6rem",borderRadius:"10px",background:"#fff",border:`1px solid ${pal.stone}20`}}>
-                  <span style={{fontSize:"1rem",flexShrink:0}}>{"📖"}</span>
-                  <div style={{flex:1,minWidth:0,cursor:"pointer"}} onClick={()=>setDetail(e)}>
-                    <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.8rem",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.readingTitle||e.title}</div>
-                    <div style={{fontSize:"0.62rem",color:pal.slate}}>{e.subj} {"\u2022"} {e.date}</div>
-                  </div>
-                  <button onClick={()=>setEditEntry(e)}
-                    style={{padding:"0.2rem 0.5rem",border:`1.5px solid ${pal.stone}`,borderRadius:"7px",background:"transparent",color:pal.slate,fontSize:"0.65rem",fontWeight:"700",cursor:"pointer",flexShrink:0}}>
-                    Edit
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </PortfolioCard>}
-
-        {!searchQuery.trim()&&(<>{/* ── PHOTOS CARD ── */}
-        <PortfolioPhotosCard pal={pal} cp={cp} entries={photoEntries} onDetail={setDetail} onEdit={(e)=>setEditEntry(e)} onAdd={()=>setShowAdd(true)}/>
-
-        {/* ── EXTRACURRICULARS CARD ── */}
-        <PortfolioCard pal={pal} icon="🏆" title="Extracurriculars" count={extraEntries.length}>
-          {extraEntries.length===0 ? (
-            <div style={{padding:"0.5rem 0",textAlign:"center"}}>
-              <div style={{fontSize:"0.78rem",color:pal.slate,marginBottom:"0.65rem"}}>Sports, music, co-op, field trips {"\u2014"} log them here.</div>
-              <button onClick={()=>setShowAddExtra(true)}
-                style={{padding:"0.42rem 1rem",border:`1.5px solid ${pal.primary}`,borderRadius:"10px",background:"transparent",color:pal.primary,fontSize:"0.76rem",fontWeight:"700",cursor:"pointer"}}>
-                + Add Extracurricular
-              </button>
-            </div>
-          ) : (
-            <div style={{display:"flex",flexDirection:"column",gap:"0.3rem",paddingTop:"0.1rem"}}>
-              <button onClick={()=>setShowAddExtra(true)}
-                style={{padding:"0.32rem 0.75rem",border:`1.5px solid ${pal.primary}`,borderRadius:"20px",background:"transparent",color:pal.primary,fontSize:"0.72rem",fontWeight:"700",cursor:"pointer",marginBottom:"0.5rem",display:"inline-block"}}>
-                + Add
-              </button>
-              {extraEntries.slice().reverse().map((e,i)=>(
-                <div key={e.id||i}
-                  style={{display:"flex",gap:"0.55rem",alignItems:"center",padding:"0.45rem 0.6rem",borderRadius:"10px",background:"#fff",border:`1px solid ${pal.stone}20`}}>
-                  <span style={{fontSize:"1rem",flexShrink:0}}>{e.thumb||"🏆"}</span>
-                  <div style={{flex:1,minWidth:0,cursor:"pointer"}} onClick={()=>setDetail(e)}>
-                    <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.72rem",marginBottom:"1px"}}>{e.date}</div>
-                    <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.8rem",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.title}</div>
-                  </div>
-                  <button onClick={()=>setEditEntry(e)}
-                    style={{padding:"0.2rem 0.5rem",border:`1.5px solid ${pal.stone}`,borderRadius:"7px",background:"transparent",color:pal.slate,fontSize:"0.65rem",fontWeight:"700",cursor:"pointer",flexShrink:0}}>
-                    Edit
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </PortfolioCard>
-
-        {/* ── ADDITIONAL NOTES ── */}
-        {!searchQuery.trim()&&<MasteryCard pal={pal} family={family} child={activeCh} cp={cp}/>}
-        <AdditionalNotes pal={pal} family={family} child={activeCh}/>
-        </>)}
-
-        {/* ── WORKSHEET REMINDER ── */}
-        <div style={{background:"#fffbeb",border:"1.5px solid #f5c842",borderRadius:"13px",padding:"0.85rem 1rem",marginBottom:"1rem",display:"flex",gap:"0.6rem",alignItems:"flex-start"}}>
-          <span style={{fontSize:"1.1rem",flexShrink:0,marginTop:"1px"}}>{"📎"}</span>
-          <div>
-            <div style={{fontWeight:"800",color:"#7a5500",fontSize:"0.82rem",marginBottom:"2px"}}>Add Worksheets to Your Binder</div>
-            <div style={{fontSize:"0.72rem",color:"#a07020",lineHeight:1.55}}>When you print your portfolio, add completed worksheets, tests, and work samples behind each section. Physical evidence strengthens your portfolio for evaluation.</div>
-          </div>
+          <div style={{textAlign:"center",fontSize:"0.68rem",color:pal.slate,marginTop:"0.5rem",fontStyle:"italic"}}>{"Drag cards to reorder your portfolio"}</div>
         </div>
-
-        {/* ── STATE REMINDER ── */}
-        <StateReminder pal={pal} stateInfo={stateInfo} state={family.state||""}/>
+      ) : (
+        <div>
+          {portfolioLayout.map(sid=>{
+            const fn=portfolioRenderMap[sid];
+            return fn?fn():null;
+          })}
+        </div>
+      )}
 
         <div style={{height:"1rem"}}/>
       </div>
@@ -11795,7 +11895,9 @@ function AttendanceScreen({pal,family,days,attendanceLog=[],portfolioEntries=[],
     return pct>=expectedPct-10;
   })();
 
-  const [view,       setView]       = useState("overview"); // overview | ledger
+  const [view,       setView]       = useState("overview"); // overview | calendar | ledger
+  const [calMonth,   setCalMonth]   = useState(()=>new Date().getMonth());
+  const [calYear,    setCalYear]    = useState(()=>new Date().getFullYear());
   const [showAdd,    setShowAdd]    = useState(false);
   const [showLogPast,setShowLogPast]= useState(false);
   const [logPastDate,setLogPastDate]= useState(new Date().toISOString().slice(0,10));
@@ -11957,7 +12059,7 @@ function AttendanceScreen({pal,family,days,attendanceLog=[],portfolioEntries=[],
 
         {/* Tab switcher */}
         <div style={{display:"flex",background:pal.parchm,borderRadius:"11px",padding:"3px",gap:"2px",marginBottom:"1rem"}}>
-          {[["overview","📊 Overview"],["ledger","📋 Daily Ledger"]].map(([id,l])=>(
+          {[["overview","📊 Overview"],["calendar","📅 Calendar"],["ledger","📋 Ledger"]].map(([id,l])=>(
             <button key={id} onClick={()=>setView(id)}
               style={{flex:1,padding:"0.45rem",border:"none",borderRadius:"9px",background:view===id?pal.linen:"transparent",color:view===id?pal.ink:pal.slate,fontSize:"0.76rem",fontWeight:view===id?"700":"400",cursor:"pointer"}}>
               {l}
@@ -12037,6 +12139,102 @@ function AttendanceScreen({pal,family,days,attendanceLog=[],portfolioEntries=[],
             <span>{"🖨"}</span><span>Print Attendance Record</span>
           </button>
         </>)}
+
+        {/* CALENDAR VIEW */}
+        {view==="calendar"&&(()=>{
+          const TYPE_COLORS = {"School Day":"#2d9e5f","Co-op Day":"#b07800","Field Trip":"#1a5a8a","Excused Absence":"#cc4444","Holiday":"#888"};
+          const TYPE_BG     = {"School Day":"#e8f7ee","Co-op Day":"#fff8e6","Field Trip":"#e8f0f8","Excused Absence":"#ffeaea","Holiday":"#f0f0f0"};
+          const yr = calYear;
+          const dateMap = {};
+          attendanceLog.forEach(e=>{
+            try{ const d=new Date(e.date+", "+yr); if(isNaN(d)) return; const k=d.getMonth()+"_"+d.getDate(); if(!dateMap[k])dateMap[k]=[]; dateMap[k].push(e); }catch{}
+          });
+          const portfolioDateSet = new Set();
+          portfolioEntries.forEach(e=>{
+            if(!e.date||e.isDay) return;
+            try{ const d=new Date(e.date+", "+yr); if(!isNaN(d)) portfolioDateSet.add(d.getMonth()+"_"+d.getDate()); }catch{}
+          });
+          const firstDay    = new Date(yr, calMonth, 1).getDay();
+          const daysInMonth = new Date(yr, calMonth+1, 0).getDate();
+          const today2      = new Date();
+          const isCurrentMonth = today2.getMonth()===calMonth && today2.getFullYear()===yr;
+          const MN = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+          const DOW2 = ["S","M","T","W","T","F","S"];
+          const yearStart2 = family.yearStart ? new Date(family.yearStart) : null;
+          const yearEnd2   = family.yearEnd   ? new Date(family.yearEnd)   : null;
+          const canPrev = !yearStart2 || new Date(yr,calMonth-1,1)>=new Date(yearStart2.getFullYear(),yearStart2.getMonth(),1);
+          const canNext = !yearEnd2   || new Date(yr,calMonth+1,1)<=new Date(yearEnd2.getFullYear(),yearEnd2.getMonth(),1);
+          const goMonth = (d)=>{ let m=calMonth+d,y=calYear; if(m<0){m=11;y--;}if(m>11){m=0;y++;} setCalMonth(m);setCalYear(y); };
+          const monthEntries = attendanceLog.filter(e=>{ try{const d=new Date(e.date+", "+yr);return d.getMonth()===calMonth&&d.getFullYear()===yr;}catch{return false;} });
+          const monthSchoolDays = monthEntries.filter(e=>TYPE_COUNTS[e.type]).length;
+          const cells = [];
+          for(let i=0;i<firstDay;i++) cells.push(null);
+          for(let d=1;d<=daysInMonth;d++) cells.push(d);
+          while(cells.length%7!==0) cells.push(null);
+          return (
+            <div>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"0.75rem"}}>
+                <button onClick={()=>canPrev&&goMonth(-1)} style={{width:"34px",height:"34px",borderRadius:"50%",border:"1.5px solid "+pal.stone+"50",background:"transparent",color:canPrev?pal.inkM:pal.stone+"40",fontSize:"1.1rem",cursor:canPrev?"pointer":"default",display:"flex",alignItems:"center",justifyContent:"center"}}>{"<"}</button>
+                <div style={{textAlign:"center"}}>
+                  <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.95rem"}}>{MN[calMonth]+" "+yr}</div>
+                  <div style={{fontSize:"0.65rem",color:pal.slate}}>{monthSchoolDays+" school day"+(monthSchoolDays!==1?"s":"")+" logged"}</div>
+                </div>
+                <button onClick={()=>canNext&&goMonth(1)} style={{width:"34px",height:"34px",borderRadius:"50%",border:"1.5px solid "+pal.stone+"50",background:"transparent",color:canNext?pal.inkM:pal.stone+"40",fontSize:"1.1rem",cursor:canNext?"pointer":"default",display:"flex",alignItems:"center",justifyContent:"center"}}>{">"}</button>
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:"2px",marginBottom:"3px"}}>
+                {DOW2.map((d,i)=>(<div key={i} style={{textAlign:"center",fontSize:"0.58rem",fontWeight:"700",color:i===0||i===6?pal.stone:pal.slate,padding:"2px 0"}}>{d}</div>))}
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:"2px",marginBottom:"1rem"}}>
+                {cells.map((day,ci)=>{
+                  if(!day) return <div key={"e"+ci}/>;
+                  const k=calMonth+"_"+day;
+                  const de=dateMap[k]||[];
+                  const pri=de[0];
+                  const isToday=isCurrentMonth&&day===today2.getDate();
+                  const hasPF=portfolioDateSet.has(k)&&!pri;
+                  const isWE=(ci%7===0||ci%7===6);
+                  return (
+                    <div key={day} style={{aspectRatio:"1",borderRadius:"8px",background:pri?(TYPE_BG[pri.type]||"#e8f7ee"):"transparent",border:"1.5px solid "+(isToday?pal.primary:pri?(TYPE_COLORS[pri.type]||pal.good)+"40":"transparent"),display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:"36px",position:"relative",padding:"2px"}}>
+                      <span style={{fontSize:"0.72rem",fontWeight:isToday?"900":pri?"700":"400",color:isToday?pal.primary:pri?(TYPE_COLORS[pri.type]||pal.good):isWE?pal.stone+"80":pal.inkM}}>{day}</span>
+                      {(pri||hasPF)&&<div style={{width:"5px",height:"5px",borderRadius:"50%",background:pri?(TYPE_COLORS[pri.type]||pal.good):pal.primary+"60",marginTop:"1px"}}/>}
+                      {de.length>1&&<div style={{position:"absolute",top:"2px",right:"3px",fontSize:"0.45rem",color:pal.slate,fontWeight:"700"}}>{de.length}</div>}
+                    </div>
+                  );
+                })}
+              </div>
+              <div style={{background:pal.linen,borderRadius:"12px",padding:"0.65rem 0.85rem",marginBottom:"1rem",border:"1.5px solid "+pal.stone+"30"}}>
+                <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.7rem",marginBottom:"0.45rem"}}>{"Legend"}</div>
+                <div style={{display:"flex",flexWrap:"wrap",gap:"0.4rem"}}>
+                  {Object.entries(TYPE_COLORS).map(([type,col])=>(
+                    <div key={type} style={{display:"flex",alignItems:"center",gap:"0.3rem"}}>
+                      <div style={{width:"10px",height:"10px",borderRadius:"3px",background:TYPE_BG[type],border:"1.5px solid "+col+"60"}}/>
+                      <span style={{fontSize:"0.63rem",color:pal.inkM}}>{type}</span>
+                    </div>
+                  ))}
+                  <div style={{display:"flex",alignItems:"center",gap:"0.3rem"}}>
+                    <div style={{width:"6px",height:"6px",borderRadius:"50%",background:pal.primary+"60"}}/>
+                    <span style={{fontSize:"0.63rem",color:pal.slate}}>{"Portfolio (unlogged)"}</span>
+                  </div>
+                </div>
+              </div>
+              {monthEntries.length>0&&(()=>{
+                const byType={}; monthEntries.forEach(e=>{byType[e.type]=(byType[e.type]||0)+1;});
+                return (
+                  <div style={{background:pal.linen,borderRadius:"12px",padding:"0.65rem 0.85rem",marginBottom:"1rem",border:"1.5px solid "+pal.stone+"30"}}>
+                    <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.7rem",marginBottom:"0.45rem"}}>{MN[calMonth]+" summary"}</div>
+                    <div style={{display:"flex",flexWrap:"wrap",gap:"0.35rem"}}>
+                      {Object.entries(byType).map(([type,cnt])=>(
+                        <div key={type} style={{display:"flex",alignItems:"center",gap:"0.3rem",padding:"0.2rem 0.55rem",background:TYPE_BG[type]||pal.pale,borderRadius:"20px",border:"1px solid "+(TYPE_COLORS[type]||pal.stone)+"40"}}>
+                          <span style={{fontSize:"0.65rem",fontWeight:"700",color:TYPE_COLORS[type]||pal.inkM}}>{(TYPE_ICONS[type]||"")+cnt+" "+type}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          );
+        })()}
 
         {/* ── DAILY LEDGER ── */}
         {view==="ledger"&&(<>
