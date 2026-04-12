@@ -258,8 +258,9 @@ const US_STATES = ["Alabama","Alaska","Arizona","Arkansas","California","Colorad
 /* --- SECTION DEFINITIONS --- */
 const ALL_SECTIONS = [
   {id:"home",       label:"Home",       icon:"🏡", locked:true },
-  {id:"schedule",   label:"Schedule",   icon:"📅", locked:true },
+  {id:"progress",   label:"Progress",   icon:"📈", locked:true },
   {id:"portfolio",  label:"Portfolio",  icon:"🗂", locked:true },
+  {id:"schedule",   label:"Schedule",   icon:"📅", locked:false},
   {id:"learn",      label:"Learn",      icon:"📚", locked:false},
   {id:"preparedcapable", label:"P&C",   icon:"🛡", locked:false},
   {id:"attendance", label:"Attendance", icon:"📋", locked:false},
@@ -288,7 +289,7 @@ function RootAndBloom() {
   const [family,         setFamily]         = useState(saved?.family||null);
   const [view,           setView]           = useState("splash");
   const [activeTab,      setActiveTab]      = useState("home");
-  const [navIds,         setNavIds]         = useState(saved?.navIds||["home","schedule","portfolio","more"]);
+  const [navIds,         setNavIds]         = useState(saved?.navIds||["home","progress","portfolio","more"]);
   const [childFilt,      setChildFilt]      = useState("all");
   const [lastCheckinDate,setLastCheckinDate]= useState(saved?.lastCheckinDate||null);
   const [checkinStreak,  setCheckinStreak]  = useState(saved?.checkinStreak||0);
@@ -468,6 +469,13 @@ function RootAndBloom() {
     setFamily(data);
     setPaletteId(data.paletteId||"sage");
     setCelebData(data);
+    // Set nav based on schedule preference chosen during onboarding
+    const baseNav = ["home","progress","portfolio","more"];
+    if(data.useScheduleTab) {
+      setNavIds(["home","schedule","progress","portfolio","more"]);
+    } else {
+      setNavIds(baseNav);
+    }
     setShowCelebration(true);
   };
   const [showTour,       setShowTour]       = useState(false);
@@ -599,6 +607,7 @@ function RootAndBloom() {
               setTodayProgress({count,total,date:todayStr});
             }}
           />}
+          {activeTab==="progress"    && <ProgressScreen   pal={pal} family={family} child={childFilt} setChild={setChildFilt} portfolioEntries={portfolioEntries} attendanceDays={attendanceDays} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} />}
           {activeTab==="learn"       && <LearnScreen       pal={pal} family={family} child={childFilt} setChild={setChildFilt} learnTab={learnTab} setLearnTab={setLearnTab} portfolioEntries={portfolioEntries} />}
           {activeTab==="portfolio"   && <PortfolioScreen   pal={pal} family={family} child={childFilt} setChild={setChildFilt} entries={portfolioEntries} onAddEntry={addPortfolioEntry} onEditEntry={editPortfolioEntry} attendanceDays={attendanceDays}
             lastCheckinDate={lastCheckinDate}
@@ -1704,10 +1713,10 @@ function OnboardingFlow({ pal, onComplete }) {
     paletteId:"sage",
   });
   const upd = (k,v) => setData(d=>({...d,[k]:v}));
-  const STEPS = ["Welcome","Your Children","Learning Style","Curriculum","Subjects","Lesson Goals","Weekly Schedule","Schedule","Co-op","Goals","Life & Extras","Life Ready"];
-  const pct = Math.round((step/11)*100);
+  const STEPS = ["Welcome","Your Children","Learning Style","Curriculum","Subjects","Lesson Goals","Weekly Schedule","Schedule","Co-op","Goals","Life & Extras","Life Ready","Daily Checklist"];
+  const pct = Math.round((step/12)*100);
 
-  const STEP_ICONS = ["🌱","👨👩👧👦","📚","📖","🔬","🎯","📆","📅","🏫","🌟","🌿","🛡"];
+  const STEP_ICONS = ["🌱","👨👩👧👦","📚","📖","🔬","🎯","📆","📅","🏫","🌟","🌿","🛡","📋"];
 
   return (
     <div style={{minHeight:"100vh",background:pal.sand,display:"flex",flexDirection:"column"}}>
@@ -1717,7 +1726,7 @@ function OnboardingFlow({ pal, onComplete }) {
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.55rem"}}>
             <button onClick={()=>setStep(s=>Math.max(0,s-1))} style={{background:"rgba(255,255,255,0.14)",border:"none",color:"#fff",borderRadius:"50%",width:"28px",height:"28px",cursor:"pointer",fontSize:"0.9rem",display:"flex",alignItems:"center",justifyContent:"center"}}>Back</button>
             <span style={{fontSize:"0.7rem",color:"rgba(255,255,255,0.55)",fontWeight:"700",letterSpacing:"0.08em",textTransform:"uppercase"}}>{STEP_ICONS[step]} {STEPS[step]}</span>
-            <span style={{fontSize:"0.68rem",color:"rgba(255,255,255,0.4)",fontWeight:"600"}}>{step + " of 11"}</span>
+            <span style={{fontSize:"0.68rem",color:"rgba(255,255,255,0.4)",fontWeight:"600"}}>{step + " of 12"}</span>
           </div>
           <div style={{height:"4px",borderRadius:"99px",background:"rgba(255,255,255,0.15)",overflow:"hidden"}}>
             <div style={{height:"100%",width:`${pct}%`,borderRadius:"99px",background:pal.accentGrad,transition:"width 0.35s ease"}}/>
@@ -1737,13 +1746,64 @@ function OnboardingFlow({ pal, onComplete }) {
         {step===8 && <OnbCoop           pal={pal} data={data} upd={upd} onNext={()=>setStep(9)} />}
         {step===9 && <OnbGoals          pal={pal} data={data} upd={upd} onNext={()=>setStep(10)} />}
         {step===10 && <OnbExtras        pal={pal} data={data} upd={upd} onNext={()=>setStep(11)} />}
-        {step===11 && <OnbLifeReady     pal={pal} data={data} upd={upd} onNext={()=>onComplete(data)} />}
+        {step===11 && <OnbLifeReady       pal={pal} data={data} upd={upd} onNext={()=>setStep(12)} />}
+        {step===12 && <OnbSchedulePref     pal={pal} data={data} upd={upd} onNext={()=>onComplete(data)} />}
       </div>
     </div>
   );
 }
 
 /* --- STEP 0: Welcome --- */
+function OnbSchedulePref({ pal, data, upd, onNext }) {
+  return (
+    <div style={{padding:"2rem 1.4rem 1.5rem",maxWidth:"430px",margin:"0 auto"}}>
+      <div style={{textAlign:"center",marginBottom:"1.8rem"}}>
+        <div style={{fontSize:"2.8rem",marginBottom:"0.6rem"}}>{"📋"}</div>
+        <div style={{fontWeight:"900",color:pal.ink,fontSize:"1.15rem",marginBottom:"0.4rem"}}>{"Daily schedule checklist?"}</div>
+        <div style={{fontSize:"0.82rem",color:pal.slate,lineHeight:1.65}}>
+          {"Some families love ticking off subjects one by one as they go. Others prefer logging everything at the end of the day. Which sounds like you?"}
+        </div>
+      </div>
+
+      <div style={{display:"flex",flexDirection:"column",gap:"0.75rem",marginBottom:"2rem"}}>
+        <button onClick={()=>{upd("useScheduleTab",false);}}
+          style={{padding:"1rem 1.2rem",border:`2.5px solid ${data.useScheduleTab===false?pal.primary:pal.stone+"50"}`,borderRadius:"16px",background:data.useScheduleTab===false?pal.pale:"transparent",cursor:"pointer",textAlign:"left",transition:"all 0.14s"}}>
+          <div style={{display:"flex",gap:"0.75rem",alignItems:"center"}}>
+            <span style={{fontSize:"1.6rem"}}>{"📝"}</span>
+            <div>
+              <div style={{fontWeight:"800",color:data.useScheduleTab===false?pal.primary:pal.ink,fontSize:"0.9rem"}}>{"Log at the end of the day"}</div>
+              <div style={{fontSize:"0.75rem",color:pal.slate,marginTop:"2px",lineHeight:1.5}}>{"Quick capture after school — one tap, done. Clean and simple."}</div>
+            </div>
+            {data.useScheduleTab===false&&<div style={{marginLeft:"auto",color:pal.primary,fontSize:"1.2rem",flexShrink:0}}>{"✓"}</div>}
+          </div>
+        </button>
+
+        <button onClick={()=>{upd("useScheduleTab",true);}}
+          style={{padding:"1rem 1.2rem",border:`2.5px solid ${data.useScheduleTab===true?pal.primary:pal.stone+"50"}`,borderRadius:"16px",background:data.useScheduleTab===true?pal.pale:"transparent",cursor:"pointer",textAlign:"left",transition:"all 0.14s"}}>
+          <div style={{display:"flex",gap:"0.75rem",alignItems:"center"}}>
+            <span style={{fontSize:"1.6rem"}}>{"✅"}</span>
+            <div>
+              <div style={{fontWeight:"800",color:data.useScheduleTab===true?pal.primary:pal.ink,fontSize:"0.9rem"}}>{"Checklist as I go"}</div>
+              <div style={{fontSize:"0.75rem",color:pal.slate,marginTop:"2px",lineHeight:1.5}}>{"Tick subjects off one by one throughout the day. Great for keeping kids on track."}</div>
+            </div>
+            {data.useScheduleTab===true&&<div style={{marginLeft:"auto",color:pal.primary,fontSize:"1.2rem",flexShrink:0}}>{"✓"}</div>}
+          </div>
+        </button>
+      </div>
+
+      <div style={{fontSize:"0.72rem",color:pal.slate,textAlign:"center",marginBottom:"1.2rem"}}>
+        {"You can always change this later in Settings."}
+      </div>
+
+      <button onClick={()=>{if(data.useScheduleTab===undefined)upd("useScheduleTab",false);onNext();}}
+        style={{width:"100%",padding:"0.9rem",border:"none",borderRadius:"14px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.95rem",cursor:"pointer"}}>
+        {"Finish setup →"}
+      </button>
+    </div>
+  );
+}
+
+
 function OnbWelcome({ pal, data, upd, onNext }) {
   const canNext = data.parentName.trim().length>0 && data.familyName.trim().length>0;
   return (
@@ -3790,7 +3850,22 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
 
         {tab==="nav" && (
           <div style={{animation:"fadeUp 0.18s ease"}}>
-            <SCard pal={pal} title="Nav Tabs" note={navIds.length + " tabs - 3-5 - Home, Schedule & Portfolio always stay"}>
+            <SCard pal={pal} title="Daily Schedule Checklist" note="Show a checklist tab to tick off subjects as you go">
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0.15rem 0"}}>
+                <div>
+                  <div style={{fontSize:"0.83rem",fontWeight:"700",color:pal.ink}}>{"Schedule tab in nav"}</div>
+                  <div style={{fontSize:"0.72rem",color:pal.slate,marginTop:"1px"}}>{"Great for families who prefer checking off subjects one by one"}</div>
+                </div>
+                <button onClick={()=>{
+                  const has=navIds.includes("schedule");
+                  if(has){setNavIds(n=>n.filter(x=>x!=="schedule"));}
+                  else{setNavIds(n=>{const i=n.indexOf("home");return [...n.slice(0,i+1),"schedule",...n.slice(i+1)];});}
+                }} style={{width:"46px",height:"26px",borderRadius:"99px",border:"none",background:navIds.includes("schedule")?pal.primary:pal.stone+"60",cursor:"pointer",position:"relative",transition:"background 0.2s",flexShrink:0}}>
+                  <div style={{position:"absolute",top:"3px",left:navIds.includes("schedule")?"23px":"3px",width:"20px",height:"20px",borderRadius:"50%",background:"#fff",transition:"left 0.2s",boxShadow:"0 1px 4px rgba(0,0,0,0.25)"}}/>
+                </button>
+              </div>
+            </SCard>
+            <SCard pal={pal} title="Nav Tabs" note={navIds.length + " tabs - 3-5 - Home, Progress & Portfolio always stay"}>
               <div style={{display:"flex",flexDirection:"column",gap:"0.42rem"}}>
                 {ALL_SECTIONS.filter(s=>s.id!=="more").map(s=>{
                   const on=navIds.includes(s.id);
@@ -9334,6 +9409,7 @@ function QuickCaptureModal({pal, family, activeChildId, onClose, onSave, attenda
   const [readingTitle, setReadingTitle] = useState("");
   const [goalsHit,     setGoalsHit]     = useState(new Set());
   const [showGoals,    setShowGoals]    = useState(false);
+  const [isMilestone,  setIsMilestone]  = useState(false);
   const [savedEntryDate, setSavedEntryDate] = useState(null);
   const noteRef    = useRef(null);
   const galleryRef = useRef(null);
@@ -9378,6 +9454,7 @@ function QuickCaptureModal({pal, family, activeChildId, onClose, onSave, attenda
     };
     if(isReading && readingTitle.trim()) entry.readingTitle = readingTitle.trim();
     if(goalsHit.size>0) entry.goalsHit = [...goalsHit];
+    if(isMilestone) entry.isMilestone = true;
     onSave([entry]);
     setSavedEntryDate(entryDate);
     setSaved(true);
@@ -9559,6 +9636,8 @@ function QuickCaptureModal({pal, family, activeChildId, onClose, onSave, attenda
             <input ref={galleryRef} type="file" accept="image/*" multiple onChange={handlePhoto} style={{display:"none"}}/>
             <button onClick={()=>galleryRef.current?.click()}
               style={{width:"44px",height:"44px",borderRadius:"12px",border:`2px solid ${pal.stone+"50"}`,background:"transparent",color:pal.slate,fontSize:"1.1rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{"📷"}</button>
+            <button onClick={()=>setIsMilestone(m=>!m)} title="Mark as milestone"
+              style={{width:"44px",height:"44px",borderRadius:"12px",border:`2px solid ${isMilestone?cp.c1:pal.stone+"50"}`,background:isMilestone?cp.c1+"18":"transparent",color:isMilestone?cp.c1:pal.slate,fontSize:"1.1rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{"🌟"}</button>
             <button onClick={handleSave} disabled={!subj}
               style={{flex:1,padding:"0.75rem",border:"none",borderRadius:"13px",background:subj?`linear-gradient(135deg,${cp.c1},${cp.c2})`:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:subj?"pointer":"default"}}>{"Save ✓"}</button>
           </div>
@@ -12287,6 +12366,373 @@ function LifeReadyScreen({pal,family,onBack}){
   );
 }
 
+/* =======================================
+   PROGRESS SCREEN
+   Weekly pulse · Subject timelines · Milestones · AI check-in
+======================================= */
+function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], attendanceDays=0, onUpdateFamily}) {
+  const [activeTab,    setActiveTab]    = React.useState("pulse");   // pulse | timeline | milestones
+  const [selectedChild, setSelectedChild] = React.useState(
+    child && child!=="all" ? family.children.findIndex(c=>c.id===child) : 0
+  );
+  const [pulseResult,  setPulseResult]  = React.useState(null);
+  const [pulseLoading, setPulseLoading] = React.useState(false);
+  const [pulseError,   setPulseError]   = React.useState(null);
+  const [timelineSubj, setTimelineSubj] = React.useState(null);
+  const [nudgeDone,    setNudgeDone]    = React.useState(false);
+
+  const ch       = family.children[selectedChild] || family.children[0];
+  const cp       = CHILD_COLOR_PALETTES.find(p=>p.id===(ch?.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+  const childEntries = portfolioEntries.filter(e=>e.childIdx===selectedChild && !e.isDay && e.subj!=="Daily Notes");
+  const milestones   = portfolioEntries.filter(e=>e.childIdx===selectedChild && e.isMilestone);
+
+  // ── Week boundaries ───────────────────────────────────────────────────────
+  const today      = new Date();
+  const dow        = today.getDay();
+  const weekStart  = new Date(today); weekStart.setDate(today.getDate()-(dow===0?6:dow-1)); weekStart.setHours(0,0,0,0);
+  const weekEnd    = new Date(weekStart); weekEnd.setDate(weekStart.getDate()+6);
+  const yr         = today.getFullYear();
+
+  const isThisWeek = (dateStr) => {
+    try {
+      const d = new Date(dateStr+", "+yr); 
+      return d >= weekStart && d <= weekEnd;
+    } catch(e){ return false; }
+  };
+
+  const weekEntries = childEntries.filter(e=>isThisWeek(e.date));
+  const weekSubjs   = [...new Set(weekEntries.map(e=>e.subj))];
+
+  // ── Subject list with entry counts ────────────────────────────────────────
+  const allSubjs = (family.subjects||[]).map(id=>{
+    const s=[...SUBJECT_OPTIONS,...(family.customSubjects||[])].find(x=>x.id===id);
+    return s||null;
+  }).filter(Boolean);
+
+  const subjStats = allSubjs.map(s=>{
+    const all    = childEntries.filter(e=>e.subj===s.label);
+    const week   = all.filter(e=>isThisWeek(e.date));
+    const recent = all[0]||null;
+    const notes  = all.filter(e=>e.note&&e.note.trim().length>10);
+    return {...s, total:all.length, weekCount:week.length, recent, noteCount:notes.length};
+  }).sort((a,b)=>b.total-a.total);
+
+  // ── AI weekly pulse ───────────────────────────────────────────────────────
+  const generatePulse = async () => {
+    setPulseLoading(true); setPulseError(null);
+    const noteLines = [];
+    family.children.forEach((c,ci)=>{
+      const cEntries = portfolioEntries.filter(e=>e.childIdx===ci&&!e.isDay&&isThisWeek(e.date)&&e.note&&e.note.trim());
+      if(cEntries.length===0) return;
+      noteLines.push("Child: "+c.name+" ("+c.grade+")");
+      cEntries.forEach(e=>noteLines.push("  "+e.subj+(e.date?" ["+e.date+"]":"")+": "+e.note.replace("AI Summary: ","").trim()));
+    });
+
+    if(noteLines.length===0) {
+      setPulseError("no_notes");
+      setPulseLoading(false);
+      return;
+    }
+
+    const prompt = "You are a warm, insightful homeschool assistant. Based on this week’s parent notes, write a short progress pulse for each child. For each child: 1-2 sentences on what stood out this week, and 1 sentence noting any subject that seems light or worth attention. Be warm, specific, and encouraging. Use the parent’s own words when helpful. Plain text, no markdown, no bullet points.
+
+This week’s notes:
+"+noteLines.join("
+");
+
+    try {
+      const result = await callClaude(prompt);
+      setPulseResult(result.trim());
+    } catch(e) {
+      setPulseError(e.message==="NO_KEY"?"no_key":e.message==="RATE_LIMIT"?"rate_limit":"error");
+    }
+    setPulseLoading(false);
+  };
+
+  // Auto-nudge on Fridays if not yet done this week
+  React.useEffect(()=>{
+    const isFriday = today.getDay()===5;
+    const savedWeek = (() => { try{ return localStorage.getItem("rootbloom_pulse_week")||""; }catch(e){return "";} })();
+    const thisWeekKey = weekStart.toDateString();
+    if(isFriday && savedWeek!==thisWeekKey && activeTab==="pulse" && weekEntries.length>0) {
+      setNudgeDone(false);
+    }
+  },[activeTab]);
+
+  const dismissNudge = () => {
+    try{ localStorage.setItem("rootbloom_pulse_week", weekStart.toDateString()); }catch(e){}
+    setNudgeDone(true);
+  };
+  const isFriday    = today.getDay()===5;
+  const savedWeek   = (() => { try{ return localStorage.getItem("rootbloom_pulse_week")||""; }catch(e){return "";} })();
+  const showNudge   = isFriday && savedWeek!==weekStart.toDateString() && !nudgeDone && weekEntries.length>0 && !pulseResult;
+
+  // ── Subject timeline entries ───────────────────────────────────────────────
+  const timelineEntries = timelineSubj
+    ? childEntries.filter(e=>e.subj===timelineSubj && e.note && e.note.trim().length>5)
+    : [];
+
+  return (
+    <div style={{animation:"fadeUp 0.22s ease"}}>
+      <ScreenHdr pal={pal} title="Progress" sub="How your family is growing" icon="📈"/>
+
+      {/* Child selector */}
+      {family.children.length>1&&(
+        <div style={{padding:"0 1rem",marginBottom:"0.75rem"}}>
+          <div style={{display:"flex",gap:"0.35rem",overflowX:"auto"}}>
+            {family.children.map((c,i)=>{
+              const ccp=CHILD_COLOR_PALETTES.find(p=>p.id===(c.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+              const sel=i===selectedChild;
+              return (
+                <button key={c.id} onClick={()=>{setSelectedChild(i);setTimelineSubj(null);setPulseResult(null);}}
+                  style={{display:"flex",alignItems:"center",gap:"0.3rem",padding:"0.32rem 0.75rem",border:`2px solid ${sel?ccp.c1:pal.stone+"40"}`,borderRadius:"20px",background:sel?ccp.c1+"18":"transparent",cursor:"pointer",flexShrink:0}}>
+                  <span style={{fontSize:"1rem"}}>{c.avatar}</span>
+                  <span style={{fontSize:"0.75rem",fontWeight:sel?"800":"500",color:sel?ccp.c1:pal.inkM}}>{c.name}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Sub-tabs */}
+      <div style={{padding:"0 1rem",marginBottom:"1rem"}}>
+        <div style={{display:"flex",gap:"0.4rem"}}>
+          {[["pulse","📊 Weekly Pulse"],["timeline","📖 Subject Timeline"],["milestones","🌟 Milestones"]].map(([id,label])=>(
+            <button key={id} onClick={()=>{setActiveTab(id);setTimelineSubj(null);}}
+              style={{flex:1,padding:"0.52rem 0.3rem",border:`2px solid ${activeTab===id?pal.primary:pal.stone+"40"}`,borderRadius:"11px",background:activeTab===id?pal.pale:"transparent",color:activeTab===id?pal.primary:pal.inkM,fontWeight:activeTab===id?"800":"500",fontSize:"0.7rem",cursor:"pointer",transition:"all 0.13s"}}>
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div style={{padding:"0 1rem 5rem"}}>
+
+        {/* ══ WEEKLY PULSE ════════════════════════════════════════════════════ */}
+        {activeTab==="pulse"&&(()=>{
+          const totalWeekNotes = family.children.reduce((sum,c,ci)=>{
+            return sum + portfolioEntries.filter(e=>e.childIdx===ci&&!e.isDay&&isThisWeek(e.date)&&e.note&&e.note.trim()).length;
+          },0);
+
+          return (
+            <div>
+              {/* Friday nudge */}
+              {showNudge&&(
+                <div style={{background:"linear-gradient(135deg,"+pal.primary+"18,"+pal.accent+"12)",borderRadius:"16px",padding:"0.9rem 1rem",marginBottom:"1rem",border:"2px solid "+pal.primary+"30"}}>
+                  <div style={{display:"flex",gap:"0.65rem",alignItems:"flex-start"}}>
+                    <span style={{fontSize:"1.4rem",flexShrink:0}}>{"🎉"}</span>
+                    <div style={{flex:1}}>
+                      <div style={{fontWeight:"800",color:pal.primary,fontSize:"0.88rem",marginBottom:"2px"}}>{"End of week — ready to review?"}</div>
+                      <div style={{fontSize:"0.74rem",color:pal.inkM,lineHeight:1.55,marginBottom:"0.65rem"}}>{"You logged "+weekEntries.length+" entr"+(weekEntries.length===1?"y":"ies")+" this week. Tap below to generate your weekly progress summary."}</div>
+                      <div style={{display:"flex",gap:"0.5rem"}}>
+                        <button onClick={()=>{dismissNudge();generatePulse();}}
+                          style={{flex:1,padding:"0.52rem",border:"none",borderRadius:"10px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.78rem",cursor:"pointer"}}>
+                          {"Generate summary"}
+                        </button>
+                        <button onClick={dismissNudge}
+                          style={{padding:"0.52rem 0.75rem",border:"1.5px solid "+pal.stone,borderRadius:"10px",background:"transparent",color:pal.slate,fontSize:"0.75rem",cursor:"pointer"}}>
+                          {"Later"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* This week at a glance */}
+              <div style={{background:pal.linen,borderRadius:"16px",padding:"0.9rem 1rem",marginBottom:"1rem",border:"1.5px solid "+pal.stone+"30"}}>
+                <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.72rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.65rem"}}>{"This week — "+ch?.name}</div>
+                {weekSubjs.length===0?(
+                  <div style={{fontSize:"0.8rem",color:pal.stone,fontStyle:"italic"}}>{"Nothing logged yet this week."}</div>
+                ):(
+                  <div style={{display:"flex",gap:"0.35rem",flexWrap:"wrap"}}>
+                    {weekSubjs.map(s=>{
+                      const so=[...SUBJECT_OPTIONS,...(family.customSubjects||[])].find(x=>x.label===s);
+                      const count=weekEntries.filter(e=>e.subj===s).length;
+                      return (
+                        <span key={s} style={{display:"inline-flex",alignItems:"center",gap:"0.2rem",padding:"0.22rem 0.6rem",background:cp.c1+"18",borderRadius:"20px",fontSize:"0.73rem",fontWeight:"700",color:cp.c1}}>
+                          {so?.icon||"📋"} {s} {count>1&&<span style={{fontSize:"0.62rem",opacity:0.7}}>{"×"+count}</span>}
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* AI Pulse result */}
+              {pulseResult&&(
+                <div style={{background:pal.goodBg,borderRadius:"16px",padding:"1rem 1.1rem",marginBottom:"1rem",border:"1.5px solid "+pal.good+"40"}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.6rem"}}>
+                    <div style={{fontWeight:"800",color:pal.good,fontSize:"0.85rem"}}>{"✨ Weekly Progress Pulse"}</div>
+                    <button onClick={()=>setPulseResult(null)}
+                      style={{background:"transparent",border:"none",color:pal.stone,cursor:"pointer",fontSize:"0.8rem"}}>{"✕"}</button>
+                  </div>
+                  <div style={{fontSize:"0.84rem",color:pal.ink,lineHeight:1.75,whiteSpace:"pre-wrap"}}>{pulseResult}</div>
+                  <div style={{fontSize:"0.65rem",color:pal.stone,marginTop:"0.6rem"}}>{"Generated from this week’s notes · "+new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"})}</div>
+                </div>
+              )}
+
+              {/* Error states */}
+              {pulseError==="no_notes"&&(
+                <div style={{background:pal.parchm,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:"1.5px solid "+pal.stone+"30",fontSize:"0.8rem",color:pal.inkM,textAlign:"center"}}>
+                  {"No notes logged this week yet — add some via Log Today and come back!"}
+                </div>
+              )}
+              {pulseError==="no_key"&&(
+                <div style={{background:"#fff8ed",borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:"1.5px solid #f5c84240",fontSize:"0.8rem",color:"#7a5500",textAlign:"center"}}>
+                  {"Add an API key in Settings to use AI summaries."}
+                </div>
+              )}
+              {pulseError==="rate_limit"&&(
+                <div style={{background:"#fff8ed",borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:"1.5px solid #f5c84240",fontSize:"0.8rem",color:"#7a5500",textAlign:"center"}}>
+                  {"Monthly AI limit reached. Resets next month."}
+                </div>
+              )}
+              {pulseError==="error"&&(
+                <div style={{background:"#fff0f0",borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:"1.5px solid #ffaaaa40",fontSize:"0.8rem",color:"#aa3333",textAlign:"center"}}>
+                  {"Could not generate — check your connection and try again."}
+                </div>
+              )}
+
+              {/* Generate button */}
+              {!pulseResult&&(
+                <button onClick={generatePulse} disabled={pulseLoading||totalWeekNotes===0}
+                  style={{width:"100%",padding:"0.82rem",border:"none",borderRadius:"13px",background:totalWeekNotes>0?pal.accentGrad:"#ddd",color:totalWeekNotes>0?"#fff":pal.stone,fontWeight:"800",fontSize:"0.88rem",cursor:totalWeekNotes>0?"pointer":"default",marginBottom:"1rem"}}>
+                  {pulseLoading?"Generating…":totalWeekNotes>0?"✨ Generate weekly summary":"Log notes this week to generate a summary"}
+                </button>
+              )}
+
+              {/* Subject stats — all time */}
+              <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.72rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.55rem"}}>{"All subjects — "+ch?.name}</div>
+              {subjStats.map(s=>(
+                <button key={s.id} onClick={()=>{setActiveTab("timeline");setTimelineSubj(s.label);}}
+                  style={{width:"100%",display:"flex",gap:"0.75rem",alignItems:"center",background:pal.linen,borderRadius:"13px",padding:"0.75rem 0.85rem",marginBottom:"0.45rem",border:"1.5px solid "+pal.stone+"25",cursor:s.noteCount>0?"pointer":"default",textAlign:"left"}}>
+                  <div style={{width:"36px",height:"36px",borderRadius:"10px",background:s.total>0?cp.c1+"20":pal.parchm,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.1rem",flexShrink:0}}>{s.icon}</div>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.84rem"}}>{s.label}</div>
+                    <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>
+                      {s.total>0?s.total+" entr"+(s.total===1?"y":"ies")+(s.noteCount>0?", "+s.noteCount+" with notes":""):"Nothing logged yet"}
+                      {s.weekCount>0&&<span style={{color:cp.c1,fontWeight:"700"}}>{" · "+s.weekCount+" this week"}</span>}
+                    </div>
+                  </div>
+                  {s.noteCount>0&&<span style={{fontSize:"0.7rem",color:pal.primary,fontWeight:"700",flexShrink:0}}>{"View →"}</span>}
+                  {s.total===0&&<span style={{fontSize:"0.65rem",color:pal.stone,flexShrink:0}}>{"0 entries"}</span>}
+                </button>
+              ))}
+            </div>
+          );
+        })()}
+
+        {/* ══ SUBJECT TIMELINE ════════════════════════════════════════════════ */}
+        {activeTab==="timeline"&&(()=>{
+          if(!timelineSubj) {
+            return (
+              <div>
+                <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.72rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.55rem"}}>{"Choose a subject — "+ch?.name}</div>
+                {subjStats.filter(s=>s.noteCount>0).length===0&&(
+                  <div style={{background:pal.linen,borderRadius:"14px",padding:"2rem 1.2rem",textAlign:"center",border:"1.5px solid "+pal.stone+"25"}}>
+                    <div style={{fontSize:"2rem",marginBottom:"0.5rem"}}>{"📖"}</div>
+                    <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.88rem",marginBottom:"0.3rem"}}>{"No notes yet"}</div>
+                    <div style={{fontSize:"0.76rem",color:pal.slate,lineHeight:1.6}}>{"Add notes when you log subjects — they build a growth story over time."}</div>
+                  </div>
+                )}
+                {subjStats.filter(s=>s.noteCount>0).map(s=>(
+                  <button key={s.id} onClick={()=>setTimelineSubj(s.label)}
+                    style={{width:"100%",display:"flex",gap:"0.75rem",alignItems:"center",background:pal.linen,borderRadius:"13px",padding:"0.75rem 0.85rem",marginBottom:"0.45rem",border:"1.5px solid "+pal.stone+"25",cursor:"pointer",textAlign:"left"}}>
+                    <div style={{width:"36px",height:"36px",borderRadius:"10px",background:cp.c1+"20",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.1rem",flexShrink:0}}>{s.icon}</div>
+                    <div style={{flex:1}}>
+                      <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.84rem"}}>{s.label}</div>
+                      <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>{s.noteCount+" note"+(s.noteCount===1?"":"s")+" · "+s.total+" total entries"}</div>
+                    </div>
+                    <span style={{fontSize:"0.8rem",color:pal.primary}}>{"›"}</span>
+                  </button>
+                ))}
+              </div>
+            );
+          }
+
+          const subj_obj = [...SUBJECT_OPTIONS,...(family.customSubjects||[])].find(s=>s.label===timelineSubj);
+          return (
+            <div>
+              <button onClick={()=>setTimelineSubj(null)}
+                style={{display:"flex",alignItems:"center",gap:"0.35rem",background:"transparent",border:"none",color:pal.primary,fontSize:"0.78rem",fontWeight:"700",cursor:"pointer",marginBottom:"0.9rem",padding:0}}>
+                {"‹ Back"}
+              </button>
+              <div style={{display:"flex",gap:"0.6rem",alignItems:"center",marginBottom:"1rem"}}>
+                <div style={{width:"40px",height:"40px",borderRadius:"11px",background:cp.c1+"20",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.2rem"}}>{subj_obj?.icon||"📋"}</div>
+                <div>
+                  <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.92rem"}}>{timelineSubj}</div>
+                  <div style={{fontSize:"0.72rem",color:pal.slate}}>{ch?.name+" · "+timelineEntries.length+" note"+(timelineEntries.length===1?"":"s")}</div>
+                </div>
+              </div>
+              {timelineEntries.length===0&&(
+                <div style={{background:pal.parchm,borderRadius:"13px",padding:"1.5rem",textAlign:"center",fontSize:"0.8rem",color:pal.stone}}>{"No notes with detail for this subject yet."}</div>
+              )}
+              {timelineEntries.map((e,i)=>(
+                <div key={e.id||i} style={{display:"flex",gap:"0.75rem",marginBottom:"0.85rem"}}>
+                  <div style={{display:"flex",flexDirection:"column",alignItems:"center",flexShrink:0}}>
+                    <div style={{width:"10px",height:"10px",borderRadius:"50%",background:e.isMilestone?cp.c1:pal.stone+"60",border:e.isMilestone?"2.5px solid "+cp.c1:"2px solid "+pal.stone+"40",marginTop:"3px"}}/>
+                    {i<timelineEntries.length-1&&<div style={{width:"2px",flex:1,background:pal.stone+"20",margin:"4px 0"}}/>}
+                  </div>
+                  <div style={{flex:1,background:pal.linen,borderRadius:"12px",padding:"0.75rem 0.85rem",border:"1.5px solid "+(e.isMilestone?cp.c1+"40":pal.stone+"20")}}>
+                    {e.isMilestone&&<div style={{fontSize:"0.65rem",fontWeight:"800",color:cp.c1,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"3px"}}>{"🌟 Milestone"}</div>}
+                    <div style={{fontSize:"0.82rem",color:pal.ink,lineHeight:1.65}}>{e.note.replace("AI Summary: ","").trim()}</div>
+                    {e.readingTitle&&<div style={{fontSize:"0.72rem",color:pal.primary,marginTop:"4px",fontStyle:"italic"}}>{"📖 "+e.readingTitle}</div>}
+                    <div style={{fontSize:"0.65rem",color:pal.stone,marginTop:"5px"}}>{e.date||""}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          );
+        })()}
+
+        {/* ══ MILESTONES ══════════════════════════════════════════════════════ */}
+        {activeTab==="milestones"&&(()=>{
+          return (
+            <div>
+              <div style={{background:"linear-gradient(135deg,"+cp.c1+"18,"+cp.c2+"12)",borderRadius:"16px",padding:"0.9rem 1rem",marginBottom:"1rem",border:"1.5px solid "+cp.c1+"25"}}>
+                <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.88rem",marginBottom:"3px"}}>{"🌟 "+ch?.name+{"'"}+"s Milestones"}</div>
+                <div style={{fontSize:"0.75rem",color:pal.slate,lineHeight:1.55}}>{"Moments worth remembering — tag any log entry as a milestone using the 🌟 button when logging."}</div>
+              </div>
+
+              {milestones.length===0?(
+                <div style={{background:pal.linen,borderRadius:"14px",padding:"2rem 1.2rem",textAlign:"center",border:"1.5px solid "+pal.stone+"25"}}>
+                  <div style={{fontSize:"2.5rem",marginBottom:"0.5rem"}}>{"🌟"}</div>
+                  <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.9rem",marginBottom:"0.4rem"}}>{"No milestones yet"}</div>
+                  <div style={{fontSize:"0.76rem",color:pal.slate,lineHeight:1.65}}>
+                    {"When you log a subject, tap the 🌟 icon to mark it as a milestone. First time reading a chapter book, mastering multiplication tables, finishing a big project — capture those moments here."}
+                  </div>
+                </div>
+              ):(
+                milestones.map((e,i)=>{
+                  const so=[...SUBJECT_OPTIONS,...(family.customSubjects||[])].find(x=>x.label===e.subj);
+                  return (
+                    <div key={e.id||i} style={{background:pal.linen,borderRadius:"14px",padding:"0.9rem 1rem",marginBottom:"0.6rem",border:"2px solid "+cp.c1+"30",position:"relative",overflow:"hidden"}}>
+                      <div style={{position:"absolute",top:0,left:0,bottom:0,width:"4px",background:"linear-gradient(180deg,"+cp.c1+","+cp.c2+")"}}/>
+                      <div style={{paddingLeft:"0.4rem"}}>
+                        <div style={{display:"flex",gap:"0.5rem",alignItems:"center",marginBottom:"0.35rem"}}>
+                          <span style={{fontSize:"1rem"}}>{so?.icon||"📋"}</span>
+                          <span style={{fontWeight:"700",color:cp.c1,fontSize:"0.78rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>{e.subj}</span>
+                          <span style={{fontSize:"0.65rem",color:pal.stone,marginLeft:"auto"}}>{e.date}</span>
+                        </div>
+                        <div style={{fontSize:"0.84rem",color:pal.ink,lineHeight:1.65}}>{e.note.replace("AI Summary:","").trim()}</div>
+                        {e.readingTitle&&<div style={{fontSize:"0.72rem",color:pal.primary,marginTop:"4px",fontStyle:"italic"}}>{"📖 "+e.readingTitle}</div>}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          );
+        })()}
+
+      </div>
+    </div>
+  );
+}
+
+
 function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coopLog=[],observationLog=[]}){
   const [activeChild, setActiveChild] = useState(0);
   const [activeView,  setActiveView]  = useState("overview"); // overview | transcript | reading | narrative
@@ -13409,12 +13855,14 @@ function MoreScreen({pal,family,onNav,onTheme,onNavEdit,onSettings,onLifeReady})
 function WrapUpModal({pal, family, subjsDone, notesBySubj, dateLabel, dateStr, allDone, onSave, onClose}) {
   const allGoalObjs  = [...GOALS,...(family.customGoals||[])];
   const familyGoals  = (family.goals||[]).map(id=>allGoalObjs.find(g=>g.id===id)).filter(Boolean);
-  const [parentNote, setParentNote] = useState("");
-  const [photos,     setPhotos]     = useState([]);
-  const [goalsHit,   setGoalsHit]   = useState(new Set());
-  const [showGoals,  setShowGoals]  = useState(false);
-  const [saved,      setSaved]      = useState(false);
+  const [parentNote,   setParentNote]   = useState("");
+  const [photos,       setPhotos]       = useState([]);
+  const [goalsHit,     setGoalsHit]     = useState(new Set());
+  const [showGoals,    setShowGoals]    = useState(false);
+  const [milestoneSubjs, setMilestoneSubjs] = useState(new Set());
+  const [saved,        setSaved]        = useState(false);
   const fileRef = useRef(null);
+  const toggleMilestone = (subj) => setMilestoneSubjs(prev=>{ const n=new Set(prev); n.has(subj)?n.delete(subj):n.add(subj); return n; });
 
   const toggleGoal = (id) => setGoalsHit(prev=>{ const n=new Set(prev); n.has(id)?n.delete(id):n.add(id); return n; });
 
@@ -13432,13 +13880,15 @@ function WrapUpModal({pal, family, subjsDone, notesBySubj, dateLabel, dateStr, a
     family.children.forEach((ch,ci)=>{
       subjsDone.forEach(subj=>{
         const subjObj=[...SUBJECT_OPTIONS,...(family.customSubjects||[])].find(s=>s.label===subj||s.id===subj);
-        entries.push({
+        const entry = {
           childIdx:ci, subj, date:dateStr,
           title:subj+"—"+dateLabel,
           note:notesBySubj[subj]||"",
           thumb:subjObj?.icon||"📋",
           isSubject:true,
-        });
+        };
+        if(milestoneSubjs.has(subj)) entry.isMilestone = true;
+        entries.push(entry);
       });
       entries.push({
         childIdx:ci, subj:"Daily Notes", date:dateStr,
@@ -13492,13 +13942,16 @@ function WrapUpModal({pal, family, subjsDone, notesBySubj, dateLabel, dateStr, a
             <div style={{display:"flex",gap:"0.3rem",flexWrap:"wrap"}}>
               {subjsDone.map(s=>{
                 const so=[...SUBJECT_OPTIONS,...(family.customSubjects||[])].find(x=>x.label===s||x.id===s);
+                const ms=milestoneSubjs.has(s);
                 return (
-                  <span key={s} style={{display:"inline-flex",alignItems:"center",gap:"0.2rem",padding:"0.2rem 0.55rem",background:pal.primary+"14",borderRadius:"20px",fontSize:"0.72rem",fontWeight:"700",color:pal.primary}}>
-                    {so?.icon||"📋"} {s}
-                  </span>
+                  <button key={s} onClick={()=>toggleMilestone(s)} title="Mark as milestone"
+                    style={{display:"inline-flex",alignItems:"center",gap:"0.2rem",padding:"0.2rem 0.55rem",background:ms?pal.primary+"28":pal.primary+"14",borderRadius:"20px",fontSize:"0.72rem",fontWeight:"700",color:pal.primary,border:`1.5px solid ${ms?pal.primary:pal.primary+"30"}`,cursor:"pointer"}}>
+                    {ms?"🌟":(so?.icon||"📋")} {s}
+                  </button>
                 );
               })}
             </div>
+            {subjsDone.length>0&&<div style={{fontSize:"0.65rem",color:pal.stone,marginTop:"0.35rem"}}>{"Tap a subject to mark it as a 🌟 milestone"}</div>}
             {Object.keys(notesBySubj).length>0&&(
               <div style={{marginTop:"0.55rem",borderTop:`1px solid ${pal.stone}25`,paddingTop:"0.45rem"}}>
                 {Object.entries(notesBySubj).map(([subj,note])=>(
@@ -13621,7 +14074,7 @@ function NavModal({ pal, navIds, setNavIds, onClose }) {
     else{if(local.length>=5)return;setLocal(l=>[...l,id]);}
   };
   return (
-    <BottomSheet pal={pal} onClose={onClose} title="Customize Your Nav" sub={local.length + " tabs - 3-5 - Home, Schedule & Portfolio always stay"}>
+    <BottomSheet pal={pal} onClose={onClose} title="Customize Your Nav" sub={local.length + " tabs - 3-5 - Home, Progress & Portfolio always stay"}>
       <div style={{display:"flex",flexDirection:"column",gap:"0.42rem",marginBottom:"1rem"}}>
         {ALL_SECTIONS.filter(s=>s.id!=="more").map(s=>{
           const on=local.includes(s.id),atMax=local.length>=5&&!on;
