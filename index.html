@@ -6669,6 +6669,30 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
           </div>
         )}
 
+        {/* ── Progress check-in nudge — fires after 3+ notes, no pulse yet this week ── */}
+        {(()=>{
+          const wkStart2  = new Date(); const dow3=wkStart2.getDay(); wkStart2.setDate(wkStart2.getDate()-(dow3===0?6:dow3-1)); wkStart2.setHours(0,0,0,0);
+          const savedPW   = (() => { try{ return localStorage.getItem("rootbloom_pulse_week")||""; }catch(e){return "";} })();
+          const alreadyDone = savedPW===wkStart2.toDateString();
+          if(alreadyDone) return null;
+          const ci3 = child==="all" ? 0 : family.children.findIndex(c=>c.id===child);
+          const wkEntries3 = portfolioEntries.filter(e=>!e.isDay&&e.note&&e.note.trim()&&(()=>{
+            try{const d=new Date(e.date+", "+new Date().getFullYear());return d>=wkStart2;}catch(ex){return false;}
+          })());
+          if(wkEntries3.length<3) return null;
+          return (
+            <div onClick={()=>onTabChange("progress")}
+              style={{background:"linear-gradient(135deg,"+pal.primary+"12,"+pal.accent+"08)",borderRadius:"13px",padding:"0.7rem 0.9rem",marginBottom:"0.85rem",border:"1.5px solid "+pal.primary+"25",cursor:"pointer",display:"flex",gap:"0.6rem",alignItems:"center"}}>
+              <span style={{fontSize:"1.2rem",flexShrink:0}}>{"\u2728"}</span>
+              <div style={{flex:1}}>
+                <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.8rem"}}>{"Progress check-in ready"}</div>
+                <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>{wkEntries3.length+" notes this week \u2014 tap to generate a summary"}</div>
+              </div>
+              <span style={{fontSize:"0.8rem",color:pal.primary}}>{"\u203a"}</span>
+            </div>
+          );
+        })()}
+
         {/* ── Weekly Subject Grid ── */}
         {(()=>{
           const today2   = new Date();
@@ -12454,7 +12478,10 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
   const [pulseLoading, setPulseLoading] = React.useState(false);
   const [pulseError,   setPulseError]   = React.useState(null);
   const [timelineSubj, setTimelineSubj] = React.useState(null);
-  const [nudgeDone,    setNudgeDone]    = React.useState(false);
+  const [pulseRange,   setPulseRange]   = React.useState("week"); // week | month | all
+  const [savedPulses,  setSavedPulses]  = React.useState(()=>{
+    try{ const s=localStorage.getItem("rootbloom_pulses"); return s?JSON.parse(s):[]; }catch(e){return [];}
+  });
 
   const ch       = family.children[selectedChild] || family.children[0];
   const cp       = CHILD_COLOR_PALETTES.find(p=>p.id===(ch?.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
@@ -12492,15 +12519,29 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
     return {...s, total:all.length, weekCount:week.length, recent, noteCount:notes.length};
   }).sort((a,b)=>b.total-a.total);
 
-  // ── AI weekly pulse ───────────────────────────────────────────────────────
-  const generatePulse = async () => {
-    setPulseLoading(true); setPulseError(null);
+  // ── AI pulse — supports week / month / all-time ──────────────────────────
+  const generatePulse = async (range) => {
+    const r = range || pulseRange;
+    setPulseLoading(true); setPulseError(null); setPulseResult(null);
+
+    // Build date filter
+    const filterEntry = (e) => {
+      if(r==="week") return isThisWeek(e.date);
+      if(r==="month") {
+        try{
+          const d=new Date(e.date+", "+yr);
+          return d.getMonth()===today.getMonth() && d.getFullYear()===today.getFullYear();
+        }catch(ex){return false;}
+      }
+      return true; // all
+    };
+
     const noteLines = [];
     family.children.forEach((c,ci)=>{
-      const cEntries = portfolioEntries.filter(e=>e.childIdx===ci&&!e.isDay&&isThisWeek(e.date)&&e.note&&e.note.trim());
+      const cEntries = portfolioEntries.filter(e=>e.childIdx===ci&&!e.isDay&&filterEntry(e)&&e.note&&e.note.trim());
       if(cEntries.length===0) return;
-      noteLines.push("Child: "+c.name+" ("+c.grade+")");
-      cEntries.forEach(e=>noteLines.push("  "+e.subj+(e.date?" ["+e.date+"]":"")+": "+e.note.replace("AI Summary: ","").trim()));
+      noteLines.push("Child: "+c.name+" ("+c.grade+", "+c.grade+" grade)");
+      cEntries.slice(0,40).forEach(e=>noteLines.push("  "+e.subj+(e.date?" ["+e.date+"]":"")+": "+e.note.replace("AI Summary: ","").trim()));
     });
 
     if(noteLines.length===0) {
@@ -12509,34 +12550,43 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
       return;
     }
 
-    const prompt = "You are a warm, insightful homeschool assistant. Based on this week\u2019s parent notes, write a short progress pulse for each child. For each child: 1-2 sentences on what stood out this week, and 1 sentence noting any subject that seems light or worth attention. Be warm, specific, and encouraging. Use the parent\u2019s own words when helpful. Plain text, no markdown, no bullet points.\n\nThis week\u2019s notes:\n"+noteLines.join("\n");
+    const rangeLabel = r==="week"?"this week":r==="month"?"this month":"all time";
+    const prompt = "You are a warm, insightful homeschool assistant. A parent is reviewing their child\u2019s progress "+rangeLabel+". Based on these notes, write a progress summary for each child. For each child: 2-3 sentences on what stood out, specific growth you notice, and 1 sentence on any subject that seems light or worth more attention. Be warm, specific, and encouraging \u2014 reference the actual content from their notes. Plain text only, no bullet points, no markdown.\n\nNotes:\n"+noteLines.join("\n");
 
     try {
       const result = await callClaude(prompt);
-      setPulseResult(result.trim());
+      const trimmed = result.trim();
+      setPulseResult(trimmed);
+      if(r==="week") savePulse(trimmed, r);
     } catch(e) {
       setPulseError(e.message==="NO_KEY"?"no_key":e.message==="RATE_LIMIT"?"rate_limit":"error");
     }
     setPulseLoading(false);
   };
 
-  // Auto-nudge on Fridays if not yet done this week
-  React.useEffect(()=>{
-    const isFriday = today.getDay()===5;
-    const savedWeek = (() => { try{ return localStorage.getItem("rootbloom_pulse_week")||""; }catch(e){return "";} })();
-    const thisWeekKey = weekStart.toDateString();
-    if(isFriday && savedWeek!==thisWeekKey && activeTab==="pulse" && weekEntries.length>0) {
-      setNudgeDone(false);
-    }
-  },[activeTab]);
+  // Nudge: show when 3+ entries this week and no pulse generated yet for this week
+  const savedPulseWeek = (() => { try{ return localStorage.getItem("rootbloom_pulse_week")||""; }catch(e){return "";} })();
+  const thisWeekKey    = weekStart.toDateString();
+  const alreadyPulsedThisWeek = savedPulseWeek === thisWeekKey;
 
-  const dismissNudge = () => {
-    try{ localStorage.setItem("rootbloom_pulse_week", weekStart.toDateString()); }catch(e){}
-    setNudgeDone(true);
+  // Total notes across all children this week
+  const totalWeekNotes = family.children.reduce((sum,c,ci)=>{
+    return sum + portfolioEntries.filter(e=>e.childIdx===ci&&!e.isDay&&isThisWeek(e.date)&&e.note&&e.note.trim()).length;
+  },0);
+
+  const showNudge = totalWeekNotes>=3 && !alreadyPulsedThisWeek && !pulseResult && !pulseLoading;
+
+  const savePulse = (text, range) => {
+    const entry = {
+      text, range,
+      date: today.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}),
+      weekKey: thisWeekKey,
+    };
+    const updated = [entry, ...savedPulses].slice(0,8); // keep last 8
+    setSavedPulses(updated);
+    try{ localStorage.setItem("rootbloom_pulses", JSON.stringify(updated)); }catch(e){}
+    try{ localStorage.setItem("rootbloom_pulse_week", thisWeekKey); }catch(e){}
   };
-  const isFriday    = today.getDay()===5;
-  const savedWeek   = (() => { try{ return localStorage.getItem("rootbloom_pulse_week")||""; }catch(e){return "";} })();
-  const showNudge   = isFriday && savedWeek!==weekStart.toDateString() && !nudgeDone && weekEntries.length>0 && !pulseResult;
 
   // ── Subject timeline entries ───────────────────────────────────────────────
   const timelineEntries = timelineSubj
@@ -12580,50 +12630,61 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
 
       <div style={{padding:"0 1rem 5rem"}}>
 
-        {/* ══ WEEKLY PULSE ════════════════════════════════════════════════════ */}
+        {/* ══ WEEKLY PULSE ══════════════════════════════════════════════════════════════════════ */}
         {activeTab==="pulse"&&(()=>{
-          const totalWeekNotes = family.children.reduce((sum,c,ci)=>{
-            return sum + portfolioEntries.filter(e=>e.childIdx===ci&&!e.isDay&&isThisWeek(e.date)&&e.note&&e.note.trim()).length;
-          },0);
+          const rangeLabel = pulseRange==="week"?"This week":pulseRange==="month"?"This month":"All time";
+          const rangeEntries = pulseRange==="week" ? weekEntries
+            : pulseRange==="month" ? childEntries.filter(e=>{
+                try{const d=new Date(e.date+", "+yr);return d.getMonth()===today.getMonth()&&d.getFullYear()===today.getFullYear();}catch(ex){return false;}
+              })
+            : childEntries;
+          const rangeSubjs = [...new Set(rangeEntries.map(e=>e.subj))];
+          const rangeNotes = rangeEntries.filter(e=>e.note&&e.note.trim()).length;
 
           return (
             <div>
-              {/* Friday nudge */}
+              {/* Smart nudge */}
               {showNudge&&(
                 <div style={{background:"linear-gradient(135deg,"+pal.primary+"18,"+pal.accent+"12)",borderRadius:"16px",padding:"0.9rem 1rem",marginBottom:"1rem",border:"2px solid "+pal.primary+"30"}}>
                   <div style={{display:"flex",gap:"0.65rem",alignItems:"flex-start"}}>
-                    <span style={{fontSize:"1.4rem",flexShrink:0}}>{"🎉"}</span>
+                    <span style={{fontSize:"1.4rem",flexShrink:0}}>{"\u2728"}</span>
                     <div style={{flex:1}}>
-                      <div style={{fontWeight:"800",color:pal.primary,fontSize:"0.88rem",marginBottom:"2px"}}>{"End of week — ready to review?"}</div>
-                      <div style={{fontSize:"0.74rem",color:pal.inkM,lineHeight:1.55,marginBottom:"0.65rem"}}>{"You logged "+weekEntries.length+" entr"+(weekEntries.length===1?"y":"ies")+" this week. Tap below to generate your weekly progress summary."}</div>
-                      <div style={{display:"flex",gap:"0.5rem"}}>
-                        <button onClick={()=>{dismissNudge();generatePulse();}}
-                          style={{flex:1,padding:"0.52rem",border:"none",borderRadius:"10px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.78rem",cursor:"pointer"}}>
-                          {"Generate summary"}
-                        </button>
-                        <button onClick={dismissNudge}
-                          style={{padding:"0.52rem 0.75rem",border:"1.5px solid "+pal.stone,borderRadius:"10px",background:"transparent",color:pal.slate,fontSize:"0.75rem",cursor:"pointer"}}>
-                          {"Later"}
-                        </button>
+                      <div style={{fontWeight:"800",color:pal.primary,fontSize:"0.88rem",marginBottom:"2px"}}>{"Ready for a progress check-in?"}</div>
+                      <div style={{fontSize:"0.74rem",color:pal.inkM,lineHeight:1.55,marginBottom:"0.65rem"}}>
+                        {"You have "+totalWeekNotes+" note"+(totalWeekNotes===1?"":"s")+" this week. Generate a summary to see how everyone is growing."}
                       </div>
+                      <button onClick={()=>generatePulse("week")}
+                        style={{padding:"0.5rem 1.1rem",border:"none",borderRadius:"10px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.78rem",cursor:"pointer"}}>
+                        {"Generate now"}
+                      </button>
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* This week at a glance */}
+              {/* Range selector */}
+              <div style={{display:"flex",gap:"0.35rem",marginBottom:"0.85rem"}}>
+                {[["week","This week"],["month","This month"],["all","All time"]].map(([id,label])=>(
+                  <button key={id} onClick={()=>setPulseRange(id)}
+                    style={{flex:1,padding:"0.42rem 0",border:"2px solid "+(pulseRange===id?pal.primary:pal.stone+"40"),borderRadius:"10px",background:pulseRange===id?pal.pale:"transparent",color:pulseRange===id?pal.primary:pal.inkM,fontWeight:pulseRange===id?"800":"500",fontSize:"0.72rem",cursor:"pointer"}}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              {/* At a glance */}
               <div style={{background:pal.linen,borderRadius:"16px",padding:"0.9rem 1rem",marginBottom:"1rem",border:"1.5px solid "+pal.stone+"30"}}>
-                <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.72rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.65rem"}}>{"This week — "+ch?.name}</div>
-                {weekSubjs.length===0?(
-                  <div style={{fontSize:"0.8rem",color:pal.stone,fontStyle:"italic"}}>{"Nothing logged yet this week."}</div>
+                <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.72rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.65rem"}}>{rangeLabel+" \u2014 "+ch?.name}</div>
+                {rangeSubjs.length===0?(
+                  <div style={{fontSize:"0.8rem",color:pal.stone,fontStyle:"italic"}}>{"Nothing logged yet for this period."}</div>
                 ):(
                   <div style={{display:"flex",gap:"0.35rem",flexWrap:"wrap"}}>
-                    {weekSubjs.map(s=>{
+                    {rangeSubjs.map(s=>{
                       const so=[...SUBJECT_OPTIONS,...(family.customSubjects||[])].find(x=>x.label===s);
-                      const count=weekEntries.filter(e=>e.subj===s).length;
+                      const count=rangeEntries.filter(e=>e.subj===s).length;
                       return (
                         <span key={s} style={{display:"inline-flex",alignItems:"center",gap:"0.2rem",padding:"0.22rem 0.6rem",background:cp.c1+"18",borderRadius:"20px",fontSize:"0.73rem",fontWeight:"700",color:cp.c1}}>
-                          {so?.icon||"📋"} {s} {count>1&&<span style={{fontSize:"0.62rem",opacity:0.7}}>{"×"+count}</span>}
+                          {so?.icon||"\ud83d\udccb"} {s}{count>1&&<span style={{fontSize:"0.62rem",opacity:0.7}}>{" \u00d7"+count}</span>}
                         </span>
                       );
                     })}
@@ -12631,51 +12692,57 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
                 )}
               </div>
 
-              {/* AI Pulse result */}
+              {/* Pulse result */}
               {pulseResult&&(
                 <div style={{background:pal.goodBg,borderRadius:"16px",padding:"1rem 1.1rem",marginBottom:"1rem",border:"1.5px solid "+pal.good+"40"}}>
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.6rem"}}>
-                    <div style={{fontWeight:"800",color:pal.good,fontSize:"0.85rem"}}>{"✨ Weekly Progress Pulse"}</div>
-                    <button onClick={()=>setPulseResult(null)}
-                      style={{background:"transparent",border:"none",color:pal.stone,cursor:"pointer",fontSize:"0.8rem"}}>{"✕"}</button>
+                    <div style={{fontWeight:"800",color:pal.good,fontSize:"0.85rem"}}>{"\u2728 Progress Summary"}</div>
+                    <button onClick={()=>setPulseResult(null)} style={{background:"transparent",border:"none",color:pal.stone,cursor:"pointer",fontSize:"0.8rem"}}>{"\u2715"}</button>
                   </div>
                   <div style={{fontSize:"0.84rem",color:pal.ink,lineHeight:1.75,whiteSpace:"pre-wrap"}}>{pulseResult}</div>
-                  <div style={{fontSize:"0.65rem",color:pal.stone,marginTop:"0.6rem"}}>{"Generated from this week’s notes · "+new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"})}</div>
+                  <div style={{fontSize:"0.65rem",color:pal.stone,marginTop:"0.6rem"}}>{rangeLabel+" \u00b7 "+today.toLocaleDateString("en-US",{month:"short",day:"numeric"})}</div>
                 </div>
               )}
 
-              {/* Error states */}
-              {pulseError==="no_notes"&&(
-                <div style={{background:pal.parchm,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:"1.5px solid "+pal.stone+"30",fontSize:"0.8rem",color:pal.inkM,textAlign:"center"}}>
-                  {"No notes logged this week yet — add some via Log Today and come back!"}
-                </div>
-              )}
-              {pulseError==="no_key"&&(
-                <div style={{background:"#fff8ed",borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:"1.5px solid #f5c84240",fontSize:"0.8rem",color:"#7a5500",textAlign:"center"}}>
-                  {"Add an API key in Settings to use AI summaries."}
-                </div>
-              )}
-              {pulseError==="rate_limit"&&(
-                <div style={{background:"#fff8ed",borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:"1.5px solid #f5c84240",fontSize:"0.8rem",color:"#7a5500",textAlign:"center"}}>
-                  {"Monthly AI limit reached. Resets next month."}
-                </div>
-              )}
-              {pulseError==="error"&&(
-                <div style={{background:"#fff0f0",borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:"1.5px solid #ffaaaa40",fontSize:"0.8rem",color:"#aa3333",textAlign:"center"}}>
-                  {"Could not generate — check your connection and try again."}
+              {/* Loading */}
+              {pulseLoading&&(
+                <div style={{background:pal.pale,borderRadius:"14px",padding:"1.2rem",marginBottom:"1rem",textAlign:"center",border:"1.5px solid "+pal.primary+"20"}}>
+                  <div style={{fontSize:"0.84rem",color:pal.primary,fontWeight:"700",marginBottom:"4px"}}>{"Generating progress summary\u2026"}</div>
+                  <div style={{fontSize:"0.72rem",color:pal.slate}}>{"Reading through your notes \u2014 this takes a few seconds"}</div>
                 </div>
               )}
 
-              {/* Generate button */}
-              {!pulseResult&&(
-                <button onClick={generatePulse} disabled={pulseLoading||totalWeekNotes===0}
-                  style={{width:"100%",padding:"0.82rem",border:"none",borderRadius:"13px",background:totalWeekNotes>0?pal.accentGrad:"#ddd",color:totalWeekNotes>0?"#fff":pal.stone,fontWeight:"800",fontSize:"0.88rem",cursor:totalWeekNotes>0?"pointer":"default",marginBottom:"1rem"}}>
-                  {pulseLoading?"Generating…":totalWeekNotes>0?"✨ Generate weekly summary":"Log notes this week to generate a summary"}
+              {/* Errors */}
+              {pulseError==="no_notes"&&<div style={{background:pal.parchm,borderRadius:"14px",padding:"0.85rem",marginBottom:"1rem",fontSize:"0.8rem",color:pal.inkM,textAlign:"center",border:"1.5px solid "+pal.stone+"30"}}>{"No notes found for this period \u2014 add notes when logging subjects."}</div>}
+              {pulseError==="no_key"&&<div style={{background:"#fff8ed",borderRadius:"14px",padding:"0.85rem",marginBottom:"1rem",fontSize:"0.8rem",color:"#7a5500",textAlign:"center",border:"1.5px solid #f5c84240"}}>{"Add an API key in Settings to use AI summaries."}</div>}
+              {(pulseError==="rate_limit"||pulseError==="error")&&<div style={{background:"#fff0f0",borderRadius:"14px",padding:"0.85rem",marginBottom:"1rem",fontSize:"0.8rem",color:"#aa3333",textAlign:"center",border:"1.5px solid #ffaaaa40"}}>{pulseError==="rate_limit"?"Monthly AI limit reached.":"Could not generate \u2014 check your connection."}</div>}
+
+              {/* Generate / regenerate */}
+              {!pulseLoading&&(
+                <button onClick={()=>generatePulse(pulseRange)} disabled={rangeNotes===0}
+                  style={{width:"100%",padding:"0.82rem",border:"none",borderRadius:"13px",background:rangeNotes>0?pal.accentGrad:"#ddd",color:rangeNotes>0?"#fff":pal.stone,fontWeight:"800",fontSize:"0.88rem",cursor:rangeNotes>0?"pointer":"default",marginBottom:"1rem"}}>
+                  {pulseResult?"\u2728 Regenerate summary":"\u2728 Generate "+rangeLabel.toLowerCase()+" summary"}
                 </button>
               )}
 
-              {/* Subject stats — all time */}
-              <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.72rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.55rem"}}>{"All subjects — "+ch?.name}</div>
+              {/* Past pulses */}
+              {savedPulses.length>0&&!pulseResult&&(
+                <div style={{marginBottom:"1rem"}}>
+                  <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.72rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.55rem"}}>{"Past summaries"}</div>
+                  {savedPulses.map((p,i)=>(
+                    <div key={i} style={{background:pal.linen,borderRadius:"13px",padding:"0.8rem 0.9rem",marginBottom:"0.45rem",border:"1.5px solid "+pal.stone+"25"}}>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.35rem"}}>
+                        <span style={{fontSize:"0.68rem",fontWeight:"700",color:pal.primary,textTransform:"capitalize"}}>{p.range||"week"}</span>
+                        <span style={{fontSize:"0.65rem",color:pal.stone}}>{p.date}</span>
+                      </div>
+                      <div style={{fontSize:"0.78rem",color:pal.ink,lineHeight:1.65,overflow:"hidden",display:"-webkit-box",WebkitLineClamp:3,WebkitBoxOrient:"vertical"}}>{p.text}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Subject stats */}
+              <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.72rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.55rem"}}>{"All subjects \u2014 "+ch?.name}</div>
               {subjStats.map(s=>(
                 <button key={s.id} onClick={()=>{setActiveTab("timeline");setTimelineSubj(s.label);}}
                   style={{width:"100%",display:"flex",gap:"0.75rem",alignItems:"center",background:pal.linen,borderRadius:"13px",padding:"0.75rem 0.85rem",marginBottom:"0.45rem",border:"1.5px solid "+pal.stone+"25",cursor:s.noteCount>0?"pointer":"default",textAlign:"left"}}>
@@ -12684,10 +12751,10 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
                     <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.84rem"}}>{s.label}</div>
                     <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>
                       {s.total>0?s.total+" entr"+(s.total===1?"y":"ies")+(s.noteCount>0?", "+s.noteCount+" with notes":""):"Nothing logged yet"}
-                      {s.weekCount>0&&<span style={{color:cp.c1,fontWeight:"700"}}>{" · "+s.weekCount+" this week"}</span>}
+                      {s.weekCount>0&&<span style={{color:cp.c1,fontWeight:"700"}}>{" \u00b7 "+s.weekCount+" this week"}</span>}
                     </div>
                   </div>
-                  {s.noteCount>0&&<span style={{fontSize:"0.7rem",color:pal.primary,fontWeight:"700",flexShrink:0}}>{"View →"}</span>}
+                  {s.noteCount>0&&<span style={{fontSize:"0.7rem",color:pal.primary,fontWeight:"700",flexShrink:0}}>{"View \u2192"}</span>}
                   {s.total===0&&<span style={{fontSize:"0.65rem",color:pal.stone,flexShrink:0}}>{"0 entries"}</span>}
                 </button>
               ))}
@@ -12695,7 +12762,7 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
           );
         })()}
 
-        {/* ══ SUBJECT TIMELINE ════════════════════════════════════════════════ */}
+                {/* ══ SUBJECT TIMELINE ════════════════════════════════════════════════ */}
         {activeTab==="timeline"&&(()=>{
           if(!timelineSubj) {
             return (
