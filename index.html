@@ -5835,8 +5835,16 @@ function EOYChecklistModal({pal,family,childIdx,setChildIdx,weeksLeft,portfolioE
     setReflectNote(v);
     try{ localStorage.setItem(REFLECT_KEY, v); }catch(e){}
   };
-  const [skillsChecked, setSkillsChecked] = useState({});
-  const toggleSkill = (cat,i) => setSkillsChecked(s=>({...s,[cat+"_"+i]:!s[cat+"_"+i]}));
+  const SKILLS_KEY = "rootbloom_eoy_skills_"+(ch?.id||"")+"_"+(family.yearEnd||"");
+  const [skillsChecked, setSkillsChecked] = useState(()=>{
+    try{ return JSON.parse(localStorage.getItem(SKILLS_KEY)||"{}"); }catch(e){return {};}
+  });
+  const toggleSkill = (cat,i) => {
+    const key = cat+"_"+i;
+    const next = {...skillsChecked, [key]:!skillsChecked[key]};
+    setSkillsChecked(next);
+    try{ localStorage.setItem(SKILLS_KEY, JSON.stringify(next)); }catch(e){}
+  };
 
   // Portfolio entries for this child
   const childEntries = portfolioEntries.filter(e=>e.childIdx===childIdx);
@@ -6054,9 +6062,12 @@ function EOYChecklistModal({pal,family,childIdx,setChildIdx,weeksLeft,portfolioE
             {/* ── Grade-level skills checklist ── */}
             {gradeSkills.length>0&&(
               <div style={{background:pal.linen,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.stone}30`}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:"0.65rem"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:"0.45rem"}}>
                   <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.84rem"}}>{ch.grade} Skills Checklist</div>
                   <div style={{fontSize:"0.7rem",color:pal.slate,fontWeight:"700"}}>{checkedSkills}/{totalSkills}</div>
+                </div>
+                <div style={{background:"#fffbeb",borderRadius:"9px",padding:"0.5rem 0.65rem",marginBottom:"0.65rem",border:"1px solid #f5c84240",fontSize:"0.67rem",color:"#7a5500",lineHeight:1.55}}>
+                  {"\u26a0\ufe0f Guide only \u2014 this checklist reflects general grade-level benchmarks and is meant as a helpful reference, not a requirement. Every child learns differently and at their own pace. Use this to celebrate progress and spot areas to explore more, not to measure pass/fail."}
                 </div>
                 {gradeSkills.map((cat)=>(
                   <div key={cat.cat} style={{marginBottom:"0.75rem"}}>
@@ -12879,7 +12890,7 @@ function LifeReadyScreen({pal,family,onBack}){
    Weekly pulse · Subject timelines · Milestones · AI check-in
 ======================================= */
 function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], attendanceDays=0, onUpdateFamily}) {
-  const [activeTab,    setActiveTab]    = React.useState("pulse");   // pulse | timeline | milestones
+  const [activeTab,    setActiveTab]    = React.useState("pulse");   // pulse | timeline | milestones | skills
   const [selectedChild, setSelectedChild] = React.useState(
     child && child!=="all" ? family.children.findIndex(c=>c.id===child) : 0
   );
@@ -13133,7 +13144,7 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
       {/* Sub-tabs */}
       <div style={{padding:"0 1rem",marginBottom:"1rem"}}>
         <div style={{display:"flex",gap:"0.4rem"}}>
-          {[["pulse","📊 Weekly Pulse"],["timeline","📖 Subject Timeline"],["milestones","🌟 Milestones"]].map(([id,label])=>(
+          {[["pulse","📊 Weekly Pulse"],["timeline","📖 Subject Timeline"],["milestones","🌟 Milestones"],["skills","✅ Skills"]].map(([id,label])=>(
             <button key={id} onClick={()=>{setActiveTab(id);setTimelineSubj(null);setArcResult(null);setArcSubj(null);}}
               style={{flex:1,padding:"0.52rem 0.3rem",border:`2px solid ${activeTab===id?pal.primary:pal.stone+"40"}`,borderRadius:"11px",background:activeTab===id?pal.pale:"transparent",color:activeTab===id?pal.primary:pal.inkM,fontWeight:activeTab===id?"800":"500",fontSize:"0.7rem",cursor:"pointer",transition:"all 0.13s"}}>
               {label}
@@ -13483,6 +13494,101 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
                   );
                 })
               )}
+            </div>
+          );
+        })()}
+
+        {//* ====== SKILLS TAB ====== */}
+        {activeTab==="skills"&&(()=>{
+          const gradeSkillsP = EOY_SKILLS[ch?.grade]||EOY_SKILLS["5th"]||[];
+          const SKILLS_KEY_P = "rootbloom_eoy_skills_"+(ch?.id||"")+"_"+(family.yearEnd||"");
+          const NOTES_KEY_P  = "rootbloom_eoy_notes_"+(ch?.id||"")+"_"+(family.yearEnd||"");
+          const [skillsP, setSkillsP] = React.useState(()=>{
+            try{ return JSON.parse(localStorage.getItem(SKILLS_KEY_P)||"{}"); }catch(e){return {};}
+          });
+          const [notesP, setNotesP] = React.useState(()=>{
+            try{ return JSON.parse(localStorage.getItem(NOTES_KEY_P)||"{}"); }catch(e){return {};}
+          });
+          const [expandedKey, setExpandedKey] = React.useState(null);
+          const toggleSkillP = (cat,i) => {
+            const k=cat+"_"+i;
+            const next={...skillsP,[k]:!skillsP[k]};
+            setSkillsP(next);
+            try{ localStorage.setItem(SKILLS_KEY_P,JSON.stringify(next)); }catch(e){}
+            if(!skillsP[k]) setExpandedKey(k);
+            else if(expandedKey===k) setExpandedKey(null);
+          };
+          const saveNoteP = (k,val) => {
+            const next={...notesP,[k]:val};
+            setNotesP(next);
+            try{ localStorage.setItem(NOTES_KEY_P,JSON.stringify(next)); }catch(e){}
+          };
+          const totalP = gradeSkillsP.reduce((s,c)=>s+c.skills.length,0);
+          const checkedP = Object.values(skillsP).filter(Boolean).length;
+          const pctP = totalP>0?Math.round(checkedP/totalP*100):0;
+          const printSkills = () => {
+            const win = window.open("","_blank","width=800,height=1000,scrollbars=yes");
+            if(!win) return;
+            const sn = family.schoolName||(family.familyName+" Academy")||"Home School";
+            const td = new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
+            let rows = "";
+            gradeSkillsP.forEach(cat=>{
+              rows += "<tr><td colspan='3' style='background:#f0f0f0;font-weight:700;font-size:9pt;padding:6px 10px;text-transform:uppercase;letter-spacing:0.08em;color:#555'>"+cat.cat+"</td></tr>";
+              cat.skills.forEach((skill,si)=>{
+                const k=cat.cat+"_"+si; const done=skillsP[k]; const note=notesP[k]||"";
+                rows += "<tr style='border-bottom:1px solid #f0f0f0'><td style='padding:6px 10px;width:22px;text-align:center;font-size:11pt'>"+(done?"&#9989;":"&#9633;")+"</td><td style='padding:6px 10px;font-size:9.5pt;color:"+(done?"#2a6a2a":"#333")+"'>"+skill+"</td><td style='padding:6px 10px;font-size:8.5pt;color:#777;font-style:italic'>"+note+"</td></tr>";
+              });
+            });
+            win.document.write("<!DOCTYPE html><html><head><meta charset='utf-8'><title>Skills Checklist</title><style>*{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#1a1a1a;padding:0}@media print{@page{margin:1.5cm;size:letter}}.hdr{background:#1e3a2a;color:#fff;padding:18px 24px}.hdr h1{font-size:16pt;margin:0 0 3px}.hdr p{font-size:9pt;color:rgba(255,255,255,0.65);margin:0}table{width:calc(100% - 48px);border-collapse:collapse;margin:12px 24px}.disclaimer{margin:10px 24px;padding:8px 12px;background:#fffbeb;border:1px solid #f5c842;border-radius:6px;font-size:8pt;color:#7a5500}.footer{margin:16px 24px;font-size:8pt;color:#aaa;border-top:1px solid #eee;padding-top:8px;display:flex;justify-content:space-between}</style></head><body><div class='hdr'><h1>"+ch?.name+" \u2014 "+ch?.grade+" Grade Skills</h1><p>"+sn+" \u00b7 "+td+" \u00b7 "+checkedP+" of "+totalP+" skills</p></div><div class='disclaimer'>\u26a0\ufe0f This checklist reflects general grade-level benchmarks as a helpful reference guide only \u2014 not a pass/fail evaluation, legal requirement, or standardized measure. Homeschool families are not obligated to follow any particular scope or sequence. Use this to celebrate progress and explore areas for growth.</div><table>"+rows+"</table><div class='footer'><span>Generated by Root &amp; Bloom</span><span>"+sn+"</span></div><button onclick='window.print()' style='margin:0 24px 20px;padding:8px 18px;background:#1e3a2a;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:10pt'>Print / Save PDF</button></body></html>");
+            win.document.close();
+          };
+          return (
+            <div>
+              <div style={{background:"linear-gradient(135deg,"+cp.c1+"14,"+cp.c2+"08)",borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"0.75rem",border:"1.5px solid "+cp.c1+"25"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+                  <div style={{flex:1}}>
+                    <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.88rem",marginBottom:"3px"}}>{ch?.grade+" Grade Skills"}</div>
+                    <div style={{fontSize:"0.72rem",color:pal.slate,marginBottom:"0.5rem"}}>{ch?.name+" \u00b7 "+checkedP+" of "+totalP+" \u00b7 "+pctP+"%"}</div>
+                  </div>
+                  <button onClick={printSkills} style={{padding:"0.3rem 0.65rem",border:"1.5px solid "+cp.c1+"50",borderRadius:"8px",background:"transparent",color:cp.c1,fontWeight:"700",fontSize:"0.65rem",cursor:"pointer",flexShrink:0,marginLeft:"0.5rem"}}>{"\ud83d\udda8 Print"}</button>
+                </div>
+                <div style={{height:"7px",borderRadius:"99px",background:pal.parchm,overflow:"hidden"}}>
+                  <div style={{height:"100%",width:pctP+"%",borderRadius:"99px",background:"linear-gradient(90deg,"+cp.c1+","+cp.c2+")",transition:"width 0.4s"}}/>
+                </div>
+              </div>
+              <div style={{background:"#fff8e6",borderRadius:"12px",padding:"0.7rem 0.85rem",marginBottom:"0.85rem",border:"1.5px solid #f5c84260"}}>
+                <div style={{fontWeight:"800",color:"#7a5500",fontSize:"0.72rem",marginBottom:"3px"}}>{"\u26a0\ufe0f Guide only \u2014 not a requirement"}</div>
+                <div style={{fontSize:"0.68rem",color:"#7a5500",lineHeight:1.65}}>{"This checklist reflects general grade-level benchmarks as a helpful reference \u2014 not a pass/fail evaluation, legal requirement, or standardized measure. Every child learns differently and at their own pace. Homeschool families are not obligated to follow any particular scope or sequence. Use this to celebrate progress and explore areas for growth, nothing more."}</div>
+              </div>
+              {gradeSkillsP.map((cat)=>(
+                <div key={cat.cat} style={{marginBottom:"1rem"}}>
+                  <div style={{fontSize:"0.65rem",fontWeight:"800",color:pal.primary,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"0.4rem"}}>{cat.cat}</div>
+                  <div style={{display:"flex",flexDirection:"column",gap:"0.3rem"}}>
+                    {cat.skills.map((skill,si)=>{
+                      const key=cat.cat+"_"+si; const done=skillsP[key]; const isExp=expandedKey===key; const hasNote=notesP[key]&&notesP[key].trim();
+                      return (
+                        <div key={si} style={{borderRadius:"10px",overflow:"hidden",border:"1.5px solid "+(done?pal.good+"40":pal.stone+"25")}}>
+                          <button onClick={()=>toggleSkillP(cat.cat,si)}
+                            style={{display:"flex",gap:"0.55rem",alignItems:"center",padding:"0.42rem 0.6rem",background:done?pal.goodBg:pal.linen,cursor:"pointer",textAlign:"left",width:"100%",border:"none"}}>
+                            <div style={{width:"20px",height:"20px",borderRadius:"5px",border:"2px solid "+(done?pal.good:pal.stone),background:done?pal.good:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                              {done&&<span style={{color:"#fff",fontSize:"0.7rem",fontWeight:"900"}}>{"\u2713"}</span>}
+                            </div>
+                            <span style={{flex:1,fontSize:"0.78rem",color:done?pal.good:pal.inkM,fontWeight:done?"600":"400",textDecoration:done?"line-through":"none",lineHeight:1.45}}>{skill}</span>
+                            {done&&<span onClick={(e)=>{e.stopPropagation();setExpandedKey(isExp?null:key);}} style={{fontSize:"0.65rem",color:pal.slate,cursor:"pointer",flexShrink:0,padding:"0 2px"}}>{hasNote?"\ud83d\udcdd":isExp?"\u2303":"+ note"}</span>}
+                          </button>
+                          {done&&isExp&&(
+                            <div style={{padding:"0.4rem 0.6rem 0.5rem",background:"#fff",borderTop:"1px solid "+pal.stone+"20"}}>
+                              <textarea value={notesP[key]||""} onChange={e=>saveNoteP(key,e.target.value)}
+                                placeholder={"How did "+ch?.name+" demonstrate this? (optional)"}
+                                rows={2} style={{width:"100%",padding:"0.4rem 0.55rem",border:"1.5px solid "+pal.stone,borderRadius:"8px",fontSize:"0.75rem",color:pal.ink,background:pal.parchm,resize:"none",outline:"none",fontFamily:"inherit",lineHeight:1.5}}/>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
             </div>
           );
         })()}
