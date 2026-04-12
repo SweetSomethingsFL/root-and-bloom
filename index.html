@@ -12700,12 +12700,37 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
     return s||null;
   }).filter(Boolean);
 
+  // Momentum: compare this week vs last week entry count per child
+  const lastWeekStart = new Date(weekStart); lastWeekStart.setDate(weekStart.getDate()-7);
+  const lastWeekEnd   = new Date(weekStart); lastWeekEnd.setDate(weekStart.getDate()-1);
+  const getMomentum = (ci) => {
+    const entries = portfolioEntries.filter(e=>e.childIdx===ci&&!e.isDay);
+    const thisWkCount = entries.filter(e=>{
+      try{ const d=new Date(e.date+", "+yr); return d>=weekStart&&d<=weekEnd; }catch(ex){return false;}
+    }).length;
+    const lastWkCount = entries.filter(e=>{
+      try{ const d=new Date(e.date+", "+yr); return d>=lastWeekStart&&d<=lastWeekEnd; }catch(ex){return false;}
+    }).length;
+    const delta = thisWkCount - lastWkCount;
+    return {delta, thisWkCount, lastWkCount};
+  };
+
+  const last4Weeks = Array.from({length:4},(_,i)=>{
+    const ws = new Date(weekStart); ws.setDate(weekStart.getDate() - i*7);
+    const we = new Date(ws); we.setDate(ws.getDate()+6);
+    return {start:ws, end:we};
+  }).reverse();
   const subjStats = allSubjs.map(s=>{
     const all    = childEntries.filter(e=>e.subj===s.label);
     const week   = all.filter(e=>isThisWeek(e.date));
     const recent = all[0]||null;
     const notes  = all.filter(e=>e.note&&e.note.trim().length>10);
-    return {...s, total:all.length, weekCount:week.length, recent, noteCount:notes.length};
+    const weekDots = last4Weeks.map(({start,end})=>{
+      return all.some(e=>{
+        try{ const d=new Date(e.date+", "+yr); return d>=start && d<=end; }catch(ex){return false;}
+      });
+    });
+    return {...s, total:all.length, weekCount:week.length, recent, noteCount:notes.length, weekDots};
   }).sort((a,b)=>b.total-a.total);
 
   // ── AI pulse — supports week / month / all-time ──────────────────────────
@@ -12729,8 +12754,14 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
     family.children.forEach((c,ci)=>{
       const cEntries = portfolioEntries.filter(e=>e.childIdx===ci&&!e.isDay&&filterEntry(e)&&e.note&&e.note.trim());
       if(cEntries.length===0) return;
-      noteLines.push("Child: "+c.name+" ("+c.grade+", "+c.grade+" grade)");
-      cEntries.slice(0,40).forEach(e=>noteLines.push("  "+e.subj+(e.date?" ["+e.date+"]":"")+": "+e.note.replace("AI Summary: ","").trim()));
+      const subjCounts = {};
+      cEntries.forEach(e=>{ subjCounts[e.subj]=(subjCounts[e.subj]||0)+1; });
+      const freqLine = Object.entries(subjCounts).sort((a,b)=>b[1]-a[1]).map(([s,n])=>s+":"+n).join(", ");
+      noteLines.push("Child: "+c.name+" (grade: "+c.grade+") | Subject frequency: "+freqLine);
+      cEntries.slice(0,40).forEach(e=>{
+        const milestone = e.isMilestone ? " [MILESTONE]" : "";
+        noteLines.push("  "+e.subj+(e.date?" ["+e.date+"]":"")+milestone+": "+e.note.replace("AI Summary: ","").trim());
+      });
     });
 
     if(noteLines.length===0) {
@@ -12740,7 +12771,21 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
     }
 
     const rangeLabel = r==="week"?"this week":r==="month"?"this month":"all time";
-    const prompt = "You are a warm, insightful homeschool assistant. A parent is reviewing their child\u2019s progress "+rangeLabel+". Based on these notes, write a progress summary for each child. For each child: 2-3 sentences on what stood out, specific growth you notice, and 1 sentence on any subject that seems light or worth more attention. Be warm, specific, and encouraging \u2014 reference the actual content from their notes. Plain text only, no bullet points, no markdown.\n\nNotes:\n"+noteLines.join("\n");
+    const prompt = "You are a warm, insightful homeschool learning coach writing a progress summary for a homeschool parent. "
+      + "The parent has logged notes about their child\u2019s learning "+rangeLabel+". "
+      + "Your job is to read these notes carefully and write a structured summary for each child.\n\n"
+      + "For each child, write THREE clearly labeled sections:\n"
+      + "STRENGTHS: Name 2-3 specific subjects where this child is excelling or showing strong engagement. "
+      + "Base this on: high note frequency, milestone tags [MILESTONE], positive language in notes, or depth of detail. "
+      + "Quote or paraphrase specific moments from the notes.\n"
+      + "GROWTH AREAS: Name 1-2 subjects that appear light (few or no entries), show struggle signals in the note language, "
+      + "or haven\u2019t been logged recently. Be gentle and constructive \u2014 frame as opportunity, not failure.\n"
+      + "OVERALL: 1-2 warm sentences capturing the child\u2019s learning story this period. Reference something specific.\n\n"
+      + "Rules: Plain text only. No markdown, no bullet points, no asterisks. "
+      + "Label each section exactly as: STRENGTHS: / GROWTH AREAS: / OVERALL: "
+      + "Be specific \u2014 mention actual subjects and real moments from the notes. "
+      + "Keep each child\u2019s summary under 150 words.\n\n"
+      + "Notes:\n"+noteLines.join("\n");
 
     try {
       const result = await callClaude(prompt);
@@ -12798,6 +12843,12 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
                   style={{display:"flex",alignItems:"center",gap:"0.3rem",padding:"0.32rem 0.75rem",border:`2px solid ${sel?ccp.c1:pal.stone+"40"}`,borderRadius:"20px",background:sel?ccp.c1+"18":"transparent",cursor:"pointer",flexShrink:0}}>
                   <span style={{fontSize:"1rem"}}>{c.avatar}</span>
                   <span style={{fontSize:"0.75rem",fontWeight:sel?"800":"500",color:sel?ccp.c1:pal.inkM}}>{c.name}</span>
+                  {(()=>{ const m=getMomentum(i); if(m.thisWkCount===0&&m.lastWkCount===0) return null;
+                    const up=m.delta>0, same=m.delta===0;
+                    const arrow=up?"\u2191":same?"\u2192":"\u2193";
+                    const col=up?"#2d9e5f":same?pal.slate:"#cc4444";
+                    return <span style={{fontSize:"0.6rem",fontWeight:"800",color:col,marginLeft:"1px"}}>{arrow+(m.delta!==0?(m.delta>0?"+":"")+m.delta:"")}</span>;
+                  })()}
                 </button>
               );
             })}
@@ -12882,16 +12933,51 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
               </div>
 
               {/* Pulse result */}
-              {pulseResult&&(
-                <div style={{background:pal.goodBg,borderRadius:"16px",padding:"1rem 1.1rem",marginBottom:"1rem",border:"1.5px solid "+pal.good+"40"}}>
-                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.6rem"}}>
-                    <div style={{fontWeight:"800",color:pal.good,fontSize:"0.85rem"}}>{"\u2728 Progress Summary"}</div>
-                    <button onClick={()=>setPulseResult(null)} style={{background:"transparent",border:"none",color:pal.stone,cursor:"pointer",fontSize:"0.8rem"}}>{"\u2715"}</button>
+              {pulseResult&&(()=>{
+                const parsePulse = (text) => {
+                  const sections = [];
+                  const patterns = [
+                    {key:"strengths", label:"Strengths",    icon:"\u2b50", color:pal.good,    bg:pal.goodBg, border:pal.good+"40"},
+                    {key:"growth",    label:"Growth Areas", icon:"\U0001f331", color:"#b07800", bg:"#fff8e6",  border:"#f5c84240"},
+                    {key:"overall",   label:"Overall",      icon:"\u2728",  color:pal.primary, bg:pal.pale,  border:pal.primary+"30"},
+                  ];
+                  const upper = text.toUpperCase();
+                  patterns.forEach(p => {
+                    const marker = p.key==="growth" ? "GROWTH AREAS:" : p.key.toUpperCase()+":";
+                    const idx = upper.indexOf(marker);
+                    if(idx===-1) return;
+                    const start = idx + marker.length;
+                    const nextIdxs = patterns
+                      .filter(pp=>pp.key!==p.key)
+                      .map(pp=>{ const m=pp.key==="growth"?"GROWTH AREAS:":pp.key.toUpperCase()+":"; return upper.indexOf(m, start); })
+                      .filter(i=>i>start);
+                    const end = nextIdxs.length>0 ? Math.min(...nextIdxs) : text.length;
+                    const body = text.slice(start, end).trim();
+                    if(body) sections.push({...p, body});
+                  });
+                  if(sections.length===0) sections.push({key:"plain",label:"Summary",icon:"\u2728",color:pal.good,bg:pal.goodBg,border:pal.good+"40",body:text.trim()});
+                  return sections;
+                };
+                const sections = parsePulse(pulseResult);
+                return (
+                  <div style={{marginBottom:"1rem"}}>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.65rem"}}>
+                      <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.85rem"}}>{"\u2728 Progress Summary"}</div>
+                      <button onClick={()=>setPulseResult(null)} style={{background:"transparent",border:"none",color:pal.stone,cursor:"pointer",fontSize:"0.8rem"}}>{"\u2715"}</button>
+                    </div>
+                    {sections.map((s,i)=>(
+                      <div key={s.key} style={{background:s.bg,borderRadius:"13px",padding:"0.75rem 0.9rem",marginBottom:"0.5rem",border:"1.5px solid "+s.border}}>
+                        <div style={{display:"flex",alignItems:"center",gap:"0.4rem",marginBottom:"0.35rem"}}>
+                          <span style={{fontSize:"0.9rem"}}>{s.icon}</span>
+                          <span style={{fontWeight:"800",color:s.color,fontSize:"0.72rem",textTransform:"uppercase",letterSpacing:"0.07em"}}>{s.label}</span>
+                        </div>
+                        <div style={{fontSize:"0.82rem",color:pal.ink,lineHeight:1.7}}>{s.body}</div>
+                      </div>
+                    ))}
+                    <div style={{fontSize:"0.65rem",color:pal.stone,marginTop:"0.25rem",textAlign:"right"}}>{rangeLabel+" \u00b7 "+today.toLocaleDateString("en-US",{month:"short",day:"numeric"})}</div>
                   </div>
-                  <div style={{fontSize:"0.84rem",color:pal.ink,lineHeight:1.75,whiteSpace:"pre-wrap"}}>{pulseResult}</div>
-                  <div style={{fontSize:"0.65rem",color:pal.stone,marginTop:"0.6rem"}}>{rangeLabel+" \u00b7 "+today.toLocaleDateString("en-US",{month:"short",day:"numeric"})}</div>
-                </div>
-              )}
+                );
+              })()}
 
               {/* Loading */}
               {pulseLoading&&(
@@ -12942,6 +13028,14 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
                       {s.total>0?s.total+" entr"+(s.total===1?"y":"ies")+(s.noteCount>0?", "+s.noteCount+" with notes":""):"Nothing logged yet"}
                       {s.weekCount>0&&<span style={{color:cp.c1,fontWeight:"700"}}>{" \u00b7 "+s.weekCount+" this week"}</span>}
                     </div>
+                    {s.total>0&&(
+                      <div style={{display:"flex",alignItems:"center",gap:"3px",marginTop:"5px"}}>
+                        {(s.weekDots||[]).map((hit,di)=>(
+                          <div key={di} style={{width:"8px",height:"8px",borderRadius:"50%",background:hit?cp.c1:pal.stone+"40",border:"1.5px solid "+(hit?cp.c1:pal.stone+"30"),flexShrink:0}}/>
+                        ))}
+                        <span style={{fontSize:"0.58rem",color:pal.stone,marginLeft:"3px"}}>{"4 wks"}</span>
+                      </div>
+                    )}
                   </div>
                   {s.noteCount>0&&<span style={{fontSize:"0.7rem",color:pal.primary,fontWeight:"700",flexShrink:0}}>{"View \u2192"}</span>}
                   {s.total===0&&<span style={{fontSize:"0.65rem",color:pal.stone,flexShrink:0}}>{"0 entries"}</span>}
