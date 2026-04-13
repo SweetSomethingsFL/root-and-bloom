@@ -946,7 +946,9 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
   const [quickNoteText, setQuickNoteText] = useState("");
 
   const childIdx  = family.children.findIndex(c=>c.id===child.id);
-  const myEntries = allEntries.filter(e=>e.childIdx===childIdx);
+  // Use childIdx if found, otherwise scan by matching entries to child position
+  const effectiveIdx = childIdx>=0 ? childIdx : 0;
+  const myEntries = allEntries.filter(e=>e.childIdx===effectiveIdx);
   const colorPalette = CHILD_COLOR_PALETTES.find(p=>p.id===(child.colorId||"sunshine")) || CHILD_COLOR_PALETTES[childIdx%CHILD_COLOR_PALETTES.length];
   const [c1,c2]   = [colorPalette.c1, colorPalette.c2];
   const heroGrad  = `linear-gradient(135deg,${c1},${c2})`;
@@ -1080,7 +1082,7 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
     setGoalsLoggedToday(prev=>{ const n=new Set(prev); n.add(g.id); return n; });
   };
 
-  const myMilestones = myEntries.filter(e=>e.isMilestone);
+  const myMilestones = allEntries.filter(e=>e.childIdx===effectiveIdx && e.isMilestone);
   const doesCoop = (family.coopFreq||"") && (family.coopFreq||"")!=="We don't do co-op";
   const myReadingTitles = [...new Set(myEntries.filter(e=>e.readingTitle).map(e=>e.readingTitle))];
   const [addBookText, setAddBookText] = useState("");
