@@ -5,9 +5,6 @@
              kid quiz, field study modal
    ============================================================ */
 
-// Destructure React hooks so components in this file can use them directly
-const { useState, useEffect, useRef, useMemo } = React;
-
 /* ----------------------------------------------------------
    HELPERS
    ---------------------------------------------------------- */
