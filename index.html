@@ -1080,22 +1080,47 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
     setGoalsLoggedToday(prev=>{ const n=new Set(prev); n.add(g.id); return n; });
   };
 
-  const hasGoals = familyGoalObjs.length>0;
   const myMilestones = myEntries.filter(e=>e.isMilestone);
   const doesCoop = (family.coopFreq||"") && (family.coopFreq||"")!=="We don't do co-op";
   const myReadingTitles = [...new Set(myEntries.filter(e=>e.readingTitle).map(e=>e.readingTitle))];
   const [addBookText, setAddBookText] = useState("");
   const [bookSaved,   setBookSaved]   = useState(false);
+  // Kid-owned goals (stored per child in localStorage)
+  const KID_GOALS_KEY  = "rootbloom_kid_goals_"+child.id;
+  const KID_ONBOARD_KEY= "rootbloom_kid_onboard_"+child.id;
+  const [kidGoals,     setKidGoals]    = useState(()=>{ try{ return JSON.parse(localStorage.getItem(KID_GOALS_KEY)||"[]"); }catch{return [];} });
+  const [kidOnboarded, setKidOnboarded]= useState(()=>{ try{ return !!localStorage.getItem(KID_ONBOARD_KEY); }catch{return false;} });
+  const [showKidOnboard,setShowKidOnboard] = useState(!kidOnboarded);
+  const [kidGoalLogged, setKidGoalLogged]  = useState(new Set());
+  const saveKidGoals = (goals) => {
+    setKidGoals(goals);
+    try{ localStorage.setItem(KID_GOALS_KEY, JSON.stringify(goals)); }catch{}
+  };
+  const finishKidOnboard = (goals) => {
+    saveKidGoals(goals);
+    try{ localStorage.setItem(KID_ONBOARD_KEY, "1"); }catch{}
+    setKidOnboarded(true);
+    setShowKidOnboard(false);
+  };
+  const logKidGoal = (goal) => {
+    if(kidGoalLogged.has(goal)) return;
+    onAddEntry&&onAddEntry({childIdx, subj:"Daily Note", title:"🎯 "+goal,
+      date:new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"}),
+      thumb:"🎯", note:"Working on my goal: "+goal, selfLogged:true});
+    setKidGoalLogged(prev=>{ const n=new Set(prev); n.add(goal); return n; });
+  };
   const STABS = [
-    {id:"home",  icon:"🏠",l:"Home"},
-    {id:"today", icon:"📅",l:"Today"},
-    {id:"mywork",icon:"⭐",    l:"My Work"},
-    {id:"books", icon:"📚",l:"Books"},
+    {id:"home",  icon:"🏠", l:"Home"},
+    {id:"today", icon:"📅", l:"Today"},
+    {id:"books", icon:"📚", l:"Books"},
     ...(myMilestones.length>0?[{id:"stars",icon:"🌟",l:"Stars"}]:[]),
-    ...(hasGoals?[{id:"goals",icon:"🎯",l:"Goals"}]:[]),
-    ...(doesCoop?[{id:"coop",icon:"🏫",l:"Co-op"}]:[]),
-    {id:"streak",icon:"🔥",l:"Streak"},
+    ...(kidGoals.length>0?[{id:"goals",icon:"🎯",l:"Goals"}]:[]),
   ];
+
+  // Kid goal onboarding screen
+  if(showKidOnboard) {
+    return <KidGoalOnboarding child={child} c1={c1} c2={c2} heroGrad={heroGrad} onDone={finishKidOnboard} />;
+  }
 
   return (
     <div style={{minHeight:"100vh",background:SK.cream,fontFamily:"'Comic Sans MS','Chalkboard SE',cursive",display:"flex",flexDirection:"column"}}>
@@ -1139,6 +1164,30 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
             </div>
 
             <div style={{padding:"1.3rem 1rem 0"}}>
+              {/* Kid goals */}
+              {kidGoals.length>0&&(
+                <div style={{background:SK.card,borderRadius:"18px",padding:"0.9rem 1rem",marginBottom:"0.9rem",boxShadow:"0 2px 12px rgba(0,0,0,0.07)"}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.55rem"}}>
+                    <div style={{fontWeight:"800",color:SK.ink,fontSize:"0.88rem"}}>{"🎯 My Goals"}</div>
+                    <button onClick={()=>setSTab("goals")} style={{background:"transparent",border:"none",color:c1,fontSize:"0.72rem",fontWeight:"700",cursor:"pointer"}}>{"See all"}</button>
+                  </div>
+                  <div style={{display:"flex",flexDirection:"column",gap:"0.3rem"}}>
+                    {kidGoals.slice(0,2).map((g,i)=>{
+                      const done = kidGoalLogged.has(g);
+                      return (
+                        <div key={i} onClick={()=>!done&&logKidGoal(g)}
+                          style={{display:"flex",gap:"0.55rem",alignItems:"center",padding:"0.38rem 0.55rem",borderRadius:"10px",background:done?SK.grassL:"#f8f8f8",border:"1.5px solid "+(done?SK.grass+"60":"#ece5dc"),cursor:done?"default":"pointer"}}>
+                          <div style={{width:"20px",height:"20px",borderRadius:"50%",border:"2px solid "+(done?SK.grass:"#ddd"),background:done?SK.grass:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                            {done&&<span style={{color:"#fff",fontSize:"0.65rem",fontWeight:"900"}}>{"\u2713"}</span>}
+                          </div>
+                          <span style={{fontSize:"0.78rem",color:done?SK.grass:SK.ink,fontWeight:done?"600":"400",textDecoration:done?"line-through":"none",flex:1}}>{g}</span>
+                          {!done&&<span style={{fontSize:"0.65rem",color:SK.lite}}>{"tap!"}</span>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
               {/* Daily tip */}
               {(()=>{
                 const TIPS = [
@@ -1428,29 +1477,35 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
           </div>
         )}
 
-        {/* -- GOALS TAB -- */}
+        {/* -- KID GOALS TAB -- */}
         {sTab==="goals" && (
           <div style={{animation:"fadeUp 0.22s ease",padding:"1.2rem 1rem"}}>
-            <div style={{fontWeight:"900",color:SK.ink,fontSize:"1.2rem",marginBottom:"0.3rem"}}>{"🎯 My Goals"}</div>
-            <div style={{fontSize:"0.72rem",color:SK.lite,marginBottom:"1rem",lineHeight:1.5}}>{"Tap a goal you worked on today to log it!"}</div>
-            {familyGoalObjs.length===0?(
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.25rem"}}>
+              <div style={{fontWeight:"900",color:SK.ink,fontSize:"1.2rem"}}>{"🎯 My Goals"}</div>
+              <button onClick={()=>setShowKidOnboard(true)}
+                style={{padding:"0.25rem 0.65rem",border:"1.5px solid "+c1+"50",borderRadius:"20px",background:"transparent",color:c1,fontSize:"0.68rem",fontWeight:"700",cursor:"pointer"}}>{"Edit goals"}</button>
+            </div>
+            <div style={{fontSize:"0.72rem",color:SK.lite,marginBottom:"1rem"}}>{"Tap a goal you worked on today!"}</div>
+            {kidGoals.length===0?(
               <div style={{background:SK.card,borderRadius:"18px",padding:"1.5rem",textAlign:"center",boxShadow:"0 2px 10px rgba(0,0,0,0.06)"}}>
-                <div style={{fontSize:"0.8rem",color:SK.lite}}>{"No goals set yet."}</div>
+                <div style={{fontSize:"0.8rem",color:SK.lite}}>{"No goals yet."}</div>
+                <button onClick={()=>setShowKidOnboard(true)}
+                  style={{marginTop:"0.75rem",padding:"0.6rem 1.2rem",border:"none",borderRadius:"12px",background:"linear-gradient(135deg,"+c1+","+c2+")",color:"#fff",fontWeight:"800",fontSize:"0.82rem",cursor:"pointer"}}>{"Set my goals!"}</button>
               </div>
             ):(
               <div style={{display:"flex",flexDirection:"column",gap:"0.55rem"}}>
-                {familyGoalObjs.map(g=>{
-                  const done = goalsLoggedToday.has(g.id);
+                {kidGoals.map((g,i)=>{
+                  const done=kidGoalLogged.has(g);
                   return (
-                    <div key={g.id} onClick={()=>!done&&logGoal(g)}
-                      style={{background:SK.card,borderRadius:"18px",padding:"0.9rem 1rem",display:"flex",gap:"0.85rem",alignItems:"center",boxShadow:"0 2px 10px rgba(0,0,0,0.06)",border:`2px solid ${done?c1+"60":SK.skyL}`,cursor:done?"default":"pointer",transition:"all 0.2s",opacity:done?0.8:1}}>
-                      <div style={{width:"46px",height:"46px",borderRadius:"13px",background:done?`linear-gradient(135deg,${c1},${c2})`:`linear-gradient(135deg,${c1}22,${c2}11)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.5rem",flexShrink:0,transition:"background 0.2s"}}>{g.icon}</div>
+                    <div key={i} onClick={()=>!done&&logKidGoal(g)}
+                      style={{background:SK.card,borderRadius:"18px",padding:"0.9rem 1rem",display:"flex",gap:"0.85rem",alignItems:"center",boxShadow:"0 2px 10px rgba(0,0,0,0.06)",border:"2px solid "+(done?c1+"60":SK.skyL),cursor:done?"default":"pointer"}}>
+                      <div style={{width:"46px",height:"46px",borderRadius:"13px",background:done?"linear-gradient(135deg,"+c1+","+c2+")":"linear-gradient(135deg,"+c1+"22,"+c2+"11)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.5rem",flexShrink:0}}>{"\xf0\x9f\x8e\xaf"}</div>
                       <div style={{flex:1}}>
-                        <div style={{fontWeight:"800",color:done?c1:SK.ink,fontSize:"0.88rem"}}>{g.label}</div>
-                        <div style={{fontSize:"0.68rem",color:SK.lite,marginTop:"2px"}}>{done?"Logged today! +10 pts":"Tap to log this goal today"}</div>
+                        <div style={{fontWeight:"800",color:done?c1:SK.ink,fontSize:"0.88rem"}}>{g}</div>
+                        <div style={{fontSize:"0.68rem",color:SK.lite,marginTop:"2px"}}>{done?"Logged today! \xf0\x9f\x8c\x9f":"Tap to log working on this"}</div>
                       </div>
                       {done?(
-                        <div style={{width:"28px",height:"28px",borderRadius:"50%",background:`linear-gradient(135deg,${c1},${c2})`,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:"0.85rem",flexShrink:0}}>{"✓"}</div>
+                        <div style={{width:"28px",height:"28px",borderRadius:"50%",background:"linear-gradient(135deg,"+c1+","+c2+")",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:"0.85rem",flexShrink:0}}>{"\u2713"}</div>
                       ):(
                         <div style={{width:"28px",height:"28px",borderRadius:"50%",border:"2.5px solid #ddd",flexShrink:0}}/>
                       )}
@@ -1459,9 +1514,9 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
                 })}
               </div>
             )}
-            {goalsLoggedToday.size>0&&(
-              <div style={{background:`linear-gradient(135deg,${c1}15,${c2}10)`,borderRadius:"16px",padding:"0.85rem 1rem",marginTop:"0.9rem",textAlign:"center",border:`1.5px solid ${c1}30`}}>
-                <div style={{fontWeight:"800",color:c1,fontSize:"0.85rem"}}>{"🌟 "+goalsLoggedToday.size+" goal"+(goalsLoggedToday.size>1?"s":"")+" logged today!"}</div>
+            {kidGoalLogged.size>0&&(
+              <div style={{background:"linear-gradient(135deg,"+c1+"15,"+c2+"10)",borderRadius:"16px",padding:"0.85rem 1rem",marginTop:"0.9rem",textAlign:"center",border:"1.5px solid "+c1+"30"}}>
+                <div style={{fontWeight:"800",color:c1,fontSize:"0.85rem"}}>{"🌟 "+kidGoalLogged.size+" goal"+(kidGoalLogged.size>1?"s":"")+" logged today!"}</div>
               </div>
             )}
           </div>
@@ -1740,6 +1795,110 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
           onDismiss={()=>setShowCoopPopup(false)}
         />
       )}
+    </div>
+  );
+}
+
+/* =======================================
+   KID GOAL ONBOARDING
+======================================= */
+function KidGoalOnboarding({ child, c1, c2, heroGrad, onDone }) {
+  const SUGGESTED = [
+    "📚 Read more books",
+    "📐 Get better at math",
+    "✏️ Write every day",
+    "🔭 Ask more questions",
+    "🌿 Learn about nature",
+    "🎨 Make something creative",
+    "🧪 Try new experiments",
+    "🌍 Learn about the world",
+    "💪 Practice every day",
+    "🗣️ Learn to explain things",
+  ];
+  const [selected, setSelected] = useState(new Set());
+  const [customText, setCustomText] = useState("");
+  const [step, setStep] = useState(0); // 0=pick, 1=custom
+
+  const toggle = (g) => setSelected(prev => {
+    const next = new Set(prev);
+    next.has(g) ? next.delete(g) : next.add(g);
+    return next;
+  });
+
+  const addCustom = () => {
+    if(!customText.trim()) return;
+    setSelected(prev => new Set([...prev, customText.trim()]));
+    setCustomText("");
+  };
+
+  const finish = () => {
+    const goals = [...selected];
+    if(goals.length===0) { onDone([]); return; }
+    onDone(goals);
+  };
+
+  return (
+    <div style={{minHeight:"100vh",background:SK.cream,fontFamily:"'Comic Sans MS','Chalkboard SE',cursive",display:"flex",flexDirection:"column"}}>
+      {/* Hero */}
+      <div style={{background:heroGrad,padding:"2rem 1.4rem 2.5rem",textAlign:"center",position:"relative",overflow:"hidden"}}>
+        <div style={{position:"absolute",right:"-30px",bottom:"-30px",width:"120px",height:"120px",borderRadius:"50%",background:"rgba(255,255,255,0.07)"}}/>
+        <div style={{fontSize:"3.5rem",marginBottom:"0.5rem",animation:"bounce 2s ease infinite"}}>{child.avatar}</div>
+        <div style={{fontWeight:"900",color:"#fff",fontSize:"1.4rem",marginBottom:"0.3rem"}}>{"Hey, "+child.name+"!"}</div>
+        <div style={{fontSize:"0.85rem",color:"rgba(255,255,255,0.82)",lineHeight:1.6}}>{"What do you want to get good at this year?"}</div>
+      </div>
+
+      <div style={{flex:1,padding:"1.2rem 1rem",overflowY:"auto",paddingBottom:"100px"}}>
+        <div style={{fontSize:"0.78rem",color:SK.lite,marginBottom:"0.85rem",textAlign:"center"}}>{"Tap everything that sounds cool! You can change this later."}</div>
+
+        {/* Goal chips */}
+        <div style={{display:"flex",flexWrap:"wrap",gap:"0.5rem",marginBottom:"1rem",justifyContent:"center"}}>
+          {SUGGESTED.map((g,i)=>{
+            const sel = selected.has(g);
+            return (
+              <button key={i} onClick={()=>toggle(g)}
+                style={{padding:"0.55rem 0.9rem",border:"2.5px solid "+(sel?c1:"#ece5dc"),borderRadius:"30px",background:sel?"linear-gradient(135deg,"+c1+","+c2+")":SK.card,color:sel?"#fff":SK.ink,fontWeight:sel?"800":"500",fontSize:"0.82rem",cursor:"pointer",fontFamily:"inherit",boxShadow:sel?"0 3px 12px "+c1+"40":"0 1px 6px rgba(0,0,0,0.07)",transition:"all 0.15s",animation:sel?"popIn 0.2s ease":"none"}}>
+                {g}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Write your own */}
+        <div style={{background:SK.card,borderRadius:"16px",padding:"0.9rem",marginBottom:"1rem",boxShadow:"0 2px 10px rgba(0,0,0,0.06)"}}>
+          <div style={{fontWeight:"700",color:SK.ink,fontSize:"0.82rem",marginBottom:"0.5rem"}}>{"Or write your own:"}</div>
+          <div style={{display:"flex",gap:"0.4rem"}}>
+            <input value={customText} onChange={e=>setCustomText(e.target.value)}
+              onKeyDown={e=>e.key==="Enter"&&addCustom()}
+              placeholder={"e.g. Learn about dinosaurs"}
+              style={{flex:1,padding:"0.6rem 0.75rem",border:"2px solid "+(customText?c1:"#ece5dc"),borderRadius:"11px",fontSize:"0.82rem",fontFamily:"inherit",background:SK.skyL,color:SK.ink,outline:"none"}}
+              onFocus={e=>e.target.style.borderColor=c1}
+              onBlur={e=>{if(!customText)e.target.style.borderColor="#ece5dc";}}
+            />
+            <button onClick={addCustom} disabled={!customText.trim()}
+              style={{padding:"0.6rem 0.85rem",border:"none",borderRadius:"11px",background:customText.trim()?"linear-gradient(135deg,"+c1+","+c2+")":" #e8e0d8",color:"#fff",fontWeight:"800",fontSize:"0.82rem",cursor:customText.trim()?"pointer":"default",flexShrink:0}}>{"Add"}</button>
+          </div>
+          {[...selected].filter(g=>!SUGGESTED.includes(g)).map((g,i)=>(
+            <div key={i} style={{display:"flex",alignItems:"center",gap:"0.4rem",marginTop:"0.45rem",padding:"0.35rem 0.6rem",background:c1+"15",borderRadius:"20px",border:"1.5px solid "+c1+"40"}}>
+              <span style={{flex:1,fontSize:"0.78rem",color:c1,fontWeight:"700"}}>{g}</span>
+              <button onClick={()=>toggle(g)} style={{background:"transparent",border:"none",color:c1,cursor:"pointer",fontSize:"0.8rem",fontWeight:"900",flexShrink:0}}>{"\u2715"}</button>
+            </div>
+          ))}
+        </div>
+
+        {selected.size>0&&(
+          <div style={{background:c1+"10",borderRadius:"12px",padding:"0.6rem 0.85rem",marginBottom:"0.75rem",border:"1.5px solid "+c1+"30",fontSize:"0.74rem",color:c1,fontWeight:"700",textAlign:"center"}}>
+            {selected.size+" goal"+(selected.size>1?"s":"")+" selected \xf0\x9f\x8c\x9f"}
+          </div>
+        )}
+      </div>
+
+      {/* Fixed bottom button */}
+      <div style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:"430px",padding:"1rem 1.2rem 1.5rem",background:SK.cream,borderTop:"1px solid #ece5dc"}}>
+        <button onClick={finish}
+          style={{width:"100%",padding:"0.9rem",border:"none",borderRadius:"16px",background:selected.size>0?"linear-gradient(135deg,"+c1+","+c2+")":" #e8e0d8",color:"#fff",fontWeight:"900",fontSize:"0.95rem",cursor:"pointer",boxShadow:selected.size>0?"0 4px 18px "+c1+"40":"none",transition:"all 0.2s"}}>
+          {selected.size>0?"Let's go! \xf0\x9f\x9a\x80":"Skip for now"}
+        </button>
+      </div>
     </div>
   );
 }
