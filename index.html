@@ -1540,7 +1540,6 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
               <div style={{fontWeight:"900",color:SK.ink,fontSize:"1rem",marginBottom:"0.15rem"}}>{quickNotePrompt.b?.s+" — done! 🌟"}</div>
               <div style={{fontSize:"0.76rem",color:SK.lite}}>{"Want to write anything about it?"}</div>
             </div>
-            </div>
             <textarea value={quickNoteText} onChange={e=>setQuickNoteText(e.target.value)}
               placeholder={"What did you do? What was fun or hard?"} rows={2} autoFocus
               style={{width:"100%",padding:"0.8rem",border:"2.5px solid "+SK.sky,borderRadius:"14px",fontSize:"0.88rem",fontFamily:"inherit",background:SK.skyL,color:SK.ink,resize:"none",outline:"none",marginBottom:"0.65rem",lineHeight:1.5}}
