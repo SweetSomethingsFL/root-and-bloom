@@ -360,6 +360,7 @@ function RootAndBloom() {
   const [showEOY,           setShowEOY]           = useState(false);
   const [eoyChild,          setEoyChild]          = useState(0);
   const [eoyDismissed,      setEoyDismissed]      = useState(saved?.eoyDismissed||null);
+  const [notifDismissed,    setNotifDismissed]    = useState(saved?.notifDismissed||{});
   const [showNewYear,       setShowNewYear]        = useState(false);
   const [newYearDismissed,  setNewYearDismissed]   = useState(saved?.newYearDismissed||null);
   const [showJournal,       setShowJournal]       = useState(null); // childId or null
@@ -371,7 +372,7 @@ function RootAndBloom() {
 
   // Auto-save whenever key state changes
   useEffect(()=>{
-    savePersist({family,navIds,homeLayout,portfolioLayout,portfolio:portfolioEntries,coopLog,attendanceDays,attendanceLog,observationLog,checkinDates,studentVisits,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed});
+    savePersist({family,navIds,homeLayout,portfolioLayout,portfolio:portfolioEntries,coopLog,attendanceDays,attendanceLog,observationLog,checkinDates,studentVisits,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed,notifDismissed});
   },[family,navIds,portfolioEntries,coopLog,attendanceDays,attendanceLog,observationLog,checkinDates,studentVisits,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed]);
 
   // Auto-show New Year prompt when yearEnd has passed
@@ -633,10 +634,11 @@ function RootAndBloom() {
               setTodayProgress({count,total,date:todayStr});
             }}
           />}
-          {activeTab==="progress"    && <ProgressScreen   pal={pal} family={family} child={childFilt} setChild={setChildFilt} portfolioEntries={portfolioEntries} attendanceDays={attendanceDays} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} />}
+          {activeTab==="progress"    && <ProgressScreen   pal={pal} family={family} child={childFilt} setChild={setChildFilt} portfolioEntries={portfolioEntries} attendanceDays={attendanceDays} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} onOpenEOY={()=>{setEoyChild(0);setShowEOY(true);}} />}
           {activeTab==="learn"       && <LearnScreen       pal={pal} family={family} child={childFilt} setChild={setChildFilt} learnTab={learnTab} setLearnTab={setLearnTab} portfolioEntries={portfolioEntries} />}
           {activeTab==="portfolio"   && <PortfolioScreen   pal={pal} family={family} child={childFilt} setChild={setChildFilt} entries={portfolioEntries} onAddEntry={addPortfolioEntry} onEditEntry={editPortfolioEntry} attendanceDays={attendanceDays}
             lastCheckinDate={lastCheckinDate} coopLog={coopLog} portfolioLayout={portfolioLayout} onSetPortfolioLayout={setPortfolioLayout}
+            attendanceLog={attendanceLog} notifDismissed={notifDismissed} onDismissNotif={(k)=>setNotifDismissed(d=>({...d,[k]:new Date().toDateString()}))} onOpenEOY={()=>{setEoyChild(0);setShowEOY(true);}}
             onCheckin={()=>handleChildCheckin(childFilt!=="all"?childFilt:family.children?.[0]?.id)}/>}
           {activeTab==="attendance"  && <AttendanceScreen  pal={pal} family={family} days={attendanceDays} attendanceLog={attendanceLog} portfolioEntries={portfolioEntries} coopLog={coopLog}
             onAddDay={(entry)=>{
@@ -6720,7 +6722,7 @@ function GoalsNudgeCard({pal,family,portfolioEntries,todayStr,onTabChange}){
   );
 }
 
-function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress, navIds=[], onAddEntry, onCheckin, checkinDates={}, observationLog=[], onOpenJournal, attendanceLog=[], studentVisits={}, homeLayout=["thisweek","todaycard","progress_nudge","consistency","missedday","behindweek","goals","pandc"], onSetHomeLayout }) {
+function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress, navIds=[], onAddEntry, onCheckin, checkinDates={}, observationLog=[], onOpenJournal, attendanceLog=[], studentVisits={}, homeLayout=["thisweek","todaycard","progress_nudge","consistency","missedday","behindweek","goals","pandc"], onSetHomeLayout, notifDismissed={}, onDismissNotif, onOpenEOY }) {
   const stateInfo  = getStateInfo(family.state||"");
   const stateHours = stateInfo.hours||"";
   const dayMatch   = stateHours.match(/(\d+)\s*day/i);
@@ -7365,6 +7367,83 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
 
       <div style={{padding:"1rem"}}>
         <FirstVisitTip pal={pal} screen="home"/>
+
+        {/* ── Notification Banners ── */}
+        {(()=>{
+          const todayStr2 = new Date().toDateString();
+          const isDismissedToday = (key) => notifDismissed[key]===todayStr2;
+          const dismiss = (key) => onDismissNotif&&onDismissNotif(key);
+          const banners = [];
+
+          // 1. No-log streak banner (2+ days since last checkin, not already checked in today)
+          const checkedInToday2 = lastCheckinDate===todayStr2;
+          if(!checkedInToday2 && lastCheckinDate && !isDismissedToday("nolog")) {
+            const daysSince = Math.floor((new Date()-new Date(lastCheckinDate))/(24*60*60*1000));
+            if(daysSince>=2) {
+              banners.push(
+                <div key="nolog" style={{background:"#fff8e6",borderRadius:"14px",padding:"0.75rem 1rem",marginBottom:"0.75rem",border:"1.5px solid #f5c84260",display:"flex",gap:"0.65rem",alignItems:"center"}}>
+                  <span style={{fontSize:"1.2rem",flexShrink:0}}>{"📅"}</span>
+                  <div style={{flex:1}}>
+                    <div style={{fontWeight:"700",color:"#7a5500",fontSize:"0.82rem"}}>
+                      {daysSince===2?"Yesterday wasn\u2019t logged yet":daysSince+" days since your last log"}
+                    </div>
+                    <div style={{fontSize:"0.7rem",color:"#b07800",marginTop:"1px"}}>{"Quick log keeps your streak alive 🌱"}</div>
+                  </div>
+                  <button onClick={()=>dismiss("nolog")} style={{background:"transparent",border:"none",color:"#b07800",fontSize:"0.8rem",cursor:"pointer",flexShrink:0,padding:"0 4px"}}>{"Later"}</button>
+                </div>
+              );
+            }
+          }
+
+          // 2. Attendance behind pace banner
+          if(!isDismissedToday("attendance_behind") && family.yearStart && family.yearEnd) {
+            const si2 = getStateInfo(family.state||"");
+            const REQUIRED2 = parseInt((si2.hours||"180").match(/\d+/)?.[0]||"180");
+            const start2=new Date(family.yearStart), end2=new Date(family.yearEnd), now2=new Date();
+            const totalDays2=(end2-start2)/(24*60*60*1000);
+            const elapsed2=Math.max(0,(now2-start2)/(24*60*60*1000));
+            const expectedPct2=Math.min(100,Math.round((elapsed2/totalDays2)*100));
+            const actualPct2=Math.min(100,Math.round((attendanceDays/REQUIRED2)*100));
+            const behindBy = expectedPct2 - actualPct2;
+            if(behindBy>=15 && actualPct2<95) {
+              const daysShort = Math.round((behindBy/100)*REQUIRED2);
+              banners.push(
+                <div key="attendance" style={{background:"#fff0f0",borderRadius:"14px",padding:"0.75rem 1rem",marginBottom:"0.75rem",border:"1.5px solid #ffaaaa60",display:"flex",gap:"0.65rem",alignItems:"center"}}>
+                  <span style={{fontSize:"1.2rem",flexShrink:0}}>{"⚠️"}</span>
+                  <div style={{flex:1}}>
+                    <div style={{fontWeight:"700",color:"#cc4444",fontSize:"0.82rem"}}>{"Attendance behind pace"}</div>
+                    <div style={{fontSize:"0.7rem",color:"#aa3333",marginTop:"1px"}}>{"About "+daysShort+" days behind — tap Attendance to see your catch-up plan"}</div>
+                  </div>
+                  <button onClick={()=>dismiss("attendance_behind")} style={{background:"transparent",border:"none",color:"#aa3333",fontSize:"0.8rem",cursor:"pointer",flexShrink:0,padding:"0 4px"}}>{"OK"}</button>
+                </div>
+              );
+            }
+          }
+
+          // 3. Year-end approaching banner (within 4 weeks, not dismissed)
+          if(!isDismissedToday("yearend_approaching") && family.yearEnd) {
+            const weeksLeft2 = getEOYWeeksLeft(family);
+            if(weeksLeft2!==null && weeksLeft2<=4 && weeksLeft2>=0) {
+              banners.push(
+                <div key="yearend" style={{background:"linear-gradient(135deg,"+pal.primary+"14,"+pal.accent+"08)",borderRadius:"14px",padding:"0.75rem 1rem",marginBottom:"0.75rem",border:"2px solid "+pal.primary+"30",display:"flex",gap:"0.65rem",alignItems:"center"}}>
+                  <span style={{fontSize:"1.2rem",flexShrink:0}}>{"🎓"}</span>
+                  <div style={{flex:1}}>
+                    <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.82rem"}}>
+                      {weeksLeft2===0?"Year complete! Time for your end-of-year review.":weeksLeft2===1?"Last week of the school year!":weeksLeft2+" weeks left in the school year"}
+                    </div>
+                    <div style={{fontSize:"0.7rem",color:pal.inkM,marginTop:"1px"}}>{"Checklist, year review, and grade promotion →"}</div>
+                  </div>
+                  <div style={{display:"flex",gap:"0.3rem",flexShrink:0}}>
+                    <button onClick={()=>onOpenEOY&&onOpenEOY()} style={{padding:"0.3rem 0.65rem",border:"none",borderRadius:"8px",background:pal.accentGrad,color:"#fff",fontSize:"0.72rem",fontWeight:"800",cursor:"pointer"}}>{"Review"}</button>
+                    <button onClick={()=>dismiss("yearend_approaching")} style={{background:"transparent",border:"none",color:pal.slate,fontSize:"0.8rem",cursor:"pointer",padding:"0 4px"}}>{"Later"}</button>
+                  </div>
+                </div>
+              );
+            }
+          }
+
+          return banners.length>0 ? <div>{banners}</div> : null;
+        })()}
 
         {/* ── Multi-child dashboard — shown when "All" selected and 2+ children ── */}
         {child==="all" && family.children.length>1 && (()=>{
@@ -13146,7 +13225,7 @@ function LifeReadyScreen({pal,family,onBack}){
    PROGRESS SCREEN
    Weekly pulse · Subject timelines · Milestones · AI check-in
 ======================================= */
-function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], attendanceDays=0, onUpdateFamily}) {
+function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], attendanceDays=0, onUpdateFamily, onOpenEOY}) {
   const [activeTab,    setActiveTab]    = React.useState("pulse");   // pulse | timeline | milestones | skills
   const [selectedChild, setSelectedChild] = React.useState(
     child && child!=="all" ? family.children.findIndex(c=>c.id===child) : 0
@@ -13372,6 +13451,29 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
   return (
     <div style={{animation:"fadeUp 0.22s ease"}}>
       <ScreenHdr pal={pal} title="Progress" sub="How your family is growing" icon="📈"/>
+      {/* Year-End Review button */}
+      {onOpenEOY&&family?.yearEnd&&(()=>{
+        const weeksLeftP = getEOYWeeksLeft(family);
+        const isNear = weeksLeftP!==null && weeksLeftP<=4;
+        return (
+          <div style={{padding:"0 1rem",marginBottom:"0.5rem"}}>
+            <button onClick={onOpenEOY}
+              style={{width:"100%",display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0.65rem 0.9rem",border:"2px solid "+(isNear?pal.primary+"50":pal.stone+"40"),borderRadius:"13px",background:isNear?pal.pale:"transparent",cursor:"pointer"}}>
+              <div style={{display:"flex",alignItems:"center",gap:"0.55rem"}}>
+                <span style={{fontSize:"1.1rem"}}>{"🎓"}</span>
+                <div style={{textAlign:"left"}}>
+                  <div style={{fontWeight:"700",color:isNear?pal.primary:pal.inkM,fontSize:"0.82rem"}}>{"Year-End Review"}</div>
+                  <div style={{fontSize:"0.66rem",color:pal.slate,marginTop:"1px"}}>
+                    {weeksLeftP===null?"Checklist, year review & grade promotion":weeksLeftP===0?"Year complete — ready to wrap up!":weeksLeftP<=4?""+weeksLeftP+" weeks left — start your review":"Checklist, year review & grade promotion"}
+                  </div>
+                </div>
+              </div>
+              <span style={{color:isNear?pal.primary:pal.stone,fontSize:"0.9rem"}}>{"\u203a"}</span>
+            </button>
+          </div>
+        );
+      })()}
+
 
       {/* Child selector */}
       {family.children.length>1&&(
