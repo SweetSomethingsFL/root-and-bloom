@@ -946,6 +946,7 @@ function RootAndBloom() {
             setQuizNotifs(updated);
             try{ localStorage.setItem("rootbloom_quiz_notifs",JSON.stringify(updated)); }catch(ex){}
           }}
+          onOpenFieldStudy={()=>{setFieldStudyChild(activeStudent);setShowFieldStudy(true);}}
           onBack={backToParent}
         />
       )}
@@ -1304,7 +1305,7 @@ const CHILD_COLOR_PALETTES = [
 /* =======================================
    STUDENT PORTAL - its own complete world
 ======================================= */
-function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onCoopLog, onBack, checkinStreak=0, checkinDates={}, onQuizComplete }) {
+function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onCoopLog, onBack, checkinStreak=0, checkinDates={}, onQuizComplete, onOpenFieldStudy }) {
   const [sTab,         setSTab]         = useState("home");
   const [noteText,     setNoteText]     = useState("");
   const [noteSaved,    setNoteSaved]    = useState(false);
@@ -1738,6 +1739,10 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
                   <button onClick={()=>kidCamRef.current?.click()}
                     style={{padding:"0.25rem 0.65rem",border:"1.5px solid "+SK.sky+"80",borderRadius:"20px",background:SK.skyL,color:SK.sky,fontSize:"0.68rem",fontWeight:"700",cursor:"pointer",fontFamily:"inherit"}}>
                     {"📷 Snap"}
+                  </button>
+                  <button onClick={()=>onOpenFieldStudy&&onOpenFieldStudy()}
+                    style={{padding:"0.25rem 0.65rem",border:"1.5px solid #2d9e5f60",borderRadius:"20px",background:"#edf9f0",color:"#2d9e5f",fontSize:"0.68rem",fontWeight:"700",cursor:"pointer",fontFamily:"inherit"}}>
+                    {"🔭 Field Study"}
                   </button>
                 </div>
               )}
