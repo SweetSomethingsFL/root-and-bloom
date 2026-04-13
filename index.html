@@ -528,13 +528,15 @@ function RootAndBloom() {
   });
   const editPortfolioEntry = (id,updated) => setPortfolioEntries(p=>p.map(e=>e.id===id?{...e,...updated}:e));
 
-  // Today is co-op day if it's a Friday (demo) or already logged
+  // Today is co-op day if family has co-op set up and today matches their co-op day
   const isCoop = (() => {
     if (!family) return false;
     const freq = family.coopFreq || "";
     if (freq === "We don't do co-op" || freq === "") return false;
-    const day = new Date().getDay();
-    return day === 5; // Friday - still use Friday as co-op day trigger
+    const coopDay = family.coopDay || "";
+    if (!coopDay) return false;
+    const DOW_MAP = {"Monday":1,"Tuesday":2,"Wednesday":3,"Thursday":4,"Friday":5,"Saturday":6};
+    return new Date().getDay() === (DOW_MAP[coopDay] || -1);
   })();
 
   return (
@@ -938,6 +940,10 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
   const [readingTitle2, setReadingTitle2] = useState("");
   // Goals tab logged state
   const [goalsLoggedToday, setGoalsLoggedToday] = useState(new Set());
+  const [parentNoteText, setParentNoteText] = useState("");
+  const [parentNoteSaved, setParentNoteSaved] = useState(false);
+  const [quickNotePrompt, setQuickNotePrompt] = useState(null); // {blockIdx, subjLabel, subjIcon}
+  const [quickNoteText, setQuickNoteText] = useState("");
 
   const childIdx  = family.children.findIndex(c=>c.id===child.id);
   const myEntries = allEntries.filter(e=>e.childIdx===childIdx);
@@ -995,6 +1001,28 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
     setNoteText(""); setNoteSaved(true);
     setTimeout(()=>setNoteSaved(false),2400);
   };
+  const saveParentNote = () => {
+    if(!parentNoteText.trim()) return;
+    onAddEntry({childIdx, title:"💌 Note for "+child.name+"'s parent", subj:"Daily Note",
+      date:new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"}),
+      thumb:"💌", note:"NOTE TO PARENT: "+parentNoteText.trim(), isParentNote:true});
+    setParentNoteText(""); setParentNoteSaved(true);
+    setTimeout(()=>setParentNoteSaved(false),2400);
+  };
+  const saveQuickNote = (blockIdx, b, noteStr) => {
+    const isRead = b.s.toLowerCase().includes("read");
+    if(isRead && !readingPrompt) {
+      setReadingTitle2("");
+      setReadingPrompt({blockIdx, subjLabel:b.s, subjIcon:b.i||"📖", quickNote:noteStr});
+    } else {
+      onAddEntry&&onAddEntry({
+        childIdx, subj:b.s, title:b.s+"—"+todayDateStr2,
+        note:noteStr||"", thumb:b.i||"📋", date:todayDateStr2,
+        isSubject:true, lessonCount:1, selfLogged:true,
+      });
+    }
+    setQuickNotePrompt(null); setQuickNoteText("");
+  };
 
   const SCHEDULE = generateSchedule(family);
   const familyGoalObjs = [...GOALS,...(family.customGoals||[])].filter(g=>(family.goals||[]).includes(g.id));
@@ -1007,14 +1035,12 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
     saveChecked(next);
     const isRead = b.s.toLowerCase().includes("read");
     if(isRead) {
-      setReadingTitle2("");
+      setReadingTitle2(""); setQuickNoteText("");
       setReadingPrompt({blockIdx:bi, subjLabel:b.s, subjIcon:b.i||"📖"});
     } else {
-      onAddEntry&&onAddEntry({
-        childIdx, subj:b.s, title:b.s+"\u2014"+todayDateStr2,
-        note:"", thumb:b.i||"📋", date:todayDateStr2,
-        isSubject:true, lessonCount:1, selfLogged:true,
-      });
+      // Show quick note prompt
+      setQuickNoteText("");
+      setQuickNotePrompt({blockIdx:bi, b});
     }
   };
 
@@ -1043,10 +1069,12 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
   };
 
   const hasGoals = familyGoalObjs.length>0;
+  const myMilestones = myEntries.filter(e=>e.isMilestone);
   const STABS = [
     {id:"home",icon:"🏠",l:"Home"},
     {id:"today",icon:"📅",l:"Today"},
     {id:"mywork",icon:"⭐",l:"My Work"},
+    ...(myMilestones.length>0?[{id:"stars",icon:"🌟",l:"Stars"}]:[]),
     ...(hasGoals?[{id:"goals",icon:"🎯",l:"Goals"}]:[]),
     {id:"streak",icon:"🔥",l:"Streak"},
   ];
@@ -1104,6 +1132,20 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
                 />
                 <button onClick={saveNote} disabled={!noteText.trim()} style={{width:"100%",marginTop:"0.65rem",padding:"0.78rem",border:"none",borderRadius:"13px",background:noteText.trim()?`linear-gradient(135deg,${SK.sky},${SK.grass})`:"#e8e0d8",color:"#fff",fontWeight:"900",fontSize:"0.9rem",cursor:noteText.trim()?"pointer":"default",transition:"background 0.2s"}}>
                   {noteSaved ? " Saved! +10 points 🎉" : "Save it! "}
+                </button>
+              </div>
+
+              {/* Note to parent */}
+              <div style={{background:SK.card,borderRadius:"20px",padding:"1.1rem",marginBottom:"0.9rem",boxShadow:"0 2px 14px rgba(0,0,0,0.07)",border:"2px dashed "+SK.sun+"80"}}>
+                <div style={{fontWeight:"900",color:SK.ink,fontSize:"0.95rem",marginBottom:"0.2rem"}}>{"💌 Note for Mom/Dad"}</div>
+                <div style={{fontSize:"0.72rem",color:SK.lite,marginBottom:"0.6rem"}}>{"Write something for your parent to see!"}</div>
+                <textarea value={parentNoteText} onChange={e=>setParentNoteText(e.target.value)}
+                  placeholder={"e.g. I need help with fractions, or I really liked science today!"} rows={2}
+                  style={{width:"100%",padding:"0.7rem",border:"2.5px solid "+SK.sun+"60",borderRadius:"12px",fontSize:"0.84rem",fontFamily:"inherit",background:SK.sunL,color:SK.ink,resize:"none",outline:"none",lineHeight:1.5}}
+                />
+                <button onClick={saveParentNote} disabled={!parentNoteText.trim()}
+                  style={{width:"100%",marginTop:"0.5rem",padding:"0.65rem",border:"none",borderRadius:"12px",background:parentNoteText.trim()?"linear-gradient(135deg,"+SK.sun+","+SK.orange+")":" #e8e0d8",color:"#fff",fontWeight:"900",fontSize:"0.85rem",cursor:parentNoteText.trim()?"pointer":"default"}}>
+                  {parentNoteSaved?"💌 Sent to parent!":"Send note 💌"}
                 </button>
               </div>
 
@@ -1311,6 +1353,41 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
           </div>
         )}
 
+        {/* -- STARS TAB -- */}
+        {sTab==="stars" && (
+          <div style={{animation:"fadeUp 0.22s ease",padding:"1.2rem 1rem"}}>
+            <div style={{fontWeight:"900",color:SK.ink,fontSize:"1.2rem",marginBottom:"0.25rem"}}>{"🌟 My Stars"}</div>
+            <div style={{fontSize:"0.72rem",color:SK.lite,marginBottom:"1rem"}}>{"Special moments your teacher saved!"}</div>
+            {myMilestones.length===0?(
+              <div style={{background:SK.card,borderRadius:"22px",padding:"2rem 1.5rem",textAlign:"center",boxShadow:"0 2px 14px rgba(0,0,0,0.07)"}}>
+                <div style={{fontSize:"3rem",marginBottom:"0.5rem"}}>{"\xf0\x9f\x8c\x9f"}</div>
+                <div style={{fontWeight:"900",color:SK.ink,fontSize:"0.95rem",marginBottom:"0.3rem"}}>{"No stars yet!"}</div>
+                <div style={{fontSize:"0.78rem",color:SK.lite,lineHeight:1.6}}>{"Keep learning and your teacher will mark your best moments as stars."}</div>
+              </div>
+            ):(
+              <div style={{display:"flex",flexDirection:"column",gap:"0.65rem"}}>
+                {myMilestones.map((e,i)=>{
+                  const subjObj=[...SUBJECT_OPTIONS,...(family.customSubjects||[])].find(s=>s.label===e.subj);
+                  return (
+                    <div key={e.id||i} style={{background:SK.card,borderRadius:"20px",padding:"1rem 1.1rem",boxShadow:"0 3px 16px rgba(0,0,0,0.08)",border:"2px solid "+c1+"30",position:"relative",overflow:"hidden"}}>
+                      <div style={{position:"absolute",top:0,left:0,right:0,height:"4px",background:"linear-gradient(90deg,"+c1+","+c2+")"}} />
+                      <div style={{display:"flex",gap:"0.6rem",alignItems:"center",marginBottom:"0.5rem"}}>
+                        <span style={{fontSize:"1.3rem"}}>{subjObj?.icon||e.thumb||"\xf0\x9f\x93\x8b"}</span>
+                        <div>
+                          <div style={{fontWeight:"800",color:c1,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.05em"}}>{e.subj}</div>
+                          <div style={{fontSize:"0.65rem",color:SK.lite}}>{e.date}</div>
+                        </div>
+                        <span style={{marginLeft:"auto",fontSize:"1.5rem"}}>{"\xf0\x9f\x8c\x9f"}</span>
+                      </div>
+                      {e.note&&<div style={{fontSize:"0.82rem",color:SK.ink,lineHeight:1.65}}>{e.note.replace("AI Summary:","").trim()}</div>}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* -- GOALS TAB -- */}
         {sTab==="goals" && (
           <div style={{animation:"fadeUp 0.22s ease",padding:"1.2rem 1rem"}}>
@@ -1388,6 +1465,50 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
               </div>
             </div>
           </div>
+
+          {/* Badges */}
+          {(()=>{
+            const totalEntries2 = myEntries.filter(e=>!e.isDay).length;
+            const BADGES = [
+              {id:"first",    icon:"🌱", label:"First Step",    earned:totalEntries2>=1},
+              {id:"five",     icon:"🔥", label:"On a Roll",     earned:totalEntries2>=5},
+              {id:"ten",      icon:"⭐",     label:"Star Learner",  earned:totalEntries2>=10},
+              {id:"fifty",    icon:"🏆", label:"Super Scholar", earned:totalEntries2>=50},
+              {id:"streak3",  icon:"🌈", label:"3-Day Streak",  earned:realStreak>=3},
+              {id:"streak7",  icon:"🚀", label:"Week Warrior",  earned:realStreak>=7},
+              {id:"streak30", icon:"🌟", label:"Month Master",  earned:realStreak>=30},
+              {id:"milestone",icon:"📍", label:"Milestone!",    earned:myMilestones.length>=1},
+            ];
+            const earned2=BADGES.filter(b=>b.earned), locked2=BADGES.filter(b=>!b.earned);
+            return (
+              <div style={{background:SK.card,borderRadius:"20px",padding:"1rem",marginTop:"0.9rem",boxShadow:"0 2px 14px rgba(0,0,0,0.07)"}}>
+                <div style={{fontWeight:"800",color:SK.ink,fontSize:"0.86rem",marginBottom:"0.65rem"}}>{"🏅 My Badges"}</div>
+                {earned2.length===0&&<div style={{fontSize:"0.74rem",color:SK.lite,textAlign:"center",padding:"0.5rem 0"}}>{"Keep logging to earn badges!"}</div>}
+                <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"0.5rem",                  marginBottom:locked2.length>0?"0.65rem":"0"}}>
+                  {earned2.map(b=>(
+                    <div key={b.id} style={{textAlign:"center"}}>
+                      <div style={{fontSize:"1.8rem",marginBottom:"2px"}}>{b.icon}</div>
+                      <div style={{fontSize:"0.58rem",fontWeight:"700",color:c1,lineHeight:1.2}}>{b.label}</div>
+                    </div>
+                  ))}
+                </div>
+                {locked2.length>0&&(
+                  <>
+                    <div style={{fontSize:"0.6rem",color:SK.lite,textTransform:"uppercase",letterSpacing:"0.06em",fontWeight:"700",marginBottom:"0.4rem"}}>{"Still to earn"}</div>
+                    <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"0.5rem"}}>
+                      {locked2.map(b=>(
+                        <div key={b.id} style={{textAlign:"center",opacity:0.3,filter:"grayscale(1)"}}>
+                          <div style={{fontSize:"1.8rem",marginBottom:"2px"}}>{b.icon}</div>
+                          <div style={{fontSize:"0.58rem",fontWeight:"700",color:SK.mid,lineHeight:1.2}}>{b.label}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            );
+          })()}
+          </div>
         )}
       </div>
 
@@ -1409,6 +1530,30 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
           );
         })}
       </nav>
+
+      {/* Quick note after check-off */}
+      {quickNotePrompt&&(
+        <div style={{position:"fixed",inset:0,background:"rgba(10,20,10,0.72)",backdropFilter:"blur(12px)",zIndex:300,display:"flex",alignItems:"flex-end",justifyContent:"center",fontFamily:"'Comic Sans MS','Chalkboard SE',cursive"}}>
+          <div style={{background:SK.cream,borderRadius:"28px 28px 0 0",width:"100%",maxWidth:"430px",padding:"1.3rem 1.4rem 2rem",animation:"slideUp 0.28s ease"}}>
+            <div style={{width:"36px",height:"4px",borderRadius:"99px",background:"#ddd",margin:"0 auto 1rem"}}/>
+            <div style={{textAlign:"center",marginBottom:"1rem"}}>
+              <div style={{fontSize:"2.5rem",marginBottom:"0.35rem"}}>{quickNotePrompt.b?.i||"📋"}</div>
+              <div style={{fontWeight:"900",color:SK.ink,fontSize:"1rem",marginBottom:"0.15rem"}}>{quickNotePrompt.b?.s+" — done! 🌟"}</div>
+              <div style={{fontSize:"0.76rem",color:SK.lite}}>{"Want to write anything about it?"}</div>
+            </div>
+            <textarea value={quickNoteText} onChange={e=>setQuickNoteText(e.target.value)}
+              placeholder={"What did you do? What was fun or hard?"} rows={2} autoFocus
+              style={{width:"100%",padding:"0.8rem",border:"2.5px solid "+SK.sky,borderRadius:"14px",fontSize:"0.88rem",fontFamily:"inherit",background:SK.skyL,color:SK.ink,resize:"none",outline:"none",marginBottom:"0.65rem",lineHeight:1.5}}
+            />
+            <button onClick={()=>saveQuickNote(quickNotePrompt.blockIdx, quickNotePrompt.b, quickNoteText)}
+              style={{width:"100%",padding:"0.82rem",border:"none",borderRadius:"14px",background:"linear-gradient(135deg,"+SK.sky+","+SK.grass+")",color:"#fff",fontWeight:"900",fontSize:"0.9rem",cursor:"pointer",marginBottom:"0.45rem"}}>
+              {quickNoteText.trim()?"Save my note ✓":"Done ✓"}
+            </button>
+            <button onClick={()=>saveQuickNote(quickNotePrompt.blockIdx, quickNotePrompt.b, "")}
+              style={{width:"100%",padding:"0.4rem",border:"none",background:"transparent",color:SK.lite,fontSize:"0.72rem",cursor:"pointer"}}>{"Skip"}</button>
+          </div>
+        </div>
+      )}
 
       {/* Reading title prompt */}
       {readingPrompt&&(
