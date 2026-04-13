@@ -344,6 +344,7 @@ function AIWorksheetModal({ pal, family, activeChild, wsType, onClose }) {
           )}
         </div>
       </div>
+    </div>
   );
 }
 
