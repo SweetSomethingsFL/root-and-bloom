@@ -1463,51 +1463,51 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
                   );
                 })}
               </div>
+
+            {/* Badges */}
+            {(()=>{
+              const totalEntries2 = myEntries.filter(e=>!e.isDay).length;
+              const BADGES = [
+                {id:"first",    icon:"🌱", label:"First Step",    earned:totalEntries2>=1},
+                {id:"five",     icon:"🔥", label:"On a Roll",     earned:totalEntries2>=5},
+                {id:"ten",      icon:"⭐",     label:"Star Learner",  earned:totalEntries2>=10},
+                {id:"fifty",    icon:"🏆", label:"Super Scholar", earned:totalEntries2>=50},
+                {id:"streak3",  icon:"🌈", label:"3-Day Streak",  earned:realStreak>=3},
+                {id:"streak7",  icon:"🚀", label:"Week Warrior",  earned:realStreak>=7},
+                {id:"streak30", icon:"🌟", label:"Month Master",  earned:realStreak>=30},
+                {id:"mlstone",  icon:"📍", label:"Milestone!",    earned:myMilestones.length>=1},
+              ];
+              const earned2=BADGES.filter(b=>b.earned), locked2=BADGES.filter(b=>!b.earned);
+              return (
+                <div style={{background:SK.card,borderRadius:"20px",padding:"1rem",marginTop:"0.9rem",boxShadow:"0 2px 14px rgba(0,0,0,0.07)"}}>
+                  <div style={{fontWeight:"800",color:SK.ink,fontSize:"0.86rem",marginBottom:"0.65rem"}}>{"🏅 My Badges"}</div>
+                  {earned2.length===0&&<div style={{fontSize:"0.74rem",color:SK.lite,textAlign:"center",padding:"0.5rem 0"}}>{"Keep logging to earn badges!"}</div>}
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"0.5rem",marginBottom:locked2.length>0?"0.65rem":"0"}}>
+                    {earned2.map(bg=>(
+                      <div key={bg.id} style={{textAlign:"center"}}>
+                        <div style={{fontSize:"1.8rem",marginBottom:"2px"}}>{bg.icon}</div>
+                        <div style={{fontSize:"0.58rem",fontWeight:"700",color:c1,lineHeight:1.2}}>{bg.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                  {locked2.length>0&&(
+                    <>
+                      <div style={{fontSize:"0.6rem",color:SK.lite,textTransform:"uppercase",letterSpacing:"0.06em",fontWeight:"700",marginBottom:"0.4rem"}}>{"Still to earn"}</div>
+                      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"0.5rem"}}>
+                        {locked2.map(bg=>(
+                          <div key={bg.id} style={{textAlign:"center",opacity:0.3,filter:"grayscale(1)"}}>
+                            <div style={{fontSize:"1.8rem",marginBottom:"2px"}}>{bg.icon}</div>
+                            <div style={{fontSize:"0.58rem",fontWeight:"700",color:SK.mid,lineHeight:1.2}}>{bg.label}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })()}
             </div>
           </div>
-
-          {/* Badges */}
-          {(()=>{
-            const totalEntries2 = myEntries.filter(e=>!e.isDay).length;
-            const BADGES = [
-              {id:"first",    icon:"🌱", label:"First Step",    earned:totalEntries2>=1},
-              {id:"five",     icon:"🔥", label:"On a Roll",     earned:totalEntries2>=5},
-              {id:"ten",      icon:"⭐",     label:"Star Learner",  earned:totalEntries2>=10},
-              {id:"fifty",    icon:"🏆", label:"Super Scholar", earned:totalEntries2>=50},
-              {id:"streak3",  icon:"🌈", label:"3-Day Streak",  earned:realStreak>=3},
-              {id:"streak7",  icon:"🚀", label:"Week Warrior",  earned:realStreak>=7},
-              {id:"streak30", icon:"🌟", label:"Month Master",  earned:realStreak>=30},
-              {id:"milestone",icon:"📍", label:"Milestone!",    earned:myMilestones.length>=1},
-            ];
-            const earned2=BADGES.filter(b=>b.earned), locked2=BADGES.filter(b=>!b.earned);
-            return (
-              <div style={{background:SK.card,borderRadius:"20px",padding:"1rem",marginTop:"0.9rem",boxShadow:"0 2px 14px rgba(0,0,0,0.07)"}}>
-                <div style={{fontWeight:"800",color:SK.ink,fontSize:"0.86rem",marginBottom:"0.65rem"}}>{"🏅 My Badges"}</div>
-                {earned2.length===0&&<div style={{fontSize:"0.74rem",color:SK.lite,textAlign:"center",padding:"0.5rem 0"}}>{"Keep logging to earn badges!"}</div>}
-                <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"0.5rem",                  marginBottom:locked2.length>0?"0.65rem":"0"}}>
-                  {earned2.map(b=>(
-                    <div key={b.id} style={{textAlign:"center"}}>
-                      <div style={{fontSize:"1.8rem",marginBottom:"2px"}}>{b.icon}</div>
-                      <div style={{fontSize:"0.58rem",fontWeight:"700",color:c1,lineHeight:1.2}}>{b.label}</div>
-                    </div>
-                  ))}
-                </div>
-                {locked2.length>0&&(
-                  <>
-                    <div style={{fontSize:"0.6rem",color:SK.lite,textTransform:"uppercase",letterSpacing:"0.06em",fontWeight:"700",marginBottom:"0.4rem"}}>{"Still to earn"}</div>
-                    <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"0.5rem"}}>
-                      {locked2.map(b=>(
-                        <div key={b.id} style={{textAlign:"center",opacity:0.3,filter:"grayscale(1)"}}>
-                          <div style={{fontSize:"1.8rem",marginBottom:"2px"}}>{b.icon}</div>
-                          <div style={{fontSize:"0.58rem",fontWeight:"700",color:SK.mid,lineHeight:1.2}}>{b.label}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
-            );
-          })()}
         )}
       </div>
 
@@ -1539,6 +1539,7 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
               <div style={{fontSize:"2.5rem",marginBottom:"0.35rem"}}>{quickNotePrompt.b?.i||"📋"}</div>
               <div style={{fontWeight:"900",color:SK.ink,fontSize:"1rem",marginBottom:"0.15rem"}}>{quickNotePrompt.b?.s+" — done! 🌟"}</div>
               <div style={{fontSize:"0.76rem",color:SK.lite}}>{"Want to write anything about it?"}</div>
+            </div>
             </div>
             <textarea value={quickNoteText} onChange={e=>setQuickNoteText(e.target.value)}
               placeholder={"What did you do? What was fun or hard?"} rows={2} autoFocus
