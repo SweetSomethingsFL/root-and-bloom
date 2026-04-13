@@ -1449,7 +1449,7 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
             <div style={{fontSize:"0.72rem",color:SK.lite,marginBottom:"1rem"}}>{"Special moments your teacher saved!"}</div>
             {myMilestones.length===0?(
               <div style={{background:SK.card,borderRadius:"22px",padding:"2rem 1.5rem",textAlign:"center",boxShadow:"0 2px 14px rgba(0,0,0,0.07)"}}>
-                <div style={{fontSize:"3rem",marginBottom:"0.5rem"}}>{"\xf0\x9f\x8c\x9f"}</div>
+                <div style={{fontSize:"3rem",marginBottom:"0.5rem"}}>{"🌟"}</div>
                 <div style={{fontWeight:"900",color:SK.ink,fontSize:"0.95rem",marginBottom:"0.3rem"}}>{"No stars yet!"}</div>
                 <div style={{fontSize:"0.78rem",color:SK.lite,lineHeight:1.6}}>{"Keep learning and your teacher will mark your best moments as stars."}</div>
               </div>
@@ -1461,12 +1461,12 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
                     <div key={e.id||i} style={{background:SK.card,borderRadius:"20px",padding:"1rem 1.1rem",boxShadow:"0 3px 16px rgba(0,0,0,0.08)",border:"2px solid "+c1+"30",position:"relative",overflow:"hidden"}}>
                       <div style={{position:"absolute",top:0,left:0,right:0,height:"4px",background:"linear-gradient(90deg,"+c1+","+c2+")"}} />
                       <div style={{display:"flex",gap:"0.6rem",alignItems:"center",marginBottom:"0.5rem"}}>
-                        <span style={{fontSize:"1.3rem"}}>{subjObj?.icon||e.thumb||"\xf0\x9f\x93\x8b"}</span>
+                        <span style={{fontSize:"1.3rem"}}>{subjObj?.icon||e.thumb||"📋"}</span>
                         <div>
                           <div style={{fontWeight:"800",color:c1,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.05em"}}>{e.subj}</div>
                           <div style={{fontSize:"0.65rem",color:SK.lite}}>{e.date}</div>
                         </div>
-                        <span style={{marginLeft:"auto",fontSize:"1.5rem"}}>{"\xf0\x9f\x8c\x9f"}</span>
+                        <span style={{marginLeft:"auto",fontSize:"1.5rem"}}>{"🌟"}</span>
                       </div>
                       {e.note&&<div style={{fontSize:"0.82rem",color:SK.ink,lineHeight:1.65}}>{e.note.replace("AI Summary:","").trim()}</div>}
                     </div>
@@ -1499,10 +1499,10 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
                   return (
                     <div key={i} onClick={()=>!done&&logKidGoal(g)}
                       style={{background:SK.card,borderRadius:"18px",padding:"0.9rem 1rem",display:"flex",gap:"0.85rem",alignItems:"center",boxShadow:"0 2px 10px rgba(0,0,0,0.06)",border:"2px solid "+(done?c1+"60":SK.skyL),cursor:done?"default":"pointer"}}>
-                      <div style={{width:"46px",height:"46px",borderRadius:"13px",background:done?"linear-gradient(135deg,"+c1+","+c2+")":"linear-gradient(135deg,"+c1+"22,"+c2+"11)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.5rem",flexShrink:0}}>{"\xf0\x9f\x8e\xaf"}</div>
+                      <div style={{width:"46px",height:"46px",borderRadius:"13px",background:done?"linear-gradient(135deg,"+c1+","+c2+")":"linear-gradient(135deg,"+c1+"22,"+c2+"11)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.5rem",flexShrink:0}}>{"🎯"}</div>
                       <div style={{flex:1}}>
                         <div style={{fontWeight:"800",color:done?c1:SK.ink,fontSize:"0.88rem"}}>{g}</div>
-                        <div style={{fontSize:"0.68rem",color:SK.lite,marginTop:"2px"}}>{done?"Logged today! \xf0\x9f\x8c\x9f":"Tap to log working on this"}</div>
+                        <div style={{fontSize:"0.68rem",color:SK.lite,marginTop:"2px"}}>{done?"Logged today! 🌟":"Tap to log working on this"}</div>
                       </div>
                       {done?(
                         <div style={{width:"28px",height:"28px",borderRadius:"50%",background:"linear-gradient(135deg,"+c1+","+c2+")",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:"0.85rem",flexShrink:0}}>{"\u2713"}</div>
@@ -1887,7 +1887,7 @@ function KidGoalOnboarding({ child, c1, c2, heroGrad, onDone }) {
 
         {selected.size>0&&(
           <div style={{background:c1+"10",borderRadius:"12px",padding:"0.6rem 0.85rem",marginBottom:"0.75rem",border:"1.5px solid "+c1+"30",fontSize:"0.74rem",color:c1,fontWeight:"700",textAlign:"center"}}>
-            {selected.size+" goal"+(selected.size>1?"s":"")+" selected \xf0\x9f\x8c\x9f"}
+            {selected.size+" goal"+(selected.size>1?"s":"")+" selected 🌟"}
           </div>
         )}
       </div>
@@ -1896,7 +1896,7 @@ function KidGoalOnboarding({ child, c1, c2, heroGrad, onDone }) {
       <div style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:"430px",padding:"1rem 1.2rem 1.5rem",background:SK.cream,borderTop:"1px solid #ece5dc"}}>
         <button onClick={finish}
           style={{width:"100%",padding:"0.9rem",border:"none",borderRadius:"16px",background:selected.size>0?"linear-gradient(135deg,"+c1+","+c2+")":" #e8e0d8",color:"#fff",fontWeight:"900",fontSize:"0.95rem",cursor:"pointer",boxShadow:selected.size>0?"0 4px 18px "+c1+"40":"none",transition:"all 0.2s"}}>
-          {selected.size>0?"Let's go! \xf0\x9f\x9a\x80":"Skip for now"}
+          {selected.size>0?"Let's go! 🚀":"Skip for now"}
         </button>
       </div>
     </div>
