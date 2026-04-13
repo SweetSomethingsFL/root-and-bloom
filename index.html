@@ -813,7 +813,10 @@ function RootAndBloom() {
           <ObservationJournalModal
             pal={pal} family={family} childId={showJournal}
             entries={observationLog}
-            onAdd={(entry)=>setObservationLog(l=>[entry,...l])}
+            onAdd={(entry)=>setObservationLog(l=>{
+              if(entry._edit){const {_edit,...clean}=entry; return l.map(x=>x.id===clean.id?clean:x);}
+              return [entry,...l];
+            })}
             onDelete={(id)=>setObservationLog(l=>l.filter(e=>e.id!==id))}
             onClose={()=>setShowJournal(null)}
           />
@@ -3743,7 +3746,7 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
     onBack();
   };
 
-  const STABS = [["family","👨👩👧👦 Family"],["children","🌱 Children"],["school","🏫 School"],["theme","🎨 Theme"],["nav","Nav"],["ai","🤖 AI"]];
+  const STABS = [["family","👨👩👧👦 Family"],["children","🌱 Children"],["school","🏫 School"],["theme","🎨 Theme"],["nav","Nav"],["ai","🤖 AI"],["notifs","🔔 Alerts"]];
   const [schoolSubTab, setSchoolSubTab] = useState("school");
 
   return (
@@ -4455,6 +4458,36 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                 ))}
               </div>
               <AIUsageDisplay pal={pal}/>
+            </SCard>
+          </div>
+        )}
+
+        {tab==="notifs" && (
+          <div style={{animation:"fadeUp 0.18s ease"}}>
+            <SCard pal={pal} title="In-App Alerts">
+              <div style={{fontSize:"0.76rem",color:pal.slate,lineHeight:1.65,marginBottom:"1rem"}}>
+                {"These banners appear on your Home screen when something needs attention. You can dismiss each one for the day, or turn them off here permanently."}
+              </div>
+              {[
+                {key:"nolog",    icon:"📅", label:"No-log reminder",       desc:"Shows when it's been 2+ days since your last log"},
+                {key:"attendance",icon:"⚠️", label:"Attendance behind",    desc:"Shows when you're 15%+ behind expected pace"},
+                {key:"yearend",  icon:"🎓", label:"Year-end approaching", desc:"Shows within 4 weeks of your school year end"},
+              ].map(({key,icon,label,desc})=>{
+                const enabled = (local.notifPrefs||{})[key]!==false;
+                return (
+                  <div key={key} style={{display:"flex",alignItems:"center",gap:"0.75rem",padding:"0.7rem 0",borderBottom:"1px solid "+pal.stone+"25"}}>
+                    <span style={{fontSize:"1.2rem",flexShrink:0}}>{icon}</span>
+                    <div style={{flex:1}}>
+                      <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.82rem"}}>{label}</div>
+                      <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>{desc}</div>
+                    </div>
+                    <button onClick={()=>updL("notifPrefs",{...(local.notifPrefs||{}),[key]:!enabled})}
+                      style={{width:"44px",height:"24px",borderRadius:"99px",border:"none",background:enabled?pal.primary:pal.stone+"50",cursor:"pointer",position:"relative",transition:"background 0.2s",flexShrink:0}}>
+                      <div style={{position:"absolute",top:"3px",left:enabled?"22px":"3px",width:"18px",height:"18px",borderRadius:"50%",background:"#fff",transition:"left 0.2s",boxShadow:"0 1px 4px rgba(0,0,0,0.25)"}}/>
+                    </button>
+                  </div>
+                );
+              })}
             </SCard>
           </div>
         )}
@@ -6924,15 +6957,31 @@ const GOAL_NUDGES = {
    shown in portfolio or reports.
 ======================================= */
 function ObservationJournalModal({pal, family, childId, entries, onAdd, onDelete, onClose}){
-  const child = family.children.find(c=>c.id===childId)||family.children[0];
-  const ci    = family.children.findIndex(c=>c.id===childId);
+  const [activeChild, setActiveChild] = useState(childId);
+  const child = family.children.find(c=>c.id===activeChild)||family.children[0];
+  const ci    = family.children.findIndex(c=>c.id===activeChild);
   const cp    = CHILD_COLOR_PALETTES.find(p=>p.id===(child?.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
 
-  const [text,     setText]     = useState("");
-  const [delConf,  setDelConf]  = useState(null); // id to confirm delete
+  const [text,      setText]     = useState("");
+  const [tag,       setTag]      = useState(null); // selected tag key
+  const [delConf,   setDelConf]  = useState(null);
+  const [editId,    setEditId]   = useState(null);
+  const [editText,  setEditText] = useState("");
+  const [searchQ,   setSearchQ]  = useState("");
   const inputRef = useRef(null);
 
-  const childEntries = entries.filter(e=>e.childId===childId)
+  const TAGS = [
+    {key:"breakthrough", label:"Breakthrough", icon:"💡", color:"#2d9e5f", bg:"#e8f7ee"},
+    {key:"struggle",     label:"Needs work",   icon:"💪", color:"#b07800", bg:"#fff8e6"},
+    {key:"question",     label:"Great question",icon:"🔭", color:"#1a5a8a", bg:"#e8f0f8"},
+    {key:"funny",        label:"Funny moment",  icon:"😄", color:"#9b6fc8", bg:"#f3eefb"},
+    {key:"noticed",      label:"I noticed",     icon:"👀", color:"#666",    bg:"#f5f5f5"},
+    {key:"followup",     label:"Follow up",     icon:"📌", color:"#cc4444", bg:"#ffeaea"},
+  ];
+
+  const childEntries = entries
+    .filter(e=>e.childId===activeChild)
+    .filter(e=>!searchQ.trim() || e.text.toLowerCase().includes(searchQ.toLowerCase()))
     .sort((a,b)=>b.ts-(a.ts||0));
 
   const handleAdd = () => {
@@ -6940,25 +6989,34 @@ function ObservationJournalModal({pal, family, childId, entries, onAdd, onDelete
     if(!t) return;
     const now = new Date();
     onAdd({
-      id: uid(),
-      childId,
-      text: t,
+      id: uid(), childId: activeChild, text: t,
+      tag: tag||null,
       ts: now.getTime(),
       date: now.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}),
       time: now.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"}),
     });
-    setText("");
+    setText(""); setTag(null);
     inputRef.current?.focus();
   };
 
+  const handleEdit = (entry) => {
+    setEditId(entry.id);
+    setEditText(entry.text);
+  };
+
+  const saveEdit = (entry) => {
+    if(!editText.trim()) return;
+    onAdd({...entry, text:editText.trim(), _edit:true});
+    setEditId(null); setEditText("");
+  };
+
   const PROMPTS = [
-    "Had a breakthrough with...",
-    "Struggled today with...",
-    "Asked a great question about...",
-    "Really excited about...",
-    "I noticed...",
-    "Something to follow up on...",
+    "Had a breakthrough with...", "Struggled today with...",
+    "Asked a great question about...", "Really excited about...",
+    "I noticed...", "Something to follow up on...",
   ];
+
+  const allEntries = entries.filter(e=>e.childId===activeChild);
 
   return (
     <div style={{position:"fixed",inset:0,background:"rgba(10,15,10,0.8)",backdropFilter:"blur(14px)",zIndex:250,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
@@ -6970,103 +7028,148 @@ function ObservationJournalModal({pal, family, childId, entries, onAdd, onDelete
         </div>
 
         {/* Header */}
-        <div style={{background:`linear-gradient(135deg,${cp.c1},${cp.c2})`,padding:"0.9rem 1.2rem",flexShrink:0}}>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-            <div style={{display:"flex",alignItems:"center",gap:"0.65rem"}}>
-              <div style={{width:"40px",height:"40px",borderRadius:"11px",background:"rgba(255,255,255,0.22)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem"}}>
-                {child?.avatar||"🌱"}
-              </div>
+        <div style={{background:`linear-gradient(135deg,${cp.c1},${cp.c2})`,padding:"0.75rem 1.2rem",flexShrink:0}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.6rem"}}>
+            <div style={{display:"flex",alignItems:"center",gap:"0.55rem"}}>
+              <span style={{fontSize:"1.3rem"}}>{child?.avatar||"🌱"}</span>
               <div>
-                <div style={{fontWeight:"900",color:"#fff",fontSize:"0.95rem"}}>{child?.name}</div>
-                <div style={{fontSize:"0.68rem",color:"rgba(255,255,255,0.72)"}}>
-                  {"📓 Parent observations · "+childEntries.length+" note"+(childEntries.length!==1?"s":"")}
-                </div>
+                <div style={{fontWeight:"900",color:"#fff",fontSize:"0.92rem"}}>{child?.name}</div>
+                <div style={{fontSize:"0.65rem",color:"rgba(255,255,255,0.72)"}}>{"\xf0\x9f\x93\x93 "+allEntries.length+" observation"+(allEntries.length!==1?"s":"")}</div>
               </div>
             </div>
             <button onClick={onClose}
               style={{width:"28px",height:"28px",borderRadius:"50%",background:"rgba(255,255,255,0.2)",border:"none",color:"#fff",cursor:"pointer",fontSize:"0.85rem",display:"flex",alignItems:"center",justifyContent:"center"}}>
-              {"✕"}
+              {"\u2715"}
             </button>
           </div>
+          {/* Child switcher */}
+          {family.children.length>1&&(
+            <div style={{display:"flex",gap:"0.4rem"}}>
+              {family.children.map(c=>{
+                const ccp = CHILD_COLOR_PALETTES.find(p=>p.id===(c.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+                const active = c.id===activeChild;
+                const cnt = entries.filter(e=>e.childId===c.id).length;
+                return (
+                  <button key={c.id} onClick={()=>setActiveChild(c.id)}
+                    style={{display:"flex",alignItems:"center",gap:"0.3rem",padding:"0.25rem 0.6rem",borderRadius:"20px",border:"2px solid "+(active?"rgba(255,255,255,0.6)":"rgba(255,255,255,0.25)"),background:active?"rgba(255,255,255,0.25)":"transparent",cursor:"pointer"}}>
+                    <span style={{fontSize:"0.9rem"}}>{c.avatar}</span>
+                    <span style={{fontSize:"0.68rem",color:"#fff",fontWeight:active?"800":"500"}}>{c.name}</span>
+                    {cnt>0&&<span style={{fontSize:"0.58rem",color:"rgba(255,255,255,0.7)",fontWeight:"600"}}>{"("+cnt+")"}</span>}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Quick-add input */}
-        <div style={{padding:"0.85rem 1.1rem 0.7rem",borderBottom:`1px solid ${pal.stone}30`,flexShrink:0}}>
+        <div style={{padding:"0.75rem 1.1rem 0.6rem",borderBottom:`1px solid ${pal.stone}30`,flexShrink:0}}>
+          {/* Tag picker */}
+          <div style={{display:"flex",gap:"0.3rem",flexWrap:"wrap",marginBottom:"0.45rem"}}>
+            {TAGS.map(t=>(
+              <button key={t.key} onClick={()=>setTag(tag===t.key?null:t.key)}
+                style={{padding:"0.18rem 0.55rem",border:"1.5px solid "+(tag===t.key?t.color:pal.stone+"40"),borderRadius:"20px",background:tag===t.key?t.bg:"transparent",color:tag===t.key?t.color:pal.slate,fontSize:"0.65rem",fontWeight:tag===t.key?"700":"400",cursor:"pointer",display:"flex",alignItems:"center",gap:"0.2rem"}}>
+                <span>{t.icon}</span><span>{t.label}</span>
+              </button>
+            ))}
+          </div>
           <div style={{display:"flex",gap:"0.5rem",alignItems:"flex-end"}}>
-            <textarea
-              ref={inputRef}
-              value={text}
-              onChange={e=>setText(e.target.value)}
+            <textarea ref={inputRef} value={text} onChange={e=>setText(e.target.value)}
               onKeyDown={e=>{ if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();handleAdd();} }}
-              placeholder={"Quick note about "+child?.name+"... (Enter to save)"}
-              rows={2}
+              placeholder={"Quick note about "+child?.name+"... (Enter to save)"} rows={2}
               style={{flex:1,resize:"none",padding:"0.6rem 0.8rem",border:`2px solid ${cp.c1}50`,borderRadius:"12px",background:pal.parchm,fontSize:"0.83rem",fontFamily:"inherit",color:pal.ink,outline:"none",lineHeight:1.5}}
               autoFocus
             />
             <button onClick={handleAdd} disabled={!text.trim()}
               style={{width:"42px",height:"42px",borderRadius:"12px",border:"none",background:text.trim()?`linear-gradient(135deg,${cp.c1},${cp.c2})`:"#ccc",color:"#fff",cursor:text.trim()?"pointer":"default",fontSize:"1.1rem",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
-              {"✓"}
+              {"\u2713"}
             </button>
           </div>
-
-          {/* Prompt chips */}
-          <div style={{display:"flex",gap:"0.3rem",flexWrap:"wrap",marginTop:"0.5rem"}}>
+          <div style={{display:"flex",gap:"0.3rem",flexWrap:"wrap",marginTop:"0.4rem"}}>
             {PROMPTS.map(p=>(
               <button key={p} onClick={()=>{setText(p);setTimeout(()=>inputRef.current?.focus(),50);}}
-                style={{padding:"0.18rem 0.6rem",border:`1px solid ${cp.c1}40`,borderRadius:"20px",background:"transparent",color:cp.c1,fontSize:"0.68rem",cursor:"pointer",fontWeight:"500"}}>
+                style={{padding:"0.15rem 0.55rem",border:`1px solid ${cp.c1}40`,borderRadius:"20px",background:"transparent",color:cp.c1,fontSize:"0.65rem",cursor:"pointer"}}>
                 {p}
               </button>
             ))}
           </div>
-
-          <div style={{fontSize:"0.63rem",color:pal.stone,marginTop:"0.4rem"}}>
-            {"🔒 Private — never shown in portfolio or reports"}
-          </div>
+          <div style={{fontSize:"0.6rem",color:pal.stone,marginTop:"0.35rem"}}>{"\xf0\x9f\x94\x92 Private \u2014 never shown in portfolio or reports"}</div>
         </div>
+
+        {/* Search */}
+        {allEntries.length>5&&(
+          <div style={{padding:"0.5rem 1.1rem",borderBottom:`1px solid ${pal.stone}20`,flexShrink:0,position:"relative"}}>
+            <span style={{position:"absolute",left:"1.7rem",top:"50%",transform:"translateY(-50%)",fontSize:"0.8rem",pointerEvents:"none"}}>{"\xf0\x9f\x94\x8d"}</span>
+            <input value={searchQ} onChange={e=>setSearchQ(e.target.value)}
+              placeholder={"Search notes..."}
+              style={{width:"100%",padding:"0.4rem 0.75rem 0.4rem 2rem",border:`1.5px solid ${pal.stone}40`,borderRadius:"20px",fontSize:"0.78rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit"}}
+            />
+            {searchQ&&<button onClick={()=>setSearchQ("")} style={{position:"absolute",right:"1.4rem",top:"50%",transform:"translateY(-50%)",background:"transparent",border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.8rem"}}>{"\u2715"}</button>}
+          </div>
+        )}
 
         {/* Entries list */}
         <div style={{flex:1,overflowY:"auto",padding:"0.75rem 1.1rem"}}>
           {childEntries.length===0?(
             <div style={{textAlign:"center",padding:"2rem 1rem"}}>
-              <div style={{fontSize:"2.5rem",marginBottom:"0.5rem"}}>📓</div>
-              <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.88rem",marginBottom:"0.3rem"}}>No notes yet</div>
+              <div style={{fontSize:"2.5rem",marginBottom:"0.5rem"}}>{"\xf0\x9f\x93\x93"}</div>
+              <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.88rem",marginBottom:"0.3rem"}}>{searchQ?"No matching notes":"No notes yet"}</div>
               <div style={{fontSize:"0.75rem",color:pal.slate,lineHeight:1.6}}>
-                {"Capture moments, breakthroughs, and observations about "+child?.name+". Just for you."}
+                {searchQ?"Try a different search term":("Capture moments, breakthroughs, and observations about "+child?.name+". Just for you.")}
               </div>
             </div>
           ):(
-            <div style={{display:"flex",flexDirection:"column",gap:"0.6rem"}}>
-              {childEntries.map(entry=>(
-                <div key={entry.id} style={{background:"#fff",borderRadius:"14px",padding:"0.75rem 0.9rem",border:`1.5px solid ${pal.stone}20`,position:"relative"}}>
-                  {/* Date/time badge */}
-                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.4rem"}}>
-                    <span style={{fontSize:"0.63rem",color:pal.stone,fontWeight:"600"}}>
-                      {entry.date}{entry.time?" · "+entry.time:""}
-                    </span>
-                    {delConf===entry.id?(
+            <div style={{display:"flex",flexDirection:"column",gap:"0.55rem"}}>
+              {childEntries.map(entry=>{
+                const entryTag = TAGS.find(t=>t.key===entry.tag);
+                const isEditing = editId===entry.id;
+                return (
+                  <div key={entry.id} style={{background:"#fff",borderRadius:"14px",padding:"0.75rem 0.9rem",border:"1.5px solid "+(entryTag?entryTag.color+"30":pal.stone+"20"),position:"relative"}}>
+                    {/* Tag strip */}
+                    {entryTag&&(
+                      <div style={{display:"inline-flex",alignItems:"center",gap:"0.25rem",padding:"0.1rem 0.5rem",borderRadius:"20px",background:entryTag.bg,border:"1px solid "+entryTag.color+"40",marginBottom:"0.4rem"}}>
+                        <span style={{fontSize:"0.7rem"}}>{entryTag.icon}</span>
+                        <span style={{fontSize:"0.62rem",fontWeight:"700",color:entryTag.color}}>{entryTag.label}</span>
+                      </div>
+                    )}
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.35rem"}}>
+                      <span style={{fontSize:"0.63rem",color:pal.stone,fontWeight:"600"}}>{entry.date}{entry.time?" \u00b7 "+entry.time:""}</span>
                       <div style={{display:"flex",gap:"0.3rem"}}>
-                        <button onClick={()=>setDelConf(null)}
-                          style={{padding:"0.12rem 0.5rem",border:`1px solid ${pal.stone}`,borderRadius:"8px",background:"transparent",color:pal.slate,fontSize:"0.65rem",cursor:"pointer"}}>
-                          Keep
-                        </button>
-                        <button onClick={()=>{onDelete(entry.id);setDelConf(null);}}
-                          style={{padding:"0.12rem 0.5rem",border:"none",borderRadius:"8px",background:"#e53e3e",color:"#fff",fontSize:"0.65rem",cursor:"pointer",fontWeight:"700"}}>
-                          Delete
-                        </button>
+                        {delConf===entry.id?(
+                          <>
+                            <button onClick={()=>setDelConf(null)}
+                              style={{padding:"0.12rem 0.5rem",border:`1px solid ${pal.stone}`,borderRadius:"8px",background:"transparent",color:pal.slate,fontSize:"0.65rem",cursor:"pointer"}}>Keep</button>
+                            <button onClick={()=>{onDelete(entry.id);setDelConf(null);}}
+                              style={{padding:"0.12rem 0.5rem",border:"none",borderRadius:"8px",background:"#e53e3e",color:"#fff",fontSize:"0.65rem",cursor:"pointer",fontWeight:"700"}}>Delete</button>
+                          </>
+                        ):(
+                          <>
+                            <button onClick={()=>handleEdit(entry)}
+                              style={{width:"20px",height:"20px",borderRadius:"50%",border:`1px solid ${pal.stone}30`,background:"transparent",color:pal.stone,fontSize:"0.58rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>{"\u270e"}</button>
+                            <button onClick={()=>setDelConf(entry.id)}
+                              style={{width:"20px",height:"20px",borderRadius:"50%",border:`1px solid ${pal.stone}30`,background:"transparent",color:pal.stone,fontSize:"0.58rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>{"\u2715"}</button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    {isEditing?(
+                      <div>
+                        <textarea value={editText} onChange={e=>setEditText(e.target.value)} rows={3} autoFocus
+                          style={{width:"100%",padding:"0.5rem 0.65rem",border:`2px solid ${cp.c1}`,borderRadius:"10px",fontSize:"0.83rem",fontFamily:"inherit",color:pal.ink,resize:"none",outline:"none",lineHeight:1.5,background:pal.parchm}}
+                        />
+                        <div style={{display:"flex",gap:"0.4rem",marginTop:"0.4rem"}}>
+                          <button onClick={()=>saveEdit(entry)}
+                            style={{flex:1,padding:"0.4rem",border:"none",borderRadius:"9px",background:`linear-gradient(135deg,${cp.c1},${cp.c2})`,color:"#fff",fontWeight:"700",fontSize:"0.76rem",cursor:"pointer"}}>Save</button>
+                          <button onClick={()=>setEditId(null)}
+                            style={{padding:"0.4rem 0.7rem",border:`1.5px solid ${pal.stone}`,borderRadius:"9px",background:"transparent",color:pal.slate,fontSize:"0.76rem",cursor:"pointer"}}>Cancel</button>
+                        </div>
                       </div>
                     ):(
-                      <button onClick={()=>setDelConf(entry.id)}
-                        style={{width:"20px",height:"20px",borderRadius:"50%",border:`1px solid ${pal.stone}30`,background:"transparent",color:pal.stone,fontSize:"0.58rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
-                        {"✕"}
-                      </button>
+                      <div style={{fontSize:"0.83rem",color:pal.ink,lineHeight:1.6,whiteSpace:"pre-wrap"}}>{entry.text}</div>
                     )}
                   </div>
-                  {/* Note text */}
-                  <div style={{fontSize:"0.83rem",color:pal.ink,lineHeight:1.6,whiteSpace:"pre-wrap"}}>
-                    {entry.text}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
           <div style={{height:"0.5rem"}}/>
@@ -7822,11 +7925,13 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
           const todayStr2 = new Date().toDateString();
           const isDismissedToday = (key) => notifDismissed[key]===todayStr2;
           const dismiss = (key) => onDismissNotif&&onDismissNotif(key);
+          const notifPrefs = family.notifPrefs||{};
+          const notifOn = (key) => notifPrefs[key]!==false;
           const banners = [];
 
           // 1. No-log streak banner (2+ days since last checkin, not already checked in today)
           const checkedInToday2 = lastCheckinDate===todayStr2;
-          if(!checkedInToday2 && lastCheckinDate && !isDismissedToday("nolog")) {
+          if(notifOn("nolog") && !checkedInToday2 && lastCheckinDate && !isDismissedToday("nolog")) {
             const daysSince = Math.floor((new Date()-new Date(lastCheckinDate))/(24*60*60*1000));
             if(daysSince>=2) {
               banners.push(
@@ -7845,7 +7950,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
           }
 
           // 2. Attendance behind pace banner
-          if(!isDismissedToday("attendance_behind") && family.yearStart && family.yearEnd) {
+          if(notifOn("attendance") && !isDismissedToday("attendance_behind") && family.yearStart && family.yearEnd) {
             const si2 = getStateInfo(family.state||"");
             const REQUIRED2 = parseInt((si2.hours||"180").match(/\d+/)?.[0]||"180");
             const start2=new Date(family.yearStart), end2=new Date(family.yearEnd), now2=new Date();
@@ -7870,7 +7975,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
           }
 
           // 3. Year-end approaching banner (within 4 weeks, not dismissed)
-          if(!isDismissedToday("yearend_approaching") && family.yearEnd) {
+          if(notifOn("yearend") && !isDismissedToday("yearend_approaching") && family.yearEnd) {
             const weeksLeft2 = getEOYWeeksLeft(family);
             if(weeksLeft2!==null && weeksLeft2<=4 && weeksLeft2>=0) {
               banners.push(
@@ -9959,6 +10064,7 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
   const [filterRange,    setFilterRange]    = useState(null);   // "week"|"month"|"year"|null
   const [filterMilestone,setFilterMilestone]= useState(false);
   const [showFilters,    setShowFilters]    = useState(false);
+  const [sortOrder,      setSortOrder]      = useState("newest"); // "newest"|"oldest"|"subject"
   const [showPrintMenu,  setShowPrintMenu]  = useState(false);
   const [showFullYearPrint, setShowFullYearPrint] = useState(false);
   const [printDate,         setPrintDate]         = useState(""); // date string for prior-day print
@@ -10274,16 +10380,24 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
             try{ const d=new Date(ds+", "+yr2); if(filterRange==="week") return d>=wkS; if(filterRange==="month") return d>=moS; if(filterRange==="year") return d>=yrS; }catch{} return true;
           };
           const q=searchQuery.trim().toLowerCase();
-          const hasFilter=q||filterSubj||filterRange||filterMilestone;
+          const hasFilter=q||filterSubj||filterRange||filterMilestone||sortOrder!=="newest";
           const activeSubjLabels=[...new Set(subjEntries.map(e=>e.subj).filter(Boolean))];
-          const filtered=hasFilter?subjEntries.filter(e=>{
+          const yr3=new Date().getFullYear();
+          const parseDate=(ds)=>{try{return new Date(ds+", "+yr3);}catch{return new Date(0);}};
+          const sortEntries=(arr)=>{
+            if(sortOrder==="oldest") return [...arr].sort((a,b)=>parseDate(a.date||"")-parseDate(b.date||""));
+            if(sortOrder==="subject") return [...arr].sort((a,b)=>(a.subj||"").localeCompare(b.subj||""));
+            return [...arr].sort((a,b)=>parseDate(b.date||"")-parseDate(a.date||"")); // newest
+          };
+          const baseEntries = hasFilter ? subjEntries.filter(e=>{
             if(filterMilestone&&!e.isMilestone) return false;
             if(filterSubj&&e.subj!==filterSubj) return false;
             if(filterRange&&!inRange(e.date||"")) return false;
             if(q&&!((e.subj||"").toLowerCase().includes(q)||(e.title||"").toLowerCase().includes(q)||(e.note||"").toLowerCase().includes(q)||(e.readingTitle||"").toLowerCase().includes(q)||(e.date||"").toLowerCase().includes(q))) return false;
             return true;
-          }):null;
-          const clearAll=()=>{setSearchQuery("");setFilterSubj(null);setFilterRange(null);setFilterMilestone(false);};
+          }) : (sortOrder!=="newest" ? subjEntries : null);
+          const filtered = baseEntries ? sortEntries(baseEntries) : null;
+          const clearAll=()=>{setSearchQuery("");setFilterSubj(null);setFilterRange(null);setFilterMilestone(false);setSortOrder("newest");};
           return (
             <div style={{marginBottom:"0.85rem"}}>
               <div style={{display:"flex",gap:"0.4rem",marginBottom:"0.45rem"}}>
@@ -10302,6 +10416,17 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
               {showFilters&&(
                 <div style={{background:pal.linen,borderRadius:"12px",padding:"0.7rem 0.85rem",marginBottom:"0.55rem",border:"1.5px solid "+pal.stone+"30"}}>
                   <div style={{marginBottom:"0.55rem"}}>
+                    <div style={{fontSize:"0.6rem",fontWeight:"800",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"0.3rem"}}>{"Sort by"}</div>
+                    <div style={{display:"flex",gap:"0.3rem",flexWrap:"wrap",marginBottom:"0.55rem"}}>
+                      {[["newest","Newest first"],["oldest","Oldest first"],["subject","By subject"]].map(([id,label])=>(
+                        <button key={id} onClick={()=>setSortOrder(id)}
+                          style={{padding:"0.25rem 0.6rem",border:"1.5px solid "+(sortOrder===id?pal.primary:pal.stone+"50"),borderRadius:"20px",background:sortOrder===id?pal.pale:"transparent",color:sortOrder===id?pal.primary:pal.inkM,fontSize:"0.72rem",fontWeight:sortOrder===id?"700":"400",cursor:"pointer"}}>
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                <div style={{marginBottom:"0.55rem"}}>
                     <div style={{fontSize:"0.6rem",fontWeight:"800",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"0.3rem"}}>{"Date range"}</div>
                     <div style={{display:"flex",gap:"0.3rem",flexWrap:"wrap"}}>
                       {[["week","This week"],["month","This month"],["year","This year"]].map(([id,label])=>(
