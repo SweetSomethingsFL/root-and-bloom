@@ -713,6 +713,7 @@ function RootAndBloom() {
   const [eoyChild,          setEoyChild]          = useState(0);
   const [eoyDismissed,      setEoyDismissed]      = useState(saved?.eoyDismissed||null);
   const [notifDismissed,    setNotifDismissed]    = useState(saved?.notifDismissed||{});
+  const [quizNotifs,        setQuizNotifs]        = useState(()=>{ try{ const s=localStorage.getItem("rootbloom_quiz_notifs"); return s?JSON.parse(s):[]; }catch(e){return [];} });
   const [showNewYear,       setShowNewYear]        = useState(false);
   const [newYearDismissed,  setNewYearDismissed]   = useState(saved?.newYearDismissed||null);
   const [showJournal,       setShowJournal]       = useState(null); // childId or null
@@ -940,6 +941,11 @@ function RootAndBloom() {
           checkinStreak={checkinStreak}
           checkinDates={checkinDates}
           onCoopLog={e=>setCoopLog(l=>[{...e,date:new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"})},...l])}
+          onQuizComplete={(notif)=>{
+            const updated=[notif,...quizNotifs].slice(0,20);
+            setQuizNotifs(updated);
+            try{ localStorage.setItem("rootbloom_quiz_notifs",JSON.stringify(updated)); }catch(ex){}
+          }}
           onBack={backToParent}
         />
       )}
@@ -969,6 +975,12 @@ function RootAndBloom() {
             observationLog={observationLog}
             onOpenJournal={(childId)=>setShowJournal(childId)}
             studentVisits={studentVisits}
+            quizNotifs={quizNotifs}
+            onDismissQuizNotif={(id)=>{
+              const updated=quizNotifs.map(n=>n.id===id?{...n,dismissed:true}:n);
+              setQuizNotifs(updated);
+              try{ localStorage.setItem("rootbloom_quiz_notifs",JSON.stringify(updated)); }catch(ex){}
+            }}
           />}
           {activeTab==="schedule" && <ScheduleScreen pal={pal} family={family} child={childFilt} setChild={setChildFilt}
             lastCheckinDate={lastCheckinDate}
@@ -1090,6 +1102,8 @@ function RootAndBloom() {
         <nav style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:"430px",background:pal.linen,borderTop:`1.5px solid ${pal.stone}60`,height:"68px",display:"flex",alignItems:"center",zIndex:50}}>
           {navTabs.map(t=>{
             const active=activeTab===t.id;
+            const isProgress=t.id==="progress";
+            const quizBubbleCount=isProgress?(quizNotifs||[]).filter(n=>!n.dismissed&&new Date(n.ts).toDateString()===new Date().toDateString()).length:0;
             return (
               <button key={t.id} onClick={()=>setActiveTab(t.id)}
                 style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:"2px",padding:"0.4rem 0",border:"none",background:"transparent",cursor:"pointer",position:"relative",transition:"transform 0.1s"}}
@@ -1098,7 +1112,10 @@ function RootAndBloom() {
                 onTouchStart={e=>e.currentTarget.style.transform="scale(0.91)"}
                 onTouchEnd={e=>e.currentTarget.style.transform="scale(1)"}>
                 {active&&<div style={{position:"absolute",top:0,left:"50%",transform:"translateX(-50%)",width:"28px",height:"3px",borderRadius:"0 0 3px 3px",background:pal.accentGrad}}/>}
-                <span style={{fontSize:"1.28rem",lineHeight:1}}>{t.icon}</span>
+                <div style={{position:"relative",display:"inline-flex"}}>
+                  <span style={{fontSize:"1.28rem",lineHeight:1}}>{t.icon}</span>
+                  {quizBubbleCount>0&&<div style={{position:"absolute",top:"-4px",right:"-6px",minWidth:"16px",height:"16px",borderRadius:"99px",background:"#e84c3d",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.55rem",fontWeight:"900",color:"#fff",padding:"0 3px",lineHeight:1,boxShadow:"0 1px 4px rgba(0,0,0,0.25)"}}>{quizBubbleCount}</div>}
+                </div>
                 <span style={{fontSize:"0.59rem",fontWeight:active?"800":"500",color:active?pal.primary:pal.slate,transition:"color 0.15s"}}>{t.label}</span>
               </button>
             );
@@ -1287,7 +1304,7 @@ const CHILD_COLOR_PALETTES = [
 /* =======================================
    STUDENT PORTAL - its own complete world
 ======================================= */
-function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onCoopLog, onBack, checkinStreak=0, checkinDates={} }) {
+function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onCoopLog, onBack, checkinStreak=0, checkinDates={}, onQuizComplete }) {
   const [sTab,         setSTab]         = useState("home");
   const [noteText,     setNoteText]     = useState("");
   const [noteSaved,    setNoteSaved]    = useState(false);
@@ -2209,10 +2226,24 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
               title:"🎯 Quiz: "+showQuiz.subjLabel+" — "+todayDateStr2,
               date:todayDateStr2, thumb:"🎯",
               note:"Quiz score: "+result.score+"/"+result.total+". "+
-                (result.missed.length>0?"Needs work: "+result.missed.join(", ")+".":" All correct!"),
+                (result.missed.length>0?"Needs work: "+result.missed.join(", ")+".":"All correct!"),
               isQuizResult:true,
               quizData:result,
               selfLogged:true,
+            });
+            onQuizComplete&&onQuizComplete({
+              id:"qn_"+Date.now(),
+              childId:child.id,
+              childName:child.name,
+              childAvatar:child.avatar||"⭐",
+              subj:showQuiz.subjLabel,
+              subjIcon:showQuiz.subjIcon||"📋",
+              score:result.score,
+              total:result.total,
+              missed:result.missed||[],
+              date:todayDateStr2,
+              ts:Date.now(),
+              dismissed:false,
             });
             setShowQuiz(null);
           }}
@@ -7811,7 +7842,7 @@ function GoalsNudgeCard({pal,family,portfolioEntries,todayStr,onTabChange}){
   );
 }
 
-function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress, navIds=[], onAddEntry, onCheckin, checkinDates={}, observationLog=[], onOpenJournal, attendanceLog=[], studentVisits={}, homeLayout=["thisweek","todaycard","progress_nudge","consistency","missedday","behindweek","goals","pandc"], onSetHomeLayout, notifDismissed={}, onDismissNotif, onOpenEOY, onOpenFieldStudy }) {
+function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress, navIds=[], onAddEntry, onCheckin, checkinDates={}, observationLog=[], onOpenJournal, attendanceLog=[], studentVisits={}, homeLayout=["thisweek","todaycard","progress_nudge","consistency","missedday","behindweek","goals","pandc"], onSetHomeLayout, notifDismissed={}, onDismissNotif, onOpenEOY, onOpenFieldStudy, quizNotifs=[], onDismissQuizNotif }) {
   const stateInfo  = getStateInfo(family.state||"");
   const stateHours = stateInfo.hours||"";
   const dayMatch   = stateHours.match(/(\d+)\s*day/i);
@@ -8532,6 +8563,35 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
               );
             }
           }
+
+          // 4. Quiz completion banners — show undismissed quiz notifs from today
+          const todayStrQ = new Date().toDateString();
+          const freshQuizNotifs = (quizNotifs||[]).filter(n=>!n.dismissed && new Date(n.ts).toDateString()===todayStrQ);
+          freshQuizNotifs.forEach(n=>{
+            const pct = n.total>0 ? Math.round((n.score/n.total)*100) : 0;
+            const allRight = n.score===n.total;
+            const bg    = allRight ? "#edf9f0" : "#fff8e6";
+            const border = allRight ? "#2d9e5f40" : "#f5c84240";
+            const textC  = allRight ? "#1a6e40"  : "#7a5500";
+            const subC   = allRight ? "#2d9e5f"  : "#b07800";
+            banners.push(
+              <div key={n.id} style={{background:bg,borderRadius:"14px",padding:"0.75rem 1rem",marginBottom:"0.75rem",border:"1.5px solid "+border,display:"flex",gap:"0.65rem",alignItems:"center"}}>
+                <span style={{fontSize:"1.3rem",flexShrink:0}}>{n.childAvatar}</span>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontWeight:"700",color:textC,fontSize:"0.82rem"}}>
+                    {n.childName+" finished a "+n.subj+" quiz \u2014 "+n.score+"/"+n.total+" ("+pct+"%)"}
+                  </div>
+                  <div style={{fontSize:"0.7rem",color:subC,marginTop:"1px"}}>
+                    {allRight ? "Perfect score! \uD83C\uDF1F" : n.missed&&n.missed.length>0 ? "Needs review: "+n.missed.slice(0,2).join(", ")+(n.missed.length>2?" \u2026":"") : "Keep practising!"}
+                  </div>
+                </div>
+                <div style={{display:"flex",gap:"0.3rem",flexShrink:0}}>
+                  <button onClick={()=>onTabChange&&onTabChange("progress")} style={{padding:"0.3rem 0.65rem",border:"none",borderRadius:"8px",background:allRight?"#2d9e5f":"#e8a020",color:"#fff",fontSize:"0.72rem",fontWeight:"800",cursor:"pointer"}}>{"View"}</button>
+                  <button onClick={()=>onDismissQuizNotif&&onDismissQuizNotif(n.id)} style={{background:"transparent",border:"none",color:subC,fontSize:"0.8rem",cursor:"pointer",padding:"0 4px"}}>{"OK"}</button>
+                </div>
+              </div>
+            );
+          });
 
           return banners.length>0 ? <div>{banners}</div> : null;
         })()}
@@ -13974,7 +14034,7 @@ function LifeReadyScreen({pal,family,onBack}){
    Weekly pulse · Subject timelines · Milestones · AI check-in
 ======================================= */
 function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], attendanceDays=0, onUpdateFamily, onOpenEOY}) {
-  const [activeTab,    setActiveTab]    = React.useState("pulse");   // pulse | timeline | milestones | skills
+  const [activeTab,    setActiveTab]    = React.useState("pulse");   // pulse | timeline | milestones | skills | grades
   const [selectedChild, setSelectedChild] = React.useState(
     child && child!=="all" ? family.children.findIndex(c=>c.id===child) : 0
   );
@@ -13993,6 +14053,9 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
   const [savedPulses,  setSavedPulses]  = React.useState(()=>{
     try{ const s=localStorage.getItem("rootbloom_pulses"); return s?JSON.parse(s):[]; }catch(e){return [];}
   });
+  const [gradeStruggle, setGradeStruggle] = React.useState(null);
+  const [gradeStruggleLoading, setGradeStruggleLoading] = React.useState(false);
+  const [gradeStruggleError,   setGradeStruggleError]   = React.useState(null);
 
   const ch       = family.children[selectedChild] || family.children[0];
   const cp       = CHILD_COLOR_PALETTES.find(p=>p.id===(ch?.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
@@ -14193,7 +14256,7 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
 
   // ── Subject timeline entries ───────────────────────────────────────────────
   const timelineEntries = timelineSubj
-    ? childEntries.filter(e=>e.subj===timelineSubj && e.note && e.note.trim().length>5)
+    ? childEntries.filter(e=>e.subj===timelineSubj && (e.isQuizResult || (e.note && e.note.trim().length>5)))
     : [];
 
   return (
@@ -14251,9 +14314,9 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
       {/* Sub-tabs */}
       <div style={{padding:"0 1rem",marginBottom:"1rem"}}>
         <div style={{display:"flex",gap:"0.4rem"}}>
-          {[["pulse","📊 Weekly Pulse"],["timeline","📖 Subject Timeline"],["milestones","🌟 Milestones"],["skills","✅ Skills"]].map(([id,label])=>(
+          {[["pulse","📊 Pulse"],["timeline","📖 Timeline"],["milestones","🌟 Milestones"],["skills","✅ Skills"],["grades","🏆 Grades"]].map(([id,label])=>(
             <button key={id} onClick={()=>{setActiveTab(id);setTimelineSubj(null);setArcResult(null);setArcSubj(null);}}
-              style={{flex:1,padding:"0.52rem 0.3rem",border:`2px solid ${activeTab===id?pal.primary:pal.stone+"40"}`,borderRadius:"11px",background:activeTab===id?pal.pale:"transparent",color:activeTab===id?pal.primary:pal.inkM,fontWeight:activeTab===id?"800":"500",fontSize:"0.7rem",cursor:"pointer",transition:"all 0.13s"}}>
+              style={{flex:1,padding:"0.52rem 0.3rem",border:`2px solid ${activeTab===id?pal.primary:pal.stone+"40"}`,borderRadius:"11px",background:activeTab===id?pal.pale:"transparent",color:activeTab===id?pal.primary:pal.inkM,fontWeight:activeTab===id?"800":"500",fontSize:"0.65rem",cursor:"pointer",transition:"all 0.13s"}}>
               {label}
             </button>
           ))}
@@ -14408,6 +14471,56 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
                 </div>
               )}
 
+              {/* Weekly Quiz Report */}
+              {(()=>{
+                const weekQuizEntries = childEntries.filter(e=>e.isQuizResult&&e.quizData&&isThisWeek(e.date));
+                if(weekQuizEntries.length===0) return null;
+                const bySubj = {};
+                weekQuizEntries.forEach(e=>{
+                  if(!bySubj[e.subj]) bySubj[e.subj]={subj:e.subj,quizzes:[],totalScore:0,totalPoss:0};
+                  bySubj[e.subj].quizzes.push(e);
+                  bySubj[e.subj].totalScore+=e.quizData.score;
+                  bySubj[e.subj].totalPoss+=e.quizData.total;
+                });
+                const rows = Object.values(bySubj);
+                return (
+                  <div style={{marginBottom:"1rem"}}>
+                    <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.72rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.55rem"}}>{"\uD83C\uDFAF Quiz scores this week \u2014 "+ch?.name}</div>
+                    {rows.map(r=>{
+                      const pct=r.totalPoss>0?Math.round((r.totalScore/r.totalPoss)*100):0;
+                      const col=pct>=90?"#2d9e5f":pct>=70?"#e8a020":"#cc4444";
+                      const bg =pct>=90?"#edf9f0":pct>=70?"#fff8e6":"#fff0f0";
+                      const so=[...SUBJECT_OPTIONS,...(family.customSubjects||[])].find(x=>x.label===r.subj);
+                      const allMissed=[...new Set(r.quizzes.flatMap(e=>e.quizData.missed||[]))];
+                      return (
+                        <div key={r.subj} style={{background:bg,borderRadius:"13px",padding:"0.75rem 0.9rem",marginBottom:"0.45rem",border:"1.5px solid "+col+"40"}}>
+                          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"0.3rem"}}>
+                            <div style={{display:"flex",alignItems:"center",gap:"0.4rem"}}>
+                              <span style={{fontSize:"1rem"}}>{so?.icon||"\uD83D\uDCCB"}</span>
+                              <span style={{fontWeight:"700",color:pal.ink,fontSize:"0.84rem"}}>{r.subj}</span>
+                              <span style={{fontSize:"0.65rem",color:pal.stone}}>{r.quizzes.length+" quiz"+(r.quizzes.length===1?"":"zes")}</span>
+                            </div>
+                            <div style={{display:"flex",alignItems:"center",gap:"0.35rem"}}>
+                              <span style={{fontWeight:"900",color:col,fontSize:"0.9rem"}}>{pct+"%"}</span>
+                              <span style={{fontSize:"0.72rem",color:pal.stone}}>{r.totalScore+"/"+r.totalPoss}</span>
+                            </div>
+                          </div>
+                          <div style={{height:"5px",borderRadius:"99px",background:pal.stone+"20",overflow:"hidden",marginBottom:allMissed.length>0?"0.35rem":"0"}}>
+                            <div style={{height:"100%",width:pct+"%",background:col,borderRadius:"99px"}}/>
+                          </div>
+                          {allMissed.length>0&&(
+                            <div style={{fontSize:"0.7rem",color:pal.inkM,lineHeight:1.5}}>
+                              <span style={{fontWeight:"700",color:"#cc4444"}}>{"Needs review: "}</span>
+                              {allMissed.slice(0,3).join(", ")+(allMissed.length>3?" \u2026":"")}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+
               {/* Subject stats */}
               <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.72rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.55rem"}}>{"All subjects \u2014 "+ch?.name}</div>
               {subjStats.map(s=>(
@@ -14506,20 +14619,59 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
               {timelineEntries.length===0&&(
                 <div style={{background:pal.parchm,borderRadius:"13px",padding:"1.5rem",textAlign:"center",fontSize:"0.8rem",color:pal.stone}}>{"No notes with detail for this subject yet."}</div>
               )}
-              {timelineEntries.map((e,i)=>(
-                <div key={e.id||i} style={{display:"flex",gap:"0.75rem",marginBottom:"0.85rem"}}>
-                  <div style={{display:"flex",flexDirection:"column",alignItems:"center",flexShrink:0}}>
-                    <div style={{width:"10px",height:"10px",borderRadius:"50%",background:e.isMilestone?cp.c1:pal.stone+"60",border:e.isMilestone?"2.5px solid "+cp.c1:"2px solid "+pal.stone+"40",marginTop:"3px"}}/>
-                    {i<timelineEntries.length-1&&<div style={{width:"2px",flex:1,background:pal.stone+"20",margin:"4px 0"}}/>}
+              {timelineEntries.map((e,i)=>{
+                const isQuiz = e.isQuizResult && e.quizData;
+                const qd = isQuiz ? e.quizData : null;
+                const qPct = qd ? Math.round((qd.score/qd.total)*100) : 0;
+                const qColor = qPct>=90?"#2d9e5f":qPct>=70?"#e8a020":"#cc4444";
+                const qBg    = qPct>=90?"#edf9f0":qPct>=70?"#fff8e6":"#fff0f0";
+                const dotColor = isQuiz ? qColor : e.isMilestone ? cp.c1 : pal.stone+"60";
+                const borderColor = isQuiz ? qColor+"50" : e.isMilestone ? cp.c1+"40" : pal.stone+"20";
+                return (
+                  <div key={e.id||i} style={{display:"flex",gap:"0.75rem",marginBottom:"0.85rem"}}>
+                    <div style={{display:"flex",flexDirection:"column",alignItems:"center",flexShrink:0}}>
+                      <div style={{width:"10px",height:"10px",borderRadius:"50%",background:dotColor,border:"2px solid "+dotColor,marginTop:"3px"}}/>
+                      {i<timelineEntries.length-1&&<div style={{width:"2px",flex:1,background:pal.stone+"20",margin:"4px 0"}}/>}
+                    </div>
+                    <div style={{flex:1,background:isQuiz?qBg:pal.linen,borderRadius:"12px",padding:"0.75rem 0.85rem",border:"1.5px solid "+borderColor}}>
+                      {isQuiz?(
+                        <div>
+                          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"0.35rem"}}>
+                            <div style={{display:"flex",alignItems:"center",gap:"0.4rem"}}>
+                              <span style={{fontSize:"0.95rem"}}>{"\uD83C\uDFAF"}</span>
+                              <span style={{fontSize:"0.72rem",fontWeight:"800",color:qColor,textTransform:"uppercase",letterSpacing:"0.06em"}}>{"Quiz Result"}</span>
+                            </div>
+                            <div style={{display:"flex",alignItems:"center",gap:"0.3rem"}}>
+                              <div style={{background:qColor,color:"#fff",borderRadius:"99px",padding:"0.15rem 0.55rem",fontSize:"0.75rem",fontWeight:"900"}}>{qd.score+"/"+qd.total}</div>
+                              <div style={{color:qColor,fontSize:"0.72rem",fontWeight:"800"}}>{qPct+"%"}</div>
+                            </div>
+                          </div>
+                          <div style={{height:"5px",borderRadius:"99px",background:pal.stone+"20",overflow:"hidden",marginBottom:"0.45rem"}}>
+                            <div style={{height:"100%",width:qPct+"%",background:qColor,borderRadius:"99px",transition:"width 0.4s"}}/>
+                          </div>
+                          {qd.missed&&qd.missed.length>0&&(
+                            <div style={{fontSize:"0.7rem",color:pal.inkM,lineHeight:1.6}}>
+                              <span style={{fontWeight:"700",color:"#cc4444"}}>{"Needs review: "}</span>
+                              {qd.missed.join(", ")}
+                            </div>
+                          )}
+                          {(!qd.missed||qd.missed.length===0)&&(
+                            <div style={{fontSize:"0.72rem",color:"#2d9e5f",fontWeight:"700"}}>{"All correct! \uD83C\uDF1F"}</div>
+                          )}
+                          <div style={{fontSize:"0.63rem",color:pal.stone,marginTop:"5px"}}>{e.date||""}</div>
+                        </div>
+                      ):(
+                        <div>
+                          {e.isMilestone&&<div style={{fontSize:"0.65rem",fontWeight:"800",color:cp.c1,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"3px"}}>{"\uD83C\uDF1F Milestone"}</div>}
+                          <div style={{fontSize:"0.82rem",color:pal.ink,lineHeight:1.65}}>{e.note.replace("AI Summary: ","").trim()}</div>
+                          {e.readingTitle&&<div style={{fontSize:"0.72rem",color:pal.primary,marginTop:"4px",fontStyle:"italic"}}>{"📖 "+e.readingTitle}</div>}
+                          <div style={{fontSize:"0.65rem",color:pal.stone,marginTop:"5px"}}>{e.date||""}</div>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <div style={{flex:1,background:pal.linen,borderRadius:"12px",padding:"0.75rem 0.85rem",border:"1.5px solid "+(e.isMilestone?cp.c1+"40":pal.stone+"20")}}>
-                    {e.isMilestone&&<div style={{fontSize:"0.65rem",fontWeight:"800",color:cp.c1,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"3px"}}>{"🌟 Milestone"}</div>}
-                    <div style={{fontSize:"0.82rem",color:pal.ink,lineHeight:1.65}}>{e.note.replace("AI Summary: ","").trim()}</div>
-                    {e.readingTitle&&<div style={{fontSize:"0.72rem",color:pal.primary,marginTop:"4px",fontStyle:"italic"}}>{"📖 "+e.readingTitle}</div>}
-                    <div style={{fontSize:"0.65rem",color:pal.stone,marginTop:"5px"}}>{e.date||""}</div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           );
         })()}
@@ -15381,6 +15533,159 @@ function DailyLogSection({pal,cp,childEntries,subjEntries}){
                   </div>
                 ))}
               </div>
+            </div>
+          );
+        })()}
+
+        {/* ====== GRADES TAB ====== */}
+        {activeTab==="grades"&&(()=>{
+          // Letter grade helper
+          const pctToLetter = (pct) => {
+            if(pct>=93) return {letter:"A+",color:"#1a6e40",bg:"#edf9f0"};
+            if(pct>=90) return {letter:"A", color:"#1a6e40",bg:"#edf9f0"};
+            if(pct>=87) return {letter:"B+",color:"#2563a8",bg:"#eef4ff"};
+            if(pct>=83) return {letter:"B", color:"#2563a8",bg:"#eef4ff"};
+            if(pct>=80) return {letter:"B-",color:"#2563a8",bg:"#eef4ff"};
+            if(pct>=77) return {letter:"C+",color:"#7a5500",bg:"#fff8e6"};
+            if(pct>=73) return {letter:"C", color:"#7a5500",bg:"#fff8e6"};
+            if(pct>=70) return {letter:"C-",color:"#7a5500",bg:"#fff8e6"};
+            if(pct>=60) return {letter:"D", color:"#8a3a00",bg:"#fff3ec"};
+            return       {letter:"F", color:"#cc2222",bg:"#fff0f0"};
+          };
+
+          // Aggregate all quiz entries for this child across the whole year
+          const allQuizEntries = childEntries.filter(e=>e.isQuizResult&&e.quizData);
+          const bySubj = {};
+          allQuizEntries.forEach(e=>{
+            if(!bySubj[e.subj]) bySubj[e.subj]={subj:e.subj,quizzes:[],totalScore:0,totalPoss:0,missed:[]};
+            bySubj[e.subj].quizzes.push(e);
+            bySubj[e.subj].totalScore+=e.quizData.score;
+            bySubj[e.subj].totalPoss+=e.quizData.total;
+            (e.quizData.missed||[]).forEach(m=>{ if(!bySubj[e.subj].missed.includes(m)) bySubj[e.subj].missed.push(m); });
+          });
+          const gradeRows = Object.values(bySubj).sort((a,b)=>(b.totalScore/Math.max(b.totalPoss,1))-(a.totalScore/Math.max(a.totalPoss,1)));
+          const allAs = gradeRows.length>=3 && gradeRows.every(r=>(r.totalScore/Math.max(r.totalPoss,1))>=0.90);
+          const weakRows = gradeRows.filter(r=>(r.totalScore/Math.max(r.totalPoss,1))<0.75);
+
+          const generateStruggleReport = async () => {
+            if(weakRows.length===0) return;
+            setGradeStruggleLoading(true); setGradeStruggleError(null); setGradeStruggle(null);
+            const lines = weakRows.map(r=>{
+              const pct=Math.round((r.totalScore/r.totalPoss)*100);
+              return r.subj+" ("+pct+"% avg across "+r.quizzes.length+" quiz"+(r.quizzes.length===1?"":"zes")+"). Missed topics: "+(r.missed.slice(0,5).join(", ")||"various");
+            }).join("\n");
+            const cname = ch?.name||"this child";
+            const prompt = "You are a warm, experienced homeschool coach. A parent has shared quiz data showing that "+cname+" is struggling in the following subjects:\n\n"+lines+"\n\nWrite a short, warm, practical note for the parent. Cover:\n1. One sentence acknowledging the struggle without alarm.\n2. One concrete suggestion per weak subject (specific teaching approach, game, resource, or activity).\n3. One encouraging closing sentence.\nPlain text only. No markdown, no bullet points, no headers. Under 120 words total.";
+            try {
+              const result = await callClaude(prompt);
+              setGradeStruggle(result.trim());
+            } catch(err) {
+              setGradeStruggleError(err.message==="NO_KEY"?"no_key":"error");
+            }
+            setGradeStruggleLoading(false);
+          };
+
+          return (
+            <div>
+              {/* Header */}
+              <div style={{background:"linear-gradient(135deg,"+cp.c1+"18,"+cp.c2+"12)",borderRadius:"16px",padding:"0.9rem 1rem",marginBottom:"1rem",border:"1.5px solid "+cp.c1+"25"}}>
+                <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.88rem",marginBottom:"3px"}}>{"\uD83C\uDFC6 "+ch?.name+"\u2019s Grades"}</div>
+                <div style={{fontSize:"0.74rem",color:pal.slate,lineHeight:1.55}}>{"Based on all quiz scores this year. Use these for freebie rewards, not compliance \u2014 Florida doesn\u2019t require a report card."}</div>
+              </div>
+
+              {gradeRows.length===0&&(
+                <div style={{background:pal.linen,borderRadius:"14px",padding:"2rem 1.2rem",textAlign:"center",border:"1.5px solid "+pal.stone+"25"}}>
+                  <div style={{fontSize:"2rem",marginBottom:"0.5rem"}}>{"\uD83C\uDFAF"}</div>
+                  <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.88rem",marginBottom:"0.3rem"}}>{"No quiz scores yet"}</div>
+                  <div style={{fontSize:"0.76rem",color:pal.slate,lineHeight:1.6}}>{"Grades appear here once kids take quizzes from the Student Portal. Tap the \uD83C\uDFAF button after logging a subject."}</div>
+                </div>
+              )}
+
+              {/* Straight A's callout */}
+              {allAs&&(
+                <div style={{background:"linear-gradient(135deg,#f5c842,#f9a825)",borderRadius:"16px",padding:"1rem 1.1rem",marginBottom:"1rem",border:"none",textAlign:"center",boxShadow:"0 4px 18px rgba(245,200,66,0.35)"}}>
+                  <div style={{fontSize:"2rem",marginBottom:"4px"}}>{"\uD83C\uDF1F\uD83C\uDFC6\uD83C\uDF1F"}</div>
+                  <div style={{fontWeight:"900",color:"#5a3a00",fontSize:"1rem",marginBottom:"3px"}}>{"STRAIGHT A\u2019S!"}</div>
+                  <div style={{fontSize:"0.78rem",color:"#7a5500",lineHeight:1.55}}>{"Every subject is 90%+. Time to claim those freebie rewards! \uD83C\uDF54\uD83C\uDFDE\uFE0F\uD83C\uDFA8"}</div>
+                </div>
+              )}
+
+              {/* Per-subject grade cards */}
+              {gradeRows.map(r=>{
+                const pct=r.totalPoss>0?Math.round((r.totalScore/r.totalPoss)*100):0;
+                const {letter,color,bg}=pctToLetter(pct);
+                const so=[...SUBJECT_OPTIONS,...(family.customSubjects||[])].find(x=>x.label===r.subj);
+                const trend=r.quizzes.length>=2?(()=>{
+                  const first=r.quizzes[r.quizzes.length-1].quizData;
+                  const last=r.quizzes[0].quizData;
+                  const fp=Math.round((first.score/Math.max(first.total,1))*100);
+                  const lp=Math.round((last.score/Math.max(last.total,1))*100);
+                  return lp-fp;
+                })():null;
+                return (
+                  <div key={r.subj} style={{background:bg,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"0.5rem",border:"1.5px solid "+color+"35"}}>
+                    <div style={{display:"flex",alignItems:"center",gap:"0.75rem"}}>
+                      <div style={{width:"44px",height:"44px",borderRadius:"12px",background:color+"18",border:"2px solid "+color+"40",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                        <span style={{fontWeight:"900",color:color,fontSize:"1.1rem"}}>{letter}</span>
+                      </div>
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{display:"flex",alignItems:"center",gap:"0.4rem",marginBottom:"2px"}}>
+                          <span style={{fontSize:"0.9rem"}}>{so?.icon||"\uD83D\uDCCB"}</span>
+                          <span style={{fontWeight:"700",color:pal.ink,fontSize:"0.85rem"}}>{r.subj}</span>
+                          {trend!==null&&(
+                            <span style={{fontSize:"0.65rem",fontWeight:"800",color:trend>0?"#2d9e5f":trend<0?"#cc4444":pal.slate}}>
+                              {trend>0?"\u2191+"+trend+"%":trend<0?"\u2193"+trend+"%":"\u2192"}
+                            </span>
+                          )}
+                        </div>
+                        <div style={{height:"5px",borderRadius:"99px",background:pal.stone+"20",overflow:"hidden",marginBottom:"4px"}}>
+                          <div style={{height:"100%",width:pct+"%",background:color,borderRadius:"99px"}}/>
+                        </div>
+                        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                          <span style={{fontSize:"0.7rem",color:pal.slate}}>{r.quizzes.length+" quiz"+(r.quizzes.length===1?"":"zes")+" \u00b7 "+r.totalScore+"/"+r.totalPoss+" correct"}</span>
+                          <span style={{fontSize:"0.78rem",fontWeight:"800",color:color}}>{pct+"%"}</span>
+                        </div>
+                      </div>
+                    </div>
+                    {r.missed.length>0&&(
+                      <div style={{marginTop:"0.5rem",paddingTop:"0.5rem",borderTop:"1px solid "+color+"25",fontSize:"0.7rem",color:pal.inkM,lineHeight:1.5}}>
+                        <span style={{fontWeight:"700",color:"#cc4444"}}>{"Needs review: "}</span>
+                        {r.missed.slice(0,4).join(", ")+(r.missed.length>4?" \u2026":"")}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+
+              {/* Struggling areas AI section */}
+              {gradeRows.length>0&&(
+                <div style={{marginTop:"0.75rem"}}>
+                  {gradeStruggle?(
+                    <div style={{background:"#fff8e6",borderRadius:"14px",padding:"0.9rem 1rem",border:"1.5px solid #f5c84240"}}>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.45rem"}}>
+                        <span style={{fontSize:"0.7rem",fontWeight:"800",color:"#b07800",textTransform:"uppercase",letterSpacing:"0.07em"}}>{"\uD83C\uDF31 Coaching Note"}</span>
+                        <button onClick={()=>setGradeStruggle(null)} style={{background:"transparent",border:"none",color:pal.stone,cursor:"pointer",fontSize:"0.8rem"}}>{"×"}</button>
+                      </div>
+                      <div style={{fontSize:"0.82rem",color:pal.ink,lineHeight:1.75}}>{gradeStruggle}</div>
+                    </div>
+                  ):gradeStruggleLoading?(
+                    <div style={{background:pal.pale,borderRadius:"14px",padding:"0.85rem",border:"1.5px solid "+pal.primary+"20",textAlign:"center"}}>
+                      <div style={{fontSize:"0.78rem",color:pal.primary,fontWeight:"700"}}>{"Analysing quiz results\u2026"}</div>
+                    </div>
+                  ):(
+                    <div>
+                      {gradeStruggleError==="no_key"&&<div style={{background:"#fff8ed",borderRadius:"12px",padding:"0.75rem",marginBottom:"0.5rem",fontSize:"0.76rem",color:"#7a5500",textAlign:"center",border:"1.5px solid #f5c84240"}}>{"Add an API key in Settings to unlock AI coaching notes."}</div>}
+                      {gradeStruggleError==="error"&&<div style={{background:"#fff0f0",borderRadius:"12px",padding:"0.75rem",marginBottom:"0.5rem",fontSize:"0.76rem",color:"#aa3333",textAlign:"center",border:"1.5px solid #ffaaaa40"}}>{"Could not generate \u2014 check your connection."}</div>}
+                      <button onClick={generateStruggleReport}
+                        disabled={weakRows.length===0}
+                        style={{width:"100%",padding:"0.78rem",border:weakRows.length>0?"1.5px dashed #f5c842":"1.5px solid "+pal.stone+"30",borderRadius:"13px",background:weakRows.length>0?"#fffbeb":pal.linen,color:weakRows.length>0?"#b07800":pal.stone,fontWeight:"700",fontSize:"0.8rem",cursor:weakRows.length>0?"pointer":"default"}}>
+                        {weakRows.length>0?"\uD83C\uDF31 Get coaching tips for struggling subjects":"All subjects 75%+ \u2014 great work!"}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
             </div>
           );
         })()}
