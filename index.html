@@ -1174,6 +1174,7 @@ function RootAndBloom() {
         {showFieldStudy && fieldStudyChild && family && (
           <FieldStudyModal
             pal={pal} family={family} child={fieldStudyChild}
+            allEntries={portfolioEntries}
             onAddEntry={addPortfolioEntry}
             onClose={()=>setShowFieldStudy(false)}
           />
