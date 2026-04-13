@@ -958,6 +958,12 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
   const [parentNoteSaved, setParentNoteSaved] = useState(false);
   const [quickNotePrompt, setQuickNotePrompt] = useState(null); // {blockIdx, subjLabel, subjIcon}
   const [quickNoteText, setQuickNoteText] = useState("");
+  const [showQuiz,      setShowQuiz]      = useState(null); // {blockIdx, subjLabel, subjIcon, grade}
+  const [kidPhotos,     setKidPhotos]     = useState([]); // [{dataUrl, subj, date, ts}]
+  const kidCamRef = React.useRef(null);
+  const kidGallRef = React.useRef(null);
+  const [quickNotePhoto, setQuickNotePhoto] = useState(null); // dataUrl
+  const kidPhotoRef = useRef(null);
 
   const childIdx  = family.children.findIndex(c=>c.id===child.id);
   // Use childIdx if found, otherwise scan by matching entries to child position
@@ -1037,7 +1043,7 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
     setTimeout(()=>setBookSaved(false), 2400);
   };
 
-  const saveQuickNote = (blockIdx, b, noteStr) => {
+  const saveQuickNote = (blockIdx, b, noteStr, photoUrl) => {
     const isRead = b.s.toLowerCase().includes("read");
     if(isRead && !readingPrompt) {
       setReadingTitle2("");
@@ -1047,9 +1053,10 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
         childIdx, subj:b.s, title:b.s+"—"+todayDateStr2,
         note:noteStr||"", thumb:b.i||"📋", date:todayDateStr2,
         isSubject:true, lessonCount:1, selfLogged:true,
+        photos: photoUrl ? [photoUrl] : [],
       });
     }
-    setQuickNotePrompt(null); setQuickNoteText("");
+    setQuickNotePrompt(null); setQuickNoteText(""); setQuickNotePhoto(null);
   };
 
   const SCHEDULE = generateSchedule(family);
@@ -1126,10 +1133,11 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
     setKidGoalLogged(prev=>{ const n=new Set(prev); n.add(goal); return n; });
   };
   const STABS = [
-    {id:"home",  icon:"🏠", l:"Home"},
-    {id:"today", icon:"📅", l:"Today"},
-    {id:"books", icon:"📚", l:"Books"},
-    {id:"stars", icon:"🌟", l:"Stars"},
+    {id:"home",   icon:"🏠", l:"Home"},
+    {id:"today",  icon:"📅", l:"Today"},
+    {id:"books",  icon:"📚", l:"Books"},
+    {id:"stars",  icon:"🌟", l:"Stars"},
+    {id:"camera", icon:"📷", l:"Camera"},
     ...(kidGoals.length>0?[{id:"goals",icon:"🎯",l:"Goals"}]:[]),
   ];
 
@@ -1147,9 +1155,14 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
           <span style={{fontSize:"1.1rem"}}>{child.avatar}</span>
           <span style={{fontWeight:"800",color:"#fff",fontSize:"0.88rem"}}>{child.name}{"'s Space"}</span>
         </div>
-        <div style={{background:"rgba(255,255,255,0.22)",borderRadius:"9px",padding:"0.2rem 0.55rem",display:"flex",alignItems:"center",gap:"0.3rem"}}>
-          <span style={{fontSize:"0.85rem"}}>{"⭐"}</span>
-          <span style={{fontWeight:"800",color:"#fff",fontSize:"0.78rem"}}>{realPoints}</span>
+        <div style={{background:"rgba(255,255,255,0.22)",borderRadius:"9px",padding:"0.25rem 0.65rem",display:"flex",flexDirection:"column",alignItems:"center",gap:"2px",minWidth:"52px"}}>
+          <div style={{display:"flex",alignItems:"center",gap:"0.25rem"}}>
+            <span style={{fontSize:"0.75rem"}}>{"⭐"}</span>
+            <span style={{fontWeight:"900",color:"#fff",fontSize:"0.75rem"}}>{"Lv "+(Math.floor(realPoints/100)+1)}</span>
+          </div>
+          <div style={{width:"44px",height:"3px",borderRadius:"99px",background:"rgba(255,255,255,0.25)",overflow:"hidden"}}>
+            <div style={{height:"100%",width:(realPoints%100)+"%",background:"#fff",borderRadius:"99px"}}/>
+          </div>
         </div>
       </div>
 
@@ -1349,8 +1362,45 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
                     {done?"✓":""}
                   </div>
                 </div>
+              {done&&(
+                <div style={{display:"flex",gap:"0.4rem",marginTop:"0.35rem",paddingLeft:"3.3rem"}}>
+                  <button onClick={()=>setShowQuiz({blockIdx:i,subjLabel:b.s,subjIcon:b.i||"📋",grade:child.grade||"3rd"})}
+                    style={{padding:"0.25rem 0.65rem",border:"1.5px solid "+c1+"60",borderRadius:"20px",background:c1+"12",color:c1,fontSize:"0.68rem",fontWeight:"700",cursor:"pointer",fontFamily:"inherit"}}>
+                    {"✨ Quick Challenge"}
+                  </button>
+                  <button onClick={()=>kidCamRef.current?.click()}
+                    style={{padding:"0.25rem 0.65rem",border:"1.5px solid "+SK.sky+"80",borderRadius:"20px",background:SK.skyL,color:SK.sky,fontSize:"0.68rem",fontWeight:"700",cursor:"pointer",fontFamily:"inherit"}}>
+                    {"📷 Snap"}
+                  </button>
+                </div>
+              )}
               );
             })}
+            {/* Activity nudge */}
+            {Object.keys(checked).length>0&&Object.keys(checked).length<SCHEDULE.length&&(()=>{
+              const lastIdx=Math.max(...Object.keys(checked).map(Number));
+              const lastSubj=(SCHEDULE[lastIdx]?.s||"").toLowerCase();
+              const ACT={
+                math:    ["🔢 Count how many steps from one room to another!","🎲 Roll two dice and multiply the numbers!","🏠 Count all windows in your house, then the doors!"],
+                reading: ["📖 Tell someone one thing that happened in your book.","💬 Share your favorite sentence from today's reading.","🔤 Find 3 cool words and say them out loud!"],
+                science: ["🔭 Look outside — what can you observe about nature?","🌦 Guess what the weather will be like tomorrow.","🧪 What science question are you most curious about?"],
+                history: ["🗺 Find a place you learned about on a map.","📜 How was life different for kids 100 years ago?","👴 Ask someone older what school was like for them!"],
+                writing: ["✏ Write one sentence about your favorite part of today.","📝 Draw something and write 2 sentences about it.","💭 Write a note to your future self!"],
+                art:     ["🎨 Draw something using only 3 colors!","🖏 Sketch one object you can see right now.","🌈 Try drawing with your other hand — tricky!"],
+              };
+              const key=Object.keys(ACT).find(k=>lastSubj.includes(k));
+              if(!key) return null;
+              const tip=ACT[key][new Date().getDate()%ACT[key].length];
+              return (
+                <div style={{background:"linear-gradient(135deg,"+c1+"12,"+c2+"08)",borderRadius:"14px",padding:"0.75rem 1rem",marginTop:"0.5rem",border:"1.5px solid "+c1+"25",display:"flex",gap:"0.6rem",alignItems:"flex-start"}}>
+                  <span style={{fontSize:"1.2rem",flexShrink:0,marginTop:"2px"}}>{"\xf0\x9f\x92\xa1"}</span>
+                  <div>
+                    <div style={{fontSize:"0.63rem",fontWeight:"800",color:c1,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"3px"}}>{"Quick activity!"}</div>
+                    <div style={{fontSize:"0.78rem",color:SK.ink,lineHeight:1.55}}>{tip}</div>
+                  </div>
+                </div>
+              );
+            })()}
             {Object.keys(checked).length>0&&Object.keys(checked).length===SCHEDULE.length&&SCHEDULE.length>0&&(
               <div style={{background:`linear-gradient(135deg,${c1}22,${c2}11)`,borderRadius:"18px",padding:"1rem",textAlign:"center",marginTop:"0.5rem",border:`2px solid ${c1}40`}}>
                 <div style={{fontSize:"2rem",marginBottom:"0.3rem"}}>{"🌟"}</div>
@@ -1642,6 +1692,53 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
           </div>
         )}
 
+        {/* -- CAMERA TAB -- */}
+        {sTab==="camera" && (
+          <div style={{animation:"fadeUp 0.22s ease",padding:"1.2rem 1rem"}}>
+            <div style={{fontWeight:"900",color:SK.ink,fontSize:"1.2rem",marginBottom:"0.15rem"}}>{"📷 My Photos"}</div>
+            <div style={{fontSize:"0.72rem",color:SK.lite,marginBottom:"1rem"}}>{"Photos you took today"}</div>
+            {/* Camera buttons */}
+            <div style={{display:"flex",gap:"0.5rem",marginBottom:"1rem"}}>
+              <button onClick={()=>kidCamRef.current?.click()}
+                style={{flex:1,padding:"0.75rem",border:"none",borderRadius:"14px",background:"linear-gradient(135deg,"+c1+","+c2+")",color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.4rem"}}>
+                <span>{"📷"}</span><span>{"Take a Photo"}</span>
+              </button>
+              <button onClick={()=>kidGallRef.current?.click()}
+                style={{padding:"0.75rem 0.9rem",border:"2px solid "+c1+"50",borderRadius:"14px",background:"transparent",color:c1,fontWeight:"700",fontSize:"0.88rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                {"🖼️"}
+              </button>
+            </div>
+            {/* Photo grid */}
+            {(()=>{
+              const todayPhotos = myEntries.filter(e=>e.date===todayDateStr2&&e.photos&&e.photos.length>0);
+              const allPhotos = todayPhotos.flatMap(e=>e.photos.map(src=>({src,entry:e})));
+              if(allPhotos.length===0) return (
+                <div style={{background:SK.card,borderRadius:"18px",padding:"2rem 1.5rem",textAlign:"center",boxShadow:"0 2px 10px rgba(0,0,0,0.06)"}}>
+                  <div style={{fontSize:"3rem",marginBottom:"0.5rem",animation:"bounce 2s ease infinite"}}>{"📷"}</div>
+                  <div style={{fontWeight:"800",color:SK.ink,fontSize:"0.9rem",marginBottom:"0.25rem"}}>{"No photos today yet!"}</div>
+                  <div style={{fontSize:"0.75rem",color:SK.lite,lineHeight:1.6}}>{"Tap the camera button to snap a photo of your work."}</div>
+                </div>
+              );
+              return (
+                <>
+                  <div style={{fontSize:"0.7rem",color:SK.lite,marginBottom:"0.55rem",fontWeight:"600"}}>{allPhotos.length+" photo"+(allPhotos.length===1?"":"s")+" today"}</div>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:"0.5rem"}}>
+                    {allPhotos.map(({src,entry},i)=>(
+                      <div key={i} style={{aspectRatio:"1",borderRadius:"14px",overflow:"hidden",boxShadow:"0 2px 10px rgba(0,0,0,0.1)",position:"relative"}}>
+                        <img src={src} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                        <div style={{position:"absolute",bottom:0,left:0,right:0,background:"linear-gradient(transparent,rgba(0,0,0,0.55)",padding:"0.5rem 0.5rem 0.4rem"}}>
+                          <div style={{fontSize:"0.65rem",color:"#fff",fontWeight:"700"}}>{entry.subj}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{fontSize:"0.65rem",color:SK.lite,textAlign:"center",marginTop:"0.75rem",fontStyle:"italic"}}>{"Photos are saved to your portfolio for today only."}</div>
+                </>
+              );
+            })()}
+          </div>
+        )}
+
         {/* -- STREAK TAB -- */}
         {sTab==="streak" && (
           <div style={{animation:"fadeUp 0.22s ease",padding:"1.2rem 1rem"}}>
@@ -1745,6 +1842,60 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
         })}
       </nav>
 
+      {/* Quiz modal */}
+      {showQuiz&&(
+        <KidQuizModal
+          child={child} family={family}
+          subjLabel={showQuiz.subjLabel}
+          subjIcon={showQuiz.subjIcon}
+          grade={showQuiz.grade}
+          todayEntries={myEntries.filter(e=>e.date===todayDateStr2&&e.subj===showQuiz.subjLabel)}
+          allTodayEntries={myEntries.filter(e=>e.date===todayDateStr2)}
+          c1={c1} c2={c2}
+          onSaveResult={(result)=>{
+            onAddEntry&&onAddEntry({
+              childIdx, subj:showQuiz.subjLabel,
+              title:"🎯 Quiz: "+showQuiz.subjLabel+" — "+todayDateStr2,
+              date:todayDateStr2, thumb:"🎯",
+              note:"Quiz score: "+result.score+"/"+result.total+". "+
+                (result.missed.length>0?"Needs work: "+result.missed.join(", ")+".":" All correct!"),
+              isQuizResult:true,
+              quizData:result,
+              selfLogged:true,
+            });
+            setShowQuiz(null);
+          }}
+          onClose={()=>setShowQuiz(null)}
+        />
+      )}
+
+      {/* Hidden camera inputs for kid portal */}
+      <input ref={kidCamRef}  type="file" accept="image/*" capture="environment" style={{display:"none"}}
+        onChange={e=>{
+          const file=e.target.files[0]; if(!file) return;
+          const r=new FileReader(); r.onload=ev=>{
+            const newPhoto={dataUrl:ev.target.result,ts:Date.now(),date:todayDateStr2,subj:"Photo"};
+            setKidPhotos(p=>[newPhoto,...p]);
+            onAddEntry&&onAddEntry({childIdx,subj:"Daily Note",title:"📷 Photo — "+todayDateStr2,
+              date:todayDateStr2,thumb:"📷",note:"",photos:[ev.target.result],selfLogged:true});
+          }; r.readAsDataURL(file);
+          e.target.value="";
+        }}
+      />
+      <input ref={kidGallRef} type="file" accept="image/*" multiple style={{display:"none"}}
+        onChange={e=>{
+          Array.from(e.target.files).forEach(file=>{
+            const r=new FileReader(); r.onload=ev=>{
+              const newPhoto={dataUrl:ev.target.result,ts:Date.now(),date:todayDateStr2,subj:"Photo"};
+              setKidPhotos(p=>[newPhoto,...p]);
+              onAddEntry&&onAddEntry({childIdx,subj:"Daily Note",title:"📷 Photo — "+todayDateStr2,
+                date:todayDateStr2,thumb:"📷",note:"",photos:[ev.target.result],selfLogged:true});
+            }; r.readAsDataURL(file);
+          });
+          e.target.value="";
+        }}
+      />
+
       {/* Quick note after check-off */}
       {quickNotePrompt&&(
         <div style={{position:"fixed",inset:0,background:"rgba(10,20,10,0.72)",backdropFilter:"blur(12px)",zIndex:300,display:"flex",alignItems:"flex-end",justifyContent:"center",fontFamily:"'Comic Sans MS','Chalkboard SE',cursive"}}>
@@ -1759,11 +1910,30 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
               placeholder={"What did you do? What was fun or hard?"} rows={2} autoFocus
               style={{width:"100%",padding:"0.8rem",border:"2.5px solid "+SK.sky,borderRadius:"14px",fontSize:"0.88rem",fontFamily:"inherit",background:SK.skyL,color:SK.ink,resize:"none",outline:"none",marginBottom:"0.65rem",lineHeight:1.5}}
             />
-            <button onClick={()=>saveQuickNote(quickNotePrompt.blockIdx, quickNotePrompt.b, quickNoteText)}
-              style={{width:"100%",padding:"0.82rem",border:"none",borderRadius:"14px",background:"linear-gradient(135deg,"+SK.sky+","+SK.grass+")",color:"#fff",fontWeight:"900",fontSize:"0.9rem",cursor:"pointer",marginBottom:"0.45rem"}}>
-              {quickNoteText.trim()?"Save my note ✓":"Done ✓"}
-            </button>
-            <button onClick={()=>saveQuickNote(quickNotePrompt.blockIdx, quickNotePrompt.b, "")}
+            {/* Photo preview */}
+            {quickNotePhoto&&(
+              <div style={{position:"relative",marginBottom:"0.65rem",borderRadius:"12px",overflow:"hidden",border:"2px solid "+c1+"40"}}>
+                <img src={quickNotePhoto} alt="" style={{width:"100%",maxHeight:"140px",objectFit:"cover",display:"block"}}/>
+                <button onClick={()=>setQuickNotePhoto(null)}
+                  style={{position:"absolute",top:"6px",right:"6px",width:"24px",height:"24px",borderRadius:"50%",background:"rgba(0,0,0,0.55)",border:"none",color:"#fff",fontSize:"0.75rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>{"\u2715"}</button>
+              </div>
+            )}
+            {/* Photo + save row */}
+            <input ref={kidPhotoRef} type="file" accept="image/*" capture="environment"
+              onChange={e=>{
+                const file=e.target.files[0]; if(!file) return;
+                const r=new FileReader(); r.onload=ev=>setQuickNotePhoto(ev.target.result); r.readAsDataURL(file);
+                e.target.value="";
+              }} style={{display:"none"}}/>
+            <div style={{display:"flex",gap:"0.45rem",marginBottom:"0.45rem"}}>
+              <button onClick={()=>kidPhotoRef.current?.click()}
+                style={{width:"48px",height:"48px",borderRadius:"13px",border:"2px solid "+(quickNotePhoto?c1:"#ece5dc"),background:quickNotePhoto?c1+"15":"transparent",color:quickNotePhoto?c1:SK.lite,fontSize:"1.3rem",cursor:"pointer",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>{"\xf0\x9f\x93\xb7"}</button>
+              <button onClick={()=>saveQuickNote(quickNotePrompt.blockIdx, quickNotePrompt.b, quickNoteText, quickNotePhoto)}
+                style={{flex:1,padding:"0.82rem",border:"none",borderRadius:"13px",background:"linear-gradient(135deg,"+SK.sky+","+SK.grass+")",color:"#fff",fontWeight:"900",fontSize:"0.88rem",cursor:"pointer"}}>
+                {quickNoteText.trim()||quickNotePhoto?"Save \xe2\x9c\x93":"Done \xe2\x9c\x93"}
+              </button>
+            </div>
+            <button onClick={()=>saveQuickNote(quickNotePrompt.blockIdx, quickNotePrompt.b, "", null)}
               style={{width:"100%",padding:"0.4rem",border:"none",background:"transparent",color:SK.lite,fontSize:"0.72rem",cursor:"pointer"}}>{"Skip"}</button>
           </div>
         </div>
@@ -1811,6 +1981,257 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
           onDismiss={()=>setShowCoopPopup(false)}
         />
       )}
+    </div>
+  );
+}
+
+/* =======================================
+   KID QUIZ MODAL
+======================================= */
+function KidQuizModal({child, family, subjLabel, subjIcon, grade, todayEntries, allTodayEntries, c1, c2, onSaveResult, onClose}) {
+  const [phase,    setPhase]    = React.useState("loading"); // loading|quiz|results|error
+  const [questions,setQuestions]= React.useState([]);
+  const [current,  setCurrent]  = React.useState(0);
+  const [answers,  setAnswers]  = React.useState([]); // {q, chosen, correct, correctAnswer}
+  const [typed,    setTyped]    = React.useState("");
+  const [feedback, setFeedback] = React.useState(null); // null|"correct"|"wrong"
+
+  const heroGrad = `linear-gradient(135deg,${c1},${c2})`;
+
+  // Grade group: early (K-2), mid (3-5), upper (6-8), high (9-12)
+  const gradeNum = parseInt((grade||"3rd").replace(/\D/g,""))||3;
+  const gradeGroup = gradeNum<=2?"early":gradeNum<=5?"mid":gradeNum<=8?"upper":"high";
+
+  // Build context from today's notes for this subject
+  const lessonContext = React.useMemo(()=>{
+    const notes = todayEntries.map(e=>e.note||e.title||"").filter(Boolean).join(". ");
+    const allNotes = allTodayEntries.map(e=>e.note||"").filter(Boolean).join(". ");
+    return notes || allNotes || "General "+subjLabel+" lesson";
+  }, [todayEntries, allTodayEntries, subjLabel]);
+
+  React.useEffect(()=>{
+    generateQuiz();
+  }, []);
+
+  const generateQuiz = async () => {
+    setPhase("loading");
+    try {
+      const gradeDesc = gradeGroup==="early"?"K-2nd grade (ages 5-8), keep it very simple, fun and encouraging":
+        gradeGroup==="mid"?"3rd-5th grade (ages 8-11), moderate challenge":
+        gradeGroup==="upper"?"6th-8th grade (ages 11-14), more analytical":
+        "9th-12th grade (ages 14-18), rigorous and thoughtful";
+
+      const prompt = `You are a fun, encouraging homeschool tutor generating a quick quiz for a ${grade} student.
+
+Subject: ${subjLabel}
+Grade: ${grade} (${gradeDesc})
+What was covered today: ${lessonContext}
+
+Generate exactly 3 quiz questions based on what was actually covered today.
+Make questions directly tied to the lesson content above - not generic subject questions.
+For K-2: use very simple yes/no or one-word answers with big clear options.
+For 3-5: use 4-option multiple choice.
+For 6-8: mix of multiple choice and one short-answer question.
+For 9-12: deeper analysis, can include one short-answer.
+
+Respond ONLY with valid JSON, no markdown, no explanation:
+{"questions":[{"q":"question text","type":"mc","options":["A","B","C","D"],"answer":"A","explanation":"brief why"},...]}
+For short-answer type: {"q":"...","type":"sa","answer":"expected answer","explanation":"..."}
+For true/false: {"q":"...","type":"tf","options":["True","False"],"answer":"True","explanation":"..."}`;
+
+      const raw = await callClaude(prompt);
+      const clean = raw.replace(/```json|```/g,"").trim();
+      const parsed = JSON.parse(clean);
+      if(!parsed.questions||!Array.isArray(parsed.questions)) throw new Error("bad format");
+      setQuestions(parsed.questions);
+      setPhase("quiz");
+    } catch(err) {
+      if(err.message==="NO_KEY") setPhase("nokey");
+      else setPhase("error");
+    }
+  };
+
+  const handleAnswer = (chosen) => {
+    const q = questions[current];
+    const isCorrect = q.type==="sa"
+      ? chosen.trim().toLowerCase().includes(q.answer.toLowerCase().split(" ")[0])
+      : chosen===q.answer;
+    setFeedback(isCorrect?"correct":"wrong");
+    setTimeout(()=>{
+      setAnswers(prev=>[...prev,{q:q.q,chosen,correct:isCorrect,correctAnswer:q.answer,explanation:q.explanation}]);
+      setFeedback(null);
+      setTyped("");
+      if(current+1>=questions.length) {
+        setPhase("results");
+      } else {
+        setCurrent(c=>c+1);
+      }
+    }, isCorrect?800:1400);
+  };
+
+  const score = answers.filter(a=>a.correct).length;
+  const missed = answers.filter(a=>!a.correct).map(a=>a.q.slice(0,40));
+
+  const GRADE_ENCOURAGEMENT = [
+    "Amazing work! Keep going! 🌟",
+    "You're doing great! 🎉",
+    "Nice job! Every quiz makes you smarter! 🚀",
+  ];
+
+  return (
+    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.75)",backdropFilter:"blur(12px)",zIndex:400,display:"flex",alignItems:"flex-end",justifyContent:"center",fontFamily:"'Comic Sans MS','Chalkboard SE',cursive"}}>
+      <div style={{background:SK.cream,borderRadius:"28px 28px 0 0",width:"100%",maxWidth:"430px",maxHeight:"88vh",display:"flex",flexDirection:"column",animation:"slideUp 0.28s ease"}}>
+
+        {/* Header */}
+        <div style={{background:heroGrad,padding:"0.85rem 1.2rem",borderRadius:"28px 28px 0 0",flexShrink:0}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <div style={{display:"flex",alignItems:"center",gap:"0.5rem"}}>
+              <span style={{fontSize:"1.4rem"}}>{subjIcon}</span>
+              <div>
+                <div style={{fontWeight:"900",color:"#fff",fontSize:"0.95rem"}}>{subjLabel+" Challenge!"}</div>
+                <div style={{fontSize:"0.65rem",color:"rgba(255,255,255,0.75)"}}>{grade+" · based on today's lesson"}</div>
+              </div>
+            </div>
+            <button onClick={onClose} style={{background:"rgba(255,255,255,0.2)",border:"none",borderRadius:"50%",width:"28px",height:"28px",color:"#fff",cursor:"pointer",fontSize:"0.85rem",display:"flex",alignItems:"center",justifyContent:"center"}}>{"\u2715"}</button>
+          </div>
+          {phase==="quiz"&&questions.length>0&&(
+            <div style={{marginTop:"0.55rem"}}>
+              <div style={{height:"4px",borderRadius:"99px",background:"rgba(255,255,255,0.25)",overflow:"hidden"}}>
+                <div style={{height:"100%",width:((current/questions.length)*100)+"%",background:"rgba(255,255,255,0.85)",borderRadius:"99px",transition:"width 0.3s"}}/>
+              </div>
+              <div style={{fontSize:"0.6rem",color:"rgba(255,255,255,0.7)",marginTop:"3px",textAlign:"right"}}>{current+1+" of "+questions.length}</div>
+            </div>
+          )}
+        </div>
+
+        <div style={{flex:1,overflowY:"auto",padding:"1.2rem 1.2rem 1.5rem"}}>
+
+          {/* Loading */}
+          {phase==="loading"&&(
+            <div style={{textAlign:"center",padding:"2rem 1rem"}}>
+              <div style={{fontSize:"2.5rem",marginBottom:"0.5rem",animation:"bounce 1s ease infinite"}}>{"🤔"}</div>
+              <div style={{fontWeight:"800",color:SK.ink,fontSize:"0.9rem",marginBottom:"0.25rem"}}>{"Building your quiz..."}</div>
+              <div style={{fontSize:"0.72rem",color:SK.lite}}>{"Making questions from today's lesson!"}</div>
+            </div>
+          )}
+
+          {/* No API key */}
+          {phase==="nokey"&&(
+            <div style={{textAlign:"center",padding:"1.5rem 1rem"}}>
+              <div style={{fontSize:"2rem",marginBottom:"0.5rem"}}>{"🔑"}</div>
+              <div style={{fontWeight:"700",color:SK.ink,fontSize:"0.85rem",marginBottom:"0.3rem"}}>{"AI not set up yet"}</div>
+              <div style={{fontSize:"0.72rem",color:SK.lite,lineHeight:1.6}}>{"Ask your parent to add an API key in Settings to unlock quizzes!"}</div>
+            </div>
+          )}
+
+          {/* Error */}
+          {phase==="error"&&(
+            <div style={{textAlign:"center",padding:"1.5rem 1rem"}}>
+              <div style={{fontSize:"2rem",marginBottom:"0.5rem"}}>{"😔"}</div>
+              <div style={{fontWeight:"700",color:SK.ink,fontSize:"0.85rem",marginBottom:"0.5rem"}}>{"Couldn't make a quiz right now"}</div>
+              <button onClick={generateQuiz} style={{padding:"0.5rem 1.2rem",border:"none",borderRadius:"12px",background:heroGrad,color:"#fff",fontWeight:"800",fontSize:"0.82rem",cursor:"pointer"}}>{"Try again"}</button>
+            </div>
+          )}
+
+          {/* Active question */}
+          {phase==="quiz"&&questions[current]&&(()=>{
+            const q = questions[current];
+            const opts = q.options||[];
+            return (
+              <div>
+                <div style={{background:SK.card,borderRadius:"20px",padding:"1.1rem 1rem",marginBottom:"1rem",boxShadow:"0 2px 14px rgba(0,0,0,0.07)"}}>
+                  <div style={{fontWeight:"900",color:SK.ink,fontSize:"0.92rem",lineHeight:1.5,marginBottom:"0.25rem"}}>{"💭 "+q.q}</div>
+                </div>
+                {/* Multiple choice / true-false */}
+                {(q.type==="mc"||q.type==="tf")&&(
+                  <div style={{display:"flex",flexDirection:"column",gap:"0.5rem"}}>
+                    {opts.map((opt,oi)=>{
+                      const isSelected = feedback!==null;
+                      const isCorrect  = opt===q.answer;
+                      const bg = !isSelected?"#fff":
+                        isCorrect?"#e8f7ee":
+                        opt===answers[answers.length]?.chosen?"#ffeaea":"#fff";
+                      const border = !isSelected?SK.skyL:
+                        isCorrect?"#2d9e5f":"#ddd";
+                      return (
+                        <button key={oi} onClick={()=>!feedback&&handleAnswer(opt)}
+                          style={{padding:"0.75rem 1rem",border:"2.5px solid "+border,borderRadius:"16px",background:bg,fontFamily:"inherit",fontWeight:"700",fontSize:gradeGroup==="early"?"1rem":"0.85rem",color:SK.ink,cursor:feedback?"default":"pointer",textAlign:"left",transition:"all 0.2s"}}>
+                          {gradeGroup!=="early"&&<span style={{color:c1,marginRight:"0.4rem"}}>{String.fromCharCode(65+oi)+"."}</span>}
+                          {opt}
+                          {isSelected&&isCorrect&&<span style={{float:"right"}}>{"✓"}</span>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+                {/* Short answer */}
+                {q.type==="sa"&&(
+                  <div>
+                    <input value={typed} onChange={e=>setTyped(e.target.value)}
+                      onKeyDown={e=>e.key==="Enter"&&typed.trim()&&!feedback&&handleAnswer(typed)}
+                      placeholder={"Type your answer..."}
+                      style={{width:"100%",padding:"0.75rem",border:"2.5px solid "+c1+"50",borderRadius:"14px",fontSize:"0.9rem",fontFamily:"inherit",color:SK.ink,background:SK.skyL,outline:"none",marginBottom:"0.5rem"}}
+                    />
+                    <button onClick={()=>typed.trim()&&!feedback&&handleAnswer(typed)}
+                      disabled={!typed.trim()||!!feedback}
+                      style={{width:"100%",padding:"0.7rem",border:"none",borderRadius:"13px",background:typed.trim()?"linear-gradient(135deg,"+c1+","+c2+")":" #ddd",color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:typed.trim()?"pointer":"default"}}>{"Submit"}</button>
+                  </div>
+                )}
+                {/* Feedback overlay */}
+                {feedback&&(
+                  <div style={{marginTop:"0.75rem",padding:"0.75rem 1rem",borderRadius:"14px",background:feedback==="correct"?"#e8f7ee":"#fff4e6",border:"2px solid "+(feedback==="correct"?"#2d9e5f":"#f5a442"),textAlign:"center"}}>
+                    <div style={{fontSize:"1.5rem",marginBottom:"2px"}}>{feedback==="correct"?"🎉":"💪"}</div>
+                    <div style={{fontWeight:"800",color:feedback==="correct"?"#2d9e5f":"#e87a00",fontSize:"0.85rem"}}>{feedback==="correct"?"Correct!":"Not quite..."}</div>
+                    {feedback==="wrong"&&questions[current]?.explanation&&(
+                      <div style={{fontSize:"0.72rem",color:SK.ink,marginTop:"3px",lineHeight:1.5}}>{questions[current].explanation}</div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* Results */}
+          {phase==="results"&&(
+            <div>
+              <div style={{textAlign:"center",marginBottom:"1.2rem"}}>
+                <div style={{fontSize:"3.5rem",marginBottom:"0.4rem",animation:"bounce 1.5s ease infinite"}}>
+                  {score===questions.length?"🏆":score>=questions.length/2?"🌟":"💪"}
+                </div>
+                <div style={{fontWeight:"900",color:SK.ink,fontSize:"1.3rem"}}>{score+"/"+questions.length}</div>
+                <div style={{fontSize:"0.8rem",color:SK.lite,marginTop:"3px"}}>
+                  {score===questions.length
+                    ?GRADE_ENCOURAGEMENT[0]
+                    :score>=questions.length/2
+                    ?GRADE_ENCOURAGEMENT[1]
+                    :GRADE_ENCOURAGEMENT[2]}
+                </div>
+              </div>
+              {/* Answer review */}
+              <div style={{display:"flex",flexDirection:"column",gap:"0.5rem",marginBottom:"1rem"}}>
+                {answers.map((a,i)=>(
+                  <div key={i} style={{background:SK.card,borderRadius:"14px",padding:"0.7rem 0.85rem",border:"1.5px solid "+(a.correct?"#2d9e5f40":"#f5a44240")}}>
+                    <div style={{display:"flex",alignItems:"center",gap:"0.4rem",marginBottom:a.correct?"0":"0.3rem"}}>
+                      <span style={{fontSize:"0.85rem"}}>{a.correct?"✅":"❌"}</span>
+                      <span style={{fontSize:"0.75rem",fontWeight:"700",color:SK.ink,flex:1,lineHeight:1.4}}>{a.q}</span>
+                    </div>
+                    {!a.correct&&(
+                      <div style={{fontSize:"0.7rem",color:"#b07800",marginLeft:"1.4rem"}}>{"Correct: "+a.correctAnswer}</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              {/* Save to portfolio */}
+              <button onClick={()=>onSaveResult({score,total:questions.length,missed,questions:answers,subject:subjLabel,grade})}
+                style={{width:"100%",padding:"0.85rem",border:"none",borderRadius:"16px",background:heroGrad,color:"#fff",fontWeight:"900",fontSize:"0.92rem",cursor:"pointer",boxShadow:"0 4px 18px "+c1+"40",marginBottom:"0.5rem"}}>
+                {"📊 Save results → Progress"}
+              </button>
+              <button onClick={onClose}
+                style={{width:"100%",padding:"0.5rem",border:"none",background:"transparent",color:SK.lite,fontSize:"0.76rem",cursor:"pointer"}}>{"Close"}</button>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
