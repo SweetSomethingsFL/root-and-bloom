@@ -302,7 +302,17 @@ function RootAndBloom() {
   const [showSwitcher,   setShowSwitcher]   = useState(false);
   const [learnTab,       setLearnTab]       = useState("curriculum");
   const [activeStudent,  setActiveStudent]  = useState(null);
-  const [portfolioEntries,setPortfolioEntries]=useState(saved?.portfolio||[]);
+  const [portfolioEntries,setPortfolioEntries]=useState(()=>{
+    const raw = saved?.portfolio||[];
+    const todayLabel = new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
+    // Strip photo data from entries older than today to save storage
+    return raw.map(e=>{
+      if(e.photos&&e.photos.length>0&&e.date!==todayLabel){
+        return {...e, photos:[]};
+      }
+      return e;
+    });
+  });
   const [coopLog, setCoopLog] = useState(saved?.coopLog||[]);
   const [attendanceDays,    setAttendanceDays]    = useState(saved?.attendanceDays||0);
   const [attendanceLog,     setAttendanceLog]     = useState(saved?.attendanceLog||[]);
@@ -562,6 +572,7 @@ function RootAndBloom() {
         @keyframes wiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-9deg)}75%{transform:rotate(9deg)}}
         @keyframes starPop{0%{opacity:0;transform:scale(0) rotate(-20deg)}70%{transform:scale(1.25) rotate(5deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
         @keyframes confetti{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(60px) rotate(360deg)}}
+        @keyframes spin{to{transform:rotate(360deg)}}
         ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{border-radius:99px}
         input,textarea,select,button{font-family:inherit}
       `}</style>
@@ -10697,6 +10708,8 @@ function QuickCaptureModal({pal, family, activeChildId, onClose, onSave, attenda
   const [savedEntryDate, setSavedEntryDate] = useState(null);
   const noteRef    = useRef(null);
   const galleryRef = useRef(null);
+  const cameraRef  = useRef(null);
+  const [scanMode, setScanMode] = useState(false); // doc scan processing
   const activeCh   = family.children[childIdx];
   const cp = CHILD_COLOR_PALETTES.find(p=>p.id===(activeCh?.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
   const isReading  = subj.toLowerCase().includes("read");
@@ -10719,6 +10732,58 @@ function QuickCaptureModal({pal, family, activeChildId, onClose, onSave, attenda
       r.onload=ev=>setPhotos(p=>[...p,{dataUrl:ev.target.result}]);
       r.readAsDataURL(file);
     });
+    e.target.value="";
+  };
+
+  const handleScan = (e) => {
+    const file = e.target.files[0];
+    if(!file) return;
+    setScanMode(true);
+    const r = new FileReader();
+    r.onload = ev => {
+      const img = new Image();
+      img.onload = () => {
+        // Apply document-style processing: grayscale + contrast boost
+        const canvas = document.createElement("canvas");
+        const MAX = 1200;
+        const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+        canvas.width  = Math.round(img.width  * scale);
+        canvas.height = Math.round(img.height * scale);
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        // Get pixel data and apply doc enhancement
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+        // Find 10th and 90th percentile luminance for adaptive thresholding
+        const lums = [];
+        for(let i=0;i<data.length;i+=4){
+          lums.push(0.299*data[i]+0.587*data[i+1]+0.114*data[i+2]);
+        }
+        lums.sort((a,b)=>a-b);
+        const lo = lums[Math.floor(lums.length*0.05)];
+        const hi = lums[Math.floor(lums.length*0.95)];
+        const range = hi-lo || 1;
+        for(let i=0;i<data.length;i+=4){
+          // Convert to grayscale
+          const gray = 0.299*data[i]+0.587*data[i+1]+0.114*data[i+2];
+          // Stretch contrast
+          const stretched = Math.min(255, Math.max(0, ((gray-lo)/range)*255));
+          // Apply S-curve for cleaner doc look (darken darks, lighten lights)
+          const t = stretched/255;
+          const curved = Math.min(255, Math.round(255*(t<0.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2)));
+          // Slight warm tint to avoid harsh blue-white
+          data[i]   = Math.min(255, curved + (curved>180?8:0)); // R
+          data[i+1] = Math.min(255, curved + (curved>180?4:0)); // G
+          data[i+2] = curved;                                    // B
+        }
+        ctx.putImageData(imageData, 0, 0);
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.88);
+        setPhotos(p=>[...p,{dataUrl, scanned:true}]);
+        setScanMode(false);
+      };
+      img.src = ev.target.result;
+    };
+    r.readAsDataURL(file);
     e.target.value="";
   };
 
@@ -10908,6 +10973,7 @@ function QuickCaptureModal({pal, family, activeChildId, onClose, onSave, attenda
               {photos.map((p,i)=>(
                 <div key={i} style={{position:"relative",flexShrink:0}}>
                   <img src={p.dataUrl} alt="" style={{width:"54px",height:"54px",borderRadius:"9px",objectFit:"cover",border:`1.5px solid ${pal.stone}30`}}/>
+                  {p.scanned&&<div style={{position:"absolute",bottom:"2px",left:"2px",background:"rgba(0,0,0,0.55)",borderRadius:"4px",padding:"0 3px",fontSize:"0.45rem",color:"#fff",fontWeight:"700"}}>SCAN</div>}
                   <button onClick={()=>setPhotos(ps=>ps.filter((_,pi)=>pi!==i))}
                     style={{position:"absolute",top:"2px",right:"2px",width:"18px",height:"18px",borderRadius:"50%",background:"rgba(0,0,0,0.55)",border:"none",color:"#fff",fontSize:"0.55rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>{"✕"}</button>
                 </div>
@@ -10918,8 +10984,20 @@ function QuickCaptureModal({pal, family, activeChildId, onClose, onSave, attenda
           {/* Bottom action row */}
           <div style={{display:"flex",gap:"0.5rem",alignItems:"center"}}>
             <input ref={galleryRef} type="file" accept="image/*" multiple onChange={handlePhoto} style={{display:"none"}}/>
+            <input ref={cameraRef}  type="file" accept="image/*" capture="environment" onChange={handleScan} style={{display:"none"}}/>
+            {/* Gallery button */}
             <button onClick={()=>galleryRef.current?.click()}
+              title="Photo library"
               style={{width:"44px",height:"44px",borderRadius:"12px",border:`2px solid ${pal.stone+"50"}`,background:"transparent",color:pal.slate,fontSize:"1.1rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{"📷"}</button>
+            {/* Doc scan button */}
+            <button onClick={()=>cameraRef.current?.click()}
+              title="Scan document"
+              style={{width:"44px",height:"44px",borderRadius:"12px",border:`2px solid ${pal.stone+"50"}`,background:scanMode?pal.pale:"transparent",color:scanMode?pal.primary:pal.slate,fontSize:"1.1rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,position:"relative"}}>
+              {scanMode
+                ?<div style={{width:"18px",height:"18px",borderRadius:"50%",border:"2.5px solid "+pal.primary,borderTopColor:"transparent",animation:"spin 0.8s linear infinite"}}/>
+                :"📄"
+              }
+            </button>
             <button onClick={()=>setIsMilestone(m=>!m)} title="Mark as milestone"
               style={{width:"44px",height:"44px",borderRadius:"12px",border:`2px solid ${isMilestone?cp.c1:pal.stone+"50"}`,background:isMilestone?cp.c1+"18":"transparent",color:isMilestone?cp.c1:pal.slate,fontSize:"1.1rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{"🌟"}</button>
             <button onClick={handleSave} disabled={!subj}
