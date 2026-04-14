@@ -2,7 +2,7 @@
    Cache-first strategy for app shell, network-first for API calls
 */
 
-const CACHE_NAME = "rootbloom-v1";
+const CACHE_NAME = "rootbloom-v2";
 
 // App shell files to cache on install
 const APP_SHELL = [
