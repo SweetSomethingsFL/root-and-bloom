@@ -702,6 +702,18 @@ function printEvaluatorLetter(family, child, attendanceDays) {
 
 // GRADES_MID, GRADES_HIGH, gradeLevel() defined in state-requirements.js
 
+function downloadPortfolioHTML(html, filename) {
+  try {
+    const blob = new Blob([html], {type:"text/html;charset=utf-8"});
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href = url; a.download = filename; a.style.display = "none";
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(url); document.body.removeChild(a); }, 1000);
+    return true;
+  } catch(e) { return false; }
+}
+
 function printFullPortfolio(family, entries, child, attendanceDays, stateInfoUnused, aiSummary) {
   const schoolName  = family.schoolName||(family.familyName+" Academy")||"Home School";
   const yearStartNum= family.yearStart?new Date(family.yearStart).getFullYear():new Date().getFullYear();
@@ -789,6 +801,34 @@ function printFullPortfolio(family, entries, child, attendanceDays, stateInfoUnu
     allPhotos.forEach(src=>{ html += "<div class='photo-box'><img src='"+src+"' alt=''/></div>"; });
     html += "</div></div>";
   }
+  // Quiz scores & grades section
+  const quizEntries2 = subjEntries.filter(e=>e.isQuizResult&&e.quizData);
+  if(quizEntries2.length>0){
+    const quizBySubj={};
+    quizEntries2.forEach(e=>{
+      if(!quizBySubj[e.subj])quizBySubj[e.subj]={total:0,poss:0,count:0};
+      quizBySubj[e.subj].total+=e.quizData.score;
+      quizBySubj[e.subj].poss+=e.quizData.total;
+      quizBySubj[e.subj].count++;
+    });
+    const letterGrade=(pct)=>pct>=93?"A+":pct>=90?"A":pct>=87?"B+":pct>=83?"B":pct>=80?"B-":pct>=77?"C+":pct>=73?"C":pct>=70?"C-":pct>=60?"D":"F";
+    const gradeColor=(g)=>g.startsWith("A")?"#1a6e40":g.startsWith("B")?"#2563a8":g.startsWith("C")?"#7a5500":g.startsWith("D")?"#8a3a00":"#cc2222";
+    html += "<div style='margin-bottom:16px'>"
+      +"<div style='font-size:7.5pt;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px'>Quiz Scores &amp; Grades</div>"
+      +"<div style='display:grid;grid-template-columns:repeat(3,1fr);gap:8px'>";
+    Object.entries(quizBySubj).sort((a,b)=>(b[1].poss?b[1].total/b[1].poss:0)-(a[1].poss?a[1].total/a[1].poss:0)).forEach(([subj,d])=>{
+      const pct2=d.poss>0?Math.round((d.total/d.poss)*100):0;
+      const letter=letterGrade(pct2);
+      const col=gradeColor(letter);
+      html += "<div style='background:#fff;border:1.5px solid "+col+"30;border-radius:8px;padding:8px 10px;text-align:center'>"
+        +"<div style='font-size:16pt;font-weight:900;color:"+col+"'>"+letter+"</div>"
+        +"<div style='font-size:7.5pt;font-weight:700;color:#333;margin:2px 0'>"+subj+"</div>"
+        +"<div style='font-size:7pt;color:#999'>"+pct2+"% &bull; "+d.count+" quiz"+(d.count===1?"":"zes")+"</div>"
+        +"</div>";
+    });
+    html += "</div></div>";
+  }
+
   html += "<div style='display:flex;gap:24px;margin:20px 0 16px;padding-top:16px;border-top:1.5px solid #ccc'>"
     +"<div style='flex:1'><div style='border-bottom:1.5px solid #999;height:30px;margin-bottom:4px'></div><div style='font-size:7.5pt;color:#888'>Parent Signature</div></div>"
     +"<div style='flex:1'><div style='border-bottom:1.5px solid #999;height:30px;margin-bottom:4px'></div><div style='font-size:7.5pt;color:#888'>Date</div></div>"
@@ -798,7 +838,7 @@ function printFullPortfolio(family, entries, child, attendanceDays, stateInfoUnu
     +"</body></html>";
   const w=window.open("","_blank","width=820,height=980,scrollbars=yes");
   if(w){w.document.write(html);w.document.close();}
-  else{alert("Please allow popups to print.");}
+  return html;
 }
 
 
@@ -10323,6 +10363,14 @@ function FullYearPrintModal({pal, family, child, cp, entries, attendanceDays, on
     printFullPortfolio(family, entries, child, attendanceDays, null, includeAI?aiSummary:null);
     onClose();
   };
+  const handleDownload = () => {
+    const html = printFullPortfolio(family, entries, child, attendanceDays, null, includeAI?aiSummary:null);
+    const yn = (family.yearStart?new Date(family.yearStart).getFullYear():new Date().getFullYear());
+    const fname = (child.name||"Portfolio").replace(/\s+/g,"-")+"_Portfolio_"+yn+".html";
+    const ok = downloadPortfolioHTML(html||"", fname);
+    if(!ok) alert("Download failed. Try Print instead.");
+    else onClose();
+  };
   return (
     <div style={{position:"fixed",inset:0,zIndex:400,background:"rgba(0,0,0,0.55)",backdropFilter:"blur(10px)",display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
       <div style={{width:"100%",maxWidth:"430px",background:pal.linen,borderRadius:"24px 24px 0 0",animation:"slideUp 0.26s ease",maxHeight:"88vh",display:"flex",flexDirection:"column"}}>
@@ -10397,7 +10445,8 @@ function FullYearPrintModal({pal, family, child, cp, entries, attendanceDays, on
         </div>
         <div style={{padding:"0.85rem 1.2rem",borderTop:`1px solid ${pal.stone}30`,flexShrink:0,display:"flex",gap:"0.5rem"}}>
           <button onClick={onClose} style={{padding:"0.7rem 1rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,fontSize:"0.82rem",cursor:"pointer"}}>{"Cancel"}</button>
-          <button onClick={handlePrint} style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.86rem",cursor:"pointer"}}>{"🖨 Print / Save PDF"}</button>
+          <button onClick={handleDownload} style={{padding:"0.7rem 0.85rem",border:"2px solid "+pal.primary,borderRadius:"12px",background:"transparent",color:pal.primary,fontWeight:"700",fontSize:"0.82rem",cursor:"pointer"}}>{"\u2b07\ufe0f Download"}</button>
+          <button onClick={handlePrint} style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.86rem",cursor:"pointer"}}>{"🖨 Print"}</button>
         </div>
       </div>
     </div>
