@@ -7746,7 +7746,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
           }
 
           return banners.length>0 ? <div>{banners}</div> : null;
-        })()
+        })()}
 
         {/* ── Multi-child dashboard — shown when "All" selected and 2+ children ── */}
         {child==="all" && family.children.length>1 && (()=>{
