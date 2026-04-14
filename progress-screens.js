@@ -1331,29 +1331,8 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
               </div>
             </div>
           )}
-          {/* Share with Evaluator */}
-          {(()=>{
-            var si2 = getStateInfo(family.state||"");
-            if(!si2.workSamples && !si2.readingLog && si2.tier < 3) return null;
-            return (
-              <div style={{background:"linear-gradient(135deg,"+cp.c1+"15,"+cp.c2+"10)",borderRadius:"16px",padding:"1rem 1.1rem",marginBottom:"1rem",border:"2px solid "+cp.c1+"35"}}>
-                <div style={{display:"flex",alignItems:"center",gap:"0.6rem",marginBottom:"0.5rem"}}>
-                  <span style={{fontSize:"1.3rem"}}>{"\uD83D\uDCCB"}</span>
-                  <div>
-                    <div style={{fontWeight:"800",color:cp.c1,fontSize:"0.84rem"}}>{"Share with Evaluator"}</div>
-                    <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"1px"}}>{family.state}{" \u00b7 "}{si2.workSamples&&si2.readingLog?"Work samples + reading log required":si2.workSamples?"Work samples required":si2.readingLog?"Reading log required":"Portfolio review required"}</div>
-                  </div>
-                </div>
-                <div style={{fontSize:"0.72rem",color:pal.ink,lineHeight:1.6,marginBottom:"0.65rem",background:"rgba(255,255,255,0.6)",borderRadius:"10px",padding:"0.55rem 0.7rem"}}>
-                  {si2.portfolio}
-                </div>
-                <button onClick={()=>generateEvaluatorReport(ch, childEntries, family, attendanceDays, bySubject, readingEntries, si2)}
-                  style={{width:"100%",padding:"0.7rem",border:"none",borderRadius:"12px",background:"linear-gradient(135deg,"+cp.c1+","+cp.c2+")",color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:"pointer",boxShadow:"0 3px 12px "+cp.c1+"40"}}>
-                  {"\u2B07\uFE0F Download Evaluator Report"}
-                </button>
-              </div>
-            );
-          })()}
+          {/* Share with Evaluator - temporarily disabled for debugging */}
+
           <div style={{height:"0.5rem"}}/>
         </>)}
 
