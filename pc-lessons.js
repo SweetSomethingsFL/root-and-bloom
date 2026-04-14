@@ -10504,7 +10504,7 @@ const LR_LESSON_PLANS = {
       "Warning signs that need medical care: severe swelling, inability to bear weight after 24 hours, numbness, or bruising that spreads rapidly."
     ],
     discussion: [
-      {q:"How can you tell if a sprain might actually be a fracture?", answers:["Significant deformity, point tenderness over bone (not just the joint), inability to bear weight, or bruising and swelling that is severe and immediate.")},
+      {q:"How can you tell if a sprain might actually be a fracture?", answers:["Significant deformity, point tenderness over bone (not just the joint), inability to bear weight, or bruising and swelling that is severe and immediate."]},
       {q:"Why do we elevate an injury above heart level?", answers:["Gravity helps reduce fluid accumulation in the injured area. Less swelling means less pain and faster healing."]}
     ],
     challenge: "Practice wrapping an ankle with an elastic bandage on a family member. Check: is circulation maintained? Is it snug but not cutting off blood flow?",
@@ -15738,7 +15738,6 @@ const LR_LESSON_PLANS = {
     }
   }
 
-};
 };
 
 function getLessonPlan(topic, grade) {
