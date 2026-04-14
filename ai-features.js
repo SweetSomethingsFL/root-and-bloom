@@ -116,6 +116,7 @@ function buildWorksheetPrompt(wsType, topic, child, family, extraContext, diffic
     "History":          "Create a history worksheet with: timeline ordering, cause-and-effect questions, a primary source analysis prompt, and a reflection question connecting to today.",
     "Nature Journal":   "Create a nature journal worksheet with observation prompts, sketch space (described as a box), identification questions, and a 'what I wonder' reflection section.",
     "Custom Worksheet": "Create a comprehensive, well-structured worksheet perfectly tailored to the topic and grade level. Use the best mix of question types for this specific topic.",
+    "Coloring Page":    "Create a coloring-page-style worksheet for K-6. Include 2-3 drawing scenes (write clear instructions like 'Draw a butterfly on a flower and color it'), 1-2 labeling diagrams (describe what to draw and label), and 1 creative drawing prompt. Set each drawing item type to 'coloring'. Keep it playful, simple, and directly tied to the topic.",
   }[wsType] || "Create a well-structured, engaging worksheet perfectly suited to the topic and grade level.";
 
   const goalInfluence = goals !== "General homeschool education"
@@ -172,6 +173,7 @@ function AIWorksheetModal({ pal, family, activeChild, wsType, onClose, portfolio
     {id:"Narration",         icon:"\uD83D\uDDE3\uFE0F", label:"Narration",   desc:"Retell and explain prompts"},
     {id:"Nature Journal",    icon:"\uD83C\uDF3F", label:"Nature Journal",    desc:"Observation and wonder prompts"},
     {id:"Custom Worksheet",  icon:"\uD83D\uDCCB", label:"Custom",            desc:"AI picks the best format"},
+    {id:"Coloring Page",     icon:"\uD83C\uDFA8", label:"Coloring Page",     desc:"Drawing prompts + scenes (K-6)"},
   ];
 
   const DIFFICULTY_OPTIONS = [
@@ -196,6 +198,7 @@ function AIWorksheetModal({ pal, family, activeChild, wsType, onClose, portfolio
     "Narration":           "e.g. What we read in Charlotte\u2019s Web today",
     "Nature Journal":      "e.g. Backyard insects, seasonal changes, oak trees",
     "Custom Worksheet":    "e.g. CH and SH blending sounds for 1st grade",
+    "Coloring Page":       "e.g. Parts of a plant, life cycle of a butterfly, farm animals",
   };
 
   const generate = async () => {
@@ -1795,4 +1798,30 @@ ${(result.days||[]).map(d=>`
       </div>
     </div>
   );
+}
+
+/* ----------------------------------------------------------
+   GENERATE STRUGGLE REPORT
+   Extracted from ProgressScreen Grades tab IIFE.
+   Call: generateStruggleReport(weakRows, childName, setters)
+   weakRows: [{subj, totalScore, totalPoss, quizzes, missed}]
+   setters: {setLoading, setError, setResult}
+   ---------------------------------------------------------- */
+async function generateStruggleReport(weakRows, childName, setters) {
+  const { setLoading, setError, setResult } = setters;
+  if(!weakRows||weakRows.length===0) return;
+  setLoading(true); setError(null); setResult(null);
+  const lines = weakRows.map(r=>{
+    const pct = Math.round((r.totalScore/r.totalPoss)*100);
+    return r.subj+" ("+pct+"% avg across "+r.quizzes.length+" quiz"+(r.quizzes.length===1?"":"zes")+"). Missed topics: "+(r.missed.slice(0,5).join(", ")||"various");
+  }).join("\n");
+  const cname = childName||"this child";
+  const prompt = "You are a warm, experienced homeschool coach. A parent has shared quiz data showing that "+cname+" is struggling in the following subjects:\n\n"+lines+"\n\nWrite a short, warm, practical note for the parent. Cover:\n1. One sentence acknowledging the struggle without alarm.\n2. One concrete suggestion per weak subject (specific teaching approach, game, resource, or activity).\n3. One encouraging closing sentence.\nPlain text only. No markdown, no bullet points, no headers. Under 120 words total.";
+  try {
+    const result = await callClaude(prompt);
+    setResult(result.trim());
+  } catch(err) {
+    setError(err.message==="NO_KEY"?"no_key":"error");
+  }
+  setLoading(false);
 }
