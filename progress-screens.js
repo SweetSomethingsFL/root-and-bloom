@@ -1025,7 +1025,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
 
         {/* View tabs */}
         <div style={{display:"flex",background:pal.parchm,borderRadius:"11px",padding:"3px",gap:"2px",marginBottom:"1rem"}}>
-          {(family.children.length>1?[["overview","📋","Overview"],["transcript","📜","Transcript"],["reading","📖","Reading Log"],["narrative","📝","Narrative"],["compare","⚖️","Compare"]]:[["overview","📋","Overview"],["transcript","📜","Transcript"],["reading","📖","Reading Log"],["narrative","📝","Narrative"]]).map(([id,icon,l])=>(
+          {(family.children.length>1?[["overview","📋","Overview"],["transcript","📜","Transcript"],["reading","📖","Reading Log"],["narrative","📝","Narrative"]]:[["overview","📋","Overview"],["transcript","📜","Transcript"],["reading","📖","Reading Log"],["narrative","📝","Narrative"]]).map(([id,icon,l])=>(
             <button key={id} onClick={()=>setActiveView(id)}
               style={{flex:1,padding:"0.42rem 0.2rem",border:"none",borderRadius:"9px",background:activeView===id?pal.linen:"transparent",color:activeView===id?pal.ink:pal.slate,fontSize:"0.62rem",fontWeight:activeView===id?"700":"400",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:"1px"}}>
               <span style={{fontSize:"0.8rem"}}>{icon}</span>
@@ -1713,80 +1713,6 @@ function DailyLogSection({pal,cp,childEntries,subjEntries}){
           })}
         </div>
       )}
-
-        {/* ====== COMPARE ====== */}
-        {activeView==="compare"&&family.children.length>1&&(()=>{
-          const yr=new Date().getFullYear();
-          const weekStart2=new Date();
-          weekStart2.setDate(weekStart2.getDate()-(weekStart2.getDay()===0?6:weekStart2.getDay()-1));
-          weekStart2.setHours(0,0,0,0);
-          return (
-            <div style={{animation:"fadeUp 0.18s ease"}}>
-              <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem",marginBottom:"0.85rem"}}>
-                {"Side-by-side · "+family.children.length+" children"}
-              </div>
-              <div style={{background:pal.linen,borderRadius:"16px",overflow:"hidden",border:`1.5px solid ${pal.stone}30`,marginBottom:"1rem"}}>
-                <div style={{display:"grid",gridTemplateColumns:"120px "+family.children.map(()=>"1fr").join(" "),background:pal.parchm,borderBottom:`1px solid ${pal.stone}25`}}>
-                  <div style={{padding:"0.55rem 0.75rem",fontSize:"0.65rem",fontWeight:"700",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.08em"}}>Metric</div>
-                  {family.children.map((c,i)=>{
-                    const ccp=CHILD_COLOR_PALETTES.find(p=>p.id===(c.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
-                    return (
-                      <div key={c.id} style={{padding:"0.55rem 0.5rem",textAlign:"center",borderLeft:`1px solid ${pal.stone}20`}}>
-                        <div style={{fontSize:"1.1rem"}}>{c.avatar}</div>
-                        <div style={{fontSize:"0.65rem",fontWeight:"800",color:ccp.c1}}>{c.name}</div>
-                        <div style={{fontSize:"0.58rem",color:pal.slate}}>{c.grade}</div>
-                      </div>
-                    );
-                  })}
-                </div>
-                {[
-                  {label:"Total Entries", fn:(i)=>portfolioEntries.filter(e=>e.childIdx===i&&!e.isDay).length},
-                  {label:"Subjects Logged", fn:(i)=>[...new Set(portfolioEntries.filter(e=>e.childIdx===i&&!e.isDay).map(e=>e.subj))].length},
-                  {label:"This Week", fn:(i)=>portfolioEntries.filter(e=>e.childIdx===i&&!e.isDay&&(()=>{try{return new Date(e.date+", "+yr)>=weekStart2;}catch{return false;}})()).length},
-                  {label:"Reading Titles", fn:(i)=>portfolioEntries.filter(e=>e.childIdx===i&&(e.readingTitle||e.subj==="Reading")&&(e.readingTitle||e.title)).length},
-                  {label:"Photos", fn:(i)=>portfolioEntries.filter(e=>e.childIdx===i&&e.photos&&e.photos.length>0).length},
-                ].map((row,ri)=>(
-                  <div key={ri} style={{display:"grid",gridTemplateColumns:"120px "+family.children.map(()=>"1fr").join(" "),borderTop:`1px solid ${pal.stone}15`,background:ri%2===0?"#fff":pal.parchm+"80"}}>
-                    <div style={{padding:"0.55rem 0.75rem",fontSize:"0.74rem",color:pal.inkM,fontWeight:"600"}}>{row.label}</div>
-                    {family.children.map((c,i)=>{
-                      const val=row.fn(i);
-                      const vals=family.children.map((_,j)=>row.fn(j));
-                      const max=Math.max(...vals);
-                      const isMax=val===max&&max>0;
-                      const ccp=CHILD_COLOR_PALETTES.find(p=>p.id===(c.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
-                      return (
-                        <div key={c.id} style={{padding:"0.55rem 0.5rem",textAlign:"center",borderLeft:`1px solid ${pal.stone}15`}}>
-                          <span style={{fontSize:"0.88rem",fontWeight:"800",color:isMax?ccp.c1:pal.inkM}}>{val}</span>
-                          {isMax&&vals.filter(v=>v===max).length===1&&<span style={{fontSize:"0.6rem",marginLeft:"2px"}}>{"✓"}</span>}
-                        </div>
-                      );
-                    })}
-                  </div>
-                ))}
-              </div>
-              <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem",marginBottom:"0.5rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>Subject Coverage</div>
-              <div style={{display:"flex",flexDirection:"column",gap:"0.35rem",marginBottom:"1rem"}}>
-                {[...new Set(portfolioEntries.filter(e=>!e.isDay).map(e=>e.subj))].map(subj=>(
-                  <div key={subj} style={{background:"#fff",borderRadius:"11px",padding:"0.55rem 0.75rem",border:`1px solid ${pal.stone}20`,display:"flex",gap:"0.5rem",alignItems:"center"}}>
-                    <div style={{fontSize:"0.78rem",fontWeight:"600",color:pal.inkM,width:"100px",flexShrink:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{subj}</div>
-                    <div style={{flex:1,display:"flex",gap:"0.3rem",flexWrap:"wrap"}}>
-                      {family.children.map((c,i)=>{
-                        const cnt=portfolioEntries.filter(e=>e.childIdx===i&&e.subj===subj&&!e.isDay).length;
-                        const ccp=CHILD_COLOR_PALETTES.find(p=>p.id===(c.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
-                        return cnt>0?(
-                          <div key={c.id} style={{display:"flex",alignItems:"center",gap:"0.2rem",padding:"0.15rem 0.45rem",background:ccp.c1+"18",borderRadius:"20px",border:`1px solid ${ccp.c1}30`}}>
-                            <span style={{fontSize:"0.75rem"}}>{c.avatar}</span>
-                            <span style={{fontSize:"0.65rem",fontWeight:"700",color:ccp.c1}}>{cnt}</span>
-                          </div>
-                        ):null;
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          );
-        })()}
 
         {/* ====== GRADES TAB ====== */}
         {activeTab==="grades"&&(()=>{
