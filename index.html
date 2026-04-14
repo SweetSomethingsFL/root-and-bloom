@@ -451,6 +451,495 @@ function savePersist(obj) {
   try { localStorage.setItem(LS_KEY, JSON.stringify(obj)); } catch(e){}
 }
 
+function getComplianceInfo(state, grade) {
+  const level = gradeLevel(grade);
+  const gnum  = gradeNum(grade);
+
+  // Core subjects required at each level (varies by state)
+  const coreByLevel = {
+    elementary: ["Reading/Language Arts","Math","Science","Social Studies","Health","Art","Music","Physical Education"],
+    middle:     ["English/Language Arts","Math","Science","Social Studies","Health","PE","Electives"],
+    high:       ["English","Math","Science","Social Studies/History","Health","PE","Electives","Foreign Language (recommended)"],
+  };
+
+  // Testing flags
+  const needsTest = {
+    "Pennsylvania": [3,5,8].includes(gnum),
+    "West Virginia": [3,5,8,11].includes(gnum),
+    "Colorado":      gnum>=3 && gnum%2===1,
+    "New York":      gnum>=4,
+    "Virginia":      [3,5,8].includes(gnum),
+    "Georgia":       gnum>=3,
+    "Ohio":          [3,4,5,6,7,8].includes(gnum),
+    "North Carolina":[3,4,5,6,7,8].includes(gnum),
+  }[state] || false;
+
+  const stateNotes = {
+    "Florida": {
+      hours: "No minimum hours — 180 days recommended",
+      portfolio: "Contemporaneous activity log (with reading titles listed) + work samples",
+      testing: "Not required — annual evaluation by certified teacher due on LOI anniversary",
+      gradeNotes: {
+        elementary: "Show reading materials by title. Keep samples from beginning, middle, and end of year.",
+        middle:     "Same as elementary — activity log + work samples per subject.",
+        high:       "Begin formal transcript (grades 9-12). College-bound students need credits documented.",
+      },
+      deadline: "Anniversary of Letter of Intent to school district",
+      keepFor:  "2 years",
+    },
+    "Pennsylvania": {
+      hours: level==="elementary"?"900 hours/year":"990 hours/year",
+      portfolio: "Log of reading materials (by title) + work samples from beginning, middle & end of year",
+      testing: needsTest?`REQUIRED: Standardized test in Reading/Language Arts & Math (grade ${grade})`:"Not required this grade",
+      gradeNotes: {
+        elementary: "Include samples showing progress over time. Log must list book titles. Evaluator checks for growth.",
+        middle:     "Same requirements + testing at grade 8. Evaluator is a PA-certified teacher or licensed psychologist.",
+        high:       "Transcript required. List subjects, credits earned, grades. 990 hours/year. Annual evaluation required.",
+      },
+      deadline: "Annual evaluation by June 30",
+      keepFor:  "Not specified — keep indefinitely recommended",
+    },
+    "New York": {
+      hours: level==="elementary"?"900 hours/year (225/quarter)":"990 hours/year (247.5/quarter)",
+      portfolio: "Quarterly reports + annual assessment. Hours must be documented by subject at secondary level.",
+      testing: "Required every other year starting grade 4, then annually from grade 9",
+      gradeNotes: {
+        elementary: "File IHIP annually. Submit quarterly reports listing subjects and hours. Keep attendance records.",
+        middle:     "Hours documented per subject. Units begin accumulating in grades 7-8.",
+        high:       "Standardized testing required annually. Graduation requires completing 24 cumulative units (9-12).",
+      },
+      deadline: "Quarterly reports to school district",
+      keepFor:  "Not specified",
+    },
+    "Maryland": {
+      hours: "No minimum — must show regular, thorough instruction",
+      portfolio: "Work samples per week of semester for each COMAR subject. Semi-annual portfolio review.",
+      testing: "Not required",
+      gradeNotes: {
+        elementary: "Work samples for English, Math, Science, Social Studies. Description only for Art, Music, PE, Health.",
+        middle:     "Work samples required for core subjects weekly. Same COMAR subjects apply.",
+        high:       "Same requirements. College-bound: maintain transcript with course names and grades.",
+      },
+      deadline: "Semi-annual reviews (Jan & June)",
+      keepFor:  "Duration of homeschooling",
+    },
+    "Texas": {
+      hours: "No requirement — full flexibility",
+      portfolio: "No state requirement — highly recommended for personal records",
+      testing: "Not required",
+      gradeNotes: {
+        elementary: "TX is highly flexible. No filing, no reporting. Teach visual arts, music, PE, health at minimum.",
+        middle:     "Same freedom as elementary. Keep records for your own reference and school re-entry if needed.",
+        high:       "Transcript strongly recommended for college. No state requirement but colleges expect it.",
+      },
+      deadline: "None",
+      keepFor:  "Recommended: keep permanently",
+    },
+    "California": {
+      hours: "No specific minimum — must show instruction",
+      portfolio: "Required if filing as private school. Keep attendance, coursework records.",
+      testing: "Not required",
+      gradeNotes: {
+        elementary: "File as private school or use PSA/ISP. Keep records of instruction in required subjects.",
+        middle:     "Same as elementary. Required subjects: English, Math, Social Sciences, Science, Arts, PE, Health.",
+        high:       "Transcript required for college. Courses must align with UC/CSU A-G requirements if college-bound.",
+      },
+      deadline: "Annual private school affidavit (Oct 1-15)",
+      keepFor:  "Recommended: 5 years",
+    },
+    "Georgia": {
+      hours: "180 days/year",
+      portfolio: "Declaration of intent + monthly attendance records + standardized test every 3 years (grades 3+)",
+      testing: needsTest?"Standardized test required this year (every 3 years)":"Not required this year",
+      gradeNotes: {
+        elementary: "Monthly attendance reports. Test every 3 years starting grade 3.",
+        middle:     "Same monthly reporting. Test every 3 years. Keep work samples for reference.",
+        high:       "Test every 3 years. Transcript needed for college. Keep detailed course records.",
+      },
+      deadline: "Monthly attendance to school district",
+      keepFor:  "Not specified",
+    },
+    "Ohio": {
+      hours: "900 hours/year",
+      portfolio: "Annual notification + assessment. Portfolio or standardized test as evaluation option.",
+      testing: needsTest?`Assessment required this grade — portfolio or standardized test`:"Assessment required annually",
+      gradeNotes: {
+        elementary: "900 hours/year. Annual assessment by licensed teacher or portfolio review. Keep attendance.",
+        middle:     "Same 900 hour requirement. Assessment or portfolio. Required subjects include all core areas.",
+        high:       "Must cover specific subjects each year. Keep credits and grades for transcript.",
+      },
+      deadline: "Annual assessment submitted to school district",
+      keepFor:  "2 years recommended",
+    },
+  };
+
+  const info = stateNotes[state] || {
+    hours: "Check your state education department for hours requirements",
+    portfolio: "Keep attendance log, activity log, and work samples by subject",
+    testing: "Check your state for standardized testing requirements",
+    gradeNotes: {
+      elementary: "Most states require: activity log, work samples per subject, attendance record.",
+      middle:     "Same as elementary. Some states add standardized testing at middle school grades.",
+      high:       "Add formal transcript (grades 9-12) with courses, credits, and grades for college preparation.",
+    },
+    deadline: "Check your state education department website",
+    keepFor:  "Recommended: keep for 5 years",
+  };
+
+  return {
+    state,
+    grade,
+    level,
+    gnum,
+    hours:      info.hours,
+    portfolio:  info.portfolio,
+    testing:    info.testing,
+    gradeNote:  info.gradeNotes[level]||info.gradeNotes.elementary,
+    deadline:   info.deadline,
+    keepFor:    info.keepFor,
+    subjects:   coreByLevel[level]||coreByLevel.elementary,
+    needsTest,
+  };
+}
+
+function getEOYWeeksLeft(family) {
+  if(!family?.yearEnd) return null;
+  const end = new Date(family.yearEnd);
+  const today = new Date();
+  const msLeft = end - today;
+  if(msLeft < 0) return 0;
+  return Math.ceil(msLeft / (7*24*60*60*1000));
+}
+
+/* =======================================
+   CELEBRATION MODAL — after onboarding
+======================================= */
+/* =======================================
+   TOUR MODAL — 4 animated slides shown
+   once after onboarding completes.
+======================================= */
+
+function nextGrade(grade) {
+  const order = ["Pre-K","K","1st","2nd","3rd","4th","5th","6th","7th","8th","9th","10th","11th","12th"];
+  const idx = order.indexOf(grade);
+  return idx >= 0 && idx < order.length-1 ? order[idx+1] : null;
+}
+
+// Returns grade-specific compliance info for a given state + grade
+
+function printEvaluatorLetter(family, child, attendanceDays) {
+  const schoolName = family.schoolName||(family.familyName+" Academy")||"Home School";
+  const yearStart  = family.yearStart ? new Date(family.yearStart).getFullYear() : new Date().getFullYear();
+  const yearEnd    = family.yearEnd   ? new Date(family.yearEnd).getFullYear()   : yearStart+1;
+  const today      = new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
+
+  const css = ""
+    +"*{box-sizing:border-box;margin:0;padding:0}"
+    +"body{font-family:Georgia,serif;color:#222;background:#fff;font-size:11pt;line-height:1.7}"
+    +".wrap{max-width:680px;margin:2rem auto;padding:2.5rem}"
+    +"@media print{.wrap{margin:0;padding:2rem}@page{margin:2cm}}";
+
+  const html = "<!DOCTYPE html><html><head>"
+    +"<meta charset='utf-8'>"
+    +"<title>Annual Evaluation Letter &mdash; "+(child?.name||"Student")+"</title>"
+    +"<style>"+css+"</style>"
+    +"</head><body><div class='wrap'>"
+
+    +"<div style='text-align:center;margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:2px solid #2a6a2a'>"
+    +"<div style='font-family:Arial,sans-serif;font-size:8.5pt;text-transform:uppercase;letter-spacing:0.1em;color:#888;margin-bottom:6px'>Florida Home Education Program</div>"
+    +"<div style='font-size:20pt;font-weight:bold;color:#2a6a2a;margin-bottom:4px'>Annual Educational Evaluation</div>"
+    +"<div style='font-family:Arial,sans-serif;font-size:9pt;color:#888'>Pursuant to Florida Statute 1002.41(1)(f)</div>"
+    +"</div>"
+
+    +"<div style='background:#f5f9f5;border:1px solid #b8d8b8;border-radius:6px;padding:1rem 1.2rem;margin-bottom:1.5rem;font-family:Arial,sans-serif;font-size:10pt;line-height:1.9'>"
+    +"<b>Student:</b> "+(child?.name||"")
+    +"&nbsp;&nbsp;&nbsp;<b>Grade:</b> "+(child?.grade||"")
+    +"&nbsp;&nbsp;&nbsp;<b>School Year:</b> "+yearStart+"&ndash;"+yearEnd+"<br>"
+    +"<b>School:</b> "+schoolName
+    +"&nbsp;&nbsp;&nbsp;<b>County:</b> ___________________________"
+    +"&nbsp;&nbsp;&nbsp;<b>Date:</b> "+today
+    +"</div>"
+
+    +"<p style='margin-bottom:1.5rem;line-height:1.8'>I, the undersigned Florida-certified teacher, have reviewed the educational portfolio "
+    +"of the above-named student and conducted a discussion with the student as required by "
+    +"Florida Statute 1002.41(1)(f). Based on this evaluation, I have determined that the student "
+    +"has demonstrated educational progress <b>at a level commensurate with his/her ability</b> "
+    +"during the "+yearStart+"&ndash;"+yearEnd+" school year.</p>"
+
+    +"<div style='display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-bottom:1.5rem;font-family:Arial,sans-serif;font-size:10pt'>"
+    +"<div><div style='border-bottom:1.5px solid #444;height:36px;margin-bottom:6px'></div><div style='color:#666;font-size:8pt'>Evaluator Full Name (print clearly)</div></div>"
+    +"<div><div style='border-bottom:1.5px solid #444;height:36px;margin-bottom:6px'></div><div style='color:#666;font-size:8pt'>FL Teaching Certificate Number</div></div>"
+    +"<div><div style='border-bottom:1.5px solid #444;height:36px;margin-bottom:6px'></div><div style='color:#666;font-size:8pt'>Evaluator Signature</div></div>"
+    +"<div><div style='border-bottom:1.5px solid #444;height:36px;margin-bottom:6px'></div><div style='color:#666;font-size:8pt'>Date of Evaluation</div></div>"
+    +"<div style='grid-column:span 2'><div style='border-bottom:1.5px solid #444;height:36px;margin-bottom:6px'></div><div style='color:#666;font-size:8pt'>Evaluator Email / Phone (optional — for your records)</div></div>"
+    +"</div>"
+
+    +"<div style='background:#fffbea;border:1px solid #e8d870;border-radius:6px;padding:0.85rem 1rem;font-family:Arial,sans-serif;font-size:9pt;color:#555;line-height:1.65;margin-bottom:1.5rem'>"
+    +"<b>Parent instructions:</b> Once signed, mail or deliver a copy to the district school superintendent's "
+    +"office in your county of residence. Keep a copy with your portfolio for 2 years. "
+    +"Due by the anniversary of your Letter of Intent filing date."
+    +"</div>"
+
+    +"<div style='text-align:center;font-family:Arial,sans-serif;font-size:8pt;color:#aaa;padding-top:1rem;border-top:1px solid #e0e0e0'>"
+    +"Generated by Root &amp; Bloom &bull; "+schoolName+" &bull; "+yearStart+"&ndash;"+yearEnd
+    +"</div>"
+
+    +"</div>"
+    +"<script>window.onload=function(){setTimeout(function(){window.print();},500);};</"+"script>"
+    +"</body></html>";
+
+  const w = window.open("","_blank","width=760,height=900,scrollbars=yes");
+  if(w){ w.document.write(html); w.document.close(); }
+  else { alert("Please allow popups for this site to print the evaluator letter."); }
+}
+
+
+// GRADES_MID, GRADES_HIGH, gradeLevel() defined in state-requirements.js
+
+function printFullPortfolio(family, entries, child, attendanceDays, stateInfoUnused, aiSummary) {
+  const schoolName  = family.schoolName||(family.familyName+" Academy")||"Home School";
+  const yearStartNum= family.yearStart?new Date(family.yearStart).getFullYear():new Date().getFullYear();
+  const yearEndNum  = family.yearEnd?new Date(family.yearEnd).getFullYear():yearStartNum+1;
+  const today       = new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
+  const childName   = child?.name||"Student";
+  const grade       = child?.grade||"";
+  const avatar      = child?.avatar||"";
+  const state       = family.state||"";
+  const si          = getStateInfo(state);
+  const ci          = getComplianceInfo(state, grade);
+  const stateReqDays= parseInt((si.hours||"180").match(/\d+/)?.[0]||"180");
+  const pct         = Math.min(100,Math.round(attendanceDays/stateReqDays*100));
+  const subjEntries = entries.filter(e=>!e.isDay&&e.subj!=="Daily Notes")
+    .sort((a,b)=>{try{return new Date(a.date+", "+yearStartNum)-new Date(b.date+", "+yearStartNum);}catch{return 0;}});
+  const bySubject = {};
+  subjEntries.forEach(e=>{ if(!bySubject[e.subj]) bySubject[e.subj]=[]; bySubject[e.subj].push(e); });
+  const subjectList   = Object.keys(bySubject).sort((a,b)=>bySubject[b].length-bySubject[a].length);
+  const readingTitles = [...new Set(subjEntries.filter(e=>e.readingTitle).map(e=>e.readingTitle))];
+  const allPhotos     = subjEntries.flatMap(e=>e.photos||[]).slice(0,9);
+  const css = "*{box-sizing:border-box;margin:0;padding:0}"
+    +"body{font-family:Arial,sans-serif;color:#1a1a1a;font-size:10pt;line-height:1.5;background:#fff}"
+    +"@media print{@page{margin:1cm;size:letter}}"
+    +".banner{background:#2a4a28;padding:22px 28px;display:flex;justify-content:space-between;align-items:center}"
+    +".b-student{font-size:20pt;font-weight:700;color:#fff;margin-top:2px}"
+    +".b-meta{font-size:9pt;color:rgba(255,255,255,0.65);margin-top:3px}"
+    +".b-chip{background:rgba(255,255,255,0.15);border-radius:10px;padding:10px 16px;text-align:center}"
+    +".b-chip-v{font-size:20pt;font-weight:700;color:#fff}"
+    +".body{padding:20px 28px;background:#faf8f4}"
+    +".stat-row{display:flex;gap:10px;margin-bottom:18px}"
+    +".stat{text-align:center;flex:1;background:#fff;border-radius:8px;border:1px solid #e2ddd8;padding:10px 8px}"
+    +".stat-n{font-size:18pt;font-weight:700;color:#2a4a28}"
+    +".stat-l{font-size:7.5pt;color:#888;text-transform:uppercase;letter-spacing:0.05em;margin-top:2px}"
+    +".ai-box{background:#fff;border-radius:10px;border:1.5px solid #c8dfc8;padding:14px 18px;margin-bottom:16px}"
+    +".subj-section{background:#fff;border-radius:10px;border:1px solid #e2ddd8;padding:12px 16px;margin-bottom:10px}"
+    +".subj-tag{background:#e8f0e8;color:#2a4a28;font-size:7pt;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;border-radius:4px;padding:3px 8px}"
+    +".entry-row{display:flex;gap:10px;padding:6px 0;border-bottom:1px solid #f8f5f1;align-items:flex-start}"
+    +".entry-row:last-child{border-bottom:none}"
+    +".entry-date{font-size:8pt;color:#888;min-width:46px;flex-shrink:0}"
+    +".entry-note{font-size:9pt;color:#333;line-height:1.55;flex:1}"
+    +".photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}"
+    +".photo-box{aspect-ratio:4/3;border-radius:8px;overflow:hidden;border:1px solid #e0dbd4;background:#ede9e1}"
+    +".photo-box img{width:100%;height:100%;object-fit:cover}"
+    +".footer{padding:10px 28px 16px;display:flex;justify-content:space-between;font-size:7.5pt;color:#aaa;border-top:1px solid #e8e3db}"
+    ;
+  let html = "<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'><title>"+childName+" — Full Portfolio "+yearStartNum+"\u2013"+yearEndNum+"</title>"
+    +"<style>"+css+"</style></head><body>"
+    +"<div class='banner'><div>"
+    +"<div style='font-size:7.5pt;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:3px'>"+schoolName+" &bull; Annual Portfolio</div>"
+    +"<div class='b-student'>"+avatar+" "+childName+"</div>"
+    +"<div class='b-meta'>"+grade+" &bull; "+state+" &bull; "+yearStartNum+"&ndash;"+yearEndNum+"</div>"
+    +"</div><div class='b-chip'><div style='font-size:7pt;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.1em'>Days</div><div class='b-chip-v'>"+attendanceDays+"</div></div></div>"
+    +"<div class='body'>"
+    +"<div class='stat-row'>"
+    +"<div class='stat'><div class='stat-n'>"+attendanceDays+"</div><div class='stat-l'>Days</div></div>"
+    +"<div class='stat'><div class='stat-n'>"+subjEntries.length+"</div><div class='stat-l'>Entries</div></div>"
+    +"<div class='stat'><div class='stat-n'>"+subjectList.length+"</div><div class='stat-l'>Subjects</div></div>"
+    +"<div class='stat'><div class='stat-n'>"+readingTitles.length+"</div><div class='stat-l'>Books</div></div>"
+    +"</div>";
+  if(aiSummary){
+    html += "<div class='ai-box'>"
+      +"<div style='font-size:10pt;color:#1a1a1a;line-height:1.7;font-style:italic;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #e8e3db'>"+aiSummary.narrative+"</div>"
+      +"<div style='display:grid;grid-template-columns:1fr 1fr;gap:14px'>"
+      +"<div><div style='font-size:7pt;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#2a4a28;margin-bottom:6px'>Biggest Wins</div>"
+      +(aiSummary.accomplishments||[]).map(a=>"<div style='display:flex;gap:6px;font-size:9pt;color:#333;margin-bottom:5px'><span style='color:#2a4a28;font-weight:700'>&#10003;</span><span>"+a+"</span></div>").join("")+"</div>"
+      +"<div><div style='font-size:7pt;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#b07800;margin-bottom:6px'>Keep Building</div>"
+      +(aiSummary.growthAreas||[]).map(a=>"<div style='display:flex;gap:6px;font-size:9pt;color:#333;margin-bottom:5px'><span style='color:#b07800;font-weight:700'>&rarr;</span><span>"+a+"</span></div>").join("")+"</div>"
+      +"</div></div>";
+  }
+  subjectList.forEach(subj=>{
+    html += "<div class='subj-section'><div style='display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #f0ece6'><div class='subj-tag'>"+subj+"</div><div style='font-size:8pt;color:#888;margin-left:auto'>"+bySubject[subj].length+" entries</div></div>";
+    bySubject[subj].slice().reverse().slice(0,12).forEach(e=>{
+      const note=(e.note||"").replace("AI Summary: ","").trim();
+      html += "<div class='entry-row'><div class='entry-date'>"+e.date+"</div><div class='entry-note'>"+note+(e.readingTitle?"<div style='font-size:8pt;color:#2a4a28;font-style:italic;margin-top:2px'>&#128214; "+e.readingTitle+"</div>":"")+"</div></div>";
+    });
+    html += "</div>";
+  });
+  if(readingTitles.length>0){
+    html += "<div style='margin-bottom:10px'><div style='font-size:7.5pt;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px'>"+state+" Reading Log</div><div style='background:#fff;border:1px solid #e2ddd8;border-radius:8px;padding:10px 16px'>";
+    readingTitles.forEach((t,i)=>{ html += "<div style='display:flex;gap:8px;padding:4px 0;border-bottom:1px solid #f5f5f5'><div style='font-size:8pt;color:#888;min-width:24px'>"+(i+1)+".</div><div style='font-size:9.5pt;color:#1a1a1a;font-style:italic'>"+t+"</div></div>"; });
+    html += "</div></div>";
+  }
+  if(allPhotos.length>0){
+    html += "<div style='margin-bottom:16px'><div style='font-size:7.5pt;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px'>Work Samples</div><div class='photo-grid'>";
+    allPhotos.forEach(src=>{ html += "<div class='photo-box'><img src='"+src+"' alt=''/></div>"; });
+    html += "</div></div>";
+  }
+  html += "<div style='display:flex;gap:24px;margin:20px 0 16px;padding-top:16px;border-top:1.5px solid #ccc'>"
+    +"<div style='flex:1'><div style='border-bottom:1.5px solid #999;height:30px;margin-bottom:4px'></div><div style='font-size:7.5pt;color:#888'>Parent Signature</div></div>"
+    +"<div style='flex:1'><div style='border-bottom:1.5px solid #999;height:30px;margin-bottom:4px'></div><div style='font-size:7.5pt;color:#888'>Date</div></div>"
+    +"</div>"
+    +"<div class='footer'><span>"+schoolName+" &bull; "+childName+"</span><span>Generated: "+today+"</span></div>"
+    +"<script>window.onload=function(){setTimeout(function(){window.print();},600);};<\/script>"
+    +"</body></html>";
+  const w=window.open("","_blank","width=820,height=980,scrollbars=yes");
+  if(w){w.document.write(html);w.document.close();}
+  else{alert("Please allow popups to print.");}
+}
+
+
+/* ---- Print Evaluator Letter separately ---- */
+
+function printPortfolioPDF(family, entries, child, attendanceDays, stateInfo, dateOverride) {
+  const schoolName  = family.schoolName||(family.familyName+" Academy")||"Home School";
+  const yearStartNum= family.yearStart ? new Date(family.yearStart).getFullYear() : new Date().getFullYear();
+  const yearEndNum  = family.yearEnd   ? new Date(family.yearEnd).getFullYear()   : yearStartNum+1;
+  const state       = family.state||"";
+  const childName   = child?.name||"Student";
+  const grade       = child?.grade||"";
+  const avatar      = child?.avatar||"";
+
+  const todayFull = dateOverride
+    ? new Date(dateOverride+", "+new Date().getFullYear()).toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"})
+    : new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"});
+  const todayShort = dateOverride || new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
+
+  const si = getStateInfo(state);
+  const ci = getComplianceInfo(state, grade);
+  const needsDays    = si.attendance;
+  const needsReading = si.readingLog;
+  const stateReqDays = parseInt((si.hours||"180").match(/\d+/)?.[0]||"180");
+  const pct = needsDays ? Math.min(100,Math.round(attendanceDays/stateReqDays*100)) : null;
+
+  const todayEntries  = entries.filter(e=>e.date===todayShort&&!e.isDay&&e.subj!=="Daily Notes");
+  const todayNote     = entries.find(e=>e.date===todayShort&&(e.isDay||e.subj==="Daily Notes"));
+  const allPhotos     = entries.filter(e=>e.date===todayShort).flatMap(e=>e.photos||[]).slice(0,3);
+  const readingEntries= todayEntries.filter(e=>e.readingTitle||(e.subj==="Reading"||e.subj==="Reading/Language Arts"));
+
+  const cols = todayEntries.length<=2?1:todayEntries.length<=6?2:3;
+
+  const css = ""
+    +"*{box-sizing:border-box;margin:0;padding:0}"
+    +"body{font-family:Arial,sans-serif;color:#1a1a1a;font-size:10pt;line-height:1.5;background:#fff}"
+    +"@media print{@page{margin:1cm;size:letter}body{font-size:9.5pt}}"
+    +".banner{background:#2a4a28;padding:18px 24px;display:flex;justify-content:space-between;align-items:center}"
+    +".b-school{font-size:7.5pt;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:3px}"
+    +".b-student{font-size:17pt;font-weight:700;color:#fff}"
+    +".b-meta{font-size:8.5pt;color:rgba(255,255,255,0.65);margin-top:2px}"
+    +".date-chip{background:rgba(255,255,255,0.15);border-radius:8px;padding:8px 14px;text-align:center}"
+    +".dc-label{font-size:7pt;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.1em}"
+    +".dc-val{font-size:14pt;font-weight:700;color:#fff;margin-top:2px}"
+    +".body{padding:20px 24px;background:#faf8f4}"
+    +".section-label{font-size:7.5pt;color:#888;text-transform:uppercase;letter-spacing:0.1em;font-weight:700;margin-bottom:8px;margin-top:14px}"
+    +".section-label:first-child{margin-top:0}"
+    +".subj-grid{display:grid;gap:10px;margin-bottom:14px}"
+    +".subj-box{background:#fff;border-radius:8px;border:1px solid #e2ddd8;padding:11px 14px}"
+    +".subj-tag{display:inline-block;background:#e8f0e8;color:#2a4a28;font-size:7pt;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;border-radius:4px;padding:2px 7px;margin-bottom:6px}"
+    +".subj-note{font-size:9.5pt;color:#333;line-height:1.6}"
+    +".subj-reading{font-size:8.5pt;color:#2a4a28;font-style:italic;margin-top:4px}"
+    +".photos-section{margin-bottom:14px}"
+    +".photo-row{display:flex;gap:10px}"
+    +".photo-box{flex:1;aspect-ratio:4/3;border-radius:6px;overflow:hidden;border:1px solid #e0e0e0;background:#f5f5f5;display:flex;align-items:center;justify-content:center}"
+    +".photo-box img{width:100%;height:100%;object-fit:cover}"
+    +".photo-placeholder{font-size:8pt;color:#ccc;text-align:center}"
+    +".parent-note{background:#f8f7f4;border-left:3px solid #aaa;border-radius:0 6px 6px 0;padding:10px 14px;margin-bottom:14px}"
+    +".parent-note-label{font-size:7pt;text-transform:uppercase;letter-spacing:0.1em;color:#888;font-weight:700;margin-bottom:4px}"
+    +".reading-box{background:#fff;border:1px solid #e2ddd8;border-radius:8px;padding:10px 14px;margin-bottom:14px}"
+    +".r-row{display:flex;gap:8px;padding:4px 0;border-bottom:1px solid #f5f5f5;align-items:baseline}"
+    +".r-row:last-child{border-bottom:none}"
+    +".r-subj{font-size:7.5pt;color:#2a4a28;font-weight:700;min-width:90px}"
+    +".r-title{font-size:9pt;color:#333;font-style:italic}"
+    +".footer{padding:10px 24px 14px;display:flex;justify-content:space-between;font-size:7.5pt;color:#aaa;border-top:1px solid #e8e3db}"
+    +".f-note{font-size:7pt;color:#bbb;font-style:italic;margin-top:1px}"
+    ;
+
+  let html = "<!DOCTYPE html><html lang='en'><head>"
+    +"<meta charset='utf-8'><title>"+childName+" Daily Log \u2014 "+todayShort+"</title>"
+    +"<style>"+css+"</style></head><body>"
+
+    // Banner
+    +"<div class='banner'>"
+    +"<div><div class='b-school'>"+schoolName+"</div>"
+    +"<div class='b-student'>"+avatar+" "+childName+"</div>"
+    +"<div class='b-meta'>"+grade+" &bull; "+state+" &bull; "+yearStartNum+"&ndash;"+yearEndNum+"</div></div>"
+    +"<div class='date-chip'><div class='dc-label'>Daily Activity Log</div><div class='dc-val'>"+todayShort+"</div></div>"
+    +"</div>"
+
+    +"<div class='body'>";
+
+  // Subjects
+  if(todayEntries.length===0) {
+    html += "<div style='text-align:center;padding:2rem;color:#aaa;font-style:italic'>No entries logged for this day.</div>";
+  } else {
+    html += "<div class='section-label'>Subjects Covered</div>";
+    html += "<div class='subj-grid' style='grid-template-columns:repeat("+cols+",1fr)'>";
+    todayEntries.forEach(e=>{
+      const noteTxt  = (e.note||"").replace("AI Summary: ","").trim();
+      const titleTxt = (e.title||"").replace((e.subj||"")+" \u2014 ","").replace((e.subj||"")+" -- ","").trim();
+      const showTitle = titleTxt && titleTxt!==e.subj && titleTxt!==e.date;
+      html += "<div class='subj-box'><div class='subj-tag'>"+e.subj+"</div>";
+      if(showTitle) html += "<div style='font-weight:600;font-size:9.5pt;color:#1a1a1a;margin-bottom:3px'>"+titleTxt+"</div>";
+      if(noteTxt)   html += "<div class='subj-note'>"+noteTxt+"</div>";
+      if(e.readingTitle) html += "<div class='subj-reading'>&#128214; "+e.readingTitle+"</div>";
+      if(!showTitle&&!noteTxt&&!e.readingTitle) html += "<div class='subj-note' style='color:#bbb'>No notes recorded</div>";
+      html += "</div>";
+    });
+    html += "</div>";
+  }
+
+  // Parent note
+  if(todayNote&&todayNote.note){
+    const noteClean=(todayNote.note||"").replace("AI Summary: ","").trim();
+    html += "<div class='parent-note'><div class='parent-note-label'>Parent Notes</div><div style='font-size:9.5pt;color:#444;line-height:1.65'>"+noteClean+"</div></div>";
+  }
+
+  // FL/PA reading log
+  if(needsReading && readingEntries.some(e=>e.readingTitle)){
+    html += "<div class='section-label'>Reading Log (required by "+state+")</div>"
+      +"<div class='reading-box'>";
+    readingEntries.filter(e=>e.readingTitle).forEach(e=>{
+      html += "<div class='r-row'><div class='r-subj'>"+e.subj+"</div><div class='r-title'>"+e.readingTitle+"</div></div>";
+    });
+    html += "</div>";
+  }
+
+  // Photos - only show section if there are actual photos
+  if(allPhotos.length>0){
+    html += "<div class='section-label'>Work Samples / Documentation</div>"
+      +"<div class='photo-row'>";
+    allPhotos.forEach(function(src,i){
+      html += "<div class='photo-box'><img src='"+src+"' alt='work sample "+(i+1)+"'/></div>";
+    });
+    html += "</div>";
+  }
+
+
+  // Footer
+  html += "<div class='footer'>"
+    +"<div><div>"+schoolName+" &bull; "+childName+" &bull; "+grade+"</div>"
+    +"<div class='f-note'>"+todayFull+" &bull; Generated by Root &amp; Bloom</div></div>"
+    +"<div style='text-align:right'><div>"+state+" Homeschool Record</div>"
+    +"<div class='f-note'>Keep for: "+ci.keepFor+"</div></div>"
+    +"</div>"
+
+    +"</div>" // body
+    +"<script>window.onload=function(){setTimeout(function(){window.print();},500);};<\/script>"
+    +"</body></html>";
+
+  const w=window.open("","_blank","width=800,height=960,scrollbars=yes");
+  if(w){w.document.write(html);w.document.close();}
+  else{alert("Please allow popups to print your portfolio.");}
+}
+
+
 function RootAndBloom() {
   const saved = useMemo(()=>loadSaved(),[]);
   const [family,         setFamily]         = useState(saved?.family||null);
