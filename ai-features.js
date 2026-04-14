@@ -75,146 +75,161 @@ async function callClaude(prompt, imageBase64, imageMime) {
    ---------------------------------------------------------- */
 // buildWorksheetHTML moved to plain <script> in index.html (avoids Babel JSX parse issues)
 
-function buildWorksheetPrompt(wsType, topic, child, family, extraContext) {
+
+function buildWorksheetPrompt(wsType, topic, child, family, extraContext, difficulty) {
   const grade    = child?.grade || "3rd";
   const gradeNum = parseInt(grade.replace(/\D/g,"")) || 3;
   const name     = child?.name || "Student";
   const goals    = goalSummary(family);
   const curriculum = curriculumContext(family);
   const schoolName = family?.schoolName || (family?.familyName ? family.familyName + " Academy" : "Ramos Academy");
+  const diff = difficulty || "standard";
 
-  // Grade-specific instructions
-  const gradeInstructions = gradeNum <= 2
-    ? `K-2nd grade (${name} is ${gradeNum <= 1 ? "5-6" : "6-7"} years old). Use VERY simple words. Short sentences. Large clear text. Focus on recognition and tracing. Favor fill-in-the-blank with word banks, matching, and copywork. No more than 6 items.`
-    : gradeNum <= 5
-    ? `3rd-5th grade (${name} is ${gradeNum+5}-${gradeNum+6} years old). Mix of multiple choice, fill-in-the-blank, and short answer. Use clear, engaging language. 8-10 items is ideal.`
-    : gradeNum <= 8
-    ? `6th-8th grade (${name} is ${gradeNum+5}-${gradeNum+6} years old). Include analysis and application questions. Mix of formats. 8-12 items. Some questions should require multi-sentence responses.`
-    : `9th-12th grade (${name} is ${gradeNum+5}-${gradeNum+6} years old). College-preparatory level. Include critical thinking, analysis, and synthesis. Mix of objective and essay questions. 10-15 items.`;
+  const gradeGroup = gradeNum <= 2 ? "early" : gradeNum <= 5 ? "mid" : gradeNum <= 8 ? "upper" : "high";
 
-  // Type-specific instructions
+  const gradeInstructions = {
+    early: `K-2nd grade (${name} is ${gradeNum+5}-${gradeNum+6} years old). Use VERY simple words, short sentences, large clear text. Favor word banks, matching, tracing, fill-in-the-blank. Max 6 main items. Warm-up should be a simple one-question oral starter.`,
+    mid:   `3rd-5th grade (${name} is ${gradeNum+5}-${gradeNum+6} years old). Mix of multiple choice, fill-in-the-blank, and short answer. Clear engaging language. 8-10 main items. Some items should connect to real life.`,
+    upper: `6th-8th grade (${name} is ${gradeNum+5}-${gradeNum+6} years old). Include analysis, application and comparison questions. Mix of formats. 10-12 main items. At least 2 items require multi-sentence responses.`,
+    high:  `9th-12th grade (${name} is ${gradeNum+5}-${gradeNum+6} years old). College-prep level. Critical thinking, analysis and synthesis. Mix of objective and written response. 10-15 main items. Extension should be essay-level depth.`,
+  }[gradeGroup];
+
+  const diffInstructions = {
+    easy:      "DIFFICULTY: Easy / Scaffolded. Use simpler vocabulary, provide more context clues, shorter questions, and more fill-in-the-blank over open-ended. Great for review or struggling learners.",
+    standard:  "DIFFICULTY: Standard / On-grade. Typical grade-level challenge. Mix of question types. Some items should stretch the student slightly.",
+    challenge: "DIFFICULTY: Challenge / Enrichment. Higher-order thinking, more inference required, less scaffolding, longer written responses expected. For advanced or fast-finishing students.",
+  }[diff];
+
   const typeInstructions = {
-    "Copywork":       "Create beautiful, meaningful sentences or passages for the student to copy. Choose sentences that match the topic and are worth memorizing. Include 4-6 items. Each should be a complete, well-crafted sentence.",
-    "Narration":      "Create open-ended prompts that ask the student to explain, describe, or retell in their own words. Include story starters or guiding questions. 4-5 prompts with generous answer space.",
-    "Spelling":       "Create 8-10 spelling words related to the topic. For each word: show the word, provide a definition, and a fill-in sentence. Include a word bank.",
-    "Math Practice":  "Create math problems appropriate for the grade level on the given topic. Include worked examples for the first problem type. Mix difficulty levels. Show your work sections.",
-    "Reading Quiz":   "Create comprehension questions: recall, inference, vocabulary, and a short response question. Include a brief passage if appropriate for the grade level.",
-    "Vocabulary":     "Create vocabulary activities: matching definitions, fill-in-the-blank sentences using context, and a short writing prompt using at least 3 vocabulary words.",
-    "Science":        "Create a science worksheet with: key concepts, diagram labeling (described in text), observation/experiment record space, and analysis questions.",
-    "History":        "Create a history worksheet with: timeline events, cause-and-effect questions, primary source analysis prompt, and a reflection question.",
-    "Custom Worksheet": "Create a comprehensive, well-structured worksheet perfectly tailored to the topic and grade level.",
+    "Mixed":            "Create a MIXED worksheet with a genuine variety of question types across sections: fill-in-the-blank, multiple choice (4 options), short answer, AND one vocabulary or matching section. This is the most engaging format.",
+    "Fill-in-the-Blank":"Create fill-in-the-blank questions with clear blanks (___). ALWAYS include a word bank for K-5. For 6-12, some items may not have a word bank to increase challenge.",
+    "Multiple Choice":  "Create multiple choice questions with exactly 4 options each (A, B, C, D). One clearly correct answer. Make distractors plausible but clearly wrong on reflection.",
+    "Short Answer":     "Create short answer questions requiring 2-4 sentence responses. Questions should be open but specific enough to guide a good answer. Include a model answer length hint.",
+    "Vocabulary":       "Create a vocabulary-focused worksheet: matching definitions, fill-in-blank sentences using context, a word-in-use writing prompt, and etymology or word-part analysis for upper grades.",
+    "Reading Comprehension": "Create a reading comprehension worksheet: include a 100-200 word original passage on the topic, then recall, inference, vocabulary-in-context, and personal response questions.",
+    "Open-Ended Discussion": "Create thought-provoking discussion and reflection prompts. Each question should invite genuine thinking. Include some 'agree/disagree and explain' items and one creative extension.",
+    "Copywork":         "Create beautiful, meaningful sentences or passages for the student to copy. Choose sentences that match the topic and are worth memorizing. Include 4-6 items.",
+    "Narration":        "Create open-ended narration prompts asking the student to explain, describe, or retell in their own words. 4-5 prompts with generous answer space.",
+    "Spelling":         "Create 8-10 spelling words related to the topic. For each word: show the word, a definition, and a fill-in sentence. Include a word bank.",
+    "Math Practice":    "Create math problems appropriate for the grade level. Include one worked example for the first problem type. Mix difficulty within the set. Include 'show your work' space.",
+    "Science":          "Create a science worksheet with: key concept recall, diagram labeling (described in text), an observation/experiment record section, and analysis questions.",
+    "History":          "Create a history worksheet with: timeline ordering, cause-and-effect questions, a primary source analysis prompt, and a reflection question connecting to today.",
+    "Nature Journal":   "Create a nature journal worksheet with observation prompts, sketch space (described as a box), identification questions, and a 'what I wonder' reflection section.",
+    "Custom Worksheet": "Create a comprehensive, well-structured worksheet perfectly tailored to the topic and grade level. Use the best mix of question types for this specific topic.",
   }[wsType] || "Create a well-structured, engaging worksheet perfectly suited to the topic and grade level.";
 
   const goalInfluence = goals !== "General homeschool education"
-    ? `\nFamily learning goals: ${goals}. Weave these naturally into examples and scenarios where it fits (e.g., if Faith & Character is a goal, use character-building examples; if Nature & Outdoors, use nature-based contexts; if Strong Readers, use rich vocabulary).`
+    ? `\nFamily learning goals: ${goals}. Weave these naturally into examples and scenarios where it fits.`
     : "";
 
-  return `You are an expert homeschool curriculum designer creating a professional, print-ready worksheet.
-
-STUDENT: ${name}, ${grade} grade
-SCHOOL: ${schoolName}
-WORKSHEET TYPE: ${wsType}
-TOPIC: ${topic}
-CURRICULUM CONTEXT: ${curriculum}${goalInfluence}
-${extraContext ? "ADDITIONAL CONTEXT: " + extraContext : ""}
-
-GRADE REQUIREMENTS: ${gradeInstructions}
-
-TYPE REQUIREMENTS: ${typeInstructions}
-
-CRITICAL FORMATTING RULES:
-- Generate items that are complete, clear, and self-contained
-- Every fill-in item needs a clear blank marker (___) 
-- Multiple choice items need exactly 4 options (A, B, C, D) with one correct answer
-- Tracing/copywork items should have the text to copy in the "content" field
-- For grades K-2, use a word bank for any fill-in-the-blank items
-- For matching items, include leftCol (terms) and rightCol (definitions/matches) arrays
-- Make items directly test or reinforce the SPECIFIC topic, not general knowledge
-- The bonus challenge should be creative and slightly harder than the main items
-
-Respond with ONLY valid JSON (no markdown, no backticks, no explanation):
-{
-  "title": "engaging worksheet title (max 8 words)",
-  "subject": "subject area",
-  "grade": "${grade}",
-  "schoolName": "${schoolName}",
-  "instructions": "one clear, friendly instruction sentence",
-  "wordBank": ["word1", "word2"],  // only for grades K-5 with fill-in items, else []
-  "sections": [
-    {
-      "title": "",  // optional section heading, can be empty string
-      "items": [
-        {
-          "type": "fillin|mc|copywork|tracing|matching|coloring|shortanswer",
-          "content": "the question or prompt text",
-          "options": ["A option", "B option", "C option", "D option"],  // mc only
-          "answer": "correct answer",  // mc and fillin
-          "lines": 2,  // number of answer lines for shortanswer (1-6)
-          "leftCol": [],  // matching only: terms
-          "rightCol": []  // matching only: matches
-        }
-      ]
-    }
-  ],
-  "bonusChallenge": "one engaging bonus challenge"
-}`;
+  return `You are an expert homeschool curriculum designer creating a professional, print-ready worksheet.\n\nSTUDENT: ${name}, ${grade} grade\nSCHOOL: ${schoolName}\nWORKSHEET TYPE: ${wsType}\nTOPIC: ${topic}\nCURRICULUM CONTEXT: ${curriculum}${goalInfluence}\n${extraContext ? "ADDITIONAL CONTEXT (what was actually taught): " + extraContext : ""}\n\nGRADE REQUIREMENTS: ${gradeInstructions}\n${diffInstructions}\nTYPE REQUIREMENTS: ${typeInstructions}\n\nSTRUCTURE: Your worksheet MUST include all four of these sections:\n1. learningObjective: one clear, specific sentence starting with "Students will be able to..."\n2. warmUp: one engaging starter question or quick activity (1-2 sentences, answered verbally or in 1 line)\n3. sections[]: the main worksheet content (see type requirements above)\n4. extension: one "Going Deeper" challenge for fast finishers (more open-ended, higher thinking)\n\nFORMATTING RULES:\n- Every fill-in item needs a clear blank marker (___)\n- Multiple choice items need exactly 4 options (A, B, C, D) with one correct answer\n- For grades K-2, ALWAYS include a word bank for fill-in items\n- For matching items, include leftCol (terms) and rightCol (definitions) arrays of equal length\n- Make items directly test or reinforce the SPECIFIC topic covered\n- Items should feel like a real teacher made them — specific, purposeful, interesting\n\nRespond with ONLY valid JSON (no markdown, no backticks):\n{\n  "title": "engaging worksheet title (max 8 words)",\n  "subject": "subject area",\n  "grade": "${grade}",\n  "schoolName": "${schoolName}",\n  "learningObjective": "Students will be able to ...",\n  "warmUp": "starter question or activity for the student",\n  "instructions": "one clear, friendly instruction sentence for the main section",\n  "wordBank": ["word1", "word2"],\n  "sections": [\n    {\n      "title": "section heading (e.g. Part A: Recall, Part B: Vocabulary)",\n      "items": [\n        {\n          "type": "fillin|mc|copywork|shortanswer|matching|tracing",\n          "content": "the question or prompt text",\n          "options": ["A option", "B option", "C option", "D option"],\n          "answer": "correct answer",\n          "lines": 2,\n          "leftCol": [],\n          "rightCol": []\n        }\n      ]\n    }\n  ],\n  "extension": "Going Deeper challenge for fast finishers",\n  "bonusChallenge": "one creative bonus challenge"\n}`;
 }
 
 /* ----------------------------------------------------------
-   AI WORKSHEET MODAL (rebuilt)
+   AI WORKSHEET MODAL — Chalkie-level rebuild
    ---------------------------------------------------------- */
-function AIWorksheetModal({ pal, family, activeChild, wsType, onClose }) {
-  const [topic,   setTopic]   = useState("");
-  const [result,  setResult]  = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error,   setError]   = useState(null);
-  const [preview, setPreview] = useState(false);
+function AIWorksheetModal({ pal, family, activeChild, wsType, onClose, portfolioEntries=[] }) {
+  const [phase,      setPhase]     = useState("config"); // config|loading|result
+  const [topic,      setTopic]     = useState("");
+  const [lessonNote, setLessonNote]= useState("");
+  const [wsTypeSel,  setWsTypeSel] = useState(
+    wsType && wsType !== "custom" ? wsType.label || wsType.id || "Mixed" : "Mixed"
+  );
+  const [difficulty, setDifficulty]= useState("standard");
+  const [result,     setResult]    = useState(null);
+  const [error,      setError]     = useState(null);
 
-  const isCustom = wsType==="custom";
-  const ws = isCustom ? {id:"custom", label:"Custom Worksheet", icon:"📝"} : wsType;
-  const child = activeChild;
-  const grade = child?.grade || "3rd";
+  const child    = activeChild;
+  const grade    = child?.grade || "3rd";
+  const gradeNum = parseInt(grade.replace(/\D/g,"")) || 3;
+  const name     = child?.name || "Student";
+
+  // Auto-pull today's notes for this child
+  const childIdx = family.children.findIndex(c=>c.id===child?.id);
+  const todayStr = new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
+  const todayNotes = portfolioEntries
+    .filter(e=>e.childIdx===childIdx && e.date===todayStr && e.note && e.note.trim())
+    .map(e=>e.subj+(e.note?" — "+e.note.replace("AI Summary:","").trim():""))
+    .join(". ");
+
+  React.useEffect(()=>{
+    if(todayNotes && !lessonNote) setLessonNote(todayNotes);
+  },[todayNotes]);
+
+  const WS_TYPE_OPTIONS = [
+    {id:"Mixed",             icon:"\u2728", label:"Mixed",             desc:"Best variety — MC, fill-in, short answer"},
+    {id:"Multiple Choice",   icon:"\uD83D\uDD18", label:"Multiple Choice",   desc:"4-option questions throughout"},
+    {id:"Fill-in-the-Blank", icon:"\u270F\uFE0F", label:"Fill-in-the-Blank", desc:"Blanks with optional word bank"},
+    {id:"Short Answer",      icon:"\uD83D\uDCDD", label:"Short Answer",      desc:"Written response questions"},
+    {id:"Vocabulary",        icon:"\uD83D\uDCD6", label:"Vocabulary",        desc:"Matching, definitions, usage"},
+    {id:"Reading Comprehension",icon:"\uD83D\uDCDA",label:"Reading Comprehension",desc:"Passage + comprehension questions"},
+    {id:"Open-Ended Discussion",icon:"\uD83D\uDCAC",label:"Discussion",          desc:"Reflection and discussion prompts"},
+    {id:"Copywork",          icon:"\u270D\uFE0F", label:"Copywork",          desc:"Beautiful sentences to copy"},
+    {id:"Math Practice",     icon:"\uD83D\uDCB0", label:"Math Practice",     desc:"Problems with worked examples"},
+    {id:"Science",           icon:"\uD83E\uDDEA", label:"Science",           desc:"Concepts, diagrams, analysis"},
+    {id:"History",           icon:"\uD83D\uDDFA\uFE0F", label:"History",      desc:"Timeline, causes, sources"},
+    {id:"Spelling",          icon:"\uD83D\uDD24", label:"Spelling",          desc:"Words, definitions, fill-in"},
+    {id:"Narration",         icon:"\uD83D\uDDE3\uFE0F", label:"Narration",   desc:"Retell and explain prompts"},
+    {id:"Nature Journal",    icon:"\uD83C\uDF3F", label:"Nature Journal",    desc:"Observation and wonder prompts"},
+    {id:"Custom Worksheet",  icon:"\uD83D\uDCCB", label:"Custom",            desc:"AI picks the best format"},
+  ];
+
+  const DIFFICULTY_OPTIONS = [
+    {id:"easy",      label:"Easy",      icon:"\uD83C\uDF31", desc:"Scaffolded, simpler vocab"},
+    {id:"standard",  label:"Standard",  icon:"\u2B50",        desc:"On-grade challenge"},
+    {id:"challenge", label:"Challenge", icon:"\uD83D\uDE80", desc:"Enrichment, higher thinking"},
+  ];
+
+  const TOPIC_PLACEHOLDERS = {
+    "Mixed":               "e.g. The American Revolution, plant cells, fractions",
+    "Multiple Choice":     "e.g. The water cycle, Chapter 5 comprehension",
+    "Fill-in-the-Blank":   "e.g. Parts of a plant, multiplication facts",
+    "Short Answer":        "e.g. Causes of WWI, character analysis",
+    "Vocabulary":          "e.g. Greek and Latin roots: bio, geo, graph",
+    "Reading Comprehension":"e.g. Animal adaptations, the Civil Rights movement",
+    "Open-Ended Discussion":"e.g. Should we explore Mars? What makes a hero?",
+    "Copywork":            "e.g. Quotes about courage, scripture passage",
+    "Math Practice":       "e.g. Adding fractions with unlike denominators",
+    "Science":             "e.g. Photosynthesis, the water cycle, ecosystems",
+    "History":             "e.g. Ancient Rome, the American Revolution",
+    "Spelling":            "e.g. -tion suffix words, vowel teams Week 12",
+    "Narration":           "e.g. What we read in Charlotte\u2019s Web today",
+    "Nature Journal":      "e.g. Backyard insects, seasonal changes, oak trees",
+    "Custom Worksheet":    "e.g. CH and SH blending sounds for 1st grade",
+  };
 
   const generate = async () => {
     if(!topic.trim()) return;
-    setLoading(true); setError(null); setResult(null);
+    setPhase("loading"); setError(null); setResult(null);
     try {
-      const prompt = buildWorksheetPrompt(ws.label, topic, child, family);
+      const prompt = buildWorksheetPrompt(wsTypeSel, topic, child, family, lessonNote.trim()||null, difficulty);
       const raw    = await callClaude(prompt);
       const clean  = raw.replace(/```json|```/g,"").trim();
       const parsed = JSON.parse(clean);
       setResult(parsed);
+      setPhase("result");
     } catch(e) {
-      if(e.message==="NO_KEY") setError("Add your Anthropic API key in Settings → AI to generate worksheets.");
-      else setError("Couldn't generate worksheet right now. Try a simpler topic or check your connection.");
+      setError(e.message==="NO_KEY"
+        ? "Add your Anthropic API key in Settings \u2192 AI to generate worksheets."
+        : "Couldn\u2019t generate right now. Try a simpler topic or check your connection.");
+      setPhase("config");
     }
-    setLoading(false);
   };
 
   const openPrint = () => {
     if(!result) return;
-    const html = buildWorksheetHTML(result, child, grade, ws.label);
+    const html = buildWorksheetHTML(result, child, grade, wsTypeSel);
     const win  = window.open("", "_blank");
     if(!win) return;
     win.document.write(html);
     win.document.close();
   };
 
-  const TOPIC_PLACEHOLDERS = {
-    "Copywork":       "e.g. Quotes about kindness, Psalm 23, The Preamble",
-    "Narration":      "e.g. What we read in Charlotte's Web today",
-    "Spelling":       "e.g. Short vowel words, -tion suffix words, Week 12",
-    "Math Practice":  "e.g. Adding fractions with unlike denominators",
-    "Reading Quiz":   "e.g. Charlotte's Web Chapter 5, today's reading",
-    "Vocabulary":     "e.g. Greek and Latin roots: bio, geo, graph",
-    "Science":        "e.g. The water cycle, photosynthesis, plant cells",
-    "History":        "e.g. The American Revolution causes, Ancient Rome",
-    "Custom Worksheet":"e.g. CH and SH blending sounds for 1st grade",
-  };
+  const selType = WS_TYPE_OPTIONS.find(t=>t.id===wsTypeSel) || WS_TYPE_OPTIONS[0];
 
   return (
     <div style={{position:"fixed",inset:0,background:"rgba(10,20,10,0.75)",backdropFilter:"blur(14px)",zIndex:200,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
-      <div style={{background:pal.linen,borderRadius:"28px 28px 0 0",width:"100%",maxWidth:"430px",maxHeight:"88vh",display:"flex",flexDirection:"column",boxShadow:"0 -14px 60px rgba(0,0,0,0.35)",animation:"slideUp 0.28s ease"}}>
+      <div style={{background:pal.linen,borderRadius:"28px 28px 0 0",width:"100%",maxWidth:"430px",maxHeight:"92vh",display:"flex",flexDirection:"column",boxShadow:"0 -14px 60px rgba(0,0,0,0.35)",animation:"slideUp 0.28s ease"}}>
 
         {/* Handle */}
         <div style={{padding:"0.7rem 0 0",display:"flex",justifyContent:"center",flexShrink:0}}>
@@ -222,120 +237,213 @@ function AIWorksheetModal({ pal, family, activeChild, wsType, onClose }) {
         </div>
 
         {/* Header */}
-        <div style={{padding:"0.75rem 1.3rem",borderBottom:`1px solid ${pal.stone}45`,flexShrink:0,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <div style={{padding:"0.7rem 1.3rem 0.6rem",borderBottom:"1px solid "+pal.stone+"45",flexShrink:0,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <div>
-            <div style={{fontWeight:"800",color:pal.ink,fontSize:"1rem"}}>{ws.icon} {ws.label}</div>
-            <div style={{fontSize:"0.74rem",color:pal.slate,marginTop:"2px"}}>{child?.name||"Student"} · {grade} · AI-generated</div>
+            <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.95rem"}}>{"\uD83E\uDDEE AI Worksheet Builder"}</div>
+            <div style={{fontSize:"0.72rem",color:pal.slate,marginTop:"2px"}}>{name+" \u00b7 "+grade+" \u00b7 "+selType.icon+" "+selType.label}</div>
           </div>
           <button onClick={onClose} style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.9rem",display:"flex",alignItems:"center",justifyContent:"center"}}>{"✕"}</button>
         </div>
 
-        <div style={{flex:1,overflowY:"auto",padding:"1rem 1.3rem"}}>
+        <div style={{flex:1,overflowY:"auto",padding:"0.9rem 1.2rem 0.5rem"}}>
 
-          {/* Input */}
-          {!result&&!loading&&(
-            <>
-              <div style={{fontSize:"0.78rem",color:pal.inkM,lineHeight:1.7,marginBottom:"0.75rem"}}>
-                {"Describe what you worked on today or want to practice. The more specific, the better the worksheet."}
-              </div>
-              <Lbl pal={pal}>What topic or lesson?</Lbl>
-              <textarea
-                value={topic}
-                onChange={e=>setTopic(e.target.value)}
-                placeholder={TOPIC_PLACEHOLDERS[ws.label]||"e.g. What we covered today in "+ws.label}
-                rows={3}
-                style={{width:"100%",padding:"0.7rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.84rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit",resize:"none",lineHeight:1.6,marginBottom:"0.75rem"}}
-                onFocus={e=>e.target.style.borderColor=pal.primary}
-                onBlur={e=>e.target.style.borderColor=pal.stone}
-                autoFocus
-              />
-              <div style={{fontSize:"0.7rem",color:pal.slate,marginBottom:"0.5rem",fontStyle:"italic"}}>
-                {"💡 Tip: Include specifics like \"CH and SH blending sounds\" rather than just \"phonics\" for a better worksheet."}
-              </div>
-              {error&&<div style={{marginTop:"0.65rem",padding:"0.7rem",background:"#fff0f0",borderRadius:"10px",fontSize:"0.78rem",color:"#a03030"}}>{error}</div>}
-            </>
-          )}
+          {/* ── CONFIG PHASE ── */}
+          {phase==="config"&&(
+            <div>
 
-          {/* Loading */}
-          {loading&&(
-            <div style={{textAlign:"center",padding:"2.5rem 0"}}>
-              <div style={{fontSize:"3rem",marginBottom:"0.75rem",animation:"pulse 1.2s ease infinite"}}>{ws.icon||"📝"}</div>
-              <div style={{fontWeight:"800",color:pal.primary,fontSize:"0.95rem",marginBottom:"0.35rem"}}>{"Building your worksheet..."}</div>
-              <div style={{fontSize:"0.78rem",color:pal.slate,lineHeight:1.65}}>
-                {"Claude is creating grade-appropriate questions based on your exact topic. Takes about 10 seconds."}
+              {/* Worksheet type picker */}
+              <div style={{marginBottom:"1rem"}}>
+                <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.75rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.55rem"}}>{"Worksheet Type"}</div>
+                <div style={{display:"flex",flexWrap:"wrap",gap:"0.4rem"}}>
+                  {WS_TYPE_OPTIONS.map(t=>{
+                    const sel = wsTypeSel===t.id;
+                    return (
+                      <button key={t.id} onClick={()=>setWsTypeSel(t.id)}
+                        style={{display:"flex",alignItems:"center",gap:"0.3rem",padding:"0.38rem 0.7rem",border:"2px solid "+(sel?pal.primary:pal.stone+"40"),borderRadius:"20px",background:sel?pal.pale:"transparent",cursor:"pointer",transition:"all 0.12s"}}>
+                        <span style={{fontSize:"0.85rem"}}>{t.icon}</span>
+                        <span style={{fontSize:"0.74rem",fontWeight:sel?"800":"500",color:sel?pal.primary:pal.inkM}}>{t.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                {selType.desc&&<div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"0.4rem",fontStyle:"italic"}}>{selType.desc}</div>}
               </div>
-            </div>
-          )}
 
-          {/* Preview */}
-          {result&&!loading&&(
-            <div style={{animation:"fadeUp 0.2s ease"}}>
-              {/* Success header */}
-              <div style={{background:pal.goodBg,borderRadius:"12px",padding:"0.75rem 0.9rem",marginBottom:"1rem",border:`1.5px solid ${pal.good}30`,display:"flex",gap:"0.6rem",alignItems:"center"}}>
-                <span style={{fontSize:"1.2rem"}}>{"✅"}</span>
-                <div>
-                  <div style={{fontWeight:"700",color:pal.good,fontSize:"0.82rem"}}>{result.title||"Worksheet ready!"}</div>
-                  <div style={{fontSize:"0.7rem",color:pal.inkM,marginTop:"1px"}}>
-                    {(result.sections||[{items:result.items||[]}]).reduce((sum,s)=>sum+(s.items||[]).length,0)} items · {grade} level · Tap Print to open
-                  </div>
+              {/* Difficulty */}
+              <div style={{marginBottom:"1rem"}}>
+                <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.75rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.55rem"}}>{"Difficulty"}</div>
+                <div style={{display:"flex",gap:"0.4rem"}}>
+                  {DIFFICULTY_OPTIONS.map(d=>{
+                    const sel = difficulty===d.id;
+                    return (
+                      <button key={d.id} onClick={()=>setDifficulty(d.id)}
+                        style={{flex:1,padding:"0.55rem 0.3rem",border:"2px solid "+(sel?pal.primary:pal.stone+"40"),borderRadius:"11px",background:sel?pal.pale:"transparent",cursor:"pointer",textAlign:"center"}}>
+                        <div style={{fontSize:"1rem"}}>{d.icon}</div>
+                        <div style={{fontSize:"0.72rem",fontWeight:sel?"800":"500",color:sel?pal.primary:pal.inkM,marginTop:"2px"}}>{d.label}</div>
+                        <div style={{fontSize:"0.62rem",color:pal.slate,marginTop:"1px"}}>{d.desc}</div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* Quick preview of items */}
-              <div style={{marginBottom:"1rem"}}>
-                <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.75rem",marginBottom:"0.5rem",textTransform:"uppercase",letterSpacing:"0.07em"}}>{"Preview"}</div>
-                {(result.sections||[{items:result.items||[]}]).slice(0,1).map((section,si)=>(
-                  <div key={si}>
-                    {(section.items||[]).slice(0,3).map((item,i)=>(
-                      <div key={i} style={{background:"#fff",borderRadius:"10px",padding:"0.6rem 0.8rem",marginBottom:"0.4rem",border:`1.5px solid ${pal.stone}20`,display:"flex",gap:"0.5rem",alignItems:"flex-start"}}>
-                        <div style={{width:"20px",height:"20px",borderRadius:"50%",background:pal.primary,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.65rem",fontWeight:"900",color:"#fff",flexShrink:0,marginTop:"1px"}}>{i+1}</div>
-                        <div style={{fontSize:"0.78rem",color:pal.ink,lineHeight:1.5,flex:1}}>{item.content}</div>
-                        <span style={{fontSize:"0.6rem",color:pal.stone,flexShrink:0,textTransform:"uppercase"}}>{item.type}</span>
-                      </div>
-                    ))}
-                    {(section.items||[]).length>3&&(
-                      <div style={{fontSize:"0.7rem",color:pal.slate,textAlign:"center",fontStyle:"italic"}}>
-                        {`+ ${(section.items||[]).length-3} more items`}
-                      </div>
-                    )}
-                  </div>
+              {/* Topic */}
+              <div style={{marginBottom:"0.85rem"}}>
+                <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.75rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.45rem"}}>{"Topic"}</div>
+                <textarea
+                  value={topic}
+                  onChange={e=>setTopic(e.target.value)}
+                  placeholder={TOPIC_PLACEHOLDERS[wsTypeSel]||"What topic or subject?"}
+                  rows={2}
+                  style={{width:"100%",padding:"0.65rem 0.85rem",border:"2px solid "+pal.stone,borderRadius:"11px",fontSize:"0.84rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit",resize:"none",lineHeight:1.55}}
+                  onFocus={e=>e.target.style.borderColor=pal.primary}
+                  onBlur={e=>e.target.style.borderColor=pal.stone}
+                  autoFocus
+                />
+              </div>
+
+              {/* Lesson context */}
+              <div style={{marginBottom:"0.85rem"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.45rem"}}>
+                  <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.75rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>{"What was covered? (optional)"}</div>
+                  {todayNotes&&<div style={{fontSize:"0.65rem",color:pal.primary,fontWeight:"700"}}>{"Auto-filled from today"}</div>}
+                </div>
+                <textarea
+                  value={lessonNote}
+                  onChange={e=>setLessonNote(e.target.value)}
+                  placeholder={"Paste your lesson notes, describe what you taught, or leave blank for a general worksheet on the topic above..."}
+                  rows={3}
+                  style={{width:"100%",padding:"0.65rem 0.85rem",border:"2px solid "+pal.stone,borderRadius:"11px",fontSize:"0.8rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit",resize:"none",lineHeight:1.55,color:lessonNote===todayNotes?pal.primary:pal.ink}}
+                  onFocus={e=>e.target.style.borderColor=pal.primary}
+                  onBlur={e=>e.target.style.borderColor=pal.stone}
+                />
+                <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"0.3rem"}}>
+                  {"\uD83D\uDCA1 More context = more specific questions. Paste your lesson plan, book title, or notes."}
+                </div>
+              </div>
+
+              {error&&<div style={{padding:"0.7rem",background:"#fff0f0",borderRadius:"10px",fontSize:"0.78rem",color:"#a03030",marginBottom:"0.5rem"}}>{error}</div>}
+            </div>
+          )}
+
+          {/* ── LOADING PHASE ── */}
+          {phase==="loading"&&(
+            <div style={{textAlign:"center",padding:"2.5rem 0"}}>
+              <div style={{fontSize:"3rem",marginBottom:"0.75rem",animation:"pulse 1.2s ease infinite"}}>{selType.icon||"\uD83D\uDCDD"}</div>
+              <div style={{fontWeight:"800",color:pal.primary,fontSize:"0.95rem",marginBottom:"0.35rem"}}>{"Building your worksheet\u2026"}</div>
+              <div style={{fontSize:"0.78rem",color:pal.slate,lineHeight:1.65,maxWidth:"260px",margin:"0 auto"}}>
+                {"Claude is crafting grade-appropriate, topic-specific questions. Takes about 15 seconds."}
+              </div>
+              <div style={{marginTop:"1.5rem",display:"flex",justifyContent:"center",gap:"0.5rem"}}>
+                {["Type: "+selType.label,"Level: "+difficulty.charAt(0).toUpperCase()+difficulty.slice(1),"Grade: "+grade].map((tag,i)=>(
+                  <span key={i} style={{fontSize:"0.68rem",padding:"0.2rem 0.6rem",background:pal.pale,borderRadius:"20px",color:pal.primary,fontWeight:"700"}}>{tag}</span>
                 ))}
               </div>
+            </div>
+          )}
 
+          {/* ── RESULT PHASE ── */}
+          {phase==="result"&&result&&(
+            <div style={{animation:"fadeUp 0.2s ease"}}>
+
+              {/* Success header */}
+              <div style={{background:pal.goodBg,borderRadius:"13px",padding:"0.75rem 0.95rem",marginBottom:"1rem",border:"1.5px solid "+pal.good+"30",display:"flex",gap:"0.6rem",alignItems:"center"}}>
+                <span style={{fontSize:"1.2rem"}}>{"✅"}</span>
+                <div style={{flex:1}}>
+                  <div style={{fontWeight:"700",color:pal.good,fontSize:"0.84rem"}}>{result.title||"Worksheet ready!"}</div>
+                  <div style={{fontSize:"0.7rem",color:pal.inkM,marginTop:"1px"}}>
+                    {(result.sections||[]).reduce((sum,s)=>sum+(s.items||[]).length,0)+" items \u00b7 "+selType.label+" \u00b7 "+difficulty+" \u00b7 "+grade}
+                  </div>
+                </div>
+              </div>
+
+              {/* Learning objective */}
+              {result.learningObjective&&(
+                <div style={{background:pal.pale,borderRadius:"11px",padding:"0.6rem 0.85rem",marginBottom:"0.75rem",border:"1.5px solid "+pal.primary+"25"}}>
+                  <div style={{fontSize:"0.63rem",fontWeight:"700",color:pal.primary,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.2rem"}}>{"Learning Objective"}</div>
+                  <div style={{fontSize:"0.78rem",color:pal.inkM,lineHeight:1.5}}>{result.learningObjective}</div>
+                </div>
+              )}
+
+              {/* Warm-up */}
+              {result.warmUp&&(
+                <div style={{background:"#fffbeb",borderRadius:"11px",padding:"0.6rem 0.85rem",marginBottom:"0.75rem",border:"1.5px solid #f5c84240"}}>
+                  <div style={{fontSize:"0.63rem",fontWeight:"700",color:"#b07800",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.2rem"}}>{"\uD83C\uDF1F Warm-Up"}</div>
+                  <div style={{fontSize:"0.78rem",color:pal.ink,lineHeight:1.5}}>{result.warmUp}</div>
+                </div>
+              )}
+
+              {/* Word bank */}
               {result.wordBank&&result.wordBank.length>0&&(
-                <div style={{background:pal.pale,borderRadius:"10px",padding:"0.55rem 0.8rem",marginBottom:"0.75rem",border:`1.5px solid ${pal.primary}20`}}>
-                  <div style={{fontSize:"0.65rem",fontWeight:"700",color:pal.primary,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.3rem"}}>Word Bank</div>
+                <div style={{background:pal.linen,borderRadius:"11px",padding:"0.55rem 0.85rem",marginBottom:"0.75rem",border:"1.5px solid "+pal.stone+"30"}}>
+                  <div style={{fontSize:"0.63rem",fontWeight:"700",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.35rem"}}>{"Word Bank"}</div>
                   <div style={{display:"flex",flexWrap:"wrap",gap:"0.35rem"}}>
-                    {result.wordBank.map((w,i)=>(<span key={i} style={{fontSize:"0.75rem",color:pal.inkM,padding:"0.1rem 0.5rem",background:"#fff",borderRadius:"4px",border:`1px solid ${pal.stone}40`}}>{w}</span>))}
+                    {result.wordBank.map((w,i)=>(<span key={i} style={{fontSize:"0.76rem",color:pal.inkM,padding:"0.15rem 0.55rem",background:"#fff",borderRadius:"5px",border:"1px solid "+pal.stone+"40"}}>{w}</span>))}
                   </div>
                 </div>
               )}
 
-              {result.bonusChallenge&&(
-                <div style={{background:"#fffbeb",borderRadius:"10px",padding:"0.55rem 0.8rem",border:"1.5px solid #f5c84240"}}>
-                  <div style={{fontSize:"0.65rem",fontWeight:"700",color:"#b07800",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.25rem"}}>⭐ Bonus</div>
-                  <div style={{fontSize:"0.75rem",color:pal.inkM}}>{result.bonusChallenge}</div>
+              {/* Sections preview */}
+              {(result.sections||[]).map((section,si)=>(
+                <div key={si} style={{marginBottom:"0.85rem"}}>
+                  {section.title&&<div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.73rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.45rem",paddingBottom:"0.25rem",borderBottom:"1px solid "+pal.stone+"30"}}>{section.title}</div>}
+                  {(section.items||[]).map((item,ii)=>(
+                    <div key={ii} style={{background:"#fff",borderRadius:"10px",padding:"0.55rem 0.75rem",marginBottom:"0.35rem",border:"1.5px solid "+pal.stone+"20",display:"flex",gap:"0.5rem",alignItems:"flex-start"}}>
+                      <div style={{width:"20px",height:"20px",borderRadius:"50%",background:pal.primary,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.63rem",fontWeight:"900",color:"#fff",flexShrink:0,marginTop:"1px"}}>{ii+1}</div>
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{fontSize:"0.78rem",color:pal.ink,lineHeight:1.5}}>{item.content}</div>
+                        {item.options&&item.options.length>0&&(
+                          <div style={{display:"flex",flexWrap:"wrap",gap:"0.3rem",marginTop:"0.3rem"}}>
+                            {item.options.map((opt,oi)=>(
+                              <span key={oi} style={{fontSize:"0.68rem",color:pal.slate,padding:"0.1rem 0.45rem",border:"1px solid "+pal.stone+"40",borderRadius:"4px"}}>{String.fromCharCode(65+oi)+". "+opt}</span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <span style={{fontSize:"0.58rem",color:pal.stone,flexShrink:0,textTransform:"uppercase",marginTop:"2px"}}>{item.type}</span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+
+              {/* Extension */}
+              {result.extension&&(
+                <div style={{background:"#eef4ff",borderRadius:"11px",padding:"0.6rem 0.85rem",marginBottom:"0.6rem",border:"1.5px solid #2563a830"}}>
+                  <div style={{fontSize:"0.63rem",fontWeight:"700",color:"#2563a8",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.2rem"}}>{"Going Deeper"}</div>
+                  <div style={{fontSize:"0.78rem",color:pal.ink,lineHeight:1.5}}>{result.extension}</div>
                 </div>
               )}
+
+              {/* Bonus */}
+              {result.bonusChallenge&&(
+                <div style={{background:"#fffbeb",borderRadius:"11px",padding:"0.6rem 0.85rem",marginBottom:"0.6rem",border:"1.5px solid #f5c84240"}}>
+                  <div style={{fontSize:"0.63rem",fontWeight:"700",color:"#b07800",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.2rem"}}>{"Bonus Challenge"}</div>
+                  <div style={{fontSize:"0.75rem",color:pal.ink}}>{result.bonusChallenge}</div>
+                </div>
+              )}
+
             </div>
           )}
+
         </div>
 
         {/* Bottom bar */}
-        <div style={{padding:"0.9rem 1.3rem",borderTop:`1px solid ${pal.stone}45`,display:"flex",gap:"0.6rem",flexShrink:0}}>
-          {!result&&!loading&&(
+        <div style={{padding:"0.9rem 1.2rem",borderTop:"1px solid "+pal.stone+"45",display:"flex",gap:"0.55rem",flexShrink:0}}>
+          {phase==="config"&&(
             <>
-              <button onClick={onClose} style={{padding:"0.7rem 1rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem"}}>Cancel</button>
-              <button onClick={generate} disabled={!topic.trim()} style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:topic.trim()?pal.accentGrad:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:topic.trim()?"pointer":"not-allowed"}}>
-                🪄 Generate Worksheet
+              <button onClick={onClose} style={{padding:"0.7rem 1rem",border:"2px solid "+pal.stone,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem"}}>{"Cancel"}</button>
+              <button onClick={generate} disabled={!topic.trim()}
+                style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:topic.trim()?pal.accentGrad:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:topic.trim()?"pointer":"not-allowed"}}>
+                {"\uD83E\uDDF9 Generate Worksheet"}
               </button>
             </>
           )}
-          {result&&!loading&&(
+          {phase==="result"&&result&&(
             <>
-              <button onClick={()=>{setResult(null);setTopic("");}} style={{padding:"0.7rem 1rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem"}}>← New</button>
+              <button onClick={()=>{setResult(null);setPhase("config");}} style={{padding:"0.7rem 1rem",border:"2px solid "+pal.stone,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem"}}>{"New"}</button>
+              <button onClick={()=>{setResult(null);setPhase("config");}} style={{padding:"0.7rem 0.9rem",border:"2px solid "+pal.primary,borderRadius:"12px",background:"transparent",color:pal.primary,fontWeight:"700",fontSize:"0.78rem",cursor:"pointer"}}>{"Tweak"}</button>
               <button onClick={openPrint} style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>
-                🖨️ Print Worksheet
+                {"\uD83D\uDDA8\uFE0F Print"}
               </button>
             </>
           )}
@@ -345,9 +453,7 @@ function AIWorksheetModal({ pal, family, activeChild, wsType, onClose }) {
   );
 }
 
-/* ----------------------------------------------------------
-   AI UNIT BUILDER MODAL (moved from index.html, prompts improved)
-   ---------------------------------------------------------- */
+
 function AIUnitBuilderModal({ pal, family, activeChild, onSave, onClose }) {
   const [step,     setStep]     = useState(0); // 0=subject 1=details 2=generating 3=result
   const [subject,  setSubject]  = useState(null);
