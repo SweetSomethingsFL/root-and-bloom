@@ -6737,7 +6737,7 @@ function ObservationJournalModal({pal, family, childId, entries, onAdd, onDelete
         {/* Search */}
         {allEntries.length>5&&(
           <div style={{padding:"0.5rem 1.1rem",borderBottom:`1px solid ${pal.stone}20`,flexShrink:0,position:"relative"}}>
-            <span style={{position:"absolute",left:"1.7rem",top:"50%",transform:"translateY(-50%)",fontSize:"0.8rem",pointerEvents:"none"}}>{"\xf0\x9f\x94\x8d"}</span>
+            <span style={{position:"absolute",left:"1.7rem",top:"50%",transform:"translateY(-50%)",fontSize:"0.8rem",pointerEvents:"none"}}>{"🔍"}</span>
             <input value={searchQ} onChange={e=>setSearchQ(e.target.value)}
               placeholder={"Search notes..."}
               style={{width:"100%",padding:"0.4rem 0.75rem 0.4rem 2rem",border:`1.5px solid ${pal.stone}40`,borderRadius:"20px",fontSize:"0.78rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit"}}
@@ -9768,7 +9768,7 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
             <div style={{marginBottom:"0.85rem"}}>
               <div style={{display:"flex",gap:"0.4rem",marginBottom:"0.45rem"}}>
                 <div style={{position:"relative",flex:1}}>
-                  <span style={{position:"absolute",left:"0.75rem",top:"50%",transform:"translateY(-50%)",fontSize:"0.9rem",pointerEvents:"none"}}>{"\xf0\x9f\x94\x8d"}</span>
+                  <span style={{position:"absolute",left:"0.75rem",top:"50%",transform:"translateY(-50%)",fontSize:"0.9rem",pointerEvents:"none"}}>{"🔍"}</span>
                   <input value={searchQuery} onChange={e=>setSearchQuery(e.target.value)}
                     placeholder={"Search entries, notes, subjects..."}
                     style={{width:"100%",padding:"0.55rem 2rem 0.55rem 2.2rem",border:"1.5px solid "+(searchQuery?pal.primary:pal.stone+"50"),borderRadius:"11px",fontSize:"0.82rem",background:pal.linen,color:pal.ink,outline:"none",fontFamily:"inherit"}}/>
@@ -9776,7 +9776,7 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
                 </div>
                 <button onClick={()=>setShowFilters(v=>!v)}
                   style={{padding:"0.55rem 0.75rem",border:"1.5px solid "+(showFilters||filterSubj||filterRange||filterMilestone?pal.primary:pal.stone+"50"),borderRadius:"11px",background:showFilters||filterSubj||filterRange||filterMilestone?pal.pale:"transparent",color:showFilters||filterSubj||filterRange||filterMilestone?pal.primary:pal.slate,fontSize:"0.76rem",fontWeight:"700",cursor:"pointer",flexShrink:0}}>
-                  {"\xf0\x9f\x93\x8c "+(filterSubj||filterRange||filterMilestone?"Filters \u2022":"Filters")}
+                  {"📌 "+(filterSubj||filterRange||filterMilestone?"Filters \u2022":"Filters")}
                 </button>
               </div>
               {showFilters&&(
