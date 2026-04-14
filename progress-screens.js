@@ -1715,7 +1715,7 @@ function DailyLogSection({pal,cp,childEntries,subjEntries}){
       )}
 
         {/* ====== GRADES TAB ====== */}
-        {activeTab==="grades"&&(()=>{
+        {true&&(()=>{
           // Letter grade helper
           const pctToLetter = (pct) => {
             if(pct>=93) return {letter:"A+",color:"#1a6e40",bg:"#edf9f0"};
