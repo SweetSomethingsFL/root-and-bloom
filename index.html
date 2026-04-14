@@ -14084,6 +14084,8 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
   const [activeChild, setActiveChild] = useState(0);
   const [activeView,  setActiveView]  = useState("overview"); // overview | transcript | reading | narrative
   const [showDigest,  setShowDigest]  = useState(false);
+  const [savedPulses, setSavedPulses] = useState(()=>{ try{ const s=localStorage.getItem("rootbloom_pulses"); return s?JSON.parse(s):[]; }catch(e){return [];} });
+  const [showDigest,  setShowDigest]  = useState(false);
   const [savedPulses, setSavedPulses] = useState(()=>{
     try{ const s=localStorage.getItem("rootbloom_pulses"); return s?JSON.parse(s):[]; }catch(e){return [];}
   });
