@@ -1,10 +1,4 @@
-/* progress-screens.js
-   ProgressScreen, TranscriptsScreen, WeeklyDigestModal, DailyLogSection
-   Depends on globals: CHILD_COLOR_PALETTES, SUBJECT_OPTIONS, GOALS, getStateInfo,
-                       getComplianceInfo, gradeLevel, downloadPortfolioHTML,
-                       callClaude, generateStruggleReport
-   Loaded as type="text/babel" -- shares scope with main inline block
-*/
+/* progress-screens.js - base extract, no modifications */
 
 function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], attendanceDays=0, onUpdateFamily, onOpenEOY}) {
   const [activeTab,    setActiveTab]    = React.useState("pulse");   // pulse | timeline | milestones | skills | grades
@@ -845,195 +839,6 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
 }
 
 
-function generateEvaluatorReport(ch, childEntries, family, attendanceDays, bySubject, readingEntries, si) {
-  const schoolName = family.schoolName||(family.familyName+" Academy")||"Home School";
-  const state      = family.state||"";
-  const ci         = getComplianceInfo(state, ch.grade||"3rd");
-  const today      = new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
-  const yearStart  = family.yearStart ? new Date(family.yearStart).toLocaleDateString("en-US",{month:"long",year:"numeric"}) : "";
-  const yearEnd    = family.yearEnd   ? new Date(family.yearEnd).toLocaleDateString("en-US",{month:"long",year:"numeric"})   : "";
-  const level      = gradeLevel(ch.grade||"3rd");
-  const gradeNote  = ci.gradeNotes?.[level]||"";
-  const lg = (pct)=>pct>=93?"A+":pct>=90?"A":pct>=87?"B+":pct>=83?"B":pct>=80?"B-":pct>=77?"C+":pct>=73?"C":pct>=70?"C-":pct>=60?"D":"F";
-
-  const quizEntries = childEntries.filter(e=>e.isQuizResult&&e.quizData&&e.quizData.total>0);
-  const quizBySubj  = {};
-  quizEntries.forEach(e=>{
-    if(!quizBySubj[e.subj]) quizBySubj[e.subj]={score:0,total:0,count:0};
-    quizBySubj[e.subj].score+=e.quizData.score;
-    quizBySubj[e.subj].total+=e.quizData.total;
-    quizBySubj[e.subj].count++;
-  });
-  const milestones   = childEntries.filter(e=>e.isMilestone);
-  const fieldStudies = childEntries.filter(e=>e.isFieldStudy);
-  const workSamples  = childEntries.filter(e=>
-    !e.isDay&&!e.isQuizResult&&
-    ((e.photos&&e.photos.length>0)||(e.note&&e.note.replace("AI Summary:","").trim().length>60))
-  ).slice(0,30);
-
-  let html = "<!DOCTYPE html><html><head><meta charset='UTF-8'>"
-    +"<title>Evaluator Report \u2014 "+ch.name+"</title>"
-    +"<style>"
-    +"*{box-sizing:border-box;margin:0;padding:0}"
-    +"body{font-family:Georgia,serif;font-size:11px;color:#1a1a1a;padding:0.6in 0.75in;max-width:8.5in;margin:0 auto}"
-    +".cover-hdr{border-bottom:3px solid #1e3a2a;padding-bottom:14px;margin-bottom:20px}"
-    +".cover-hdr h1{font-size:20px;font-weight:bold;color:#1e3a2a;margin-bottom:4px}"
-    +".cover-hdr .meta{font-size:9px;color:#666}"
-    +".section{margin-bottom:22px;break-inside:avoid}"
-    +".section-title{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#555;border-bottom:1px solid #ddd;padding-bottom:4px;margin-bottom:10px}"
-    +".comp-box{background:#f0f7f0;border:1.5px solid #2a6a2a;border-radius:6px;padding:10px 14px;margin-bottom:8px}"
-    +".comp-box .lbl{font-size:7.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#2a6a2a;margin-bottom:3px}"
-    +".comp-box .val{font-size:10px;color:#1a1a1a;line-height:1.5}"
-    +".note-box{background:#fffbeb;border:1px solid #f5c842;border-radius:5px;padding:8px 12px;font-size:9px;color:#7a5500;line-height:1.55;margin-bottom:12px}"
-    +"table{width:100%;border-collapse:collapse;margin-bottom:4px}"
-    +"th{background:#1e3a2a;color:#fff;font-size:8px;text-transform:uppercase;letter-spacing:0.06em;padding:5px 8px;text-align:left}"
-    +"td{padding:5px 8px;border-bottom:1px solid #eee;font-size:10px;vertical-align:top}"
-    +"tr:last-child td{border-bottom:none}"
-    +"tr:nth-child(even) td{background:#f9f9f9}"
-    +".reading-item{padding:3px 0;border-bottom:1px solid #f5f5f5;font-size:10px;line-height:1.4}"
-    +".milestone{display:flex;gap:6px;align-items:baseline;padding:4px 0;border-bottom:1px solid #f5f5f5;font-size:10px}"
-    +".quiz-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}"
-    +".quiz-cell{text-align:center;border-radius:5px;padding:6px 4px;border:1.5px solid #eee}"
-    +".sig-line{border-bottom:1.5px solid #999;height:28px;margin-bottom:3px}"
-    +".footer{margin-top:24px;padding-top:8px;border-top:1px solid #ddd;display:flex;justify-content:space-between;font-size:8px;color:#aaa}"
-    +"@media print{button{display:none}@page{margin:1cm;size:letter}}"
-    +"</style></head><body>";
-
-  html += "<div class='cover-hdr'>"
-    +"<h1>"+schoolName+" \u2014 Homeschool Portfolio</h1>"
-    +"<div class='meta'>Prepared for evaluator review \u00b7 "+state+" \u00b7 Generated: "+today+"</div>"
-    +"</div>";
-
-  html += "<div class='section'><div class='section-title'>Student Information</div>"
-    +"<div style='display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px'>";
-  [["Student",ch.name],["Grade",ch.grade],["School Year",yearStart+(yearEnd?" \u2013 "+yearEnd:"")],
-   ["Parent/Teacher",family.parentName||"\u2014"],["State",state],["Days Logged",attendanceDays+" days"]
-  ].forEach(function(row){
-    html += "<div style='background:#f5f5f5;border-radius:5px;padding:6px 9px'>"
-      +"<div style='font-size:7px;text-transform:uppercase;letter-spacing:0.08em;color:#888;margin-bottom:2px'>"+row[0]+"</div>"
-      +"<div style='font-weight:700;font-size:10px'>"+row[1]+"</div></div>";
-  });
-  html += "</div></div>";
-
-  html += "<div class='section'><div class='section-title'>"+state+" Homeschool Requirements</div>";
-  [["Notification",si.notify||"\u2014"],
-   ["Required Hours / Days",ci.hours||si.hours||"\u2014"],
-   ["Portfolio Requirements",si.portfolio||"\u2014"],
-   ["Testing Requirements",ci.testing||si.testing||"\u2014"],
-   ["Annual Deadline",si.deadline||"\u2014"],
-   ["Records Retention",si.keepFor||"\u2014"]
-  ].forEach(function(row){
-    html += "<div class='comp-box'><div class='lbl'>"+row[0]+"</div><div class='val'>"+row[1]+"</div></div>";
-  });
-  if(gradeNote) html += "<div class='note-box'><strong>Grade-level note ("+ch.grade+"):</strong> "+gradeNote+"</div>";
-  html += "</div>";
-
-  html += "<div class='section'><div class='section-title'>Activity Log by Subject ("+Object.keys(bySubject).length+" subjects)</div>"
-    +"<table><thead><tr><th>Subject</th><th>Entries</th><th>Most Recent</th><th>Sample Notes</th></tr></thead><tbody>";
-  Object.entries(bySubject).sort(function(a,b){return b[1].count-a[1].count;}).forEach(function(entry){
-    var subj = entry[0]; var data = entry[1];
-    var sorted = data.entries.slice().sort(function(a,b){return (b.ts||0)-(a.ts||0);});
-    var recent = sorted[0]&&sorted[0].date||"\u2014";
-    var notes  = sorted.slice(0,2).map(function(e){return (e.note||e.title||"").replace("AI Summary:","").trim();}).filter(Boolean).join(" \u00b7 ").slice(0,120);
-    html += "<tr><td><strong>"+subj+"</strong></td><td style='text-align:center'>"+data.count+"</td><td>"+recent+"</td><td style='color:#555'>"+notes+"</td></tr>";
-  });
-  html += "</tbody></table></div>";
-
-  if(si.readingLog||readingEntries.length>0){
-    html += "<div class='section'><div class='section-title'>Reading Log"+(si.readingLog?" (Required by "+state+")":"")+" \u2014 "+readingEntries.length+" titles</div>";
-    if(si.readingLog&&readingEntries.length===0){
-      html += "<div class='note-box'>"+state+" requires reading titles logged by name. No reading titles found \u2014 log book titles when adding reading entries.</div>";
-    } else {
-      readingEntries.forEach(function(e,i){
-        var title = e.readingTitle||e.title||"Untitled";
-        html += "<div class='reading-item'>"+(i+1)+". <strong>"+title+"</strong>"+(e.date?" \u00b7 "+e.date:"")+"</div>";
-      });
-    }
-    html += "</div>";
-  }
-
-  if(si.workSamples||workSamples.length>0){
-    html += "<div class='section'><div class='section-title'>Work Samples"+(si.workSamples?" (Required by "+state+")":"")+" \u2014 "+workSamples.length+" entries</div>";
-    if(si.workSamples&&workSamples.length===0){
-      html += "<div class='note-box'>"+state+" requires work samples. Add notes or photos to portfolio entries.</div>";
-    } else {
-      workSamples.forEach(function(e){
-        var note = (e.note||"").replace("AI Summary:","").trim();
-        var hasPhoto = e.photos&&e.photos.length>0;
-        html += "<div style='border:1px solid #eee;border-radius:6px;padding:8px 10px;margin-bottom:6px;break-inside:avoid'>"
-          +"<div style='display:flex;justify-content:space-between;margin-bottom:4px'>"
-          +"<span style='font-weight:700;font-size:10px'>"+e.subj+"</span>"
-          +"<span style='font-size:8px;color:#999'>"+(e.date||"")+(hasPhoto?" \u00b7 photo":"")+"</span>"
-          +"</div>"
-          +(note?"<div style='font-size:9.5px;color:#333;line-height:1.55'>"+note.slice(0,300)+(note.length>300?"\u2026":"")+"</div>":"")
-          +"</div>";
-      });
-    }
-    html += "</div>";
-  }
-
-  if(Object.keys(quizBySubj).length>0){
-    html += "<div class='section'><div class='section-title'>Assessment Results \u2014 "+quizEntries.length+" quizzes</div>"
-      +"<div class='quiz-grid'>";
-    Object.entries(quizBySubj).sort(function(a,b){
-      return (b[1].total?b[1].score/b[1].total:0)-(a[1].total?a[1].score/a[1].total:0);
-    }).forEach(function(entry){
-      var subj=entry[0]; var d=entry[1];
-      var pct=d.total>0?Math.round((d.score/d.total)*100):0;
-      var g=lg(pct);
-      var col=g.startsWith("A")?"#1a6e40":g.startsWith("B")?"#2563a8":g.startsWith("C")?"#7a5500":"#cc2222";
-      html += "<div class='quiz-cell' style='background:"+col+"10;border-color:"+col+"30'>"
-        +"<div style='font-size:15px;font-weight:900;color:"+col+"'>"+g+"</div>"
-        +"<div style='font-size:7.5px;font-weight:700;color:#333;margin:2px 0'>"+subj+"</div>"
-        +"<div style='font-size:7px;color:#999'>"+pct+"% \u00b7 "+d.count+" quiz"+(d.count===1?"":"zes")+"</div>"
-        +"</div>";
-    });
-    html += "</div></div>";
-  }
-
-  if(milestones.length>0){
-    html += "<div class='section'><div class='section-title'>Milestones \u2014 "+milestones.length+" recorded</div>";
-    milestones.forEach(function(e){
-      html += "<div class='milestone'><span style='color:#f5c842'>&#11088;</span>"
-        +"<span><strong>"+(e.subj||"General")+"</strong>"+(e.date?" \u00b7 "+e.date:"")
-        +(e.note?"<br><span style='color:#555'>"+(e.note||"").replace("AI Summary:","").trim().slice(0,200)+"</span>":"")
-        +"</span></div>";
-    });
-    html += "</div>";
-  }
-
-  if(fieldStudies.length>0){
-    html += "<div class='section'><div class='section-title'>Field Studies \u2014 "+fieldStudies.length+" recorded</div>"
-      +"<div style='display:grid;grid-template-columns:1fr 1fr;gap:6px'>";
-    fieldStudies.forEach(function(e){
-      html += "<div style='border:1px solid #dde8dd;border-radius:5px;padding:7px 10px;background:#f5faf5'>"
-        +"<div style='font-weight:700;font-size:10px;color:#2a6a2a'>"+(e.fieldStudyData&&e.fieldStudyData.subject||e.subj||"Field Study")+"</div>"
-        +"<div style='font-size:8px;color:#666;margin-top:2px'>"+(e.date||"")+"</div>"
-        +(e.fieldStudyData&&e.fieldStudyData.location?"<div style='font-size:8px;color:#555;margin-top:1px'>&#128205; "+e.fieldStudyData.location+"</div>":"")
-        +"</div>";
-    });
-    html += "</div></div>";
-  }
-
-  html += "<div class='section' style='margin-top:28px'><div class='section-title'>Evaluator Review</div>"
-    +"<div style='display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:8px'>"
-    +"<div><div class='sig-line'></div><div style='font-size:8px;color:#888'>Evaluator Name (print)</div></div>"
-    +"<div><div class='sig-line'></div><div style='font-size:8px;color:#888'>Evaluator Signature</div></div>"
-    +"<div><div class='sig-line'></div><div style='font-size:8px;color:#888'>Certification / License Number</div></div>"
-    +"<div><div class='sig-line'></div><div style='font-size:8px;color:#888'>Date of Evaluation</div></div>"
-    +"</div>"
-    +"<div style='margin-top:14px;padding:8px 12px;background:#f9f9f9;border-radius:5px;font-size:8.5px;color:#555;line-height:1.6'>"
-    +"<strong>Evaluator Statement:</strong> I have reviewed the portfolio and annual progress of the above-named student and find that the student has demonstrated adequate academic progress as required under the homeschool laws of "+state+"."
-    +"</div></div>";
-
-  html += "<div class='footer'><span>"+schoolName+" \u00b7 "+ch.name+" \u00b7 "+ch.grade+"</span><span>Generated by Root &amp; Bloom \u00b7 "+today+"</span></div>"
-    +"<div style='text-align:center;margin-top:16px'><button onclick='window.print()' style='padding:8px 22px;background:#1e3a2a;color:#fff;border:none;border-radius:6px;font-size:11px;cursor:pointer'>Print / Save as PDF</button></div>"
-    +"</body></html>";
-
-  var fname = ch.name.replace(/\s+/g,"-")+"-Evaluator-Report-"+state.replace(/\s+/g,"-")+".html";
-  downloadPortfolioHTML(html, fname);
-}
-
 function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coopLog=[],observationLog=[]}){
   const [activeChild, setActiveChild] = useState(0);
   const [activeView,  setActiveView]  = useState("overview"); // overview | transcript | reading | narrative
@@ -1331,8 +1136,6 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
               </div>
             </div>
           )}
-          {/* Share with Evaluator - temporarily disabled for debugging */}
-
           <div style={{height:"0.5rem"}}/>
         </>)}
 
@@ -1530,9 +1333,6 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
 function WeeklyDigestModal({ pal, family, savedPulses=[], portfolioEntries=[], attendanceDays=0, onClose }) {
   const today    = new Date();
   const dow      = today.getDay();
-  const [aiNarrative,        setAiNarrative]        = useState(null);
-  const [aiNarrativeLoading, setAiNarrativeLoading] = useState(false);
-  const [aiNarrativeError,   setAiNarrativeError]   = useState(null);
   const weekStart= new Date(today); weekStart.setDate(today.getDate()-(dow===0?6:dow-1)); weekStart.setHours(0,0,0,0);
   const weekEnd  = new Date(weekStart); weekEnd.setDate(weekStart.getDate()+6);
   const yr       = today.getFullYear();
@@ -1647,48 +1447,7 @@ function WeeklyDigestModal({ pal, family, savedPulses=[], portfolioEntries=[], a
     html += "<div class='footer'><span>"+sn+" &bull; Weekly Digest</span><span>Generated by Root &amp; Bloom</span></div>"
       +"<div style='text-align:center;margin-top:14px'><button onclick='window.print()' style='padding:8px 20px;background:#1a1a1a;color:#fff;border:none;border-radius:6px;font-size:11px;cursor:pointer'>Print / Save PDF</button></div>"
       +"</body></html>";
-    if(aiNarrative){
-      html += "<div style='margin-bottom:16px;break-inside:avoid'>"
-        +"<div style='font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#555;margin-bottom:6px'>\u2728 AI Weekly Narrative</div>"
-        +"<div style='font-size:10px;color:#333;line-height:1.7;background:#f5f0ff;border-left:3px solid #7c3aed;padding:8px 12px;border-radius:0 6px 6px 0'>"+aiNarrative+"</div></div>";
-    }
     downloadPortfolioHTML(html, "Weekly-Digest-"+weekLabel.replace(/[^a-zA-Z0-9]/g,"-")+".html");
-  };
-
-  const generateNarrative = async () => {
-    const apiKey = (()=>{ try{ return localStorage.getItem("rootbloom_apikey")||""; }catch{return "";} })();
-    if(!apiKey){ setAiNarrativeError("Add your Anthropic API key in Settings first."); return; }
-    setAiNarrativeLoading(true); setAiNarrativeError(null); setAiNarrative(null);
-    const lines = childDigests.filter(d=>d.weekEntries.length>0).map(({c,weekEntries,subjs,milestones,quizBySubj})=>{
-      const quizLines = Object.entries(quizBySubj).map(([s,d])=>{
-        const pct = d.total>0?Math.round((d.score/d.total)*100):0;
-        return s+": "+pct+"%";
-      }).join(", ");
-      const ms = milestones.map(e=>(e.note||e.title||"").replace("AI Summary:","").trim()).filter(Boolean).join("; ");
-      return c.name+" ("+c.grade+"): "+weekEntries.length+" entries, subjects: "+subjs.join(", ")
-        +(quizLines?"; quiz scores: "+quizLines:"")
-        +(ms?"; milestones: "+ms:"");
-    }).join("\n");
-    const prompt = "You are a warm, encouraging homeschool coach writing a brief weekly narrative for a homeschool parent."
-      +" Write 3-4 sentences that celebrate this week\u2019s learning in a personal, heartfelt tone."
-      +" Do not use bullet points or headers \u2014 just flowing prose. Mention specific subjects or milestones by name where possible.\n\n"
-      +"Family: "+(family.schoolName||(family.familyName+" Academy"))+"\n"
-      +"Week: "+weekLabel+"\n\n"
-      +lines;
-    try {
-      const resp = await fetch("https://api.anthropic.com/v1/messages",{
-        method:"POST",
-        headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-        body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:300,messages:[{role:"user",content:prompt}]})
-      });
-      const data = await resp.json();
-      if(data.error) throw new Error(data.error.message||"API error");
-      const txt = (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("").trim();
-      setAiNarrative(txt);
-    } catch(e) {
-      setAiNarrativeError("Could not generate narrative. Check your API key and try again.");
-    }
-    setAiNarrativeLoading(false);
   };
 
   return (
@@ -1782,19 +1541,6 @@ function WeeklyDigestModal({ pal, family, savedPulses=[], portfolioEntries=[], a
             );
           })}
 
-          {/* AI Narrative */}
-          {(aiNarrative||aiNarrativeLoading||aiNarrativeError)&&(
-            <div style={{marginBottom:"1rem",background:pal.pale,borderRadius:"13px",padding:"0.85rem 1rem",border:"1.5px solid "+pal.primary+"30"}}>
-              <div style={{display:"flex",alignItems:"center",gap:"0.4rem",marginBottom:"0.5rem"}}>
-                <span style={{fontSize:"0.85rem"}}>{"\u2728"}</span>
-                <span style={{fontWeight:"800",color:pal.primary,fontSize:"0.72rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>{"AI Weekly Narrative"}</span>
-              </div>
-              {aiNarrativeLoading&&<div style={{fontSize:"0.78rem",color:pal.slate,fontStyle:"italic"}}>{"Crafting your narrative\u2026"}</div>}
-              {aiNarrativeError&&<div style={{fontSize:"0.78rem",color:"#cc2222"}}>{aiNarrativeError}</div>}
-              {aiNarrative&&<div style={{fontSize:"0.82rem",color:pal.ink,lineHeight:1.7}}>{aiNarrative}</div>}
-            </div>
-          )}
-
           {/* AI Pulse summary */}
           {latestPulse&&(
             <div style={{marginBottom:"1rem"}}>
@@ -1824,12 +1570,8 @@ function WeeklyDigestModal({ pal, family, savedPulses=[], portfolioEntries=[], a
         </div>
 
         {/* Bottom bar */}
-        <div style={{padding:"0.9rem 1.2rem",borderTop:"1px solid "+pal.stone+"45",display:"flex",gap:"0.55rem",flexShrink:0,flexWrap:"wrap"}}>
+        <div style={{padding:"0.9rem 1.2rem",borderTop:"1px solid "+pal.stone+"45",display:"flex",gap:"0.55rem",flexShrink:0}}>
           <button onClick={onClose} style={{padding:"0.7rem 1rem",border:"2px solid "+pal.stone,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem"}}>{"Close"}</button>
-          <button onClick={generateNarrative} disabled={aiNarrativeLoading}
-            style={{padding:"0.7rem 0.9rem",border:"2px solid "+pal.primary+"60",borderRadius:"12px",background:aiNarrativeLoading?"#eee":pal.pale,color:pal.primary,fontWeight:"800",fontSize:"0.82rem",cursor:aiNarrativeLoading?"default":"pointer",opacity:aiNarrativeLoading?0.6:1}}>
-            {aiNarrativeLoading?"\u23F3 Writing\u2026":"\u2728 Enhance with AI"}
-          </button>
           <button onClick={handleDownload} style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>{"\u2B07\uFE0F Download Digest"}</button>
         </div>
       </div>
