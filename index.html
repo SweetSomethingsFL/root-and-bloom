@@ -7724,8 +7724,29 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
             );
           });
 
+          // 5. Sunday weekly digest nudge
+          const isSunday = new Date().getDay()===0;
+          const digestKey = "rootbloom_digest_nudge_"+new Date().toDateString();
+          const digestDismissed = (() => { try{ return !!localStorage.getItem(digestKey); }catch(e){return false;} })();
+          const hasPulse = (() => { try{ const s=localStorage.getItem("rootbloom_pulses"); return s&&JSON.parse(s).length>0; }catch(e){return false;} })();
+          if(isSunday && hasPulse && !digestDismissed) {
+            banners.push(
+              <div key="digest" style={{background:"linear-gradient(135deg,"+pal.primary+"14,"+pal.accent+"08)",borderRadius:"14px",padding:"0.75rem 1rem",marginBottom:"0.75rem",border:"2px solid "+pal.primary+"25",display:"flex",gap:"0.65rem",alignItems:"center"}}>
+                <span style={{fontSize:"1.2rem",flexShrink:0}}>{"\uD83D\uDCCB"}</span>
+                <div style={{flex:1}}>
+                  <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.82rem"}}>{"Your weekly digest is ready"}</div>
+                  <div style={{fontSize:"0.7rem",color:pal.inkM,marginTop:"1px"}}>{"Review the week \u2014 quiz scores, milestones, and progress summary"}</div>
+                </div>
+                <div style={{display:"flex",gap:"0.3rem",flexShrink:0}}>
+                  <button onClick={()=>onTabChange&&onTabChange("progress")} style={{padding:"0.3rem 0.65rem",border:"none",borderRadius:"8px",background:pal.accentGrad,color:"#fff",fontSize:"0.72rem",fontWeight:"800",cursor:"pointer"}}>{"View"}</button>
+                  <button onClick={()=>{try{localStorage.setItem(digestKey,"1");}catch(e){}dismiss("digest");}} style={{background:"transparent",border:"none",color:pal.slate,fontSize:"0.8rem",cursor:"pointer",padding:"0 4px"}}>{"Later"}</button>
+                </div>
+              </div>
+            );
+          }
+
           return banners.length>0 ? <div>{banners}</div> : null;
-        })()}
+        })()
 
         {/* ── Multi-child dashboard — shown when "All" selected and 2+ children ── */}
         {child==="all" && family.children.length>1 && (()=>{
@@ -13224,6 +13245,7 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
   const [gradeStruggle, setGradeStruggle] = React.useState(null);
   const [gradeStruggleLoading, setGradeStruggleLoading] = React.useState(false);
   const [gradeStruggleError,   setGradeStruggleError]   = React.useState(null);
+  const [showDigest,   setShowDigest]   = React.useState(false);
 
   const ch       = family.children[selectedChild] || family.children[0];
   const cp       = CHILD_COLOR_PALETTES.find(p=>p.id===(ch?.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
@@ -13688,6 +13710,19 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
                   </div>
                 );
               })()}
+
+              {/* Weekly Digest button */}
+              {savedPulses.length>0&&(
+                <button onClick={()=>setShowDigest(true)}
+                  style={{width:"100%",display:"flex",alignItems:"center",gap:"0.6rem",padding:"0.75rem 1rem",border:"2px solid "+pal.primary+"30",borderRadius:"13px",background:"linear-gradient(135deg,"+pal.primary+"10,"+pal.accent+"08)",cursor:"pointer",textAlign:"left",marginBottom:"1rem"}}>
+                  <span style={{fontSize:"1.3rem",flexShrink:0}}>{"\uD83D\uDCCB"}</span>
+                  <div style={{flex:1}}>
+                    <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.82rem"}}>{"Weekly Digest"}</div>
+                    <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>{"Full week summary \u2014 attendance, quiz scores, milestones \u00b7 printable"}</div>
+                  </div>
+                  <span style={{color:pal.primary,fontSize:"0.85rem",flexShrink:0}}>{"\u203a"}</span>
+                </button>
+              )}
 
               {/* Subject stats */}
               <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.72rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.55rem"}}>{"All subjects \u2014 "+ch?.name}</div>
@@ -14499,6 +14534,269 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
   body { background: white!important; font-family: Georgia, serif!important; }
   #root > div { max-width: 100%!important; }
 }`}</style>
+      {showDigest&&(
+        <WeeklyDigestModal
+          pal={pal} family={family}
+          savedPulses={savedPulses}
+          portfolioEntries={portfolioEntries}
+          attendanceDays={attendanceDays}
+          onClose={()=>setShowDigest(false)}
+        />
+      )}
+    </div>
+  );
+}
+
+
+/* ============================================================
+   WEEKLY DIGEST MODAL
+   Zero AI calls -- reads savedPulses + portfolio data
+   ============================================================ */
+function WeeklyDigestModal({ pal, family, savedPulses=[], portfolioEntries=[], attendanceDays=0, onClose }) {
+  const today    = new Date();
+  const dow      = today.getDay();
+  const weekStart= new Date(today); weekStart.setDate(today.getDate()-(dow===0?6:dow-1)); weekStart.setHours(0,0,0,0);
+  const weekEnd  = new Date(weekStart); weekEnd.setDate(weekStart.getDate()+6);
+  const yr       = today.getFullYear();
+
+  const isThisWeek = (dateStr) => {
+    try{ const d=new Date(dateStr+", "+yr); return d>=weekStart&&d<=weekEnd; }catch(e){return false;}
+  };
+
+  const weekStart2Wks = new Date(weekStart); weekStart2Wks.setDate(weekStart.getDate()-7);
+
+  // Most recent pulse (this week or last week)
+  const latestPulse = savedPulses[0]||null;
+
+  // Week data per child
+  const childDigests = family.children.map((c,ci)=>{
+    const entries = portfolioEntries.filter(e=>e.childIdx===ci&&!e.isDay);
+    const weekEntries = entries.filter(e=>isThisWeek(e.date));
+    const subjs = [...new Set(weekEntries.map(e=>e.subj))];
+    const milestones = weekEntries.filter(e=>e.isMilestone);
+    const quizEntries = weekEntries.filter(e=>e.isQuizResult&&e.quizData);
+    const quizBySubj = {};
+    quizEntries.forEach(e=>{
+      if(!quizBySubj[e.subj]) quizBySubj[e.subj]={score:0,total:0,count:0};
+      quizBySubj[e.subj].score+=e.quizData.score;
+      quizBySubj[e.subj].total+=e.quizData.total;
+      quizBySubj[e.subj].count++;
+    });
+    const photos = weekEntries.flatMap(e=>e.photos||[]).slice(0,4);
+    return {c,ci,weekEntries,subjs,milestones,quizBySubj,photos};
+  });
+
+  const letterGrade = (pct) => pct>=93?"A+":pct>=90?"A":pct>=87?"B+":pct>=83?"B":pct>=80?"B-":pct>=77?"C+":pct>=73?"C":pct>=70?"C-":pct>=60?"D":"F";
+  const gradeCol    = (g) => g.startsWith("A")?"#1a6e40":g.startsWith("B")?"#2563a8":g.startsWith("C")?"#7a5500":"#cc2222";
+
+  const weekLabel = weekStart.toLocaleDateString("en-US",{month:"short",day:"numeric"})
+    +" \u2013 "+weekEnd.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
+
+  const parsePulse = (text) => {
+    const sections = [];
+    const patterns = [
+      {key:"strengths",label:"Strengths",    icon:"\u2B50",col:"#1a6e40",bg:"#edf9f0"},
+      {key:"growth",   label:"Growth Areas", icon:"\uD83C\uDF31",col:"#b07800",bg:"#fff8e6"},
+      {key:"overall",  label:"Overall",      icon:"\u2728",  col:pal.primary,bg:pal.pale},
+    ];
+    const upper = text.toUpperCase();
+    patterns.forEach(p=>{
+      const marker = p.key==="growth"?"GROWTH AREAS:":p.key.toUpperCase()+":";
+      const idx = upper.indexOf(marker);
+      if(idx===-1) return;
+      const start = idx+marker.length;
+      const nextIdxs = patterns.filter(pp=>pp.key!==p.key)
+        .map(pp=>{ const m=pp.key==="growth"?"GROWTH AREAS:":pp.key.toUpperCase()+":"; return upper.indexOf(m,start); })
+        .filter(i=>i>start);
+      const end = nextIdxs.length>0?Math.min(...nextIdxs):text.length;
+      const body = text.slice(start,end).trim();
+      if(body) sections.push({...p,body});
+    });
+    return sections;
+  };
+
+  const handleDownload = () => {
+    const sn = family.schoolName||(family.familyName+" Academy")||"Ramos Academy";
+    const todayFmt = today.toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
+    let html = "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Weekly Digest "+weekLabel+"</title>"
+      +"<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Georgia,serif;font-size:11px;color:#1a1a1a;padding:0.6in 0.75in;max-width:8.5in;margin:0 auto}"
+      +"h1{font-size:20px;font-weight:bold;margin-bottom:4px}.meta{font-size:9px;color:#666;border-bottom:2px solid #1a1a1a;padding-bottom:8px;margin-bottom:16px}"
+      +".child-block{margin-bottom:20px;break-inside:avoid}.child-name{font-size:14px;font-weight:bold;margin-bottom:8px;color:#1a1a1a}"
+      +".subj-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}.chip{background:#e8f0e8;color:#2a4a28;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;border-radius:4px;padding:2px 7px}"
+      +".quiz-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}"
+      +".quiz-cell{text-align:center;border-radius:6px;padding:6px 4px;border:1.5px solid #eee}"
+      +".milestone-item{display:flex;gap:6px;padding:4px 0;font-size:10px;border-bottom:1px solid #f5f5f5;align-items:baseline}"
+      +".pulse-section{margin-bottom:8px;padding:8px 10px;border-radius:6px}"
+      +".footer{margin-top:20px;padding-top:8px;border-top:1px solid #ddd;display:flex;justify-content:space-between;font-size:8px;color:#aaa}"
+      +"@media print{button{display:none}@page{margin:1cm;size:letter}}</style></head><body>"
+      +"<h1>Weekly Digest</h1>"
+      +"<div class='meta'>"+sn+" &bull; "+weekLabel+" &bull; "+todayFmt+"</div>";
+
+    childDigests.forEach(({c,weekEntries,subjs,milestones,quizBySubj})=>{
+      if(weekEntries.length===0) return;
+      html += "<div class='child-block'>"
+        +"<div class='child-name'>"+c.avatar+" "+c.name+" &mdash; "+c.grade+"</div>"
+        +"<div style='font-size:9px;color:#888;margin-bottom:6px'>"+weekEntries.length+" entries logged &bull; "+subjs.length+" subjects</div>"
+        +"<div class='subj-chips'>"+subjs.map(s=>"<span class='chip'>"+s+"</span>").join("")+"</div>";
+      if(Object.keys(quizBySubj).length>0){
+        html += "<div style='font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#555;margin-bottom:5px'>Quiz Scores</div>"
+          +"<div class='quiz-grid'>";
+        Object.entries(quizBySubj).forEach(([subj,d])=>{
+          const pct=d.total>0?Math.round((d.score/d.total)*100):0;
+          const g=letterGrade(pct); const col=gradeCol(g);
+          html += "<div class='quiz-cell' style='background:"+col+"10;border-color:"+col+"30'>"
+            +"<div style='font-size:14px;font-weight:900;color:"+col+"'>"+g+"</div>"
+            +"<div style='font-size:7px;font-weight:700;color:#333'>"+subj+"</div>"
+            +"<div style='font-size:7px;color:#999'>"+pct+"%</div></div>";
+        });
+        html += "</div>";
+      }
+      if(milestones.length>0){
+        html += "<div style='font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#555;margin-bottom:4px;margin-top:8px'>Milestones &#11088;</div>";
+        milestones.forEach(e=>{
+          html += "<div class='milestone-item'><span style='color:#f5c842'>&#11088;</span><span style='font-style:italic'>"+(e.note||e.title||"").replace("AI Summary:","").trim()+"</span></div>";
+        });
+      }
+      html += "</div>";
+    });
+
+    if(latestPulse){
+      html += "<div style='margin-bottom:16px;break-inside:avoid'>"
+        +"<div style='font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#555;margin-bottom:6px'>AI Progress Summary</div>"
+        +"<div style='font-size:10px;color:#333;line-height:1.65;background:#f8f8f8;border-left:3px solid #2a4a28;padding:8px 12px;border-radius:0 6px 6px 0'>"+latestPulse.text+"</div></div>";
+    }
+
+    html += "<div class='footer'><span>"+sn+" &bull; Weekly Digest</span><span>Generated by Root &amp; Bloom</span></div>"
+      +"<div style='text-align:center;margin-top:14px'><button onclick='window.print()' style='padding:8px 20px;background:#1a1a1a;color:#fff;border:none;border-radius:6px;font-size:11px;cursor:pointer'>Print / Save PDF</button></div>"
+      +"</body></html>";
+    downloadPortfolioHTML(html, "Weekly-Digest-"+weekLabel.replace(/[^a-zA-Z0-9]/g,"-")+".html");
+  };
+
+  return (
+    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.6)",backdropFilter:"blur(12px)",zIndex:350,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
+      <div style={{background:pal.linen,borderRadius:"28px 28px 0 0",width:"100%",maxWidth:"430px",maxHeight:"92vh",display:"flex",flexDirection:"column",boxShadow:"0 -16px 60px rgba(0,0,0,0.35)",animation:"slideUp 0.28s ease"}}>
+
+        {/* Handle */}
+        <div style={{padding:"0.7rem 0 0",display:"flex",justifyContent:"center",flexShrink:0}}>
+          <div style={{width:"36px",height:"4px",borderRadius:"99px",background:pal.stone}}/>
+        </div>
+
+        {/* Header */}
+        <div style={{padding:"0.7rem 1.2rem 0.6rem",borderBottom:"1px solid "+pal.stone+"45",flexShrink:0,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div>
+            <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.95rem"}}>{"\uD83D\uDCCB Weekly Digest"}</div>
+            <div style={{fontSize:"0.72rem",color:pal.slate,marginTop:"2px"}}>{weekLabel}</div>
+          </div>
+          <button onClick={onClose} style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.85rem",display:"flex",alignItems:"center",justifyContent:"center"}}>{"\u2715"}</button>
+        </div>
+
+        <div style={{flex:1,overflowY:"auto",padding:"0.9rem 1.2rem 0.5rem"}}>
+
+          {/* Per-child sections */}
+          {childDigests.map(({c,ci,weekEntries,subjs,milestones,quizBySubj,photos})=>{
+            const cp2 = CHILD_COLOR_PALETTES.find(p=>p.id===(c.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+            if(weekEntries.length===0) return (
+              <div key={ci} style={{background:pal.parchm,borderRadius:"13px",padding:"0.75rem 1rem",marginBottom:"0.75rem",border:"1.5px solid "+pal.stone+"25",opacity:0.6}}>
+                <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.84rem"}}>{c.avatar+" "+c.name}</div>
+                <div style={{fontSize:"0.72rem",color:pal.slate,marginTop:"2px"}}>{"Nothing logged this week"}</div>
+              </div>
+            );
+            return (
+              <div key={ci} style={{marginBottom:"1rem"}}>
+                {/* Child header */}
+                <div style={{display:"flex",alignItems:"center",gap:"0.5rem",marginBottom:"0.6rem"}}>
+                  <div style={{width:"36px",height:"36px",borderRadius:"10px",background:"linear-gradient(135deg,"+cp2.c1+","+cp2.c2+")",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.2rem"}}>{c.avatar}</div>
+                  <div>
+                    <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.88rem"}}>{c.name+" \u00b7 "+c.grade}</div>
+                    <div style={{fontSize:"0.7rem",color:pal.slate}}>{weekEntries.length+" entr"+(weekEntries.length===1?"y":"ies")+" \u00b7 "+subjs.length+" subject"+(subjs.length===1?"":"s")}</div>
+                  </div>
+                </div>
+
+                {/* Subject chips */}
+                <div style={{display:"flex",gap:"0.3rem",flexWrap:"wrap",marginBottom:"0.65rem"}}>
+                  {subjs.map((s,i)=>(
+                    <span key={i} style={{fontSize:"0.68rem",padding:"0.18rem 0.55rem",background:cp2.c1+"18",borderRadius:"20px",color:cp2.c1,fontWeight:"700",border:"1.5px solid "+cp2.c1+"30"}}>{s}</span>
+                  ))}
+                </div>
+
+                {/* Quiz scores */}
+                {Object.keys(quizBySubj).length>0&&(
+                  <div style={{marginBottom:"0.65rem"}}>
+                    <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.7rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.4rem"}}>{"\uD83C\uDFAF Quiz Scores"}</div>
+                    <div style={{display:"flex",gap:"0.4rem",flexWrap:"wrap"}}>
+                      {Object.entries(quizBySubj).map(([subj,d],i)=>{
+                        const pct=d.total>0?Math.round((d.score/d.total)*100):0;
+                        const g=letterGrade(pct); const col=gradeCol(g);
+                        return (
+                          <div key={i} style={{background:col+"10",border:"1.5px solid "+col+"30",borderRadius:"10px",padding:"0.4rem 0.6rem",textAlign:"center",minWidth:"60px"}}>
+                            <div style={{fontWeight:"900",color:col,fontSize:"1rem"}}>{g}</div>
+                            <div style={{fontSize:"0.65rem",fontWeight:"700",color:pal.ink,marginTop:"1px"}}>{subj}</div>
+                            <div style={{fontSize:"0.62rem",color:pal.slate}}>{pct+"%"}</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Milestones */}
+                {milestones.length>0&&(
+                  <div style={{background:"#fffbeb",borderRadius:"11px",padding:"0.6rem 0.85rem",marginBottom:"0.5rem",border:"1.5px solid #f5c84240"}}>
+                    <div style={{fontWeight:"700",color:"#b07800",fontSize:"0.7rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.4rem"}}>{"\u2B50 Milestones this week"}</div>
+                    {milestones.map((e,i)=>(
+                      <div key={i} style={{fontSize:"0.78rem",color:pal.ink,lineHeight:1.6,marginBottom:"0.2rem"}}>
+                        {"\u2B50 "+(e.note||e.title||"").replace("AI Summary:","").trim()}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Photos */}
+                {photos.length>0&&(
+                  <div style={{display:"flex",gap:"0.4rem",marginBottom:"0.5rem"}}>
+                    {photos.map((src,i)=>(
+                      <img key={i} src={src} alt="" style={{width:"72px",height:"72px",objectFit:"cover",borderRadius:"10px",border:"1.5px solid "+pal.stone+"25"}}/>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
+          {/* AI Pulse summary */}
+          {latestPulse&&(
+            <div style={{marginBottom:"1rem"}}>
+              <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.72rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.55rem"}}>{"\u2728 Progress Summary"}</div>
+              {parsePulse(latestPulse.text).map((s,i)=>(
+                <div key={i} style={{background:s.bg,borderRadius:"11px",padding:"0.65rem 0.85rem",marginBottom:"0.4rem",border:"1.5px solid "+s.col+"25"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:"0.35rem",marginBottom:"0.25rem"}}>
+                    <span style={{fontSize:"0.85rem"}}>{s.icon}</span>
+                    <span style={{fontWeight:"800",color:s.col,fontSize:"0.68rem",textTransform:"uppercase",letterSpacing:"0.07em"}}>{s.label}</span>
+                  </div>
+                  <div style={{fontSize:"0.78rem",color:pal.ink,lineHeight:1.65}}>{s.body}</div>
+                </div>
+              ))}
+              <div style={{fontSize:"0.63rem",color:pal.stone,textAlign:"right",marginTop:"0.2rem"}}>{latestPulse.date}</div>
+            </div>
+          )}
+
+          {/* Attendance chip */}
+          <div style={{background:pal.linen,borderRadius:"11px",padding:"0.6rem 0.85rem",marginBottom:"0.5rem",border:"1.5px solid "+pal.stone+"25",display:"flex",alignItems:"center",gap:"0.5rem"}}>
+            <span style={{fontSize:"1rem"}}>{"\uD83D\uDCC5"}</span>
+            <div>
+              <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.82rem"}}>{attendanceDays+" school days logged"}</div>
+              <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>{"Year to date \u00b7 "+family.state+" homeschool record"}</div>
+            </div>
+          </div>
+
+        </div>
+
+        {/* Bottom bar */}
+        <div style={{padding:"0.9rem 1.2rem",borderTop:"1px solid "+pal.stone+"45",display:"flex",gap:"0.55rem",flexShrink:0}}>
+          <button onClick={onClose} style={{padding:"0.7rem 1rem",border:"2px solid "+pal.stone,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem"}}>{"Close"}</button>
+          <button onClick={handleDownload} style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>{"\u2B07\uFE0F Download Digest"}</button>
+        </div>
+      </div>
     </div>
   );
 }
