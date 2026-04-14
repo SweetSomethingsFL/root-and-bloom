@@ -1650,7 +1650,9 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
   const [quickNotePrompt, setQuickNotePrompt] = useState(null); // {blockIdx, subjLabel, subjIcon}
   const [quickNoteText, setQuickNoteText] = useState("");
   const [showQuiz,      setShowQuiz]      = useState(null); // {blockIdx, subjLabel, subjIcon, grade}
-  const [streakCelebration, setStreakCelebration] = useState(null); // {streak, childName, pct}
+  const [streakCelebration, setStreakCelebration] = useState(null);
+  const [dailySummary,  setDailySummary]  = useState(null);
+  const [summaryLoading,setSummaryLoading]= useState(false); // {streak, childName, pct}
   const [kidPhotos,     setKidPhotos]     = useState([]); // [{dataUrl, subj, date, ts}]
   const kidCamRef = React.useRef(null);
   const kidGallRef = React.useRef(null);
@@ -2034,6 +2036,61 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
           <div style={{animation:"fadeUp 0.22s ease",padding:"1.2rem 1rem"}}>
             <div style={{fontWeight:"900",color:SK.ink,fontSize:"1.2rem",marginBottom:"0.3rem"}}>{"📅 My Schedule Today"}</div>
             <div style={{fontSize:"0.72rem",color:SK.lite,marginBottom:"1rem"}}>{"Tap the circle when you finish a subject!"}</div>
+
+            {(()=>{
+              const todayKey = new Date().toDateString();
+              const cacheKey = "rootbloom_daily_summary_"+child.id+"_"+todayKey;
+              if(!dailySummary && !summaryLoading && SCHEDULE.length>0) {
+                try {
+                  const cached = localStorage.getItem(cacheKey);
+                  if(cached) { const p=JSON.parse(cached); setTimeout(()=>setDailySummary(p),0); }
+                } catch(ex){}
+              }
+              const generate = async () => {
+                const apiKey = localStorage.getItem("rootbloom_apikey");
+                if(!apiKey) return;
+                setSummaryLoading(true);
+                const subjects = SCHEDULE.filter(b=>b.s!=="Break"&&b.s!=="Lunch").map(b=>b.s).join(", ");
+                const gradeN = parseInt((child.grade||"3rd").replace(/[^0-9]/g,""))||3;
+                const tone = gradeN<=2?"very simple, playful, age 5-7":gradeN<=5?"fun and encouraging, age 8-11":"enthusiastic, age 12+";
+                const prompt = "Write a single fun sentence (max 25 words) as a morning greeting for "+child.name+" ("+child.grade+" grade). "
+                  + "Mention 1-2 of: "+subjects+". Tone: "+tone+". Start with their name. End with an emoji. Plain text only.";
+                try {
+                  const resp = await fetch("https://api.anthropic.com/v1/messages",{
+                    method:"POST",
+                    headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+                    body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:80,messages:[{role:"user",content:prompt}]})
+                  });
+                  const data = await resp.json();
+                  const text = (data.content||[]).map(b=>b.text||"").join("").trim();
+                  if(text){
+                    const s={text,date:todayKey,childId:child.id};
+                    setDailySummary(s);
+                    try{localStorage.setItem(cacheKey,JSON.stringify(s));}catch(ex){}
+                  }
+                }catch(ex){}
+                setSummaryLoading(false);
+              };
+              if(!dailySummary && !summaryLoading && SCHEDULE.length>0) setTimeout(generate,400);
+              if(!dailySummary && !summaryLoading) return null;
+              return (
+                <div style={{background:"linear-gradient(135deg,"+c1+"22,"+c2+"14)",borderRadius:"18px",padding:"0.8rem 1rem",marginBottom:"1rem",border:"2px solid "+c1+"30"}}>
+                  {summaryLoading?(
+                    <div style={{display:"flex",alignItems:"center",gap:"0.5rem"}}>
+                      <span style={{fontSize:"1.1rem",animation:"pulse 1.2s ease infinite"}}>{"\u2728"}</span>
+                      <span style={{fontSize:"0.78rem",color:SK.mid,fontStyle:"italic"}}>{"Getting your daily message\u2026"}</span>
+                    </div>
+                  ):(
+                    <div style={{display:"flex",alignItems:"flex-start",gap:"0.55rem"}}>
+                      <span style={{fontSize:"1.2rem",flexShrink:0}}>{"\u2728"}</span>
+                      <div style={{flex:1,fontWeight:"700",color:SK.ink,fontSize:"0.86rem",lineHeight:1.5}}>{dailySummary?.text||""}</div>
+                      <button onClick={()=>{try{localStorage.removeItem(cacheKey);}catch(ex){}setDailySummary(null);}} style={{background:"transparent",border:"none",color:SK.lite,cursor:"pointer",fontSize:"0.75rem",flexShrink:0}}>{"\u2715"}</button>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+
             {SCHEDULE.length===0&&(
               <div style={{background:SK.card,borderRadius:"18px",padding:"1.5rem",textAlign:"center",boxShadow:"0 2px 10px rgba(0,0,0,0.06)"}}>
                 <div style={{fontSize:"2rem",marginBottom:"0.4rem"}}>{"🛋"}</div>
@@ -6815,7 +6872,7 @@ function GoalsNudgeCard({pal,family,portfolioEntries,todayStr,onTabChange}){
   );
 }
 
-function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress, navIds=[], onAddEntry, onCheckin, checkinDates={}, observationLog=[], onOpenJournal, attendanceLog=[], studentVisits={}, homeLayout=["thisweek","todaycard","progress_nudge","consistency","missedday","behindweek","goals","pandc"], onSetHomeLayout, notifDismissed={}, onDismissNotif, onOpenEOY, onOpenFieldStudy, quizNotifs=[], onDismissQuizNotif }) {
+function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress, navIds=[], onAddEntry, onCheckin, checkinDates={}, observationLog=[], onOpenJournal, attendanceLog=[], studentVisits={}, homeLayout=["thisweek","todaycard","progress_nudge","consistency","missedday","behindweek","subjectgap","goals","pandc"], onSetHomeLayout, notifDismissed={}, onDismissNotif, onOpenEOY, onOpenFieldStudy, quizNotifs=[], onDismissQuizNotif }) {
   const stateInfo  = getStateInfo(family.state||"");
   const stateHours = stateInfo.hours||"";
   const dayMatch   = stateHours.match(/(\d+)\s*day/i);
@@ -7311,6 +7368,53 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
                 style={{padding:"0.28rem 0.65rem",border:"none",borderRadius:"9px",background:"#e8a020",color:"#fff",fontWeight:"800",fontSize:"0.7rem",cursor:"pointer",flexShrink:0}}>
                 {"Log"}
               </button>
+            </div>
+          </div>
+        );
+      })()}
+    </div>
+  );
+
+  const renderSection_subjectgap = () => (
+    <div key="subjectgap" data-section="subjectgap">
+      {(()=>{
+        const now4=new Date(); const yr4=now4.getFullYear();
+        const activeSubjIds4=family.subjects||[];
+        const customSubjs4=family.customSubjects||[];
+        const allSubjMap4=Object.fromEntries([...SUBJECT_OPTIONS,...customSubjs4].map(s=>[s.id,s]));
+        const ci4=child==="all"?-1:family.children.findIndex(c=>c.id===child);
+        const entries4=(ci4>=0?portfolioEntries.filter(e=>e.childIdx===ci4&&!e.isDay):portfolioEntries.filter(e=>!e.isDay));
+        const lastLogged={};
+        entries4.forEach(e=>{
+          if(!e.subj||!e.date) return;
+          try{const d=new Date(e.date+", "+yr4);if(!lastLogged[e.subj]||d>lastLogged[e.subj])lastLogged[e.subj]=d;}catch(ex){}
+        });
+        const gapSubjs=activeSubjIds4.map(id=>allSubjMap4[id]).filter(Boolean).filter(s=>{
+          const last=lastLogged[s.label];
+          if(!last) return entries4.length>5;
+          return Math.floor((now4-last)/(24*60*60*1000))>=7;
+        }).map(s=>{const last=lastLogged[s.label];return{...s,days:last?Math.floor((now4-last)/(24*60*60*1000)):null};});
+        if(gapSubjs.length===0) return null;
+        return (
+          <div style={{background:"#fff8e6",borderRadius:"13px",padding:"0.7rem 1rem",marginBottom:"1rem",border:"1.5px solid #f5c84250"}}>
+            <div style={{display:"flex",gap:"0.65rem",alignItems:"flex-start"}}>
+              <span style={{fontSize:"1.1rem",flexShrink:0}}>{"\u23F0"}</span>
+              <div style={{flex:1}}>
+                <div style={{fontWeight:"700",color:"#7a5500",fontSize:"0.79rem",marginBottom:"0.2rem"}}>
+                  {gapSubjs.length===1
+                    ?(gapSubjs[0].icon+" "+gapSubjs[0].label+" hasn\u2019t been logged in "+(gapSubjs[0].days||7)+" days")
+                    :(gapSubjs.length+" subjects haven\u2019t been logged in a week+")}
+                </div>
+                <div style={{display:"flex",gap:"0.3rem",flexWrap:"wrap",marginTop:"0.25rem"}}>
+                  {gapSubjs.map((s,i)=>(
+                    <span key={i} style={{fontSize:"0.68rem",padding:"0.12rem 0.5rem",background:"#fff",borderRadius:"20px",border:"1px solid #f5c84260",color:"#7a5500",fontWeight:"600"}}>
+                      {s.icon+" "+s.label+(s.days?" ("+s.days+"d)":"")}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <button onClick={startLog}
+                style={{padding:"0.28rem 0.65rem",border:"none",borderRadius:"9px",background:"#e8a020",color:"#fff",fontWeight:"800",fontSize:"0.7rem",cursor:"pointer",flexShrink:0}}>{"Log"}</button>
             </div>
           </div>
         );
@@ -8651,6 +8755,7 @@ function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab, portf
   const [units, setUnits] = useState(()=>loadUnits());
   const [showBuilder,  setShowBuilder]  = useState(false);
   const [showWS,       setShowWS]       = useState(false);
+  const [showPlanner,  setShowPlanner]  = useState(false);
   const [expandedUnit, setExpandedUnit] = useState(null);
   const [showAddUnit,  setShowAddUnit]  = useState(false);
   const [editUnit,     setEditUnit]     = useState(null);
@@ -8692,7 +8797,7 @@ function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab, portf
         </div>
         {/* Tabs */}
         <div style={{display:"flex",background:pal.parchm,borderRadius:"11px",padding:"3px",gap:"2px",marginBottom:"1rem"}}>
-          {[["📚Curriculum","curriculum"],["📊Progress","progress"],["📋Worksheets","worksheets"]].map(([l,id])=>(
+          {[["📚Curriculum","curriculum"],["📊Progress","progress"],["📋Worksheets","worksheets"],["📅Planner","planner"]].map(([l,id])=>(
             <button key={id} onClick={()=>setLearnTab(id)} style={{flex:1,padding:"0.45rem",border:"none",borderRadius:"9px",background:learnTab===id?pal.linen:"transparent",color:learnTab===id?pal.ink:pal.slate,fontSize:"0.72rem",fontWeight:learnTab===id?"700":"400",cursor:"pointer"}}>{l}</button>
           ))}
         </div>
@@ -8921,6 +9026,25 @@ function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab, portf
         </>)}
 
         {/* ====== WORKSHEETS TAB ====== */}
+        {learnTab==="planner" && (
+          <div style={{paddingBottom:"1rem"}}>
+            <div style={{background:"linear-gradient(135deg,"+pal.primary+"15,"+pal.accent+"10)",borderRadius:"16px",padding:"1rem 1.1rem",marginBottom:"1rem",border:"1.5px solid "+pal.primary+"25"}}>
+              <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.9rem",marginBottom:"0.3rem"}}>{"\uD83D\uDCC5 AI Lesson Planner"}</div>
+              <div style={{fontSize:"0.76rem",color:pal.slate,lineHeight:1.6,marginBottom:"0.85rem"}}>{"Tell me what to cover this week \u2014 I\u2019ll build a day-by-day plan with activities, questions to ask, and parent tips."}</div>
+              <button onClick={()=>setShowPlanner(true)}
+                style={{width:"100%",padding:"0.78rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>
+                {"\uD83D\uDCC5 Plan This Week"}
+              </button>
+            </div>
+            <div style={{background:pal.linen,borderRadius:"13px",padding:"0.85rem 1rem",border:"1.5px solid "+pal.stone+"25"}}>
+              <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.75rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.5rem"}}>{"How it works"}</div>
+              {["\uD83D\uDCDD Pick subjects + describe what to cover","\uD83E\uDD16 AI builds Mon-Fri with specific activities","\uD83D\uDCA1 Parent tips + struggle area notes","\uD83D\uDDA8\uFE0F Print a one-page weekly plan"].map((s,i)=>(
+                <div key={i} style={{fontSize:"0.78rem",color:pal.inkM,lineHeight:1.7}}>{s}</div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {learnTab==="worksheets" && (<>
           <div style={{background:pal.pale,borderRadius:"13px",padding:"0.72rem 0.9rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.primary}20`,fontSize:"0.77rem",color:pal.inkM,lineHeight:1.6}}>
             💡 Worksheet builder uses AI. Add your key in <b>Settings → AI</b> to enable.
@@ -8961,6 +9085,13 @@ function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab, portf
           wsType={showWS}
           portfolioEntries={portfolioEntries}
           onClose={()=>setShowWS(false)}
+        />
+      )}
+      {showPlanner && (
+        <AILessonPlannerModal
+          pal={pal} family={family} activeChild={activeChild}
+          portfolioEntries={portfolioEntries}
+          onClose={()=>setShowPlanner(false)}
         />
       )}
     </div>
