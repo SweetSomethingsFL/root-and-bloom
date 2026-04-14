@@ -7375,53 +7375,6 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
     </div>
   );
 
-  const renderSection_subjectgap = () => (
-    <div key="subjectgap" data-section="subjectgap">
-      {(()=>{
-        const now4=new Date(); const yr4=now4.getFullYear();
-        const activeSubjIds4=family.subjects||[];
-        const customSubjs4=family.customSubjects||[];
-        const allSubjMap4=Object.fromEntries([...SUBJECT_OPTIONS,...customSubjs4].map(s=>[s.id,s]));
-        const ci4=child==="all"?-1:family.children.findIndex(c=>c.id===child);
-        const entries4=(ci4>=0?portfolioEntries.filter(e=>e.childIdx===ci4&&!e.isDay):portfolioEntries.filter(e=>!e.isDay));
-        const lastLogged={};
-        entries4.forEach(e=>{
-          if(!e.subj||!e.date) return;
-          try{const d=new Date(e.date+", "+yr4);if(!lastLogged[e.subj]||d>lastLogged[e.subj])lastLogged[e.subj]=d;}catch(ex){}
-        });
-        const gapSubjs=activeSubjIds4.map(id=>allSubjMap4[id]).filter(Boolean).filter(s=>{
-          const last=lastLogged[s.label];
-          if(!last) return entries4.length>5;
-          return Math.floor((now4-last)/(24*60*60*1000))>=7;
-        }).map(s=>{const last=lastLogged[s.label];return{...s,days:last?Math.floor((now4-last)/(24*60*60*1000)):null};});
-        if(gapSubjs.length===0) return null;
-        return (
-          <div style={{background:"#fff8e6",borderRadius:"13px",padding:"0.7rem 1rem",marginBottom:"1rem",border:"1.5px solid #f5c84250"}}>
-            <div style={{display:"flex",gap:"0.65rem",alignItems:"flex-start"}}>
-              <span style={{fontSize:"1.1rem",flexShrink:0}}>{"\u23F0"}</span>
-              <div style={{flex:1}}>
-                <div style={{fontWeight:"700",color:"#7a5500",fontSize:"0.79rem",marginBottom:"0.2rem"}}>
-                  {gapSubjs.length===1
-                    ?(gapSubjs[0].icon+" "+gapSubjs[0].label+" hasn\u2019t been logged in "+(gapSubjs[0].days||7)+" days")
-                    :(gapSubjs.length+" subjects haven\u2019t been logged in a week+")}
-                </div>
-                <div style={{display:"flex",gap:"0.3rem",flexWrap:"wrap",marginTop:"0.25rem"}}>
-                  {gapSubjs.map((s,i)=>(
-                    <span key={i} style={{fontSize:"0.68rem",padding:"0.12rem 0.5rem",background:"#fff",borderRadius:"20px",border:"1px solid #f5c84260",color:"#7a5500",fontWeight:"600"}}>
-                      {s.icon+" "+s.label+(s.days?" ("+s.days+"d)":"")}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <button onClick={startLog}
-                style={{padding:"0.28rem 0.65rem",border:"none",borderRadius:"9px",background:"#e8a020",color:"#fff",fontWeight:"800",fontSize:"0.7rem",cursor:"pointer",flexShrink:0}}>{"Log"}</button>
-            </div>
-          </div>
-        );
-      })()}
-    </div>
-  );
-
   const renderSection_goals = () => (
     <div key="goals" data-section="goals">
       {/* ── Goals Nudge Card ── */}
