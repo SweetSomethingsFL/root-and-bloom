@@ -444,9 +444,6 @@ const SUBJECT_OPTIONS = [
 const SESSION_LENGTHS = ["20 min","30 min","45 min","60 min","90 min"];
 
 /* ---- LIFE READY ---- */
-const LR_COLOR2= "#e84c0a";
-
-const LS_KEY = "rootbloom_v1";
 function loadSaved() {
   try { const s=localStorage.getItem(LS_KEY); return s?JSON.parse(s):null; } catch(e){return null;}
 }
