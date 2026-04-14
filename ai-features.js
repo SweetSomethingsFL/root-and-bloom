@@ -1214,6 +1214,37 @@ function FieldStudyModal({ pal, family, child, onAddEntry, onClose }) {
                 {wsLoading?"\u23F3 Building worksheet\u2026":"\uD83D\uDCC4 Build a Worksheet from This"}
               </button>
               {wsError&&<div style={{fontSize:"0.72rem",color:"#a03030",textAlign:"center"}}>{wsError}</div>}
+
+              {/* Share to Stars + Study Again */}
+              <div style={{display:"flex",gap:"0.5rem",marginTop:"0.5rem"}}>
+                <button onClick={()=>{
+                  if(sharedToKid||!onAddEntry||!child||!result) return;
+                  const ci=family.children.findIndex(c=>c.id===child.id);
+                  if(ci<0) return;
+                  onAddEntry({
+                    childIdx:ci,
+                    subj:savedSubj||result.subjects?.[0]||"Science",
+                    title:"\u2b50 Discovery: "+result.subject,
+                    note:"I found: "+result.subject+"! "+((result.funFacts||[])[0]||""),
+                    thumb:"\u2b50",
+                    date:new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"}),
+                    photos:imageData?[imageData]:[],
+                    isMilestone:true,
+                    isFieldStudy:true,
+                    selfLogged:false,
+                    ts:Date.now(),
+                  });
+                  setSharedToKid(true);
+                }}
+                  disabled={sharedToKid}
+                  style={{flex:1,padding:"0.7rem",border:"1.5px solid "+(sharedToKid?"#2d9e5f":"#f5c842"),borderRadius:"12px",background:sharedToKid?"#edf9f0":"#fffbeb",color:sharedToKid?"#2d9e5f":"#b07800",fontWeight:"700",fontSize:"0.78rem",cursor:sharedToKid?"default":"pointer"}}>
+                  {sharedToKid?"\u2b50 Added to Stars!":"\u2b50 Share to Stars"}
+                </button>
+                <button onClick={()=>{setPhase("capture");setResult(null);setImageData(null);setWsResult(null);setWsError(null);setSharedToKid(false);setSavedSubj(null);setShowSubjPicker(false);}}
+                  style={{flex:1,padding:"0.7rem",border:"1.5px solid "+pal.stone+"50",borderRadius:"12px",background:"transparent",color:pal.inkM,fontWeight:"700",fontSize:"0.78rem",cursor:"pointer"}}>
+                  {"\uD83D\uDD04 Study Again"}
+                </button>
+              </div>
             </div>
           )}
 
