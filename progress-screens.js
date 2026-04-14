@@ -2,7 +2,7 @@
    ProgressScreen, TranscriptsScreen, WeeklyDigestModal, DailyLogSection
    Depends on globals: CHILD_COLOR_PALETTES, SUBJECT_OPTIONS, GOALS, getStateInfo,
                        downloadPortfolioHTML, callClaude, generateStruggleReport
-   Loaded as type="text/babel" — shares scope with main inline block
+   Loaded as type="text/babel" \u2014 shares scope with main inline block
 */
 
 function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], attendanceDays=0, onUpdateFamily, onOpenEOY}) {
@@ -35,7 +35,7 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
   const childEntries = portfolioEntries.filter(e=>e.childIdx===selectedChild && !e.isDay && e.subj!=="Daily Notes");
   const milestones   = portfolioEntries.filter(e=>e.childIdx===selectedChild && e.isMilestone);
 
-  // ── Week boundaries ───────────────────────────────────────────────────────
+  // \u2500\u2500 Week boundaries \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
   const today      = new Date();
   const dow        = today.getDay();
   const weekStart  = new Date(today); weekStart.setDate(today.getDate()-(dow===0?6:dow-1)); weekStart.setHours(0,0,0,0);
@@ -52,7 +52,7 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
   const weekEntries = childEntries.filter(e=>isThisWeek(e.date));
   const weekSubjs   = [...new Set(weekEntries.map(e=>e.subj))];
 
-  // ── Subject list with entry counts ────────────────────────────────────────
+  // \u2500\u2500 Subject list with entry counts \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
   const allSubjs = (family.subjects||[]).map(id=>{
     const s=[...SUBJECT_OPTIONS,...(family.customSubjects||[])].find(x=>x.id===id);
     return s||null;
@@ -138,7 +138,7 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
     return {...s, total:all.length, weekCount:week.length, recent, noteCount:notes.length, weekDots};
   }).sort((a,b)=>b.total-a.total);
 
-  // ── AI pulse — supports week / month / all-time ──────────────────────────
+  // \u2500\u2500 AI pulse \u2014 supports week / month / all-time \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
   const generatePulse = async (range) => {
     const r = range || pulseRange;
     setPulseLoading(true); setPulseError(null); setPulseResult(null);
@@ -227,14 +227,14 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
     try{ localStorage.setItem("rootbloom_pulse_week", thisWeekKey); }catch(e){}
   };
 
-  // ── Subject timeline entries ───────────────────────────────────────────────
+  // \u2500\u2500 Subject timeline entries \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
   const timelineEntries = timelineSubj
     ? childEntries.filter(e=>e.subj===timelineSubj && (e.isQuizResult || (e.note && e.note.trim().length>5)))
     : [];
 
   return (
     <div style={{animation:"fadeUp 0.22s ease"}}>
-      <ScreenHdr pal={pal} title="Progress" sub="How your family is growing" icon="📈"/>
+      <ScreenHdr pal={pal} title="Progress" sub="How your family is growing" icon="\uD83D\uDCC8"/>
       {/* Year-End Review button */}
       {onOpenEOY&&family?.yearEnd&&(()=>{
         const weeksLeftP = getEOYWeeksLeft(family);
@@ -244,11 +244,11 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
             <button onClick={onOpenEOY}
               style={{width:"100%",display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0.65rem 0.9rem",border:"2px solid "+(isNear?pal.primary+"50":pal.stone+"40"),borderRadius:"13px",background:isNear?pal.pale:"transparent",cursor:"pointer"}}>
               <div style={{display:"flex",alignItems:"center",gap:"0.55rem"}}>
-                <span style={{fontSize:"1.1rem"}}>{"🎓"}</span>
+                <span style={{fontSize:"1.1rem"}}>{"\uD83C\uDF93"}</span>
                 <div style={{textAlign:"left"}}>
                   <div style={{fontWeight:"700",color:isNear?pal.primary:pal.inkM,fontSize:"0.82rem"}}>{"Year-End Review"}</div>
                   <div style={{fontSize:"0.66rem",color:pal.slate,marginTop:"1px"}}>
-                    {weeksLeftP===null?"Checklist, year review & grade promotion":weeksLeftP===0?"Year complete — ready to wrap up!":weeksLeftP<=4?""+weeksLeftP+" weeks left — start your review":"Checklist, year review & grade promotion"}
+                    {weeksLeftP===null?"Checklist, year review & grade promotion":weeksLeftP===0?"Year complete \u2014 ready to wrap up!":weeksLeftP<=4?""+weeksLeftP+" weeks left \u2014 start your review":"Checklist, year review & grade promotion"}
                   </div>
                 </div>
               </div>
@@ -287,7 +287,7 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
       {/* Sub-tabs */}
       <div style={{padding:"0 1rem",marginBottom:"1rem"}}>
         <div style={{display:"flex",gap:"0.4rem"}}>
-          {[["pulse","📊 Pulse"],["timeline","📖 Timeline"],["milestones","🌟 Milestones"],["skills","✅ Skills"],["grades","🏆 Grades"]].map(([id,label])=>(
+          {[["pulse","\uD83D\uDCCA Pulse"],["timeline","\uD83D\uDCD6 Timeline"],["milestones","\uD83C\uDF1F Milestones"],["skills","\u2705 Skills"],["grades","\uD83C\uDFC6 Grades"]].map(([id,label])=>(
             <button key={id} onClick={()=>{setActiveTab(id);setTimelineSubj(null);setArcResult(null);setArcSubj(null);}}
               style={{flex:1,padding:"0.52rem 0.3rem",border:`2px solid ${activeTab===id?pal.primary:pal.stone+"40"}`,borderRadius:"11px",background:activeTab===id?pal.pale:"transparent",color:activeTab===id?pal.primary:pal.inkM,fontWeight:activeTab===id?"800":"500",fontSize:"0.65rem",cursor:"pointer",transition:"all 0.13s"}}>
               {label}
@@ -298,7 +298,7 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
 
       <div style={{padding:"0 1rem 5rem"}}>
 
-        {/* ══ WEEKLY PULSE ══════════════════════════════════════════════════════════════════════ */}
+        {/* \u2550\u2550 WEEKLY PULSE \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */}
         {activeTab==="pulse"&&(()=>{
           const rangeLabel = pulseRange==="week"?"This week":pulseRange==="month"?"This month":"All time";
           const rangeEntries = pulseRange==="week" ? weekEntries
@@ -536,17 +536,17 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
           );
         })()}
 
-                {/* ══ SUBJECT TIMELINE ════════════════════════════════════════════════ */}
+                {/* \u2550\u2550 SUBJECT TIMELINE \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */}
         {activeTab==="timeline"&&(()=>{
           if(!timelineSubj) {
             return (
               <div>
-                <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.72rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.55rem"}}>{"Choose a subject — "+ch?.name}</div>
+                <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.72rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.55rem"}}>{"Choose a subject \u2014 "+ch?.name}</div>
                 {subjStats.filter(s=>s.noteCount>0).length===0&&(
                   <div style={{background:pal.linen,borderRadius:"14px",padding:"2rem 1.2rem",textAlign:"center",border:"1.5px solid "+pal.stone+"25"}}>
-                    <div style={{fontSize:"2rem",marginBottom:"0.5rem"}}>{"📖"}</div>
+                    <div style={{fontSize:"2rem",marginBottom:"0.5rem"}}>{"\uD83D\uDCD6"}</div>
                     <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.88rem",marginBottom:"0.3rem"}}>{"No notes yet"}</div>
-                    <div style={{fontSize:"0.76rem",color:pal.slate,lineHeight:1.6}}>{"Add notes when you log subjects — they build a growth story over time."}</div>
+                    <div style={{fontSize:"0.76rem",color:pal.slate,lineHeight:1.6}}>{"Add notes when you log subjects \u2014 they build a growth story over time."}</div>
                   </div>
                 )}
                 {subjStats.filter(s=>s.noteCount>0).map(s=>(
@@ -555,9 +555,9 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
                     <div style={{width:"36px",height:"36px",borderRadius:"10px",background:cp.c1+"20",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.1rem",flexShrink:0}}>{s.icon}</div>
                     <div style={{flex:1}}>
                       <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.84rem"}}>{s.label}</div>
-                      <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>{s.noteCount+" note"+(s.noteCount===1?"":"s")+" · "+s.total+" total entries"}</div>
+                      <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>{s.noteCount+" note"+(s.noteCount===1?"":"s")+" \u00B7 "+s.total+" total entries"}</div>
                     </div>
-                    <span style={{fontSize:"0.8rem",color:pal.primary}}>{"›"}</span>
+                    <span style={{fontSize:"0.8rem",color:pal.primary}}>{"\u203A"}</span>
                   </button>
                 ))}
               </div>
@@ -569,13 +569,13 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
             <div>
               <button onClick={()=>setTimelineSubj(null)}
                 style={{display:"flex",alignItems:"center",gap:"0.35rem",background:"transparent",border:"none",color:pal.primary,fontSize:"0.78rem",fontWeight:"700",cursor:"pointer",marginBottom:"0.9rem",padding:0}}>
-                {"‹ Back"}
+                {"\u2039 Back"}
               </button>
               <div style={{display:"flex",gap:"0.6rem",alignItems:"center",marginBottom:"1rem"}}>
-                <div style={{width:"40px",height:"40px",borderRadius:"11px",background:cp.c1+"20",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.2rem"}}>{subj_obj?.icon||"📋"}</div>
+                <div style={{width:"40px",height:"40px",borderRadius:"11px",background:cp.c1+"20",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.2rem"}}>{subj_obj?.icon||"\uD83D\uDCCB"}</div>
                 <div>
                   <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.92rem"}}>{timelineSubj}</div>
-                  <div style={{fontSize:"0.72rem",color:pal.slate}}>{ch?.name+" · "+timelineEntries.length+" note"+(timelineEntries.length===1?"":"s")}</div>
+                  <div style={{fontSize:"0.72rem",color:pal.slate}}>{ch?.name+" \u00B7 "+timelineEntries.length+" note"+(timelineEntries.length===1?"":"s")}</div>
                 </div>
               </div>
               {timelineEntries.length>=2&&(
@@ -650,7 +650,7 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
                         <div>
                           {e.isMilestone&&<div style={{fontSize:"0.65rem",fontWeight:"800",color:cp.c1,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"3px"}}>{"\uD83C\uDF1F Milestone"}</div>}
                           <div style={{fontSize:"0.82rem",color:pal.ink,lineHeight:1.65}}>{e.note.replace("AI Summary: ","").trim()}</div>
-                          {e.readingTitle&&<div style={{fontSize:"0.72rem",color:pal.primary,marginTop:"4px",fontStyle:"italic"}}>{"📖 "+e.readingTitle}</div>}
+                          {e.readingTitle&&<div style={{fontSize:"0.72rem",color:pal.primary,marginTop:"4px",fontStyle:"italic"}}>{"\uD83D\uDCD6 "+e.readingTitle}</div>}
                           <div style={{fontSize:"0.65rem",color:pal.stone,marginTop:"5px"}}>{e.date||""}</div>
                         </div>
                       )}
@@ -662,13 +662,13 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
           );
         })()}
 
-        {/* ══ MILESTONES ══════════════════════════════════════════════════════ */}
+        {/* \u2550\u2550 MILESTONES \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */}
         {activeTab==="milestones"&&(()=>{
           return (
             <div>
               <div style={{background:"linear-gradient(135deg,"+cp.c1+"18,"+cp.c2+"12)",borderRadius:"16px",padding:"0.9rem 1rem",marginBottom:"1rem",border:"1.5px solid "+cp.c1+"25"}}>
-                <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.88rem",marginBottom:"3px"}}>{"🌟 "+ch?.name+"’s Milestones"}</div>
-                <div style={{fontSize:"0.75rem",color:pal.slate,lineHeight:1.55}}>{"Moments worth remembering — tag any log entry as a milestone using the 🌟 button when logging."}</div>
+                <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.88rem",marginBottom:"3px"}}>{"\uD83C\uDF1F "+ch?.name+"\u2019s Milestones"}</div>
+                <div style={{fontSize:"0.75rem",color:pal.slate,lineHeight:1.55}}>{"Moments worth remembering \u2014 tag any log entry as a milestone using the \uD83C\uDF1F button when logging."}</div>
               </div>
 
               {/* AI Milestone Suggestions */}
@@ -714,10 +714,10 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
 
               {milestones.length===0?(
                 <div style={{background:pal.linen,borderRadius:"14px",padding:"2rem 1.2rem",textAlign:"center",border:"1.5px solid "+pal.stone+"25"}}>
-                  <div style={{fontSize:"2.5rem",marginBottom:"0.5rem"}}>{"🌟"}</div>
+                  <div style={{fontSize:"2.5rem",marginBottom:"0.5rem"}}>{"\uD83C\uDF1F"}</div>
                   <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.9rem",marginBottom:"0.4rem"}}>{"No milestones yet"}</div>
                   <div style={{fontSize:"0.76rem",color:pal.slate,lineHeight:1.65}}>
-                    {"When you log a subject, tap the 🌟 icon to mark it as a milestone. First time reading a chapter book, mastering multiplication tables, finishing a big project — capture those moments here."}
+                    {"When you log a subject, tap the \uD83C\uDF1F icon to mark it as a milestone. First time reading a chapter book, mastering multiplication tables, finishing a big project \u2014 capture those moments here."}
                   </div>
                 </div>
               ):(
@@ -728,12 +728,12 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
                       <div style={{position:"absolute",top:0,left:0,bottom:0,width:"4px",background:"linear-gradient(180deg,"+cp.c1+","+cp.c2+")"}}/>
                       <div style={{paddingLeft:"0.4rem"}}>
                         <div style={{display:"flex",gap:"0.5rem",alignItems:"center",marginBottom:"0.35rem"}}>
-                          <span style={{fontSize:"1rem"}}>{so?.icon||"📋"}</span>
+                          <span style={{fontSize:"1rem"}}>{so?.icon||"\uD83D\uDCCB"}</span>
                           <span style={{fontWeight:"700",color:cp.c1,fontSize:"0.78rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>{e.subj}</span>
                           <span style={{fontSize:"0.65rem",color:pal.stone,marginLeft:"auto"}}>{e.date}</span>
                         </div>
                         <div style={{fontSize:"0.84rem",color:pal.ink,lineHeight:1.65}}>{e.note.replace("AI Summary:","").trim()}</div>
-                        {e.readingTitle&&<div style={{fontSize:"0.72rem",color:pal.primary,marginTop:"4px",fontStyle:"italic"}}>{"📖 "+e.readingTitle}</div>}
+                        {e.readingTitle&&<div style={{fontSize:"0.72rem",color:pal.primary,marginTop:"4px",fontStyle:"italic"}}>{"\uD83D\uDCD6 "+e.readingTitle}</div>}
                       </div>
                     </div>
                   );
@@ -871,7 +871,7 @@ function generateEvaluatorReport(ch, childEntries, family, attendanceDays, bySub
   // Field studies
   const fieldStudies = childEntries.filter(e=>e.isFieldStudy);
 
-  // Work samples — entries with photos or notes over 60 chars
+  // Work samples \u2014 entries with photos or notes over 60 chars
   const workSamples = childEntries.filter(e=>
     !e.isDay && !e.isQuizResult &&
     ((e.photos&&e.photos.length>0)||(e.note&&e.note.replace("AI Summary:","").trim().length>60))
@@ -916,7 +916,7 @@ function generateEvaluatorReport(ch, childEntries, family, attendanceDays, bySub
   html += "<div class='section'><div class='section-title'>Student Information</div>"
     +"<div style='display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px'>";
   [["Student",ch.name],["Grade",ch.grade],["School Year",yearStart+(yearEnd?" \u2013 "+yearEnd:"")],
-   ["Parent/Teacher",family.parentName||"—"],["State",state],["Days Logged",attendanceDays+" days"]
+   ["Parent/Teacher",family.parentName||"\u2014"],["State",state],["Days Logged",attendanceDays+" days"]
   ].forEach(([l,v])=>{
     html += "<div style='background:#f5f5f5;border-radius:5px;padding:6px 9px'>"
       +"<div style='font-size:7px;text-transform:uppercase;letter-spacing:0.08em;color:#888;margin-bottom:2px'>"+l+"</div>"
@@ -927,12 +927,12 @@ function generateEvaluatorReport(ch, childEntries, family, attendanceDays, bySub
   // State compliance summary
   html += "<div class='section'><div class='section-title'>"+state+" Homeschool Requirements</div>";
   [
-    ["Notification",si.notify||"—"],
-    ["Required Hours / Days",ci.hours||si.hours||"—"],
-    ["Portfolio Requirements",si.portfolio||"—"],
-    ["Testing Requirements",ci.testing||si.testing||"—"],
-    ["Annual Deadline",si.deadline||"—"],
-    ["Records Retention",si.keepFor||"—"],
+    ["Notification",si.notify||"\u2014"],
+    ["Required Hours / Days",ci.hours||si.hours||"\u2014"],
+    ["Portfolio Requirements",si.portfolio||"\u2014"],
+    ["Testing Requirements",ci.testing||si.testing||"\u2014"],
+    ["Annual Deadline",si.deadline||"\u2014"],
+    ["Records Retention",si.keepFor||"\u2014"],
   ].forEach(([l,v])=>{
     html += "<div class='compliance-box'><div class='label'>"+l+"</div><div class='val'>"+v+"</div></div>";
   });
@@ -944,13 +944,13 @@ function generateEvaluatorReport(ch, childEntries, family, attendanceDays, bySub
     +"<table class='subj-table'><thead><tr><th>Subject</th><th>Entries</th><th>Most Recent</th><th>Sample Notes</th></tr></thead><tbody>";
   Object.entries(bySubject).sort((a,b)=>b[1].count-a[1].count).forEach(([subj,data])=>{
     const sorted = data.entries.sort((a,b)=>(b.ts||0)-(a.ts||0));
-    const recent = sorted[0]?.date||"—";
+    const recent = sorted[0]?.date||"\u2014";
     const notes  = sorted.slice(0,2).map(e=>(e.note||e.title||"").replace("AI Summary:","").trim()).filter(Boolean).join(" \u00b7 ").slice(0,120);
     html += "<tr><td><strong>"+subj+"</strong></td><td style='text-align:center'>"+data.count+"</td><td>"+recent+"</td><td style='color:#555'>"+notes+"</td></tr>";
   });
   html += "</tbody></table></div>";
 
-  // Reading log — always include if readingLog required, or if there are entries
+  // Reading log \u2014 always include if readingLog required, or if there are entries
   if(si.readingLog || readingEntries.length > 0) {
     html += "<div class='section'><div class='section-title'>Reading Log"+(si.readingLog?" (Required by "+state+")":"")+" \u2014 "+readingEntries.length+" titles</div>";
     if(si.readingLog && readingEntries.length === 0) {
@@ -964,7 +964,7 @@ function generateEvaluatorReport(ch, childEntries, family, attendanceDays, bySub
     html += "</div>";
   }
 
-  // Work samples — always include if required
+  // Work samples \u2014 always include if required
   if(si.workSamples || workSamples.length > 0) {
     html += "<div class='section'><div class='section-title'>Work Samples"+(si.workSamples?" (Required by "+state+")":"")+" \u2014 "+workSamples.length+" entries</div>";
     if(si.workSamples && workSamples.length === 0) {
@@ -1058,8 +1058,8 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
   const cp = CHILD_COLOR_PALETTES.find(p=>p.id===(ch.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
   const REQUIRED = parseInt((getStateInfo(family.state||"").hours||"180").match(/\d+/)?.[0]||"180");
   const schoolName = family.schoolName||(family.familyName+" Academy")||"Home School";
-  const yearStart  = family.yearStart ? new Date(family.yearStart).toLocaleDateString("en-US",{month:"long",year:"numeric"}) : "—";
-  const yearEnd    = family.yearEnd   ? new Date(family.yearEnd).toLocaleDateString("en-US",{month:"long",year:"numeric"})   : "—";
+  const yearStart  = family.yearStart ? new Date(family.yearStart).toLocaleDateString("en-US",{month:"long",year:"numeric"}) : "\u2014";
+  const yearEnd    = family.yearEnd   ? new Date(family.yearEnd).toLocaleDateString("en-US",{month:"long",year:"numeric"})   : "\u2014";
   const pct = REQUIRED ? Math.min(100,Math.round((attendanceDays/REQUIRED)*100)) : null;
   const isHighSchool = gradeLevel(ch.grade)==="high";
 
@@ -1083,7 +1083,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
     bySubject[e.subj].entries.push(e);
   });
 
-  // Subject grades/credits — stored per child per year
+  // Subject grades/credits \u2014 stored per child per year
   const GRADES_KEY = "rootbloom_subj_grades_"+ch.id+"_"+(family.yearEnd||"");
   const [subjGrades, setSubjGrades] = useState(()=>{
     try{ return JSON.parse(localStorage.getItem(GRADES_KEY)||"{}"); }catch(e){return {};}
@@ -1105,16 +1105,16 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
       if(isHighSchool){
         return `<tr>
           <td>${subj}</td>
-          <td style="text-align:center;font-weight:700;color:${sg.grade?"#2a6a2a":"#999"}">${sg.grade||"—"}</td>
-          <td style="text-align:center">${sg.credits||"—"}</td>
+          <td style="text-align:center;font-weight:700;color:${sg.grade?"#2a6a2a":"#999"}">${sg.grade||"\u2014"}</td>
+          <td style="text-align:center">${sg.credits||"\u2014"}</td>
           <td style="text-align:center;color:${cnt>0?"#2a6a2a":"#999"}">${cnt>0?"Active":"Planned"}</td>
-          <td style="text-align:right;color:#666">${cnt>0?cnt+" entries":"—"}</td>
+          <td style="text-align:right;color:#666">${cnt>0?cnt+" entries":"\u2014"}</td>
         </tr>`;
       }
       return `<tr>
         <td>${subj}</td>
         <td style="text-align:center;color:${cnt>0?"#2a6a2a":"#999"}">${cnt>0?"Active":"Planned"}</td>
-        <td style="text-align:right;color:#666">${cnt>0?cnt+" entries":"—"}</td>
+        <td style="text-align:right;color:#666">${cnt>0?cnt+" entries":"\u2014"}</td>
       </tr>`;
     }).join("");
 
@@ -1133,7 +1133,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
       ? `<tr style="background:#f5f5f5"><th>Subject</th><th>Grade</th><th>Credits</th><th>Status</th><th style="text-align:right">Entries</th></tr>`
       : `<tr style="background:#f5f5f5"><th>Subject</th><th>Status</th><th style="text-align:right">Entries</th></tr>`;
 
-    win.document.write(`<!DOCTYPE html><html><head><title>Transcript — ${ch.name}</title>
+    win.document.write(`<!DOCTYPE html><html><head><title>Transcript \u2014 ${ch.name}</title>
     <style>
       *{box-sizing:border-box;margin:0;padding:0}
       body{font-family:Georgia,serif;color:#1a1a1a;background:#fff;padding:2.5rem;max-width:760px;margin:0 auto;font-size:10pt;line-height:1.5}
@@ -1167,7 +1167,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
     <div class="school-header">
       <div>
         <div class="school-name">${schoolName}</div>
-        <div class="school-sub">${family.state||""} ${family.state&&family.parentName?" · ":""}${family.parentName||""}</div>
+        <div class="school-sub">${family.state||""} ${family.state&&family.parentName?" \u00B7 ":""}${family.parentName||""}</div>
       </div>
       <div class="badge">Official Transcript</div>
     </div>
@@ -1176,10 +1176,10 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
     <div class="info-grid">
       <div class="info-cell"><div class="info-label">Student Name</div><div class="info-value">${ch.name}</div></div>
       <div class="info-cell"><div class="info-label">Grade Level</div><div class="info-value">${ch.grade}</div></div>
-      <div class="info-cell"><div class="info-label">School Year</div><div class="info-value">${yearStart} — ${yearEnd}</div></div>
-      <div class="info-cell"><div class="info-label">State</div><div class="info-value">${family.state||"—"}</div></div>
+      <div class="info-cell"><div class="info-label">School Year</div><div class="info-value">${yearStart} \u2014 ${yearEnd}</div></div>
+      <div class="info-cell"><div class="info-label">State</div><div class="info-value">${family.state||"\u2014"}</div></div>
       <div class="info-cell"><div class="info-label">Attendance</div><div class="info-value">${attendanceRow}</div></div>
-      <div class="info-cell"><div class="info-label">Co-op Hours</div><div class="info-value">${childCoopHrs>0?childCoopHrs+"h logged":"—"}</div></div>
+      <div class="info-cell"><div class="info-label">Co-op Hours</div><div class="info-value">${childCoopHrs>0?childCoopHrs+"h logged":"\u2014"}</div></div>
     </div>
 
     <div class="section-title">Course Record</div>
@@ -1192,9 +1192,9 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
       <div><div class="sig-line short">&nbsp;</div><div>Date</div></div>
     </div>
 
-    <div class="footer">Generated by Root &amp; Bloom · ${new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})}</div>
+    <div class="footer">Generated by Root &amp; Bloom \u00B7 ${new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})}</div>
 
-    <button class="print-btn" onclick="window.print()">🖨 Print / Save as PDF</button>
+    <button class="print-btn" onclick="window.print()">\uD83D\uDDA8 Print / Save as PDF</button>
     </body></html>`);
     win.document.close();
   };
@@ -1214,7 +1214,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
 
   return (
     <div style={{animation:"fadeUp 0.22s ease"}}>
-      <ScreenHdr pal={pal} title="Records" sub="Transcripts & Reports" icon="🎓"/>
+      <ScreenHdr pal={pal} title="Records" sub="Transcripts & Reports" icon="\uD83C\uDF93"/>
       <FirstVisitTip pal={pal} screen="transcripts"/>
       <div style={{padding:"0 1rem"}}>
 
@@ -1227,7 +1227,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
 
         {/* View tabs */}
         <div style={{display:"flex",background:pal.parchm,borderRadius:"11px",padding:"3px",gap:"2px",marginBottom:"1rem"}}>
-          {(family.children.length>1?[["overview","📋","Overview"],["transcript","📜","Transcript"],["reading","📖","Reading Log"],["narrative","📝","Narrative"],["compare","⚖️","Compare"]]:[["overview","📋","Overview"],["transcript","📜","Transcript"],["reading","📖","Reading Log"],["narrative","📝","Narrative"]]).map(([id,icon,l])=>(
+          {(family.children.length>1?[["overview","\uD83D\uDCCB","Overview"],["transcript","\uD83D\uDCDC","Transcript"],["reading","\uD83D\uDCD6","Reading Log"],["narrative","\uD83D\uDCDD","Narrative"],["compare","\u2696\uFE0F","Compare"]]:[["overview","\uD83D\uDCCB","Overview"],["transcript","\uD83D\uDCDC","Transcript"],["reading","\uD83D\uDCD6","Reading Log"],["narrative","\uD83D\uDCDD","Narrative"]]).map(([id,icon,l])=>(
             <button key={id} onClick={()=>setActiveView(id)}
               style={{flex:1,padding:"0.42rem 0.2rem",border:"none",borderRadius:"9px",background:activeView===id?pal.linen:"transparent",color:activeView===id?pal.ink:pal.slate,fontSize:"0.62rem",fontWeight:activeView===id?"700":"400",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:"1px"}}>
               <span style={{fontSize:"0.8rem"}}>{icon}</span>
@@ -1258,7 +1258,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
               {l:"Days",     v:attendanceDays,          c:pal.primary,  bg:pal.pale},
               {l:"Entries",  v:subjEntries.length,       c:pal.mid,      bg:pal.paleMid},
               {l:"Subjects", v:allSubjNames.length,      c:pal.accentD,  bg:pal.pale},
-              {l:"Co-op hrs",v:childCoopHrs>0?childCoopHrs+"h":"—", c:pal.good, bg:pal.goodBg},
+              {l:"Co-op hrs",v:childCoopHrs>0?childCoopHrs+"h":"\u2014", c:pal.good, bg:pal.goodBg},
             ].map(s=>(
               <div key={s.l} style={{background:s.bg,borderRadius:"12px",padding:"0.65rem 0.4rem",textAlign:"center",border:`1.5px solid ${s.c}22`}}>
                 <div style={{fontWeight:"900",color:s.c,fontSize:"1.1rem",lineHeight:1}}>{s.v}</div>
@@ -1267,7 +1267,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
             ))}
           </div>
 
-          {/* Attendance bar — only show if state tracks days */}
+          {/* Attendance bar \u2014 only show if state tracks days */}
           <div style={{background:pal.linen,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.stone}35`}}>
             <div style={{display:"flex",justifyContent:"space-between",marginBottom:"6px"}}>
               <span style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem"}}>Attendance</span>
@@ -1282,7 +1282,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
             )}
             <div style={{display:"flex",justifyContent:"space-between",fontSize:"0.68rem",color:pal.slate}}>
               <span>{yearStart}</span>
-              <span>{pct!==null?pct+"% complete":(family.state||"Your state")+" — no day requirement"}</span>
+              <span>{pct!==null?pct+"% complete":(family.state||"Your state")+" \u2014 no day requirement"}</span>
               <span>{yearEnd}</span>
             </div>
           </div>
@@ -1345,14 +1345,14 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
               </div>
             </div>
           )}
-          {/* Share with Evaluator — shown for states requiring portfolio review */}
+          {/* Share with Evaluator \u2014 shown for states requiring portfolio review */}
           {(()=>{
             const si = getStateInfo(family.state||"");
             if(!si.workSamples && !si.readingLog && si.tier < 3) return null;
             return (
               <div style={{background:"linear-gradient(135deg,"+cp.c1+"15,"+cp.c2+"10)",borderRadius:"16px",padding:"1rem 1.1rem",marginBottom:"1rem",border:"2px solid "+cp.c1+"35"}}>
                 <div style={{display:"flex",alignItems:"center",gap:"0.6rem",marginBottom:"0.5rem"}}>
-                  <span style={{fontSize:"1.3rem"}}>{"📋"}</span>
+                  <span style={{fontSize:"1.3rem"}}>{"\uD83D\uDCCB"}</span>
                   <div>
                     <div style={{fontWeight:"800",color:cp.c1,fontSize:"0.84rem"}}>{"Share with Evaluator"}</div>
                     <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"1px"}}>{family.state}{" \u00b7 "}{si.workSamples&&si.readingLog?"Work samples + reading log required":si.workSamples?"Work samples required":si.readingLog?"Reading log required":"Portfolio review required"}</div>
@@ -1363,7 +1363,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
                 </div>
                 <button onClick={()=>generateEvaluatorReport(ch, childEntries, family, attendanceDays, bySubject, readingEntries, si)}
                   style={{width:"100%",padding:"0.7rem",border:"none",borderRadius:"12px",background:"linear-gradient(135deg,"+cp.c1+","+cp.c2+")",color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:"pointer",boxShadow:"0 3px 12px "+cp.c1+"40"}}>
-                  {"⬇️ Download Evaluator Report"}
+                  {"\u2B07\uFE0F Download Evaluator Report"}
                 </button>
               </div>
             );
@@ -1382,7 +1382,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
                 <div style={{fontWeight:"900",color:cp.c1,fontSize:"1rem"}}>{schoolName}</div>
                 <div style={{fontSize:"0.7rem",color:pal.slate}}>{family.state} {"\u00b7"} {family.parentName}</div>
               </div>
-              <button onClick={printRecord} style={{padding:"0.3rem 0.7rem",borderRadius:"8px",border:"none",background:pal.accentGrad,color:"#fff",fontWeight:"700",fontSize:"0.7rem",cursor:"pointer"}}>{"🖨 Print"}</button>
+              <button onClick={printRecord} style={{padding:"0.3rem 0.7rem",borderRadius:"8px",border:"none",background:pal.accentGrad,color:"#fff",fontWeight:"700",fontSize:"0.7rem",cursor:"pointer"}}>{"\uD83D\uDDA8 Print"}</button>
             </div>
 
             {/* Student info grid */}
@@ -1390,10 +1390,10 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
               {[
                 ["Student",ch.name],
                 ["Grade",ch.grade],
-                ["School Year",yearStart+" — "+yearEnd],
-                ["State",family.state||"—"],
+                ["School Year",yearStart+" \u2014 "+yearEnd],
+                ["State",family.state||"\u2014"],
                 ["Days Completed", REQUIRED ? attendanceDays+" / "+REQUIRED+" ("+pct+"%)" : attendanceDays+" logged"],
-                ["Co-op Hours",childCoopHrs>0?childCoopHrs+"h logged":"—"],
+                ["Co-op Hours",childCoopHrs>0?childCoopHrs+"h logged":"\u2014"],
               ].map(([l,v])=>(
                 <div key={l} style={{padding:"0.42rem 0.6rem",background:pal.sand,borderRadius:"8px"}}>
                   <div style={{fontSize:"0.58rem",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"2px"}}>{l}</div>
@@ -1409,7 +1409,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
 
             {isHighSchool&&(
               <div style={{background:pal.pale,borderRadius:"10px",padding:"0.5rem 0.75rem",marginBottom:"0.65rem",fontSize:"0.71rem",color:pal.primary,border:`1.5px solid ${pal.primary}20`,lineHeight:1.5}}>
-                {"🎓 High school mode — enter letter grades and credits for each subject below."}
+                {"\uD83C\uDF93 High school mode \u2014 enter letter grades and credits for each subject below."}
               </div>
             )}
 
@@ -1434,12 +1434,12 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
                         <span style={{fontSize:"0.79rem",fontWeight:"600",color:pal.ink,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{subj}</span>
                         <select value={sg.grade||""} onChange={e=>updateSubjGrade(subj,"grade",e.target.value)}
                           style={{padding:"0.22rem 0.3rem",border:`1.5px solid ${sg.grade?cp.c1:pal.stone+"60"}`,borderRadius:"7px",fontSize:"0.77rem",background:sg.grade?pal.pale:"#fff",color:sg.grade?cp.c1:pal.inkM,fontWeight:sg.grade?"800":"400",outline:"none",cursor:"pointer"}}>
-                          <option value="">—</option>
+                          <option value="">\u2014</option>
                           {["A+","A","A-","B+","B","B-","C+","C","C-","D","F"].map(g=><option key={g} value={g}>{g}</option>)}
                         </select>
                         <select value={sg.credits||""} onChange={e=>updateSubjGrade(subj,"credits",e.target.value)}
                           style={{padding:"0.22rem 0.3rem",border:`1.5px solid ${sg.credits?cp.c1:pal.stone+"60"}`,borderRadius:"7px",fontSize:"0.77rem",background:sg.credits?pal.pale:"#fff",color:sg.credits?cp.c1:pal.inkM,fontWeight:sg.credits?"800":"400",outline:"none",cursor:"pointer"}}>
-                          <option value="">—</option>
+                          <option value="">\u2014</option>
                           {["0.5","1.0","1.5","2.0"].map(c=><option key={c} value={c}>{c}</option>)}
                         </select>
                         <span style={{fontSize:"0.68rem",color:cnt>0?pal.good:pal.slate,fontWeight:"700"}}>{status}</span>
@@ -1450,7 +1450,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
                     <div key={subj} style={{display:"flex",alignItems:"center",padding:"0.5rem 0.65rem",background:pal.parchm,borderRadius:"9px",gap:"0.6rem"}}>
                       <span style={{flex:1,fontSize:"0.8rem",fontWeight:"600",color:pal.ink}}>{subj}</span>
                       <span style={{fontSize:"0.68rem",color:cnt>0?pal.good:pal.slate,fontWeight:"700"}}>{status}</span>
-                      <span style={{fontSize:"0.68rem",color:pal.slate,minWidth:"60px",textAlign:"right"}}>{cnt>0?cnt+" entries":"—"}</span>
+                      <span style={{fontSize:"0.68rem",color:pal.slate,minWidth:"60px",textAlign:"right"}}>{cnt>0?cnt+" entries":"\u2014"}</span>
                     </div>
                   );
                 })}
@@ -1470,7 +1470,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
             </div>
           </div>
 
-          {/* Daily Log — all saved portfolio days, searchable by date */}
+          {/* Daily Log \u2014 all saved portfolio days, searchable by date */}
           <DailyLogSection pal={pal} cp={cp} childEntries={childEntries} subjEntries={subjEntries}/>
 
           <div style={{height:"0.5rem"}}/>
@@ -1479,12 +1479,12 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
         {/* ====== READING LOG VIEW ====== */}
         {activeView==="reading"&&(<>
           <div style={{background:pal.pale,borderRadius:"13px",padding:"0.7rem 1rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.primary}20`,fontSize:"0.76rem",color:pal.inkM,lineHeight:1.6}}>
-            {"📖 Florida and Pennsylvania require reading titles to be logged by name. This log pulls from your portfolio entries that have a book or material title recorded."}
+            {"\uD83D\uDCD6 Florida and Pennsylvania require reading titles to be logged by name. This log pulls from your portfolio entries that have a book or material title recorded."}
           </div>
 
           {readingEntries.length===0?(
             <div style={{background:pal.linen,borderRadius:"14px",padding:"1.5rem",textAlign:"center",border:`1.5px solid ${pal.stone}30`,marginBottom:"1rem"}}>
-              <div style={{fontSize:"2rem",marginBottom:"0.4rem"}}>📚</div>
+              <div style={{fontSize:"2rem",marginBottom:"0.4rem"}}>\uD83D\uDCDA</div>
               <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.86rem",marginBottom:"0.25rem"}}>No reading titles logged yet</div>
               <div style={{fontSize:"0.74rem",color:pal.slate,lineHeight:1.5}}>When you log a Reading entry and include a book title, it will appear here. Florida families must log titles by name.</div>
             </div>
@@ -1497,7 +1497,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
               <div style={{background:pal.linen,borderRadius:"14px",border:`1.5px solid ${pal.stone}30`,overflow:"hidden",marginBottom:"1rem"}}>
                 {readingEntries.map((e,i)=>(
                   <div key={e.id||i} style={{display:"flex",gap:"0.65rem",alignItems:"flex-start",padding:"0.65rem 0.85rem",borderTop:i>0?`1px solid ${pal.stone}20`:"none"}}>
-                    <span style={{fontSize:"1rem",flexShrink:0,marginTop:"1px"}}>{"📖"}</span>
+                    <span style={{fontSize:"1rem",flexShrink:0,marginTop:"1px"}}>{"\uD83D\uDCD6"}</span>
                     <div style={{flex:1,minWidth:0}}>
                       <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.82rem",lineHeight:1.3}}>{e.readingTitle||e.title}</div>
                       <div style={{fontSize:"0.65rem",color:pal.slate,marginTop:"2px"}}>{e.subj} {"\u00b7"} {e.date}</div>
@@ -1510,7 +1510,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
               </div>
               <button onClick={printRecord}
                 style={{width:"100%",padding:"0.7rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.84rem",cursor:"pointer",marginBottom:"1rem"}}>
-                {"🖨 Print Reading Log"}
+                {"\uD83D\uDDA8 Print Reading Log"}
               </button>
             </>
           )}
@@ -1520,7 +1520,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
         {/* ====== NARRATIVE VIEW ====== */}
         {activeView==="narrative"&&(<>
           <div style={{background:pal.pale,borderRadius:"13px",padding:"0.78rem 1rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.primary}20`,fontSize:"0.77rem",color:pal.inkM,lineHeight:1.6}}>
-            {"💡 The narrative uses AI to write a warm annual summary. Add your key in Settings \u2192 AI to generate. You can also write or edit your own below."}
+            {"\uD83D\uDCA1 The narrative uses AI to write a warm annual summary. Add your key in Settings \u2192 AI to generate. You can also write or edit your own below."}
           </div>
           <div style={{background:pal.linen,borderRadius:"18px",padding:"1.2rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.stone}35`}}>
             <div style={{borderBottom:`2px solid ${cp.c1}40`,paddingBottom:"0.75rem",marginBottom:"0.85rem",display:"flex",justifyContent:"space-between",alignItems:"flex-end"}}>
@@ -1528,7 +1528,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
                 <div style={{fontWeight:"900",color:cp.c1,fontSize:"0.95rem"}}>{schoolName}</div>
                 <div style={{fontSize:"0.68rem",color:pal.slate}}>Annual Narrative Report {"\u00b7"} {new Date().getFullYear()}</div>
               </div>
-              <button onClick={printRecord} style={{padding:"0.3rem 0.7rem",borderRadius:"8px",border:"none",background:pal.accentGrad,color:"#fff",fontWeight:"700",fontSize:"0.7rem",cursor:"pointer"}}>{"🖨 Print"}</button>
+              <button onClick={printRecord} style={{padding:"0.3rem 0.7rem",borderRadius:"8px",border:"none",background:pal.accentGrad,color:"#fff",fontWeight:"700",fontSize:"0.7rem",cursor:"pointer"}}>{"\uD83D\uDDA8 Print"}</button>
             </div>
             <div style={{marginBottom:"0.85rem"}}>
               <div style={{fontSize:"0.72rem",fontWeight:"700",color:pal.inkM,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.2rem"}}>Student</div>
@@ -1824,7 +1824,7 @@ function WeeklyDigestModal({ pal, family, savedPulses=[], portfolioEntries=[], a
           {(aiNarrative||aiNarrativeLoading||aiNarrativeError)&&(
             <div style={{marginBottom:"1rem",background:pal.pale,borderRadius:"13px",padding:"0.85rem 1rem",border:"1.5px solid "+pal.primary+"30"}}>
               <div style={{display:"flex",alignItems:"center",gap:"0.4rem",marginBottom:"0.5rem"}}>
-                <span style={{fontSize:"0.85rem"}}>{"✨"}</span>
+                <span style={{fontSize:"0.85rem"}}>{"\u2728"}</span>
                 <span style={{fontWeight:"800",color:pal.primary,fontSize:"0.72rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>{"AI Weekly Narrative"}</span>
               </div>
               {aiNarrativeLoading&&(
@@ -1872,7 +1872,7 @@ function WeeklyDigestModal({ pal, family, savedPulses=[], portfolioEntries=[], a
           <button onClick={onClose} style={{padding:"0.7rem 1rem",border:"2px solid "+pal.stone,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem"}}>{"Close"}</button>
           <button onClick={generateNarrative} disabled={aiNarrativeLoading}
             style={{padding:"0.7rem 0.9rem",border:"2px solid "+pal.primary+"60",borderRadius:"12px",background:aiNarrativeLoading?"#eee":pal.pale,color:pal.primary,fontWeight:"800",fontSize:"0.82rem",cursor:aiNarrativeLoading?"default":"pointer",opacity:aiNarrativeLoading?0.6:1}}>
-            {aiNarrativeLoading?"\u23F3 Writing\u2026":"✨ Enhance with AI"}
+            {aiNarrativeLoading?"\u23F3 Writing\u2026":"\u2728 Enhance with AI"}
           </button>
           <button onClick={handleDownload} style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>{"\u2B07\uFE0F Download Digest"}</button>
         </div>
@@ -1933,9 +1933,9 @@ function DailyLogSection({pal,cp,childEntries,subjEntries}){
           style={{width:"100%",padding:"0.5rem 0.85rem 0.5rem 2.1rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.81rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit"}}
           onFocus={e=>e.target.style.borderColor=cp.c1}
           onBlur={e=>e.target.style.borderColor=pal.stone}/>
-        <span style={{position:"absolute",left:"0.65rem",top:"50%",transform:"translateY(-50%)",fontSize:"0.85rem",pointerEvents:"none"}}>{"🔍"}</span>
+        <span style={{position:"absolute",left:"0.65rem",top:"50%",transform:"translateY(-50%)",fontSize:"0.85rem",pointerEvents:"none"}}>{"\uD83D\uDD0D"}</span>
         {search&&<button onClick={()=>setSearch("")}
-          style={{position:"absolute",right:"0.55rem",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.75rem",padding:"0.1rem 0.25rem"}}>{"✕"}</button>}
+          style={{position:"absolute",right:"0.55rem",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.75rem",padding:"0.1rem 0.25rem"}}>{"\u2715"}</button>}
       </div>
 
       {filtered.length===0?(
@@ -1968,7 +1968,7 @@ function DailyLogSection({pal,cp,childEntries,subjEntries}){
                     <div style={{background:cp.c1+"20",borderRadius:"20px",padding:"0.1rem 0.45rem"}}>
                       <span style={{fontWeight:"800",color:cp.c1,fontSize:"0.72rem"}}>{day.entries.length}</span>
                     </div>
-                    <span style={{color:pal.slate,fontSize:"0.9rem",transform:isOpen?"rotate(90deg)":"none",transition:"transform 0.2s"}}>{"›"}</span>
+                    <span style={{color:pal.slate,fontSize:"0.9rem",transform:isOpen?"rotate(90deg)":"none",transition:"transform 0.2s"}}>{"\u203A"}</span>
                   </div>
                 </button>
 
@@ -1977,11 +1977,11 @@ function DailyLogSection({pal,cp,childEntries,subjEntries}){
                   <div style={{borderTop:`1px solid ${pal.stone}20`}}>
                     {day.entries.map((e,i)=>(
                       <div key={e.id||i} style={{display:"flex",gap:"0.55rem",alignItems:"flex-start",padding:"0.55rem 0.85rem",borderTop:i>0?`1px solid ${pal.stone}12`:"none",background:"#fff"}}>
-                        <span style={{fontSize:"1rem",flexShrink:0,marginTop:"1px"}}>{e.thumb||"📋"}</span>
+                        <span style={{fontSize:"1rem",flexShrink:0,marginTop:"1px"}}>{e.thumb||"\uD83D\uDCCB"}</span>
                         <div style={{flex:1,minWidth:0}}>
                           <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.8rem"}}>{e.subj}</div>
                           {e.readingTitle&&(
-                            <div style={{fontSize:"0.7rem",color:pal.primary,fontWeight:"600",marginTop:"1px"}}>{"📖 "+e.readingTitle}</div>
+                            <div style={{fontSize:"0.7rem",color:pal.primary,fontWeight:"600",marginTop:"1px"}}>{"\uD83D\uDCD6 "+e.readingTitle}</div>
                           )}
                           {e.note&&e.note.trim()&&(
                             <div style={{fontSize:"0.72rem",color:pal.inkM,marginTop:"2px",lineHeight:1.55}}>{e.note}</div>
@@ -1997,7 +1997,7 @@ function DailyLogSection({pal,cp,childEntries,subjEntries}){
                     )}
                     {aiSummary&&(
                       <div style={{padding:"0.45rem 0.85rem",borderTop:`1px solid ${pal.stone}12`,background:"#fff"}}>
-                        <div style={{fontSize:"0.62rem",fontWeight:"700",color:pal.slate,marginBottom:"2px"}}>{"✨ AI Summary"}</div>
+                        <div style={{fontSize:"0.62rem",fontWeight:"700",color:pal.slate,marginBottom:"2px"}}>{"\u2728 AI Summary"}</div>
                         <div style={{fontSize:"0.72rem",color:pal.inkM,lineHeight:1.55,fontStyle:"italic"}}>{aiSummary}</div>
                       </div>
                     )}
@@ -2018,7 +2018,7 @@ function DailyLogSection({pal,cp,childEntries,subjEntries}){
           return (
             <div style={{animation:"fadeUp 0.18s ease"}}>
               <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem",marginBottom:"0.85rem"}}>
-                {"Side-by-side · "+family.children.length+" children"}
+                {"Side-by-side \u00B7 "+family.children.length+" children"}
               </div>
               <div style={{background:pal.linen,borderRadius:"16px",overflow:"hidden",border:`1.5px solid ${pal.stone}30`,marginBottom:"1rem"}}>
                 <div style={{display:"grid",gridTemplateColumns:"120px "+family.children.map(()=>"1fr").join(" "),background:pal.parchm,borderBottom:`1px solid ${pal.stone}25`}}>
@@ -2052,7 +2052,7 @@ function DailyLogSection({pal,cp,childEntries,subjEntries}){
                       return (
                         <div key={c.id} style={{padding:"0.55rem 0.5rem",textAlign:"center",borderLeft:`1px solid ${pal.stone}15`}}>
                           <span style={{fontSize:"0.88rem",fontWeight:"800",color:isMax?ccp.c1:pal.inkM}}>{val}</span>
-                          {isMax&&vals.filter(v=>v===max).length===1&&<span style={{fontSize:"0.6rem",marginLeft:"2px"}}>{"✓"}</span>}
+                          {isMax&&vals.filter(v=>v===max).length===1&&<span style={{fontSize:"0.6rem",marginLeft:"2px"}}>{"\u2713"}</span>}
                         </div>
                       );
                     })}
@@ -2197,7 +2197,7 @@ function DailyLogSection({pal,cp,childEntries,subjEntries}){
                     <div style={{background:"#fff8e6",borderRadius:"14px",padding:"0.9rem 1rem",border:"1.5px solid #f5c84240"}}>
                       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.45rem"}}>
                         <span style={{fontSize:"0.7rem",fontWeight:"800",color:"#b07800",textTransform:"uppercase",letterSpacing:"0.07em"}}>{"\uD83C\uDF31 Coaching Note"}</span>
-                        <button onClick={()=>setGradeStruggle(null)} style={{background:"transparent",border:"none",color:pal.stone,cursor:"pointer",fontSize:"0.8rem"}}>{"×"}</button>
+                        <button onClick={()=>setGradeStruggle(null)} style={{background:"transparent",border:"none",color:pal.stone,cursor:"pointer",fontSize:"0.8rem"}}>{"\u00D7"}</button>
                       </div>
                       <div style={{fontSize:"0.82rem",color:pal.ink,lineHeight:1.75}}>{gradeStruggle}</div>
                     </div>
