@@ -952,7 +952,7 @@ function RootAndBloom() {
   const [view,           setView]           = useState("splash");
   const [activeTab,      setActiveTab]      = useState("home");
   const [navIds,         setNavIds]         = useState(saved?.navIds||["home","progress","portfolio","more"]);
-  const [homeLayout,     setHomeLayout]     = useState(saved?.homeLayout||["thisweek","todaycard","progress_nudge","consistency","missedday","behindweek","goals","pandc"]);
+  const [homeLayout,     setHomeLayout]     = useState(saved?.homeLayout||["thisweek","todaycard","progress_nudge","consistency","missedday","behindweek","subjectgap","goals","pandc"]);
   const [portfolioLayout,setPortfolioLayout]= useState(saved?.portfolioLayout||["yearoverview","subjects","photosextras","worksheetreminder","statereminder"]);
   const [childFilt,      setChildFilt]      = useState("all");
   const [lastCheckinDate,setLastCheckinDate]= useState(saved?.lastCheckinDate||null);
@@ -1650,6 +1650,7 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
   const [quickNotePrompt, setQuickNotePrompt] = useState(null); // {blockIdx, subjLabel, subjIcon}
   const [quickNoteText, setQuickNoteText] = useState("");
   const [showQuiz,      setShowQuiz]      = useState(null); // {blockIdx, subjLabel, subjIcon, grade}
+  const [streakCelebration, setStreakCelebration] = useState(null); // {streak, childName, pct}
   const [kidPhotos,     setKidPhotos]     = useState([]); // [{dataUrl, subj, date, ts}]
   const kidCamRef = React.useRef(null);
   const kidGallRef = React.useRef(null);
@@ -2573,10 +2574,48 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
               ts:Date.now(),
               dismissed:false,
             });
+            // Check for quiz streak (3+ consecutive quizzes >=80%)
+            const recentQuizzes = myEntries
+              .filter(e=>e.isQuizResult&&e.quizData)
+              .sort((a,b)=>(b.ts||0)-(a.ts||0))
+              .slice(0,2); // last 2 before this one
+            const thisPct = result.total>0 ? Math.round((result.score/result.total)*100) : 0;
+            const prevGood = recentQuizzes.length>=2 &&
+              recentQuizzes.every(e=>e.quizData.total>0 && Math.round((e.quizData.score/e.quizData.total)*100)>=80);
+            if(thisPct>=80 && prevGood) {
+              setStreakCelebration({streak:3, childName:child.name, pct:thisPct, subj:showQuiz.subjLabel});
+            }
             setShowQuiz(null);
           }}
           onClose={()=>setShowQuiz(null)}
         />
+      )}
+
+      {/* Quiz Streak Celebration */}
+      {streakCelebration&&(
+        <div style={{position:"fixed",inset:0,zIndex:500,background:"linear-gradient(135deg,"+c1+","+c2+")",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"2rem",textAlign:"center",animation:"fadeIn 0.4s ease",fontFamily:"'Comic Sans MS','Chalkboard SE',cursive"}}>
+          {/* Confetti */}
+          <div style={{position:"absolute",inset:0,overflow:"hidden",pointerEvents:"none"}}>
+            {Array.from({length:40}).map((_,i)=>(
+              <span key={i} style={{position:"absolute",left:Math.random()*100+"%",top:"-10px",width:"10px",height:"10px",borderRadius:Math.random()>0.5?"50%":"2px",background:["#fff","rgba(255,255,255,0.7)","rgba(255,255,255,0.4)","#ffeb3b","#ff9800"][Math.floor(Math.random()*5)],animation:"fall "+(1.5+Math.random()*2.5)+"s ease "+(Math.random()*1.5)+"s forwards",transform:"rotate("+Math.random()*360+"deg)",display:"block"}}/>
+            ))}
+          </div>
+          <div style={{fontSize:"4rem",marginBottom:"0.5rem",animation:"grow 0.5s ease both"}}>{"\uD83C\uDF1F"}</div>
+          <div style={{fontWeight:"900",color:"#fff",fontSize:"1.6rem",lineHeight:1.2,marginBottom:"0.4rem",textShadow:"0 2px 12px rgba(0,0,0,0.2)"}}>
+            {"Quiz Streak!"}
+          </div>
+          <div style={{fontWeight:"700",color:"rgba(255,255,255,0.9)",fontSize:"1rem",marginBottom:"0.5rem"}}>
+            {"3 in a row! \uD83D\uDE80"}
+          </div>
+          <div style={{background:"rgba(255,255,255,0.2)",borderRadius:"16px",padding:"0.75rem 1.2rem",marginBottom:"1.5rem",backdropFilter:"blur(8px)"}}>
+            <div style={{color:"#fff",fontSize:"0.88rem",fontWeight:"700"}}>{streakCelebration.childName+" scored "+streakCelebration.pct+"% on "+streakCelebration.subj+"!"}</div>
+            <div style={{color:"rgba(255,255,255,0.8)",fontSize:"0.75rem",marginTop:"3px"}}>{"Keep it up \u2014 you\u2019re on fire!"}</div>
+          </div>
+          <button onClick={()=>setStreakCelebration(null)}
+            style={{padding:"0.85rem 2.5rem",border:"none",borderRadius:"20px",background:"rgba(255,255,255,0.95)",color:c1,fontWeight:"900",fontSize:"1rem",cursor:"pointer",fontFamily:"inherit",boxShadow:"0 4px 20px rgba(0,0,0,0.2)"}}>
+            {"Keep Going! \uD83D\uDCAA"}
+          </button>
+        </div>
       )}
 
       {/* Hidden camera inputs for kid portal */}
@@ -7219,6 +7258,66 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
     </div>
   );
 
+  const renderSection_subjectgap = () => (
+    <div key="subjectgap" data-section="subjectgap">
+      {(()=>{
+        const now4 = new Date();
+        const yr4  = now4.getFullYear();
+        const activeSubjIds4 = family.subjects||[];
+        const customSubjs4   = family.customSubjects||[];
+        const allSubjMap4    = Object.fromEntries([...SUBJECT_OPTIONS,...customSubjs4].map(s=>[s.id,s]));
+        const ci4 = child==="all" ? -1 : family.children.findIndex(c=>c.id===child);
+        const entries4 = ci4>=0
+          ? portfolioEntries.filter(e=>e.childIdx===ci4&&!e.isDay)
+          : portfolioEntries.filter(e=>!e.isDay);
+        const lastLogged = {};
+        entries4.forEach(e=>{
+          if(!e.subj||!e.date) return;
+          try{
+            const d = new Date(e.date+", "+yr4);
+            if(!lastLogged[e.subj] || d>lastLogged[e.subj]) lastLogged[e.subj]=d;
+          }catch(ex){}
+        });
+        const gapSubjs = activeSubjIds4.map(id=>allSubjMap4[id]).filter(Boolean).filter(s=>{
+          const last = lastLogged[s.label];
+          if(!last) return entries4.length>5; // only nudge if we have some history
+          const days = Math.floor((now4-last)/(24*60*60*1000));
+          return days>=7;
+        }).map(s=>{
+          const last = lastLogged[s.label];
+          const days = last ? Math.floor((now4-last)/(24*60*60*1000)) : null;
+          return {...s, days};
+        });
+        if(gapSubjs.length===0) return null;
+        return (
+          <div style={{background:"#fff8e6",borderRadius:"13px",padding:"0.7rem 1rem",marginBottom:"1rem",border:"1.5px solid #f5c84250"}}>
+            <div style={{display:"flex",gap:"0.65rem",alignItems:"flex-start"}}>
+              <span style={{fontSize:"1.1rem",flexShrink:0}}>{"\u23F0"}</span>
+              <div style={{flex:1}}>
+                <div style={{fontWeight:"700",color:"#7a5500",fontSize:"0.79rem",marginBottom:"0.2rem"}}>
+                  {gapSubjs.length===1
+                    ? (gapSubjs[0].icon+" "+gapSubjs[0].label+" hasn\u2019t been logged in "+(gapSubjs[0].days||"7")+" days")
+                    : (gapSubjs.length+" subjects haven\u2019t been logged in a week+")}
+                </div>
+                <div style={{display:"flex",gap:"0.3rem",flexWrap:"wrap",marginTop:"0.25rem"}}>
+                  {gapSubjs.map((s,i)=>(
+                    <span key={i} style={{fontSize:"0.68rem",padding:"0.12rem 0.5rem",background:"#fff",borderRadius:"20px",border:"1px solid #f5c84260",color:"#7a5500",fontWeight:"600"}}>
+                      {s.icon+" "+s.label+(s.days?" ("+s.days+"d)":"")}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <button onClick={startLog}
+                style={{padding:"0.28rem 0.65rem",border:"none",borderRadius:"9px",background:"#e8a020",color:"#fff",fontWeight:"800",fontSize:"0.7rem",cursor:"pointer",flexShrink:0}}>
+                {"Log"}
+              </button>
+            </div>
+          </div>
+        );
+      })()}
+    </div>
+  );
+
   const renderSection_goals = () => (
     <div key="goals" data-section="goals">
       {/* ── Goals Nudge Card ── */}
@@ -7388,8 +7487,8 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
     touchDragIdx.current = null; setDragIdx(null); setDragOverIdx(null);
   };
 
-  const SECTION_LABELS = {"progress_nudge":"Progress Nudge","thisweek":"This Week","todaycard":"Today\u2019s Plan","consistency":"Consistency Nudge","missedday":"Missed Day Alert","behindweek":"Behind This Week","goals":"Goals Nudge","pandc":"Practical \u0026 Creative"};
-  const SECTION_ICONS  = {"progress_nudge":"\u2728","thisweek":"\ud83d\udcc5","todaycard":"\ud83d\udccb","consistency":"\ud83d\udd25","missedday":"\ud83d\udcc6","behindweek":"\u26a0\ufe0f","goals":"\ud83c\udf1f","pandc":"\ud83c\udfa8"};
+  const SECTION_LABELS = {"progress_nudge":"Progress Nudge","thisweek":"This Week","todaycard":"Today\u2019s Plan","consistency":"Consistency Nudge","missedday":"Missed Day Alert","behindweek":"Behind This Week","subjectgap":"Subject Gap","goals":"Goals Nudge","pandc":"Practical \u0026 Creative"};
+  const SECTION_ICONS  = {"progress_nudge":"\u2728","thisweek":"\ud83d\udcc5","todaycard":"\ud83d\udccb","consistency":"\ud83d\udd25","missedday":"\ud83d\udcc6","behindweek":"\u26a0\ufe0f","subjectgap":"\u23f0","goals":"\ud83c\udf1f","pandc":"\ud83c\udfa8"};
   const sectionRenderMap = {
     progress_nudge: renderSection_progress_nudge,
     thisweek:       renderSection_thisweek,
@@ -7397,6 +7496,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
     consistency:    renderSection_consistency,
     missedday:      renderSection_missedday,
     behindweek:     renderSection_behindweek,
+    subjectgap:     renderSection_subjectgap,
     goals:          renderSection_goals,
     pandc:          renderSection_pandc,
   };
