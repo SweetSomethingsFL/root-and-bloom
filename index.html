@@ -14083,6 +14083,10 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
 function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coopLog=[],observationLog=[]}){
   const [activeChild, setActiveChild] = useState(0);
   const [activeView,  setActiveView]  = useState("overview"); // overview | transcript | reading | narrative
+  const [showDigest,  setShowDigest]  = useState(false);
+  const [savedPulses, setSavedPulses] = useState(()=>{
+    try{ const s=localStorage.getItem("rootbloom_pulses"); return s?JSON.parse(s):[]; }catch(e){return [];}
+  });
 
   const ch = family.children[activeChild];
   if(!ch) return null;
