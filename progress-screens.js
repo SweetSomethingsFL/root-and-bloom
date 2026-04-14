@@ -844,6 +844,210 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
 }
 
 
+function generateEvaluatorReport(ch, childEntries, family, attendanceDays, bySubject, readingEntries, si) {
+  const schoolName  = family.schoolName||(family.familyName+" Academy")||"Home School";
+  const state       = family.state||"";
+  const ci          = getComplianceInfo(state, ch.grade||"3rd");
+  const today       = new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
+  const yearStart   = family.yearStart ? new Date(family.yearStart).toLocaleDateString("en-US",{month:"long",year:"numeric"}) : "";
+  const yearEnd     = family.yearEnd   ? new Date(family.yearEnd).toLocaleDateString("en-US",{month:"long",year:"numeric"})   : "";
+  const level       = gradeLevel(ch.grade||"3rd");
+  const gradeNote   = ci.gradeNotes?.[level]||"";
+
+  // Quizzes
+  const quizEntries = childEntries.filter(e=>e.isQuizResult&&e.quizData&&e.quizData.total>0);
+  const quizBySubj  = {};
+  quizEntries.forEach(e=>{
+    if(!quizBySubj[e.subj]) quizBySubj[e.subj]={score:0,total:0,count:0};
+    quizBySubj[e.subj].score+=e.quizData.score;
+    quizBySubj[e.subj].total+=e.quizData.total;
+    quizBySubj[e.subj].count++;
+  });
+  const lg = (pct)=>pct>=93?"A+":pct>=90?"A":pct>=87?"B+":pct>=83?"B":pct>=80?"B-":pct>=77?"C+":pct>=73?"C":pct>=70?"C-":pct>=60?"D":"F";
+
+  // Milestones
+  const milestones = childEntries.filter(e=>e.isMilestone);
+
+  // Field studies
+  const fieldStudies = childEntries.filter(e=>e.isFieldStudy);
+
+  // Work samples — entries with photos or notes over 60 chars
+  const workSamples = childEntries.filter(e=>
+    !e.isDay && !e.isQuizResult &&
+    ((e.photos&&e.photos.length>0)||(e.note&&e.note.replace("AI Summary:","").trim().length>60))
+  ).slice(0,30);
+
+  // Build HTML
+  let html = "<!DOCTYPE html><html><head><meta charset='UTF-8'>"
+    +"<title>Evaluator Report \u2014 "+ch.name+"</title>"
+    +"<style>"
+    +"*{box-sizing:border-box;margin:0;padding:0}"
+    +"body{font-family:Georgia,serif;font-size:11px;color:#1a1a1a;padding:0.6in 0.75in;max-width:8.5in;margin:0 auto}"
+    +".cover-hdr{border-bottom:3px solid #1e3a2a;padding-bottom:14px;margin-bottom:20px}"
+    +".cover-hdr h1{font-size:20px;font-weight:bold;color:#1e3a2a;margin-bottom:4px}"
+    +".cover-hdr .meta{font-size:9px;color:#666}"
+    +".section{margin-bottom:22px;break-inside:avoid}"
+    +".section-title{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#555;border-bottom:1px solid #ddd;padding-bottom:4px;margin-bottom:10px}"
+    +".compliance-box{background:#f0f7f0;border:1.5px solid #2a6a2a;border-radius:6px;padding:10px 14px;margin-bottom:10px}"
+    +".compliance-box .label{font-size:7.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#2a6a2a;margin-bottom:3px}"
+    +".compliance-box .val{font-size:10px;color:#1a1a1a;line-height:1.5}"
+    +".note-box{background:#fffbeb;border:1px solid #f5c842;border-radius:5px;padding:8px 12px;font-size:9px;color:#7a5500;line-height:1.55;margin-bottom:12px}"
+    +".subj-table{width:100%;border-collapse:collapse;margin-bottom:4px}"
+    +".subj-table th{background:#1e3a2a;color:#fff;font-size:8px;text-transform:uppercase;letter-spacing:0.06em;padding:5px 8px;text-align:left}"
+    +".subj-table td{padding:5px 8px;border-bottom:1px solid #eee;font-size:10px;vertical-align:top}"
+    +".subj-table tr:last-child td{border-bottom:none}"
+    +".subj-table tr:nth-child(even) td{background:#f9f9f9}"
+    +".reading-item{padding:3px 0;border-bottom:1px solid #f5f5f5;font-size:10px;line-height:1.4}"
+    +".milestone{display:flex;gap:6px;align-items:baseline;padding:4px 0;border-bottom:1px solid #f5f5f5;font-size:10px}"
+    +".quiz-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}"
+    +".quiz-cell{text-align:center;border-radius:5px;padding:6px 4px;border:1.5px solid #eee}"
+    +".sig-line{border-bottom:1.5px solid #999;height:28px;margin-bottom:3px}"
+    +".footer{margin-top:24px;padding-top:8px;border-top:1px solid #ddd;display:flex;justify-content:space-between;font-size:8px;color:#aaa}"
+    +"@media print{button{display:none}@page{margin:1cm;size:letter}}"
+    +"</style></head><body>";
+
+  // Cover header
+  html += "<div class='cover-hdr'>"
+    +"<h1>"+schoolName+" \u2014 Homeschool Portfolio</h1>"
+    +"<div class='meta'>Prepared for evaluator review \u00b7 "+state+" \u00b7 Generated: "+today+"</div>"
+    +"</div>";
+
+  // Student info
+  html += "<div class='section'><div class='section-title'>Student Information</div>"
+    +"<div style='display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px'>";
+  [["Student",ch.name],["Grade",ch.grade],["School Year",yearStart+(yearEnd?" \u2013 "+yearEnd:"")],
+   ["Parent/Teacher",family.parentName||"—"],["State",state],["Days Logged",attendanceDays+" days"]
+  ].forEach(([l,v])=>{
+    html += "<div style='background:#f5f5f5;border-radius:5px;padding:6px 9px'>"
+      +"<div style='font-size:7px;text-transform:uppercase;letter-spacing:0.08em;color:#888;margin-bottom:2px'>"+l+"</div>"
+      +"<div style='font-weight:700;font-size:10px'>"+v+"</div></div>";
+  });
+  html += "</div></div>";
+
+  // State compliance summary
+  html += "<div class='section'><div class='section-title'>"+state+" Homeschool Requirements</div>";
+  [
+    ["Notification",si.notify||"—"],
+    ["Required Hours / Days",ci.hours||si.hours||"—"],
+    ["Portfolio Requirements",si.portfolio||"—"],
+    ["Testing Requirements",ci.testing||si.testing||"—"],
+    ["Annual Deadline",si.deadline||"—"],
+    ["Records Retention",si.keepFor||"—"],
+  ].forEach(([l,v])=>{
+    html += "<div class='compliance-box'><div class='label'>"+l+"</div><div class='val'>"+v+"</div></div>";
+  });
+  if(gradeNote) html += "<div class='note-box'><strong>Grade-level note ("+ch.grade+"):</strong> "+gradeNote+"</div>";
+  html += "</div>";
+
+  // Activity log by subject
+  html += "<div class='section'><div class='section-title'>Activity Log by Subject ("+(Object.keys(bySubject).length)+" subjects)</div>"
+    +"<table class='subj-table'><thead><tr><th>Subject</th><th>Entries</th><th>Most Recent</th><th>Sample Notes</th></tr></thead><tbody>";
+  Object.entries(bySubject).sort((a,b)=>b[1].count-a[1].count).forEach(([subj,data])=>{
+    const sorted = data.entries.sort((a,b)=>(b.ts||0)-(a.ts||0));
+    const recent = sorted[0]?.date||"—";
+    const notes  = sorted.slice(0,2).map(e=>(e.note||e.title||"").replace("AI Summary:","").trim()).filter(Boolean).join(" \u00b7 ").slice(0,120);
+    html += "<tr><td><strong>"+subj+"</strong></td><td style='text-align:center'>"+data.count+"</td><td>"+recent+"</td><td style='color:#555'>"+notes+"</td></tr>";
+  });
+  html += "</tbody></table></div>";
+
+  // Reading log — always include if readingLog required, or if there are entries
+  if(si.readingLog || readingEntries.length > 0) {
+    html += "<div class='section'><div class='section-title'>Reading Log"+(si.readingLog?" (Required by "+state+")":"")+" \u2014 "+readingEntries.length+" titles</div>";
+    if(si.readingLog && readingEntries.length === 0) {
+      html += "<div class='note-box'>&#9888;&#65039; "+state+" requires reading titles to be logged by name. No reading titles found in portfolio. Make sure to log book titles in the Student Portal or when adding reading entries.</div>";
+    } else if(readingEntries.length > 0) {
+      readingEntries.forEach((e,i)=>{
+        const title = e.readingTitle||e.title||"Untitled";
+        html += "<div class='reading-item'>"+(i+1)+". <strong>"+title+"</strong>"+(e.date?" \u00b7 "+e.date:"")+(e.subj&&e.subj!=="Reading"?" \u00b7 "+e.subj:"")+"</div>";
+      });
+    }
+    html += "</div>";
+  }
+
+  // Work samples — always include if required
+  if(si.workSamples || workSamples.length > 0) {
+    html += "<div class='section'><div class='section-title'>Work Samples"+(si.workSamples?" (Required by "+state+")":"")+" \u2014 "+workSamples.length+" entries</div>";
+    if(si.workSamples && workSamples.length === 0) {
+      html += "<div class='note-box'>&#9888;&#65039; "+state+" requires work samples. Add notes or photos to portfolio entries to create work samples.</div>";
+    } else {
+      workSamples.forEach(e=>{
+        const note = (e.note||"").replace("AI Summary:","").trim();
+        const hasPhoto = e.photos&&e.photos.length>0;
+        html += "<div style='border:1px solid #eee;border-radius:6px;padding:8px 10px;margin-bottom:6px;break-inside:avoid'>"
+          +"<div style='display:flex;justify-content:space-between;margin-bottom:4px'>"
+          +"<span style='font-weight:700;font-size:10px'>"+e.subj+"</span>"
+          +"<span style='font-size:8px;color:#999'>"+( e.date||"")+(hasPhoto?" \u00b7 \uD83D\uDCF7 photo":"")+"</span>"
+          +"</div>"
+          +(note?"<div style='font-size:9.5px;color:#333;line-height:1.55'>"+note.slice(0,300)+(note.length>300?"\u2026":"")+"</div>":"")
+          +"</div>";
+      });
+    }
+    html += "</div>";
+  }
+
+  // Quiz grades
+  if(Object.keys(quizBySubj).length > 0) {
+    html += "<div class='section'><div class='section-title'>Assessment Results \u2014 "+quizEntries.length+" quizzes</div>"
+      +"<div class='quiz-grid'>";
+    Object.entries(quizBySubj).sort((a,b)=>(b[1].total?b[1].score/b[1].total:0)-(a[1].total?a[1].score/a[1].total:0)).forEach(([subj,d])=>{
+      const pct = d.total>0?Math.round((d.score/d.total)*100):0;
+      const g = lg(pct);
+      const col = g.startsWith("A")?"#1a6e40":g.startsWith("B")?"#2563a8":g.startsWith("C")?"#7a5500":"#cc2222";
+      html += "<div class='quiz-cell' style='background:"+col+"10;border-color:"+col+"30'>"
+        +"<div style='font-size:15px;font-weight:900;color:"+col+"'>"+g+"</div>"
+        +"<div style='font-size:7.5px;font-weight:700;color:#333;margin:2px 0'>"+subj+"</div>"
+        +"<div style='font-size:7px;color:#999'>"+pct+"% \u00b7 "+d.count+" quiz"+(d.count===1?"":"zes")+"</div>"
+        +"</div>";
+    });
+    html += "</div></div>";
+  }
+
+  // Milestones
+  if(milestones.length > 0) {
+    html += "<div class='section'><div class='section-title'>Milestones \u2014 "+milestones.length+" recorded</div>";
+    milestones.forEach(e=>{
+      html += "<div class='milestone'><span style='color:#f5c842'>&#11088;</span>"
+        +"<span><strong>"+(e.subj||"General")+"</strong>"+(e.date?" \u00b7 "+e.date:"")
+        +(e.note?"<br><span style='color:#555'>"+(e.note||"").replace("AI Summary:","").trim().slice(0,200)+"</span>":"")
+        +"</span></div>";
+    });
+    html += "</div>";
+  }
+
+  // Field studies
+  if(fieldStudies.length > 0) {
+    html += "<div class='section'><div class='section-title'>Field Studies \u2014 "+fieldStudies.length+" recorded</div>"
+      +"<div style='display:grid;grid-template-columns:1fr 1fr;gap:6px'>";
+    fieldStudies.forEach(e=>{
+      html += "<div style='border:1px solid #dde8dd;border-radius:5px;padding:7px 10px;background:#f5faf5'>"
+        +"<div style='font-weight:700;font-size:10px;color:#2a6a2a'>"+( e.fieldStudyData?.subject||e.subj||"Field Study")+"</div>"
+        +"<div style='font-size:8px;color:#666;margin-top:2px'>"+( e.date||"")+"</div>"
+        +(e.fieldStudyData?.location?"<div style='font-size:8px;color:#555;margin-top:1px'>&#128205; "+(e.fieldStudyData.location)+"</div>":"")
+        +"</div>";
+    });
+    html += "</div></div>";
+  }
+
+  // Evaluator signature block
+  html += "<div class='section' style='margin-top:28px'><div class='section-title'>Evaluator Review</div>"
+    +"<div style='display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:8px'>"
+    +"<div><div class='sig-line'></div><div style='font-size:8px;color:#888'>Evaluator Name (print)</div></div>"
+    +"<div><div class='sig-line'></div><div style='font-size:8px;color:#888'>Evaluator Signature</div></div>"
+    +"<div><div class='sig-line'></div><div style='font-size:8px;color:#888'>Certification / License Number</div></div>"
+    +"<div><div class='sig-line'></div><div style='font-size:8px;color:#888'>Date of Evaluation</div></div>"
+    +"</div>"
+    +"<div style='margin-top:14px;padding:8px 12px;background:#f9f9f9;border-radius:5px;font-size:8.5px;color:#555;line-height:1.6'>"
+    +"<strong>Evaluator Statement:</strong> I have reviewed the portfolio and annual progress of the above-named student and find that the student has demonstrated adequate academic progress as required under the homeschool laws of "+state+". This evaluation is based on portfolio review"+(si.testing&&!si.testing.toLowerCase().includes("not required")?" and/or standardized testing":"")+"."
+    +"</div></div>";
+
+  html += "<div class='footer'><span>"+schoolName+" \u00b7 "+ch.name+" \u00b7 "+( ch.grade)+"</span><span>Generated by Root &amp; Bloom \u00b7 "+today+"</span></div>"
+    +"<div style='text-align:center;margin-top:16px'><button onclick='window.print()' style='padding:8px 22px;background:#1e3a2a;color:#fff;border:none;border-radius:6px;font-size:11px;cursor:pointer;font-family:Georgia,serif'>Print / Save as PDF</button></div>"
+    +"</body></html>";
+
+  const fname = ch.name.replace(/\s+/g,"-")+"-Evaluator-Report-"+state.replace(/\s+/g,"-")+".html";
+  downloadPortfolioHTML(html, fname);
+}
+
 function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coopLog=[],observationLog=[]}){
   const [activeChild, setActiveChild] = useState(0);
   const [activeView,  setActiveView]  = useState("overview"); // overview | transcript | reading | narrative
@@ -1141,6 +1345,30 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
               </div>
             </div>
           )}
+          {/* Share with Evaluator — shown for states requiring portfolio review */}
+          {(()=>{
+            const si = getStateInfo(family.state||"");
+            if(!si.workSamples && !si.readingLog && si.tier < 3) return null;
+            return (
+              <div style={{background:"linear-gradient(135deg,"+cp.c1+"15,"+cp.c2+"10)",borderRadius:"16px",padding:"1rem 1.1rem",marginBottom:"1rem",border:"2px solid "+cp.c1+"35"}}>
+                <div style={{display:"flex",alignItems:"center",gap:"0.6rem",marginBottom:"0.5rem"}}>
+                  <span style={{fontSize:"1.3rem"}}>{"📋"}</span>
+                  <div>
+                    <div style={{fontWeight:"800",color:cp.c1,fontSize:"0.84rem"}}>{"Share with Evaluator"}</div>
+                    <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"1px"}}>{family.state}{" \u00b7 "}{si.workSamples&&si.readingLog?"Work samples + reading log required":si.workSamples?"Work samples required":si.readingLog?"Reading log required":"Portfolio review required"}</div>
+                  </div>
+                </div>
+                <div style={{fontSize:"0.72rem",color:pal.ink,lineHeight:1.6,marginBottom:"0.65rem",background:"rgba(255,255,255,0.6)",borderRadius:"10px",padding:"0.55rem 0.7rem"}}>
+                  {si.portfolio}
+                </div>
+                <button onClick={()=>generateEvaluatorReport(ch, childEntries, family, attendanceDays, bySubject, readingEntries, si)}
+                  style={{width:"100%",padding:"0.7rem",border:"none",borderRadius:"12px",background:"linear-gradient(135deg,"+cp.c1+","+cp.c2+")",color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:"pointer",boxShadow:"0 3px 12px "+cp.c1+"40"}}>
+                  {"⬇️ Download Evaluator Report"}
+                </button>
+              </div>
+            );
+          })()}
+
           <div style={{height:"0.5rem"}}/>
         </>)}
 
