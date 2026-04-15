@@ -702,6 +702,218 @@ function printEvaluatorLetter(family, child, attendanceDays) {
 
 // GRADES_MID, GRADES_HIGH, gradeLevel() defined in state-requirements.js
 
+/* ---- Evaluator Packet ---- */
+function printEvaluatorPacket(family, entries, child, attendanceDays) {
+  const schoolName  = family.schoolName||(family.familyName+" Academy")||"Home School";
+  const yearStartNum= family.yearStart?new Date(family.yearStart).getFullYear():new Date().getFullYear();
+  const yearEndNum  = family.yearEnd?new Date(family.yearEnd).getFullYear():yearStartNum+1;
+  const today       = new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
+  const state       = family.state||"";
+  const grade       = child?child.grade||"":"";
+  const childName   = child?child.name||"Student":"Student";
+
+  const si = getStateInfo(state);
+  const ci = getComplianceInfo(state, grade);
+
+  const subjEntries = entries.filter(e=>!e.isDay&&e.subj!=="Daily Notes");
+  const bySubject   = {};
+  subjEntries.forEach(e=>{ if(!bySubject[e.subj]) bySubject[e.subj]=[]; bySubject[e.subj].push(e); });
+  const subjectList = Object.keys(bySubject).sort((a,b)=>bySubject[b].length-bySubject[a].length);
+
+  const readingTitles = [...new Set(subjEntries.filter(e=>e.readingTitle).map(e=>e.readingTitle))];
+
+  const quizEntries = subjEntries.filter(e=>e.isQuizResult&&e.quizData&&e.quizData.total>0);
+  const quizBySubj  = {};
+  quizEntries.forEach(e=>{
+    if(!quizBySubj[e.subj]) quizBySubj[e.subj]={total:0,poss:0,count:0};
+    quizBySubj[e.subj].total+=e.quizData.score;
+    quizBySubj[e.subj].poss+=e.quizData.total;
+    quizBySubj[e.subj].count++;
+  });
+
+  const letterGrade = (pct)=>pct>=93?"A+":pct>=90?"A":pct>=87?"B+":pct>=83?"B":pct>=80?"B-":pct>=77?"C+":pct>=73?"C":pct>=70?"C-":pct>=60?"D":"F";
+  const gradeColor  = (g)=>g.startsWith("A")?"#1a6e40":g.startsWith("B")?"#2563a8":g.startsWith("C")?"#7a5500":g.startsWith("D")?"#8a3a00":"#cc2222";
+
+  const stateReqDays = parseInt((si.hours||"180").match(/\d+/)?.[0]||"180");
+  const attPct       = Math.min(100, Math.round((attendanceDays/Math.max(1,stateReqDays))*100));
+
+  // compliance checklist
+  const checks = [
+    { label:"Activity Log / Subject Notes", met: subjEntries.length>0, note: subjEntries.length+" entries logged" },
+    { label:"Reading Log (titles by name)",  met: readingTitles.length>0, note: readingTitles.length+" title"+(readingTitles.length===1?"":"s")+" recorded", required: si.readingLog },
+    { label:"Work Samples",                  met: subjectList.some(s=>(bySubject[s]||[]).some(e=>(e.note||"").trim().length>30||(e.photos||[]).length>0)), note: subjectList.length+" subject"+(subjectList.length===1?"":"s")+" with samples", required: si.workSamples },
+    { label:"Attendance Records",            met: attendanceDays>0, note: attendanceDays+" day"+(attendanceDays===1?"":"s")+" logged", required: si.attendance },
+    { label:"Quiz / Assessment Scores",      met: quizEntries.length>0, note: quizEntries.length>0?quizEntries.length+" quiz"+(quizEntries.length===1?"":"es")+" on record":"None recorded" },
+  ];
+
+  const css = [
+    "*{box-sizing:border-box;margin:0;padding:0}",
+    "body{font-family:Arial,sans-serif;color:#1a1a1a;font-size:10pt;line-height:1.6;background:#fff}",
+    "@media print{@page{margin:1.5cm;size:letter}.no-print{display:none!important}body{font-size:9.5pt}}",
+    ".page{max-width:760px;margin:0 auto;padding:2rem}",
+    "h2{font-size:13pt;font-weight:700;color:#2a4a28;margin:1.4rem 0 0.6rem;border-bottom:1.5px solid #c8dfc8;padding-bottom:0.3rem}",
+    "h3{font-size:10.5pt;font-weight:700;color:#333;margin:0.9rem 0 0.3rem}",
+    ".chip{display:inline-block;background:#eef6ee;border:1px solid #b8d8b8;border-radius:20px;padding:2px 10px;font-size:8.5pt;margin:2px 3px 2px 0}",
+    ".check-row{display:flex;align-items:flex-start;gap:0.5rem;padding:0.35rem 0;border-bottom:1px solid #f0f0f0}",
+    ".check-icon{font-size:1rem;min-width:1.2rem;margin-top:1px}",
+    ".check-label{font-weight:600;font-size:9.5pt;flex:1}",
+    ".check-note{font-size:8.5pt;color:#666;margin-top:1px}",
+    ".req-badge{font-size:7.5pt;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;padding:1px 6px;border-radius:10px;background:#fff3cd;color:#856404;border:1px solid #ffc107;margin-left:6px;vertical-align:middle}",
+    ".subj-block{background:#f8f8f8;border:1px solid #e4e4e4;border-radius:8px;padding:0.7rem 0.9rem;margin-bottom:0.6rem}",
+    ".subj-title{font-weight:700;font-size:10pt;color:#2a4a28}",
+    ".entry-row{font-size:8.5pt;color:#444;padding:0.25rem 0;border-bottom:1px dotted #ddd}",
+    ".entry-row:last-child{border-bottom:none}",
+    ".entry-date{color:#888;min-width:70px;display:inline-block}",
+    ".grade-box{display:inline-block;border:2px solid;border-radius:6px;padding:3px 9px;font-weight:700;font-size:11pt;min-width:36px;text-align:center}",
+    ".banner{background:#2a4a28;padding:20px 28px;display:flex;justify-content:space-between;align-items:center}",
+    ".sig-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-top:0.5rem}",
+    ".sig-line{border-bottom:1.5px solid #444;height:36px;margin-bottom:5px}",
+    ".sig-label{font-size:7.5pt;color:#666}",
+    ".att-bar{background:#e0e0e0;border-radius:6px;height:10px;margin-top:6px}",
+    ".att-fill{background:#2a6a2a;border-radius:6px;height:10px}",
+    ".reading-list{columns:2;column-gap:1.5rem;list-style:disc;padding-left:1.2rem}",
+    ".reading-list li{font-size:9pt;padding:1px 0;break-inside:avoid}",
+    ".photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:0.5rem}",
+    ".photo-grid img{width:100%;border-radius:6px;object-fit:cover;aspect-ratio:4/3}",
+    ".info-table td{padding:3px 10px 3px 0;font-size:9.5pt;vertical-align:top}",
+    ".info-table td:first-child{font-weight:700;color:#555;white-space:nowrap;min-width:130px}",
+    ".compliance-box{background:#f5f9f5;border:1px solid #b8d8b8;border-radius:8px;padding:0.8rem 1rem;margin-bottom:0.5rem}",
+    ".grade-row{display:flex;align-items:center;gap:0.6rem;padding:0.3rem 0;border-bottom:1px solid #f0f0f0}",
+    ".grade-row:last-child{border-bottom:none}",
+    ".grade-subj{flex:1;font-size:9.5pt;font-weight:600}",
+    ".grade-detail{font-size:8.5pt;color:#666}",
+  ].join("\n");
+
+  // ---- Banner ----
+  let html = "<!DOCTYPE html><html><head><meta charset='utf-8'>"
+    +"<title>Evaluator Packet &mdash; "+childName+" "+yearStartNum+"&ndash;"+yearEndNum+"</title>"
+    +"<style>"+css+"</style></head><body>"
+    +"<div class='banner'>"
+    +"<div>"
+    +"<div style='font-size:7.5pt;text-transform:uppercase;letter-spacing:0.12em;color:rgba(255,255,255,0.6);margin-bottom:3px'>Homeschool Evaluator Packet</div>"
+    +"<div style='font-size:18pt;font-weight:900;color:#fff'>"+childName+"</div>"
+    +"<div style='font-size:9pt;color:rgba(255,255,255,0.75);margin-top:2px'>"+schoolName+" &nbsp;&bull;&nbsp; Grade "+grade+" &nbsp;&bull;&nbsp; "+state+"</div>"
+    +"</div>"
+    +"<div style='text-align:right'>"
+    +"<div style='font-size:9pt;color:rgba(255,255,255,0.7)'>School Year</div>"
+    +"<div style='font-size:14pt;font-weight:700;color:#fff'>"+yearStartNum+"&ndash;"+yearEndNum+"</div>"
+    +"<div style='font-size:8pt;color:rgba(255,255,255,0.55);margin-top:3px'>Prepared "+today+"</div>"
+    +"</div>"
+    +"</div>"
+    +"<div class='page'>";
+
+  // ---- State Requirements Summary ----
+  html += "<h2>"+state+" Homeschool Requirements</h2>"
+    +"<div class='compliance-box'>"
+    +"<table class='info-table'><tbody>"
+    +"<tr><td>Notification</td><td>"+si.notify+"</td></tr>"
+    +"<tr><td>Required Hours/Days</td><td>"+si.hours+"</td></tr>"
+    +"<tr><td>Portfolio Required</td><td>"+si.portfolio+"</td></tr>"
+    +"<tr><td>Annual Evaluation</td><td>"+si.testing+"</td></tr>"
+    +"<tr><td>Key Deadline</td><td>"+(si.deadline||"See state DOE")+"</td></tr>"
+    +"<tr><td>Records Retention</td><td>"+(si.keepFor||"Recommended: 5 years")+"</td></tr>"
+    +"</tbody></table>"
+    +(ci.gradeNote?"<div style='margin-top:0.6rem;padding-top:0.6rem;border-top:1px solid #c8dfc8;font-size:9pt;color:#444'><b>Grade-level note:</b> "+ci.gradeNote+"</div>":"")
+    +"</div>";
+
+  // ---- Compliance Checklist ----
+  html += "<h2>Documentation Checklist</h2>";
+  checks.forEach(ck=>{
+    const icon = ck.met ? "&#x2705;" : (ck.required ? "&#x26A0;&#xFE0F;" : "&#x26AA;");
+    html += "<div class='check-row'>"
+      +"<span class='check-icon'>"+icon+"</span>"
+      +"<div style='flex:1'>"
+      +"<div class='check-label'>"+ck.label+(ck.required?"<span class='req-badge'>Required by "+state+"</span>":"")+"</div>"
+      +"<div class='check-note'>"+ck.note+"</div>"
+      +"</div>"
+      +"</div>";
+  });
+
+  // ---- Attendance ----
+  html += "<h2>Attendance</h2>"
+    +"<div style='font-size:9.5pt;margin-bottom:4px'><b>"+attendanceDays+" days</b> logged &nbsp;/&nbsp; "+si.hours+" required"
+    +(stateReqDays>0?" &nbsp;("+attPct+"% of goal)":"")+"</div>"
+    +"<div class='att-bar'><div class='att-fill' style='width:"+attPct+"%'></div></div>";
+
+  // ---- Reading Log ----
+  html += "<h2>Reading Log</h2>";
+  if(readingTitles.length>0){
+    html += "<ul class='reading-list'>"+readingTitles.map(t=>"<li>"+t+"</li>").join("")+"</ul>";
+  } else {
+    html += "<p style='font-size:9pt;color:#888;font-style:italic'>No reading titles recorded this year.</p>";
+  }
+
+  // ---- Quiz Grades ----
+  if(quizEntries.length>0){
+    html += "<h2>Quiz &amp; Assessment Grades</h2>";
+    Object.entries(quizBySubj).sort((a,b)=>(b[1].poss?b[1].total/b[1].poss:0)-(a[1].poss?a[1].total/a[1].poss:0)).forEach(([subj,d])=>{
+      const pct2   = d.poss>0?Math.round((d.total/d.poss)*100):0;
+      const letter = letterGrade(pct2);
+      const col    = gradeColor(letter);
+      html += "<div class='grade-row'>"
+        +"<span class='grade-box' style='color:"+col+";border-color:"+col+"30'>"+letter+"</span>"
+        +"<span class='grade-subj'>"+subj+"</span>"
+        +"<span class='grade-detail'>"+d.count+" quiz"+(d.count===1?"":"zes")+" &nbsp;&bull;&nbsp; "+d.total+"/"+d.poss+" pts &nbsp;&bull;&nbsp; "+pct2+"%</span>"
+        +"</div>";
+    });
+  }
+
+  // ---- Work Samples by Subject ----
+  html += "<h2>Work Samples by Subject</h2>";
+  if(subjectList.length===0){
+    html += "<p style='font-size:9pt;color:#888;font-style:italic'>No subject entries recorded.</p>";
+  } else {
+    subjectList.forEach(subj=>{
+      const es   = bySubject[subj]||[];
+      const photos = es.flatMap(e=>e.photos||[]).slice(0,6);
+      const notes  = es.filter(e=>(e.note||"").trim().length>10).slice(0,8);
+      html += "<div class='subj-block'>"
+        +"<div class='subj-title'>"+subj+" <span style='font-weight:400;font-size:8.5pt;color:#666'>("+es.length+" entr"+(es.length===1?"y":"ies")+")</span></div>";
+      if(notes.length>0){
+        html += "<div style='margin-top:0.4rem'>";
+        notes.forEach(e=>{
+          html += "<div class='entry-row'>"
+            +"<span class='entry-date'>"+(e.date||"")+"</span> "
+            +(e.note||"").slice(0,200)+(((e.note||"").length>200)?"&hellip;":"")
+            +"</div>";
+        });
+        html += "</div>";
+      }
+      if(photos.length>0){
+        html += "<div class='photo-grid'>"+photos.map(p=>"<img src='"+p+"' alt='work sample'>").join("")+"</div>";
+      }
+      html += "</div>";
+    });
+  }
+
+  // ---- Evaluator Signature Block ----
+  html += "<h2 style='margin-top:2rem'>Annual Evaluation</h2>"
+    +"<div style='background:#f5f9f5;border:1px solid #b8d8b8;border-radius:8px;padding:1rem 1.2rem;margin-bottom:1rem;font-size:9.5pt;line-height:1.9'>"
+    +"<table class='info-table'><tbody>"
+    +"<tr><td>Student</td><td><b>"+childName+"</b></td></tr>"
+    +"<tr><td>Grade</td><td>"+grade+"</td></tr>"
+    +"<tr><td>School</td><td>"+schoolName+"</td></tr>"
+    +"<tr><td>School Year</td><td>"+yearStartNum+"&ndash;"+yearEndNum+"</td></tr>"
+    +"<tr><td>Date of Evaluation</td><td>___________________________</td></tr>"
+    +"</tbody></table>"
+    +"</div>"
+    +"<p style='font-size:9pt;line-height:1.8;margin-bottom:1rem'>I, the undersigned, have reviewed the educational portfolio "
+    +"of the above-named student and have determined that the student has demonstrated educational progress "
+    +"commensurate with his/her ability during the "+yearStartNum+"&ndash;"+yearEndNum+" school year.</p>"
+    +"<div class='sig-grid'>"
+    +"<div><div class='sig-line'></div><div class='sig-label'>Evaluator Full Name (print clearly)</div></div>"
+    +"<div><div class='sig-line'></div><div class='sig-label'>Evaluator Signature</div></div>"
+    +"<div><div class='sig-line'></div><div class='sig-label'>Certification / License Number</div></div>"
+    +"<div><div class='sig-line'></div><div class='sig-label'>Date</div></div>"
+    +"<div style='grid-column:1/-1'><div class='sig-line'></div><div class='sig-label'>Evaluator Email / Phone (optional)</div></div>"
+    +"</div>";
+
+  html += "</div></body></html>";
+
+  const filename = childName.replace(/\s+/g,"_")+"_Evaluator_Packet_"+yearStartNum+"-"+yearEndNum+".html";
+  downloadPortfolioHTML(html, filename);
+}
+
 function downloadPortfolioHTML(html, filename) {
   try {
     const blob = new Blob([html], {type:"text/html;charset=utf-8"});
@@ -9723,6 +9935,10 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
                         <span>{"\xf0\x9f\x91\xa8\xe2\x80\x8d\xf0\x9f\x91\xa9\xe2\x80\x8d\xf0\x9f\x91\xa7"}</span><span>{"All children \u2014 combined"}</span>
                       </button>
                     )}
+                    <button onClick={()=>{setShowPrintMenu(false);printEvaluatorPacket(family,childEntries,activeCh,attendanceDays);}}\
+                      style={{width:"100%",padding:"0.65rem 0.9rem",border:"none",background:"transparent",color:pal.ink,fontSize:"0.78rem",fontWeight:"600",cursor:"pointer",textAlign:"left",display:"flex",gap:"0.5rem",alignItems:"center",borderBottom:`1px solid ${pal.stone}20`}}>\
+                      <span>{"📋"}</span><span>{"Evaluator packet"}</span>\
+                    </button>
                     <button onClick={()=>{setShowPrintMenu(false);printProgressReport(family,portfolioEntries,activeCh,attendanceDays,coopLog);}}
                       style={{width:"100%",padding:"0.65rem 0.9rem",border:"none",background:"transparent",color:pal.ink,fontSize:"0.78rem",fontWeight:"600",cursor:"pointer",textAlign:"left",display:"flex",gap:"0.5rem",alignItems:"center"}}>
                       <span>{"📊"}</span><span>{"Progress report"}</span>
