@@ -2111,6 +2111,7 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
   const [kidOnboarded, setKidOnboarded]= useState(()=>{ try{ return !!localStorage.getItem(KID_ONBOARD_KEY); }catch{return false;} });
   const [showKidOnboard,setShowKidOnboard] = useState(!kidOnboarded);
   const [kidGoalLogged, setKidGoalLogged]  = useState(new Set());
+  const [goalCelebGoal, setGoalCelebGoal]  = useState(null); // goal text currently celebrating
   const saveKidGoals = (goals) => {
     setKidGoals(goals);
     try{ localStorage.setItem(KID_GOALS_KEY, JSON.stringify(goals)); }catch{}
@@ -2127,6 +2128,8 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
       date:new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"}),
       thumb:"🎯", note:"Working on my goal: "+goal, selfLogged:true});
     setKidGoalLogged(prev=>{ const n=new Set(prev); n.add(goal); return n; });
+    setGoalCelebGoal(goal);
+    setTimeout(()=>setGoalCelebGoal(null), 2000);
   };
   const STABS = [
     {id:"home",   icon:"🏠", l:"Home"},
@@ -2144,6 +2147,38 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
 
   return (
     <div style={{minHeight:"100vh",background:SK.cream,fontFamily:"'Comic Sans MS','Chalkboard SE',cursive",display:"flex",flexDirection:"column"}}>
+      {/* Goal celebration overlay */}
+      {goalCelebGoal&&(
+        <div style={{position:"fixed",inset:0,zIndex:9999,display:"flex",alignItems:"center",justifyContent:"center",pointerEvents:"none",overflow:"hidden"}}>
+          {/* Confetti burst */}
+          {Array.from({length:32},(_,i)=>(
+            <div key={i} style={{
+              position:"absolute",
+              left:(20+Math.sin(i*37)*45)+"%",
+              top:"-10px",
+              width:(7+i%5)+"px",height:(7+i%5)+"px",
+              borderRadius:i%3===0?"50%":"3px",
+              background:[c1,c2,"#f6c90e","#fff","#f4a261","#a8d5a2","#e07b9a"][i%7],
+              animation:"confettiFall "+(1.2+i%4*0.3)+"s "+(i*0.04)+"s ease-in forwards",
+              opacity:0.9,
+              transform:"rotate("+(i*47)+"deg)",
+            }}/>
+          ))}
+          {/* Pop card */}
+          <div style={{
+            background:"linear-gradient(135deg,"+c1+","+c2+")",
+            borderRadius:"28px",padding:"1.8rem 2rem",textAlign:"center",
+            boxShadow:"0 12px 50px rgba(0,0,0,0.25)",
+            animation:"grow 0.3s cubic-bezier(0.34,1.56,0.64,1)",
+            maxWidth:"280px",
+          }}>
+            <div style={{fontSize:"3.5rem",marginBottom:"0.4rem",animation:"bounce 0.6s ease infinite"}}>{"🎉"}</div>
+            <div style={{fontWeight:"900",color:"#fff",fontSize:"1.2rem",marginBottom:"0.25rem"}}>{"Goal logged!"}</div>
+            <div style={{fontSize:"0.82rem",color:"rgba(255,255,255,0.85)",lineHeight:1.5,fontStyle:"italic"}}>{"\u201c"}{goalCelebGoal}{"\u201d"}</div>
+            <div style={{fontSize:"0.78rem",color:"rgba(255,255,255,0.7)",marginTop:"0.5rem"}}>{"Keep it up, "+child.name+"! 🌟"}</div>
+          </div>
+        </div>
+      )}
       {/* Kid status bar */}
       <div style={{background:heroGrad,padding:"0.65rem 1rem",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0}}>
         <button onClick={onBack} style={{background:"rgba(255,255,255,0.25)",border:"none",borderRadius:"9px",padding:"0.22rem 0.6rem",cursor:"pointer",color:"#fff",fontWeight:"800",fontSize:"0.7rem"}}>Back</button>
@@ -3778,7 +3813,7 @@ function OnbScheduleCombined({ pal, data, upd, onNext }) {
         <div style={{animation:"fadeUp 0.2s ease"}}>
           {/* School year dates */}
           <div style={{background:pal.pale,borderRadius:"14px",padding:"0.9rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.primary}22`}}>
-            <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.86rem",marginBottom:"0.55rem"}}>{"\xf0\x9f\x93\x96"} School Year Dates</div>
+            <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.86rem",marginBottom:"0.55rem"}}>{"📖"} School Year Dates</div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.65rem"}}>
               <div>
                 <Lbl pal={pal}>Year started</Lbl>
