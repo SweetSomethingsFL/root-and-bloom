@@ -1807,6 +1807,13 @@ function SplashScreen({ pal, onContinue }) {
         <button onClick={e=>{e.stopPropagation();if(window.confirm("Clear all data and start over?")){localStorage.removeItem("rootbloom_v1");window.location.reload();}}} style={{marginTop:"2rem",background:"transparent",border:"1px solid rgba(255,255,255,0.2)",borderRadius:"20px",padding:"0.3rem 0.9rem",color:"rgba(255,255,255,0.35)",fontSize:"0.65rem",cursor:"pointer",letterSpacing:"0.05em"}}>
           Reset app
         </button>
+        <button onClick={e=>{e.stopPropagation();
+          const keys=Object.keys(localStorage).filter(k=>k.startsWith("portalCeleb_")||k==="rootbloom_tips_seen");
+          keys.forEach(k=>localStorage.removeItem(k));
+          alert("Celebrations reset! Open Student Portal to see them.");
+        }} style={{marginTop:"0.5rem",background:"transparent",border:"1px solid rgba(255,255,255,0.2)",borderRadius:"20px",padding:"0.3rem 0.9rem",color:"rgba(255,255,255,0.35)",fontSize:"0.65rem",cursor:"pointer",letterSpacing:"0.05em"}}>
+          Reset celebrations
+        </button>
       </div>
     </div>
   );
