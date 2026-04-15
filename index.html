@@ -1422,6 +1422,7 @@ function RootAndBloom() {
   },[activeTab]);
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebData,       setCelebData]       = useState(null);
+  const [celebResetToken, setCelebResetToken] = useState(0);
   const finishOnboarding = (data) => {
     setFamily(data);
     setPaletteId(data.paletteId||"sage");
@@ -1504,7 +1505,8 @@ function RootAndBloom() {
       {view==="settings"   && <SettingsScreen pal={pal} family={family} setFamily={setFamily}
           paletteId={paletteId} setPaletteId={setPaletteId}
           customA={customA} customB={customB} setCustomA={setCustomA} setCustomB={setCustomB}
-          navIds={navIds} setNavIds={setNavIds} onBack={closeSettings} />}
+          navIds={navIds} setNavIds={setNavIds} onBack={closeSettings}
+          onCelebReset={()=>setCelebResetToken(t=>t+1)} />}
 
       {/* -- STUDENT PORTAL -- */}
       {view==="student" && activeStudent && family && (
@@ -1525,6 +1527,7 @@ function RootAndBloom() {
             try{ localStorage.setItem("rootbloom_quiz_notifs",JSON.stringify(updated)); }catch(ex){}
           }}
           onOpenFieldStudy={()=>{setFieldStudyChild(activeStudent);setShowFieldStudy(true);}}
+          celebResetToken={celebResetToken}
           onBack={backToParent}
         />
       )}
@@ -1811,6 +1814,7 @@ function SplashScreen({ pal, onContinue }) {
         <button onClick={e=>{e.stopPropagation();
           const keys=Object.keys(localStorage).filter(k=>k.startsWith("portalCeleb_")||k==="rootbloom_tips_seen");
           keys.forEach(k=>localStorage.removeItem(k));
+          setCelebResetToken(t=>t+1);
           alert("Celebrations reset! Open Student Portal to see them.");
         }} style={{marginTop:"0.5rem",background:"transparent",border:"1px solid rgba(255,255,255,0.2)",borderRadius:"20px",padding:"0.3rem 0.9rem",color:"rgba(255,255,255,0.35)",fontSize:"0.65rem",cursor:"pointer",letterSpacing:"0.05em"}}>
           Reset celebrations
@@ -1891,7 +1895,7 @@ const CHILD_COLOR_PALETTES = [
 /* =======================================
    STUDENT PORTAL - its own complete world
 ======================================= */
-function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onCoopLog, onBack, checkinStreak=0, checkinDates={}, onQuizComplete, onOpenFieldStudy }) {
+function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onCoopLog, onBack, checkinStreak=0, checkinDates={}, onQuizComplete, onOpenFieldStudy, celebResetToken=0 }) {
   const [sTab,         setSTab]         = useState("home");
   const [noteText,     setNoteText]     = useState("");
   const [noteSaved,    setNoteSaved]    = useState(false);
@@ -2072,21 +2076,20 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
   const CELEB_KEY_MILESTONE = "portalCeleb_milestone_" + child.id + "_" + (family.yearEnd||"");
   const CELEB_KEY_STRAIGHTA = "portalCeleb_straighta_" + child.id + "_" + (family.yearEnd||"");
   React.useEffect(()=>{
-    const seen = getTipsSeen();
+    // Re-runs when: entries change, milestones change, child changes, year changes, or reset token bumps
+    const seen = getTipsSeen(); // always read fresh from localStorage
     // First field study
     const hasFieldStudy = myEntries.some(e=>e.isFieldStudy);
     if(hasFieldStudy && !seen.has(CELEB_KEY_FIELD)){
-      markTipSeen(CELEB_KEY_FIELD);
       setShowFirstFieldStudy(true);
       return;
     }
-    // First milestone
+    // First milestone star
     if(myMilestones.length>0 && !seen.has(CELEB_KEY_MILESTONE)){
-      markTipSeen(CELEB_KEY_MILESTONE);
       setShowFirstMilestone(true);
       return;
     }
-    // Straight A's — all subjects with quizzes averaging >= 90%
+    // Straight A's — all quizzed subjects averaging >= 90%
     const quizEs = myEntries.filter(e=>e.isQuizResult&&e.quizData&&e.quizData.total>0);
     if(quizEs.length>0 && !seen.has(CELEB_KEY_STRAIGHTA)){
       const bySubj = {};
@@ -2096,12 +2099,17 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
         bySubj[e.subj].poss+=e.quizData.total;
       });
       const allAs = Object.values(bySubj).every(d=>d.poss>0&&Math.round((d.total/d.poss)*100)>=90);
-      if(allAs){
-        markTipSeen(CELEB_KEY_STRAIGHTA);
-        setShowStraightAs(true);
-      }
+      if(allAs) setShowStraightAs(true);
     }
-  }, [myEntries.length, myMilestones.length]);
+  }, [myEntries.length, myMilestones.length, CELEB_KEY_FIELD, celebResetToken]);
+  // Mark seen on unmount if a celebration was showing (user navigated away without dismissing)
+  React.useEffect(()=>{
+    return ()=>{
+      if(showFirstFieldStudy) markTipSeen(CELEB_KEY_FIELD);
+      if(showFirstMilestone)  markTipSeen(CELEB_KEY_MILESTONE);
+      if(showStraightAs)      markTipSeen(CELEB_KEY_STRAIGHTA);
+    };
+  });
   const [addBookText, setAddBookText] = useState("");
   const [bookSaved,   setBookSaved]   = useState(false);
   // Kid-owned goals (stored per child in localStorage)
@@ -3000,7 +3008,7 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
             <div style={{color:"#fff",fontSize:"0.88rem",fontWeight:"700"}}>{child.name+" completed their first field study!"}</div>
             <div style={{color:"rgba(255,255,255,0.8)",fontSize:"0.75rem",marginTop:"3px"}}>{"Exploring the world is the best kind of learning."}</div>
           </div>
-          <button onClick={()=>setShowFirstFieldStudy(false)}
+          <button onClick={()=>{markTipSeen(CELEB_KEY_FIELD);setShowFirstFieldStudy(false);}}
             style={{padding:"0.85rem 2.5rem",border:"none",borderRadius:"20px",background:"rgba(255,255,255,0.95)",color:"#2d9e5f",fontWeight:"900",fontSize:"1rem",cursor:"pointer",boxShadow:"0 4px 16px rgba(0,0,0,0.15)"}}>
             {"Keep Exploring! \u2192"}
           </button>
@@ -3022,7 +3030,7 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
             <div style={{color:"#fff",fontSize:"0.88rem",fontWeight:"700"}}>{child.name+" earned their first milestone star!"}</div>
             <div style={{color:"rgba(255,255,255,0.8)",fontSize:"0.75rem",marginTop:"3px"}}>{"Check your Stars tab to see what you achieved."}</div>
           </div>
-          <button onClick={()=>setShowFirstMilestone(false)}
+          <button onClick={()=>{markTipSeen(CELEB_KEY_MILESTONE);setShowFirstMilestone(false);}}
             style={{padding:"0.85rem 2.5rem",border:"none",borderRadius:"20px",background:"rgba(255,255,255,0.95)",color:c1,fontWeight:"900",fontSize:"1rem",cursor:"pointer",boxShadow:"0 4px 16px rgba(0,0,0,0.15)"}}>
             {"See My Stars! \u2192"}
           </button>
@@ -3044,7 +3052,7 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
             <div style={{color:"#fff",fontSize:"0.88rem",fontWeight:"700"}}>{child.name+" is absolutely crushing it!"}</div>
             <div style={{color:"rgba(255,255,255,0.85)",fontSize:"0.75rem",marginTop:"3px"}}>{"90% or higher across every subject. Incredible work!"}</div>
           </div>
-          <button onClick={()=>setShowStraightAs(false)}
+          <button onClick={()=>{markTipSeen(CELEB_KEY_STRAIGHTA);setShowStraightAs(false);}}
             style={{padding:"0.85rem 2.5rem",border:"none",borderRadius:"20px",background:"rgba(255,255,255,0.95)",color:"#c8960c",fontWeight:"900",fontSize:"1rem",cursor:"pointer",boxShadow:"0 4px 16px rgba(0,0,0,0.2)"}}>
             {"Thank you! \uD83C\uDFC6"}
           </button>
@@ -5409,7 +5417,7 @@ function CurriculumAddWidget({pal, local, updL}){
   );
 }
 
-function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, customA, customB, setCustomA, setCustomB, navIds, setNavIds, onBack }) {
+function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, customA, customB, setCustomA, setCustomB, navIds, setNavIds, onBack, onCelebReset }) {
   const [tab,         setTab]        = useState("family");
   const [local,       setLocal]      = useState(family ? {...family} : {});
   const [showAddSubj, setShowAddSubj]= useState(false);
@@ -6164,6 +6172,7 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                 <button onClick={()=>{
                   const keys=Object.keys(localStorage).filter(k=>k.startsWith("portalCeleb_")||k==="rootbloom_tips_seen");
                   keys.forEach(k=>localStorage.removeItem(k));
+                  onCelebReset&&onCelebReset();
                   alert("Celebrations reset! Open Student Portal to see them.");
                 }} style={{padding:"0.45rem 1rem",border:`1.5px solid ${pal.stone}`,borderRadius:"10px",background:"transparent",color:pal.slate,fontSize:"0.76rem",fontWeight:"600",cursor:"pointer"}}>
                   {"🎉 Reset celebrations"}
@@ -6290,6 +6299,25 @@ function generateSchedule(family, childId) {
   }
 
   const isTimed = family.scheduleMode === "timed";
+  // Respect schoolDays setting
+  const schoolDaysSetting = family.schoolDays||"Monday-Friday";
+  const DOW_NAMES_SC = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const todayNameSC = DOW_NAMES_SC[new Date().getDay()];
+  const schoolDayList = {
+    "Monday-Friday":  ["Monday","Tuesday","Wednesday","Thursday","Friday"],
+    "Monday-Thursday":["Monday","Tuesday","Wednesday","Thursday"],
+    "Tuesday-Friday": ["Tuesday","Wednesday","Thursday","Friday"],
+    "Mon/Wed/Fri":    ["Monday","Wednesday","Friday"],
+    "Tue/Thu":        ["Tuesday","Thursday"],
+  }[schoolDaysSetting] || ["Monday","Tuesday","Wednesday","Thursday","Friday"];
+  if(!schoolDayList.includes(todayNameSC)) return [];
+  // Respect weeklySchedule day-off (null = day off or co-op)
+  const todayDowIdxSC = new Date().getDay()-1; // 0=Mon...4=Fri
+  if(family.weeklySchedule && todayDowIdxSC>=0 && todayDowIdxSC<=4
+     && family.weeklySchedule[todayDowIdxSC]===null) return [];
+  // Parse endTime to cap schedule length
+  const endTimeSetting = family.endTime||"15:00";
+  const endTotalMins = parseInt(endTimeSetting.split(":")[0])*60 + parseInt((endTimeSetting.split(":")[1])||0);
   let blocks = [];
   let cursor = startHour * 60 + startMin;
   const toTime = mins => {
@@ -6316,6 +6344,7 @@ function generateSchedule(family, childId) {
     // Mark group subjects vs individual in mixed mode
     const isGroup = schedMode==="mixed" && (family.groupSubjects||[]).includes(id);
     const cId = schedMode==="separate"&&childId ? childId : "all";
+    if(isTimed && cursor >= endTotalMins) return; // stop at end time
     blocks.push({t:isTimed?toTime(cursor):"", s:subj.label, i:subj.icon, c:cId, dur:sessionMins, isGroup});
     if(isTimed) {
       cursor += sessionMins;
@@ -6365,11 +6394,25 @@ function generateSchedule(family, childId) {
   }
 
   // Inject Life Ready blocks based on day of week
+  // Use weeklySchedule to find the first school day (P&C lesson day)
   if (family.lifeReady) {
-    const dow = new Date().getDay();
+    const dow = new Date().getDay(); // 1=Mon...5=Fri
     const freq = family.lifeReadyFreq || "monday_plus_practice";
-    const topic = getLRTopicForWeek(family.children?.[0]?.grade||"5th");
-    if (dow===1) {
+    const grade = family.children?.[0]?.grade||"5th";
+    const topic = getLRTopicForWeek(grade);
+    // Determine lesson day from weeklySchedule (first non-null school day)
+    const ws = family.weeklySchedule;
+    const DOW_JS = [null,1,2,3,4,5,null]; // js getDay() -> Mon=1...Fri=5
+    let lessonDow = 1; // default Monday
+    let practDows = [2,3,4];
+    if(ws) {
+      const schoolIdxs = [0,1,2,3,4].filter(i=>ws[i]!==null); // 0=Mon...4=Fri
+      if(schoolIdxs.length>0) {
+        lessonDow = schoolIdxs[0]+1; // convert to JS dow (Mon=1)
+        practDows = schoolIdxs.slice(1,4).map(i=>i+1);
+      }
+    }
+    if (dow===lessonDow) {
       const insertAt = family.morningGathering ? 1 : 0;
       blocks.splice(insertAt, 0, {
         t: isTimed ? toTime(cursor) : "",
@@ -6381,7 +6424,7 @@ function generateSchedule(family, childId) {
         isLesson: true,
         accentColor: LR_COLOR,
       });
-    } else if (freq === "monday_plus_practice" && (dow===2||dow===3||dow===4)) {
+    } else if (freq === "monday_plus_practice" && practDows.includes(dow)) {
       blocks.push({
         t: "",
         s: "P&C Practice: " + topic,
@@ -7631,10 +7674,10 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
   // P&C week completion state
   const PC_KEY = "rootbloom_pc_done";
   const getPCWeekKey = () => {
-    const now = new Date();
-    const yearStart = new Date(now.getFullYear(),7,1);
-    const weekNum = Math.floor((now-yearStart)/(7*24*60*60*1000));
-    return now.getFullYear()+"-"+weekNum;
+    // Use the same school-year-aware week calculation as pc-lessons.js
+    const schoolWeek = getLRSchoolWeek();
+    const yr = getLRYearStart().getFullYear();
+    return yr+"-"+schoolWeek;
   };
   const [pcDone, setPcDone] = useState(()=>{
     try{ const s=localStorage.getItem(PC_KEY); return s?JSON.parse(s).weekKey===getPCWeekKey():false; }catch(e){return false;}
@@ -8166,7 +8209,10 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
     <div key="pandc" data-section="pandc">
       {/* ── P&C This Week ── */}
         {family.lifeReady && (()=>{
-          const ch    = family.children[0];
+          // Use filtered child if one is selected, else first child
+          const ch    = (child&&child!=="all")
+            ? (family.children.find(c=>c.id===child)||family.children[0])
+            : family.children[0];
           const grade = ch?.grade||"5th";
           const topic = getLRTopicForWeek(grade);
           const week  = getLRWeekNumber(grade);
@@ -10928,9 +10974,18 @@ function QuickCaptureModal({pal, family, activeChildId, onClose, onSave, attenda
             </div>
           )}
 
-          {/* Subject chips */}
+          {/* Subject chips - filtered to today schedule */}
+          {qcTodaySubjs&&(
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"0.3rem"}}>
+              <div style={{fontSize:"0.68rem",color:pal.slate}}>{showAllQCSubjs?"All subjects":"Today's subjects"}</div>
+              <button onClick={()=>setShowAllQCSubjs(v=>!v)}
+                style={{fontSize:"0.68rem",color:pal.primary,fontWeight:"700",background:"transparent",border:"none",cursor:"pointer"}}>
+                {showAllQCSubjs?"\u2190 Today's only":"Show all"}
+              </button>
+            </div>
+          )}
           <div style={{display:"flex",gap:"0.3rem",flexWrap:"wrap",marginBottom:"0.75rem"}}>
-            {activeSubjs.map(s=>{
+            {qcDisplaySubjs.map(s=>{
               const sel=subj===s.label;
               return (
                 <button key={s.id} onClick={()=>setSubj(s.label)}
@@ -12373,9 +12428,24 @@ function AddEntryModal({pal,family,onClose,onSave,initialData=null,stateInfo=nul
   const customSubjs = family.customSubjects||[];
   const allSubjs = [...SUBJECT_OPTIONS,...customSubjs];
   const activeSubjs = (family.subjects||[]).map(id=>allSubjs.find(s=>s.id===id)).filter(Boolean);
-  const subjOptions = ["Daily Check-In",...activeSubjs.map(s=>s.label)];
+
+  // Filter subjects by today's weekly schedule
+  const weeklySchedule = family.weeklySchedule||null;
+  const todayDow = new Date().getDay(); // 0=Sun,1=Mon...5=Fri,6=Sat
+  const dowIndex = todayDow===0||todayDow===6 ? null : todayDow-1; // 0=Mon...4=Fri, null on weekends
+  const todaySubjIds = (weeklySchedule&&dowIndex!=null) ? weeklySchedule[dowIndex] : null;
+  // null means day off or weekend; array means scheduled subjects for today
+  const isDayOff = weeklySchedule && dowIndex!=null && todaySubjIds===null;
+  const todaySubjs = (Array.isArray(todaySubjIds) && todaySubjIds.length>0)
+    ? todaySubjIds.map(id=>allSubjs.find(s=>s.id===id)).filter(Boolean)
+    : null; // null = no schedule set or weekend
+
+  // Show today's subjects if we have a schedule; otherwise show all
+  const [showAllSubjs, setShowAllSubjs] = useState(!todaySubjs || isEdit);
+  const displaySubjs = (showAllSubjs || !todaySubjs) ? activeSubjs : todaySubjs;
+  const subjOptions = ["Daily Check-In",...displaySubjs.map(s=>s.label)];
   // If editing with a subj not in the list, show it as custom
-  const subjInList = subjOptions.includes(subj);
+  const subjInList = subjOptions.includes(subj) || (showAllSubjs ? false : activeSubjs.map(s=>s.label).includes(subj));
   const canSave = title.trim().length>0 && canSaveReading;
 
   const handleSubjSelect = (s) => {
@@ -12416,7 +12486,22 @@ function AddEntryModal({pal,family,onClose,onSave,initialData=null,stateInfo=nul
             </div>
           )}
 
-          <Lbl pal={pal}>Subject</Lbl>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"0.3rem"}}>
+            <Lbl pal={pal} style={{margin:0}}>Subject</Lbl>
+            {todaySubjs&&!isEdit&&(
+              <button onClick={()=>setShowAllSubjs(v=>!v)}
+                style={{fontSize:"0.68rem",color:showAllSubjs?pal.slate:pal.primary,fontWeight:"700",background:"transparent",border:"none",cursor:"pointer",padding:"0.1rem 0"}}>
+                {showAllSubjs?"\u2190 Today's subjects":"Show all subjects"}
+              </button>
+            )}
+          </div>
+          {todaySubjs&&!showAllSubjs&&!isEdit&&(
+            <div style={{fontSize:"0.68rem",color:pal.slate,marginBottom:"0.4rem"}}>
+              {isDayOff
+                ? "\u26a0\ufe0f Today is a scheduled day off. Logging anyway?"
+                : "Showing today's scheduled subjects"}
+            </div>
+          )}
           <div style={{display:"flex",flexWrap:"wrap",gap:"0.35rem",marginBottom:"0.45rem"}}>
             {subjOptions.map(s=>(
               <button key={s} onClick={()=>handleSubjSelect(s)}
@@ -13573,11 +13658,26 @@ function LifeReadyScreen({pal,family,onBack}){
     document.body.scrollTop=0;
   },[]);
 
-  const grade = family.children?.[0]?.grade||"5th";
+  // Multi-child: let parent pick which child's grade level to use
+  const [selectedChildIdx, setSelectedChildIdx] = useState(0);
+  const selectedChild = family.children?.[selectedChildIdx] || family.children?.[0];
+  const grade = selectedChild?.grade||"5th";
   const topic = getLRTopicForWeek(grade);
   const cats  = family.lifeReadyCategories||LR_CATEGORIES.map(c=>c.id);
   const freq  = family.lifeReadyFreq||"monday_plus_practice";
-  const LS_KEY = "rootbloom_lr_lesson";
+  const LS_KEY = "rootbloom_lr_lesson_"+grade; // cache per grade
+
+  // Derive which days P&C falls on from weeklySchedule or freq setting
+  const weeklySchedule = family.weeklySchedule||null;
+  const DOW_NAMES = ["Monday","Tuesday","Wednesday","Thursday","Friday"];
+  const DOW_MAP   = {Monday:0,Tuesday:1,Wednesday:2,Thursday:3,Friday:4};
+  // School days = days that are not null in weeklySchedule (or Mon-Fri if no schedule)
+  const schoolDays = weeklySchedule
+    ? DOW_NAMES.filter((_,i)=>weeklySchedule[i]!==null)
+    : DOW_NAMES;
+  // Pick the P&C day (first school day of week = Monday lesson day)
+  const pcMainDay   = schoolDays[0]||"Monday";
+  const pcPractDays = schoolDays.slice(1,4); // next 3 school days for practice
 
   useState(()=>{
     try{ const s=localStorage.getItem(LS_KEY); if(s){const p=JSON.parse(s);if(p.topic===topic)setLesson(p);} }catch(e){}
@@ -13592,9 +13692,11 @@ function LifeReadyScreen({pal,family,onBack}){
       const g = GOALS.find(x=>x.id===id);
       return g?g.label:id;
     }).join(", ");
+    const activeCatLabels = LR_CATEGORIES.filter(c=>cats.includes(c.id)).map(c=>c.label).join(", ");
     const prompt = "Create an age-appropriate Life Ready lesson plan for homeschool students."
       + " Topic: "+topic+". Students: "+childNames+"."
-      + (lifeGoalLabels?" This family especially values: "+lifeGoalLabels+" — let these shape your examples and framing where natural.":"")
+      + (activeCatLabels?" The family focuses on these life skill areas: "+activeCatLabels+". Shape examples to match.":"")
+      + (lifeGoalLabels?" Family values: "+lifeGoalLabels+".":"")
       + " Format: 1) Opening hook (1-2 sentences to grab attention), "
       + "2) What you need (materials list, simple), "
       + "3) The lesson (3-5 clear steps, hands-on), "
@@ -13623,6 +13725,22 @@ function LifeReadyScreen({pal,family,onBack}){
           <button onClick={onBack} style={{width:"32px",height:"32px",borderRadius:"50%",background:"rgba(255,255,255,0.18)",border:"none",color:"#fff",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.9rem",flexShrink:0}}>{"<"[0]}</button>
           <span style={{fontWeight:"900",color:"#fff",fontSize:"1.15rem"}}>{LR_ICON} Prepared {"&"} Capable</span>
         </div>
+        {/* Multi-child grade picker */}
+        {(family.children||[]).length>1&&(
+          <div style={{display:"flex",gap:"0.35rem",paddingBottom:"0.65rem",overflowX:"auto"}}>
+            {(family.children||[]).map((ch,i)=>{
+              const sel=selectedChildIdx===i;
+              return (
+                <button key={ch.id} onClick={()=>setSelectedChildIdx(i)}
+                  style={{display:"flex",alignItems:"center",gap:"0.3rem",padding:"0.28rem 0.65rem",border:"none",borderRadius:"20px",background:sel?"rgba(255,255,255,0.28)":"rgba(255,255,255,0.1)",cursor:"pointer",flexShrink:0,transition:"all 0.15s"}}>
+                  <span style={{fontSize:"0.85rem"}}>{ch.avatar}</span>
+                  <span style={{fontSize:"0.72rem",fontWeight:sel?"800":"500",color:sel?"#fff":"rgba(255,255,255,0.65)"}}>{ch.name}</span>
+                  <span style={{fontSize:"0.62rem",color:sel?"rgba(255,255,255,0.8)":"rgba(255,255,255,0.45)"}}>{ch.grade}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
         <div style={{display:"flex",gap:"2px",overflowX:"auto",paddingBottom:"0"}}>
           {[["this_week","This Week"],["topics","Topics"],["settings","Settings"]].map(([id,l])=>(
             <button key={id} onClick={()=>setTab(id)} style={{padding:"0.45rem 0.85rem",border:"none",borderRadius:"10px 10px 0 0",background:tab===id?"rgba(255,255,255,0.18)":"transparent",color:tab===id?"#fff":"rgba(255,255,255,0.5)",fontSize:"0.74rem",fontWeight:tab===id?"700":"400",cursor:"pointer",whiteSpace:"nowrap",flexShrink:0}}>
@@ -13654,7 +13772,9 @@ function LifeReadyScreen({pal,family,onBack}){
                     <div style={{height:"100%",width:`${pct}%`,borderRadius:"99px",background:"rgba(255,255,255,0.7)"}}/>
                   </div>
                   <div style={{fontSize:"0.68rem",color:"rgba(255,255,255,0.65)"}}>
-                    {freq==="monday_plus_practice"?"Monday lesson + Tue-Thu practice":freq==="monday_only"?"Monday lesson only":"Flexible schedule"}
+                    {freq==="monday_plus_practice"?(pcMainDay+" lesson + "+pcPractDays.slice(0,3).join("/")+" practice"):
+                     freq==="monday_only"?(pcMainDay+" lesson only"):
+                     "Flexible \u2014 check your schedule"}
                   </div>
                 </div>
               </div>
@@ -13893,26 +14013,47 @@ function LifeReadyScreen({pal,family,onBack}){
         {/* ====== SETTINGS TAB ====== */}
         {tab==="settings" && (<>
           <div style={{background:pal.linen,borderRadius:"16px",padding:"1rem",border:"1.5px solid #e8e8e8",marginBottom:"0.85rem"}}>
-            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem",marginBottom:"0.65rem"}}>Current schedule</div>
+            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem",marginBottom:"0.65rem"}}>P&C schedule</div>
             {[
-              ["monday_plus_practice","Monday lesson + practice Tue-Thu"],
-              ["monday_only","Monday lesson only"],
-              ["flexible","Flexible — I schedule it"],
-            ].map(([id,label])=>(
-              <div key={id} style={{display:"flex",gap:"0.5rem",alignItems:"center",padding:"0.42rem 0",borderTop:id!=="monday_plus_practice"?"1px solid #f0f0f0":"none"}}>
-                <div style={{width:"14px",height:"14px",borderRadius:"50%",border:`2px solid ${freq===id?LR_COLOR:"#ccc"}`,background:freq===id?LR_COLOR:"transparent",flexShrink:0}}/>
-                <span style={{fontSize:"0.8rem",color:freq===id?LR_COLOR:pal.inkM,fontWeight:freq===id?"700":"400"}}>{label}</span>
-              </div>
+              ["monday_plus_practice",pcMainDay+" lesson + "+pcPractDays.slice(0,3).join("/")+" practice","Best for habit-building"],
+              ["monday_only",pcMainDay+" lesson only","One focused session/week"],
+              ["flexible","Flexible \u2014 I decide","Works around your week"],
+            ].map(([id,label,note])=>(
+              <button key={id} onClick={()=>{
+                try{const sv=JSON.parse(localStorage.getItem("rootbloom_v1")||"{}");sv.family={...sv.family,lifeReadyFreq:id};localStorage.setItem("rootbloom_v1",JSON.stringify(sv));}catch(e){}
+              }} style={{width:"100%",display:"flex",gap:"0.5rem",alignItems:"center",padding:"0.55rem 0.6rem",borderRadius:"10px",border:`2px solid ${freq===id?LR_COLOR:"transparent"}`,background:freq===id?LR_COLOR+"12":"transparent",cursor:"pointer",textAlign:"left",marginBottom:"0.2rem",transition:"all 0.13s"}}>
+                <div style={{width:"16px",height:"16px",borderRadius:"50%",border:`2px solid ${freq===id?LR_COLOR:"#ccc"}`,background:freq===id?LR_COLOR:"transparent",flexShrink:0}}/>
+                <div style={{flex:1}}>
+                  <div style={{fontSize:"0.8rem",color:freq===id?LR_COLOR:pal.inkM,fontWeight:freq===id?"700":"400"}}>{label}</div>
+                  <div style={{fontSize:"0.65rem",color:pal.slate}}>{note}</div>
+                </div>
+              </button>
             ))}
-            <div style={{fontSize:"0.72rem",color:pal.slate,marginTop:"0.65rem"}}>{"To change these, go to Settings → School."}</div>
+            <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"0.4rem"}}>{"Restart the app to see changes reflected."}</div>
           </div>
           <div style={{background:pal.linen,borderRadius:"16px",padding:"1rem",border:"1.5px solid #e8e8e8"}}>
-            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem",marginBottom:"0.5rem"}}>Active focus areas ({cats.length})</div>
-            <div style={{display:"flex",flexWrap:"wrap",gap:"0.38rem"}}>
-              {LR_CATEGORIES.filter(c=>cats.includes(c.id)).map(c=>(
-                <span key={c.id} style={{padding:"0.2rem 0.55rem",background:LR_COLOR+"18",borderRadius:"20px",fontSize:"0.72rem",fontWeight:"700",color:LR_COLOR}}>{c.icon} {c.label}</span>
-              ))}
+            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem",marginBottom:"0.5rem"}}>Focus areas ({cats.length} active)</div>
+            <div style={{display:"flex",flexDirection:"column",gap:"0.3rem"}}>
+              {LR_CATEGORIES.map(c=>{
+                const sel=cats.includes(c.id);
+                return (
+                  <button key={c.id} onClick={()=>{
+                    const next=sel?cats.filter(x=>x!==c.id):[...cats,c.id];
+                    try{const sv=JSON.parse(localStorage.getItem("rootbloom_v1")||"{}");sv.family={...sv.family,lifeReadyCategories:next};localStorage.setItem("rootbloom_v1",JSON.stringify(sv));}catch(e){}
+                  }} style={{display:"flex",gap:"0.6rem",alignItems:"center",padding:"0.5rem 0.65rem",borderRadius:"10px",border:`1.5px solid ${sel?LR_COLOR:pal.stone+"40"}`,background:sel?LR_COLOR+"10":"transparent",cursor:"pointer",textAlign:"left",transition:"all 0.13s"}}>
+                    <span style={{fontSize:"1rem",flexShrink:0}}>{c.icon}</span>
+                    <div style={{flex:1}}>
+                      <div style={{fontSize:"0.78rem",fontWeight:sel?"700":"400",color:sel?LR_COLOR:pal.inkM}}>{c.label}</div>
+                      <div style={{fontSize:"0.63rem",color:pal.slate}}>{c.desc}</div>
+                    </div>
+                    <div style={{width:"18px",height:"18px",borderRadius:"4px",border:`2px solid ${sel?LR_COLOR:pal.stone}`,background:sel?LR_COLOR:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                      {sel&&<span style={{color:"#fff",fontSize:"0.65rem",fontWeight:"900"}}>{"\u2713"}</span>}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
+            <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"0.55rem"}}>{"Changes save immediately."}</div>
           </div>
         </>)}
       </div>
