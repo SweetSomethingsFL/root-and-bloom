@@ -1433,6 +1433,7 @@ function RootAndBloom() {
     } else {
       setNavIds(baseNav);
     }
+    setView("parent");
     setShowCelebration(true);
   };
   const [showTour,       setShowTour]       = useState(false);
@@ -3552,10 +3553,10 @@ function OnboardingFlow({ pal, onComplete }) {
     paletteId:"sage",
   });
   const upd = (k,v) => setData(d=>({...d,[k]:v}));
-  const STEPS = ["Welcome","Your Children","Learning Style","Curriculum","Subjects","Weekly Schedule","Lesson Goals","Schedule","Co-op","Goals","Life & Extras","Life Ready","Daily Checklist"];
+  const STEPS = ["Welcome","Your Children","Learning Style","Curriculum","Subjects","Co-op","Your Schedule","Lesson Goals","Goals","Life & Extras","Life Ready","You're All Set!","Daily Checklist"];
   const pct = Math.round((step/12)*100);
 
-  const STEP_ICONS = ["🌱","👨👩👧👦","📚","📖","🔬","🎯","📆","📅","🏫","🌟","🌿","🛡","📋"];
+  const STEP_ICONS = ["🌱","👨👩👧👦","📚","📖","🔬","🏫","📅","🎯","🌟","🌿","🛡","🎉","📋"];
 
   return (
     <div style={{minHeight:"100vh",background:pal.sand,display:"flex",flexDirection:"column"}}>
@@ -3579,13 +3580,13 @@ function OnboardingFlow({ pal, onComplete }) {
         {step===2 && <OnbPhilosophy   pal={pal} data={data} upd={upd} onNext={()=>setStep(3)} />}
         {step===3 && <OnbCurrBrands   pal={pal} data={data} upd={upd} onNext={()=>setStep(4)} />}
         {step===4 && <OnbSubjects     pal={pal} data={data} upd={upd} onNext={()=>setStep(5)} />}
-        {step===5 && <OnbWeeklySchedule pal={pal} data={data} upd={upd} onNext={()=>setStep(6)} />}
-        {step===6 && <OnbLessonGoals    pal={pal} data={data} upd={upd} onNext={()=>setStep(7)} />}
-        {step===7 && <OnbSchedule       pal={pal} data={data} upd={upd} onNext={()=>setStep(8)} />}
-        {step===8 && <OnbCoop           pal={pal} data={data} upd={upd} onNext={()=>setStep(9)} />}
-        {step===9 && <OnbGoals          pal={pal} data={data} upd={upd} onNext={()=>setStep(10)} />}
-        {step===10 && <OnbExtras        pal={pal} data={data} upd={upd} onNext={()=>setStep(11)} />}
-        {step===11 && <OnbLifeReady       pal={pal} data={data} upd={upd} onNext={()=>setStep(12)} />}
+        {step===5 && <OnbCoop              pal={pal} data={data} upd={upd} onNext={()=>setStep(6)} />}
+        {step===6 && <OnbScheduleCombined  pal={pal} data={data} upd={upd} onNext={()=>setStep(7)} />}
+        {step===7 && <OnbLessonGoals       pal={pal} data={data} upd={upd} onNext={()=>setStep(8)} />}
+        {step===8 && <OnbGoals             pal={pal} data={data} upd={upd} onNext={()=>setStep(9)} />}
+        {step===9 && <OnbExtras            pal={pal} data={data} upd={upd} onNext={()=>setStep(10)} />}
+        {step===10 && <OnbLifeReady        pal={pal} data={data} upd={upd} onNext={()=>setStep(11)} />}
+        {step===11 && <OnbCelebration      pal={pal} data={data} upd={upd} onNext={()=>setStep(12)} />}
         {step===12 && <OnbSchedulePref     pal={pal} data={data} upd={upd} onNext={()=>onComplete(data)} />}
       </div>
     </div>
@@ -3640,6 +3641,305 @@ function OnbSchedulePref({ pal, data, upd, onNext }) {
       </button>
     </div>
   );
+
+/* --- CELEBRATION STEP --- */
+function OnbCelebration({ pal, data, onNext }) {
+  const [confetti, setConfetti] = React.useState([]);
+  React.useEffect(()=>{
+    const pieces = Array.from({length:40},(_,i)=>({
+      id:i,
+      x: Math.random()*100,
+      delay: Math.random()*1.2,
+      dur: 1.8 + Math.random()*1.2,
+      color: ["#a8d5a2","#f6c90e","#e07b9a","#7ec8e3","#f4a261","#a29bfe"][i%6],
+      size: 6 + Math.random()*8,
+      rot: Math.random()*360,
+    }));
+    setConfetti(pieces);
+  },[]);
+
+  const childNames = (data.children||[]).map(c=>c.name).filter(Boolean);
+  const nameStr = childNames.length===1 ? childNames[0]
+    : childNames.length===2 ? childNames.join(" & ")
+    : childNames.slice(0,-1).join(", ") + " & " + childNames[childNames.length-1];
+
+  return (
+    <div style={{minHeight:"100%",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"2.5rem 1.6rem",textAlign:"center",position:"relative",overflow:"hidden",background:pal.sand}}>
+      {/* Confetti */}
+      <div style={{position:"absolute",inset:0,pointerEvents:"none",overflow:"hidden"}}>
+        {confetti.map(p=>(
+          <div key={p.id} style={{
+            position:"absolute",left:p.x+"%",top:"-20px",
+            width:p.size+"px",height:p.size+"px",
+            background:p.color,
+            borderRadius:Math.random()>0.5?"50%":"3px",
+            animation:`confettiFall ${p.dur}s ${p.delay}s ease-in forwards`,
+            transform:`rotate(${p.rot}deg)`,
+            opacity:0.85,
+          }}/>
+        ))}
+      </div>
+
+      <div style={{position:"relative",zIndex:1,maxWidth:"380px"}}>
+        <div style={{fontSize:"4rem",marginBottom:"0.5rem",animation:"grow 0.5s ease"}}>{"🌱"}</div>
+        <h2 style={{fontFamily:"Georgia",fontSize:"1.6rem",fontWeight:"900",color:pal.ink,margin:"0 0 0.5rem",lineHeight:1.2}}>
+          {"You're all set"}{data.parentName?", "+data.parentName:""}{"!"}
+        </h2>
+        <p style={{fontSize:"0.88rem",color:pal.slate,lineHeight:1.7,margin:"0 0 1.5rem"}}>
+          {nameStr
+            ? "Root & Bloom is ready for "+nameStr+(childNames.length>1?" and their":" and their")+" journey. Every lesson logged, every milestone captured, every step of the way."
+            : "Root & Bloom is ready for your family. Every lesson logged, every milestone captured, every step of the way."
+          }
+        </p>
+
+        <div style={{display:"flex",flexDirection:"column",gap:"0.6rem",marginBottom:"2rem"}}>
+          {[
+            {icon:"📝", text:"Log your first lesson today"},
+            {icon:"🌟", text:"Capture a milestone as it happens"},
+            {icon:"📊", text:"Track progress all year long"},
+            {icon:"🎓", text:"Print a portfolio when you're ready"},
+          ].map((item,i)=>(
+            <div key={i} style={{display:"flex",alignItems:"center",gap:"0.75rem",padding:"0.65rem 1rem",background:pal.linen,borderRadius:"12px",border:`1.5px solid ${pal.stone}25`,textAlign:"left"}}>
+              <span style={{fontSize:"1.2rem",flexShrink:0}}>{item.icon}</span>
+              <span style={{fontSize:"0.82rem",color:pal.inkM,fontWeight:"600"}}>{item.text}</span>
+            </div>
+          ))}
+        </div>
+
+        <button onClick={onNext}
+          style={{width:"100%",padding:"0.95rem",border:"none",borderRadius:"14px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.95rem",cursor:"pointer",boxShadow:"0 4px 18px rgba(0,0,0,0.12)"}}>
+          {"One last thing \u2192"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* --- COMBINED SCHEDULE STEP --- */
+function OnbScheduleCombined({ pal, data, upd, onNext }) {
+  // Sub-tab: "details" (school year, hours, days, style) or "weekly" (per-day subjects)
+  const [tab, setTab] = React.useState("details");
+
+  const customSubjs = data.customSubjects||[];
+  const allSubjMap  = Object.fromEntries([...SUBJECT_OPTIONS,...customSubjs].map(s=>[s.id,s]));
+  const activeSubjs = (data.subjects||[]).map(id=>allSubjMap[id]).filter(Boolean);
+  const coopDay     = data.coopDay;
+  const DOW_LABELS  = ["Mon","Tue","Wed","Thu","Fri"];
+  const DOW_FULL    = ["Monday","Tuesday","Wednesday","Thursday","Friday"];
+  const DOW_MAP     = {"Monday":0,"Tuesday":1,"Wednesday":2,"Thursday":3,"Friday":4};
+  const coopDow     = DOW_MAP[coopDay]??-1;
+
+  const [sched, setSched] = React.useState(()=>{
+    if(data.weeklySchedule) return data.weeklySchedule;
+    const init = {};
+    for(let d=0;d<5;d++){
+      if(d===coopDow){init[d]=null;continue;}
+      init[d]=activeSubjs.map(s=>s.id);
+    }
+    return init;
+  });
+  const [activeDay, setActiveDay] = React.useState(coopDow===0?1:0);
+
+  const toggleSubj = (dow,subjId)=>{
+    setSched(prev=>{
+      const cur=prev[dow]||[];
+      const next=cur.includes(subjId)?cur.filter(x=>x!==subjId):[...cur,subjId];
+      return {...prev,[dow]:next};
+    });
+  };
+  const toggleDay = (dow)=>{
+    if(dow===coopDow) return;
+    setSched(prev=>({...prev,[dow]:prev[dow]===null?activeSubjs.map(s=>s.id):null}));
+  };
+
+  const saveAndNext = ()=>{
+    upd("weeklySchedule",sched);
+    onNext();
+  };
+
+  return (
+    <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
+      <StepHdr pal={pal} icon={"📅"} title="Your Schedule"
+        sub="Set up your school year details and which subjects you cover each day." />
+
+      {/* Sub-tab switcher */}
+      <div style={{display:"flex",background:pal.parchm,borderRadius:"12px",padding:"3px",gap:"2px",marginBottom:"1.1rem"}}>
+        {[["details","📖 Details"],["weekly","📆 Weekly"]].map(([val,label])=>(
+          <button key={val} onClick={()=>setTab(val)}
+            style={{flex:1,padding:"0.55rem 0.4rem",border:"none",borderRadius:"10px",
+              background:tab===val?pal.linen:"transparent",cursor:"pointer",
+              fontWeight:"700",color:tab===val?pal.primary:pal.slate,fontSize:"0.8rem",transition:"all 0.15s"}}>
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {tab==="details" && (
+        <div style={{animation:"fadeUp 0.2s ease"}}>
+          {/* School year dates */}
+          <div style={{background:pal.pale,borderRadius:"14px",padding:"0.9rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.primary}22`}}>
+            <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.86rem",marginBottom:"0.55rem"}}>{"\xf0\x9f\x93\x96"} School Year Dates</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.65rem"}}>
+              <div>
+                <Lbl pal={pal}>Year started</Lbl>
+                <Input pal={pal} type="date" value={data.yearStart||""} onChange={v=>upd("yearStart",v)} />
+              </div>
+              <div>
+                <Lbl pal={pal}>Goal end date</Lbl>
+                <Input pal={pal} type="date" value={data.yearEnd||""} onChange={v=>upd("yearEnd",v)} />
+              </div>
+            </div>
+            <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"0.5rem"}}>Used to track your year progress. You can update this anytime in Settings.</div>
+          </div>
+
+          {/* Hours goal */}
+          <div style={{background:pal.parchm,borderRadius:"13px",padding:"0.8rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}35`}}>
+            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.84rem",marginBottom:"0.2rem"}}>{"🕐"} Daily hours goal (optional)</div>
+            <div style={{fontSize:"0.71rem",color:pal.slate,marginBottom:"0.55rem"}}>Florida requires 180 days but no hour minimum. Other states vary.</div>
+            <div style={{display:"flex",gap:"0.4rem",flexWrap:"wrap"}}>
+              {["No hour tracking","2 hours/day","3 hours/day","4 hours/day","5 hours/day","6 hours/day"].map(h=>(
+                <button key={h} onClick={()=>upd("dailyHoursGoal",h)}
+                  style={{padding:"0.3rem 0.7rem",borderRadius:"20px",border:`2px solid ${(data.dailyHoursGoal||"No hour tracking")===h?pal.primary:pal.stone+"50"}`,background:(data.dailyHoursGoal||"No hour tracking")===h?pal.pale:"transparent",cursor:"pointer",fontSize:"0.74rem",fontWeight:(data.dailyHoursGoal||"No hour tracking")===h?"700":"400",color:(data.dailyHoursGoal||"No hour tracking")===h?pal.primary:pal.inkM}}>
+                  {h}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <Lbl pal={pal}>School days</Lbl>
+          <div style={{display:"flex",flexDirection:"column",gap:"0.4rem",marginBottom:"1rem"}}>
+            {SCHOOL_DAYS_OPTIONS.map(d=>(
+              <button key={d} onClick={()=>upd("schoolDays",d)}
+                style={{padding:"0.7rem 1rem",border:`2px solid ${data.schoolDays===d?pal.primary:pal.stone+"50"}`,borderRadius:"12px",background:data.schoolDays===d?pal.pale:"transparent",cursor:"pointer",textAlign:"left",fontWeight:data.schoolDays===d?"700":"400",color:data.schoolDays===d?pal.primary:pal.inkM,fontSize:"0.84rem",transition:"all 0.13s"}}>
+                {d}
+              </button>
+            ))}
+          </div>
+
+          {/* Morning gathering */}
+          <div style={{background:pal.pale,borderRadius:"13px",padding:"0.85rem 1rem",marginBottom:"1.2rem",border:`1.5px solid ${pal.primary}22`}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:data.morningGathering?"0.65rem":"0"}}>
+              <div>
+                <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.86rem"}}>{"🌅"} Morning gathering time?</div>
+                <div style={{fontSize:"0.72rem",color:pal.slate,marginTop:"2px"}}>A cozy start before individual subjects</div>
+              </div>
+              <button onClick={()=>upd("morningGathering",!data.morningGathering)}
+                style={{width:"44px",height:"26px",borderRadius:"13px",border:"none",background:data.morningGathering?pal.primary:pal.stone+"60",cursor:"pointer",position:"relative",transition:"background 0.2s",flexShrink:0}}>
+                <div style={{position:"absolute",top:"3px",left:data.morningGathering?"21px":"3px",width:"20px",height:"20px",borderRadius:"50%",background:"#fff",transition:"left 0.2s"}}/>
+              </button>
+            </div>
+            {data.morningGathering&&(
+              <div>
+                <Lbl pal={pal}>What do you call it?</Lbl>
+                <div style={{display:"flex",gap:"0.4rem",flexWrap:"wrap",marginBottom:"0.5rem"}}>
+                  {["Morning Time","Morning Basket","Circle Time","Morning Meeting","Devotions"].map(n=>(
+                    <button key={n} onClick={()=>upd("morningGatheringName",n)}
+                      style={{padding:"0.35rem 0.7rem",border:`1.5px solid ${data.morningGatheringName===n?pal.primary:pal.stone+"50"}`,borderRadius:"20px",background:data.morningGatheringName===n?pal.pale:"transparent",cursor:"pointer",fontSize:"0.74rem",fontWeight:data.morningGatheringName===n?"700":"400",color:data.morningGatheringName===n?pal.primary:pal.inkM,transition:"all 0.13s"}}>
+                      {n}
+                    </button>
+                  ))}
+                </div>
+                <Input pal={pal} value={data.morningGatheringName} onChange={v=>upd("morningGatheringName",v)} placeholder="Or type your own name..." />
+              </div>
+            )}
+          </div>
+
+          <Btn pal={pal} onClick={()=>setTab("weekly")}>{"Set weekly subjects \u2192"}</Btn>
+        </div>
+      )}
+
+      {tab==="weekly" && (
+        <div style={{animation:"fadeUp 0.2s ease"}}>
+          {/* Day tabs */}
+          <div style={{display:"flex",gap:"0.3rem",marginBottom:"1rem"}}>
+            {DOW_LABELS.map((d,i)=>{
+              const isActive=activeDay===i;
+              const isCopDay=i===coopDow;
+              const isOff=sched[i]===null&&!isCopDay;
+              const subjCount=Array.isArray(sched[i])?sched[i].length:0;
+              return (
+                <button key={i} onClick={()=>setActiveDay(i)}
+                  style={{flex:1,padding:"0.55rem 0.2rem",borderRadius:"12px",border:`2px solid ${isActive?pal.primary:isCopDay?"#f5c842":isOff?pal.stone+"40":pal.stone+"50"}`,background:isActive?pal.pale:isCopDay?"#fff8e6":"transparent",cursor:"pointer",textAlign:"center",transition:"all 0.13s"}}>
+                  <div style={{fontSize:"0.65rem",fontWeight:"800",color:isActive?pal.primary:isCopDay?"#b07800":isOff?pal.stone:pal.inkM,textTransform:"uppercase",letterSpacing:"0.05em"}}>{d}</div>
+                  <div style={{fontSize:"0.58rem",color:isActive?pal.primary:isCopDay?"#b07800":isOff?pal.stone:pal.slate,marginTop:"2px",fontWeight:"600"}}>
+                    {isCopDay?"Co-op":isOff?"Off":subjCount+" subj"}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Day panel */}
+          {activeDay===coopDow ? (
+            <div style={{background:"#fff8e6",borderRadius:"16px",padding:"0.9rem 1rem",border:"1.5px solid #f5c84250",marginBottom:"1rem"}}>
+              <div style={{fontWeight:"700",color:"#7a5500",fontSize:"0.86rem",marginBottom:"0.4rem"}}>{DOW_FULL[activeDay]+" \u2014 Co-op Day"}</div>
+              <div style={{fontSize:"0.73rem",color:"#b07800"}}>This day is set aside for co-op. Subjects logged here will be tagged as co-op.</div>
+            </div>
+          ) : (
+            <div style={{background:pal.linen,borderRadius:"16px",padding:"0.9rem 1rem",border:`1.5px solid ${pal.stone}30`,marginBottom:"1rem"}}>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:sched[activeDay]===null?"0":"0.75rem",paddingBottom:sched[activeDay]===null?"0":"0.75rem",borderBottom:sched[activeDay]===null?"none":`1px solid ${pal.stone}20`}}>
+                <div>
+                  <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem"}}>{DOW_FULL[activeDay]}</div>
+                  <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>{sched[activeDay]===null?"No school this day":"Select which subjects"}</div>
+                </div>
+                <button onClick={()=>toggleDay(activeDay)}
+                  style={{width:"44px",height:"26px",borderRadius:"13px",border:"none",background:sched[activeDay]===null?pal.stone+"60":pal.primary,cursor:"pointer",position:"relative",transition:"background 0.2s",flexShrink:0}}>
+                  <div style={{position:"absolute",top:"3px",left:sched[activeDay]===null?"3px":"21px",width:"20px",height:"20px",borderRadius:"50%",background:"#fff",transition:"left 0.2s"}}/>
+                </button>
+              </div>
+              {sched[activeDay]!==null&&(
+                <div style={{display:"flex",flexDirection:"column",gap:"0.32rem"}}>
+                  {activeSubjs.map(s=>{
+                    const sel=(sched[activeDay]||[]).includes(s.id);
+                    return (
+                      <button key={s.id} onClick={()=>toggleSubj(activeDay,s.id)}
+                        style={{display:"flex",gap:"0.65rem",alignItems:"center",padding:"0.55rem 0.75rem",border:`2px solid ${sel?pal.primary:pal.stone+"45"}`,borderRadius:"11px",background:sel?pal.pale:"#fff",cursor:"pointer",textAlign:"left",transition:"all 0.12s"}}>
+                        <span style={{fontSize:"1.1rem",width:"22px",textAlign:"center",flexShrink:0}}>{s.icon}</span>
+                        <span style={{flex:1,fontWeight:sel?"700":"400",color:sel?pal.primary:pal.inkM,fontSize:"0.84rem"}}>{s.label}</span>
+                        <div style={{width:"20px",height:"20px",borderRadius:"5px",border:`2px solid ${sel?pal.primary:pal.stone}`,background:sel?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.12s"}}>
+                          {sel&&<span style={{color:"#fff",fontSize:"0.72rem",fontWeight:"900"}}>{"\u2713"}</span>}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Week at a glance */}
+          <div style={{background:pal.parchm,borderRadius:"12px",padding:"0.65rem 0.85rem",marginBottom:"1.1rem",border:`1px solid ${pal.stone}25`}}>
+            <div style={{fontSize:"0.64rem",fontWeight:"800",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.35rem"}}>Your week at a glance</div>
+            <div style={{display:"flex",gap:"0.5rem",flexWrap:"wrap"}}>
+              {DOW_LABELS.map((d,i)=>{
+                const isCopDay=i===coopDow;
+                const isOff=sched[i]===null&&!isCopDay;
+                const count=Array.isArray(sched[i])?sched[i].length:0;
+                return (
+                  <div key={i} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:"2px",cursor:"pointer"}} onClick={()=>setActiveDay(i)}>
+                    <div style={{fontSize:"0.6rem",fontWeight:"700",color:isCopDay?"#b07800":isOff?pal.stone:pal.inkM}}>{d}</div>
+                    <div style={{width:"36px",height:"36px",borderRadius:"9px",background:isCopDay?"#fff8e6":isOff?pal.parchm:pal.pale,border:`1.5px solid ${activeDay===i?pal.primary:isCopDay?"#f5c842":isOff?pal.stone+"30":pal.stone+"40"}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.68rem",fontWeight:"800",color:isCopDay?"#b07800":isOff?pal.stone:pal.primary}}>
+                      {isCopDay?"🏫":isOff?"\u2014":count}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div style={{display:"flex",gap:"0.5rem"}}>
+            <button onClick={()=>setTab("details")}
+              style={{flex:1,padding:"0.72rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.86rem",cursor:"pointer"}}>
+              {"\u2190 Details"}
+            </button>
+            <Btn pal={pal} onClick={saveAndNext} style={{flex:2}}>{"Save & Next \u2192"}</Btn>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 }
 
 
@@ -4951,14 +5251,6 @@ function OnbExtras({ pal, data, upd, onNext }) {
   return (
     <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
       <StepHdr pal={pal} icon="🌿" title="Life & Extras" sub="A few last things to personalize your app." />
-      <Lbl pal={pal}>Co-op frequency</Lbl>
-      <div style={{display:"flex",flexDirection:"column",gap:"0.4rem",marginBottom:"1rem"}}>
-        {COOP_FREQ.map(c=>(
-          <button key={c} onClick={()=>upd("coopFreq",c)} style={{padding:"0.65rem 1rem",border:`2px solid ${data.coopFreq===c?pal.primary:pal.stone+"50"}`,borderRadius:"12px",background:data.coopFreq===c?pal.pale:"transparent",cursor:"pointer",textAlign:"left",fontWeight:data.coopFreq===c?"700":"400",color:data.coopFreq===c?pal.primary:pal.inkM,fontSize:"0.84rem",transition:"all 0.13s"}}>
-            {c}
-          </button>
-        ))}
-      </div>
       <Lbl pal={pal}>Extracurriculars <span style={{fontWeight:"400",color:pal.slate}}>(pick all that apply)</span></Lbl>
       <div style={{display:"flex",flexWrap:"wrap",gap:"0.4rem",marginBottom:"0.6rem"}}>
         {allExtras.map(e=>(
@@ -4980,14 +5272,7 @@ function OnbExtras({ pal, data, upd, onNext }) {
         <button onClick={addCustomExtra} disabled={!customExtra.trim()} style={{padding:"0.55rem 0.9rem",border:"none",borderRadius:"11px",background:customExtra.trim()?pal.accentGrad:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.8rem",cursor:customExtra.trim()?"pointer":"default",flexShrink:0}}>+ Add</button>
       </div>
       <div style={{height:"0.5rem"}}/>
-      {/* Final CTA - warm */}
-      <div style={{background:pal.heroGrad,borderRadius:"18px",padding:"1.2rem 1.3rem",marginBottom:"1.1rem",textAlign:"center",position:"relative",overflow:"hidden"}}>
-        <div style={{position:"absolute",right:"-20px",top:"-20px",width:"80px",height:"80px",borderRadius:"50%",background:"rgba(255,255,255,0.06)"}}/>
-        <div style={{fontSize:"2rem",marginBottom:"0.4rem",position:"relative"}}>🌱</div>
-        <div style={{fontWeight:"800",color:pal.onDark,fontSize:"0.94rem",marginBottom:"0.25rem",position:"relative"}}>{"You're all set, "}{data.parentName||"friend"}{"!"}</div>
-        <div style={{fontSize:"0.78rem",color:"rgba(255,255,255,0.65)",lineHeight:1.65,position:"relative"}}>Root & Bloom is ready for your family. Let us grow something beautiful together.</div>
-      </div>
-      <Btn pal={pal} onClick={onNext}>Open My App 🌱</Btn>
+      <Btn pal={pal} onClick={onNext}>{"Next \u2192"}</Btn>
     </div>
   );
 }
