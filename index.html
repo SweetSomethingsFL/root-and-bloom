@@ -14957,7 +14957,7 @@ function DailyLogSection({pal,cp,ch,childEntries,subjEntries}){
       )}
 
         {/* ====== COMPARE ====== */}
-        {activeView==="compare"&&family.children.length>1&&(()=>{
+        {false&&(()=>{
           const yr=new Date().getFullYear();
           const weekStart2=new Date();
           weekStart2.setDate(weekStart2.getDate()-(weekStart2.getDay()===0?6:weekStart2.getDay()-1));
