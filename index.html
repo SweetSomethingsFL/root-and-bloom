@@ -15833,10 +15833,10 @@ function NavModal({ pal, navIds, setNavIds, onClose }) {
     else{if(local.length>=6)return;setLocal(l=>[...l,id]);}
   };
   return (
-    <BottomSheet pal={pal} onClose={onClose} title="Customize Your Nav" sub={local.length + " tabs - 3-5 - Home, Progress & Portfolio always stay"}>
+    <BottomSheet pal={pal} onClose={onClose} title="Customize Your Nav" sub={local.length + " tabs - pick up to 6"}>
       <div style={{display:"flex",flexDirection:"column",gap:"0.42rem",marginBottom:"1rem"}}>
         {ALL_SECTIONS_EXT.filter(s=>s.id!=="more").map(s=>{
-          const on=local.includes(s.id),atMax=local.length>=5&&!on;
+          const on=local.includes(s.id),atMax=local.length>=6&&!on;
           return <button key={s.id} onClick={()=>toggle(s.id)} style={{display:"flex",gap:"0.65rem",alignItems:"center",padding:"0.7rem 0.9rem",border:`2px solid ${on?pal.primary:pal.stone+"50"}`,borderRadius:"12px",background:on?pal.pale:"transparent",cursor:s.locked||atMax?"default":"pointer",opacity:atMax&&!on?0.35:1,transition:"all 0.13s",textAlign:"left"}}>
             <span style={{fontSize:"1.2rem",width:"28px",textAlign:"center"}}>{s.icon}</span>
             <span style={{flex:1,fontWeight:on?"700":"400",color:on?pal.primary:pal.inkM,fontSize:"0.84rem"}}>{s.label}</span>
