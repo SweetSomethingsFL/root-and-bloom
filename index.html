@@ -2448,7 +2448,7 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
               const tip=ACT[key][new Date().getDate()%ACT[key].length];
               return (
                 <div style={{background:"linear-gradient(135deg,"+c1+"12,"+c2+"08)",borderRadius:"14px",padding:"0.75rem 1rem",marginTop:"0.5rem",border:"1.5px solid "+c1+"25",display:"flex",gap:"0.6rem",alignItems:"flex-start"}}>
-                  <span style={{fontSize:"1.2rem",flexShrink:0,marginTop:"2px"}}>{"\xf0\x9f\x92\xa1"}</span>
+                  <span style={{fontSize:"1.2rem",flexShrink:0,marginTop:"2px"}}>{"💡"}</span>
                   <div>
                     <div style={{fontSize:"0.63rem",fontWeight:"800",color:c1,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"3px"}}>{"Quick activity!"}</div>
                     <div style={{fontSize:"0.78rem",color:SK.ink,lineHeight:1.55}}>{tip}</div>
@@ -3100,7 +3100,7 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
               }} style={{display:"none"}}/>
             <div style={{display:"flex",gap:"0.45rem",marginBottom:"0.45rem"}}>
               <button onClick={()=>kidPhotoRef.current?.click()}
-                style={{width:"48px",height:"48px",borderRadius:"13px",border:"2px solid "+(quickNotePhoto?c1:"#ece5dc"),background:quickNotePhoto?c1+"15":"transparent",color:quickNotePhoto?c1:SK.lite,fontSize:"1.3rem",cursor:"pointer",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>{"\xf0\x9f\x93\xb7"}</button>
+                style={{width:"48px",height:"48px",borderRadius:"13px",border:"2px solid "+(quickNotePhoto?c1:"#ece5dc"),background:quickNotePhoto?c1+"15":"transparent",color:quickNotePhoto?c1:SK.lite,fontSize:"1.3rem",cursor:"pointer",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>{"📷"}</button>
               <button onClick={()=>saveQuickNote(quickNotePrompt.blockIdx, quickNotePrompt.b, quickNoteText, quickNotePhoto)}
                 style={{flex:1,padding:"0.82rem",border:"none",borderRadius:"13px",background:"linear-gradient(135deg,"+SK.sky+","+SK.grass+")",color:"#fff",fontWeight:"900",fontSize:"0.88rem",cursor:"pointer"}}>
                 {quickNoteText.trim()||quickNotePhoto?"Save \xe2\x9c\x93":"Done \xe2\x9c\x93"}
@@ -7014,7 +7014,7 @@ function ObservationJournalModal({pal, family, childId, entries, onAdd, onDelete
               <span style={{fontSize:"1.3rem"}}>{child?.avatar||"🌱"}</span>
               <div>
                 <div style={{fontWeight:"900",color:"#fff",fontSize:"0.92rem"}}>{child?.name}</div>
-                <div style={{fontSize:"0.65rem",color:"rgba(255,255,255,0.72)"}}>{"\xf0\x9f\x93\x93 "+allEntries.length+" observation"+(allEntries.length!==1?"s":"")}</div>
+                <div style={{fontSize:"0.65rem",color:"rgba(255,255,255,0.72)"}}>{"📓 "+allEntries.length+" observation"+(allEntries.length!==1?"s":"")}</div>
               </div>
             </div>
             <button onClick={onClose}
@@ -7073,7 +7073,7 @@ function ObservationJournalModal({pal, family, childId, entries, onAdd, onDelete
               </button>
             ))}
           </div>
-          <div style={{fontSize:"0.6rem",color:pal.stone,marginTop:"0.35rem"}}>{"\xf0\x9f\x94\x92 Private \u2014 never shown in portfolio or reports"}</div>
+          <div style={{fontSize:"0.6rem",color:pal.stone,marginTop:"0.35rem"}}>{"🔒 Private \u2014 never shown in portfolio or reports"}</div>
         </div>
 
         {/* Search */}
@@ -7092,7 +7092,7 @@ function ObservationJournalModal({pal, family, childId, entries, onAdd, onDelete
         <div style={{flex:1,overflowY:"auto",padding:"0.75rem 1.1rem"}}>
           {childEntries.length===0?(
             <div style={{textAlign:"center",padding:"2rem 1rem"}}>
-              <div style={{fontSize:"2.5rem",marginBottom:"0.5rem"}}>{"\xf0\x9f\x93\x93"}</div>
+              <div style={{fontSize:"2.5rem",marginBottom:"0.5rem"}}>{"📓"}</div>
               <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.88rem",marginBottom:"0.3rem"}}>{searchQ?"No matching notes":"No notes yet"}</div>
               <div style={{fontSize:"0.75rem",color:pal.slate,lineHeight:1.6}}>
                 {searchQ?"Try a different search term":("Capture moments, breakthroughs, and observations about "+child?.name+". Just for you.")}
@@ -10163,7 +10163,7 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
                     </div>
                   )}
                   <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:filterSubj||filterRange||filterMilestone?"0.55rem":"0"}}>
-                    <span style={{fontSize:"0.78rem",color:pal.inkM,fontWeight:"600"}}>{"\xf0\x9f\x8c\x9f Milestones only"}</span>
+                    <span style={{fontSize:"0.78rem",color:pal.inkM,fontWeight:"600"}}>{"🌟 Milestones only"}</span>
                     <button onClick={()=>setFilterMilestone(v=>!v)}
                       style={{width:"40px",height:"22px",borderRadius:"99px",border:"none",background:filterMilestone?pal.primary:pal.stone+"60",cursor:"pointer",position:"relative",transition:"background 0.2s",flexShrink:0}}>
                       <div style={{position:"absolute",top:"2px",left:filterMilestone?"20px":"2px",width:"18px",height:"18px",borderRadius:"50%",background:"#fff",transition:"left 0.2s",boxShadow:"0 1px 4px rgba(0,0,0,0.2)"}}/>
@@ -10186,10 +10186,10 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
                       return (
                         <div key={e.id||i} onClick={()=>setDetail(e)}
                           style={{background:"#fff",borderRadius:"13px",padding:"0.65rem 0.85rem",border:"1.5px solid "+(e.isMilestone?cp.c1+"40":pal.stone+"20"),cursor:"pointer",display:"flex",gap:"0.6rem",alignItems:"center"}}>
-                          <div style={{width:"36px",height:"36px",borderRadius:"9px",background:cp.c1+"15",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1rem",flexShrink:0}}>{e.thumb||"\xf0\x9f\x93\x8b"}</div>
+                          <div style={{width:"36px",height:"36px",borderRadius:"9px",background:cp.c1+"15",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1rem",flexShrink:0}}>{e.thumb||"📋"}</div>
                           <div style={{flex:1,minWidth:0}}>
                             <div style={{display:"flex",alignItems:"center",gap:"0.35rem",marginBottom:"1px"}}>
-                              {e.isMilestone&&<span style={{fontSize:"0.65rem"}}>{"\xf0\x9f\x8c\x9f"}</span>}
+                              {e.isMilestone&&<span style={{fontSize:"0.65rem"}}>{"🌟"}</span>}
                               <span style={{fontSize:"0.65rem",fontWeight:"700",color:cp.c1,background:cp.c1+"15",padding:"0.1rem 0.4rem",borderRadius:"20px",flexShrink:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:"100px"}}>{e.subj}</span>
                               <span style={{fontSize:"0.62rem",color:pal.stone,flexShrink:0}}>{e.date}</span>
                             </div>
