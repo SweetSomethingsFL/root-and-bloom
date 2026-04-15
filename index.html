@@ -5440,15 +5440,15 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                 </button>
               </div>
             </SCard>
-            <SCard pal={pal} title="Nav Tabs" note={navIds.length + " tabs - 3-5 - Home, Progress & Portfolio always stay"}>
+            <SCard pal={pal} title="Nav Tabs" note={navIds.length + " tabs - pick up to 6"}>
               <div style={{display:"flex",flexDirection:"column",gap:"0.42rem"}}>
                 {ALL_SECTIONS_EXT.filter(s=>s.id!=="more").map(s=>{
                   const on=navIds.includes(s.id);
-                  const atMax=navIds.length>=5&&!on;
+                  const atMax=navIds.length>=6&&!on;
                   return (
                     <button key={s.id} onClick={()=>{
                       if(s.locked)return;
-                      if(on){if(navIds.length<=3)return;setNavIds(n=>n.filter(x=>x!==s.id));}
+                      if(on){if(navIds.length<=2)return;setNavIds(n=>n.filter(x=>x!==s.id));}
                       else{if(atMax)return;setNavIds(n=>[...n,s.id]);}
                     }} style={{display:"flex",gap:"0.65rem",alignItems:"center",padding:"0.7rem 0.9rem",border:`2px solid ${on?pal.primary:pal.stone+"50"}`,borderRadius:"12px",background:on?pal.pale:"transparent",cursor:s.locked||atMax?"default":"pointer",opacity:atMax&&!on?0.35:1,transition:"all 0.13s",textAlign:"left"}}>
                       <span style={{fontSize:"1.2rem",width:"28px",textAlign:"center"}}>{s.icon}</span>
