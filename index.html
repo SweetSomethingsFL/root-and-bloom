@@ -986,7 +986,7 @@ function printPortfolioPDF(family, entries, child, attendanceDays, stateInfo, da
 }
 
 
-const ALL_SECTIONS_EXT = [...ALL_SECTIONS.map(s=>(["schedule","portfolio"].includes(s.id)?{...s,locked:false}:s)), {id:"progress",label:"Progress",icon:"\uD83D\uDCC8",locked:false}].filter((s,i,a)=>a.findIndex(x=>x.id===s.id)===i);
+const ALL_SECTIONS_EXT = [...ALL_SECTIONS.map(s=>(["schedule","portfolio"].includes(s.id)?{...s,locked:false}:s)),{id:"progress",label:"Progress",icon:"\uD83D\uDCC8",locked:false}].filter((s,i,a)=>a.findIndex(x=>x.id===s.id)===i);
 
 function RootAndBloom() {
   const saved = useMemo(()=>loadSaved(),[]);
@@ -15031,7 +15031,7 @@ function DailyLogSection({pal,cp,ch,childEntries,subjEntries}){
         })()}
 
         {/* ====== GRADES TAB ====== */}
-        {activeTab==="grades"&&(()=>{
+        {(()=>{
           // Letter grade helper
           const pctToLetter = (pct) => {
             if(pct>=93) return {letter:"A+",color:"#1a6e40",bg:"#edf9f0"};
@@ -15848,7 +15848,7 @@ function NavModal({ pal, navIds, setNavIds, onClose }) {
         <div style={{fontSize:"0.65rem",color:pal.slate,textAlign:"center",marginBottom:"0.5rem",fontWeight:"600",textTransform:"uppercase",letterSpacing:"0.07em"}}>Preview</div>
         <div style={{display:"flex",justifyContent:"center"}}>{local.map(id=>{const s=ALL_SECTIONS.find(x=>x.id===id);return <div key={id} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:"2px",padding:"0.35rem 0"}}><span style={{fontSize:"1.1rem"}}>{s?.icon}</span><span style={{fontSize:"0.57rem",color:pal.primary,fontWeight:"700"}}>{s?.label}</span></div>;})}</div>
       </div>
-      <button onClick={()=>{setNavIds(local.includes("progress")?local:[...local,"progress"]);onClose();}} style={{width:"100%",padding:"0.8rem",border:"none",borderRadius:"13px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>Save Nav</button>
+      <button onClick={()=>{setNavIds(local);onClose();}} style={{width:"100%",padding:"0.8rem",border:"none",borderRadius:"13px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>Save Nav</button>
     </BottomSheet>
   );
 }

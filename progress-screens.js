@@ -1,9 +1,4 @@
-/* progress-screens.js
-   ProgressScreen, TranscriptsScreen, WeeklyDigestModal, DailyLogSection
-   Globals from index.html: CHILD_COLOR_PALETTES, SUBJECT_OPTIONS, GOALS, GOAL_NUDGES,
-   getStateInfo, getComplianceInfo, gradeLevel, downloadPortfolioHTML,
-   callClaude, generateStruggleReport, goalSummary, curriculumContext
-*/
+/* progress-screens.js - all fixes applied */
 
 function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], attendanceDays=0, onUpdateFamily, onOpenEOY}) {
   const [activeTab,    setActiveTab]    = React.useState("pulse");   // pulse | timeline | milestones | skills | grades
@@ -1590,6 +1585,9 @@ function WeeklyDigestModal({ pal, family, savedPulses=[], portfolioEntries=[], a
 function DailyLogSection({pal,cp,ch,childEntries,subjEntries}){
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState(null);
+  const [gradeStruggle,        setGradeStruggle]        = useState(null);
+  const [gradeStruggleLoading, setGradeStruggleLoading] = useState(false);
+  const [gradeStruggleError,   setGradeStruggleError]   = useState(null);
 
   // Group subject entries by date
   const byDate = {};
