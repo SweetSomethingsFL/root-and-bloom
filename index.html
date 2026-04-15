@@ -5822,6 +5822,16 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                 ))}
               </div>
               <AIUsageDisplay pal={pal}/>
+              <div style={{marginTop:"1rem",paddingTop:"1rem",borderTop:`1px solid ${pal.stone}30`}}>
+                <div style={{fontSize:"0.72rem",color:pal.slate,marginBottom:"0.5rem",fontWeight:"600",textTransform:"uppercase",letterSpacing:"0.05em"}}>{"Developer Tools"}</div>
+                <button onClick={()=>{
+                  const keys=Object.keys(localStorage).filter(k=>k.startsWith("portalCeleb_")||k==="rootbloom_tips_seen");
+                  keys.forEach(k=>localStorage.removeItem(k));
+                  alert("Celebrations reset! Open Student Portal to see them.");
+                }} style={{padding:"0.45rem 1rem",border:`1.5px solid ${pal.stone}`,borderRadius:"10px",background:"transparent",color:pal.slate,fontSize:"0.76rem",fontWeight:"600",cursor:"pointer"}}>
+                  {"🎉 Reset celebrations"}
+                </button>
+              </div>
             </SCard>
           </div>
         )}
