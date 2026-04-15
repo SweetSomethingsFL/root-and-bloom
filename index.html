@@ -986,7 +986,7 @@ function printPortfolioPDF(family, entries, child, attendanceDays, stateInfo, da
 }
 
 
-const ALL_SECTIONS_EXT = [...ALL_SECTIONS.map(s=>(["schedule","portfolio"].includes(s.id)?{...s,locked:false}:s)),{id:"progress",label:"Progress",icon:"\ud83d\udcc8",locked:false}].filter((s,i,a)=>a.findIndex(x=>x.id===s.id)===i);
+const ALL_SECTIONS_EXT = [...ALL_SECTIONS.map(s=>(["schedule","portfolio"].includes(s.id)?{...s,locked:false}:s)),{id:"progress",label:"Progress",icon:"\ud83d\udcc8",locked:false}].filter((s,i,a)=>a.findIndex(x=>x.id===s.id)===i).sort((a,b)=>a.id==="more"?1:b.id==="more"?-1:a.id==="progress"?1:b.id==="progress"?-1:0);
 
 function RootAndBloom() {
   const saved = useMemo(()=>loadSaved(),[]);
