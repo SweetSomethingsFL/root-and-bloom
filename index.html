@@ -986,6 +986,8 @@ function printPortfolioPDF(family, entries, child, attendanceDays, stateInfo, da
 }
 
 
+const ALL_SECTIONS_EXT = [...ALL_SECTIONS.map(s=>(["schedule","portfolio"].includes(s.id)?{...s,locked:false}:s)), {id:"progress",label:"Progress",icon:"\uD83D\uDCC8",locked:false}].filter((s,i,a)=>a.findIndex(x=>x.id===s.id)===i);
+
 function RootAndBloom() {
   const saved = useMemo(()=>loadSaved(),[]);
   const [family,         setFamily]         = useState(saved?.family||null);
@@ -1143,7 +1145,6 @@ function RootAndBloom() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[]);
 
-  const ALL_SECTIONS_EXT = [...ALL_SECTIONS.map(s=>(["schedule","portfolio"].includes(s.id)?{...s,locked:false}:s)), {id:"progress",label:"Progress",icon:"\uD83D\uDCC8",locked:false}].filter((s,i,a)=>a.findIndex(x=>x.id===s.id)===i);
   const navIdsExt = navIds.includes("progress")?navIds:[...navIds,"progress"];
   const navTabs = ALL_SECTIONS_EXT.filter(s=>navIdsExt.includes(s.id));
 
