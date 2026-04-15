@@ -3552,7 +3552,7 @@ function OnboardingFlow({ pal, onComplete }) {
     paletteId:"sage",
   });
   const upd = (k,v) => setData(d=>({...d,[k]:v}));
-  const STEPS = ["Welcome","Your Children","Learning Style","Curriculum","Subjects","Lesson Goals","Weekly Schedule","Schedule","Co-op","Goals","Life & Extras","Life Ready","Daily Checklist"];
+  const STEPS = ["Welcome","Your Children","Learning Style","Curriculum","Subjects","Weekly Schedule","Lesson Goals","Schedule","Co-op","Goals","Life & Extras","Life Ready","Daily Checklist"];
   const pct = Math.round((step/12)*100);
 
   const STEP_ICONS = ["🌱","👨👩👧👦","📚","📖","🔬","🎯","📆","📅","🏫","🌟","🌿","🛡","📋"];
@@ -3579,8 +3579,8 @@ function OnboardingFlow({ pal, onComplete }) {
         {step===2 && <OnbPhilosophy   pal={pal} data={data} upd={upd} onNext={()=>setStep(3)} />}
         {step===3 && <OnbCurrBrands   pal={pal} data={data} upd={upd} onNext={()=>setStep(4)} />}
         {step===4 && <OnbSubjects     pal={pal} data={data} upd={upd} onNext={()=>setStep(5)} />}
-        {step===5 && <OnbLessonGoals    pal={pal} data={data} upd={upd} onNext={()=>setStep(6)} />}
-        {step===6 && <OnbWeeklySchedule pal={pal} data={data} upd={upd} onNext={()=>setStep(7)} />}
+        {step===5 && <OnbWeeklySchedule pal={pal} data={data} upd={upd} onNext={()=>setStep(6)} />}
+        {step===6 && <OnbLessonGoals    pal={pal} data={data} upd={upd} onNext={()=>setStep(7)} />}
         {step===7 && <OnbSchedule       pal={pal} data={data} upd={upd} onNext={()=>setStep(8)} />}
         {step===8 && <OnbCoop           pal={pal} data={data} upd={upd} onNext={()=>setStep(9)} />}
         {step===9 && <OnbGoals          pal={pal} data={data} upd={upd} onNext={()=>setStep(10)} />}
@@ -4184,20 +4184,34 @@ function OnbLifeReady({ pal, data, upd, onNext }) {
 /* --- STEP 5: Lesson Goals --- */
 function OnbLessonGoals({ pal, data, upd, onNext }) {
   // lessonGoals = {subjId: {0:n, 1:n, 2:n, 3:n, 4:n}} 0=Mon...4=Fri
-  const customSubjs = data.customSubjects||[];
-  const allSubjMap  = Object.fromEntries([...SUBJECT_OPTIONS,...customSubjs].map(s=>[s.id,s]));
-  const activeSubjs = (data.subjects||[]).map(id=>allSubjMap[id]).filter(Boolean);
-  const coopDay     = data.coopDay; // e.g. "Friday"
-  const DOW_NAMES   = ["Mon","Tue","Wed","Thu","Fri"];
-  const DOW_MAP     = {"Monday":0,"Tuesday":1,"Wednesday":2,"Thursday":3,"Friday":4};
-  const coopDow     = DOW_MAP[coopDay]??-1;
+  const customSubjs    = data.customSubjects||[];
+  const allSubjMap     = Object.fromEntries([...SUBJECT_OPTIONS,...customSubjs].map(s=>[s.id,s]));
+  const activeSubjs    = (data.subjects||[]).map(id=>allSubjMap[id]).filter(Boolean);
+  const coopDay        = data.coopDay;
+  const DOW_NAMES      = ["Mon","Tue","Wed","Thu","Fri"];
+  const DOW_MAP        = {"Monday":0,"Tuesday":1,"Wednesday":2,"Thursday":3,"Friday":4};
+  const coopDow        = DOW_MAP[coopDay]??-1;
+  const weeklySchedule = data.weeklySchedule||null;
 
-  // Initialise goals from existing data or sensible defaults
+  // Is this subject scheduled on this day (per WeeklySchedule step)?
+  const isSubjOnDay = (subjId, dow) => {
+    if(!weeklySchedule) return true;
+    const daySched = weeklySchedule[dow];
+    if(daySched===null) return false;
+    if(!Array.isArray(daySched)) return true;
+    return daySched.includes(subjId);
+  };
+
+  // Initialise goals: default to 1 on scheduled days, 0 on off/unscheduled days
   const [goals, setGoals] = React.useState(()=>{
     const existing = data.lessonGoals||{};
     const init = {};
     activeSubjs.forEach(s=>{
-      init[s.id] = existing[s.id]||{0:1,1:1,2:1,3:1,4:1};
+      const row = {};
+      for(let d=0;d<5;d++){
+        row[d] = (existing[s.id]!=null) ? (existing[s.id][d]||0) : (isSubjOnDay(s.id,d)?1:0);
+      }
+      init[s.id] = row;
     });
     return init;
   });
@@ -4229,7 +4243,7 @@ function OnbLessonGoals({ pal, data, upd, onNext }) {
   return (
     <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
       <StepHdr pal={pal} icon="🎯" title="Lesson Goals"
-        sub="How many lessons of each subject do you aim to do each day? Tap a number to cycle 0-1-2-3. This helps track your week." />
+        sub="How many lessons of each subject do you aim to do per day? Days off or unscheduled subjects are shown as —. Tap a number to cycle 0→1→2→3." />
 
       <div style={{background:pal.pale,borderRadius:"12px",padding:"0.7rem 0.9rem",marginBottom:"1rem",border:`1.5px solid ${pal.primary}20`,fontSize:"0.74rem",color:pal.inkM,lineHeight:1.6}}>
         {"Tip: 0 means that subject is not planned for that day. Tap each number to cycle through 0 \u2192 1 \u2192 2 \u2192 3."}
@@ -4259,12 +4273,15 @@ function OnbLessonGoals({ pal, data, upd, onNext }) {
                   </div>
                 </div>
                 {[0,1,2,3,4].map(dow=>{
-                  const isCoop = dow===coopDow;
-                  const val = isCoop ? null : (goals[s.id]?.[dow]||0);
+                  const isCoop     = dow===coopDow;
+                  const isOff      = !isCoop && !isSubjOnDay(s.id, dow);
+                  const val        = (isCoop||isOff) ? null : (goals[s.id]?.[dow]||0);
                   return (
                     <div key={dow} style={{display:"flex",alignItems:"center",justifyContent:"center"}}>
                       {isCoop ? (
                         <div style={{width:"30px",height:"30px",borderRadius:"8px",background:"#fff8e6",border:"1.5px solid #f5c84240",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.55rem",color:"#b07800",fontWeight:"700",textAlign:"center",lineHeight:1.2}}>co{"\u00b7"}op</div>
+                      ) : isOff ? (
+                        <div style={{width:"30px",height:"30px",borderRadius:"8px",background:pal.parchm,border:"1.5px solid "+pal.stone+"25",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.75rem",color:pal.stone,opacity:0.5}}>{"\u2014"}</div>
                       ) : (
                         <button onClick={()=>cycle(s.id,dow)}
                           style={{width:"30px",height:"30px",borderRadius:"8px",border:`2px solid ${val>0?pal.primary:pal.stone+"50"}`,background:val>0?pal.pale:"transparent",cursor:"pointer",fontWeight:"800",fontSize:"0.82rem",color:val>0?pal.primary:pal.stone,display:"flex",alignItems:"center",justifyContent:"center",padding:0,transition:"all 0.12s"}}>
