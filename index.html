@@ -5439,7 +5439,7 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
             </SCard>
             <SCard pal={pal} title="Nav Tabs" note={navIds.length + " tabs - 3-5 - Home, Progress & Portfolio always stay"}>
               <div style={{display:"flex",flexDirection:"column",gap:"0.42rem"}}>
-                {ALL_SECTIONS.filter(s=>s.id!=="more").map(s=>{
+               {[...ALL_SECTIONS,{id:"progress",label:"Progress",icon:"",locked:true}].filter((s,i,a)=>a.findIndex(x=>x.id===s.id)===i&&s.id!=="more").map(s=>{
                   const on=navIds.includes(s.id);
                   const atMax=navIds.length>=5&&!on;
                   return (
