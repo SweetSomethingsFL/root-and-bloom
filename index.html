@@ -9935,9 +9935,9 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
                         <span>{"\xf0\x9f\x91\xa8\xe2\x80\x8d\xf0\x9f\x91\xa9\xe2\x80\x8d\xf0\x9f\x91\xa7"}</span><span>{"All children \u2014 combined"}</span>
                       </button>
                     )}
-                    <button onClick={()=>{setShowPrintMenu(false);printEvaluatorPacket(family,childEntries,activeCh,attendanceDays);}}\
-                      style={{width:"100%",padding:"0.65rem 0.9rem",border:"none",background:"transparent",color:pal.ink,fontSize:"0.78rem",fontWeight:"600",cursor:"pointer",textAlign:"left",display:"flex",gap:"0.5rem",alignItems:"center",borderBottom:`1px solid ${pal.stone}20`}}>\
-                      <span>{"📋"}</span><span>{"Evaluator packet"}</span>\
+                    <button onClick={()=>{setShowPrintMenu(false);printEvaluatorPacket(family,childEntries,activeCh,attendanceDays);}}
+                      style={{width:"100%",padding:"0.65rem 0.9rem",border:"none",background:"transparent",color:pal.ink,fontSize:"0.78rem",fontWeight:"600",cursor:"pointer",textAlign:"left",display:"flex",gap:"0.5rem",alignItems:"center",borderBottom:`1px solid ${pal.stone}20`}}>
+                      <span>{"📋"}</span><span>{"Evaluator packet"}</span>
                     </button>
                     <button onClick={()=>{setShowPrintMenu(false);printProgressReport(family,portfolioEntries,activeCh,attendanceDays,coopLog);}}
                       style={{width:"100%",padding:"0.65rem 0.9rem",border:"none",background:"transparent",color:pal.ink,fontSize:"0.78rem",fontWeight:"600",cursor:"pointer",textAlign:"left",display:"flex",gap:"0.5rem",alignItems:"center"}}>
