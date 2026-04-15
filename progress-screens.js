@@ -1245,7 +1245,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
           </div>
 
           {/* Daily Log — all saved portfolio days, searchable by date */}
-          <DailyLogSection pal={pal} cp={cp} childEntries={childEntries} subjEntries={subjEntries}/>
+        <DailyLogSection pal={pal} cp={cp} ch={ch} childEntries={childEntries} subjEntries={subjEntries}/>
 
           <div style={{height:"0.5rem"}}/>
         </>)}
@@ -1587,7 +1587,7 @@ function WeeklyDigestModal({ pal, family, savedPulses=[], portfolioEntries=[], a
 }
 
 /* ---- Daily Log Section (inside Transcript tab) ---- */
-function DailyLogSection({pal,cp,childEntries,subjEntries}){
+function DailyLogSection({pal,cp,ch,childEntries,subjEntries}){
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState(null);
 
