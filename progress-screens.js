@@ -1245,7 +1245,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
           </div>
 
           {/* Daily Log — all saved portfolio days, searchable by date */}
-        <DailyLogSection pal={pal} cp={cp} ch={ch} childEntries={childEntries} subjEntries={subjEntries}/>
+          <DailyLogSection pal={pal} cp={cp} ch={ch} childEntries={childEntries} subjEntries={subjEntries}/>
 
           <div style={{height:"0.5rem"}}/>
         </>)}
@@ -1715,7 +1715,7 @@ function DailyLogSection({pal,cp,ch,childEntries,subjEntries}){
       )}
 
         {/* ====== GRADES TAB ====== */}
-       {(()=>{
+        {(()=>{
           // Letter grade helper
           const pctToLetter = (pct) => {
             if(pct>=93) return {letter:"A+",color:"#1a6e40",bg:"#edf9f0"};
