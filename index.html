@@ -986,7 +986,7 @@ function printPortfolioPDF(family, entries, child, attendanceDays, stateInfo, da
 }
 
 
-const ALL_SECTIONS_EXT = [...ALL_SECTIONS.map(s=>(["schedule","portfolio"].includes(s.id)?{...s,locked:false}:s)),{id:"progress",label:"Progress",icon:"\u2139\ufe0f",locked:false}].filter((s,i,a)=>a.findIndex(x=>x.id===s.id)===i);
+const ALL_SECTIONS_EXT = [...ALL_SECTIONS.map(s=>(["schedule","portfolio"].includes(s.id)?{...s,locked:false}:s)),{id:"progress",label:"Progress",icon:"\ud83d\udcc8",locked:false}].filter((s,i,a)=>a.findIndex(x=>x.id===s.id)===i);
 
 function RootAndBloom() {
   const saved = useMemo(()=>loadSaved(),[]);
@@ -14264,7 +14264,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
 
         {/* View tabs */}
         <div style={{display:"flex",background:pal.parchm,borderRadius:"11px",padding:"3px",gap:"2px",marginBottom:"1rem"}}>
-          {(family.children.length>1?[["overview","📋","Overview"],["transcript","📜","Transcript"],["reading","📖","Reading Log"],["narrative","📝","Narrative"],["compare","⚖️","Compare"]]:[["overview","📋","Overview"],["transcript","📜","Transcript"],["reading","📖","Reading Log"],["narrative","📝","Narrative"]]).map(([id,icon,l])=>(
+          {(family.children.length>1?[["overview","📋","Overview"],["transcript","📜","Transcript"],["reading","📖","Reading Log"],["narrative","📝","Narrative"]]:[["overview","📋","Overview"],["transcript","📜","Transcript"],["reading","📖","Reading Log"],["narrative","📝","Narrative"]]).map(([id,icon,l])=>(
             <button key={id} onClick={()=>setActiveView(id)}
               style={{flex:1,padding:"0.42rem 0.2rem",border:"none",borderRadius:"9px",background:activeView===id?pal.linen:"transparent",color:activeView===id?pal.ink:pal.slate,fontSize:"0.62rem",fontWeight:activeView===id?"700":"400",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:"1px"}}>
               <span style={{fontSize:"0.8rem"}}>{icon}</span>
@@ -15829,8 +15829,8 @@ function NavModal({ pal, navIds, setNavIds, onClose }) {
   const toggle=id=>{
     const s=ALL_SECTIONS.find(x=>x.id===id);
     if(s?.locked)return;
-    if(local.includes(id)){if(local.length<=3)return;setLocal(l=>l.filter(x=>x!==id));}
-    else{if(local.length>=5)return;setLocal(l=>[...l,id]);}
+    if(local.includes(id)){if(local.length<=2)return;setLocal(l=>l.filter(x=>x!==id));}
+    else{if(local.length>=6)return;setLocal(l=>[...l,id]);}
   };
   return (
     <BottomSheet pal={pal} onClose={onClose} title="Customize Your Nav" sub={local.length + " tabs - 3-5 - Home, Progress & Portfolio always stay"}>
