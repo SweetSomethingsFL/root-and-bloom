@@ -1143,8 +1143,7 @@ function RootAndBloom() {
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[]);
-const ALL_SECTIONS2 = [{id:"progress",label:"Progress",icon:"📈",locked:true},...ALL_SECTIONS];
-  const navTabs = ALL_SECTIONS2.filter(s=>navIds.includes(s.id)||s.id==="progress");
+const navTabs = [...ALL_SECTIONS.filter(s=>navIds.includes(s.id)||s.id==="progress")].map(s=>s.id==="progress"?{id:"progress",label:"Progress",icon:"\uD83D\uDCC8",locked:true}:s);
   // Listen for in-app navigation events (e.g. "View in Portfolio" links)
   useEffect(()=>{
     const handler = (e) => { setActiveTab(e.detail); };
