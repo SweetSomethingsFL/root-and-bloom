@@ -1143,7 +1143,7 @@ function RootAndBloom() {
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[]);
-  const navTabs = [...ALL_SECTIONS.filter(s=>navIds.includes(s.id)), {id:"progress",label:"Progress",icon:"",locked:false}].filter((s,i,a)=>a.findIndex(x=>x.id===s.id)===i);
+  const navTabs = [...ALL_SECTIONS.map(s=>["schedule","portfolio"].includes(s.id)?{...s,locked:false}:s).filter(s=>navIds.includes(s.id)), {id:"progress",label:"Progress",icon:"",locked:false}].filter((s,i,a)=>a.findIndex(x=>x.id===s.id)===i);
 
   // Listen for in-app navigation events (e.g. "View in Portfolio" links)
   useEffect(()=>{
@@ -5439,7 +5439,7 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
             </SCard>
             <SCard pal={pal} title="Nav Tabs" note={navIds.length + " tabs - 3-5 - Home, Progress & Portfolio always stay"}>
               <div style={{display:"flex",flexDirection:"column",gap:"0.42rem"}}>
-               {[...ALL_SECTIONS,{id:"progress",label:"Progress",icon:"",locked:false}].filter((s,i,a)=>a.findIndex(x=>x.id===s.id)===i&&s.id!=="more").map(s=>{
+              {[...ALL_SECTIONS.map(s=>["schedule","portfolio"].includes(s.id)?{...s,locked:false}:s),{id:"progress",label:"Progress",icon:"",locked:false}].filter((s,i,a)=>a.findIndex(x=>x.id===s.id)===i&&s.id!=="more").map(s=>{
                   const on=navIds.includes(s.id);
                   const atMax=navIds.length>=5&&!on;
                   return (
