@@ -3711,15 +3711,7 @@ function OnbCelebration({ pal, data, onNext }) {
       {/* Confetti */}
       <div style={{position:"absolute",inset:0,pointerEvents:"none",overflow:"hidden"}}>
         {confetti.map(p=>(
-          <div key={p.id} style={{
-            position:"absolute",left:p.x+"%",top:"-20px",
-            width:p.size+"px",height:p.size+"px",
-            background:p.color,
-            borderRadius:Math.random()>0.5?"50%":"3px",
-            animation:`confettiFall ${p.dur}s ${p.delay}s ease-in forwards`,
-            transform:`rotate(${p.rot}deg)`,
-            opacity:0.85,
-          }}/>
+          <div key={p.id} style={{position:"absolute",left:p.x+"%",top:"-20px",width:p.size+"px",height:p.size+"px",background:p.color,borderRadius:p.id%2===0?"50%":"3px",animation:`confettiFall ${p.dur}s ${p.delay}s ease-in forwards`,transform:`rotate(${p.rot}deg)`,opacity:0.85}}/>
         ))}
       </div>
 
