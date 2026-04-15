@@ -710,7 +710,7 @@ function printEvaluatorPacket(family, entries, child, attendanceDays) {
   const today       = new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
   const state       = family.state||"";
   const grade       = child?child.grade||"":"";
-  const childName   = child ? ((child.name||"Student")+" "+(family.familyName||"")).trim() : "Student";
+  const childName   = child ? ((child.name||"Student")+" "+(child.lastName||family.familyName||"")).trim() : "Student";
 
   const si = getStateInfo(state);
   const ci = getComplianceInfo(state, grade);
@@ -3619,10 +3619,14 @@ function OnbChildren({ pal, data, upd, onNext }) {
                 );
               })}
             </div>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.65rem"}}>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"0.65rem"}}>
               <div>
-                <Lbl pal={pal}>Name</Lbl>
+                <Lbl pal={pal}>First Name</Lbl>
                 <Input pal={pal} value={c.name} onChange={v=>updChild(c.id,"name",v)} placeholder="e.g. Emma" />
+              </div>
+              <div>
+                <Lbl pal={pal}>Last Name</Lbl>
+                <Input pal={pal} value={c.lastName||""} onChange={v=>updChild(c.id,"lastName",v)} placeholder="e.g. Smith" />
               </div>
               <div>
                 <Lbl pal={pal}>Grade</Lbl>
@@ -5085,8 +5089,9 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                     );
                   })}
                 </div>
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.65rem"}}>
-                  <div><Lbl pal={pal}>Name</Lbl><Input pal={pal} value={c.name} onChange={v=>updChild(c.id,"name",v)} placeholder={"Child's name"} /></div>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"0.65rem"}}>
+                  <div><Lbl pal={pal}>First Name</Lbl><Input pal={pal} value={c.name} onChange={v=>updChild(c.id,"name",v)} placeholder={"Child's first name"} /></div>
+                  <div><Lbl pal={pal}>Last Name</Lbl><Input pal={pal} value={c.lastName||""} onChange={v=>updChild(c.id,"lastName",v)} placeholder={"Last name"} /></div>
                   <div><Lbl pal={pal}>Grade</Lbl><Select pal={pal} value={c.grade} onChange={v=>updChild(c.id,"grade",v)} options={GRADES} /></div>
                 </div>
               </SCard>
