@@ -1302,7 +1302,7 @@ function RootAndBloom() {
   // Auto-save whenever key state changes
   useEffect(()=>{
     savePersist({family,navIds,homeLayout,portfolioLayout,portfolio:portfolioEntries,coopLog,attendanceDays,attendanceLog,observationLog,checkinDates,studentVisits,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed,notifDismissed});
-  },[family,navIds,portfolioEntries,coopLog,attendanceDays,attendanceLog,observationLog,checkinDates,studentVisits,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed]);
+  },[family,navIds,homeLayout,portfolioLayout,portfolioEntries,coopLog,attendanceDays,attendanceLog,observationLog,checkinDates,studentVisits,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed,notifDismissed]);
 
   // Auto-show New Year prompt when yearEnd has passed
   useEffect(()=>{
@@ -1433,6 +1433,16 @@ function RootAndBloom() {
       setNavIds(["home","schedule","progress","portfolio","more"]);
     } else {
       setNavIds(baseNav);
+    }
+    // Backfill attendance days from yearStart if provided
+    if(data.yearStart) {
+      try {
+        const start = new Date(data.yearStart);
+        const today = new Date();
+        const msPerDay = 24*60*60*1000;
+        const daysSince = Math.max(0, Math.floor((today - start) / msPerDay));
+        if(daysSince > 0) setAttendanceDays(daysSince);
+      } catch(e) {}
     }
     setView("parent");
     setShowCelebration(true);
@@ -1814,7 +1824,7 @@ function SplashScreen({ pal, onContinue }) {
         <button onClick={e=>{e.stopPropagation();
           const keys=Object.keys(localStorage).filter(k=>k.startsWith("portalCeleb_")||k==="rootbloom_tips_seen");
           keys.forEach(k=>localStorage.removeItem(k));
-          setCelebResetToken(t=>t+1);
+          onCelebReset&&onCelebReset();
           alert("Celebrations reset! Open Student Portal to see them.");
         }} style={{marginTop:"0.5rem",background:"transparent",border:"1px solid rgba(255,255,255,0.2)",borderRadius:"20px",padding:"0.3rem 0.9rem",color:"rgba(255,255,255,0.35)",fontSize:"0.65rem",cursor:"pointer",letterSpacing:"0.05em"}}>
           Reset celebrations
@@ -2076,20 +2086,19 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
   const CELEB_KEY_MILESTONE = "portalCeleb_milestone_" + child.id + "_" + (family.yearEnd||"");
   const CELEB_KEY_STRAIGHTA = "portalCeleb_straighta_" + child.id + "_" + (family.yearEnd||"");
   React.useEffect(()=>{
-    // Re-runs when: entries change, milestones change, child changes, year changes, or reset token bumps
-    const seen = getTipsSeen(); // always read fresh from localStorage
+    const seen = getTipsSeen();
     // First field study
     const hasFieldStudy = myEntries.some(e=>e.isFieldStudy);
     if(hasFieldStudy && !seen.has(CELEB_KEY_FIELD)){
       setShowFirstFieldStudy(true);
       return;
     }
-    // First milestone star
+    // First milestone
     if(myMilestones.length>0 && !seen.has(CELEB_KEY_MILESTONE)){
       setShowFirstMilestone(true);
       return;
     }
-    // Straight A's — all quizzed subjects averaging >= 90%
+    // Straight A's — all subjects with quizzes averaging >= 90%
     const quizEs = myEntries.filter(e=>e.isQuizResult&&e.quizData&&e.quizData.total>0);
     if(quizEs.length>0 && !seen.has(CELEB_KEY_STRAIGHTA)){
       const bySubj = {};
@@ -2099,17 +2108,11 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
         bySubj[e.subj].poss+=e.quizData.total;
       });
       const allAs = Object.values(bySubj).every(d=>d.poss>0&&Math.round((d.total/d.poss)*100)>=90);
-      if(allAs) setShowStraightAs(true);
+      if(allAs){
+        setShowStraightAs(true);
+      }
     }
   }, [myEntries.length, myMilestones.length, CELEB_KEY_FIELD, celebResetToken]);
-  // Mark seen on unmount if a celebration was showing (user navigated away without dismissing)
-  React.useEffect(()=>{
-    return ()=>{
-      if(showFirstFieldStudy) markTipSeen(CELEB_KEY_FIELD);
-      if(showFirstMilestone)  markTipSeen(CELEB_KEY_MILESTONE);
-      if(showStraightAs)      markTipSeen(CELEB_KEY_STRAIGHTA);
-    };
-  });
   const [addBookText, setAddBookText] = useState("");
   const [bookSaved,   setBookSaved]   = useState(false);
   // Kid-owned goals (stored per child in localStorage)
@@ -2119,7 +2122,7 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
   const [kidOnboarded, setKidOnboarded]= useState(()=>{ try{ return !!localStorage.getItem(KID_ONBOARD_KEY); }catch{return false;} });
   const [showKidOnboard,setShowKidOnboard] = useState(!kidOnboarded);
   const [kidGoalLogged, setKidGoalLogged]  = useState(new Set());
-  const [goalCelebGoal, setGoalCelebGoal]  = useState(null); // goal text currently celebrating
+  const [goalCelebGoal, setGoalCelebGoal]  = useState(null);
   const saveKidGoals = (goals) => {
     setKidGoals(goals);
     try{ localStorage.setItem(KID_GOALS_KEY, JSON.stringify(goals)); }catch{}
@@ -2155,35 +2158,16 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
 
   return (
     <div style={{minHeight:"100vh",background:SK.cream,fontFamily:"'Comic Sans MS','Chalkboard SE',cursive",display:"flex",flexDirection:"column"}}>
-      {/* Goal celebration overlay */}
       {goalCelebGoal&&(
         <div style={{position:"fixed",inset:0,zIndex:9999,display:"flex",alignItems:"center",justifyContent:"center",pointerEvents:"none",overflow:"hidden"}}>
-          {/* Confetti burst */}
           {Array.from({length:32},(_,i)=>(
-            <div key={i} style={{
-              position:"absolute",
-              left:(20+Math.sin(i*37)*45)+"%",
-              top:"-10px",
-              width:(7+i%5)+"px",height:(7+i%5)+"px",
-              borderRadius:i%3===0?"50%":"3px",
-              background:[c1,c2,"#f6c90e","#fff","#f4a261","#a8d5a2","#e07b9a"][i%7],
-              animation:"confettiFall "+(1.2+i%4*0.3)+"s "+(i*0.04)+"s ease-in forwards",
-              opacity:0.9,
-              transform:"rotate("+(i*47)+"deg)",
-            }}/>
+            <div key={i} style={{position:"absolute",left:(20+Math.sin(i*37)*45)+"%",top:"-10px",width:(7+i%5)+"px",height:(7+i%5)+"px",borderRadius:i%3===0?"50%":"3px",background:[c1,c2,"#f6c90e","#fff","#f4a261","#a8d5a2","#e07b9a"][i%7],animation:"confettiFall "+(1.2+i%4*0.3)+"s "+(i*0.04)+"s ease-in forwards",opacity:0.9,transform:"rotate("+(i*47)+"deg)"}}/>
           ))}
-          {/* Pop card */}
-          <div style={{
-            background:"linear-gradient(135deg,"+c1+","+c2+")",
-            borderRadius:"28px",padding:"1.8rem 2rem",textAlign:"center",
-            boxShadow:"0 12px 50px rgba(0,0,0,0.25)",
-            animation:"grow 0.3s cubic-bezier(0.34,1.56,0.64,1)",
-            maxWidth:"280px",
-          }}>
+          <div style={{background:"linear-gradient(135deg,"+c1+","+c2+")",borderRadius:"28px",padding:"1.8rem 2rem",textAlign:"center",boxShadow:"0 12px 50px rgba(0,0,0,0.25)",animation:"grow 0.3s cubic-bezier(0.34,1.56,0.64,1)",maxWidth:"280px"}}>
             <div style={{fontSize:"3.5rem",marginBottom:"0.4rem",animation:"bounce 0.6s ease infinite"}}>{"🎉"}</div>
             <div style={{fontWeight:"900",color:"#fff",fontSize:"1.2rem",marginBottom:"0.25rem"}}>{"Goal logged!"}</div>
             <div style={{fontSize:"0.82rem",color:"rgba(255,255,255,0.85)",lineHeight:1.5,fontStyle:"italic"}}>{"\u201c"}{goalCelebGoal}{"\u201d"}</div>
-            <div style={{fontSize:"0.78rem",color:"rgba(255,255,255,0.7)",marginTop:"0.5rem"}}>{"Keep it up, "+child.name+"! 🌟"}</div>
+            <div style={{fontSize:"0.78rem",color:"rgba(255,255,255,0.7)",marginTop:"0.5rem"}}>{"Keep it up, "+child.name+"! \u2b50"}</div>
           </div>
         </div>
       )}
@@ -3686,64 +3670,45 @@ function OnbSchedulePref({ pal, data, upd, onNext }) {
   );
 }
 
-/* --- CELEBRATION STEP --- */
+
+
+/* --- CELEBRATION STEP (step 11) --- */
 function OnbCelebration({ pal, data, onNext }) {
   const [confetti, setConfetti] = React.useState([]);
   React.useEffect(()=>{
-    const pieces = Array.from({length:40},(_,i)=>({
-      id:i,
-      x: Math.random()*100,
-      delay: Math.random()*1.2,
-      dur: 1.8 + Math.random()*1.2,
-      color: ["#a8d5a2","#f6c90e","#e07b9a","#7ec8e3","#f4a261","#a29bfe"][i%6],
-      size: 6 + Math.random()*8,
-      rot: Math.random()*360,
-    }));
-    setConfetti(pieces);
+    setConfetti(Array.from({length:40},(_,i)=>({
+      id:i, x:Math.random()*100, delay:Math.random()*1.2,
+      dur:1.8+Math.random()*1.2,
+      color:["#a8d5a2","#f6c90e","#e07b9a","#7ec8e3","#f4a261","#a29bfe"][i%6],
+      size:6+Math.random()*8, rot:Math.random()*360,
+    })));
   },[]);
-
-  const childNames = (data.children||[]).map(c=>c.name).filter(Boolean);
-  const nameStr = childNames.length===1 ? childNames[0]
-    : childNames.length===2 ? childNames.join(" & ")
-    : childNames.slice(0,-1).join(", ") + " & " + childNames[childNames.length-1];
-
+  const childNames=(data.children||[]).map(c=>c.name).filter(Boolean);
+  const nameStr=childNames.length===1?childNames[0]:childNames.length===2?childNames.join(" & "):childNames.slice(0,-1).join(", ")+" & "+childNames[childNames.length-1];
   return (
     <div style={{minHeight:"100%",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"2.5rem 1.6rem",textAlign:"center",position:"relative",overflow:"hidden",background:pal.sand}}>
-      {/* Confetti */}
       <div style={{position:"absolute",inset:0,pointerEvents:"none",overflow:"hidden"}}>
         {confetti.map(p=>(
           <div key={p.id} style={{position:"absolute",left:p.x+"%",top:"-20px",width:p.size+"px",height:p.size+"px",background:p.color,borderRadius:p.id%2===0?"50%":"3px",animation:`confettiFall ${p.dur}s ${p.delay}s ease-in forwards`,transform:`rotate(${p.rot}deg)`,opacity:0.85}}/>
         ))}
       </div>
-
       <div style={{position:"relative",zIndex:1,maxWidth:"380px"}}>
         <div style={{fontSize:"4rem",marginBottom:"0.5rem",animation:"grow 0.5s ease"}}>{"🌱"}</div>
         <h2 style={{fontFamily:"Georgia",fontSize:"1.6rem",fontWeight:"900",color:pal.ink,margin:"0 0 0.5rem",lineHeight:1.2}}>
           {"You're all set"}{data.parentName?", "+data.parentName:""}{"!"}
         </h2>
         <p style={{fontSize:"0.88rem",color:pal.slate,lineHeight:1.7,margin:"0 0 1.5rem"}}>
-          {nameStr
-            ? "Root & Bloom is ready for "+nameStr+(childNames.length>1?" and their":" and their")+" journey. Every lesson logged, every milestone captured, every step of the way."
-            : "Root & Bloom is ready for your family. Every lesson logged, every milestone captured, every step of the way."
-          }
+          {nameStr?"Root & Bloom is ready for "+nameStr+". Every lesson logged, every milestone captured, every step of the way.":"Root & Bloom is ready for your family. Let us grow something beautiful together."}
         </p>
-
         <div style={{display:"flex",flexDirection:"column",gap:"0.6rem",marginBottom:"2rem"}}>
-          {[
-            {icon:"📝", text:"Log your first lesson today"},
-            {icon:"🌟", text:"Capture a milestone as it happens"},
-            {icon:"📊", text:"Track progress all year long"},
-            {icon:"🎓", text:"Print a portfolio when you're ready"},
-          ].map((item,i)=>(
+          {[{icon:"📝",text:"Log your first lesson today"},{icon:"🌟",text:"Capture a milestone as it happens"},{icon:"📊",text:"Track progress all year long"},{icon:"🎓",text:"Print a portfolio when you're ready"}].map((item,i)=>(
             <div key={i} style={{display:"flex",alignItems:"center",gap:"0.75rem",padding:"0.65rem 1rem",background:pal.linen,borderRadius:"12px",border:`1.5px solid ${pal.stone}25`,textAlign:"left"}}>
               <span style={{fontSize:"1.2rem",flexShrink:0}}>{item.icon}</span>
               <span style={{fontSize:"0.82rem",color:pal.inkM,fontWeight:"600"}}>{item.text}</span>
             </div>
           ))}
         </div>
-
-        <button onClick={onNext}
-          style={{width:"100%",padding:"0.95rem",border:"none",borderRadius:"14px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.95rem",cursor:"pointer",boxShadow:"0 4px 18px rgba(0,0,0,0.12)"}}>
+        <button onClick={onNext} style={{width:"100%",padding:"0.95rem",border:"none",borderRadius:"14px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.95rem",cursor:"pointer",boxShadow:"0 4px 18px rgba(0,0,0,0.12)"}}>
           {"One last thing \u2192"}
         </button>
       </div>
@@ -3751,126 +3716,82 @@ function OnbCelebration({ pal, data, onNext }) {
   );
 }
 
-/* --- COMBINED SCHEDULE STEP --- */
+/* --- COMBINED SCHEDULE STEP (step 6) --- */
 function OnbScheduleCombined({ pal, data, upd, onNext }) {
-  // Sub-tab: "details" (school year, hours, days, style) or "weekly" (per-day subjects)
   const [tab, setTab] = React.useState("details");
-
-  const customSubjs = data.customSubjects||[];
-  const allSubjMap  = Object.fromEntries([...SUBJECT_OPTIONS,...customSubjs].map(s=>[s.id,s]));
-  const activeSubjs = (data.subjects||[]).map(id=>allSubjMap[id]).filter(Boolean);
-  const coopDay     = data.coopDay;
-  const DOW_LABELS  = ["Mon","Tue","Wed","Thu","Fri"];
-  const DOW_FULL    = ["Monday","Tuesday","Wednesday","Thursday","Friday"];
-  const DOW_MAP     = {"Monday":0,"Tuesday":1,"Wednesday":2,"Thursday":3,"Friday":4};
-  const coopDow     = DOW_MAP[coopDay]??-1;
-
-  const [sched, setSched] = React.useState(()=>{
+  const customSubjs=data.customSubjects||[];
+  const allSubjMap=Object.fromEntries([...SUBJECT_OPTIONS,...customSubjs].map(s=>[s.id,s]));
+  const activeSubjs=(data.subjects||[]).map(id=>allSubjMap[id]).filter(Boolean);
+  const coopDay=data.coopDay;
+  const DOW_LABELS=["Mon","Tue","Wed","Thu","Fri"];
+  const DOW_FULL=["Monday","Tuesday","Wednesday","Thursday","Friday"];
+  const DOW_MAP={"Monday":0,"Tuesday":1,"Wednesday":2,"Thursday":3,"Friday":4};
+  const coopDow=DOW_MAP[coopDay]??-1;
+  const [sched,setSched]=React.useState(()=>{
     if(data.weeklySchedule) return data.weeklySchedule;
-    const init = {};
-    for(let d=0;d<5;d++){
-      if(d===coopDow){init[d]=null;continue;}
-      init[d]=activeSubjs.map(s=>s.id);
-    }
+    const init={};
+    for(let d=0;d<5;d++){if(d===coopDow){init[d]=null;continue;}init[d]=activeSubjs.map(s=>s.id);}
     return init;
   });
-  const [activeDay, setActiveDay] = React.useState(coopDow===0?1:0);
-
-  const toggleSubj = (dow,subjId)=>{
-    setSched(prev=>{
-      const cur=prev[dow]||[];
-      const next=cur.includes(subjId)?cur.filter(x=>x!==subjId):[...cur,subjId];
-      return {...prev,[dow]:next};
-    });
-  };
-  const toggleDay = (dow)=>{
-    if(dow===coopDow) return;
-    setSched(prev=>({...prev,[dow]:prev[dow]===null?activeSubjs.map(s=>s.id):null}));
-  };
-
-  const saveAndNext = ()=>{
-    upd("weeklySchedule",sched);
-    onNext();
-  };
-
+  const [activeDay,setActiveDay]=React.useState(coopDow===0?1:0);
+  const toggleSubj=(dow,subjId)=>{setSched(prev=>{const cur=prev[dow]||[];const next=cur.includes(subjId)?cur.filter(x=>x!==subjId):[...cur,subjId];return {...prev,[dow]:next};});};
+  const toggleDay=(dow)=>{if(dow===coopDow)return;setSched(prev=>({...prev,[dow]:prev[dow]===null?activeSubjs.map(s=>s.id):null}));};
+  const saveAndNext=()=>{upd("weeklySchedule",sched);onNext();};
   return (
     <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
-      <StepHdr pal={pal} icon={"📅"} title="Your Schedule"
-        sub="Set up your school year details and which subjects you cover each day." />
-
-      {/* Sub-tab switcher */}
+      <StepHdr pal={pal} icon={"📅"} title="Your Schedule" sub="Set your school year details and which subjects you cover each day." />
       <div style={{display:"flex",background:pal.parchm,borderRadius:"12px",padding:"3px",gap:"2px",marginBottom:"1.1rem"}}>
         {[["details","📖 Details"],["weekly","📆 Weekly"]].map(([val,label])=>(
-          <button key={val} onClick={()=>setTab(val)}
-            style={{flex:1,padding:"0.55rem 0.4rem",border:"none",borderRadius:"10px",
-              background:tab===val?pal.linen:"transparent",cursor:"pointer",
-              fontWeight:"700",color:tab===val?pal.primary:pal.slate,fontSize:"0.8rem",transition:"all 0.15s"}}>
+          <button key={val} onClick={()=>setTab(val)} style={{flex:1,padding:"0.55rem 0.4rem",border:"none",borderRadius:"10px",background:tab===val?pal.linen:"transparent",cursor:"pointer",fontWeight:"700",color:tab===val?pal.primary:pal.slate,fontSize:"0.8rem",transition:"all 0.15s"}}>
             {label}
           </button>
         ))}
       </div>
-
-      {tab==="details" && (
+      {tab==="details"&&(
         <div style={{animation:"fadeUp 0.2s ease"}}>
-          {/* School year dates */}
           <div style={{background:pal.pale,borderRadius:"14px",padding:"0.9rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.primary}22`}}>
-            <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.86rem",marginBottom:"0.55rem"}}>{"📖"} School Year Dates</div>
+            <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.86rem",marginBottom:"0.55rem"}}>{"📖 School Year Dates"}</div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.65rem"}}>
-              <div>
-                <Lbl pal={pal}>Year started</Lbl>
-                <Input pal={pal} type="date" value={data.yearStart||""} onChange={v=>upd("yearStart",v)} />
-              </div>
-              <div>
-                <Lbl pal={pal}>Goal end date</Lbl>
-                <Input pal={pal} type="date" value={data.yearEnd||""} onChange={v=>upd("yearEnd",v)} />
-              </div>
+              <div><Lbl pal={pal}>Year started</Lbl><Input pal={pal} type="date" value={data.yearStart||""} onChange={v=>upd("yearStart",v)}/></div>
+              <div><Lbl pal={pal}>Goal end date</Lbl><Input pal={pal} type="date" value={data.yearEnd||""} onChange={v=>upd("yearEnd",v)}/></div>
             </div>
-            <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"0.5rem"}}>Used to track your year progress. You can update this anytime in Settings.</div>
+            <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"0.5rem"}}>{"Used to track your year progress. You can update this anytime in Settings."}</div>
           </div>
-
-          {/* Hours goal */}
           <div style={{background:pal.parchm,borderRadius:"13px",padding:"0.8rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}35`}}>
-            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.84rem",marginBottom:"0.2rem"}}>{"🕐"} Daily hours goal (optional)</div>
-            <div style={{fontSize:"0.71rem",color:pal.slate,marginBottom:"0.55rem"}}>Florida requires 180 days but no hour minimum. Other states vary.</div>
+            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.84rem",marginBottom:"0.2rem"}}>{"🕐 Daily hours goal (optional)"}</div>
+            <div style={{fontSize:"0.71rem",color:pal.slate,marginBottom:"0.55rem"}}>{"Florida requires 180 days but no hour minimum. Other states vary."}</div>
             <div style={{display:"flex",gap:"0.4rem",flexWrap:"wrap"}}>
               {["No hour tracking","2 hours/day","3 hours/day","4 hours/day","5 hours/day","6 hours/day"].map(h=>(
-                <button key={h} onClick={()=>upd("dailyHoursGoal",h)}
-                  style={{padding:"0.3rem 0.7rem",borderRadius:"20px",border:`2px solid ${(data.dailyHoursGoal||"No hour tracking")===h?pal.primary:pal.stone+"50"}`,background:(data.dailyHoursGoal||"No hour tracking")===h?pal.pale:"transparent",cursor:"pointer",fontSize:"0.74rem",fontWeight:(data.dailyHoursGoal||"No hour tracking")===h?"700":"400",color:(data.dailyHoursGoal||"No hour tracking")===h?pal.primary:pal.inkM}}>
+                <button key={h} onClick={()=>upd("dailyHoursGoal",h)} style={{padding:"0.3rem 0.7rem",borderRadius:"20px",border:`2px solid ${(data.dailyHoursGoal||"No hour tracking")===h?pal.primary:pal.stone+"50"}`,background:(data.dailyHoursGoal||"No hour tracking")===h?pal.pale:"transparent",cursor:"pointer",fontSize:"0.74rem",fontWeight:(data.dailyHoursGoal||"No hour tracking")===h?"700":"400",color:(data.dailyHoursGoal||"No hour tracking")===h?pal.primary:pal.inkM}}>
                   {h}
                 </button>
               ))}
             </div>
           </div>
-
           <Lbl pal={pal}>School days</Lbl>
           <div style={{display:"flex",flexDirection:"column",gap:"0.4rem",marginBottom:"1rem"}}>
             {SCHOOL_DAYS_OPTIONS.map(d=>(
-              <button key={d} onClick={()=>upd("schoolDays",d)}
-                style={{padding:"0.7rem 1rem",border:`2px solid ${data.schoolDays===d?pal.primary:pal.stone+"50"}`,borderRadius:"12px",background:data.schoolDays===d?pal.pale:"transparent",cursor:"pointer",textAlign:"left",fontWeight:data.schoolDays===d?"700":"400",color:data.schoolDays===d?pal.primary:pal.inkM,fontSize:"0.84rem",transition:"all 0.13s"}}>
+              <button key={d} onClick={()=>upd("schoolDays",d)} style={{padding:"0.7rem 1rem",border:`2px solid ${data.schoolDays===d?pal.primary:pal.stone+"50"}`,borderRadius:"12px",background:data.schoolDays===d?pal.pale:"transparent",cursor:"pointer",textAlign:"left",fontWeight:data.schoolDays===d?"700":"400",color:data.schoolDays===d?pal.primary:pal.inkM,fontSize:"0.84rem",transition:"all 0.13s"}}>
                 {d}
               </button>
             ))}
           </div>
-
-          {/* Morning gathering */}
           <div style={{background:pal.pale,borderRadius:"13px",padding:"0.85rem 1rem",marginBottom:"1.2rem",border:`1.5px solid ${pal.primary}22`}}>
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:data.morningGathering?"0.65rem":"0"}}>
               <div>
-                <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.86rem"}}>{"🌅"} Morning gathering time?</div>
-                <div style={{fontSize:"0.72rem",color:pal.slate,marginTop:"2px"}}>A cozy start before individual subjects</div>
+                <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.86rem"}}>{"🌅 Morning gathering time?"}</div>
+                <div style={{fontSize:"0.72rem",color:pal.slate,marginTop:"2px"}}>{"A cozy start before individual subjects"}</div>
               </div>
-              <button onClick={()=>upd("morningGathering",!data.morningGathering)}
-                style={{width:"44px",height:"26px",borderRadius:"13px",border:"none",background:data.morningGathering?pal.primary:pal.stone+"60",cursor:"pointer",position:"relative",transition:"background 0.2s",flexShrink:0}}>
+              <button onClick={()=>upd("morningGathering",!data.morningGathering)} style={{width:"44px",height:"26px",borderRadius:"13px",border:"none",background:data.morningGathering?pal.primary:pal.stone+"60",cursor:"pointer",position:"relative",transition:"background 0.2s",flexShrink:0}}>
                 <div style={{position:"absolute",top:"3px",left:data.morningGathering?"21px":"3px",width:"20px",height:"20px",borderRadius:"50%",background:"#fff",transition:"left 0.2s"}}/>
               </button>
             </div>
             {data.morningGathering&&(
               <div>
-                <Lbl pal={pal}>What do you call it?</Lbl>
+                <Lbl pal={pal}>{"What do you call it?"}</Lbl>
                 <div style={{display:"flex",gap:"0.4rem",flexWrap:"wrap",marginBottom:"0.5rem"}}>
                   {["Morning Time","Morning Basket","Circle Time","Morning Meeting","Devotions"].map(n=>(
-                    <button key={n} onClick={()=>upd("morningGatheringName",n)}
-                      style={{padding:"0.35rem 0.7rem",border:`1.5px solid ${data.morningGatheringName===n?pal.primary:pal.stone+"50"}`,borderRadius:"20px",background:data.morningGatheringName===n?pal.pale:"transparent",cursor:"pointer",fontSize:"0.74rem",fontWeight:data.morningGatheringName===n?"700":"400",color:data.morningGatheringName===n?pal.primary:pal.inkM,transition:"all 0.13s"}}>
+                    <button key={n} onClick={()=>upd("morningGatheringName",n)} style={{padding:"0.35rem 0.7rem",border:`1.5px solid ${data.morningGatheringName===n?pal.primary:pal.stone+"50"}`,borderRadius:"20px",background:data.morningGatheringName===n?pal.pale:"transparent",cursor:"pointer",fontSize:"0.74rem",fontWeight:data.morningGatheringName===n?"700":"400",color:data.morningGatheringName===n?pal.primary:pal.inkM,transition:"all 0.13s"}}>
                       {n}
                     </button>
                   ))}
@@ -3879,95 +3800,79 @@ function OnbScheduleCombined({ pal, data, upd, onNext }) {
               </div>
             )}
           </div>
-
           <Btn pal={pal} onClick={()=>setTab("weekly")}>{"Set weekly subjects \u2192"}</Btn>
         </div>
       )}
-
-      {tab==="weekly" && (
+      {tab==="weekly"&&(
         <div style={{animation:"fadeUp 0.2s ease"}}>
-          {/* Day tabs */}
           <div style={{display:"flex",gap:"0.3rem",marginBottom:"1rem"}}>
             {DOW_LABELS.map((d,i)=>{
-              const isActive=activeDay===i;
-              const isCopDay=i===coopDow;
-              const isOff=sched[i]===null&&!isCopDay;
-              const subjCount=Array.isArray(sched[i])?sched[i].length:0;
+              const isActive=activeDay===i;const isCopDay=i===coopDow;const isOff=sched[i]===null&&!isCopDay;const subjCount=Array.isArray(sched[i])?sched[i].length:0;
               return (
-                <button key={i} onClick={()=>setActiveDay(i)}
-                  style={{flex:1,padding:"0.55rem 0.2rem",borderRadius:"12px",border:`2px solid ${isActive?pal.primary:isCopDay?"#f5c842":isOff?pal.stone+"40":pal.stone+"50"}`,background:isActive?pal.pale:isCopDay?"#fff8e6":"transparent",cursor:"pointer",textAlign:"center",transition:"all 0.13s"}}>
+                <button key={i} onClick={()=>setActiveDay(i)} style={{flex:1,padding:"0.55rem 0.2rem",borderRadius:"12px",border:`2px solid ${isActive?pal.primary:isCopDay?"#f5c842":isOff?pal.stone+"40":pal.stone+"50"}`,background:isActive?pal.pale:isCopDay?"#fff8e6":"transparent",cursor:"pointer",textAlign:"center",transition:"all 0.13s"}}>
                   <div style={{fontSize:"0.65rem",fontWeight:"800",color:isActive?pal.primary:isCopDay?"#b07800":isOff?pal.stone:pal.inkM,textTransform:"uppercase",letterSpacing:"0.05em"}}>{d}</div>
-                  <div style={{fontSize:"0.58rem",color:isActive?pal.primary:isCopDay?"#b07800":isOff?pal.stone:pal.slate,marginTop:"2px",fontWeight:"600"}}>
-                    {isCopDay?"Co-op":isOff?"Off":subjCount+" subj"}
-                  </div>
+                  <div style={{fontSize:"0.58rem",color:isActive?pal.primary:isCopDay?"#b07800":isOff?pal.stone:pal.slate,marginTop:"2px",fontWeight:"600"}}>{isCopDay?"Co-op":isOff?"Off":subjCount+" subj"}</div>
                 </button>
               );
             })}
           </div>
-
-          {/* Day panel */}
-          {activeDay===coopDow ? (
+          {activeDay===coopDow?(
             <div style={{background:"#fff8e6",borderRadius:"16px",padding:"0.9rem 1rem",border:"1.5px solid #f5c84250",marginBottom:"1rem"}}>
               <div style={{fontWeight:"700",color:"#7a5500",fontSize:"0.86rem",marginBottom:"0.4rem"}}>{DOW_FULL[activeDay]+" \u2014 Co-op Day"}</div>
-              <div style={{fontSize:"0.73rem",color:"#b07800"}}>This day is set aside for co-op. Subjects logged here will be tagged as co-op.</div>
+              <div style={{fontSize:"0.73rem",color:"#b07800",marginBottom:"0.5rem"}}>{"This day is set aside for co-op. Your co-op subjects from the previous step are shown below."}</div>
+              {(data.coopSubjects||data.coopClasses||[]).length>0&&(
+                <div style={{display:"flex",flexWrap:"wrap",gap:"0.3rem"}}>
+                  {(data.coopSubjects||[]).map(id=>{
+                    const s=[...SUBJECT_OPTIONS,...(data.customSubjects||[])].find(x=>x.id===id);
+                    return s?<span key={id} style={{padding:"0.2rem 0.55rem",background:"#fff3cc",borderRadius:"20px",fontSize:"0.72rem",fontWeight:"700",color:"#7a5500",border:"1px solid #f5c84250"}}>{s.icon} {s.label}</span>:null;
+                  })}
+                  {(data.coopClasses||[]).map(c=>(
+                    <span key={c} style={{padding:"0.2rem 0.55rem",background:"#fff3cc",borderRadius:"20px",fontSize:"0.72rem",fontWeight:"700",color:"#7a5500",border:"1px solid #f5c84250"}}>{c}</span>
+                  ))}
+                </div>
+              )}
             </div>
-          ) : (
+          ):(
             <div style={{background:pal.linen,borderRadius:"16px",padding:"0.9rem 1rem",border:`1.5px solid ${pal.stone}30`,marginBottom:"1rem"}}>
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:sched[activeDay]===null?"0":"0.75rem",paddingBottom:sched[activeDay]===null?"0":"0.75rem",borderBottom:sched[activeDay]===null?"none":`1px solid ${pal.stone}20`}}>
                 <div>
                   <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem"}}>{DOW_FULL[activeDay]}</div>
                   <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>{sched[activeDay]===null?"No school this day":"Select which subjects"}</div>
                 </div>
-                <button onClick={()=>toggleDay(activeDay)}
-                  style={{width:"44px",height:"26px",borderRadius:"13px",border:"none",background:sched[activeDay]===null?pal.stone+"60":pal.primary,cursor:"pointer",position:"relative",transition:"background 0.2s",flexShrink:0}}>
+                <button onClick={()=>toggleDay(activeDay)} style={{width:"44px",height:"26px",borderRadius:"13px",border:"none",background:sched[activeDay]===null?pal.stone+"60":pal.primary,cursor:"pointer",position:"relative",transition:"background 0.2s",flexShrink:0}}>
                   <div style={{position:"absolute",top:"3px",left:sched[activeDay]===null?"3px":"21px",width:"20px",height:"20px",borderRadius:"50%",background:"#fff",transition:"left 0.2s"}}/>
                 </button>
               </div>
               {sched[activeDay]!==null&&(
                 <div style={{display:"flex",flexDirection:"column",gap:"0.32rem"}}>
-                  {activeSubjs.map(s=>{
-                    const sel=(sched[activeDay]||[]).includes(s.id);
-                    return (
-                      <button key={s.id} onClick={()=>toggleSubj(activeDay,s.id)}
-                        style={{display:"flex",gap:"0.65rem",alignItems:"center",padding:"0.55rem 0.75rem",border:`2px solid ${sel?pal.primary:pal.stone+"45"}`,borderRadius:"11px",background:sel?pal.pale:"#fff",cursor:"pointer",textAlign:"left",transition:"all 0.12s"}}>
-                        <span style={{fontSize:"1.1rem",width:"22px",textAlign:"center",flexShrink:0}}>{s.icon}</span>
-                        <span style={{flex:1,fontWeight:sel?"700":"400",color:sel?pal.primary:pal.inkM,fontSize:"0.84rem"}}>{s.label}</span>
-                        <div style={{width:"20px",height:"20px",borderRadius:"5px",border:`2px solid ${sel?pal.primary:pal.stone}`,background:sel?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.12s"}}>
-                          {sel&&<span style={{color:"#fff",fontSize:"0.72rem",fontWeight:"900"}}>{"\u2713"}</span>}
-                        </div>
-                      </button>
-                    );
-                  })}
+                  {activeSubjs.map(s=>{const sel=(sched[activeDay]||[]).includes(s.id);return (
+                    <button key={s.id} onClick={()=>toggleSubj(activeDay,s.id)} style={{display:"flex",gap:"0.65rem",alignItems:"center",padding:"0.55rem 0.75rem",border:`2px solid ${sel?pal.primary:pal.stone+"45"}`,borderRadius:"11px",background:sel?pal.pale:"#fff",cursor:"pointer",textAlign:"left",transition:"all 0.12s"}}>
+                      <span style={{fontSize:"1.1rem",width:"22px",textAlign:"center",flexShrink:0}}>{s.icon}</span>
+                      <span style={{flex:1,fontWeight:sel?"700":"400",color:sel?pal.primary:pal.inkM,fontSize:"0.84rem"}}>{s.label}</span>
+                      <div style={{width:"20px",height:"20px",borderRadius:"5px",border:`2px solid ${sel?pal.primary:pal.stone}`,background:sel?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                        {sel&&<span style={{color:"#fff",fontSize:"0.72rem",fontWeight:"900"}}>{"\u2713"}</span>}
+                      </div>
+                    </button>
+                  );})}
                 </div>
               )}
             </div>
           )}
-
-          {/* Week at a glance */}
           <div style={{background:pal.parchm,borderRadius:"12px",padding:"0.65rem 0.85rem",marginBottom:"1.1rem",border:`1px solid ${pal.stone}25`}}>
-            <div style={{fontSize:"0.64rem",fontWeight:"800",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.35rem"}}>Your week at a glance</div>
+            <div style={{fontSize:"0.64rem",fontWeight:"800",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.35rem"}}>{"Your week at a glance"}</div>
             <div style={{display:"flex",gap:"0.5rem",flexWrap:"wrap"}}>
-              {DOW_LABELS.map((d,i)=>{
-                const isCopDay=i===coopDow;
-                const isOff=sched[i]===null&&!isCopDay;
-                const count=Array.isArray(sched[i])?sched[i].length:0;
-                return (
-                  <div key={i} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:"2px",cursor:"pointer"}} onClick={()=>setActiveDay(i)}>
-                    <div style={{fontSize:"0.6rem",fontWeight:"700",color:isCopDay?"#b07800":isOff?pal.stone:pal.inkM}}>{d}</div>
-                    <div style={{width:"36px",height:"36px",borderRadius:"9px",background:isCopDay?"#fff8e6":isOff?pal.parchm:pal.pale,border:`1.5px solid ${activeDay===i?pal.primary:isCopDay?"#f5c842":isOff?pal.stone+"30":pal.stone+"40"}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.68rem",fontWeight:"800",color:isCopDay?"#b07800":isOff?pal.stone:pal.primary}}>
-                      {isCopDay?"🏫":isOff?"\u2014":count}
-                    </div>
+              {DOW_LABELS.map((d,i)=>{const isCopDay=i===coopDow;const isOff=sched[i]===null&&!isCopDay;const count=Array.isArray(sched[i])?sched[i].length:0;return (
+                <div key={i} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:"2px",cursor:"pointer"}} onClick={()=>setActiveDay(i)}>
+                  <div style={{fontSize:"0.6rem",fontWeight:"700",color:isCopDay?"#b07800":isOff?pal.stone:pal.inkM}}>{d}</div>
+                  <div style={{width:"36px",height:"36px",borderRadius:"9px",background:isCopDay?"#fff8e6":isOff?pal.parchm:pal.pale,border:`1.5px solid ${activeDay===i?pal.primary:isCopDay?"#f5c842":isOff?pal.stone+"30":pal.stone+"40"}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.68rem",fontWeight:"800",color:isCopDay?"#b07800":isOff?pal.stone:pal.primary}}>
+                    {isCopDay?"🏫":isOff?"\u2014":count}
                   </div>
-                );
-              })}
+                </div>
+              );})}
             </div>
           </div>
-
           <div style={{display:"flex",gap:"0.5rem"}}>
-            <button onClick={()=>setTab("details")}
-              style={{flex:1,padding:"0.72rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.86rem",cursor:"pointer"}}>
-              {"\u2190 Details"}
-            </button>
+            <button onClick={()=>setTab("details")} style={{flex:1,padding:"0.72rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.86rem",cursor:"pointer"}}>{"← Details"}</button>
             <Btn pal={pal} onClick={saveAndNext} style={{flex:2}}>{"Save & Next \u2192"}</Btn>
           </div>
         </div>
@@ -4371,31 +4276,7 @@ function OnbSubjects({ pal, data, upd, onNext }) {
           </button>
         ))}
       </div>
-      <div style={{background:pal.pale,borderRadius:"13px",padding:"0.85rem 1rem",marginBottom:"1.2rem",border:`1.5px solid ${pal.primary}22`}}>
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom: data.morningGathering?"0.65rem":"0"}}>
-          <div>
-            <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.86rem"}}>🌅 Morning gathering time?</div>
-            <div style={{fontSize:"0.72rem",color:pal.slate,marginTop:"2px"}}>A cozy start before individual subjects</div>
-          </div>
-          <button onClick={()=>upd("morningGathering",!data.morningGathering)} style={{width:"44px",height:"26px",borderRadius:"13px",border:"none",background:data.morningGathering?pal.primary:pal.stone+"60",cursor:"pointer",position:"relative",transition:"background 0.2s",flexShrink:0}}>
-            <div style={{position:"absolute",top:"3px",left:data.morningGathering?"21px":"3px",width:"20px",height:"20px",borderRadius:"50%",background:"#fff",transition:"left 0.2s"}}/>
-          </button>
-        </div>
-        {data.morningGathering && (
-          <div>
-            <Lbl pal={pal}>What do you call it?</Lbl>
-            <div style={{display:"flex",gap:"0.4rem",flexWrap:"wrap",marginBottom:"0.5rem"}}>
-              {["Morning Time","Morning Basket","Circle Time","Morning Meeting","Devotions"].map(n=>(
-                <button key={n} onClick={()=>upd("morningGatheringName",n)} style={{padding:"0.35rem 0.7rem",border:`1.5px solid ${data.morningGatheringName===n?pal.primary:pal.stone+"50"}`,borderRadius:"20px",background:data.morningGatheringName===n?pal.pale:"transparent",cursor:"pointer",fontSize:"0.74rem",fontWeight:data.morningGatheringName===n?"700":"400",color:data.morningGatheringName===n?pal.primary:pal.inkM,transition:"all 0.13s"}}>
-                  {n}
-                </button>
-              ))}
-            </div>
-            <Input pal={pal} value={data.morningGatheringName} onChange={v=>upd("morningGatheringName",v)} placeholder="Or type your own name..." />
-          </div>
-        )}
-      </div>
-      <Btn pal={pal} disabled={sel.length===0} onClick={onNext}>{"Next →"}</Btn>
+<Btn pal={pal} disabled={sel.length===0} onClick={onNext}>{"Next →"}</Btn>
     </div>
   );
 }
@@ -4518,34 +4399,20 @@ function OnbLifeReady({ pal, data, upd, onNext }) {
 /* --- STEP 5: Lesson Goals --- */
 function OnbLessonGoals({ pal, data, upd, onNext }) {
   // lessonGoals = {subjId: {0:n, 1:n, 2:n, 3:n, 4:n}} 0=Mon...4=Fri
-  const customSubjs    = data.customSubjects||[];
-  const allSubjMap     = Object.fromEntries([...SUBJECT_OPTIONS,...customSubjs].map(s=>[s.id,s]));
-  const activeSubjs    = (data.subjects||[]).map(id=>allSubjMap[id]).filter(Boolean);
-  const coopDay        = data.coopDay;
-  const DOW_NAMES      = ["Mon","Tue","Wed","Thu","Fri"];
-  const DOW_MAP        = {"Monday":0,"Tuesday":1,"Wednesday":2,"Thursday":3,"Friday":4};
-  const coopDow        = DOW_MAP[coopDay]??-1;
-  const weeklySchedule = data.weeklySchedule||null;
+  const customSubjs = data.customSubjects||[];
+  const allSubjMap  = Object.fromEntries([...SUBJECT_OPTIONS,...customSubjs].map(s=>[s.id,s]));
+  const activeSubjs = (data.subjects||[]).map(id=>allSubjMap[id]).filter(Boolean);
+  const coopDay     = data.coopDay; // e.g. "Friday"
+  const DOW_NAMES   = ["Mon","Tue","Wed","Thu","Fri"];
+  const DOW_MAP     = {"Monday":0,"Tuesday":1,"Wednesday":2,"Thursday":3,"Friday":4};
+  const coopDow     = DOW_MAP[coopDay]??-1;
 
-  // Is this subject scheduled on this day (per WeeklySchedule step)?
-  const isSubjOnDay = (subjId, dow) => {
-    if(!weeklySchedule) return true;
-    const daySched = weeklySchedule[dow];
-    if(daySched===null) return false;
-    if(!Array.isArray(daySched)) return true;
-    return daySched.includes(subjId);
-  };
-
-  // Initialise goals: default to 1 on scheduled days, 0 on off/unscheduled days
+  // Initialise goals from existing data or sensible defaults
   const [goals, setGoals] = React.useState(()=>{
     const existing = data.lessonGoals||{};
     const init = {};
     activeSubjs.forEach(s=>{
-      const row = {};
-      for(let d=0;d<5;d++){
-        row[d] = (existing[s.id]!=null) ? (existing[s.id][d]||0) : (isSubjOnDay(s.id,d)?1:0);
-      }
-      init[s.id] = row;
+      init[s.id] = existing[s.id]||{0:1,1:1,2:1,3:1,4:1};
     });
     return init;
   });
@@ -4577,7 +4444,7 @@ function OnbLessonGoals({ pal, data, upd, onNext }) {
   return (
     <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
       <StepHdr pal={pal} icon="🎯" title="Lesson Goals"
-        sub="How many lessons of each subject do you aim to do per day? Days off or unscheduled subjects are shown as —. Tap a number to cycle 0→1→2→3." />
+        sub="How many lessons of each subject do you aim to do each day? Tap a number to cycle 0-1-2-3. This helps track your week." />
 
       <div style={{background:pal.pale,borderRadius:"12px",padding:"0.7rem 0.9rem",marginBottom:"1rem",border:`1.5px solid ${pal.primary}20`,fontSize:"0.74rem",color:pal.inkM,lineHeight:1.6}}>
         {"Tip: 0 means that subject is not planned for that day. Tap each number to cycle through 0 \u2192 1 \u2192 2 \u2192 3."}
@@ -4607,15 +4474,12 @@ function OnbLessonGoals({ pal, data, upd, onNext }) {
                   </div>
                 </div>
                 {[0,1,2,3,4].map(dow=>{
-                  const isCoop     = dow===coopDow;
-                  const isOff      = !isCoop && !isSubjOnDay(s.id, dow);
-                  const val        = (isCoop||isOff) ? null : (goals[s.id]?.[dow]||0);
+                  const isCoop = dow===coopDow;
+                  const val = isCoop ? null : (goals[s.id]?.[dow]||0);
                   return (
                     <div key={dow} style={{display:"flex",alignItems:"center",justifyContent:"center"}}>
                       {isCoop ? (
                         <div style={{width:"30px",height:"30px",borderRadius:"8px",background:"#fff8e6",border:"1.5px solid #f5c84240",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.55rem",color:"#b07800",fontWeight:"700",textAlign:"center",lineHeight:1.2}}>co{"\u00b7"}op</div>
-                      ) : isOff ? (
-                        <div style={{width:"30px",height:"30px",borderRadius:"8px",background:pal.parchm,border:"1.5px solid "+pal.stone+"25",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.75rem",color:pal.stone,opacity:0.5}}>{"\u2014"}</div>
                       ) : (
                         <button onClick={()=>cycle(s.id,dow)}
                           style={{width:"30px",height:"30px",borderRadius:"8px",border:`2px solid ${val>0?pal.primary:pal.stone+"50"}`,background:val>0?pal.pale:"transparent",cursor:"pointer",fontWeight:"800",fontSize:"0.82rem",color:val>0?pal.primary:pal.stone,display:"flex",alignItems:"center",justifyContent:"center",padding:0,transition:"all 0.12s"}}>
@@ -5285,6 +5149,14 @@ function OnbExtras({ pal, data, upd, onNext }) {
   return (
     <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
       <StepHdr pal={pal} icon="🌿" title="Life & Extras" sub="A few last things to personalize your app." />
+      <Lbl pal={pal}>Co-op frequency</Lbl>
+      <div style={{display:"flex",flexDirection:"column",gap:"0.4rem",marginBottom:"1rem"}}>
+        {COOP_FREQ.map(c=>(
+          <button key={c} onClick={()=>upd("coopFreq",c)} style={{padding:"0.65rem 1rem",border:`2px solid ${data.coopFreq===c?pal.primary:pal.stone+"50"}`,borderRadius:"12px",background:data.coopFreq===c?pal.pale:"transparent",cursor:"pointer",textAlign:"left",fontWeight:data.coopFreq===c?"700":"400",color:data.coopFreq===c?pal.primary:pal.inkM,fontSize:"0.84rem",transition:"all 0.13s"}}>
+            {c}
+          </button>
+        ))}
+      </div>
       <Lbl pal={pal}>Extracurriculars <span style={{fontWeight:"400",color:pal.slate}}>(pick all that apply)</span></Lbl>
       <div style={{display:"flex",flexWrap:"wrap",gap:"0.4rem",marginBottom:"0.6rem"}}>
         {allExtras.map(e=>(
@@ -5406,6 +5278,116 @@ function CurriculumAddWidget({pal, local, updL}){
       )}
     </div>
   );
+}
+
+function SettingsWeeklyEditor({pal, local, updL}) {
+const csj2   = local.customSubjects||[];
+const smap3  = Object.fromEntries([...SUBJECT_OPTIONS,...csj2].map(s=>[s.id,s]));
+const asj3   = (local.subjects||[]).map(id=>smap3[id]).filter(Boolean);
+const cdow3  = ["Monday","Tuesday","Wednesday","Thursday","Friday"].indexOf(local.coopDay??"");
+const DOW3   = ["Mon","Tue","Wed","Thu","Fri"];
+const DOW3F  = ["Monday","Tuesday","Wednesday","Thursday","Friday"];
+const [aday3,setAday3] = React.useState(cdow3===0?1:0);
+
+const ws3 = local.weeklySchedule || (() => {
+  const init = {};
+  for(let d=0;d<5;d++) init[d] = d===cdow3?null:asj3.map(s=>s.id);
+  return init;
+})();
+
+const setWs3 = (fn) => {
+  const next = typeof fn==="function" ? fn(local.weeklySchedule||ws3) : fn;
+  updL("weeklySchedule", next);
+};
+
+const togSubj3 = (dow,id) => setWs3(prev=>{
+  const cur=prev[dow]||[];
+  return {...prev,[dow]:cur.includes(id)?cur.filter(x=>x!==id):[...cur,id]};
+});
+const togDay3 = (dow) => {
+  if(dow===cdow3) return;
+  setWs3(prev=>({...prev,[dow]:prev[dow]===null?asj3.map(s=>s.id):null}));
+};
+
+const wsCur = local.weeklySchedule||ws3;
+const isDOff3  = wsCur[aday3]===null&&aday3!==cdow3;
+const isCoop3  = aday3===cdow3;
+const daySjs3  = wsCur[aday3]||[];
+
+return (
+  <div>
+    {/* Day tabs */}
+    <div style={{display:"flex",gap:"0.25rem",marginBottom:"0.65rem"}}>
+      {DOW3.map((d,i)=>{
+        const isAct=aday3===i, isCp=i===cdow3, isOff=wsCur[i]===null&&!isCp;
+        const cnt=Array.isArray(wsCur[i])?wsCur[i].length:0;
+        return (
+          <button key={i} onClick={()=>setAday3(i)}
+            style={{flex:1,padding:"0.4rem 0.1rem",borderRadius:"9px",border:`1.5px solid ${isAct?pal.primary:isCp?"#f5c842":isOff?pal.stone+"30":pal.stone+"45"}`,background:isAct?pal.pale:isCp?"#fff8e6":"transparent",cursor:"pointer",textAlign:"center"}}>
+            <div style={{fontSize:"0.6rem",fontWeight:"800",color:isAct?pal.primary:isCp?"#b07800":isOff?pal.stone:pal.inkM,textTransform:"uppercase"}}>{d}</div>
+            <div style={{fontSize:"0.55rem",color:isAct?pal.primary:isCp?"#b07800":isOff?pal.stone:pal.slate,marginTop:"1px",fontWeight:"600"}}>
+              {isCp?"coop":isOff?"off":cnt+"s"}
+            </div>
+          </button>
+        );
+      })}
+    </div>
+    {/* Day panel */}
+    {isCoop3 ? (
+      <div style={{background:"#fff8e6",borderRadius:"11px",padding:"0.65rem 0.85rem",border:"1.5px solid #f5c84240"}}>
+        <div style={{fontSize:"0.73rem",color:"#7a5500",fontWeight:"700",marginBottom:"0.5rem"}}>{"🏫 Co-op Subjects"}</div>
+        <div style={{fontSize:"0.68rem",color:"#b07800",marginBottom:"0.45rem"}}>{"Which subjects do you cover at co-op? These will show on your schedule on co-op day."}</div>
+        <div style={{display:"flex",flexDirection:"column",gap:"0.2rem"}}>
+          {asj3.map(s=>{
+            const coopSubjs3 = local.coopSubjects||[];
+            const sel3 = coopSubjs3.includes(s.id);
+            return (
+              <button key={s.id} onClick={()=>{
+                const cur3 = local.coopSubjects||[];
+                updL("coopSubjects", sel3?cur3.filter(x=>x!==s.id):[...cur3,s.id]);
+              }} style={{display:"flex",gap:"0.45rem",alignItems:"center",padding:"0.35rem 0.5rem",border:`1.5px solid ${sel3?"#b07800":"#f5c84270"}`,borderRadius:"7px",background:sel3?"#fff3cc":"transparent",cursor:"pointer",textAlign:"left",transition:"all 0.1s"}}>
+                <span style={{fontSize:"0.85rem",width:"16px",textAlign:"center",flexShrink:0}}>{s.icon}</span>
+                <span style={{flex:1,fontWeight:sel3?"700":"400",color:sel3?"#7a5500":"#b07800",fontSize:"0.74rem"}}>{s.label}</span>
+                <div style={{width:"14px",height:"14px",borderRadius:"3px",border:`2px solid ${sel3?"#b07800":"#f5c842"}`,background:sel3?"#b07800":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                  {sel3&&<span style={{color:"#fff",fontSize:"0.55rem",fontWeight:"900"}}>{"✓"}</span>}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+        {(local.coopSubjects||[]).length===0&&<div style={{fontSize:"0.65rem",color:"#b07800",marginTop:"0.4rem",fontStyle:"italic"}}>{"Tap to select subjects, or leave empty if you don't do regular subjects at co-op."}</div>}
+      </div>
+    ) : (
+      <div style={{background:pal.parchm,borderRadius:"11px",padding:"0.55rem 0.75rem"}}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:isDOff3?"0":"0.55rem"}}>
+          <span style={{fontSize:"0.76rem",fontWeight:"700",color:pal.inkM}}>{DOW3F[aday3]}</span>
+          <button onClick={()=>togDay3(aday3)}
+            style={{width:"38px",height:"22px",borderRadius:"11px",border:"none",background:isDOff3?pal.stone+"60":pal.primary,cursor:"pointer",position:"relative",transition:"background 0.2s",flexShrink:0}}>
+            <div style={{position:"absolute",top:"2px",left:isDOff3?"2px":"18px",width:"18px",height:"18px",borderRadius:"50%",background:"#fff",transition:"left 0.2s"}}/>
+          </button>
+        </div>
+        {!isDOff3&&(
+          <div style={{display:"flex",flexDirection:"column",gap:"0.25rem"}}>
+            {asj3.map(s=>{
+              const sel=daySjs3.includes(s.id);
+              return (
+                <button key={s.id} onClick={()=>togSubj3(aday3,s.id)}
+                  style={{display:"flex",gap:"0.5rem",alignItems:"center",padding:"0.4rem 0.55rem",border:`1.5px solid ${sel?pal.primary:pal.stone+"40"}`,borderRadius:"8px",background:sel?pal.pale:"#fff",cursor:"pointer",textAlign:"left",transition:"all 0.12s"}}>
+                  <span style={{fontSize:"0.9rem",width:"18px",textAlign:"center",flexShrink:0}}>{s.icon}</span>
+                  <span style={{flex:1,fontWeight:sel?"700":"400",color:sel?pal.primary:pal.inkM,fontSize:"0.78rem"}}>{s.label}</span>
+                  <div style={{width:"16px",height:"16px",borderRadius:"4px",border:`2px solid ${sel?pal.primary:pal.stone}`,background:sel?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                    {sel&&<span style={{color:"#fff",fontSize:"0.6rem",fontWeight:"900"}}>{"✓"}</span>}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    )}
+  </div>
+);
+
 }
 
 function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, customA, customB, setCustomA, setCustomB, navIds, setNavIds, onBack, onCelebReset }) {
@@ -5775,114 +5757,7 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
             </SCard>
 
             <SCard pal={pal} title="Weekly Schedule" note="Which subjects on which days">
-              {(()=>{
-                const csj2   = local.customSubjects||[];
-                const smap3  = Object.fromEntries([...SUBJECT_OPTIONS,...csj2].map(s=>[s.id,s]));
-                const asj3   = (local.subjects||[]).map(id=>smap3[id]).filter(Boolean);
-                const cdow3  = ["Monday","Tuesday","Wednesday","Thursday","Friday"].indexOf(local.coopDay??"");
-                const DOW3   = ["Mon","Tue","Wed","Thu","Fri"];
-                const DOW3F  = ["Monday","Tuesday","Wednesday","Thursday","Friday"];
-                const [aday3,setAday3] = React.useState(cdow3===0?1:0);
-
-                const ws3 = local.weeklySchedule || (() => {
-                  const init = {};
-                  for(let d=0;d<5;d++) init[d] = d===cdow3?null:asj3.map(s=>s.id);
-                  return init;
-                })();
-
-                const setWs3 = (fn) => {
-                  const next = typeof fn==="function" ? fn(local.weeklySchedule||ws3) : fn;
-                  updL("weeklySchedule", next);
-                };
-
-                const togSubj3 = (dow,id) => setWs3(prev=>{
-                  const cur=prev[dow]||[];
-                  return {...prev,[dow]:cur.includes(id)?cur.filter(x=>x!==id):[...cur,id]};
-                });
-                const togDay3 = (dow) => {
-                  if(dow===cdow3) return;
-                  setWs3(prev=>({...prev,[dow]:prev[dow]===null?asj3.map(s=>s.id):null}));
-                };
-
-                const wsCur = local.weeklySchedule||ws3;
-                const isDOff3  = wsCur[aday3]===null&&aday3!==cdow3;
-                const isCoop3  = aday3===cdow3;
-                const daySjs3  = wsCur[aday3]||[];
-
-                return (
-                  <div>
-                    {/* Day tabs */}
-                    <div style={{display:"flex",gap:"0.25rem",marginBottom:"0.65rem"}}>
-                      {DOW3.map((d,i)=>{
-                        const isAct=aday3===i, isCp=i===cdow3, isOff=wsCur[i]===null&&!isCp;
-                        const cnt=Array.isArray(wsCur[i])?wsCur[i].length:0;
-                        return (
-                          <button key={i} onClick={()=>setAday3(i)}
-                            style={{flex:1,padding:"0.4rem 0.1rem",borderRadius:"9px",border:`1.5px solid ${isAct?pal.primary:isCp?"#f5c842":isOff?pal.stone+"30":pal.stone+"45"}`,background:isAct?pal.pale:isCp?"#fff8e6":"transparent",cursor:"pointer",textAlign:"center"}}>
-                            <div style={{fontSize:"0.6rem",fontWeight:"800",color:isAct?pal.primary:isCp?"#b07800":isOff?pal.stone:pal.inkM,textTransform:"uppercase"}}>{d}</div>
-                            <div style={{fontSize:"0.55rem",color:isAct?pal.primary:isCp?"#b07800":isOff?pal.stone:pal.slate,marginTop:"1px",fontWeight:"600"}}>
-                              {isCp?"coop":isOff?"off":cnt+"s"}
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                    {/* Day panel */}
-                    {isCoop3 ? (
-                      <div style={{background:"#fff8e6",borderRadius:"11px",padding:"0.65rem 0.85rem",border:"1.5px solid #f5c84240"}}>
-                        <div style={{fontSize:"0.73rem",color:"#7a5500",fontWeight:"700",marginBottom:"0.5rem"}}>{"🏫 Co-op Subjects"}</div>
-                        <div style={{fontSize:"0.68rem",color:"#b07800",marginBottom:"0.45rem"}}>{"Which subjects do you cover at co-op? These will show on your schedule on co-op day."}</div>
-                        <div style={{display:"flex",flexDirection:"column",gap:"0.2rem"}}>
-                          {asj3.map(s=>{
-                            const coopSubjs3 = local.coopSubjects||[];
-                            const sel3 = coopSubjs3.includes(s.id);
-                            return (
-                              <button key={s.id} onClick={()=>{
-                                const cur3 = local.coopSubjects||[];
-                                updL("coopSubjects", sel3?cur3.filter(x=>x!==s.id):[...cur3,s.id]);
-                              }} style={{display:"flex",gap:"0.45rem",alignItems:"center",padding:"0.35rem 0.5rem",border:`1.5px solid ${sel3?"#b07800":"#f5c84270"}`,borderRadius:"7px",background:sel3?"#fff3cc":"transparent",cursor:"pointer",textAlign:"left",transition:"all 0.1s"}}>
-                                <span style={{fontSize:"0.85rem",width:"16px",textAlign:"center",flexShrink:0}}>{s.icon}</span>
-                                <span style={{flex:1,fontWeight:sel3?"700":"400",color:sel3?"#7a5500":"#b07800",fontSize:"0.74rem"}}>{s.label}</span>
-                                <div style={{width:"14px",height:"14px",borderRadius:"3px",border:`2px solid ${sel3?"#b07800":"#f5c842"}`,background:sel3?"#b07800":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                                  {sel3&&<span style={{color:"#fff",fontSize:"0.55rem",fontWeight:"900"}}>{"✓"}</span>}
-                                </div>
-                              </button>
-                            );
-                          })}
-                        </div>
-                        {(local.coopSubjects||[]).length===0&&<div style={{fontSize:"0.65rem",color:"#b07800",marginTop:"0.4rem",fontStyle:"italic"}}>{"Tap to select subjects, or leave empty if you don't do regular subjects at co-op."}</div>}
-                      </div>
-                    ) : (
-                      <div style={{background:pal.parchm,borderRadius:"11px",padding:"0.55rem 0.75rem"}}>
-                        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:isDOff3?"0":"0.55rem"}}>
-                          <span style={{fontSize:"0.76rem",fontWeight:"700",color:pal.inkM}}>{DOW3F[aday3]}</span>
-                          <button onClick={()=>togDay3(aday3)}
-                            style={{width:"38px",height:"22px",borderRadius:"11px",border:"none",background:isDOff3?pal.stone+"60":pal.primary,cursor:"pointer",position:"relative",transition:"background 0.2s",flexShrink:0}}>
-                            <div style={{position:"absolute",top:"2px",left:isDOff3?"2px":"18px",width:"18px",height:"18px",borderRadius:"50%",background:"#fff",transition:"left 0.2s"}}/>
-                          </button>
-                        </div>
-                        {!isDOff3&&(
-                          <div style={{display:"flex",flexDirection:"column",gap:"0.25rem"}}>
-                            {asj3.map(s=>{
-                              const sel=daySjs3.includes(s.id);
-                              return (
-                                <button key={s.id} onClick={()=>togSubj3(aday3,s.id)}
-                                  style={{display:"flex",gap:"0.5rem",alignItems:"center",padding:"0.4rem 0.55rem",border:`1.5px solid ${sel?pal.primary:pal.stone+"40"}`,borderRadius:"8px",background:sel?pal.pale:"#fff",cursor:"pointer",textAlign:"left",transition:"all 0.12s"}}>
-                                  <span style={{fontSize:"0.9rem",width:"18px",textAlign:"center",flexShrink:0}}>{s.icon}</span>
-                                  <span style={{flex:1,fontWeight:sel?"700":"400",color:sel?pal.primary:pal.inkM,fontSize:"0.78rem"}}>{s.label}</span>
-                                  <div style={{width:"16px",height:"16px",borderRadius:"4px",border:`2px solid ${sel?pal.primary:pal.stone}`,background:sel?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                                    {sel&&<span style={{color:"#fff",fontSize:"0.6rem",fontWeight:"900"}}>{"✓"}</span>}
-                                  </div>
-                                </button>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })()}
+              <SettingsWeeklyEditor pal={pal} local={local} updL={updL}/>
             </SCard>
 
             <SCard pal={pal} title="Morning Time">
@@ -6163,7 +6038,6 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                 <button onClick={()=>{
                   const keys=Object.keys(localStorage).filter(k=>k.startsWith("portalCeleb_")||k==="rootbloom_tips_seen");
                   keys.forEach(k=>localStorage.removeItem(k));
-                  onCelebReset&&onCelebReset();
                   alert("Celebrations reset! Open Student Portal to see them.");
                 }} style={{padding:"0.45rem 1rem",border:`1.5px solid ${pal.stone}`,borderRadius:"10px",background:"transparent",color:pal.slate,fontSize:"0.76rem",fontWeight:"600",cursor:"pointer"}}>
                   {"🎉 Reset celebrations"}
@@ -6290,25 +6164,6 @@ function generateSchedule(family, childId) {
   }
 
   const isTimed = family.scheduleMode === "timed";
-  // Respect schoolDays setting
-  const schoolDaysSetting = family.schoolDays||"Monday-Friday";
-  const DOW_NAMES_SC = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-  const todayNameSC = DOW_NAMES_SC[new Date().getDay()];
-  const schoolDayList = {
-    "Monday-Friday":  ["Monday","Tuesday","Wednesday","Thursday","Friday"],
-    "Monday-Thursday":["Monday","Tuesday","Wednesday","Thursday"],
-    "Tuesday-Friday": ["Tuesday","Wednesday","Thursday","Friday"],
-    "Mon/Wed/Fri":    ["Monday","Wednesday","Friday"],
-    "Tue/Thu":        ["Tuesday","Thursday"],
-  }[schoolDaysSetting] || ["Monday","Tuesday","Wednesday","Thursday","Friday"];
-  if(!schoolDayList.includes(todayNameSC)) return [];
-  // Respect weeklySchedule day-off (null = day off or co-op)
-  const todayDowIdxSC = new Date().getDay()-1; // 0=Mon...4=Fri
-  if(family.weeklySchedule && todayDowIdxSC>=0 && todayDowIdxSC<=4
-     && family.weeklySchedule[todayDowIdxSC]===null) return [];
-  // Parse endTime to cap schedule length
-  const endTimeSetting = family.endTime||"15:00";
-  const endTotalMins = parseInt(endTimeSetting.split(":")[0])*60 + parseInt((endTimeSetting.split(":")[1])||0);
   let blocks = [];
   let cursor = startHour * 60 + startMin;
   const toTime = mins => {
@@ -6335,7 +6190,6 @@ function generateSchedule(family, childId) {
     // Mark group subjects vs individual in mixed mode
     const isGroup = schedMode==="mixed" && (family.groupSubjects||[]).includes(id);
     const cId = schedMode==="separate"&&childId ? childId : "all";
-    if(isTimed && cursor >= endTotalMins) return; // stop at end time
     blocks.push({t:isTimed?toTime(cursor):"", s:subj.label, i:subj.icon, c:cId, dur:sessionMins, isGroup});
     if(isTimed) {
       cursor += sessionMins;
@@ -6385,25 +6239,11 @@ function generateSchedule(family, childId) {
   }
 
   // Inject Life Ready blocks based on day of week
-  // Use weeklySchedule to find the first school day (P&C lesson day)
   if (family.lifeReady) {
-    const dow = new Date().getDay(); // 1=Mon...5=Fri
+    const dow = new Date().getDay();
     const freq = family.lifeReadyFreq || "monday_plus_practice";
-    const grade = family.children?.[0]?.grade||"5th";
-    const topic = getLRTopicForWeek(grade);
-    // Determine lesson day from weeklySchedule (first non-null school day)
-    const ws = family.weeklySchedule;
-    const DOW_JS = [null,1,2,3,4,5,null]; // js getDay() -> Mon=1...Fri=5
-    let lessonDow = 1; // default Monday
-    let practDows = [2,3,4];
-    if(ws) {
-      const schoolIdxs = [0,1,2,3,4].filter(i=>ws[i]!==null); // 0=Mon...4=Fri
-      if(schoolIdxs.length>0) {
-        lessonDow = schoolIdxs[0]+1; // convert to JS dow (Mon=1)
-        practDows = schoolIdxs.slice(1,4).map(i=>i+1);
-      }
-    }
-    if (dow===lessonDow) {
+    const topic = getLRTopicForWeek(family.children?.[0]?.grade||"5th");
+    if (dow===1) {
       const insertAt = family.morningGathering ? 1 : 0;
       blocks.splice(insertAt, 0, {
         t: isTimed ? toTime(cursor) : "",
@@ -6415,7 +6255,7 @@ function generateSchedule(family, childId) {
         isLesson: true,
         accentColor: LR_COLOR,
       });
-    } else if (freq === "monday_plus_practice" && practDows.includes(dow)) {
+    } else if (freq === "monday_plus_practice" && (dow===2||dow===3||dow===4)) {
       blocks.push({
         t: "",
         s: "P&C Practice: " + topic,
@@ -7665,7 +7505,6 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
   // P&C week completion state
   const PC_KEY = "rootbloom_pc_done";
   const getPCWeekKey = () => {
-    // Use the same school-year-aware week calculation as pc-lessons.js
     const schoolWeek = getLRSchoolWeek();
     const yr = getLRYearStart().getFullYear();
     return yr+"-"+schoolWeek;
@@ -8200,10 +8039,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
     <div key="pandc" data-section="pandc">
       {/* ── P&C This Week ── */}
         {family.lifeReady && (()=>{
-          // Use filtered child if one is selected, else first child
-          const ch    = (child&&child!=="all")
-            ? (family.children.find(c=>c.id===child)||family.children[0])
-            : family.children[0];
+          const ch    = family.children[0];
           const grade = ch?.grade||"5th";
           const topic = getLRTopicForWeek(grade);
           const week  = getLRWeekNumber(grade);
@@ -8300,7 +8136,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
     touchDragIdx.current = null; setDragIdx(null); setDragOverIdx(null);
   };
 
-  const SECTION_LABELS = {"progress_nudge":"Progress Nudge","thisweek":"This Week","todaycard":"Today\u2019s Plan","consistency":"Consistency Nudge","missedday":"Missed Day Alert","behindweek":"Behind This Week","subjectgap":"Subject Gap","goals":"Goals Nudge","pandc":"Practical \u0026 Creative"};
+  const SECTION_LABELS = {"progress_nudge":"Progress Nudge","thisweek":"This Week","todaycard":"Today\u2019s Plan","consistency":"Consistency Nudge","missedday":"Missed Day Alert","behindweek":"Behind This Week","subjectgap":"Subject Gap","goals":"Goals Nudge","pandc":"Prepared \u0026 Capable"};
   const SECTION_ICONS  = {"progress_nudge":"\u2728","thisweek":"\ud83d\udcc5","todaycard":"\ud83d\udccb","consistency":"\ud83d\udd25","missedday":"\ud83d\udcc6","behindweek":"\u26a0\ufe0f","subjectgap":"\u23f0","goals":"\ud83c\udf1f","pandc":"\ud83c\udfa8"};
   const sectionRenderMap = {
     progress_nudge: renderSection_progress_nudge,
@@ -8594,7 +8430,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
             {l:"Hours",   v:hoursEst!==null?hoursEst+"h":"—", c:pal.mid, bg:pal.paleMid},
             REQUIRED
               ? {l:"On Track", v:pct+"%", c:onTrack?pal.good:pal.warn, bg:onTrack?pal.goodBg:pal.warnBg}
-              : {l:"This Year", v:attendanceDays+" days", c:pal.good, bg:pal.goodBg},
+              : {l:"Streak", v:checkinStreak>0?checkinStreak+"🔥":"—", c:pal.primary, bg:pal.pale},
           ].map(s=>(
             <div key={s.l} style={{background:s.bg,borderRadius:"15px",padding:"0.8rem 0.6rem",textAlign:"center",border:`1.5px solid ${s.c}22`}}>
               <div style={{fontWeight:"800",color:s.c,fontSize:"1.25rem",lineHeight:1}}>{s.v}</div>
@@ -8640,10 +8476,32 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
               style={{display:"flex",alignItems:"center",gap:"0.65rem",background:dragOverIdx===i?pal.pale:pal.linen,borderRadius:"13px",padding:"0.7rem 0.85rem",marginBottom:"0.5rem",border:`1.5px solid ${dragOverIdx===i?pal.primary:pal.stone+"40"}`,cursor:"grab",transition:"all 0.12s",userSelect:"none",touchAction:"none"}}>
               <span style={{fontSize:"1.1rem",flexShrink:0}}>{SECTION_ICONS[sid]||"📌"}</span>
               <span style={{flex:1,fontWeight:"700",color:pal.inkM,fontSize:"0.82rem"}}>{SECTION_LABELS[sid]||sid}</span>
+              <button onClick={e=>{e.stopPropagation();onSetHomeLayout&&onSetHomeLayout(homeLayout.filter(x=>x!==sid));}}
+                style={{padding:"0.15rem 0.45rem",border:"1px solid "+pal.stone+"50",borderRadius:"8px",background:pal.parchm,color:pal.slate,fontSize:"0.65rem",cursor:"pointer",fontWeight:"600",flexShrink:0}}>
+                {"Hide"}
+              </button>
               <span style={{fontSize:"1.2rem",color:pal.stone,flexShrink:0,letterSpacing:"-1px"}}>{"≡"}</span>
             </div>
           ))}
-          <div style={{textAlign:"center",fontSize:"0.68rem",color:pal.slate,marginTop:"0.5rem",fontStyle:"italic"}}>{"Drag cards to reorder your home screen"}</div>
+          <div style={{textAlign:"center",fontSize:"0.68rem",color:pal.slate,marginTop:"0.5rem",fontStyle:"italic"}}>{"Drag to reorder \u00b7 tap Hide to remove"}</div>
+          {(()=>{
+            const allSids=["thisweek","todaycard","progress_nudge","consistency","missedday","behindweek","subjectgap","goals","pandc"];
+            const hiddenSids=allSids.filter(s=>!homeLayout.includes(s));
+            if(!hiddenSids.length) return null;
+            return (
+              <div style={{marginTop:"0.75rem",padding:"0.6rem 0.75rem",background:pal.parchm,borderRadius:"12px",border:"1px solid "+pal.stone+"30"}}>
+                <div style={{fontSize:"0.65rem",fontWeight:"700",color:pal.slate,marginBottom:"0.4rem",textTransform:"uppercase",letterSpacing:"0.05em"}}>{"Hidden sections"}</div>
+                <div style={{display:"flex",flexWrap:"wrap",gap:"0.3rem"}}>
+                  {hiddenSids.map(s=>(
+                    <button key={s} onClick={()=>onSetHomeLayout&&onSetHomeLayout([...homeLayout,s])}
+                      style={{padding:"0.2rem 0.6rem",borderRadius:"20px",border:"1.5px solid "+pal.primary+"50",background:pal.pale,color:pal.primary,fontSize:"0.68rem",fontWeight:"700",cursor:"pointer"}}>
+                      {"+ "+(SECTION_LABELS[s]||s)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
         </div>
       ) : (
         /* ── Normal rendered sections in user-defined order ── */
@@ -10763,6 +10621,13 @@ function QuickCaptureModal({pal, family, activeChildId, onClose, onSave, attenda
   const allSubjOptions = [...SUBJECT_OPTIONS, ...(family.customSubjects||[])];
   const activeSubjIds  = family.subjects||[];
   const activeSubjs    = activeSubjIds.map(id=>allSubjOptions.find(s=>s.id===id)).filter(Boolean);
+  // Schedule-aware subject filtering
+  const qcWeeklySchedule = family.weeklySchedule||null;
+  const qcTodayDow = new Date().getDay();
+  const qcDowIndex = qcTodayDow===0||qcTodayDow===6 ? null : qcTodayDow-1;
+  const qcTodaySubjIds = (qcWeeklySchedule&&qcDowIndex!=null) ? qcWeeklySchedule[qcDowIndex] : null;
+  const qcTodaySubjs = Array.isArray(qcTodaySubjIds)&&qcTodaySubjIds.length>0
+    ? qcTodaySubjIds.map(id=>allSubjOptions.find(s=>s.id===id)).filter(Boolean) : null;
   const allGoalObjs    = [...GOALS,...(family.customGoals||[])];
   const familyGoals    = (family.goals||[]).map(id=>allGoalObjs.find(g=>g.id===id)).filter(Boolean);
   const defaultCi = activeChildId && activeChildId!=="all"
@@ -10770,7 +10635,9 @@ function QuickCaptureModal({pal, family, activeChildId, onClose, onSave, attenda
     : 0;
   const todayIso  = new Date().toISOString().slice(0,10);
   const [childIdx,     setChildIdx]     = useState(defaultCi);
-  const [subj,         setSubj]         = useState(activeSubjs[0]?.label||"");
+  const [showAllQCSubjs, setShowAllQCSubjs] = useState(!qcTodaySubjs);
+  const qcDisplaySubjs = (showAllQCSubjs||!qcTodaySubjs) ? activeSubjs : qcTodaySubjs;
+  const [subj,         setSubj]         = useState((qcTodaySubjs?qcTodaySubjs[0]:activeSubjs[0])?.label||"");
   const [note,         setNote]         = useState("");
   const [photos,       setPhotos]       = useState([]);
   const [saved,        setSaved]        = useState(false);
@@ -10965,12 +10832,11 @@ function QuickCaptureModal({pal, family, activeChildId, onClose, onSave, attenda
             </div>
           )}
 
-          {/* Subject chips - filtered to today schedule */}
+          {/* Subject chips - schedule aware */}
           {qcTodaySubjs&&(
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"0.3rem"}}>
               <div style={{fontSize:"0.68rem",color:pal.slate}}>{showAllQCSubjs?"All subjects":"Today's subjects"}</div>
-              <button onClick={()=>setShowAllQCSubjs(v=>!v)}
-                style={{fontSize:"0.68rem",color:pal.primary,fontWeight:"700",background:"transparent",border:"none",cursor:"pointer"}}>
+              <button onClick={()=>setShowAllQCSubjs(v=>!v)} style={{fontSize:"0.68rem",color:pal.primary,fontWeight:"700",background:"transparent",border:"none",cursor:"pointer"}}>
                 {showAllQCSubjs?"\u2190 Today's only":"Show all"}
               </button>
             </div>
@@ -12419,23 +12285,16 @@ function AddEntryModal({pal,family,onClose,onSave,initialData=null,stateInfo=nul
   const customSubjs = family.customSubjects||[];
   const allSubjs = [...SUBJECT_OPTIONS,...customSubjs];
   const activeSubjs = (family.subjects||[]).map(id=>allSubjs.find(s=>s.id===id)).filter(Boolean);
-
-  // Filter subjects by today's weekly schedule
   const weeklySchedule = family.weeklySchedule||null;
-  const todayDow = new Date().getDay(); // 0=Sun,1=Mon...5=Fri,6=Sat
-  const dowIndex = todayDow===0||todayDow===6 ? null : todayDow-1; // 0=Mon...4=Fri, null on weekends
+  const todayDow = new Date().getDay();
+  const dowIndex = todayDow===0||todayDow===6 ? null : todayDow-1;
   const todaySubjIds = (weeklySchedule&&dowIndex!=null) ? weeklySchedule[dowIndex] : null;
-  // null means day off or weekend; array means scheduled subjects for today
   const isDayOff = weeklySchedule && dowIndex!=null && todaySubjIds===null;
   const todaySubjs = (Array.isArray(todaySubjIds) && todaySubjIds.length>0)
-    ? todaySubjIds.map(id=>allSubjs.find(s=>s.id===id)).filter(Boolean)
-    : null; // null = no schedule set or weekend
-
-  // Show today's subjects if we have a schedule; otherwise show all
+    ? todaySubjIds.map(id=>allSubjs.find(s=>s.id===id)).filter(Boolean) : null;
   const [showAllSubjs, setShowAllSubjs] = useState(!todaySubjs || isEdit);
   const displaySubjs = (showAllSubjs || !todaySubjs) ? activeSubjs : todaySubjs;
   const subjOptions = ["Daily Check-In",...displaySubjs.map(s=>s.label)];
-  // If editing with a subj not in the list, show it as custom
   const subjInList = subjOptions.includes(subj) || (showAllSubjs ? false : activeSubjs.map(s=>s.label).includes(subj));
   const canSave = title.trim().length>0 && canSaveReading;
 
@@ -12477,22 +12336,7 @@ function AddEntryModal({pal,family,onClose,onSave,initialData=null,stateInfo=nul
             </div>
           )}
 
-          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"0.3rem"}}>
-            <Lbl pal={pal} style={{margin:0}}>Subject</Lbl>
-            {todaySubjs&&!isEdit&&(
-              <button onClick={()=>setShowAllSubjs(v=>!v)}
-                style={{fontSize:"0.68rem",color:showAllSubjs?pal.slate:pal.primary,fontWeight:"700",background:"transparent",border:"none",cursor:"pointer",padding:"0.1rem 0"}}>
-                {showAllSubjs?"\u2190 Today's subjects":"Show all subjects"}
-              </button>
-            )}
-          </div>
-          {todaySubjs&&!showAllSubjs&&!isEdit&&(
-            <div style={{fontSize:"0.68rem",color:pal.slate,marginBottom:"0.4rem"}}>
-              {isDayOff
-                ? "\u26a0\ufe0f Today is a scheduled day off. Logging anyway?"
-                : "Showing today's scheduled subjects"}
-            </div>
-          )}
+          <Lbl pal={pal}>Subject</Lbl>
           <div style={{display:"flex",flexWrap:"wrap",gap:"0.35rem",marginBottom:"0.45rem"}}>
             {subjOptions.map(s=>(
               <button key={s} onClick={()=>handleSubjSelect(s)}
@@ -13649,26 +13493,11 @@ function LifeReadyScreen({pal,family,onBack}){
     document.body.scrollTop=0;
   },[]);
 
-  // Multi-child: let parent pick which child's grade level to use
-  const [selectedChildIdx, setSelectedChildIdx] = useState(0);
-  const selectedChild = family.children?.[selectedChildIdx] || family.children?.[0];
-  const grade = selectedChild?.grade||"5th";
+  const grade = family.children?.[0]?.grade||"5th";
   const topic = getLRTopicForWeek(grade);
   const cats  = family.lifeReadyCategories||LR_CATEGORIES.map(c=>c.id);
   const freq  = family.lifeReadyFreq||"monday_plus_practice";
-  const LS_KEY = "rootbloom_lr_lesson_"+grade; // cache per grade
-
-  // Derive which days P&C falls on from weeklySchedule or freq setting
-  const weeklySchedule = family.weeklySchedule||null;
-  const DOW_NAMES = ["Monday","Tuesday","Wednesday","Thursday","Friday"];
-  const DOW_MAP   = {Monday:0,Tuesday:1,Wednesday:2,Thursday:3,Friday:4};
-  // School days = days that are not null in weeklySchedule (or Mon-Fri if no schedule)
-  const schoolDays = weeklySchedule
-    ? DOW_NAMES.filter((_,i)=>weeklySchedule[i]!==null)
-    : DOW_NAMES;
-  // Pick the P&C day (first school day of week = Monday lesson day)
-  const pcMainDay   = schoolDays[0]||"Monday";
-  const pcPractDays = schoolDays.slice(1,4); // next 3 school days for practice
+  const LS_KEY = "rootbloom_lr_lesson";
 
   useState(()=>{
     try{ const s=localStorage.getItem(LS_KEY); if(s){const p=JSON.parse(s);if(p.topic===topic)setLesson(p);} }catch(e){}
@@ -13683,11 +13512,9 @@ function LifeReadyScreen({pal,family,onBack}){
       const g = GOALS.find(x=>x.id===id);
       return g?g.label:id;
     }).join(", ");
-    const activeCatLabels = LR_CATEGORIES.filter(c=>cats.includes(c.id)).map(c=>c.label).join(", ");
     const prompt = "Create an age-appropriate Life Ready lesson plan for homeschool students."
       + " Topic: "+topic+". Students: "+childNames+"."
-      + (activeCatLabels?" The family focuses on these life skill areas: "+activeCatLabels+". Shape examples to match.":"")
-      + (lifeGoalLabels?" Family values: "+lifeGoalLabels+".":"")
+      + (lifeGoalLabels?" This family especially values: "+lifeGoalLabels+" — let these shape your examples and framing where natural.":"")
       + " Format: 1) Opening hook (1-2 sentences to grab attention), "
       + "2) What you need (materials list, simple), "
       + "3) The lesson (3-5 clear steps, hands-on), "
@@ -13716,22 +13543,6 @@ function LifeReadyScreen({pal,family,onBack}){
           <button onClick={onBack} style={{width:"32px",height:"32px",borderRadius:"50%",background:"rgba(255,255,255,0.18)",border:"none",color:"#fff",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.9rem",flexShrink:0}}>{"<"[0]}</button>
           <span style={{fontWeight:"900",color:"#fff",fontSize:"1.15rem"}}>{LR_ICON} Prepared {"&"} Capable</span>
         </div>
-        {/* Multi-child grade picker */}
-        {(family.children||[]).length>1&&(
-          <div style={{display:"flex",gap:"0.35rem",paddingBottom:"0.65rem",overflowX:"auto"}}>
-            {(family.children||[]).map((ch,i)=>{
-              const sel=selectedChildIdx===i;
-              return (
-                <button key={ch.id} onClick={()=>setSelectedChildIdx(i)}
-                  style={{display:"flex",alignItems:"center",gap:"0.3rem",padding:"0.28rem 0.65rem",border:"none",borderRadius:"20px",background:sel?"rgba(255,255,255,0.28)":"rgba(255,255,255,0.1)",cursor:"pointer",flexShrink:0,transition:"all 0.15s"}}>
-                  <span style={{fontSize:"0.85rem"}}>{ch.avatar}</span>
-                  <span style={{fontSize:"0.72rem",fontWeight:sel?"800":"500",color:sel?"#fff":"rgba(255,255,255,0.65)"}}>{ch.name}</span>
-                  <span style={{fontSize:"0.62rem",color:sel?"rgba(255,255,255,0.8)":"rgba(255,255,255,0.45)"}}>{ch.grade}</span>
-                </button>
-              );
-            })}
-          </div>
-        )}
         <div style={{display:"flex",gap:"2px",overflowX:"auto",paddingBottom:"0"}}>
           {[["this_week","This Week"],["topics","Topics"],["settings","Settings"]].map(([id,l])=>(
             <button key={id} onClick={()=>setTab(id)} style={{padding:"0.45rem 0.85rem",border:"none",borderRadius:"10px 10px 0 0",background:tab===id?"rgba(255,255,255,0.18)":"transparent",color:tab===id?"#fff":"rgba(255,255,255,0.5)",fontSize:"0.74rem",fontWeight:tab===id?"700":"400",cursor:"pointer",whiteSpace:"nowrap",flexShrink:0}}>
@@ -13763,9 +13574,7 @@ function LifeReadyScreen({pal,family,onBack}){
                     <div style={{height:"100%",width:`${pct}%`,borderRadius:"99px",background:"rgba(255,255,255,0.7)"}}/>
                   </div>
                   <div style={{fontSize:"0.68rem",color:"rgba(255,255,255,0.65)"}}>
-                    {freq==="monday_plus_practice"?(pcMainDay+" lesson + "+pcPractDays.slice(0,3).join("/")+" practice"):
-                     freq==="monday_only"?(pcMainDay+" lesson only"):
-                     "Flexible \u2014 check your schedule"}
+                    {freq==="monday_plus_practice"?"Monday lesson + Tue-Thu practice":freq==="monday_only"?"Monday lesson only":"Flexible schedule"}
                   </div>
                 </div>
               </div>
@@ -14004,47 +13813,26 @@ function LifeReadyScreen({pal,family,onBack}){
         {/* ====== SETTINGS TAB ====== */}
         {tab==="settings" && (<>
           <div style={{background:pal.linen,borderRadius:"16px",padding:"1rem",border:"1.5px solid #e8e8e8",marginBottom:"0.85rem"}}>
-            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem",marginBottom:"0.65rem"}}>P&C schedule</div>
+            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem",marginBottom:"0.65rem"}}>Current schedule</div>
             {[
-              ["monday_plus_practice",pcMainDay+" lesson + "+pcPractDays.slice(0,3).join("/")+" practice","Best for habit-building"],
-              ["monday_only",pcMainDay+" lesson only","One focused session/week"],
-              ["flexible","Flexible \u2014 I decide","Works around your week"],
-            ].map(([id,label,note])=>(
-              <button key={id} onClick={()=>{
-                try{const sv=JSON.parse(localStorage.getItem("rootbloom_v1")||"{}");sv.family={...sv.family,lifeReadyFreq:id};localStorage.setItem("rootbloom_v1",JSON.stringify(sv));}catch(e){}
-              }} style={{width:"100%",display:"flex",gap:"0.5rem",alignItems:"center",padding:"0.55rem 0.6rem",borderRadius:"10px",border:`2px solid ${freq===id?LR_COLOR:"transparent"}`,background:freq===id?LR_COLOR+"12":"transparent",cursor:"pointer",textAlign:"left",marginBottom:"0.2rem",transition:"all 0.13s"}}>
-                <div style={{width:"16px",height:"16px",borderRadius:"50%",border:`2px solid ${freq===id?LR_COLOR:"#ccc"}`,background:freq===id?LR_COLOR:"transparent",flexShrink:0}}/>
-                <div style={{flex:1}}>
-                  <div style={{fontSize:"0.8rem",color:freq===id?LR_COLOR:pal.inkM,fontWeight:freq===id?"700":"400"}}>{label}</div>
-                  <div style={{fontSize:"0.65rem",color:pal.slate}}>{note}</div>
-                </div>
-              </button>
+              ["monday_plus_practice","Monday lesson + practice Tue-Thu"],
+              ["monday_only","Monday lesson only"],
+              ["flexible","Flexible — I schedule it"],
+            ].map(([id,label])=>(
+              <div key={id} style={{display:"flex",gap:"0.5rem",alignItems:"center",padding:"0.42rem 0",borderTop:id!=="monday_plus_practice"?"1px solid #f0f0f0":"none"}}>
+                <div style={{width:"14px",height:"14px",borderRadius:"50%",border:`2px solid ${freq===id?LR_COLOR:"#ccc"}`,background:freq===id?LR_COLOR:"transparent",flexShrink:0}}/>
+                <span style={{fontSize:"0.8rem",color:freq===id?LR_COLOR:pal.inkM,fontWeight:freq===id?"700":"400"}}>{label}</span>
+              </div>
             ))}
-            <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"0.4rem"}}>{"Restart the app to see changes reflected."}</div>
+            <div style={{fontSize:"0.72rem",color:pal.slate,marginTop:"0.65rem"}}>{"To change these, go to Settings → School."}</div>
           </div>
           <div style={{background:pal.linen,borderRadius:"16px",padding:"1rem",border:"1.5px solid #e8e8e8"}}>
-            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem",marginBottom:"0.5rem"}}>Focus areas ({cats.length} active)</div>
-            <div style={{display:"flex",flexDirection:"column",gap:"0.3rem"}}>
-              {LR_CATEGORIES.map(c=>{
-                const sel=cats.includes(c.id);
-                return (
-                  <button key={c.id} onClick={()=>{
-                    const next=sel?cats.filter(x=>x!==c.id):[...cats,c.id];
-                    try{const sv=JSON.parse(localStorage.getItem("rootbloom_v1")||"{}");sv.family={...sv.family,lifeReadyCategories:next};localStorage.setItem("rootbloom_v1",JSON.stringify(sv));}catch(e){}
-                  }} style={{display:"flex",gap:"0.6rem",alignItems:"center",padding:"0.5rem 0.65rem",borderRadius:"10px",border:`1.5px solid ${sel?LR_COLOR:pal.stone+"40"}`,background:sel?LR_COLOR+"10":"transparent",cursor:"pointer",textAlign:"left",transition:"all 0.13s"}}>
-                    <span style={{fontSize:"1rem",flexShrink:0}}>{c.icon}</span>
-                    <div style={{flex:1}}>
-                      <div style={{fontSize:"0.78rem",fontWeight:sel?"700":"400",color:sel?LR_COLOR:pal.inkM}}>{c.label}</div>
-                      <div style={{fontSize:"0.63rem",color:pal.slate}}>{c.desc}</div>
-                    </div>
-                    <div style={{width:"18px",height:"18px",borderRadius:"4px",border:`2px solid ${sel?LR_COLOR:pal.stone}`,background:sel?LR_COLOR:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                      {sel&&<span style={{color:"#fff",fontSize:"0.65rem",fontWeight:"900"}}>{"\u2713"}</span>}
-                    </div>
-                  </button>
-                );
-              })}
+            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem",marginBottom:"0.5rem"}}>Active focus areas ({cats.length})</div>
+            <div style={{display:"flex",flexWrap:"wrap",gap:"0.38rem"}}>
+              {LR_CATEGORIES.filter(c=>cats.includes(c.id)).map(c=>(
+                <span key={c.id} style={{padding:"0.2rem 0.55rem",background:LR_COLOR+"18",borderRadius:"20px",fontSize:"0.72rem",fontWeight:"700",color:LR_COLOR}}>{c.icon} {c.label}</span>
+              ))}
             </div>
-            <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"0.55rem"}}>{"Changes save immediately."}</div>
           </div>
         </>)}
       </div>
@@ -14056,6 +13844,101 @@ function LifeReadyScreen({pal,family,onBack}){
    PROGRESS SCREEN
    Weekly pulse · Subject timelines · Milestones · AI check-in
 ======================================= */
+function SkillsTab({pal, ch, family}) {
+
+  const gradeSkillsP = EOY_SKILLS[ch?.grade]||EOY_SKILLS["5th"]||[];
+  const SKILLS_KEY_P = "rootbloom_eoy_skills_"+(ch?.id||"")+"_"+(family.yearEnd||"");
+  const NOTES_KEY_P  = "rootbloom_eoy_notes_"+(ch?.id||"")+"_"+(family.yearEnd||"");
+  const [skillsP, setSkillsP] = React.useState(()=>{
+    try{ return JSON.parse(localStorage.getItem(SKILLS_KEY_P)||"{}"); }catch(e){return {};}
+  });
+  const [notesP, setNotesP] = React.useState(()=>{
+    try{ return JSON.parse(localStorage.getItem(NOTES_KEY_P)||"{}"); }catch(e){return {};}
+  });
+  const [expandedKey, setExpandedKey] = React.useState(null);
+  const toggleSkillP = (cat,i) => {
+    const k=cat+"_"+i;
+    const next={...skillsP,[k]:!skillsP[k]};
+    setSkillsP(next);
+    try{ localStorage.setItem(SKILLS_KEY_P,JSON.stringify(next)); }catch(e){}
+    if(!skillsP[k]) setExpandedKey(k);
+    else if(expandedKey===k) setExpandedKey(null);
+  };
+  const saveNoteP = (k,val) => {
+    const next={...notesP,[k]:val};
+    setNotesP(next);
+    try{ localStorage.setItem(NOTES_KEY_P,JSON.stringify(next)); }catch(e){}
+  };
+  const totalP = gradeSkillsP.reduce((s,c)=>s+c.skills.length,0);
+  const checkedP = Object.values(skillsP).filter(Boolean).length;
+  const pctP = totalP>0?Math.round(checkedP/totalP*100):0;
+  const printSkills = () => {
+    const win = window.open("","_blank","width=800,height=1000,scrollbars=yes");
+    if(!win) return;
+    const sn = family.schoolName||(family.familyName+" Academy")||"Home School";
+    const td = new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
+    let rows = "";
+    gradeSkillsP.forEach(cat=>{
+      rows += "<tr><td colspan='3' style='background:#f0f0f0;font-weight:700;font-size:9pt;padding:6px 10px;text-transform:uppercase;letter-spacing:0.08em;color:#555'>"+cat.cat+"</td></tr>";
+      cat.skills.forEach((skill,si)=>{
+        const k=cat.cat+"_"+si; const done=skillsP[k]; const note=notesP[k]||"";
+        rows += "<tr style='border-bottom:1px solid #f0f0f0'><td style='padding:6px 10px;width:22px;text-align:center;font-size:11pt'>"+(done?"&#9989;":"&#9633;")+"</td><td style='padding:6px 10px;font-size:9.5pt;color:"+(done?"#2a6a2a":"#333")+"'>"+skill+"</td><td style='padding:6px 10px;font-size:8.5pt;color:#777;font-style:italic'>"+note+"</td></tr>";
+      });
+    });
+    win.document.write("<!DOCTYPE html><html><head><meta charset='utf-8'><title>Skills Checklist</title><style>*{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#1a1a1a;padding:0}@media print{@page{margin:1.5cm;size:letter}}.hdr{background:#1e3a2a;color:#fff;padding:18px 24px}.hdr h1{font-size:16pt;margin:0 0 3px}.hdr p{font-size:9pt;color:rgba(255,255,255,0.65);margin:0}table{width:calc(100% - 48px);border-collapse:collapse;margin:12px 24px}.disclaimer{margin:10px 24px;padding:8px 12px;background:#fffbeb;border:1px solid #f5c842;border-radius:6px;font-size:8pt;color:#7a5500}.footer{margin:16px 24px;font-size:8pt;color:#aaa;border-top:1px solid #eee;padding-top:8px;display:flex;justify-content:space-between}</style></head><body><div class='hdr'><h1>"+ch?.name+" \u2014 "+ch?.grade+" Grade Skills</h1><p>"+sn+" \u00b7 "+td+" \u00b7 "+checkedP+" of "+totalP+" skills</p></div><div class='disclaimer'>\u26a0\ufe0f This checklist reflects general grade-level benchmarks as a helpful reference guide only \u2014 not a pass/fail evaluation, legal requirement, or standardized measure. Homeschool families are not obligated to follow any particular scope or sequence. Use this to celebrate progress and explore areas for growth.</div><table>"+rows+"</table><div class='footer'><span>Generated by Root &amp; Bloom</span><span>"+sn+"</span></div><button onclick='window.print()' style='margin:0 24px 20px;padding:8px 18px;background:#1e3a2a;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:10pt'>Print / Save PDF</button></body></html>");
+    win.document.close();
+  };
+  return (
+    <div>
+      <div style={{background:"linear-gradient(135deg,"+cp.c1+"14,"+cp.c2+"08)",borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"0.75rem",border:"1.5px solid "+cp.c1+"25"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+          <div style={{flex:1}}>
+            <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.88rem",marginBottom:"3px"}}>{ch?.grade+" Grade Skills"}</div>
+            <div style={{fontSize:"0.72rem",color:pal.slate,marginBottom:"0.5rem"}}>{ch?.name+" \u00b7 "+checkedP+" of "+totalP+" \u00b7 "+pctP+"%"}</div>
+          </div>
+          <button onClick={printSkills} style={{padding:"0.3rem 0.65rem",border:"1.5px solid "+cp.c1+"50",borderRadius:"8px",background:"transparent",color:cp.c1,fontWeight:"700",fontSize:"0.65rem",cursor:"pointer",flexShrink:0,marginLeft:"0.5rem"}}>{"\ud83d\udda8 Print"}</button>
+        </div>
+        <div style={{height:"7px",borderRadius:"99px",background:pal.parchm,overflow:"hidden"}}>
+          <div style={{height:"100%",width:pctP+"%",borderRadius:"99px",background:"linear-gradient(90deg,"+cp.c1+","+cp.c2+")",transition:"width 0.4s"}}/>
+        </div>
+      </div>
+      <div style={{background:"#fff8e6",borderRadius:"12px",padding:"0.7rem 0.85rem",marginBottom:"0.85rem",border:"1.5px solid #f5c84260"}}>
+        <div style={{fontWeight:"800",color:"#7a5500",fontSize:"0.72rem",marginBottom:"3px"}}>{"\u26a0\ufe0f Guide only \u2014 not a requirement"}</div>
+        <div style={{fontSize:"0.68rem",color:"#7a5500",lineHeight:1.65}}>{"This checklist reflects general grade-level benchmarks as a helpful reference \u2014 not a pass/fail evaluation, legal requirement, or standardized measure. Every child learns differently and at their own pace. Homeschool families are not obligated to follow any particular scope or sequence. Use this to celebrate progress and explore areas for growth, nothing more."}</div>
+      </div>
+      {gradeSkillsP.map((cat)=>(
+        <div key={cat.cat} style={{marginBottom:"1rem"}}>
+          <div style={{fontSize:"0.65rem",fontWeight:"800",color:pal.primary,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"0.4rem"}}>{cat.cat}</div>
+          <div style={{display:"flex",flexDirection:"column",gap:"0.3rem"}}>
+            {cat.skills.map((skill,si)=>{
+              const key=cat.cat+"_"+si; const done=skillsP[key]; const isExp=expandedKey===key; const hasNote=notesP[key]&&notesP[key].trim();
+              return (
+                <div key={si} style={{borderRadius:"10px",overflow:"hidden",border:"1.5px solid "+(done?pal.good+"40":pal.stone+"25")}}>
+                  <button onClick={()=>toggleSkillP(cat.cat,si)}
+                    style={{display:"flex",gap:"0.55rem",alignItems:"center",padding:"0.42rem 0.6rem",background:done?pal.goodBg:pal.linen,cursor:"pointer",textAlign:"left",width:"100%",border:"none"}}>
+                    <div style={{width:"20px",height:"20px",borderRadius:"5px",border:"2px solid "+(done?pal.good:pal.stone),background:done?pal.good:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                      {done&&<span style={{color:"#fff",fontSize:"0.7rem",fontWeight:"900"}}>{"\u2713"}</span>}
+                    </div>
+                    <span style={{flex:1,fontSize:"0.78rem",color:done?pal.good:pal.inkM,fontWeight:done?"600":"400",textDecoration:done?"line-through":"none",lineHeight:1.45}}>{skill}</span>
+                    {done&&<span onClick={(e)=>{e.stopPropagation();setExpandedKey(isExp?null:key);}} style={{fontSize:"0.65rem",color:pal.slate,cursor:"pointer",flexShrink:0,padding:"0 2px"}}>{hasNote?"\ud83d\udcdd":isExp?"\u2303":"+ note"}</span>}
+                  </button>
+                  {done&&isExp&&(
+                    <div style={{padding:"0.4rem 0.6rem 0.5rem",background:"#fff",borderTop:"1px solid "+pal.stone+"20"}}>
+                      <textarea value={notesP[key]||""} onChange={e=>saveNoteP(key,e.target.value)}
+                        placeholder={"How did "+ch?.name+" demonstrate this? (optional)"}
+                        rows={2} style={{width:"100%",padding:"0.4rem 0.55rem",border:"1.5px solid "+pal.stone,borderRadius:"8px",fontSize:"0.75rem",color:pal.ink,background:pal.parchm,resize:"none",outline:"none",fontFamily:"inherit",lineHeight:1.5}}/>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], attendanceDays=0, onUpdateFamily, onOpenEOY}) {
   const [activeTab,    setActiveTab]    = React.useState("pulse");   // pulse | timeline | milestones | skills | grades
   const [selectedChild, setSelectedChild] = React.useState(
@@ -14795,99 +14678,7 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
         })()}
 
             {/* ====== SKILLS TAB ====== */}
-        {activeTab==="skills"&&(()=>{
-          const gradeSkillsP = EOY_SKILLS[ch?.grade]||EOY_SKILLS["5th"]||[];
-          const SKILLS_KEY_P = "rootbloom_eoy_skills_"+(ch?.id||"")+"_"+(family.yearEnd||"");
-          const NOTES_KEY_P  = "rootbloom_eoy_notes_"+(ch?.id||"")+"_"+(family.yearEnd||"");
-          const [skillsP, setSkillsP] = React.useState(()=>{
-            try{ return JSON.parse(localStorage.getItem(SKILLS_KEY_P)||"{}"); }catch(e){return {};}
-          });
-          const [notesP, setNotesP] = React.useState(()=>{
-            try{ return JSON.parse(localStorage.getItem(NOTES_KEY_P)||"{}"); }catch(e){return {};}
-          });
-          const [expandedKey, setExpandedKey] = React.useState(null);
-          const toggleSkillP = (cat,i) => {
-            const k=cat+"_"+i;
-            const next={...skillsP,[k]:!skillsP[k]};
-            setSkillsP(next);
-            try{ localStorage.setItem(SKILLS_KEY_P,JSON.stringify(next)); }catch(e){}
-            if(!skillsP[k]) setExpandedKey(k);
-            else if(expandedKey===k) setExpandedKey(null);
-          };
-          const saveNoteP = (k,val) => {
-            const next={...notesP,[k]:val};
-            setNotesP(next);
-            try{ localStorage.setItem(NOTES_KEY_P,JSON.stringify(next)); }catch(e){}
-          };
-          const totalP = gradeSkillsP.reduce((s,c)=>s+c.skills.length,0);
-          const checkedP = Object.values(skillsP).filter(Boolean).length;
-          const pctP = totalP>0?Math.round(checkedP/totalP*100):0;
-          const printSkills = () => {
-            const win = window.open("","_blank","width=800,height=1000,scrollbars=yes");
-            if(!win) return;
-            const sn = family.schoolName||(family.familyName+" Academy")||"Home School";
-            const td = new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
-            let rows = "";
-            gradeSkillsP.forEach(cat=>{
-              rows += "<tr><td colspan='3' style='background:#f0f0f0;font-weight:700;font-size:9pt;padding:6px 10px;text-transform:uppercase;letter-spacing:0.08em;color:#555'>"+cat.cat+"</td></tr>";
-              cat.skills.forEach((skill,si)=>{
-                const k=cat.cat+"_"+si; const done=skillsP[k]; const note=notesP[k]||"";
-                rows += "<tr style='border-bottom:1px solid #f0f0f0'><td style='padding:6px 10px;width:22px;text-align:center;font-size:11pt'>"+(done?"&#9989;":"&#9633;")+"</td><td style='padding:6px 10px;font-size:9.5pt;color:"+(done?"#2a6a2a":"#333")+"'>"+skill+"</td><td style='padding:6px 10px;font-size:8.5pt;color:#777;font-style:italic'>"+note+"</td></tr>";
-              });
-            });
-            win.document.write("<!DOCTYPE html><html><head><meta charset='utf-8'><title>Skills Checklist</title><style>*{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#1a1a1a;padding:0}@media print{@page{margin:1.5cm;size:letter}}.hdr{background:#1e3a2a;color:#fff;padding:18px 24px}.hdr h1{font-size:16pt;margin:0 0 3px}.hdr p{font-size:9pt;color:rgba(255,255,255,0.65);margin:0}table{width:calc(100% - 48px);border-collapse:collapse;margin:12px 24px}.disclaimer{margin:10px 24px;padding:8px 12px;background:#fffbeb;border:1px solid #f5c842;border-radius:6px;font-size:8pt;color:#7a5500}.footer{margin:16px 24px;font-size:8pt;color:#aaa;border-top:1px solid #eee;padding-top:8px;display:flex;justify-content:space-between}</style></head><body><div class='hdr'><h1>"+ch?.name+" \u2014 "+ch?.grade+" Grade Skills</h1><p>"+sn+" \u00b7 "+td+" \u00b7 "+checkedP+" of "+totalP+" skills</p></div><div class='disclaimer'>\u26a0\ufe0f This checklist reflects general grade-level benchmarks as a helpful reference guide only \u2014 not a pass/fail evaluation, legal requirement, or standardized measure. Homeschool families are not obligated to follow any particular scope or sequence. Use this to celebrate progress and explore areas for growth.</div><table>"+rows+"</table><div class='footer'><span>Generated by Root &amp; Bloom</span><span>"+sn+"</span></div><button onclick='window.print()' style='margin:0 24px 20px;padding:8px 18px;background:#1e3a2a;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:10pt'>Print / Save PDF</button></body></html>");
-            win.document.close();
-          };
-          return (
-            <div>
-              <div style={{background:"linear-gradient(135deg,"+cp.c1+"14,"+cp.c2+"08)",borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"0.75rem",border:"1.5px solid "+cp.c1+"25"}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-                  <div style={{flex:1}}>
-                    <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.88rem",marginBottom:"3px"}}>{ch?.grade+" Grade Skills"}</div>
-                    <div style={{fontSize:"0.72rem",color:pal.slate,marginBottom:"0.5rem"}}>{ch?.name+" \u00b7 "+checkedP+" of "+totalP+" \u00b7 "+pctP+"%"}</div>
-                  </div>
-                  <button onClick={printSkills} style={{padding:"0.3rem 0.65rem",border:"1.5px solid "+cp.c1+"50",borderRadius:"8px",background:"transparent",color:cp.c1,fontWeight:"700",fontSize:"0.65rem",cursor:"pointer",flexShrink:0,marginLeft:"0.5rem"}}>{"\ud83d\udda8 Print"}</button>
-                </div>
-                <div style={{height:"7px",borderRadius:"99px",background:pal.parchm,overflow:"hidden"}}>
-                  <div style={{height:"100%",width:pctP+"%",borderRadius:"99px",background:"linear-gradient(90deg,"+cp.c1+","+cp.c2+")",transition:"width 0.4s"}}/>
-                </div>
-              </div>
-              <div style={{background:"#fff8e6",borderRadius:"12px",padding:"0.7rem 0.85rem",marginBottom:"0.85rem",border:"1.5px solid #f5c84260"}}>
-                <div style={{fontWeight:"800",color:"#7a5500",fontSize:"0.72rem",marginBottom:"3px"}}>{"\u26a0\ufe0f Guide only \u2014 not a requirement"}</div>
-                <div style={{fontSize:"0.68rem",color:"#7a5500",lineHeight:1.65}}>{"This checklist reflects general grade-level benchmarks as a helpful reference \u2014 not a pass/fail evaluation, legal requirement, or standardized measure. Every child learns differently and at their own pace. Homeschool families are not obligated to follow any particular scope or sequence. Use this to celebrate progress and explore areas for growth, nothing more."}</div>
-              </div>
-              {gradeSkillsP.map((cat)=>(
-                <div key={cat.cat} style={{marginBottom:"1rem"}}>
-                  <div style={{fontSize:"0.65rem",fontWeight:"800",color:pal.primary,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"0.4rem"}}>{cat.cat}</div>
-                  <div style={{display:"flex",flexDirection:"column",gap:"0.3rem"}}>
-                    {cat.skills.map((skill,si)=>{
-                      const key=cat.cat+"_"+si; const done=skillsP[key]; const isExp=expandedKey===key; const hasNote=notesP[key]&&notesP[key].trim();
-                      return (
-                        <div key={si} style={{borderRadius:"10px",overflow:"hidden",border:"1.5px solid "+(done?pal.good+"40":pal.stone+"25")}}>
-                          <button onClick={()=>toggleSkillP(cat.cat,si)}
-                            style={{display:"flex",gap:"0.55rem",alignItems:"center",padding:"0.42rem 0.6rem",background:done?pal.goodBg:pal.linen,cursor:"pointer",textAlign:"left",width:"100%",border:"none"}}>
-                            <div style={{width:"20px",height:"20px",borderRadius:"5px",border:"2px solid "+(done?pal.good:pal.stone),background:done?pal.good:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                              {done&&<span style={{color:"#fff",fontSize:"0.7rem",fontWeight:"900"}}>{"\u2713"}</span>}
-                            </div>
-                            <span style={{flex:1,fontSize:"0.78rem",color:done?pal.good:pal.inkM,fontWeight:done?"600":"400",textDecoration:done?"line-through":"none",lineHeight:1.45}}>{skill}</span>
-                            {done&&<span onClick={(e)=>{e.stopPropagation();setExpandedKey(isExp?null:key);}} style={{fontSize:"0.65rem",color:pal.slate,cursor:"pointer",flexShrink:0,padding:"0 2px"}}>{hasNote?"\ud83d\udcdd":isExp?"\u2303":"+ note"}</span>}
-                          </button>
-                          {done&&isExp&&(
-                            <div style={{padding:"0.4rem 0.6rem 0.5rem",background:"#fff",borderTop:"1px solid "+pal.stone+"20"}}>
-                              <textarea value={notesP[key]||""} onChange={e=>saveNoteP(key,e.target.value)}
-                                placeholder={"How did "+ch?.name+" demonstrate this? (optional)"}
-                                rows={2} style={{width:"100%",padding:"0.4rem 0.55rem",border:"1.5px solid "+pal.stone,borderRadius:"8px",fontSize:"0.75rem",color:pal.ink,background:pal.parchm,resize:"none",outline:"none",fontFamily:"inherit",lineHeight:1.5}}/>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
-            </div>
-          );
-        })()}
+        {activeTab==="skills"&&<SkillsTab pal={pal} ch={ch} family={family}/>}
 
       </div>
     </div>
