@@ -2151,6 +2151,10 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
   const [kidGoalLogged, setKidGoalLogged]  = useState(new Set());
   const [goalCelebGoal, setGoalCelebGoal]  = useState(null);
   const [expandedGoal,  setExpandedGoal]   = useState(null); // goal text being expanded
+  const [bloomMsgs,     setBloomMsgs]      = useState([]); // [{role,text,imgUrl,imgAlt}]
+  const [bloomInput,    setBloomInput]     = useState("");
+  const [bloomLoading,  setBloomLoading]   = useState(false);
+  const [bloomHintMode, setBloomHintMode]  = useState(false);
   const [goalNoteMap,   setGoalNoteMap]    = useState({}); // goal -> note text
   const saveKidGoals = (goals) => {
     setKidGoals(goals);
@@ -2172,9 +2176,140 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
     setGoalCelebGoal(goal);
     setTimeout(()=>setGoalCelebGoal(null), 2000);
   };
+
+  // ── Ask Bloom ──────────────────────────────────────────────────────────────
+  const sendToBloom = async (question) => {
+    if(!question.trim() || bloomLoading) return;
+    const userMsg = {role:"user", text:question.trim()};
+    setBloomMsgs(m=>[...m, userMsg]);
+    setBloomInput("");
+    setBloomLoading(true);
+
+    try {
+      const apiKey = (()=>{ try{ return localStorage.getItem("rootbloom_apikey")||""; }catch(e){return "";} })();
+      if(!apiKey) {
+        setBloomMsgs(m=>[...m, {role:"bloom", text:"I need an API key to work! Ask your parent to add one in Settings → AI. 🌱"}]);
+        setBloomLoading(false);
+        return;
+      }
+
+      // Grade level for tone + image style
+      const gradeRaw = child.grade||"3rd";
+      const gradeN   = parseInt((gradeRaw.match(/\d+/)||["3"])[0])||3;
+      const tone     = gradeN<=2 ? "very simple words, short sentences, like talking to a 6-year-old" :
+                       gradeN<=5 ? "friendly and clear, like talking to a curious 9-year-old" :
+                       gradeN<=8 ? "conversational and engaging, like talking to a 12-year-old" :
+                                   "thoughtful and detailed, like talking to a 16-year-old";
+      const imgStyle = gradeN<=4 ? "colorful cartoon illustration or friendly diagram" :
+                       gradeN<=8 ? "labeled educational diagram or real photograph" :
+                                   "real photograph or detailed scientific diagram";
+
+      // Subject list
+      const allSubjOpts = [...(SUBJECT_OPTIONS||[]),...(family.customSubjects||[])];
+      const subjLabels  = (family.subjects||[]).map(id=>allSubjOpts.find(s=>s.id===id)).filter(Boolean).map(s=>s.label);
+      const subjList    = subjLabels.join(", ")||"general subjects";
+      const curriculum  = curriculumContext(family);
+
+      // Safety system prompt
+      const systemPrompt = `You are Bloom, a warm and encouraging homeschool tutor for ${child.name}, a ${gradeRaw} student. Your ONLY job is to help ${child.name} learn about their school subjects.
+
+ABOUT ${child.name.toUpperCase()}:
+- Grade: ${gradeRaw}
+- Subjects: ${subjList}
+- Learning approach: ${curriculum}
+- Hint mode: ${bloomHintMode ? "ON — give hints and guiding questions, never the full answer" : "OFF — explain fully and clearly"}
+
+TONE: ${tone}. Always be warm, enthusiastic, and encouraging. Use simple analogies. Celebrate curiosity.
+
+SAFETY RULES — follow these absolutely:
+1. Only answer questions about school subjects, learning, science, history, math, reading, art, music, PE, and nature
+2. If asked about anything else (social media, games, personal info, politics, violence, etc.) say warmly: "That's outside my garden! I'm best at helping with ${subjList}. What would you like to learn? 🌱"
+3. Never ask for or share personal information
+4. Never provide links or mention external websites
+5. Keep all content age-appropriate for a ${gradeRaw} student
+6. Never do someone's homework for them — in hint mode, guide with questions
+
+IMAGE GUIDANCE: For almost every explanation, decide if a visual would help. If yes, end your response with exactly this line:
+IMAGE_REQUEST: [a specific description of a helpful ${imgStyle} showing: your topic]
+
+Keep IMAGE_REQUEST on its own line at the very end. Only include it when an image would genuinely help understanding. Good candidates: science concepts, animals, geography, math diagrams, historical events, art techniques.`;
+
+      // Build conversation history (last 8 messages for context)
+      const history = bloomMsgs.slice(-8).map(m=>({
+        role: m.role==="user" ? "user" : "assistant",
+        content: m.role==="user" ? m.text : m.text
+      }));
+      history.push({role:"user", content:question.trim()});
+
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json",
+          "x-api-key":apiKey,
+          "anthropic-version":"2023-06-01",
+          "anthropic-dangerous-direct-browser-access":"true"
+        },
+        body:JSON.stringify({
+          model:"claude-sonnet-4-6",
+          max_tokens:1000,
+          system:systemPrompt,
+          messages:history
+        })
+      });
+      const data = await res.json();
+      if(data.error) throw new Error(data.error.message);
+
+      let rawText = data.content?.map(b=>b.text||"").join("")||"";
+
+      // Extract image request if present
+      let imgUrl = null;
+      let imgAlt = null;
+      const imgMatch = rawText.match(/IMAGE_REQUEST:\s*(.+)$/m);
+      if(imgMatch) {
+        rawText = rawText.replace(/IMAGE_REQUEST:\s*.+$/m, "").trim();
+        const imgQuery = imgMatch[1].trim();
+        imgAlt = imgQuery;
+        // Search for the image
+        try {
+          const searchRes = await fetch("https://api.anthropic.com/v1/messages", {
+            method:"POST",
+            headers:{
+              "Content-Type":"application/json",
+              "x-api-key":apiKey,
+              "anthropic-version":"2023-06-01",
+              "anthropic-dangerous-direct-browser-access":"true"
+            },
+            body:JSON.stringify({
+              model:"claude-sonnet-4-6",
+              max_tokens:200,
+              tools:[{type:"web_search_20250305",name:"web_search"}],
+              messages:[{role:"user",content:`Find a good educational image for a ${gradeRaw} student: ${imgQuery}. Return ONLY the direct image URL (ending in .jpg .png .gif .webp .svg). No explanation.`}]
+            })
+          });
+          const searchData = await searchRes.json();
+          const searchText = searchData.content?.map(b=>b.text||"").join("")||"";
+          const urlMatch = searchText.match(/https?:\/\/[^\s"'<>]+\.(?:jpg|jpeg|png|gif|webp|svg)[^\s"'<>]*/i);
+          if(urlMatch) imgUrl = urlMatch[0];
+        } catch(e) {
+          // Image search failed - no image, text only
+        }
+      }
+
+      setBloomMsgs(m=>[...m, {role:"bloom", text:rawText, imgUrl, imgAlt}]);
+    } catch(e) {
+      const msg = e.message==="NO_KEY" ? "Ask your parent to add an API key in Settings → AI to activate me! 🌱" :
+                  e.message?.includes("rate") ? "I need a little rest! Try again in a moment. 🌿" :
+                  "Hmm, something went wrong. Try asking again! 🌱";
+      setBloomMsgs(m=>[...m, {role:"bloom", text:msg}]);
+    } finally {
+      setBloomLoading(false);
+    }
+  };
+
   const STABS = [
     {id:"home",   icon:"🏠", l:"Home"},
     {id:"today",  icon:"📅", l:"Today"},
+    {id:"bloom",  icon:"🌱", l:"Ask Bloom"},
     {id:"books",  icon:"📚", l:"Books"},
     {id:"stars",  icon:"🌟", l:"Stars"},
     {id:"camera", icon:"📷", l:"Camera"},
@@ -2720,6 +2855,100 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
                 <div style={{fontWeight:"800",color:c1,fontSize:"0.85rem"}}>{"🌟 "+kidGoalLogged.size+" goal"+(kidGoalLogged.size>1?"s":"")+" logged today!"}</div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* -- ASK BLOOM TAB -- */}
+        {sTab==="bloom" && (
+          <div style={{display:"flex",flexDirection:"column",height:"calc(100vh - 140px)",animation:"fadeUp 0.22s ease"}}>
+            {/* Bloom header */}
+            <div style={{background:`linear-gradient(135deg,${c1},${c2})`,padding:"0.9rem 1rem",flexShrink:0}}>
+              <div style={{display:"flex",alignItems:"center",gap:"0.75rem"}}>
+                <div style={{width:"42px",height:"42px",borderRadius:"50%",background:"rgba(255,255,255,0.2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.5rem",flexShrink:0}}>{"🌱"}</div>
+                <div style={{flex:1}}>
+                  <div style={{fontWeight:"900",color:"#fff",fontSize:"0.95rem"}}>{"Ask Bloom"}</div>
+                  <div style={{fontSize:"0.68rem",color:"rgba(255,255,255,0.75)",marginTop:"1px"}}>{"Your personal learning buddy — ask me anything about your subjects!"}</div>
+                </div>
+                <button onClick={()=>setBloomHintMode(v=>!v)}
+                  style={{padding:"0.25rem 0.6rem",borderRadius:"20px",border:"1.5px solid rgba(255,255,255,0.4)",background:bloomHintMode?"rgba(255,255,255,0.25)":"transparent",color:"#fff",fontSize:"0.65rem",fontWeight:"700",cursor:"pointer",transition:"all 0.15s",flexShrink:0}}>
+                  {bloomHintMode?"💡 Hint mode ON":"💡 Hint mode"}
+                </button>
+              </div>
+            </div>
+            {/* Messages */}
+            <div style={{flex:1,overflowY:"auto",padding:"0.75rem 0.85rem",display:"flex",flexDirection:"column",gap:"0.75rem",background:SK.cream}}>
+              {bloomMsgs.length===0&&(
+                <div style={{textAlign:"center",padding:"1.5rem 1rem"}}>
+                  <div style={{fontSize:"3rem",marginBottom:"0.6rem"}}>{"🌱"}</div>
+                  <div style={{fontWeight:"800",color:SK.ink,fontSize:"0.92rem",marginBottom:"0.4rem"}}>{"Hi "+child.name+"! I'm Bloom."}</div>
+                  <div style={{fontSize:"0.78rem",color:SK.mid,lineHeight:1.65,marginBottom:"1rem"}}>{"I'm here to help you learn! Ask me anything about your school subjects."}</div>
+                  <div style={{display:"flex",flexDirection:"column",gap:"0.4rem"}}>
+                    {["🔭 What is photosynthesis?","🔢 How do I multiply fractions?","🌍 Why is the sky blue?","📖 Help me understand a word"].map((q,i)=>(
+                      <button key={i} onClick={()=>sendToBloom(q.slice(2).trim())}
+                        style={{padding:"0.6rem 0.85rem",borderRadius:"20px",border:"1.5px solid "+c1+"40",background:"#fff",color:SK.mid,fontSize:"0.78rem",fontWeight:"600",cursor:"pointer",textAlign:"left",transition:"all 0.12s"}}>
+                        {q}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {bloomMsgs.map((msg,i)=>(
+                <div key={i} style={{display:"flex",gap:"0.5rem",alignItems:"flex-start",flexDirection:msg.role==="user"?"row-reverse":"row"}}>
+                  {msg.role==="bloom"&&(
+                    <div style={{width:"30px",height:"30px",borderRadius:"50%",background:`linear-gradient(135deg,${c1},${c2})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1rem",flexShrink:0,marginTop:"2px"}}>{"🌱"}</div>
+                  )}
+                  <div style={{maxWidth:"78%"}}>
+                    <div style={{background:msg.role==="user"?`linear-gradient(135deg,${c1},${c2})`:"#fff",color:msg.role==="user"?"#fff":SK.ink,padding:"0.6rem 0.85rem",borderRadius:msg.role==="user"?"18px 18px 4px 18px":"18px 18px 18px 4px",fontSize:"0.82rem",lineHeight:1.6,boxShadow:"0 1px 6px rgba(0,0,0,0.08)",fontWeight:"500"}}>
+                      {msg.text}
+                    </div>
+                    {msg.imgUrl&&(
+                      <div style={{marginTop:"0.4rem",borderRadius:"12px",overflow:"hidden",boxShadow:"0 2px 10px rgba(0,0,0,0.12)"}}>
+                        <img src={msg.imgUrl} alt={msg.imgAlt||"Learning image"}
+                          style={{width:"100%",display:"block",maxHeight:"220px",objectFit:"cover"}}
+                          onError={e=>{e.target.parentNode.style.display="none";}}/>
+                        <div style={{background:"#fff",padding:"0.35rem 0.65rem",fontSize:"0.64rem",color:SK.mid,fontStyle:"italic"}}>{msg.imgAlt}</div>
+                      </div>
+                    )}
+                    {msg.role==="bloom"&&onAddEntry&&(
+                      <button onClick={()=>{
+                          onAddEntry({childIdx,subj:"Discovery",title:"🌱 "+msg.text.slice(0,60)+(msg.text.length>60?"...":""),
+                            note:"I asked Bloom: "+bloomMsgs[i-1]?.text+" \u2014 Bloom explained: "+msg.text.slice(0,200),
+                            date:new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"}),
+                            thumb:"🌱",selfLogged:true,isBloomDiscovery:true});
+                        }}
+                        style={{marginTop:"0.3rem",padding:"0.28rem 0.65rem",borderRadius:"20px",border:"1.5px solid "+c1+"40",background:SK.cream,color:c1,fontSize:"0.66rem",fontWeight:"700",cursor:"pointer"}}>
+                        {"📝 Log this as a discovery!"}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+              {bloomLoading&&(
+                <div style={{display:"flex",gap:"0.5rem",alignItems:"flex-start"}}>
+                  <div style={{width:"30px",height:"30px",borderRadius:"50%",background:`linear-gradient(135deg,${c1},${c2})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1rem",flexShrink:0}}>{"🌱"}</div>
+                  <div style={{background:"#fff",padding:"0.65rem 1rem",borderRadius:"18px 18px 18px 4px",boxShadow:"0 1px 6px rgba(0,0,0,0.08)"}}>
+                    <div style={{display:"flex",gap:"4px",alignItems:"center"}}>
+                      {[0,1,2].map(i=>(<div key={i} style={{width:"7px",height:"7px",borderRadius:"50%",background:c1,animation:"bounce 0.9s "+i*0.15+"s ease-in-out infinite"}}/>))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            {/* Input bar */}
+            <div style={{padding:"0.65rem 0.85rem",background:"#fff",borderTop:"1.5px solid "+SK.skyL,display:"flex",gap:"0.5rem",alignItems:"flex-end",flexShrink:0}}>
+              <textarea
+                value={bloomInput}
+                onChange={e=>setBloomInput(e.target.value)}
+                onKeyDown={e=>{ if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendToBloom(bloomInput);} }}
+                placeholder={"Ask me anything about "+((family.subjects||[]).length>0?"your subjects":"learning")+"!"}
+                rows={1}
+                style={{flex:1,padding:"0.55rem 0.75rem",border:"1.5px solid "+c1+"40",borderRadius:"18px",fontSize:"0.84rem",fontFamily:"inherit",background:SK.cream,color:SK.ink,resize:"none",outline:"none",lineHeight:1.4,maxHeight:"80px",overflowY:"auto"}}
+              />
+              <button onClick={()=>sendToBloom(bloomInput)} disabled={!bloomInput.trim()||bloomLoading}
+                style={{width:"38px",height:"38px",borderRadius:"50%",border:"none",background:bloomInput.trim()&&!bloomLoading?`linear-gradient(135deg,${c1},${c2})`:"#ddd",color:"#fff",fontSize:"1.1rem",cursor:bloomInput.trim()&&!bloomLoading?"pointer":"default",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"background 0.2s"}}>
+                {"↑"}
+              </button>
+            </div>
           </div>
         )}
 
@@ -8034,6 +8263,23 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
                 style={{padding:"0.28rem 0.65rem",border:"none",borderRadius:"9px",background:"#e8a020",color:"#fff",fontWeight:"800",fontSize:"0.7rem",cursor:"pointer",flexShrink:0}}>
                 {"Log"}
               </button>
+              <button onClick={()=>{
+                  const subj = gapSubjs.length===1?gapSubjs[0].label:gapSubjs.map(s=>s.label).join(", ");
+                  const ch = family.children.find(c=>c.id===child)||family.children[0];
+                  const grade = ch?.grade||"elementary";
+                  const apiKey=(()=>{try{return localStorage.getItem("rootbloom_apikey")||"";}catch(e){return "";}})();
+                  if(!apiKey){alert("Add your API key in Settings → AI to get activity ideas.");return;}
+                  const win=window.open("","_blank","width=480,height=580");
+                  if(!win)return;
+                  win.document.write("<div style='font-family:Georgia,serif;padding:1.5rem'><h3>✨ Finding activity ideas for "+subj+"...</h3></div>");
+                  fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:600,messages:[{role:"user",content:"Suggest 3 quick, fun, hands-on activities for a "+grade+" student to re-engage with "+subj+". Each activity should take 15-30 minutes. Include a fun name, what you need, and the steps. Keep it practical and exciting for a child."}]})})
+                    .then(r=>r.json())
+                    .then(d=>{ const t=d.content?.map(b=>b.text||"").join("")||"Try again."; win.document.body.innerHTML="<div style='font-family:Georgia,serif;padding:1.5rem;line-height:1.8'>"+t.replace(/\n/g,"<br>")+"</div>"; })
+                    .catch(()=>{ win.document.body.innerHTML="<p style='padding:1rem'>Error. Try again.</p>"; });
+                }}
+                style={{padding:"0.32rem 0.7rem",borderRadius:"20px",border:"none",background:"#2d6a3f",color:"#fff",fontWeight:"700",fontSize:"0.7rem",cursor:"pointer",flexShrink:0}}>
+                {"✨ Activity idea"}
+              </button>
             </div>
           </div>
         );
@@ -9438,6 +9684,10 @@ function incrementAILimit(monthKey) {
 
 function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab, portfolioEntries=[]}) {
   const LS_UNITS = "rootbloom_units_v1";
+  // Curriculum Advisor chat state
+  const [advMsgs,    setAdvMsgs]    = React.useState([]);
+  const [advInput,   setAdvInput]   = React.useState("");
+  const [advLoading, setAdvLoading] = React.useState(false);
   const loadUnits = () => { try{ const s=localStorage.getItem(LS_UNITS); return s?JSON.parse(s):[]; }catch(e){return[];} };
   const [units, setUnits] = useState(()=>loadUnits());
   const [showBuilder,  setShowBuilder]  = useState(false);
@@ -9484,7 +9734,7 @@ function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab, portf
         </div>
         {/* Tabs */}
         <div style={{display:"flex",background:pal.parchm,borderRadius:"11px",padding:"3px",gap:"2px",marginBottom:"1rem"}}>
-          {[["📚Curriculum","curriculum"],["📊Progress","progress"],["📋Worksheets","worksheets"],["📅Planner","planner"]].map(([l,id])=>(
+          {[["📚Curriculum","curriculum"],["📊Progress","progress"],["📋Worksheets","worksheets"],["📅Planner","planner",["✨ Advisor","advisor"]].map(([l,id])=>(
             <button key={id} onClick={()=>setLearnTab(id)} style={{flex:1,padding:"0.45rem",border:"none",borderRadius:"9px",background:learnTab===id?pal.linen:"transparent",color:learnTab===id?pal.ink:pal.slate,fontSize:"0.72rem",fontWeight:learnTab===id?"700":"400",cursor:"pointer"}}>{l}</button>
           ))}
         </div>
@@ -9781,6 +10031,112 @@ function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab, portf
           onClose={()=>setShowPlanner(false)}
         />
       )}
+
+        {/* ===== CURRICULUM ADVISOR TAB ===== */}
+        {learnTab==="advisor"&&(
+          <div style={{display:"flex",flexDirection:"column",height:"calc(100vh - 160px)"}}>
+            {/* Header */}
+            <div style={{background:pal.pale,borderRadius:"16px",padding:"0.85rem 1rem",marginBottom:"0.75rem",border:`1.5px solid ${pal.primary}25`,flexShrink:0}}>
+              <div style={{fontWeight:"800",color:pal.primary,fontSize:"0.88rem",marginBottom:"2px"}}>{"✨ Curriculum Advisor"}</div>
+              <div style={{fontSize:"0.72rem",color:pal.slate,lineHeight:1.5}}>{"Ask me anything about homeschooling, teaching strategies, curriculum choices, or how to explain a tricky concept. I know your family's approach and your children's grades."}</div>
+            </div>
+            {/* Starter prompts */}
+            {advMsgs.length===0&&(
+              <div style={{display:"flex",flexDirection:"column",gap:"0.4rem",marginBottom:"0.75rem",flexShrink:0}}>
+                {["📖 How do I teach long division to a hands-on learner?","🔬 What are fun science experiments we can do at home?","🌍 How do I make history come alive for my kids?","📝 How do I structure our school day for multiple grade levels?"].map((q,i)=>(
+                  <button key={i} onClick={()=>{
+                      const question = q.slice(2).trim();
+                      const apiKey=(()=>{try{return localStorage.getItem("rootbloom_apikey")||"";}catch(e){return "";}})();
+                      if(!apiKey){setAdvMsgs([{role:"advisor",text:"Add your API key in Settings → AI to use this feature."}]);return;}
+                      setAdvMsgs([{role:"user",text:question}]);
+                      setAdvLoading(true);
+                      const childInfo=(family.children||[]).map(c=>c.name+" ("+c.grade+")").join(", ");
+                      const curriculum=curriculumContext(family);
+                      const system="You are a warm, experienced homeschool curriculum advisor. You know this family well:\n- Children: "+childInfo+"\n- Approach: "+curriculum+"\n- State: "+(family.state||"unknown")+"\nGive practical, specific advice. Be warm and encouraging. Keep responses concise and actionable.";
+                      fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:700,system:system,messages:[{role:"user",content:question}]})})
+                        .then(r=>r.json())
+                        .then(d=>{setAdvMsgs(m=>[...m,{role:"advisor",text:d.content?.map(b=>b.text||"").join("")||"Try again."}]);setAdvLoading(false);})
+                        .catch(()=>{setAdvMsgs(m=>[...m,{role:"advisor",text:"Something went wrong. Try again."}]);setAdvLoading(false);});
+                    }}
+                    style={{padding:"0.55rem 0.85rem",borderRadius:"12px",border:`1.5px solid ${pal.primary}30`,background:"#fff",color:pal.inkM,fontSize:"0.78rem",fontWeight:"600",cursor:"pointer",textAlign:"left"}}>
+                    {q}
+                  </button>
+                ))}
+              </div>
+            )}
+            {/* Messages */}
+            <div style={{flex:1,overflowY:"auto",display:"flex",flexDirection:"column",gap:"0.65rem",marginBottom:"0.65rem"}}>
+              {advMsgs.map((msg,i)=>(
+                <div key={i} style={{display:"flex",gap:"0.5rem",alignItems:"flex-start",flexDirection:msg.role==="user"?"row-reverse":"row"}}>
+                  {msg.role==="advisor"&&(
+                    <div style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.heroGrad,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.85rem",flexShrink:0,marginTop:"2px"}}>{"✨"}</div>
+                  )}
+                  <div style={{maxWidth:"80%",background:msg.role==="user"?pal.heroGrad:"#fff",color:msg.role==="user"?"#fff":pal.ink,padding:"0.65rem 0.9rem",borderRadius:msg.role==="user"?"18px 18px 4px 18px":"18px 18px 18px 4px",fontSize:"0.82rem",lineHeight:1.65,boxShadow:"0 1px 6px rgba(0,0,0,0.07)",whiteSpace:"pre-wrap"}}>
+                    {msg.text}
+                  </div>
+                </div>
+              ))}
+              {advLoading&&(
+                <div style={{display:"flex",gap:"0.5rem",alignItems:"flex-start"}}>
+                  <div style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.heroGrad,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.85rem",flexShrink:0}}>{"✨"}</div>
+                  <div style={{background:"#fff",padding:"0.6rem 0.9rem",borderRadius:"18px 18px 18px 4px",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
+                    <div style={{display:"flex",gap:"4px",alignItems:"center"}}>
+                      {[0,1,2].map(j=>(<div key={j} style={{width:"7px",height:"7px",borderRadius:"50%",background:pal.primary,animation:"bounce 0.9s "+j*0.15+"s ease-in-out infinite"}}/>))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            {/* Input */}
+            <div style={{display:"flex",gap:"0.5rem",alignItems:"flex-end",flexShrink:0}}>
+              <textarea value={advInput} onChange={e=>setAdvInput(e.target.value)}
+                onKeyDown={e=>{
+                  if(e.key==="Enter"&&!e.shiftKey){
+                    e.preventDefault();
+                    if(!advInput.trim()||advLoading) return;
+                    const q=advInput.trim();
+                    const apiKey=(()=>{try{return localStorage.getItem("rootbloom_apikey")||"";}catch(e){return "";}})();
+                    if(!apiKey){setAdvMsgs(m=>[...m,{role:"user",text:q},{role:"advisor",text:"Add your API key in Settings → AI."}]);setAdvInput("");return;}
+                    const newMsgs=[...advMsgs,{role:"user",text:q}];
+                    setAdvMsgs(newMsgs); setAdvInput(""); setAdvLoading(true);
+                    const childInfo=(family.children||[]).map(c=>c.name+" ("+c.grade+")").join(", ");
+                    const curriculum=curriculumContext(family);
+                    const system="You are a warm, experienced homeschool curriculum advisor. Family: children: "+childInfo+", approach: "+curriculum+", state: "+(family.state||"unknown")+". Give practical, specific, encouraging advice.";
+                    const history=newMsgs.map(m=>({role:m.role==="user"?"user":"assistant",content:m.text}));
+                    fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:700,system:system,messages:history})})
+                      .then(r=>r.json())
+                      .then(d=>{setAdvMsgs(m=>[...m,{role:"advisor",text:d.content?.map(b=>b.text||"").join("")||"Try again."}]);setAdvLoading(false);})
+                      .catch(()=>{setAdvMsgs(m=>[...m,{role:"advisor",text:"Something went wrong."}]);setAdvLoading(false);});
+                  }
+                }}
+                placeholder={"Ask anything about homeschooling, curriculum, or teaching..."}
+                rows={2}
+                style={{flex:1,padding:"0.55rem 0.75rem",border:`1.5px solid ${pal.primary}40`,borderRadius:"14px",fontSize:"0.83rem",fontFamily:"inherit",background:pal.linen,color:pal.ink,resize:"none",outline:"none",lineHeight:1.4}}
+              />
+              <button onClick={()=>{
+                  if(!advInput.trim()||advLoading) return;
+                  const q=advInput.trim();
+                  const apiKey=(()=>{try{return localStorage.getItem("rootbloom_apikey")||"";}catch(e){return "";}})();
+                  if(!apiKey){setAdvMsgs(m=>[...m,{role:"user",text:q},{role:"advisor",text:"Add your API key in Settings → AI."}]);setAdvInput("");return;}
+                  const newMsgs=[...advMsgs,{role:"user",text:q}];
+                  setAdvMsgs(newMsgs); setAdvInput(""); setAdvLoading(true);
+                  const childInfo=(family.children||[]).map(c=>c.name+" ("+c.grade+")").join(", ");
+                  const curriculum=curriculumContext(family);
+                  const system="You are a warm, experienced homeschool curriculum advisor. Family: children: "+childInfo+", approach: "+curriculum+", state: "+(family.state||"unknown")+". Give practical, specific, encouraging advice.";
+                  const history=newMsgs.map(m=>({role:m.role==="user"?"user":"assistant",content:m.text}));
+                  fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:700,system:system,messages:history})})
+                    .then(r=>r.json())
+                    .then(d=>{setAdvMsgs(m=>[...m,{role:"advisor",text:d.content?.map(b=>b.text||"").join("")||"Try again."}]);setAdvLoading(false);})
+                    .catch(()=>{setAdvMsgs(m=>[...m,{role:"advisor",text:"Something went wrong."}]);setAdvLoading(false);});
+                }}
+                disabled={!advInput.trim()||advLoading}
+                style={{width:"38px",height:"38px",borderRadius:"50%",border:"none",background:advInput.trim()&&!advLoading?pal.accentGrad:"#ddd",color:"#fff",fontSize:"1.1rem",cursor:advInput.trim()&&!advLoading?"pointer":"default",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"background 0.2s"}}>
+                {"↑"}
+              </button>
+            </div>
+          </div>
+        )}
+
     </div>
   );
 }
@@ -10090,6 +10446,29 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
   const [printDate,         setPrintDate]         = useState(""); // date string for prior-day print
   const [showDatePicker,    setShowDatePicker]     = useState(false);
 
+  const [narratorText,   setNarratorText]   = useState("");
+  const [narratorLoading,setNarratorLoading]= useState(false);
+  const [narratorOpen,   setNarratorOpen]   = useState(false);
+
+  const generateNarrative = async (ch, entries) => {
+    setNarratorOpen(true); setNarratorLoading(true); setNarratorText("");
+    try {
+      const apiKey=(()=>{try{return localStorage.getItem("rootbloom_apikey")||"";}catch(e){return "";}})();
+      if(!apiKey){setNarratorText("Add your API key in Settings → AI to use this feature.");setNarratorLoading(false);return;}
+      const recent=entries.filter(e=>!e.isDay&&e.subj!=="Daily Note").slice(0,30);
+      const bySubj={};
+      recent.forEach(e=>{if(!bySubj[e.subj])bySubj[e.subj]=[];bySubj[e.subj].push(e.note||e.title||e.subj);});
+      const summary=Object.entries(bySubj).map(([s,ns])=>s+": "+ns.slice(0,3).join("; ")).join("\n");
+      const curriculum=curriculumContext(family);
+      const prompt="You are writing a warm, professional portfolio narrative for a homeschool family.\n\nStudent: "+ch.name+", "+ch.grade+"\nCurriculum: "+curriculum+"\nRecent learning:\n"+(summary||"No entries yet")+"\n\nWrite 3-4 warm, specific paragraphs summarizing this student's recent learning journey. Highlight growth and memorable moments. Third person. No bullet points. Sound like a caring teacher who knows this child well.";
+      const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:800,messages:[{role:"user",content:prompt}]})});
+      const data=await res.json();
+      if(data.error) throw new Error(data.error.message);
+      setNarratorText(data.content?.map(b=>b.text||"").join("")||"");
+    } catch(e){setNarratorText("Could not generate. Try again.");}
+    finally{setNarratorLoading(false);}
+  };
+
   const stateInfo = getStateInfo(family.state||"");
   const activeCi  = family.children.findIndex(c=>c.id===child);
   const activeCh  = activeCi>=0 ? family.children[activeCi] : family.children[0];
@@ -10359,6 +10738,11 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
                 style={{flex:1,padding:"0.65rem 0.5rem",border:`2px solid ${pal.stone}50`,borderRadius:"12px",background:"transparent",color:pal.inkM,fontWeight:"700",fontSize:"0.78rem",cursor:"pointer"}}>
                 Quick Add
               </button>
+              <button onClick={()=>generateNarrative(activeCh,childEntries)}
+                style={{padding:"0.65rem 0.6rem",border:`1.5px solid ${pal.primary}40`,borderRadius:"12px",background:pal.pale,color:pal.primary,fontWeight:"700",fontSize:"0.72rem",cursor:"pointer",display:"flex",alignItems:"center",gap:"0.3rem",flexShrink:0,whiteSpace:"nowrap"}}>
+                <span>{"✨"}</span>
+                <span>{"AI Narrative"}</span>
+              </button>
               <div style={{position:"relative",flexShrink:0}}>
                 <button onClick={()=>setShowPrintMenu(p=>!p)}
                   style={{padding:"0.65rem 0.75rem",border:"none",borderRadius:"12px",background:pal.primary,color:"#fff",fontWeight:"700",fontSize:"0.78rem",cursor:"pointer"}}>
@@ -10596,6 +10980,46 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
         <div style={{height:"1rem"}}/>
       </div>
 
+      {/* AI PORTFOLIO NARRATOR MODAL */}
+      {narratorOpen&&(
+        <div style={{position:"fixed",inset:0,background:"rgba(15,10,4,0.75)",backdropFilter:"blur(12px)",zIndex:250,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
+          <div style={{background:pal.linen,borderRadius:"28px 28px 0 0",width:"100%",maxWidth:"430px",maxHeight:"85vh",display:"flex",flexDirection:"column",animation:"slideUp 0.26s ease"}}>
+            <div style={{padding:"0.7rem 0",display:"flex",justifyContent:"center",flexShrink:0}}>
+              <div style={{width:"36px",height:"4px",borderRadius:"99px",background:pal.stone}}/>
+            </div>
+            <div style={{background:pal.heroGrad,padding:"0.85rem 1.2rem",flexShrink:0,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <div>
+                <div style={{fontWeight:"900",color:"#fff",fontSize:"0.92rem"}}>{"✨ Portfolio Narrative — "+(activeCh?.name||"")}</div>
+                <div style={{fontSize:"0.68rem",color:"rgba(255,255,255,0.7)",marginTop:"2px"}}>{"AI-generated summary of recent learning"}</div>
+              </div>
+              <button onClick={()=>setNarratorOpen(false)} style={{background:"rgba(255,255,255,0.18)",border:"none",borderRadius:"9px",padding:"0.3rem 0.65rem",color:"#fff",fontWeight:"700",fontSize:"0.75rem",cursor:"pointer"}}>{"✕"}</button>
+            </div>
+            <div style={{flex:1,overflowY:"auto",padding:"1.2rem"}}>
+              {narratorLoading&&(
+                <div style={{textAlign:"center",padding:"2rem 0"}}>
+                  <div style={{fontSize:"2rem",animation:"spin 1.2s linear infinite",display:"inline-block"}}>{"✨"}</div>
+                  <div style={{fontSize:"0.78rem",color:pal.slate,marginTop:"0.6rem"}}>{"Writing "+(activeCh?.name||"")+"'s narrative..."}</div>
+                </div>
+              )}
+              {!narratorLoading&&narratorText&&(
+                <div>
+                  <div style={{fontSize:"0.86rem",color:pal.ink,lineHeight:1.85,whiteSpace:"pre-wrap",fontFamily:"Georgia,serif"}}>{narratorText}</div>
+                  <div style={{display:"flex",gap:"0.5rem",marginTop:"1.2rem"}}>
+                    <button onClick={()=>{navigator.clipboard&&navigator.clipboard.writeText(narratorText).then(()=>alert("Copied!"));}}
+                      style={{flex:1,padding:"0.65rem",border:`1.5px solid ${pal.primary}40`,borderRadius:"12px",background:pal.pale,color:pal.primary,fontWeight:"700",fontSize:"0.8rem",cursor:"pointer"}}>
+                      {"📋 Copy"}
+                    </button>
+                    <button onClick={()=>generateNarrative(activeCh,childEntries)}
+                      style={{flex:1,padding:"0.65rem",border:`1px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.8rem",cursor:"pointer"}}>
+                      {"🔄 Regenerate"}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
       {showDailyLog&&<DailyPortfolioModal pal={pal} family={family} childIdx={activeCiR}
         stateInfo={stateInfo}
         onClose={()=>setShowDailyLog(false)}
@@ -11863,6 +12287,27 @@ function EntryDetailModal({pal,family,entry,onClose,onEdit}){
           </div>
         )}
 
+        {entry.subj&&entry.subj!=="Daily Note"&&entry.subj!=="Daily Check-In"&&!entry.isDay&&(
+          <button onClick={()=>{
+            const q="Based on what "+( (family.children[entry.childIdx]?.name)||"the student")+" did in "+entry.subj+" (\""+( entry.note||entry.title||entry.subj)+"\"), create a specific, engaging follow-up lesson or activity for tomorrow. Include: the activity title, materials needed (if any), step-by-step instructions, and an extension idea. Keep it practical and fun for a "+(family.children[entry.childIdx]?.grade||"elementary")+" student.";
+            const win=window.open("","_blank","width=500,height=600");
+            if(!win)return;
+            const apiKey=(()=>{try{return localStorage.getItem("rootbloom_apikey")||"";}catch(e){return "";}})();
+            if(!apiKey){win.document.write("<p style='font-family:sans-serif;padding:1rem'>Add your API key in Settings → AI to use this feature.</p>");return;}
+            win.document.write("<div style='font-family:Georgia,serif;padding:1.5rem;max-width:500px;line-height:1.7'><h2 style='color:#2d6a3f'>✨ Building lesson plan...</h2></div>");
+            fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:800,messages:[{role:"user",content:q}]})})
+              .then(r=>r.json())
+              .then(d=>{
+                const txt=d.content?.map(b=>b.text||"").join("")||"Could not generate.";
+                win.document.body.innerHTML="<div style='font-family:Georgia,serif;padding:1.5rem;max-width:500px;line-height:1.8'>"+txt.replace(/\n/g,"<br>")+"<br><br><button onclick='window.print()' style='padding:0.6rem 1.2rem;background:#2d6a3f;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:1rem'>🖨️ Print lesson</button></div>";
+              })
+              .catch(()=>{ win.document.body.innerHTML="<p style='font-family:sans-serif;padding:1rem'>Error generating lesson. Try again.</p>"; });
+          }}
+          style={{width:"100%",padding:"0.7rem",border:`1.5px solid ${pal.primary}40`,borderRadius:"13px",background:pal.pale,color:pal.primary,fontWeight:"700",fontSize:"0.84rem",cursor:"pointer",marginTop:"0.5rem",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.4rem"}}>
+            <span>{"✨"}</span>
+            <span>{"Build Tomorrow's Lesson"}</span>
+          </button>
+        )}
         <button onClick={onClose}
           style={{width:"100%",padding:"0.8rem",border:"none",borderRadius:"13px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:"pointer",marginTop:"0.5rem"}}>
           Done
