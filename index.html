@@ -1304,6 +1304,18 @@ function RootAndBloom() {
     savePersist({family,navIds,homeLayout,portfolioLayout,portfolio:portfolioEntries,coopLog,attendanceDays,attendanceLog,observationLog,checkinDates,studentVisits,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed,notifDismissed});
   },[family,navIds,homeLayout,portfolioLayout,portfolioEntries,coopLog,attendanceDays,attendanceLog,observationLog,checkinDates,studentVisits,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed,notifDismissed]);
 
+  // Forward scroll events from outside app container to scrollable inner element
+  useEffect(()=>{
+    const handler = (e) => {
+      const scrollable = document.querySelector(".app-scroll-root");
+      if(scrollable && !scrollable.contains(e.target)) {
+        scrollable.scrollTop += e.deltaY;
+      }
+    };
+    document.addEventListener("wheel", handler, {passive:true});
+    return () => document.removeEventListener("wheel", handler);
+  }, []);
+
   // Auto-show New Year prompt when yearEnd has passed
   useEffect(()=>{
     if(!family?.yearEnd) return;
@@ -1558,7 +1570,7 @@ function RootAndBloom() {
         </div>
 
         {/* Main content */}
-        <div ref={mainScrollRef} style={{flex:1,overflowY:"auto",paddingBottom:"72px"}}>
+        <div ref={mainScrollRef} className="app-scroll-root" style={{flex:1,overflowY:"auto",paddingBottom:"72px"}}>
           {activeTab==="home" && <HomeScreen pal={pal} family={family} child={childFilt} setChild={setChildFilt} onTheme={()=>setShowTheme(true)} attendanceDays={attendanceDays} checkinStreak={checkinStreak} lastCheckinDate={lastCheckinDate} portfolioEntries={portfolioEntries} onTabChange={setActiveTab} todayProgress={todayProgress} navIds={navIds}
             attendanceLog={attendanceLog}
             onAddEntry={addPortfolioEntry}
@@ -1654,7 +1666,7 @@ function RootAndBloom() {
               const dateShort = parsed.toLocaleDateString("en-US",{month:"short",day:"numeric"});
               setPastDayWrapUp({dateLabel:label, dateStr:dateShort});
             }} />}
-          {activeTab==="goals"       && <GoalsScreen       pal={pal} family={family} portfolioEntries={portfolioEntries} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} onAddEntry={addPortfolioEntry}/>}
+          {activeTab==="goals"       && <GoalsScreen       pal={pal} family={family} portfolioEntries={portfolioEntries} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} onAddEntry={addPortfolioEntry} onTabChange={setActiveTab}/>}
           {activeTab==="coop"        && <CoopScreen        pal={pal} family={family} coopLog={coopLog} onLog={e=>setCoopLog(l=>[e,...l])} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} onAddEntry={addPortfolioEntry} />}
           {activeTab==="transcripts" && <TranscriptsScreen pal={pal} family={family} portfolioEntries={portfolioEntries} attendanceDays={attendanceDays} coopLog={coopLog} observationLog={observationLog} />}
           {showLifeReady && family && <LifeReadyScreen pal={pal} family={family} onBack={()=>setShowLifeReady(false)}/>}
@@ -1803,9 +1815,24 @@ function RootAndBloom() {
 ======================================= */
 function SplashScreen({ pal, onContinue }) {
   const [ready, setReady] = useState(false);
+  const [storageOk, setStorageOk] = useState(true);
   useState(()=>{ setTimeout(()=>setReady(true), 300); },[]);
+  React.useEffect(()=>{
+    try {
+      localStorage.setItem("rootbloom_test","1");
+      localStorage.removeItem("rootbloom_test");
+    } catch(e) {
+      setStorageOk(false);
+    }
+  },[]);
   return (
     <div onClick={onContinue} style={{height:"100vh",background:pal.heroGrad,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",cursor:"pointer",position:"relative",overflow:"hidden"}}>
+      {!storageOk&&(
+        <div style={{position:"absolute",top:0,left:0,right:0,background:"#c0392b",color:"#fff",padding:"0.65rem 1rem",fontSize:"0.76rem",fontWeight:"700",textAlign:"center",zIndex:10,lineHeight:1.5}} onClick={e=>e.stopPropagation()}>
+          {"⚠️ Storage blocked — your data won't save."}
+          <div style={{fontSize:"0.68rem",fontWeight:"400",marginTop:"2px",opacity:0.9}}>{"You may be in private/incognito mode or have cross-site tracking prevention on. Open Root & Bloom in a regular browser tab to save your data."}</div>
+        </div>
+      )}
       <div style={{position:"absolute",width:"300px",height:"300px",borderRadius:"50%",background:"rgba(255,255,255,0.04)",top:"-60px",right:"-60px"}}/>
       <div style={{position:"absolute",width:"200px",height:"200px",borderRadius:"50%",background:"rgba(255,255,255,0.03)",bottom:"40px",left:"-40px"}}/>
       <div style={{textAlign:"center",position:"relative",animation:"fadeIn 0.6s ease"}}>
@@ -2123,6 +2150,8 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
   const [showKidOnboard,setShowKidOnboard] = useState(!kidOnboarded);
   const [kidGoalLogged, setKidGoalLogged]  = useState(new Set());
   const [goalCelebGoal, setGoalCelebGoal]  = useState(null);
+  const [expandedGoal,  setExpandedGoal]   = useState(null); // goal text being expanded
+  const [goalNoteMap,   setGoalNoteMap]    = useState({}); // goal -> note text
   const saveKidGoals = (goals) => {
     setKidGoals(goals);
     try{ localStorage.setItem(KID_GOALS_KEY, JSON.stringify(goals)); }catch{}
@@ -2133,11 +2162,12 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
     setKidOnboarded(true);
     setShowKidOnboard(false);
   };
-  const logKidGoal = (goal) => {
+  const logKidGoal = (goal, note) => {
     if(kidGoalLogged.has(goal)) return;
+    const noteText = note && note.trim() ? note.trim() : "";
     onAddEntry&&onAddEntry({childIdx, subj:"Daily Note", title:"🎯 "+goal,
       date:new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"}),
-      thumb:"🎯", note:"Working on my goal: "+goal, selfLogged:true});
+      thumb:"🎯", note:"Working on my goal: "+goal+(noteText?" \u2014 "+noteText:""), selfLogged:true});
     setKidGoalLogged(prev=>{ const n=new Set(prev); n.add(goal); return n; });
     setGoalCelebGoal(goal);
     setTimeout(()=>setGoalCelebGoal(null), 2000);
@@ -2178,6 +2208,7 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
           <span style={{fontSize:"1.1rem"}}>{child.avatar}</span>
           <span style={{fontWeight:"800",color:"#fff",fontSize:"0.88rem"}}>{child.name}{"'s Space"}</span>
         </div>
+        {family.useStarsSystem!==false&&(
         <div style={{background:"rgba(255,255,255,0.22)",borderRadius:"9px",padding:"0.25rem 0.65rem",display:"flex",flexDirection:"column",alignItems:"center",gap:"2px",minWidth:"52px"}}>
           <div style={{display:"flex",alignItems:"center",gap:"0.25rem"}}>
             <span style={{fontSize:"0.75rem"}}>{"⭐"}</span>
@@ -2187,6 +2218,7 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
             <div style={{height:"100%",width:(realPoints%100)+"%",background:"#fff",borderRadius:"99px"}}/>
           </div>
         </div>
+        )}
       </div>
 
       {/* Content */}
@@ -2645,18 +2677,38 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
               <div style={{display:"flex",flexDirection:"column",gap:"0.55rem"}}>
                 {kidGoals.map((g,i)=>{
                   const done=kidGoalLogged.has(g);
+                  const isExp=expandedGoal===g;
+                  const noteVal=goalNoteMap[g]||"";
                   return (
-                    <div key={i} onClick={()=>!done&&logKidGoal(g)}
-                      style={{background:SK.card,borderRadius:"18px",padding:"0.9rem 1rem",display:"flex",gap:"0.85rem",alignItems:"center",boxShadow:"0 2px 10px rgba(0,0,0,0.06)",border:"2px solid "+(done?c1+"60":SK.skyL),cursor:done?"default":"pointer"}}>
-                      <div style={{width:"46px",height:"46px",borderRadius:"13px",background:done?"linear-gradient(135deg,"+c1+","+c2+")":"linear-gradient(135deg,"+c1+"22,"+c2+"11)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.5rem",flexShrink:0}}>{"🎯"}</div>
-                      <div style={{flex:1}}>
-                        <div style={{fontWeight:"800",color:done?c1:SK.ink,fontSize:"0.88rem"}}>{g}</div>
-                        <div style={{fontSize:"0.68rem",color:SK.lite,marginTop:"2px"}}>{done?"Logged today! 🌟":"Tap to log working on this"}</div>
+                    <div key={i} style={{background:SK.card,borderRadius:"18px",padding:"0.9rem 1rem",boxShadow:"0 2px 10px rgba(0,0,0,0.06)",border:"2px solid "+(done?c1+"60":isExp?c1+"50":SK.skyL),transition:"border-color 0.15s"}}>
+                      {/* Row */}
+                      <div style={{display:"flex",gap:"0.85rem",alignItems:"center",cursor:done?"default":"pointer"}} onClick={()=>{ if(!done) setExpandedGoal(isExp?null:g); }}>
+                        <div style={{width:"46px",height:"46px",borderRadius:"13px",background:done?"linear-gradient(135deg,"+c1+","+c2+")":"linear-gradient(135deg,"+c1+"22,"+c2+"11)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.5rem",flexShrink:0}}>{"🎯"}</div>
+                        <div style={{flex:1}}>
+                          <div style={{fontWeight:"800",color:done?c1:SK.ink,fontSize:"0.88rem"}}>{g}</div>
+                          <div style={{fontSize:"0.68rem",color:SK.lite,marginTop:"2px"}}>{done?"Logged today! 🌟":isExp?"Add a note below — or just tap Log!":"Tap to log working on this"}</div>
+                        </div>
+                        {done?(
+                          <div style={{width:"28px",height:"28px",borderRadius:"50%",background:"linear-gradient(135deg,"+c1+","+c2+")",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:"0.85rem",flexShrink:0}}>{"\u2713"}</div>
+                        ):(
+                          <div style={{width:"28px",height:"28px",borderRadius:"50%",border:"2.5px solid "+(isExp?c1:"#ddd"),flexShrink:0}}/>
+                        )}
                       </div>
-                      {done?(
-                        <div style={{width:"28px",height:"28px",borderRadius:"50%",background:"linear-gradient(135deg,"+c1+","+c2+")",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:"0.85rem",flexShrink:0}}>{"\u2713"}</div>
-                      ):(
-                        <div style={{width:"28px",height:"28px",borderRadius:"50%",border:"2.5px solid #ddd",flexShrink:0}}/>
+                      {/* Expanded note + log button */}
+                      {isExp&&!done&&(
+                        <div style={{marginTop:"0.75rem",paddingTop:"0.75rem",borderTop:"1.5px solid "+c1+"20"}}>
+                          <textarea
+                            value={noteVal}
+                            onChange={e=>setGoalNoteMap(m=>({...m,[g]:e.target.value}))}
+                            placeholder={"What did you do? (optional)"}
+                            rows={2}
+                            style={{width:"100%",padding:"0.6rem 0.75rem",border:"2px solid "+c1+"40",borderRadius:"12px",fontSize:"0.82rem",fontFamily:"inherit",background:"#fff",color:SK.ink,resize:"none",outline:"none",lineHeight:1.5,marginBottom:"0.6rem"}}
+                          />
+                          <button onClick={()=>{ logKidGoal(g,noteVal); setExpandedGoal(null); }}
+                            style={{width:"100%",padding:"0.6rem",border:"none",borderRadius:"12px",background:"linear-gradient(135deg,"+c1+","+c2+")",color:"#fff",fontWeight:"900",fontSize:"0.85rem",cursor:"pointer"}}>
+                            {"🎯 Log this goal!"}
+                          </button>
+                        </div>
                       )}
                     </div>
                   );
@@ -3701,7 +3753,7 @@ function OnbCelebration({ pal, data, onNext }) {
           {nameStr?"Root & Bloom is ready for "+nameStr+". Every lesson logged, every milestone captured, every step of the way.":"Root & Bloom is ready for your family. Let us grow something beautiful together."}
         </p>
         <div style={{display:"flex",flexDirection:"column",gap:"0.6rem",marginBottom:"2rem"}}>
-          {[{icon:"📝",text:"Log your first lesson today"},{icon:"🌟",text:"Capture a milestone as it happens"},{icon:"📊",text:"Track progress all year long"},{icon:"🎓",text:"Print a portfolio when you're ready"}].map((item,i)=>(
+          {[{icon:"📝",text:"Log your first lesson today"},{icon:"🌟",text:"Capture a milestone as it happens"},{icon:"💌",text:"Kids can send you private notes from their portal"},{icon:"📊",text:"Track progress all year long"},{icon:"🎓",text:"Print a portfolio when you're ready"}].map((item,i)=>(
             <div key={i} style={{display:"flex",alignItems:"center",gap:"0.75rem",padding:"0.65rem 1rem",background:pal.linen,borderRadius:"12px",border:`1.5px solid ${pal.stone}25`,textAlign:"left"}}>
               <span style={{fontSize:"1.2rem",flexShrink:0}}>{item.icon}</span>
               <span style={{fontSize:"0.82rem",color:pal.inkM,fontWeight:"600"}}>{item.text}</span>
@@ -3888,9 +3940,18 @@ function OnbWelcome({ pal, data, upd, onNext }) {
     <div style={{animation:"fadeUp 0.3s ease"}}>
       <div style={{background:pal.heroGrad,padding:"2.5rem 1.4rem 2rem",textAlign:"center",position:"relative",overflow:"hidden"}}>
         <div style={{position:"absolute",right:"-40px",top:"-40px",width:"160px",height:"160px",borderRadius:"50%",background:"rgba(255,255,255,0.05)"}}/>
+        <div style={{position:"absolute",left:"-30px",bottom:"-30px",width:"120px",height:"120px",borderRadius:"50%",background:"rgba(255,255,255,0.04)"}}/>
         <div style={{fontSize:"3.5rem",marginBottom:"0.75rem",animation:"grow 0.5s ease"}}>🌱</div>
-        <h1 style={{fontFamily:"Georgia",fontSize:"1.8rem",fontWeight:"800",color:"#fff",margin:"0 0 0.4rem",lineHeight:1.2}}>{"Welcome to"}<br/>{"Root & Bloom"}</h1>
-        <p style={{color:"rgba(255,255,255,0.62)",fontSize:"0.85rem",margin:0,lineHeight:1.65}}>Let us set up your homeschool in just a few minutes.</p>
+        <h1 style={{fontFamily:"Georgia",fontSize:"1.9rem",fontWeight:"900",color:"#fff",margin:"0 0 0.5rem",lineHeight:1.15}}>{"Your homeschool,"}<br/>{"beautifully organized."}</h1>
+        <p style={{color:"rgba(255,255,255,0.75)",fontSize:"0.84rem",margin:"0 0 1rem",lineHeight:1.7}}>{"Root & Bloom replaces the chaos of spreadsheets and sticky notes with one calm, joyful space for logging, tracking, and celebrating every lesson."}</p>
+        <div style={{display:"flex",justifyContent:"center",gap:"1.2rem",flexWrap:"wrap"}}>
+          {[{icon:"📝",t:"Log lessons"},{icon:"📊",t:"Track progress"},{icon:"🎓",t:"Print portfolios"}].map((f,i)=>(
+            <div key={i} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:"3px"}}>
+              <span style={{fontSize:"1.3rem"}}>{f.icon}</span>
+              <span style={{fontSize:"0.65rem",color:"rgba(255,255,255,0.7)",fontWeight:"600"}}>{f.t}</span>
+            </div>
+          ))}
+        </div>
       </div>
       <div style={{padding:"1.4rem 1.2rem"}}>
         <Lbl pal={pal}>Your first name</Lbl>
@@ -5461,6 +5522,18 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
               <Lbl pal={pal}>State</Lbl>
               <Select pal={pal} value={local.state||"Tennessee"} onChange={v=>updL("state",v)} options={US_STATES} />
             </SCard>
+            <SCard pal={pal} title="⭐ Student Level System">
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                <div style={{flex:1}}>
+                  <div style={{fontSize:"0.82rem",fontWeight:"700",color:pal.ink}}>{"Show level badge in Student Portal"}</div>
+                  <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"2px",lineHeight:1.5}}>{"Kids earn XP by logging lessons and milestones. Turn off if you prefer not to use a level system."}</div>
+                </div>
+                <button onClick={()=>updL("useStarsSystem",(local.useStarsSystem!==false)?false:true)}
+                  style={{width:"44px",height:"24px",borderRadius:"99px",border:"none",background:(local.useStarsSystem!==false)?pal.primary:pal.stone+"50",cursor:"pointer",position:"relative",transition:"background 0.2s",flexShrink:0,marginLeft:"0.75rem"}}>
+                  <div style={{position:"absolute",top:"3px",left:(local.useStarsSystem!==false)?"22px":"3px",width:"18px",height:"18px",borderRadius:"50%",background:"#fff",transition:"left 0.2s",boxShadow:"0 1px 4px rgba(0,0,0,0.2)"}}/>
+                </button>
+              </div>
+            </SCard>
             {local.yearStart&&local.yearEnd&&(()=>{
               const now=new Date(); const end=new Date(local.yearEnd); const start=new Date(local.yearStart);
               const daysLeft=Math.max(0,Math.ceil((end-now)/(24*60*60*1000)));
@@ -6057,6 +6130,7 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                 {key:"nolog",    icon:"📅", label:"No-log reminder",       desc:"Shows when it's been 2+ days since your last log"},
                 {key:"attendance",icon:"⚠️", label:"Attendance behind",    desc:"Shows when you're 15%+ behind expected pace"},
                 {key:"yearend",  icon:"🎓", label:"Year-end approaching", desc:"Shows within 4 weeks of your school year end"},
+                {key:"studentNote",icon:"💌", label:"Student note received", desc:"Pink banner when your child sends you a message from their portal"},
               ].map(({key,icon,label,desc})=>{
                 const enabled = (local.notifPrefs||{})[key]!==false;
                 return (
@@ -8276,7 +8350,30 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
             );
           });
 
-          // 5. Sunday weekly digest nudge
+          // 5. Parent note banners
+          const studentNoteEnabled = (family.notifPrefs||{}).studentNote!==false;
+          const parentNotes = studentNoteEnabled ? portfolioEntries.filter(e=>e.isParentNote) : [];
+          const unseenNotes = parentNotes.filter(e=>{
+            const seenKey = "rootbloom_pnote_seen_"+e.id;
+            try{ return !localStorage.getItem(seenKey); }catch{ return true; }
+          });
+          unseenNotes.forEach(n=>{
+            const ch = family.children[n.childIdx];
+            banners.push(
+              <div key={"pn_"+n.id} style={{background:"#fff0f9",borderRadius:"14px",padding:"0.75rem 1rem",marginBottom:"0.5rem",border:"1.5px solid #e879a040",display:"flex",gap:"0.75rem",alignItems:"flex-start"}}>
+                <span style={{fontSize:"1.4rem",flexShrink:0}}>{"💌"}</span>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontWeight:"800",color:"#9d174d",fontSize:"0.84rem",marginBottom:"2px"}}>{(ch?.avatar||"")+" "+(ch?.name||"Your student")+" left you a note"}</div>
+                  <div style={{fontSize:"0.78rem",color:"#be185d",lineHeight:1.5,marginBottom:"0.4rem"}}>{n.note.replace("NOTE TO PARENT: ","")}</div>
+                  <div style={{fontSize:"0.68rem",color:"#9d174d",opacity:0.7}}>{n.date}</div>
+                </div>
+                <button onClick={()=>{ try{localStorage.setItem("rootbloom_pnote_seen_"+n.id,"1");}catch{} onDismissNotif&&onDismissNotif("pnote_"+n.id); }}
+                  style={{background:"transparent",border:"none",color:"#9d174d",fontSize:"0.8rem",cursor:"pointer",padding:"0 4px",flexShrink:0}}>{"✕"}</button>
+              </div>
+            );
+          });
+
+          // 6. Sunday weekly digest nudge
           const isSunday = new Date().getDay()===0;
           const digestKey = "rootbloom_digest_nudge_"+new Date().toDateString();
           const digestDismissed = (() => { try{ return !!localStorage.getItem(digestKey); }catch(e){return false;} })();
@@ -8523,7 +8620,8 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
           onClose={()=>{ setShowQuickLog(false); setLogQueue([]); }}
           onSave={(entries)=>{
             entries.forEach(e=>onAddEntry&&onAddEntry(e));
-            onCheckin&&onCheckin(currentChild?.id);
+            // Only mark day logged if there are real entries
+            if(entries.length>0) onCheckin&&onCheckin(currentChild?.id);
             if(logQueue.length>0){
               const [nextChildId,...rest] = logQueue;
               // Show transition screen instead of jumping directly
@@ -10192,6 +10290,24 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
     <div style={{animation:"fadeUp 0.22s ease"}}>
       <ScreenHdr pal={pal} title="Portfolio" sub={activeCh?.name||"Select a child"} icon="🗂"/>
       <FirstVisitTip pal={pal} screen="portfolio"/>
+      {(()=>{
+        const si=getStateInfo(family.state||"");
+        if(!si.portfolio) return null;
+        const stateTips={
+          "Florida":"Florida law requires an annual portfolio evaluation by a certified teacher. Keep logging — every entry counts!",
+          "Pennsylvania":"PA requires a portfolio review by a certified evaluator each year. Document everything here.",
+          "Ohio":"Ohio requires an assessment each year. Portfolios are one accepted method — log consistently.",
+          "North Carolina":"NC requires testing or portfolio review. Keep your entries detailed for the evaluator.",
+          "New York":"New York requires an annual assessment. Your portfolio entries support your year-end evaluation.",
+        };
+        const tip=stateTips[family.state]||("Your state ("+family.state+") may require documentation. This portfolio is your record.");
+        return (
+          <div style={{margin:"0 1rem 0.75rem",padding:"0.6rem 0.85rem",background:"#fff8e6",borderRadius:"12px",border:"1.5px solid #f5c84250",display:"flex",gap:"0.5rem",alignItems:"flex-start"}}>
+            <span style={{fontSize:"0.9rem",flexShrink:0}}>{"📜"}</span>
+            <span style={{fontSize:"0.72rem",color:"#7a5500",lineHeight:1.55,fontWeight:"600"}}>{tip}</span>
+          </div>
+        );
+      })()}
       <div style={{padding:"0 1rem"}}>
 
         {/* Child tabs */}
@@ -11465,6 +11581,7 @@ function DailyPortfolioModal({pal,family,childIdx,stateInfo,onClose,onSave,prevC
   };
 
   const handleNext = () => {
+    if(step===0 && totalSteps===0) return; // no subjects selected, do nothing
     if(step<totalSteps) setStep(s=>s+1);
     else handleFinish();
   };
@@ -12102,9 +12219,28 @@ function AddExtraModal({pal, family, onClose, onSave}) {
 
           {/* Category chips */}
           <div style={{marginBottom:"0.85rem"}}>
-            <div style={{fontSize:"0.74rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.45rem"}}>Category</div>
+            {familyExtras.length>0&&(
+              <>
+                <div style={{fontSize:"0.7rem",fontWeight:"700",color:pal.primary,marginBottom:"0.35rem",textTransform:"uppercase",letterSpacing:"0.05em"}}>
+                  {"🌟 Your Activities (from setup)"}
+                </div>
+                <div style={{display:"flex",flexWrap:"wrap",gap:"0.35rem",marginBottom:"0.55rem"}}>
+                  {familyExtras.map(e=>{
+                    const sel=category===e;
+                    return (
+                      <button key={e} onClick={()=>{setCategory(sel?"":e);if(!sel&&!activity.trim())setActivity(e);}}
+                        style={{display:"flex",alignItems:"center",gap:"0.28rem",padding:"0.32rem 0.75rem",borderRadius:"20px",border:`2px solid ${sel?pal.primary:pal.primary+"40"}`,background:sel?pal.pale:pal.pale+"80",cursor:"pointer",transition:"all 0.12s"}}>
+                        <span style={{fontSize:"0.85rem"}}>{"🏆"}</span>
+                        <span style={{fontSize:"0.74rem",fontWeight:sel?"800":"600",color:sel?pal.primary:pal.inkM}}>{e}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div style={{fontSize:"0.7rem",fontWeight:"700",color:pal.slate,marginBottom:"0.35rem",textTransform:"uppercase",letterSpacing:"0.05em"}}>{"Or choose another"}</div>
+              </>
+            )}
             <div style={{display:"flex",flexWrap:"wrap",gap:"0.35rem"}}>
-              {allCategories.map(c=>{
+              {PRESET_CATEGORIES.filter(p=>!familyExtras.includes(p.label)).map(c=>{
                 const sel=category===c.label;
                 return (
                   <button key={c.label} onClick={()=>setCategory(sel?"":c.label)}
@@ -13286,6 +13422,7 @@ function CoopScreen({pal,family,coopLog,onLog,onUpdateFamily,onAddEntry}){
   const [showQL,    setShowQL]    = useState(false);
   const [showSetup, setShowSetup] = useState(false);
   const [expanded,  setExpanded]  = useState(null);
+  const [coopTab,   setCoopTab]   = useState("info"); // info | photos | history
 
   const freq      = family.coopFreq||"";
   const doesCoop  = freq && freq!=="We don't do co-op";
@@ -13325,9 +13462,19 @@ function CoopScreen({pal,family,coopLog,onLog,onUpdateFamily,onAddEntry}){
 
   return (
     <div style={{animation:"fadeUp 0.22s ease"}}>
-      <ScreenHdr pal={pal} title="Co-op" sub="Sessions & Field Trips" icon="🏫"/>
+      <ScreenHdr pal={pal} title="Co-op" sub="Your co-op community" icon="🏫"/>
       <FirstVisitTip pal={pal} screen="coop"/>
+      {/* Tab bar */}
+      <div style={{display:"flex",background:pal.parchm,borderRadius:"12px",padding:"3px",gap:"2px",margin:"0 1rem 1rem"}}>
+        {[["info","📋 Info"],["photos","📷 Photos"],["history","📅 History"]].map(([id,label])=>(
+          <button key={id} onClick={()=>setCoopTab(id)}
+            style={{flex:1,padding:"0.5rem 0.3rem",border:"none",borderRadius:"10px",background:coopTab===id?pal.linen:"transparent",cursor:"pointer",fontWeight:"700",color:coopTab===id?pal.primary:pal.slate,fontSize:"0.78rem",transition:"all 0.15s"}}>
+            {label}
+          </button>
+        ))}
+      </div>
       <div style={{padding:"0 1rem"}}>
+      {coopTab==="info"&&(<div>
 
         {/* Setup prompt — shown if co-op is on but not fully configured */}
         {needsSetup&&!showSetup&&(
@@ -13401,6 +13548,36 @@ function CoopScreen({pal,family,coopLog,onLog,onUpdateFamily,onAddEntry}){
           ))}
         </div>
 
+      </div>)} {/* end info tab */}
+
+      {/* PHOTOS TAB */}
+      {coopTab==="photos"&&(<div>
+        {(()=>{
+          const allPhotos = coopLog.flatMap(l=>(l.photos||[]).map(p=>({url:p,date:l.date,classes:l.classes||[]})));
+          if(allPhotos.length===0) return (
+            <div style={{background:pal.linen,borderRadius:"16px",padding:"2rem 1.5rem",textAlign:"center",border:`1.5px solid ${pal.stone}30`,margin:"0 1rem"}}>
+              <div style={{fontSize:"2rem",marginBottom:"0.5rem"}}>{"📷"}</div>
+              <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.88rem",marginBottom:"0.3rem"}}>{"No co-op photos yet"}</div>
+              <div style={{fontSize:"0.76rem",color:pal.slate,lineHeight:1.6}}>{"Photos you add when logging co-op sessions will appear here."}</div>
+            </div>
+          );
+          return (
+            <div style={{padding:"0 1rem"}}>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"0.4rem"}}>
+                {allPhotos.map((p,i)=>(
+                  <div key={i} style={{aspectRatio:"1",borderRadius:"10px",overflow:"hidden",background:pal.parchm}}>
+                    <img src={p.url} alt="co-op" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                  </div>
+                ))}
+              </div>
+              <div style={{fontSize:"0.68rem",color:pal.slate,textAlign:"center",marginTop:"0.75rem"}}>{allPhotos.length+" co-op "+(allPhotos.length===1?"photo":"photos")}</div>
+            </div>
+          );
+        })()}
+      </div>)}
+
+      {/* HISTORY TAB */}
+      {coopTab==="history"&&(<div style={{padding:"0 1rem"}}>
         {/* Log button */}
         <button onClick={()=>setShowQL(true)}
           style={{width:"100%",padding:"0.9rem",border:"none",borderRadius:"14px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.88rem",cursor:"pointer",marginBottom:"1.1rem",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.6rem",boxShadow:`0 4px 18px ${pal.accent}35`}}>
@@ -13468,7 +13645,8 @@ function CoopScreen({pal,family,coopLog,onLog,onUpdateFamily,onAddEntry}){
           </>
         )}
         <div style={{height:"0.5rem"}}/>
-      </div>
+      </div>)} {/* end history tab */}
+      </div> {/* end outer padding div */}
       {showQL&&<CoopQuickLogModal pal={pal} family={family} onSave={saveLog} onClose={()=>setShowQL(false)}/>}
     </div>
   );
@@ -13939,6 +14117,147 @@ function SkillsTab({pal, ch, family}) {
   );
 }
 
+function GradesTab({pal, ch, family, childEntries, cp, gradeStruggle, setGradeStruggle, gradeStruggleLoading, setGradeStruggleLoading, gradeStruggleError, setGradeStruggleError}) {
+// Letter grade helper
+const pctToLetter = (pct) => {
+  if(pct>=93) return {letter:"A+",color:"#1a6e40",bg:"#edf9f0"};
+  if(pct>=90) return {letter:"A", color:"#1a6e40",bg:"#edf9f0"};
+  if(pct>=87) return {letter:"B+",color:"#2563a8",bg:"#eef4ff"};
+  if(pct>=83) return {letter:"B", color:"#2563a8",bg:"#eef4ff"};
+  if(pct>=80) return {letter:"B-",color:"#2563a8",bg:"#eef4ff"};
+  if(pct>=77) return {letter:"C+",color:"#7a5500",bg:"#fff8e6"};
+  if(pct>=73) return {letter:"C", color:"#7a5500",bg:"#fff8e6"};
+  if(pct>=70) return {letter:"C-",color:"#7a5500",bg:"#fff8e6"};
+  if(pct>=60) return {letter:"D", color:"#8a3a00",bg:"#fff3ec"};
+  return       {letter:"F", color:"#cc2222",bg:"#fff0f0"};
+};
+
+// Aggregate all quiz entries for this child across the whole year
+const allQuizEntries = childEntries.filter(e=>e.isQuizResult&&e.quizData);
+const bySubj = {};
+allQuizEntries.forEach(e=>{
+  if(!bySubj[e.subj]) bySubj[e.subj]={subj:e.subj,quizzes:[],totalScore:0,totalPoss:0,missed:[]};
+  bySubj[e.subj].quizzes.push(e);
+  bySubj[e.subj].totalScore+=e.quizData.score;
+  bySubj[e.subj].totalPoss+=e.quizData.total;
+  (e.quizData.missed||[]).forEach(m=>{ if(!bySubj[e.subj].missed.includes(m)) bySubj[e.subj].missed.push(m); });
+});
+const gradeRows = Object.values(bySubj).sort((a,b)=>(b.totalScore/Math.max(b.totalPoss,1))-(a.totalScore/Math.max(a.totalPoss,1)));
+const allAs = gradeRows.length>=3 && gradeRows.every(r=>(r.totalScore/Math.max(r.totalPoss,1))>=0.90);
+const weakRows = gradeRows.filter(r=>(r.totalScore/Math.max(r.totalPoss,1))<0.75);
+
+const generateStruggleReport_cb = () => generateStruggleReport(
+  weakRows, ch?.name,
+  {setLoading:setGradeStruggleLoading, setError:setGradeStruggleError, setResult:setGradeStruggle}
+);
+
+return (
+  <div>
+    {/* Header */}
+    <div style={{background:"linear-gradient(135deg,"+cp.c1+"18,"+cp.c2+"12)",borderRadius:"16px",padding:"0.9rem 1rem",marginBottom:"1rem",border:"1.5px solid "+cp.c1+"25"}}>
+      <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.88rem",marginBottom:"3px"}}>{"\uD83C\uDFC6 "+ch?.name+"\u2019s Grades"}</div>
+      <div style={{fontSize:"0.74rem",color:pal.slate,lineHeight:1.55}}>{"Based on all quiz scores this year. Use these for freebie rewards, not compliance \u2014 Florida doesn\u2019t require a report card."}</div>
+    </div>
+
+    {gradeRows.length===0&&(
+      <div style={{background:pal.linen,borderRadius:"14px",padding:"2rem 1.2rem",textAlign:"center",border:"1.5px solid "+pal.stone+"25"}}>
+        <div style={{fontSize:"2rem",marginBottom:"0.5rem"}}>{"\uD83C\uDFAF"}</div>
+        <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.88rem",marginBottom:"0.3rem"}}>{"No quiz scores yet"}</div>
+        <div style={{fontSize:"0.76rem",color:pal.slate,lineHeight:1.6}}>{"Grades appear here once kids take quizzes from the Student Portal. Tap the \uD83C\uDFAF button after logging a subject."}</div>
+      </div>
+    )}
+
+    {/* Straight A's callout */}
+    {allAs&&(
+      <div style={{background:"linear-gradient(135deg,#f5c842,#f9a825)",borderRadius:"16px",padding:"1rem 1.1rem",marginBottom:"1rem",border:"none",textAlign:"center",boxShadow:"0 4px 18px rgba(245,200,66,0.35)"}}>
+        <div style={{fontSize:"2rem",marginBottom:"4px"}}>{"\uD83C\uDF1F\uD83C\uDFC6\uD83C\uDF1F"}</div>
+        <div style={{fontWeight:"900",color:"#5a3a00",fontSize:"1rem",marginBottom:"3px"}}>{"STRAIGHT A\u2019S!"}</div>
+        <div style={{fontSize:"0.78rem",color:"#7a5500",lineHeight:1.55}}>{"Every subject is 90%+. Time to claim those freebie rewards! \uD83C\uDF54\uD83C\uDFDE\uFE0F\uD83C\uDFA8"}</div>
+      </div>
+    )}
+
+    {/* Per-subject grade cards */}
+    {gradeRows.map(r=>{
+      const pct=r.totalPoss>0?Math.round((r.totalScore/r.totalPoss)*100):0;
+      const {letter,color,bg}=pctToLetter(pct);
+      const so=[...SUBJECT_OPTIONS,...(family.customSubjects||[])].find(x=>x.label===r.subj);
+      const trend=r.quizzes.length>=2?(()=>{
+        const first=r.quizzes[r.quizzes.length-1].quizData;
+        const last=r.quizzes[0].quizData;
+        const fp=Math.round((first.score/Math.max(first.total,1))*100);
+        const lp=Math.round((last.score/Math.max(last.total,1))*100);
+        return lp-fp;
+      })():null;
+      return (
+        <div key={r.subj} style={{background:bg,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"0.5rem",border:"1.5px solid "+color+"35"}}>
+          <div style={{display:"flex",alignItems:"center",gap:"0.75rem"}}>
+            <div style={{width:"44px",height:"44px",borderRadius:"12px",background:color+"18",border:"2px solid "+color+"40",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+              <span style={{fontWeight:"900",color:color,fontSize:"1.1rem"}}>{letter}</span>
+            </div>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{display:"flex",alignItems:"center",gap:"0.4rem",marginBottom:"2px"}}>
+                <span style={{fontSize:"0.9rem"}}>{so?.icon||"\uD83D\uDCCB"}</span>
+                <span style={{fontWeight:"700",color:pal.ink,fontSize:"0.85rem"}}>{r.subj}</span>
+                {trend!==null&&(
+                  <span style={{fontSize:"0.65rem",fontWeight:"800",color:trend>0?"#2d9e5f":trend<0?"#cc4444":pal.slate}}>
+                    {trend>0?"\u2191+"+trend+"%":trend<0?"\u2193"+trend+"%":"\u2192"}
+                  </span>
+                )}
+              </div>
+              <div style={{height:"5px",borderRadius:"99px",background:pal.stone+"20",overflow:"hidden",marginBottom:"4px"}}>
+                <div style={{height:"100%",width:pct+"%",background:color,borderRadius:"99px"}}/>
+              </div>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <span style={{fontSize:"0.7rem",color:pal.slate}}>{r.quizzes.length+" quiz"+(r.quizzes.length===1?"":"zes")+" \u00b7 "+r.totalScore+"/"+r.totalPoss+" correct"}</span>
+                <span style={{fontSize:"0.78rem",fontWeight:"800",color:color}}>{pct+"%"}</span>
+              </div>
+            </div>
+          </div>
+          {r.missed.length>0&&(
+            <div style={{marginTop:"0.5rem",paddingTop:"0.5rem",borderTop:"1px solid "+color+"25",fontSize:"0.7rem",color:pal.inkM,lineHeight:1.5}}>
+              <span style={{fontWeight:"700",color:"#cc4444"}}>{"Needs review: "}</span>
+              {r.missed.slice(0,4).join(", ")+(r.missed.length>4?" \u2026":"")}
+            </div>
+          )}
+        </div>
+      );
+    })}
+
+    {/* Struggling areas AI section */}
+    {gradeRows.length>0&&(
+      <div style={{marginTop:"0.75rem"}}>
+        {gradeStruggle?(
+          <div style={{background:"#fff8e6",borderRadius:"14px",padding:"0.9rem 1rem",border:"1.5px solid #f5c84240"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.45rem"}}>
+              <span style={{fontSize:"0.7rem",fontWeight:"800",color:"#b07800",textTransform:"uppercase",letterSpacing:"0.07em"}}>{"\uD83C\uDF31 Coaching Note"}</span>
+              <button onClick={()=>setGradeStruggle(null)} style={{background:"transparent",border:"none",color:pal.stone,cursor:"pointer",fontSize:"0.8rem"}}>{"×"}</button>
+            </div>
+            <div style={{fontSize:"0.82rem",color:pal.ink,lineHeight:1.75}}>{gradeStruggle}</div>
+          </div>
+        ):gradeStruggleLoading?(
+          <div style={{background:pal.pale,borderRadius:"14px",padding:"0.85rem",border:"1.5px solid "+pal.primary+"20",textAlign:"center"}}>
+            <div style={{fontSize:"0.78rem",color:pal.primary,fontWeight:"700"}}>{"Analysing quiz results\u2026"}</div>
+          </div>
+        ):(
+          <div>
+            {gradeStruggleError==="no_key"&&<div style={{background:"#fff8ed",borderRadius:"12px",padding:"0.75rem",marginBottom:"0.5rem",fontSize:"0.76rem",color:"#7a5500",textAlign:"center",border:"1.5px solid #f5c84240"}}>{"Add an API key in Settings to unlock AI coaching notes."}</div>}
+            {gradeStruggleError==="error"&&<div style={{background:"#fff0f0",borderRadius:"12px",padding:"0.75rem",marginBottom:"0.5rem",fontSize:"0.76rem",color:"#aa3333",textAlign:"center",border:"1.5px solid #ffaaaa40"}}>{"Could not generate \u2014 check your connection."}</div>}
+            <button onClick={generateStruggleReport_cb}
+              disabled={weakRows.length===0}
+              style={{width:"100%",padding:"0.78rem",border:weakRows.length>0?"1.5px dashed #f5c842":"1.5px solid "+pal.stone+"30",borderRadius:"13px",background:weakRows.length>0?"#fffbeb":pal.linen,color:weakRows.length>0?"#b07800":pal.stone,fontWeight:"700",fontSize:"0.8rem",cursor:weakRows.length>0?"pointer":"default"}}>
+              {weakRows.length>0?"\uD83C\uDF31 Get coaching tips for struggling subjects":"All subjects 75%+ \u2014 great work!"}
+            </button>
+          </div>
+        )}
+      </div>
+    )}
+
+  </div>
+);
+        
+}
+
+
 function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], attendanceDays=0, onUpdateFamily, onOpenEOY}) {
   const [activeTab,    setActiveTab]    = React.useState("pulse");   // pulse | timeline | milestones | skills | grades
   const [selectedChild, setSelectedChild] = React.useState(
@@ -14221,7 +14540,7 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
       {/* Sub-tabs */}
       <div style={{padding:"0 1rem",marginBottom:"1rem"}}>
         <div style={{display:"flex",gap:"0.4rem"}}>
-          {[["pulse","📊 Pulse"],["timeline","📖 Timeline"],["milestones","🌟 Milestones"],["skills","✅ Skills"],["grades","🏆 Grades"]].map(([id,label])=>(
+          {[["pulse","📊 Insights"],["timeline","📖 Timeline"],["milestones","🌟 Milestones"],["skills","✅ Skills"],["grades","🏆 Grades"]].map(([id,label])=>(
             <button key={id} onClick={()=>{setActiveTab(id);setTimelineSubj(null);setArcResult(null);setArcSubj(null);}}
               style={{flex:1,padding:"0.52rem 0.3rem",border:`2px solid ${activeTab===id?pal.primary:pal.stone+"40"}`,borderRadius:"11px",background:activeTab===id?pal.pale:"transparent",color:activeTab===id?pal.primary:pal.inkM,fontWeight:activeTab===id?"800":"500",fontSize:"0.65rem",cursor:"pointer",transition:"all 0.13s"}}>
               {label}
@@ -14243,8 +14562,38 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
           const rangeSubjs = [...new Set(rangeEntries.map(e=>e.subj))];
           const rangeNotes = rangeEntries.filter(e=>e.note&&e.note.trim()).length;
 
+          // Subject bar graph
+          const subjCounts = {};
+          rangeEntries.filter(e=>e.subj&&e.subj!=="Daily Note"&&e.subj!=="Daily Check-In"&&!e.isDay).forEach(e=>{ subjCounts[e.subj]=(subjCounts[e.subj]||0)+1; });
+          const subjBars = Object.entries(subjCounts).sort((a,b)=>b[1]-a[1]).slice(0,8);
+          const maxCount = subjBars[0]?.[1]||1;
+
           return (
             <div>
+              {/* Subject activity bar graph */}
+              {subjBars.length>0&&(
+                <div style={{background:pal.linen,borderRadius:"16px",padding:"0.9rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}25`}}>
+                  <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.82rem",marginBottom:"0.75rem"}}>{"📊 Subject Activity — "+rangeLabel}</div>
+                  <div style={{display:"flex",flexDirection:"column",gap:"0.4rem"}}>
+                    {subjBars.map(([subj,count])=>{
+                      const so=[...SUBJECT_OPTIONS,...(family.customSubjects||[])].find(s=>s.label===subj);
+                      const pct=Math.round((count/maxCount)*100);
+                      return (
+                        <div key={subj}>
+                          <div style={{display:"flex",alignItems:"center",gap:"0.5rem",marginBottom:"2px"}}>
+                            <span style={{fontSize:"0.85rem",width:"20px",textAlign:"center",flexShrink:0}}>{so?.icon||"📋"}</span>
+                            <span style={{fontSize:"0.74rem",fontWeight:"600",color:pal.inkM,flex:1,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{subj}</span>
+                            <span style={{fontSize:"0.7rem",fontWeight:"800",color:pal.primary,flexShrink:0}}>{count}</span>
+                          </div>
+                          <div style={{height:"6px",background:pal.parchm,borderRadius:"99px",overflow:"hidden"}}>
+                            <div style={{height:"100%",width:pct+"%",background:`linear-gradient(90deg,${cp.c1},${cp.c2})`,borderRadius:"99px",transition:"width 0.4s ease"}}/>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
               {/* Smart nudge */}
               {showNudge&&(
                 <div style={{background:"linear-gradient(135deg,"+pal.primary+"18,"+pal.accent+"12)",borderRadius:"16px",padding:"0.9rem 1rem",marginBottom:"1rem",border:"2px solid "+pal.primary+"30"}}>
@@ -14679,6 +15028,10 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
 
             {/* ====== SKILLS TAB ====== */}
         {activeTab==="skills"&&<SkillsTab pal={pal} ch={ch} family={family}/>}
+        {activeTab==="grades"&&<GradesTab pal={pal} ch={ch} family={family} childEntries={childEntries}
+          cp={cp} gradeStruggle={gradeStruggle} setGradeStruggle={setGradeStruggle}
+          gradeStruggleLoading={gradeStruggleLoading} setGradeStruggleLoading={setGradeStruggleLoading}
+          gradeStruggleError={gradeStruggleError} setGradeStruggleError={setGradeStruggleError}/>}
 
       </div>
     </div>
@@ -15633,145 +15986,7 @@ function DailyLogSection({pal,cp,ch,childEntries,subjEntries}){
           );
         })()}
 
-        {/* ====== GRADES TAB ====== */}
-        {(()=>{
-          // Letter grade helper
-          const pctToLetter = (pct) => {
-            if(pct>=93) return {letter:"A+",color:"#1a6e40",bg:"#edf9f0"};
-            if(pct>=90) return {letter:"A", color:"#1a6e40",bg:"#edf9f0"};
-            if(pct>=87) return {letter:"B+",color:"#2563a8",bg:"#eef4ff"};
-            if(pct>=83) return {letter:"B", color:"#2563a8",bg:"#eef4ff"};
-            if(pct>=80) return {letter:"B-",color:"#2563a8",bg:"#eef4ff"};
-            if(pct>=77) return {letter:"C+",color:"#7a5500",bg:"#fff8e6"};
-            if(pct>=73) return {letter:"C", color:"#7a5500",bg:"#fff8e6"};
-            if(pct>=70) return {letter:"C-",color:"#7a5500",bg:"#fff8e6"};
-            if(pct>=60) return {letter:"D", color:"#8a3a00",bg:"#fff3ec"};
-            return       {letter:"F", color:"#cc2222",bg:"#fff0f0"};
-          };
 
-          // Aggregate all quiz entries for this child across the whole year
-          const allQuizEntries = childEntries.filter(e=>e.isQuizResult&&e.quizData);
-          const bySubj = {};
-          allQuizEntries.forEach(e=>{
-            if(!bySubj[e.subj]) bySubj[e.subj]={subj:e.subj,quizzes:[],totalScore:0,totalPoss:0,missed:[]};
-            bySubj[e.subj].quizzes.push(e);
-            bySubj[e.subj].totalScore+=e.quizData.score;
-            bySubj[e.subj].totalPoss+=e.quizData.total;
-            (e.quizData.missed||[]).forEach(m=>{ if(!bySubj[e.subj].missed.includes(m)) bySubj[e.subj].missed.push(m); });
-          });
-          const gradeRows = Object.values(bySubj).sort((a,b)=>(b.totalScore/Math.max(b.totalPoss,1))-(a.totalScore/Math.max(a.totalPoss,1)));
-          const allAs = gradeRows.length>=3 && gradeRows.every(r=>(r.totalScore/Math.max(r.totalPoss,1))>=0.90);
-          const weakRows = gradeRows.filter(r=>(r.totalScore/Math.max(r.totalPoss,1))<0.75);
-
-          const generateStruggleReport_cb = () => generateStruggleReport(
-            weakRows, ch?.name,
-            {setLoading:setGradeStruggleLoading, setError:setGradeStruggleError, setResult:setGradeStruggle}
-          );
-
-          return (
-            <div>
-              {/* Header */}
-              <div style={{background:"linear-gradient(135deg,"+cp.c1+"18,"+cp.c2+"12)",borderRadius:"16px",padding:"0.9rem 1rem",marginBottom:"1rem",border:"1.5px solid "+cp.c1+"25"}}>
-                <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.88rem",marginBottom:"3px"}}>{"\uD83C\uDFC6 "+ch?.name+"\u2019s Grades"}</div>
-                <div style={{fontSize:"0.74rem",color:pal.slate,lineHeight:1.55}}>{"Based on all quiz scores this year. Use these for freebie rewards, not compliance \u2014 Florida doesn\u2019t require a report card."}</div>
-              </div>
-
-              {gradeRows.length===0&&(
-                <div style={{background:pal.linen,borderRadius:"14px",padding:"2rem 1.2rem",textAlign:"center",border:"1.5px solid "+pal.stone+"25"}}>
-                  <div style={{fontSize:"2rem",marginBottom:"0.5rem"}}>{"\uD83C\uDFAF"}</div>
-                  <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.88rem",marginBottom:"0.3rem"}}>{"No quiz scores yet"}</div>
-                  <div style={{fontSize:"0.76rem",color:pal.slate,lineHeight:1.6}}>{"Grades appear here once kids take quizzes from the Student Portal. Tap the \uD83C\uDFAF button after logging a subject."}</div>
-                </div>
-              )}
-
-              {/* Straight A's callout */}
-              {allAs&&(
-                <div style={{background:"linear-gradient(135deg,#f5c842,#f9a825)",borderRadius:"16px",padding:"1rem 1.1rem",marginBottom:"1rem",border:"none",textAlign:"center",boxShadow:"0 4px 18px rgba(245,200,66,0.35)"}}>
-                  <div style={{fontSize:"2rem",marginBottom:"4px"}}>{"\uD83C\uDF1F\uD83C\uDFC6\uD83C\uDF1F"}</div>
-                  <div style={{fontWeight:"900",color:"#5a3a00",fontSize:"1rem",marginBottom:"3px"}}>{"STRAIGHT A\u2019S!"}</div>
-                  <div style={{fontSize:"0.78rem",color:"#7a5500",lineHeight:1.55}}>{"Every subject is 90%+. Time to claim those freebie rewards! \uD83C\uDF54\uD83C\uDFDE\uFE0F\uD83C\uDFA8"}</div>
-                </div>
-              )}
-
-              {/* Per-subject grade cards */}
-              {gradeRows.map(r=>{
-                const pct=r.totalPoss>0?Math.round((r.totalScore/r.totalPoss)*100):0;
-                const {letter,color,bg}=pctToLetter(pct);
-                const so=[...SUBJECT_OPTIONS,...(family.customSubjects||[])].find(x=>x.label===r.subj);
-                const trend=r.quizzes.length>=2?(()=>{
-                  const first=r.quizzes[r.quizzes.length-1].quizData;
-                  const last=r.quizzes[0].quizData;
-                  const fp=Math.round((first.score/Math.max(first.total,1))*100);
-                  const lp=Math.round((last.score/Math.max(last.total,1))*100);
-                  return lp-fp;
-                })():null;
-                return (
-                  <div key={r.subj} style={{background:bg,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"0.5rem",border:"1.5px solid "+color+"35"}}>
-                    <div style={{display:"flex",alignItems:"center",gap:"0.75rem"}}>
-                      <div style={{width:"44px",height:"44px",borderRadius:"12px",background:color+"18",border:"2px solid "+color+"40",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                        <span style={{fontWeight:"900",color:color,fontSize:"1.1rem"}}>{letter}</span>
-                      </div>
-                      <div style={{flex:1,minWidth:0}}>
-                        <div style={{display:"flex",alignItems:"center",gap:"0.4rem",marginBottom:"2px"}}>
-                          <span style={{fontSize:"0.9rem"}}>{so?.icon||"\uD83D\uDCCB"}</span>
-                          <span style={{fontWeight:"700",color:pal.ink,fontSize:"0.85rem"}}>{r.subj}</span>
-                          {trend!==null&&(
-                            <span style={{fontSize:"0.65rem",fontWeight:"800",color:trend>0?"#2d9e5f":trend<0?"#cc4444":pal.slate}}>
-                              {trend>0?"\u2191+"+trend+"%":trend<0?"\u2193"+trend+"%":"\u2192"}
-                            </span>
-                          )}
-                        </div>
-                        <div style={{height:"5px",borderRadius:"99px",background:pal.stone+"20",overflow:"hidden",marginBottom:"4px"}}>
-                          <div style={{height:"100%",width:pct+"%",background:color,borderRadius:"99px"}}/>
-                        </div>
-                        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                          <span style={{fontSize:"0.7rem",color:pal.slate}}>{r.quizzes.length+" quiz"+(r.quizzes.length===1?"":"zes")+" \u00b7 "+r.totalScore+"/"+r.totalPoss+" correct"}</span>
-                          <span style={{fontSize:"0.78rem",fontWeight:"800",color:color}}>{pct+"%"}</span>
-                        </div>
-                      </div>
-                    </div>
-                    {r.missed.length>0&&(
-                      <div style={{marginTop:"0.5rem",paddingTop:"0.5rem",borderTop:"1px solid "+color+"25",fontSize:"0.7rem",color:pal.inkM,lineHeight:1.5}}>
-                        <span style={{fontWeight:"700",color:"#cc4444"}}>{"Needs review: "}</span>
-                        {r.missed.slice(0,4).join(", ")+(r.missed.length>4?" \u2026":"")}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-
-              {/* Struggling areas AI section */}
-              {gradeRows.length>0&&(
-                <div style={{marginTop:"0.75rem"}}>
-                  {gradeStruggle?(
-                    <div style={{background:"#fff8e6",borderRadius:"14px",padding:"0.9rem 1rem",border:"1.5px solid #f5c84240"}}>
-                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.45rem"}}>
-                        <span style={{fontSize:"0.7rem",fontWeight:"800",color:"#b07800",textTransform:"uppercase",letterSpacing:"0.07em"}}>{"\uD83C\uDF31 Coaching Note"}</span>
-                        <button onClick={()=>setGradeStruggle(null)} style={{background:"transparent",border:"none",color:pal.stone,cursor:"pointer",fontSize:"0.8rem"}}>{"×"}</button>
-                      </div>
-                      <div style={{fontSize:"0.82rem",color:pal.ink,lineHeight:1.75}}>{gradeStruggle}</div>
-                    </div>
-                  ):gradeStruggleLoading?(
-                    <div style={{background:pal.pale,borderRadius:"14px",padding:"0.85rem",border:"1.5px solid "+pal.primary+"20",textAlign:"center"}}>
-                      <div style={{fontSize:"0.78rem",color:pal.primary,fontWeight:"700"}}>{"Analysing quiz results\u2026"}</div>
-                    </div>
-                  ):(
-                    <div>
-                      {gradeStruggleError==="no_key"&&<div style={{background:"#fff8ed",borderRadius:"12px",padding:"0.75rem",marginBottom:"0.5rem",fontSize:"0.76rem",color:"#7a5500",textAlign:"center",border:"1.5px solid #f5c84240"}}>{"Add an API key in Settings to unlock AI coaching notes."}</div>}
-                      {gradeStruggleError==="error"&&<div style={{background:"#fff0f0",borderRadius:"12px",padding:"0.75rem",marginBottom:"0.5rem",fontSize:"0.76rem",color:"#aa3333",textAlign:"center",border:"1.5px solid #ffaaaa40"}}>{"Could not generate \u2014 check your connection."}</div>}
-                      <button onClick={generateStruggleReport_cb}
-                        disabled={weakRows.length===0}
-                        style={{width:"100%",padding:"0.78rem",border:weakRows.length>0?"1.5px dashed #f5c842":"1.5px solid "+pal.stone+"30",borderRadius:"13px",background:weakRows.length>0?"#fffbeb":pal.linen,color:weakRows.length>0?"#b07800":pal.stone,fontWeight:"700",fontSize:"0.8rem",cursor:weakRows.length>0?"pointer":"default"}}>
-                        {weakRows.length>0?"\uD83C\uDF31 Get coaching tips for struggling subjects":"All subjects 75%+ \u2014 great work!"}
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-
-            </div>
-          );
-        })()}
 
     </div>
   );
@@ -15877,13 +16092,54 @@ function NarrativeEditor({pal,ch,family,bySubject,attendanceDays,schoolName,cp,c
 /* =======================================
    GOALS SCREEN
 ======================================= */
-function GoalsScreen({pal,family,portfolioEntries=[],onUpdateFamily,onAddEntry}){
+function GoalsScreen({pal,family,portfolioEntries=[],onUpdateFamily,onAddEntry,onTabChange}){
   const [editing,     setEditing]     = useState(false);
   const [draftGoals,  setDraftGoals]  = useState(family.goals||[]);
   const [customInput, setCustomInput] = useState("");
+  const [aiOpen,      setAiOpen]      = useState(false);
+  const [aiLoading,   setAiLoading]   = useState(false);
+  const [aiSuggestions,setAiSuggs]   = useState([]);
+  const [aiError,     setAiError]     = useState("");
 
   const allGoalObjs  = [...GOALS,...(family.customGoals||[])];
   const activeGoals  = (family.goals||[]).map(id=>allGoalObjs.find(x=>x.id===id)).filter(Boolean);
+
+  const fetchGoalSuggs = async () => {
+    setAiOpen(true); setAiLoading(true); setAiError(""); setAiSuggs([]);
+    try {
+      const childNames = (family.children||[]).map(c=>c.name+" ("+c.grade+")").join(", ");
+      const curriculum = curriculumContext(family);
+      const currentGoals = activeGoals.map(g=>g.label).join(", ")||"none set yet";
+      const prompt = `You are a warm, encouraging homeschool coach. A family is setting learning goals for their homeschool year.
+
+Family details:
+- Children: ${childNames||"not specified"}
+- Curriculum approach: ${curriculum}
+- Current goals: ${currentGoals}
+- State: ${family.state||"not specified"}
+
+Suggest 6 meaningful, specific learning goals for this family. Mix academic, life skills, and character goals. Keep each goal concise (under 10 words). Make them inspiring and achievable.
+
+Respond ONLY with a JSON array of 6 goal strings. No explanation, no markdown, no keys. Example: ["Master multiplication tables","Read 20 books this year","Learn basic cooking skills"]`;
+      const raw = await callClaude(prompt);
+      const clean = raw.replace(/\`\`\`json|\`\`\`/g,"").trim();
+      const arr = JSON.parse(clean);
+      setAiSuggs(Array.isArray(arr)?arr.slice(0,6):[]);
+    } catch(e) {
+      setAiError(e.message==="NO_KEY"?"Add your API key in Settings \u2192 AI to use this feature.":"Couldn't generate suggestions. Try again.");
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const addAiGoal = (label) => {
+    const existing = family.customGoals||[];
+    if(existing.find(g=>g.label===label)) return;
+    const newGoal = {id:"ai_"+Date.now()+"_"+Math.random().toString(36).slice(2,6), label, icon:"\u2728", isCustom:true};
+    const updatedCustom = [...existing, newGoal];
+    const updatedGoalIds = [...(family.goals||[]), newGoal.id];
+    onUpdateFamily&&onUpdateFamily({customGoals:updatedCustom, goals:updatedGoalIds});
+  };
   const subjEntries  = portfolioEntries.filter(e=>!e.isDay&&e.subj!=="Daily Notes");
 
   const [quickNoteId,  setQuickNoteId]  = useState(null); // goal id currently open
@@ -15991,6 +16247,49 @@ function GoalsScreen({pal,family,portfolioEntries=[],onUpdateFamily,onAddEntry})
     <div style={{animation:"fadeUp 0.22s ease"}}>
       <ScreenHdr pal={pal} title="Goals" sub="Your family learning priorities" icon="🌟"/>
       <FirstVisitTip pal={pal} screen="goals"/>
+      {/* AI Goal Suggestions button */}
+      <div style={{padding:"0 1rem 0.75rem"}}>
+        <button onClick={aiOpen?()=>setAiOpen(false):fetchGoalSuggs}
+          style={{width:"100%",padding:"0.7rem 1rem",border:`1.5px solid ${pal.primary}40`,borderRadius:"14px",background:aiOpen?pal.pale:"linear-gradient(135deg,"+pal.primary+"12,"+pal.accent+"08)",cursor:"pointer",display:"flex",alignItems:"center",gap:"0.6rem",transition:"all 0.15s"}}>
+          <span style={{fontSize:"1.2rem"}}>{"✨"}</span>
+          <div style={{flex:1,textAlign:"left"}}>
+            <div style={{fontWeight:"800",color:pal.primary,fontSize:"0.85rem"}}>{"AI Goal Suggestions"}</div>
+            <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"1px"}}>{"Get personalized goal ideas for your family"}</div>
+          </div>
+          <span style={{fontSize:"0.8rem",color:pal.primary,fontWeight:"700"}}>{aiOpen?"‧ Close":"Try it →"}</span>
+        </button>
+        {aiOpen&&(
+          <div style={{background:pal.linen,borderRadius:"0 0 14px 14px",padding:"0.9rem 1rem",border:`1px solid ${pal.primary}30`,borderTop:"none",marginTop:"-4px"}}>
+            {aiLoading&&(
+              <div style={{textAlign:"center",padding:"1rem 0"}}>
+                <div style={{fontSize:"1.5rem",animation:"spin 1s linear infinite",display:"inline-block"}}>{"✨"}</div>
+                <div style={{fontSize:"0.76rem",color:pal.slate,marginTop:"0.4rem"}}>{"Thinking about your family..."}</div>
+              </div>
+            )}
+            {aiError&&(
+              <div style={{fontSize:"0.76rem",color:"#c0392b",background:"#fff0f0",padding:"0.6rem 0.75rem",borderRadius:"10px"}}>{aiError}</div>
+            )}
+            {!aiLoading&&aiSuggestions.length>0&&(
+              <div>
+                <div style={{fontSize:"0.7rem",fontWeight:"700",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.05em",marginBottom:"0.6rem"}}>{"Tap any to add to your goals:"}</div>
+                <div style={{display:"flex",flexDirection:"column",gap:"0.4rem"}}>
+                  {aiSuggestions.map((s,i)=>{
+                    const alreadyAdded=(family.goals||[]).some(id=>{const g=allGoalObjs.find(x=>x.id===id);return g&&g.label===s;});
+                    return (
+                      <button key={i} onClick={()=>!alreadyAdded&&addAiGoal(s)}
+                        style={{display:"flex",alignItems:"center",gap:"0.6rem",padding:"0.6rem 0.75rem",borderRadius:"11px",border:`1.5px solid ${alreadyAdded?pal.good:pal.primary}40`,background:alreadyAdded?pal.goodBg:pal.pale,cursor:alreadyAdded?"default":"pointer",textAlign:"left",transition:"all 0.13s"}}>
+                        <span style={{fontSize:"0.9rem",flexShrink:0}}>{alreadyAdded?"✅":"➕"}</span>
+                        <span style={{flex:1,fontSize:"0.82rem",fontWeight:"600",color:alreadyAdded?pal.good:pal.inkM}}>{s}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <button onClick={fetchGoalSuggs} style={{width:"100%",marginTop:"0.65rem",padding:"0.5rem",border:`1px solid ${pal.stone}`,borderRadius:"10px",background:"transparent",color:pal.slate,fontSize:"0.72rem",fontWeight:"600",cursor:"pointer"}}>{"🔄 Generate new suggestions"}</button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
       <div style={{padding:"0 1rem"}}>
 
         {(family.goals||[]).length===0&&!editing?(
@@ -16095,6 +16394,14 @@ function GoalsScreen({pal,family,portfolioEntries=[],onUpdateFamily,onAddEntry})
                             <div style={{fontSize:"0.74rem",color:tc.text,lineHeight:1.55}}>{warmth.msg}</div>
                             <div style={{fontSize:"0.65rem",color:pal.primary,fontWeight:"700",marginTop:"0.25rem"}}>{"+ Add a note \u2192"}</div>
                           </div>
+                        </button>
+                      )}
+                      {/* Progress link */}
+                      {total>0&&onTabChange&&(
+                        <button onClick={()=>onTabChange("progress")}
+                          style={{width:"100%",marginTop:"0.5rem",padding:"0.42rem",border:`1.5px solid ${pal.primary}30`,borderRadius:"10px",background:pal.pale,color:pal.primary,fontSize:"0.72rem",fontWeight:"700",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.4rem"}}>
+                          <span>{"📈"}</span>
+                          <span>{"View in Progress \u2192"}</span>
                         </button>
                       )}
                     </div>
