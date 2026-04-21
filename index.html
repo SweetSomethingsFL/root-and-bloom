@@ -2180,130 +2180,22 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
   // ── Ask Bloom ──────────────────────────────────────────────────────────────
   const sendToBloom = async (question) => {
     if(!question.trim() || bloomLoading) return;
-    const userMsg = {role:"user", text:question.trim()};
-    setBloomMsgs(m=>[...m, userMsg]);
+    setBloomMsgs(m=>[...m, {role:"user", text:question.trim()}]);
     setBloomInput("");
     setBloomLoading(true);
-
     try {
-      const apiKey = (()=>{ try{ return localStorage.getItem("rootbloom_apikey")||""; }catch(e){return "";} })();
-      if(!apiKey) {
-        setBloomMsgs(m=>[...m, {role:"bloom", text:"I need an API key to work! Ask your parent to add one in Settings → AI. 🌱"}]);
-        setBloomLoading(false);
-        return;
-      }
-
-      // Grade level for tone + image style
-      const gradeRaw = child.grade||"3rd";
-      const gradeN   = parseInt((gradeRaw.match(/\d+/)||["3"])[0])||3;
-      const tone     = gradeN<=2 ? "very simple words, short sentences, like talking to a 6-year-old" :
-                       gradeN<=5 ? "friendly and clear, like talking to a curious 9-year-old" :
-                       gradeN<=8 ? "conversational and engaging, like talking to a 12-year-old" :
-                                   "thoughtful and detailed, like talking to a 16-year-old";
-      const imgStyle = gradeN<=4 ? "colorful cartoon illustration or friendly diagram" :
-                       gradeN<=8 ? "labeled educational diagram or real photograph" :
-                                   "real photograph or detailed scientific diagram";
-
-      // Subject list
-      const allSubjOpts = [...(SUBJECT_OPTIONS||[]),...(family.customSubjects||[])];
-      const subjLabels  = (family.subjects||[]).map(id=>allSubjOpts.find(s=>s.id===id)).filter(Boolean).map(s=>s.label);
-      const subjList    = subjLabels.join(", ")||"general subjects";
-      const curriculum  = curriculumContext(family);
-
-      // Safety system prompt
-      const systemPrompt = `You are Bloom, a warm and encouraging homeschool tutor for ${child.name}, a ${gradeRaw} student. Your ONLY job is to help ${child.name} learn about their school subjects.
-
-ABOUT ${child.name.toUpperCase()}:
-- Grade: ${gradeRaw}
-- Subjects: ${subjList}
-- Learning approach: ${curriculum}
-- Hint mode: ${bloomHintMode ? "ON — give hints and guiding questions, never the full answer" : "OFF — explain fully and clearly"}
-
-TONE: ${tone}. Always be warm, enthusiastic, and encouraging. Use simple analogies. Celebrate curiosity.
-
-SAFETY RULES — follow these absolutely:
-1. Only answer questions about school subjects, learning, science, history, math, reading, art, music, PE, and nature
-2. If asked about anything else (social media, games, personal info, politics, violence, etc.) say warmly: "That's outside my garden! I'm best at helping with ${subjList}. What would you like to learn? 🌱"
-3. Never ask for or share personal information
-4. Never provide links or mention external websites
-5. Keep all content age-appropriate for a ${gradeRaw} student
-6. Never do someone's homework for them — in hint mode, guide with questions
-
-IMAGE GUIDANCE: For almost every explanation, decide if a visual would help. If yes, end your response with exactly this line:
-IMAGE_REQUEST: [a specific description of a helpful ${imgStyle} showing: your topic]
-
-Keep IMAGE_REQUEST on its own line at the very end. Only include it when an image would genuinely help understanding. Good candidates: science concepts, animals, geography, math diagrams, historical events, art techniques.`;
-
-      // Build conversation history (last 8 messages for context)
       const history = bloomMsgs.slice(-8).map(m=>({
-        role: m.role==="user" ? "user" : "assistant",
-        content: m.role==="user" ? m.text : m.text
+        role: m.role==="user"?"user":"assistant", content:m.text
       }));
-      history.push({role:"user", content:question.trim()});
-
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json",
-          "x-api-key":apiKey,
-          "anthropic-version":"2023-06-01",
-          "anthropic-dangerous-direct-browser-access":"true"
-        },
-        body:JSON.stringify({
-          model:"claude-sonnet-4-6",
-          max_tokens:1000,
-          system:systemPrompt,
-          messages:history
-        })
-      });
-      const data = await res.json();
-      if(data.error) throw new Error(data.error.message);
-
-      let rawText = data.content?.map(b=>b.text||"").join("")||"";
-
-      // Extract image request if present
-      let imgUrl = null;
-      let imgAlt = null;
-      const imgMatch = rawText.match(/IMAGE_REQUEST:\s*(.+)$/m);
-      if(imgMatch) {
-        rawText = rawText.replace(/IMAGE_REQUEST:\s*.+$/m, "").trim();
-        const imgQuery = imgMatch[1].trim();
-        imgAlt = imgQuery;
-        // Search for the image
-        try {
-          const searchRes = await fetch("https://api.anthropic.com/v1/messages", {
-            method:"POST",
-            headers:{
-              "Content-Type":"application/json",
-              "x-api-key":apiKey,
-              "anthropic-version":"2023-06-01",
-              "anthropic-dangerous-direct-browser-access":"true"
-            },
-            body:JSON.stringify({
-              model:"claude-sonnet-4-6",
-              max_tokens:200,
-              tools:[{type:"web_search_20250305",name:"web_search"}],
-              messages:[{role:"user",content:`Find a good educational image for a ${gradeRaw} student: ${imgQuery}. Return ONLY the direct image URL (ending in .jpg .png .gif .webp .svg). No explanation.`}]
-            })
-          });
-          const searchData = await searchRes.json();
-          const searchText = searchData.content?.map(b=>b.text||"").join("")||"";
-          const urlMatch = searchText.match(/https?:\/\/[^\s"'<>]+\.(?:jpg|jpeg|png|gif|webp|svg)[^\s"'<>]*/i);
-          if(urlMatch) imgUrl = urlMatch[0];
-        } catch(e) {
-          // Image search failed - no image, text only
-        }
-      }
-
-      setBloomMsgs(m=>[...m, {role:"bloom", text:rawText, imgUrl, imgAlt}]);
+      const result = await bloomChat({question, history, child, family, hintMode:bloomHintMode});
+      setBloomMsgs(m=>[...m, {role:"bloom", text:result.text, imgUrl:result.imgUrl, imgAlt:result.imgAlt}]);
     } catch(e) {
-      const msg = e.message==="NO_KEY" ? "Ask your parent to add an API key in Settings → AI to activate me! 🌱" :
-                  e.message?.includes("rate") ? "I need a little rest! Try again in a moment. 🌿" :
-                  "Hmm, something went wrong. Try asking again! 🌱";
+      const msg = e.message==="NO_KEY"
+        ? "Ask your parent to add an API key in Settings \u2192 AI to activate me! 🌱"
+        : e.message?.includes("rate") ? "I need a little rest! Try again in a moment. 🌿"
+        : "Hmm, something went wrong. Try asking again! 🌱";
       setBloomMsgs(m=>[...m, {role:"bloom", text:msg}]);
-    } finally {
-      setBloomLoading(false);
-    }
+    } finally { setBloomLoading(false); }
   };
 
   const STABS = [
@@ -5427,6 +5319,14 @@ function OnbGoals({ pal, data, upd, onNext }) {
 function OnbExtras({ pal, data, upd, onNext }) {
   const [customExtra, setCustomExtra] = React.useState("");
   const toggleExtra = v => upd("extracurriculars",data.extracurriculars.includes(v)?data.extracurriculars.filter(e=>e!==v):[...data.extracurriculars,v]);
+  // Day picker for each selected extra
+  const extraDays = data.extraDays||{}; // {activityName: ["Monday","Wednesday"]}
+  const toggleExtraDay = (activity, day) => {
+    const cur = extraDays[activity]||[];
+    const next = cur.includes(day) ? cur.filter(d=>d!==day) : [...cur, day];
+    upd("extraDays", {...extraDays, [activity]: next});
+  };
+  const DAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
   const addCustomExtra = () => {
     const val = customExtra.trim();
     if(!val) return;
@@ -5439,14 +5339,6 @@ function OnbExtras({ pal, data, upd, onNext }) {
   return (
     <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
       <StepHdr pal={pal} icon="🌿" title="Life & Extras" sub="A few last things to personalize your app." />
-      <Lbl pal={pal}>Co-op frequency</Lbl>
-      <div style={{display:"flex",flexDirection:"column",gap:"0.4rem",marginBottom:"1rem"}}>
-        {COOP_FREQ.map(c=>(
-          <button key={c} onClick={()=>upd("coopFreq",c)} style={{padding:"0.65rem 1rem",border:`2px solid ${data.coopFreq===c?pal.primary:pal.stone+"50"}`,borderRadius:"12px",background:data.coopFreq===c?pal.pale:"transparent",cursor:"pointer",textAlign:"left",fontWeight:data.coopFreq===c?"700":"400",color:data.coopFreq===c?pal.primary:pal.inkM,fontSize:"0.84rem",transition:"all 0.13s"}}>
-            {c}
-          </button>
-        ))}
-      </div>
       <Lbl pal={pal}>Extracurriculars <span style={{fontWeight:"400",color:pal.slate}}>(pick all that apply)</span></Lbl>
       <div style={{display:"flex",flexWrap:"wrap",gap:"0.4rem",marginBottom:"0.6rem"}}>
         {allExtras.map(e=>(
@@ -5457,6 +5349,31 @@ function OnbExtras({ pal, data, upd, onNext }) {
           </button>
         ))}
       </div>
+      {/* Day picker for selected extras */}
+      {data.extracurriculars.filter(e=>e!=="None right now").length>0&&(
+        <div style={{background:pal.pale,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.primary}22`}}>
+          <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.82rem",marginBottom:"0.55rem"}}>{"Which days do these happen?"}</div>
+          <div style={{fontSize:"0.7rem",color:pal.slate,marginBottom:"0.65rem"}}>{"Tap the days for each activity so we can show them on your schedule."}</div>
+          <div style={{display:"flex",flexDirection:"column",gap:"0.65rem"}}>
+            {data.extracurriculars.filter(e=>e!=="None right now").map(activity=>(
+              <div key={activity}>
+                <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem",marginBottom:"0.3rem"}}>{activity}</div>
+                <div style={{display:"flex",gap:"0.3rem",flexWrap:"wrap"}}>
+                  {DAYS.map(day=>{
+                    const sel=(extraDays[activity]||[]).includes(day);
+                    return (
+                      <button key={day} onClick={()=>toggleExtraDay(activity,day)}
+                        style={{padding:"0.3rem 0.6rem",borderRadius:"20px",border:`2px solid ${sel?pal.primary:pal.stone+"50"}`,background:sel?pal.pale:"transparent",cursor:"pointer",fontSize:"0.74rem",fontWeight:sel?"800":"400",color:sel?pal.primary:pal.inkM,transition:"all 0.12s"}}>
+                        {day}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       {/* Custom elective input */}
       <div style={{display:"flex",gap:"0.4rem",marginBottom:"1rem"}}>
         <input value={customExtra} onChange={e=>setCustomExtra(e.target.value)}
@@ -8271,12 +8188,10 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
                   if(!apiKey){alert("Add your API key in Settings → AI to get activity ideas.");return;}
                   const win=window.open("","_blank","width=480,height=580");
                   if(!win)return;
-                  win.document.write("<div style='font-family:Georgia,serif;padding:1.5rem'><h3>✨ Finding activity ideas for "+subj+"...</h3></div>");
-                  fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:600,messages:[{role:"user",content:"Suggest 3 quick, fun, hands-on activities for a "+grade+" student to re-engage with "+subj+". Each activity should take 15-30 minutes. Include a fun name, what you need, and the steps. Keep it practical and exciting for a child."}]})})
-                    .then(r=>r.json())
-                    .then(d=>{ const t=d.content?.map(b=>b.text||"").join("")||"Try again."; win.document.body.innerHTML="<div style='font-family:Georgia,serif;padding:1.5rem;line-height:1.8'>"+t.replace(/\n/g,"<br>")+"</div>"; })
+                  win.document.write("<div style='font-family:Georgia,serif;padding:1.5rem'><h3>✨ Finding ideas for "+subj+"...</h3></div>");
+                  getGapActivityIdeas({subjectLabel:subj, child:ch, family})
+                    .then(t=>{ win.document.body.innerHTML="<div style='font-family:Georgia,serif;padding:1.5rem;line-height:1.8'>"+t.replace(/\n/g,"<br>")+"</div>"; })
                     .catch(()=>{ win.document.body.innerHTML="<p style='padding:1rem'>Error. Try again.</p>"; });
-                }}
                 style={{padding:"0.32rem 0.7rem",borderRadius:"20px",border:"none",background:"#2d6a3f",color:"#fff",fontWeight:"700",fontSize:"0.7rem",cursor:"pointer",flexShrink:0}}>
                 {"✨ Activity idea"}
               </button>
@@ -10035,28 +9950,21 @@ function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab, portf
         {/* ===== CURRICULUM ADVISOR TAB ===== */}
         {learnTab==="advisor"&&(
           <div style={{display:"flex",flexDirection:"column",height:"calc(100vh - 160px)"}}>
-            {/* Header */}
             <div style={{background:pal.pale,borderRadius:"16px",padding:"0.85rem 1rem",marginBottom:"0.75rem",border:`1.5px solid ${pal.primary}25`,flexShrink:0}}>
               <div style={{fontWeight:"800",color:pal.primary,fontSize:"0.88rem",marginBottom:"2px"}}>{"✨ Curriculum Advisor"}</div>
-              <div style={{fontSize:"0.72rem",color:pal.slate,lineHeight:1.5}}>{"Ask me anything about homeschooling, teaching strategies, curriculum choices, or how to explain a tricky concept. I know your family's approach and your children's grades."}</div>
+              <div style={{fontSize:"0.72rem",color:pal.slate,lineHeight:1.5}}>{"Ask me anything about homeschooling, teaching strategies, or how to explain a tricky concept. I know your family's approach."}</div>
             </div>
-            {/* Starter prompts */}
             {advMsgs.length===0&&(
               <div style={{display:"flex",flexDirection:"column",gap:"0.4rem",marginBottom:"0.75rem",flexShrink:0}}>
                 {["📖 How do I teach long division to a hands-on learner?","🔬 What are fun science experiments we can do at home?","🌍 How do I make history come alive for my kids?","📝 How do I structure our school day for multiple grade levels?"].map((q,i)=>(
                   <button key={i} onClick={()=>{
                       const question = q.slice(2).trim();
-                      const apiKey=(()=>{try{return localStorage.getItem("rootbloom_apikey")||"";}catch(e){return "";}})();
-                      if(!apiKey){setAdvMsgs([{role:"advisor",text:"Add your API key in Settings → AI to use this feature."}]);return;}
-                      setAdvMsgs([{role:"user",text:question}]);
-                      setAdvLoading(true);
-                      const childInfo=(family.children||[]).map(c=>c.name+" ("+c.grade+")").join(", ");
-                      const curriculum=curriculumContext(family);
-                      const system="You are a warm, experienced homeschool curriculum advisor. You know this family well:\n- Children: "+childInfo+"\n- Approach: "+curriculum+"\n- State: "+(family.state||"unknown")+"\nGive practical, specific advice. Be warm and encouraging. Keep responses concise and actionable.";
-                      fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:700,system:system,messages:[{role:"user",content:question}]})})
-                        .then(r=>r.json())
-                        .then(d=>{setAdvMsgs(m=>[...m,{role:"advisor",text:d.content?.map(b=>b.text||"").join("")||"Try again."}]);setAdvLoading(false);})
-                        .catch(()=>{setAdvMsgs(m=>[...m,{role:"advisor",text:"Something went wrong. Try again."}]);setAdvLoading(false);});
+                      setAdvInput("");
+                                            const newMsgs=[{role:"user",text:question}];
+                      setAdvMsgs(newMsgs); setAdvLoading(true);
+                      getCurriculumAdvice({messages:[{role:"user",content:question}],family})
+                        .then(t=>{setAdvMsgs(m=>[...m,{role:"advisor",text:t}]);setAdvLoading(false);})
+                        .catch(e=>{setAdvMsgs(m=>[...m,{role:"advisor",text:e.message==="NO_KEY"?"Add your API key in Settings → AI.":"Something went wrong."}]);setAdvLoading(false);});
                     }}
                     style={{padding:"0.55rem 0.85rem",borderRadius:"12px",border:`1.5px solid ${pal.primary}30`,background:"#fff",color:pal.inkM,fontSize:"0.78rem",fontWeight:"600",cursor:"pointer",textAlign:"left"}}>
                     {q}
@@ -10064,88 +9972,46 @@ function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab, portf
                 ))}
               </div>
             )}
-            {/* Messages */}
             <div style={{flex:1,overflowY:"auto",display:"flex",flexDirection:"column",gap:"0.65rem",marginBottom:"0.65rem"}}>
               {advMsgs.map((msg,i)=>(
                 <div key={i} style={{display:"flex",gap:"0.5rem",alignItems:"flex-start",flexDirection:msg.role==="user"?"row-reverse":"row"}}>
-                  {msg.role==="advisor"&&(
-                    <div style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.heroGrad,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.85rem",flexShrink:0,marginTop:"2px"}}>{"✨"}</div>
-                  )}
-                  <div style={{maxWidth:"80%",background:msg.role==="user"?pal.heroGrad:"#fff",color:msg.role==="user"?"#fff":pal.ink,padding:"0.65rem 0.9rem",borderRadius:msg.role==="user"?"18px 18px 4px 18px":"18px 18px 18px 4px",fontSize:"0.82rem",lineHeight:1.65,boxShadow:"0 1px 6px rgba(0,0,0,0.07)",whiteSpace:"pre-wrap"}}>
-                    {msg.text}
-                  </div>
+                  {msg.role==="advisor"&&<div style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.heroGrad,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.85rem",flexShrink:0,marginTop:"2px"}}>{"✨"}</div>}
+                  <div style={{maxWidth:"80%",background:msg.role==="user"?pal.heroGrad:"#fff",color:msg.role==="user"?"#fff":pal.ink,padding:"0.65rem 0.9rem",borderRadius:msg.role==="user"?"18px 18px 4px 18px":"18px 18px 18px 4px",fontSize:"0.82rem",lineHeight:1.65,boxShadow:"0 1px 6px rgba(0,0,0,0.07)",whiteSpace:"pre-wrap"}}>{msg.text}</div>
                 </div>
               ))}
               {advLoading&&(
                 <div style={{display:"flex",gap:"0.5rem",alignItems:"flex-start"}}>
                   <div style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.heroGrad,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.85rem",flexShrink:0}}>{"✨"}</div>
-                  <div style={{background:"#fff",padding:"0.6rem 0.9rem",borderRadius:"18px 18px 18px 4px",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
-                    <div style={{display:"flex",gap:"4px",alignItems:"center"}}>
-                      {[0,1,2].map(j=>(<div key={j} style={{width:"7px",height:"7px",borderRadius:"50%",background:pal.primary,animation:"bounce 0.9s "+j*0.15+"s ease-in-out infinite"}}/>))}
-                    </div>
-                  </div>
+                  <div style={{background:"#fff",padding:"0.6rem 0.9rem",borderRadius:"18px 18px 18px 4px",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}><div style={{display:"flex",gap:"4px",alignItems:"center"}}>{[0,1,2].map(j=>(<div key={j} style={{width:"7px",height:"7px",borderRadius:"50%",background:pal.primary,animation:"bounce 0.9s "+j*0.15+"s ease-in-out infinite"}}/>))}</div></div>
                 </div>
               )}
             </div>
-            {/* Input */}
             <div style={{display:"flex",gap:"0.5rem",alignItems:"flex-end",flexShrink:0}}>
               <textarea value={advInput} onChange={e=>setAdvInput(e.target.value)}
-                onKeyDown={e=>{
-                  if(e.key==="Enter"&&!e.shiftKey){
-                    e.preventDefault();
-                    if(!advInput.trim()||advLoading) return;
-                    const q=advInput.trim();
-                    const apiKey=(()=>{try{return localStorage.getItem("rootbloom_apikey")||"";}catch(e){return "";}})();
-                    if(!apiKey){setAdvMsgs(m=>[...m,{role:"user",text:q},{role:"advisor",text:"Add your API key in Settings → AI."}]);setAdvInput("");return;}
-                    const newMsgs=[...advMsgs,{role:"user",text:q}];
-                    setAdvMsgs(newMsgs); setAdvInput(""); setAdvLoading(true);
-                    const childInfo=(family.children||[]).map(c=>c.name+" ("+c.grade+")").join(", ");
-                    const curriculum=curriculumContext(family);
-                    const system="You are a warm, experienced homeschool curriculum advisor. Family: children: "+childInfo+", approach: "+curriculum+", state: "+(family.state||"unknown")+". Give practical, specific, encouraging advice.";
-                    const history=newMsgs.map(m=>({role:m.role==="user"?"user":"assistant",content:m.text}));
-                    fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:700,system:system,messages:history})})
-                      .then(r=>r.json())
-                      .then(d=>{setAdvMsgs(m=>[...m,{role:"advisor",text:d.content?.map(b=>b.text||"").join("")||"Try again."}]);setAdvLoading(false);})
-                      .catch(()=>{setAdvMsgs(m=>[...m,{role:"advisor",text:"Something went wrong."}]);setAdvLoading(false);});
-                  }
-                }}
-                placeholder={"Ask anything about homeschooling, curriculum, or teaching..."}
+                onKeyDown={e=>{ if(e.key==="Enter"&&!e.shiftKey){ e.preventDefault(); if(!advInput.trim()||advLoading) return; const q=advInput.trim(); setAdvInput("");
+                                      const newMsgs=[...advMsgs,{role:"user",text:q}];
+                    setAdvMsgs(newMsgs); setAdvLoading(true);
+                    getCurriculumAdvice({messages:newMsgs.map(m=>({role:m.role==="user"?"user":"assistant",content:m.text})),family})
+                      .then(t=>{setAdvMsgs(m=>[...m,{role:"advisor",text:t}]);setAdvLoading(false);})
+                      .catch(e=>{setAdvMsgs(m=>[...m,{role:"advisor",text:e.message==="NO_KEY"?"Add your API key in Settings → AI.":"Something went wrong."}]);setAdvLoading(false);});
+                }}}
+                placeholder={"Ask anything about homeschooling or curriculum..."}
                 rows={2}
                 style={{flex:1,padding:"0.55rem 0.75rem",border:`1.5px solid ${pal.primary}40`,borderRadius:"14px",fontSize:"0.83rem",fontFamily:"inherit",background:pal.linen,color:pal.ink,resize:"none",outline:"none",lineHeight:1.4}}
               />
-              <button onClick={()=>{
-                  if(!advInput.trim()||advLoading) return;
-                  const q=advInput.trim();
-                  const apiKey=(()=>{try{return localStorage.getItem("rootbloom_apikey")||"";}catch(e){return "";}})();
-                  if(!apiKey){setAdvMsgs(m=>[...m,{role:"user",text:q},{role:"advisor",text:"Add your API key in Settings → AI."}]);setAdvInput("");return;}
-                  const newMsgs=[...advMsgs,{role:"user",text:q}];
-                  setAdvMsgs(newMsgs); setAdvInput(""); setAdvLoading(true);
-                  const childInfo=(family.children||[]).map(c=>c.name+" ("+c.grade+")").join(", ");
-                  const curriculum=curriculumContext(family);
-                  const system="You are a warm, experienced homeschool curriculum advisor. Family: children: "+childInfo+", approach: "+curriculum+", state: "+(family.state||"unknown")+". Give practical, specific, encouraging advice.";
-                  const history=newMsgs.map(m=>({role:m.role==="user"?"user":"assistant",content:m.text}));
-                  fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:700,system:system,messages:history})})
-                    .then(r=>r.json())
-                    .then(d=>{setAdvMsgs(m=>[...m,{role:"advisor",text:d.content?.map(b=>b.text||"").join("")||"Try again."}]);setAdvLoading(false);})
-                    .catch(()=>{setAdvMsgs(m=>[...m,{role:"advisor",text:"Something went wrong."}]);setAdvLoading(false);});
-                }}
-                disabled={!advInput.trim()||advLoading}
+              <button onClick={()=>{ if(!advInput.trim()||advLoading) return; const q=advInput.trim(); setAdvInput("");
+                                      const newMsgs=[...advMsgs,{role:"user",text:q}];
+                    setAdvMsgs(newMsgs); setAdvLoading(true);
+                    getCurriculumAdvice({messages:newMsgs.map(m=>({role:m.role==="user"?"user":"assistant",content:m.text})),family})
+                      .then(t=>{setAdvMsgs(m=>[...m,{role:"advisor",text:t}]);setAdvLoading(false);})
+                      .catch(e=>{setAdvMsgs(m=>[...m,{role:"advisor",text:e.message==="NO_KEY"?"Add your API key in Settings → AI.":"Something went wrong."}]);setAdvLoading(false);});
+                }} disabled={!advInput.trim()||advLoading}
                 style={{width:"38px",height:"38px",borderRadius:"50%",border:"none",background:advInput.trim()&&!advLoading?pal.accentGrad:"#ddd",color:"#fff",fontSize:"1.1rem",cursor:advInput.trim()&&!advLoading?"pointer":"default",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"background 0.2s"}}>
                 {"↑"}
               </button>
             </div>
           </div>
-        )}
-
-    </div>
-  );
-}
-
-
-/* =======================================
-   AI CHAT MODAL - persistent assistant
-   Calls Claude API live for any request
-======================================= */
+        )}================ */
 function AIChatModal({ pal, family, onClose }) {
   const [messages, setMessages] = useState([
     { role:"assistant", content:`Hi! I'm your Root & Bloom assistant 🌱\n\nI can help you create **worksheets**, **lesson plans**, **unit studies**, **discussion questions**, or anything else for your homeschool. Just tell me what you need!\n\nTry something like:\n* "Make a worksheet on fractions for 4th grade"\n* "Write a nature journal prompt for my 7-year-old"\n* "Plan a 3-day unit on the American Revolution"` }
@@ -10453,20 +10319,13 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
   const generateNarrative = async (ch, entries) => {
     setNarratorOpen(true); setNarratorLoading(true); setNarratorText("");
     try {
-      const apiKey=(()=>{try{return localStorage.getItem("rootbloom_apikey")||"";}catch(e){return "";}})();
-      if(!apiKey){setNarratorText("Add your API key in Settings → AI to use this feature.");setNarratorLoading(false);return;}
-      const recent=entries.filter(e=>!e.isDay&&e.subj!=="Daily Note").slice(0,30);
-      const bySubj={};
-      recent.forEach(e=>{if(!bySubj[e.subj])bySubj[e.subj]=[];bySubj[e.subj].push(e.note||e.title||e.subj);});
-      const summary=Object.entries(bySubj).map(([s,ns])=>s+": "+ns.slice(0,3).join("; ")).join("\n");
-      const curriculum=curriculumContext(family);
-      const prompt="You are writing a warm, professional portfolio narrative for a homeschool family.\n\nStudent: "+ch.name+", "+ch.grade+"\nCurriculum: "+curriculum+"\nRecent learning:\n"+(summary||"No entries yet")+"\n\nWrite 3-4 warm, specific paragraphs summarizing this student's recent learning journey. Highlight growth and memorable moments. Third person. No bullet points. Sound like a caring teacher who knows this child well.";
-      const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:800,messages:[{role:"user",content:prompt}]})});
-      const data=await res.json();
-      if(data.error) throw new Error(data.error.message);
-      setNarratorText(data.content?.map(b=>b.text||"").join("")||"");
-    } catch(e){setNarratorText("Could not generate. Try again.");}
-    finally{setNarratorLoading(false);}
+      const text = await generatePortfolioNarrative({child:ch, entries, family});
+      setNarratorText(text);
+    } catch(e) {
+      setNarratorText(e.message==="NO_KEY"
+        ? "Add your API key in Settings → AI to use this feature."
+        : "Could not generate. Please try again.");
+    } finally { setNarratorLoading(false); }
   };
 
   const stateInfo = getStateInfo(family.state||"");
@@ -16552,420 +16411,22 @@ function GoalsScreen({pal,family,portfolioEntries=[],onUpdateFamily,onAddEntry,o
   const fetchGoalSuggs = async () => {
     setAiOpen(true); setAiLoading(true); setAiError(""); setAiSuggs([]);
     try {
-      const childNames = (family.children||[]).map(c=>c.name+" ("+c.grade+")").join(", ");
-      const curriculum = curriculumContext(family);
-      const currentGoals = activeGoals.map(g=>g.label).join(", ")||"none set yet";
-      const prompt = `You are a warm, encouraging homeschool coach. A family is setting learning goals for their homeschool year.
-
-Family details:
-- Children: ${childNames||"not specified"}
-- Curriculum approach: ${curriculum}
-- Current goals: ${currentGoals}
-- State: ${family.state||"not specified"}
-
-Suggest 6 meaningful, specific learning goals for this family. Mix academic, life skills, and character goals. Keep each goal concise (under 10 words). Make them inspiring and achievable.
-
-Respond ONLY with a JSON array of 6 goal strings. No explanation, no markdown, no keys. Example: ["Master multiplication tables","Read 20 books this year","Learn basic cooking skills"]`;
-      const raw = await callClaude(prompt);
-      const clean = raw.replace(/\`\`\`json|\`\`\`/g,"").trim();
-      const arr = JSON.parse(clean);
-      setAiSuggs(Array.isArray(arr)?arr.slice(0,6):[]);
+      const suggestions = await getGoalSuggestions(family);
+      setAiSuggs(suggestions);
     } catch(e) {
-      setAiError(e.message==="NO_KEY"?"Add your API key in Settings \u2192 AI to use this feature.":"Couldn't generate suggestions. Try again.");
-    } finally {
-      setAiLoading(false);
-    }
+      setAiError(e.message==="NO_KEY"
+        ? "Add your API key in Settings → AI to use this feature."
+        : "Couldn't generate suggestions. Try again.");
+    } finally { setAiLoading(false); }
   };
 
   const addAiGoal = (label) => {
     const existing = family.customGoals||[];
     if(existing.find(g=>g.label===label)) return;
-    const newGoal = {id:"ai_"+Date.now()+"_"+Math.random().toString(36).slice(2,6), label, icon:"\u2728", isCustom:true};
-    const updatedCustom = [...existing, newGoal];
-    const updatedGoalIds = [...(family.goals||[]), newGoal.id];
-    onUpdateFamily&&onUpdateFamily({customGoals:updatedCustom, goals:updatedGoalIds});
-  };
-  const subjEntries  = portfolioEntries.filter(e=>!e.isDay&&e.subj!=="Daily Notes");
-
-  const [quickNoteId,  setQuickNoteId]  = useState(null); // goal id currently open
-  const [quickNoteText,setQuickNoteText]= useState("");
-  const [quickSaved,   setQuickSaved]   = useState(null); // id of last saved goal (for flash)
-
-  const openQuickNote  = (id) => { setQuickNoteId(id); setQuickNoteText(""); };
-  const closeQuickNote = ()   => { setQuickNoteId(null); setQuickNoteText(""); };
-  const saveQuickNote  = (g)  => {
-    const text = quickNoteText.trim();
-    if(!text || !onAddEntry) return;
-    const today = new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
-    family.children.forEach((_,ci)=>{
-      onAddEntry({
-        childIdx: ci,
-        title: text.slice(0,80),
-        subj: "Goals",
-        date: today,
-        thumb: g.icon||"🌟",
-        note: text,
-        goalId: g.id,
-        isSubject: true,
-      });
-    });
-    setQuickSaved(g.id);
-    closeQuickNote();
-    setTimeout(()=>setQuickSaved(null), 2500);
+    const newGoal = {id:"ai_"+Date.now()+"_"+Math.random().toString(36).slice(2,6), label, icon:"✨", isCustom:true};
+    onUpdateFamily&&onUpdateFamily({customGoals:[...existing, newGoal], goals:[...(family.goals||[]), newGoal.id]});
   };
 
-  const toggleDraft = id => setDraftGoals(g=>g.includes(id)?g.filter(x=>x!==id):[...g,id]);
-  const addCustom = () => {
-    const val = customInput.trim();
-    if(!val) return;
-    const id = "custom_"+val.toLowerCase().replace(/\s+/g,"_");
-    const customs = family.customGoals||[];
-    if(!customs.find(c=>c.id===id)){
-      onUpdateFamily({customGoals:[...customs,{id,label:val,icon:"🌟"}]});
-    }
-    setDraftGoals(g=>[...g,id]);
-    setCustomInput("");
-  };
-  const saveEdits = () => { onUpdateFamily({goals:draftGoals}); setEditing(false); };
-  const cancelEdits = () => { setDraftGoals(family.goals||[]); setEditing(false); };
-
-  // For each goal: find related entries, most recent, warmth message
-  const getGoalData = (g) => {
-    const nudge    = GOAL_NUDGES[g.id];
-    const relSubjs = nudge?.subjs||[];
-    const related  = relSubjs.length>0
-      ? subjEntries.filter(e=>relSubjs.includes(e.subj)||(e.goalId===g.id))
-      : subjEntries.filter(e=>e.goalId===g.id);
-    const total    = related.length;
-
-    // Most recent entry
-    const recent   = related[0]||null; // entries are newest-first
-    const recentNote = recent
-      ? ((recent.readingTitle||recent.title||recent.subj||"").replace((recent.subj||"")+" \u2014 ","").trim()||recent.subj)
-      : null;
-
-    // How long since last entry (in days)
-    const daysSince = recent ? (()=>{
-      try {
-        const yr = new Date().getFullYear();
-        const d  = new Date(recent.date+", "+yr);
-        const diff = Math.floor((new Date()-d)/(24*60*60*1000));
-        return diff < 0 ? 0 : diff; // handle future dates gracefully
-      } catch(e){ return null; }
-    })() : null;
-
-    // Warm message based on recency
-    let warmth = null;
-    if(total===0){
-      warmth = {msg: "Nothing logged yet toward this goal \u2014 every small step counts.", tone:"quiet"};
-    } else if(daysSince===0){
-      warmth = {msg: "Logged today \u2014 great work keeping this front of mind.", tone:"good"};
-    } else if(daysSince===1){
-      warmth = {msg: "Logged yesterday. You\u2019re building something real here.", tone:"good"};
-    } else if(daysSince<=5){
-      warmth = {msg: "Active this week. "+child_name(family)+" is making steady progress.", tone:"good"};
-    } else if(daysSince<=14){
-      warmth = {msg: "It\u2019s been about "+daysSince+" days \u2014 anything worth logging from this week?", tone:"gentle"};
-    } else if(daysSince<=30){
-      warmth = {msg: "This goal has been quiet lately. Even one entry this week would keep it alive.", tone:"gentle"};
-    } else {
-      warmth = {msg: "It\u2019s been a while \u2014 no pressure, but this goal is still here when you\u2019re ready.", tone:"quiet"};
-    }
-
-    return {total, recent, recentNote, daysSince, warmth};
-  };
-
-  const child_name = (fam) => {
-    const kids = fam.children||[];
-    if(kids.length===1) return kids[0].name;
-    if(kids.length===2) return kids[0].name+" and "+kids[1].name;
-    return "your kids";
-  };
-
-  const toneColor = {
-    good:   {bg:pal.goodBg,   text:pal.good,    border:pal.good+"30"},
-    gentle: {bg:"#fffbeb",    text:"#7a5500",   border:"#f5c84230"},
-    quiet:  {bg:pal.parchm,   text:pal.slate,   border:pal.stone+"25"},
-  };
-
-  return (
-    <div style={{animation:"fadeUp 0.22s ease"}}>
-      <ScreenHdr pal={pal} title="Goals" sub="Your family learning priorities" icon="🌟"/>
-      <FirstVisitTip pal={pal} screen="goals"/>
-      {/* AI Goal Suggestions button */}
-      <div style={{padding:"0 1rem 0.75rem"}}>
-        <button onClick={aiOpen?()=>setAiOpen(false):fetchGoalSuggs}
-          style={{width:"100%",padding:"0.7rem 1rem",border:`1.5px solid ${pal.primary}40`,borderRadius:"14px",background:aiOpen?pal.pale:"linear-gradient(135deg,"+pal.primary+"12,"+pal.accent+"08)",cursor:"pointer",display:"flex",alignItems:"center",gap:"0.6rem",transition:"all 0.15s"}}>
-          <span style={{fontSize:"1.2rem"}}>{"✨"}</span>
-          <div style={{flex:1,textAlign:"left"}}>
-            <div style={{fontWeight:"800",color:pal.primary,fontSize:"0.85rem"}}>{"AI Goal Suggestions"}</div>
-            <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"1px"}}>{"Get personalized goal ideas for your family"}</div>
-          </div>
-          <span style={{fontSize:"0.8rem",color:pal.primary,fontWeight:"700"}}>{aiOpen?"‧ Close":"Try it →"}</span>
-        </button>
-        {aiOpen&&(
-          <div style={{background:pal.linen,borderRadius:"0 0 14px 14px",padding:"0.9rem 1rem",border:`1px solid ${pal.primary}30`,borderTop:"none",marginTop:"-4px"}}>
-            {aiLoading&&(
-              <div style={{textAlign:"center",padding:"1rem 0"}}>
-                <div style={{fontSize:"1.5rem",animation:"spin 1s linear infinite",display:"inline-block"}}>{"✨"}</div>
-                <div style={{fontSize:"0.76rem",color:pal.slate,marginTop:"0.4rem"}}>{"Thinking about your family..."}</div>
-              </div>
-            )}
-            {aiError&&(
-              <div style={{fontSize:"0.76rem",color:"#c0392b",background:"#fff0f0",padding:"0.6rem 0.75rem",borderRadius:"10px"}}>{aiError}</div>
-            )}
-            {!aiLoading&&aiSuggestions.length>0&&(
-              <div>
-                <div style={{fontSize:"0.7rem",fontWeight:"700",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.05em",marginBottom:"0.6rem"}}>{"Tap any to add to your goals:"}</div>
-                <div style={{display:"flex",flexDirection:"column",gap:"0.4rem"}}>
-                  {aiSuggestions.map((s,i)=>{
-                    const alreadyAdded=(family.goals||[]).some(id=>{const g=allGoalObjs.find(x=>x.id===id);return g&&g.label===s;});
-                    return (
-                      <button key={i} onClick={()=>!alreadyAdded&&addAiGoal(s)}
-                        style={{display:"flex",alignItems:"center",gap:"0.6rem",padding:"0.6rem 0.75rem",borderRadius:"11px",border:`1.5px solid ${alreadyAdded?pal.good:pal.primary}40`,background:alreadyAdded?pal.goodBg:pal.pale,cursor:alreadyAdded?"default":"pointer",textAlign:"left",transition:"all 0.13s"}}>
-                        <span style={{fontSize:"0.9rem",flexShrink:0}}>{alreadyAdded?"✅":"➕"}</span>
-                        <span style={{flex:1,fontSize:"0.82rem",fontWeight:"600",color:alreadyAdded?pal.good:pal.inkM}}>{s}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-                <button onClick={fetchGoalSuggs} style={{width:"100%",marginTop:"0.65rem",padding:"0.5rem",border:`1px solid ${pal.stone}`,borderRadius:"10px",background:"transparent",color:pal.slate,fontSize:"0.72rem",fontWeight:"600",cursor:"pointer"}}>{"🔄 Generate new suggestions"}</button>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-      <div style={{padding:"0 1rem"}}>
-
-        {(family.goals||[]).length===0&&!editing?(
-          <div style={{background:pal.linen,borderRadius:"18px",padding:"2rem 1.5rem",textAlign:"center",border:`1.5px solid ${pal.stone}30`,marginBottom:"1rem"}}>
-            <div style={{fontSize:"2rem",marginBottom:"0.5rem"}}>🌟</div>
-            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.9rem",marginBottom:"0.3rem"}}>{"No goals set yet"}</div>
-            <div style={{fontSize:"0.76rem",color:pal.slate,lineHeight:1.6,marginBottom:"0.85rem"}}>
-              {"Goals shape your daily nudges, AI suggestions, and year-end review. They\u2019re completely optional."}
-            </div>
-            <button onClick={()=>setEditing(true)}
-              style={{padding:"0.6rem 1.4rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.84rem",cursor:"pointer"}}>
-              {"+ Set Goals"}
-            </button>
-          </div>
-        ):(
-          <>
-            {!editing&&(
-              <>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.85rem"}}>
-                  <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem"}}>
-                    {activeGoals.length}{" goal"}{activeGoals.length!==1?"s":""}{" this year"}
-                  </div>
-                  <button onClick={()=>setEditing(true)}
-                    style={{padding:"0.28rem 0.7rem",border:`1.5px solid ${pal.stone}`,borderRadius:"9px",background:"transparent",color:pal.inkM,fontSize:"0.72rem",fontWeight:"700",cursor:"pointer"}}>
-                    {"Edit"}
-                  </button>
-                </div>
-
-                {activeGoals.map(g=>{
-                  const nudge = GOAL_NUDGES[g.id];
-                  const {total, recent, recentNote, daysSince, warmth} = getGoalData(g);
-                  const tc = toneColor[warmth.tone];
-
-                  return (
-                    <div key={g.id} style={{background:pal.linen,borderRadius:"16px",padding:"1rem",border:`1.5px solid ${pal.stone}25`,marginBottom:"0.75rem"}}>
-                      {/* Goal header */}
-                      <div style={{display:"flex",gap:"0.75rem",alignItems:"flex-start",marginBottom:"0.75rem"}}>
-                        <div style={{width:"42px",height:"42px",borderRadius:"12px",background:total>0?pal.pale:pal.parchm,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.2rem",flexShrink:0}}>
-                          {nudge?.icon||g.icon}
-                        </div>
-                        <div style={{flex:1,minWidth:0}}>
-                          <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.88rem"}}>{g.label}</div>
-                          {nudge&&<div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"2px",lineHeight:1.5}}>{nudge.nudge}</div>}
-                        </div>
-                        {total>0&&(
-                          <div style={{textAlign:"center",flexShrink:0}}>
-                            <div style={{fontWeight:"900",color:pal.primary,fontSize:"1.2rem",lineHeight:1}}>{total}</div>
-                            <div style={{fontSize:"0.6rem",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.06em"}}>{"entries"}</div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Most recent entry */}
-                      {recent&&recentNote&&(
-                        <div style={{background:"#fff",borderRadius:"10px",padding:"0.55rem 0.75rem",marginBottom:"0.6rem",border:`1px solid ${pal.stone}20`}}>
-                          <div style={{fontSize:"0.63rem",color:pal.stone,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"2px",fontWeight:"700"}}>{"Most recent"}</div>
-                          <div style={{fontSize:"0.81rem",color:pal.ink,fontWeight:"600",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{recentNote}</div>
-                          <div style={{fontSize:"0.67rem",color:pal.slate,marginTop:"1px"}}>
-                            {recent.subj}{recent.date?" \u00b7 "+recent.date:""}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Warm message + inline quick-log */}
-                      {quickSaved===g.id&&(
-                        <div style={{background:pal.goodBg,borderRadius:"10px",padding:"0.5rem 0.75rem",border:`1px solid ${pal.good}40`,display:"flex",gap:"0.4rem",alignItems:"center",marginBottom:"0.4rem",animation:"fadeUp 0.2s ease"}}>
-                          <span style={{fontSize:"0.85rem"}}>{"🌱"}</span>
-                          <div style={{fontSize:"0.74rem",color:pal.good,fontWeight:"700"}}>{"Logged! Great work."}</div>
-                        </div>
-                      )}
-                      {quickNoteId===g.id ? (
-                        <div style={{background:tc.bg,borderRadius:"10px",border:`1.5px solid ${pal.primary}40`,overflow:"hidden",animation:"fadeUp 0.15s ease"}}>
-                          <textarea
-                            autoFocus
-                            value={quickNoteText}
-                            onChange={e=>setQuickNoteText(e.target.value)}
-                            placeholder={"What happened toward "+g.label+" today? Even one sentence helps."}
-                            rows={3}
-                            style={{width:"100%",padding:"0.65rem 0.75rem",border:"none",borderBottom:`1px solid ${pal.stone}30`,background:"transparent",fontSize:"0.8rem",fontFamily:"inherit",color:pal.ink,resize:"none",outline:"none",lineHeight:1.55}}
-                          />
-                          <div style={{display:"flex",gap:"0.4rem",padding:"0.45rem 0.55rem",background:"rgba(255,255,255,0.5)"}}>
-                            <button onClick={closeQuickNote}
-                              style={{padding:"0.38rem 0.75rem",border:`1.5px solid ${pal.stone}`,borderRadius:"9px",background:"transparent",color:pal.slate,fontSize:"0.76rem",fontWeight:"600",cursor:"pointer"}}>
-                              Cancel
-                            </button>
-                            <button onClick={()=>saveQuickNote(g)}
-                              disabled={!quickNoteText.trim()}
-                              style={{flex:1,padding:"0.38rem 0.75rem",border:"none",borderRadius:"9px",background:quickNoteText.trim()?pal.accentGrad:"#ccc",color:"#fff",fontSize:"0.78rem",fontWeight:"800",cursor:quickNoteText.trim()?"pointer":"default"}}>
-                              {"Save to portfolio ✓"}
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <button onClick={()=>openQuickNote(g.id)}
-                          style={{width:"100%",background:tc.bg,borderRadius:"10px",padding:"0.55rem 0.75rem",border:`1px solid ${tc.border}`,display:"flex",gap:"0.45rem",alignItems:"flex-start",cursor:"pointer",textAlign:"left",transition:"border-color 0.15s"}}
-                          onMouseEnter={e=>e.currentTarget.style.borderColor=pal.primary+"60"}
-                          onMouseLeave={e=>e.currentTarget.style.borderColor=tc.border}>
-                          <span style={{fontSize:"0.8rem",flexShrink:0,marginTop:"1px"}}>
-                            {warmth.tone==="good"?"🌱":warmth.tone==="gentle"?"💛":"🌿"}
-                          </span>
-                          <div style={{flex:1}}>
-                            <div style={{fontSize:"0.74rem",color:tc.text,lineHeight:1.55}}>{warmth.msg}</div>
-                            <div style={{fontSize:"0.65rem",color:pal.primary,fontWeight:"700",marginTop:"0.25rem"}}>{"+ Add a note \u2192"}</div>
-                          </div>
-                        </button>
-                      )}
-                      {/* Progress link */}
-                      {total>0&&onTabChange&&(
-                        <button onClick={()=>onTabChange("progress")}
-                          style={{width:"100%",marginTop:"0.5rem",padding:"0.42rem",border:`1.5px solid ${pal.primary}30`,borderRadius:"10px",background:pal.pale,color:pal.primary,fontSize:"0.72rem",fontWeight:"700",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.4rem"}}>
-                          <span>{"📈"}</span>
-                          <span>{"View in Progress \u2192"}</span>
-                        </button>
-                      )}
-                    </div>
-                  );
-                })}
-
-                {/* Year perspective footer */}
-                {activeGoals.length>0&&(()=>{
-                  const totalEntries = subjEntries.length;
-                  const taggedEntries = subjEntries.filter(e=>e.goalId).length;
-                  const yr = family.yearStart ? new Date(family.yearStart).getFullYear() : new Date().getFullYear();
-                  return (
-                    <div style={{background:pal.parchm,borderRadius:"14px",padding:"0.85rem 1rem",marginTop:"0.25rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}25`,textAlign:"center"}}>
-                      <div style={{fontSize:"0.72rem",color:pal.slate,lineHeight:1.7}}>
-                        <span style={{fontWeight:"700",color:pal.ink,fontSize:"1rem"}}>{totalEntries}</span>
-                        {" portfolio entries this school year"}
-                        {taggedEntries>0&&(
-                          <>{" \u00b7 "}<span style={{fontWeight:"700",color:pal.primary}}>{taggedEntries}</span>{" tagged to a goal"}</>
-                        )}
-                        <div style={{marginTop:"4px",fontStyle:"italic",fontSize:"0.69rem"}}>
-                          {"Every entry is evidence that learning happened. That\u2019s what matters."}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })()}
-              </>
-            )}
-
-            {/* Edit mode */}
-            {editing&&(
-              <div>
-                <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem",marginBottom:"0.65rem"}}>{"Choose your goals"}</div>
-                <div style={{display:"flex",flexWrap:"wrap",gap:"0.4rem",marginBottom:"1rem"}}>
-                  {allGoalObjs.map(g=>{
-                    const sel = draftGoals.includes(g.id);
-                    return (
-                      <button key={g.id} onClick={()=>toggleDraft(g.id)}
-                        style={{display:"flex",alignItems:"center",gap:"0.3rem",padding:"0.38rem 0.75rem",borderRadius:"20px",border:`2px solid ${sel?pal.primary:pal.stone+"50"}`,background:sel?pal.pale:"transparent",color:sel?pal.primary:pal.inkM,fontWeight:sel?"700":"400",fontSize:"0.78rem",cursor:"pointer",transition:"all 0.12s"}}>
-                        <span style={{fontSize:"0.85rem"}}>{g.icon}</span>
-                        <span>{g.label}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-                <div style={{display:"flex",gap:"0.5rem",marginBottom:"0.75rem"}}>
-                  <input value={customInput} onChange={e=>setCustomInput(e.target.value)}
-                    onKeyDown={e=>e.key==="Enter"&&addCustom()}
-                    placeholder="Add a custom goal..."
-                    style={{flex:1,padding:"0.55rem 0.75rem",border:`1.5px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.82rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit"}}/>
-                  <button onClick={addCustom}
-                    style={{padding:"0.55rem 0.9rem",border:"none",borderRadius:"10px",background:pal.primary,color:"#fff",fontWeight:"700",fontSize:"0.8rem",cursor:"pointer"}}>{"+"}</button>
-                </div>
-                <div style={{display:"flex",gap:"0.5rem"}}>
-                  <button onClick={cancelEdits}
-                    style={{flex:1,padding:"0.65rem",border:`1.5px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.82rem",cursor:"pointer"}}>{"Cancel"}</button>
-                  <button onClick={saveEdits}
-                    style={{flex:2,padding:"0.65rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.84rem",cursor:"pointer"}}>{"Save Goals"}</button>
-                </div>
-              </div>
-            )}
-          </>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function MoreScreen({pal,family,onNav,onTheme,onNavEdit,onSettings,onLifeReady}){
-  const tiles = [
-    {id:"attendance", icon:"📋", label:"Attendance"},
-    {id:"transcripts", icon:"🎓", label:"Records"},
-    {id:"coop",        icon:"🏫", label:"Co-op"},
-    {id:"goals",       icon:"🌟", label:"Goals"},
-    {id:"settings",    icon:"⚙️",  label:"Settings"},
-  ];
-  return (
-    <div style={{animation:"fadeUp 0.22s ease"}}>
-      <ScreenHdr pal={pal} title="More" sub="Tools & Settings" icon="⚙️"/>
-      <div style={{padding:"1rem"}}>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.65rem",marginBottom:"1rem"}}>
-          {tiles.map(it=>(
-            <button key={it.id} onClick={()=>onNav(it.id)}
-              style={{padding:"1.1rem 0.85rem",border:`2px solid ${pal.stone}40`,borderRadius:"16px",background:pal.linen,cursor:"pointer",textAlign:"left",display:"flex",flexDirection:"column",gap:"0.5rem",transition:"all 0.13s"}}
-              onTouchStart={e=>e.currentTarget.style.background=pal.pale}
-              onTouchEnd={e=>e.currentTarget.style.background=pal.linen}>
-              <span style={{fontSize:"1.6rem"}}>{it.icon}</span>
-              <span style={{fontWeight:"700",color:pal.ink,fontSize:"0.84rem"}}>{it.label}</span>
-            </button>
-          ))}
-        </div>
-        <div style={{background:pal.heroGrad,borderRadius:"18px",padding:"1.1rem 1.2rem",position:"relative",overflow:"hidden"}}>
-          <div style={{position:"absolute",right:"-20px",top:"-20px",width:"100px",height:"100px",borderRadius:"50%",background:"rgba(255,255,255,0.06)"}}/>
-          <div style={{position:"relative"}}>
-            <div style={{fontSize:"0.6rem",color:"rgba(255,255,255,0.5)",textTransform:"uppercase",letterSpacing:"0.12em",fontWeight:"700",marginBottom:"0.2rem"}}>Your School</div>
-            <div style={{fontWeight:"800",color:pal.onDark,fontSize:"0.95rem",marginBottom:"0.1rem"}}>{family.schoolName||"Bloom Academy"}</div>
-            <div style={{fontSize:"0.75rem",color:"rgba(255,255,255,0.5)",marginBottom:"0.75rem"}}>{family.familyName} {"\u2022"} {family.state}</div>
-            <div style={{display:"flex",gap:"0.5rem"}}>
-              {family.children.map(c=>(
-                <div key={c.id} style={{background:"rgba(255,255,255,0.12)",borderRadius:"9px",padding:"0.35rem 0.6rem",textAlign:"center"}}>
-                  <div style={{fontSize:"1rem"}}>{c.avatar}</div>
-                  <div style={{fontSize:"0.6rem",color:"rgba(255,255,255,0.65)",fontWeight:"600"}}>{c.name}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-        <div style={{height:"1rem"}}/>
-      </div>
-    </div>
-  );
-}
-
-/* ======= MODALS ======= */
-/* =======================================
-   DAY SUMMARY MODAL
-   Shown after marking a day complete
-======================================= */
-function WrapUpModal({pal, family, subjsDone, notesBySubj, dateLabel, dateStr, allDone, onSave, onClose}) {
   const allGoalObjs  = [...GOALS,...(family.customGoals||[])];
   const familyGoals  = (family.goals||[]).map(id=>allGoalObjs.find(g=>g.id===id)).filter(Boolean);
   const [parentNote,   setParentNote]   = useState("");
@@ -17490,4 +16951,10 @@ function Row({pal,title,action}){
     ReactDOM.createRoot(document.getElementById('root')).render(<RootAndBloom />);
   </script>
 </body>
-</html>
+</html                  const ch = family.children[entry.childIdx];
+                  const apiKey=(()=>{try{return localStorage.getItem("rootbloom_apikey")||"";}catch(e){return "";}})();
+                  if(!apiKey){win.document.write("<p style='font-family:sans-serif;padding:1rem'>Add your API key in Settings → AI to use this feature.</p>");return;}
+                  win.document.write("<div style='font-family:Georgia,serif;padding:1.5rem'><h2 style='color:#2d6a3f'>✨ Building lesson plan...</h2></div>");
+                  buildTomorrowsLesson({entry, child:ch, family})
+                    .then(t=>{ win.document.body.innerHTML="<div style='font-family:Georgia,serif;padding:1.5rem;line-height:1.8'>"+t.replace(/\n/g,"<br>")+"<br><br><button onclick='window.print()' style='padding:0.6rem 1.2rem;background:#2d6a3f;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:1rem'>🖨️ Print lesson</button></div>"; })
+                    .catch(()=>{ win.document.body.innerHTML="<p style='font-family:sans-serif;padding:1rem'>Error generating lesson. Try again.</p>"; });>
