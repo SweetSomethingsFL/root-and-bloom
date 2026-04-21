@@ -9734,7 +9734,7 @@ function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab, portf
         </div>
         {/* Tabs */}
         <div style={{display:"flex",background:pal.parchm,borderRadius:"11px",padding:"3px",gap:"2px",marginBottom:"1rem"}}>
-          {[["📚Curriculum","curriculum"],["📊Progress","progress"],["📋Worksheets","worksheets"],["📅Planner","planner",["✨ Advisor","advisor"]].map(([l,id])=>(
+          {[["📚Curriculum","curriculum"],["📊Progress","progress"],["📋Worksheets","worksheets"],["📅Planner","planner"],["✨ Advisor","advisor"]].map(([l,id])=>(
             <button key={id} onClick={()=>setLearnTab(id)} style={{flex:1,padding:"0.45rem",border:"none",borderRadius:"9px",background:learnTab===id?pal.linen:"transparent",color:learnTab===id?pal.ink:pal.slate,fontSize:"0.72rem",fontWeight:learnTab===id?"700":"400",cursor:"pointer"}}>{l}</button>
           ))}
         </div>
