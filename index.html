@@ -8192,6 +8192,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
                   getGapActivityIdeas({subjectLabel:subj, child:ch, family})
                     .then(t=>{ win.document.body.innerHTML="<div style='font-family:Georgia,serif;padding:1.5rem;line-height:1.8'>"+t.replace(/\n/g,"<br>")+"</div>"; })
                     .catch(()=>{ win.document.body.innerHTML="<p style='padding:1rem'>Error. Try again.</p>"; });
+                }}
                 style={{padding:"0.32rem 0.7rem",borderRadius:"20px",border:"none",background:"#2d6a3f",color:"#fff",fontWeight:"700",fontSize:"0.7rem",cursor:"pointer",flexShrink:0}}>
                 {"✨ Activity idea"}
               </button>
