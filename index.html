@@ -10014,7 +10014,12 @@ function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab, portf
               </button>
             </div>
           </div>
-        )}================ */
+        )}
+
+/* =======================================
+   AI CHAT MODAL - persistent assistant
+   Calls Claude API live for any request
+======================================= */
 function AIChatModal({ pal, family, onClose }) {
   const [messages, setMessages] = useState([
     { role:"assistant", content:`Hi! I'm your Root & Bloom assistant 🌱\n\nI can help you create **worksheets**, **lesson plans**, **unit studies**, **discussion questions**, or anything else for your homeschool. Just tell me what you need!\n\nTry something like:\n* "Make a worksheet on fractions for 4th grade"\n* "Write a nature journal prompt for my 7-year-old"\n* "Plan a 3-day unit on the American Revolution"` }
