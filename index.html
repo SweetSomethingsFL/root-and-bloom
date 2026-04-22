@@ -12149,19 +12149,15 @@ function EntryDetailModal({pal,family,entry,onClose,onEdit}){
 
         {entry.subj&&entry.subj!=="Daily Note"&&entry.subj!=="Daily Check-In"&&!entry.isDay&&(
           <button onClick={()=>{
-            const q="Based on what "+( (family.children[entry.childIdx]?.name)||"the student")+" did in "+entry.subj+" (\""+( entry.note||entry.title||entry.subj)+"\"), create a specific, engaging follow-up lesson or activity for tomorrow. Include: the activity title, materials needed (if any), step-by-step instructions, and an extension idea. Keep it practical and fun for a "+(family.children[entry.childIdx]?.grade||"elementary")+" student.";
+            const ch = family.children[entry.childIdx];
+            const apiKey=(()=>{try{return localStorage.getItem("rootbloom_apikey")||"";}catch(e){return "";}})();
+            if(!apiKey){alert("Add your API key in Settings → AI to use this feature.");return;}
             const win=window.open("","_blank","width=500,height=600");
             if(!win)return;
-            const apiKey=(()=>{try{return localStorage.getItem("rootbloom_apikey")||"";}catch(e){return "";}})();
-            if(!apiKey){win.document.write("<p style='font-family:sans-serif;padding:1rem'>Add your API key in Settings → AI to use this feature.</p>");return;}
-            win.document.write("<div style='font-family:Georgia,serif;padding:1.5rem;max-width:500px;line-height:1.7'><h2 style='color:#2d6a3f'>✨ Building lesson plan...</h2></div>");
-            fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:800,messages:[{role:"user",content:q}]})})
-              .then(r=>r.json())
-              .then(d=>{
-                const txt=d.content?.map(b=>b.text||"").join("")||"Could not generate.";
-                win.document.body.innerHTML="<div style='font-family:Georgia,serif;padding:1.5rem;max-width:500px;line-height:1.8'>"+txt.replace(/\n/g,"<br>")+"<br><br><button onclick='window.print()' style='padding:0.6rem 1.2rem;background:#2d6a3f;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:1rem'>🖨️ Print lesson</button></div>";
-              })
-              .catch(()=>{ win.document.body.innerHTML="<p style='font-family:sans-serif;padding:1rem'>Error generating lesson. Try again.</p>"; });
+            win.document.write("<div style='font-family:Georgia,serif;padding:1.5rem'><h2 style='color:#2d6a3f'>✨ Building lesson...</h2></div>");
+            buildTomorrowsLesson({entry, child:ch, family})
+              .then(t=>{ win.document.body.innerHTML="<div style='font-family:Georgia,serif;padding:1.5rem;line-height:1.8'>"+t.replace(/\n/g,"<br>")+"<br><br><button onclick='window.print()' style='padding:0.6rem 1.2rem;background:#2d6a3f;color:#fff;border:none;border-radius:8px;cursor:pointer'>🖨️ Print</button></div>"; })
+              .catch(()=>{ win.document.body.innerHTML="<p style='padding:1rem'>Error. Try again.</p>"; });
           }}
           style={{width:"100%",padding:"0.7rem",border:`1.5px solid ${pal.primary}40`,borderRadius:"13px",background:pal.pale,color:pal.primary,fontWeight:"700",fontSize:"0.84rem",cursor:"pointer",marginTop:"0.5rem",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.4rem"}}>
             <span>{"✨"}</span>
@@ -16951,11 +16947,4 @@ function Row({pal,title,action}){
 
     ReactDOM.createRoot(document.getElementById('root')).render(<RootAndBloom />);
   </script>
-</body>
-</html                  const ch = family.children[entry.childIdx];
-                  const apiKey=(()=>{try{return localStorage.getItem("rootbloom_apikey")||"";}catch(e){return "";}})();
-                  if(!apiKey){win.document.write("<p style='font-family:sans-serif;padding:1rem'>Add your API key in Settings → AI to use this feature.</p>");return;}
-                  win.document.write("<div style='font-family:Georgia,serif;padding:1.5rem'><h2 style='color:#2d6a3f'>✨ Building lesson plan...</h2></div>");
-                  buildTomorrowsLesson({entry, child:ch, family})
-                    .then(t=>{ win.document.body.innerHTML="<div style='font-family:Georgia,serif;padding:1.5rem;line-height:1.8'>"+t.replace(/\n/g,"<br>")+"<br><br><button onclick='window.print()' style='padding:0.6rem 1.2rem;background:#2d6a3f;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:1rem'>🖨️ Print lesson</button></div>"; })
-                    .catch(()=>{ win.document.body.innerHTML="<p style='font-family:sans-serif;padding:1rem'>Error generating lesson. Try again.</p>"; });>
+</html>
