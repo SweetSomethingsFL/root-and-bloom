@@ -22,10 +22,10 @@ function OnboardingFlow({ pal, onComplete }) {
     paletteId:"sage",
   });
   const upd = (k,v) => setData(d=>({...d,[k]:v}));
-  const STEPS = ["Welcome","Your Children","Learning Style","Curriculum","Subjects","Co-op","Your Schedule","Lesson Goals","Goals","Life & Extras","Life Ready","You're All Set!","Daily Checklist"];
+  const STEPS = ["Welcome","Your Children","Schedule Style","Learning Style","Curriculum","Co-op","Subjects","Your Schedule","Lesson Goals","Goals","Life & Extras","Life Ready","You're All Set!"];
   const pct = Math.round((step/12)*100);
 
-  const STEP_ICONS = ["\uD83C\uDF31","\uD83D\uDC68\uD83D\uDC69\uD83D\uDC67\uD83D\uDC66","\uD83D\uDCDA","\uD83D\uDCD6","\uD83D\uDD2C","\uD83C\uDFEB","\uD83D\uDCC5","\uD83C\uDFAF","\uD83C\uDF1F","\uD83C\uDF3F","\uD83D\uDEE1","\uD83C\uDF89","\uD83D\uDCCB"];
+  const STEP_ICONS = ["\uD83C\uDF31","\uD83D\uDC68\uD83D\uDC69\uD83D\uDC67\uD83D\uDC66","\uD83D\uDCCB","\uD83D\uDCDA","\uD83D\uDCD6","\uD83C\uDFEB","\uD83D\uDD2C","\uD83D\uDCC5","\uD83C\uDFAF","\uD83C\uDF1F","\uD83C\uDF3F","\uD83D\uDEE1","\uD83C\uDF89"];
 
   return (
     <div style={{minHeight:"100vh",background:pal.sand,display:"flex",flexDirection:"column"}}>
@@ -44,19 +44,19 @@ function OnboardingFlow({ pal, onComplete }) {
       )}
 
       <div key={step} style={{flex:1,overflowY:"auto"}}>
-        {step===0 && <OnbWelcome      pal={pal} data={data} upd={upd} onNext={()=>setStep(1)} />}
-        {step===1 && <OnbChildren     pal={pal} data={data} upd={upd} onNext={()=>setStep(2)} />}
-        {step===2 && <OnbPhilosophy   pal={pal} data={data} upd={upd} onNext={()=>setStep(3)} />}
-        {step===3 && <OnbCurrBrands   pal={pal} data={data} upd={upd} onNext={()=>setStep(4)} />}
-        {step===4 && <OnbSubjects     pal={pal} data={data} upd={upd} onNext={()=>setStep(5)} />}
-        {step===5 && <OnbCoop              pal={pal} data={data} upd={upd} onNext={()=>setStep(6)} />}
-        {step===6 && <OnbScheduleCombined  pal={pal} data={data} upd={upd} onNext={()=>setStep(7)} />}
-        {step===7 && <OnbLessonGoals       pal={pal} data={data} upd={upd} onNext={()=>setStep(8)} />}
-        {step===8 && <OnbGoals             pal={pal} data={data} upd={upd} onNext={()=>setStep(9)} />}
-        {step===9 && <OnbExtras            pal={pal} data={data} upd={upd} onNext={()=>setStep(10)} />}
-        {step===10 && <OnbLifeReady        pal={pal} data={data} upd={upd} onNext={()=>setStep(11)} />}
-        {step===11 && <OnbCelebration      pal={pal} data={data} upd={upd} onNext={()=>setStep(12)} />}
-        {step===12 && <OnbSchedulePref     pal={pal} data={data} upd={upd} onNext={()=>onComplete(data)} />}
+        {step===0  && <OnbWelcome         pal={pal} data={data} upd={upd} onNext={()=>setStep(1)} />}
+        {step===1  && <OnbChildren        pal={pal} data={data} upd={upd} onNext={()=>setStep(2)} />}
+        {step===2  && <OnbSchedulePref    pal={pal} data={data} upd={upd} onNext={()=>setStep(3)} />}
+        {step===3  && <OnbPhilosophy      pal={pal} data={data} upd={upd} onNext={()=>setStep(4)} />}
+        {step===4  && <OnbCurrBrands      pal={pal} data={data} upd={upd} onNext={()=>setStep(5)} />}
+        {step===5  && <OnbCoop            pal={pal} data={data} upd={upd} onNext={()=>setStep(6)} />}
+        {step===6  && <OnbSubjects        pal={pal} data={data} upd={upd} onNext={()=>setStep(7)} />}
+        {step===7  && <OnbScheduleCombined pal={pal} data={data} upd={upd} onNext={()=>setStep(8)} />}
+        {step===8  && <OnbLessonGoals     pal={pal} data={data} upd={upd} onNext={()=>setStep(9)} />}
+        {step===9  && <OnbGoals           pal={pal} data={data} upd={upd} onNext={()=>setStep(10)} />}
+        {step===10 && <OnbExtras          pal={pal} data={data} upd={upd} onNext={()=>setStep(11)} />}
+        {step===11 && <OnbLifeReady       pal={pal} data={data} upd={upd} onNext={()=>setStep(12)} />}
+        {step===12 && <OnbCelebration     pal={pal} data={data} upd={upd} onNext={()=>onComplete(data)} />}
       </div>
     </div>
   );
@@ -260,17 +260,35 @@ function OnbScheduleCombined({ pal, data, upd, onNext }) {
           </div>
           {activeDay===coopDow?(
             <div style={{background:"#fff8e6",borderRadius:"16px",padding:"0.9rem 1rem",border:"1.5px solid #f5c84250",marginBottom:"1rem"}}>
-              <div style={{fontWeight:"700",color:"#7a5500",fontSize:"0.86rem",marginBottom:"0.4rem"}}>{DOW_FULL[activeDay]+" \u2014 Co-op Day"}</div>
-              <div style={{fontSize:"0.73rem",color:"#b07800",marginBottom:"0.5rem"}}>{"This day is set aside for co-op. Your co-op subjects from the previous step are shown below."}</div>
-              {(data.coopSubjects||data.coopClasses||[]).length>0&&(
-                <div style={{display:"flex",flexWrap:"wrap",gap:"0.3rem"}}>
-                  {(data.coopSubjects||[]).map(id=>{
-                    const s=[...SUBJECT_OPTIONS,...(data.customSubjects||[])].find(x=>x.id===id);
-                    return s?<span key={id} style={{padding:"0.2rem 0.55rem",background:"#fff3cc",borderRadius:"20px",fontSize:"0.72rem",fontWeight:"700",color:"#7a5500",border:"1px solid #f5c84250"}}>{s.icon} {s.label}</span>:null;
-                  })}
-                  {(data.coopClasses||[]).map(c=>(
-                    <span key={c} style={{padding:"0.2rem 0.55rem",background:"#fff3cc",borderRadius:"20px",fontSize:"0.72rem",fontWeight:"700",color:"#7a5500",border:"1px solid #f5c84250"}}>{c}</span>
-                  ))}
+              <div style={{fontWeight:"700",color:"#7a5500",fontSize:"0.86rem",marginBottom:"0.25rem"}}>{DOW_FULL[activeDay]+" \u2014 Co-op Day"}</div>
+              <div style={{fontSize:"0.73rem",color:"#b07800",marginBottom:"0.6rem"}}>{"Co-op classes are shown below. You can also add extra subjects done at home on this day."}</div>
+              {(data.coopClasses||[]).length>0&&(
+                <div style={{marginBottom:"0.75rem"}}>
+                  <div style={{fontSize:"0.63rem",fontWeight:"800",color:"#b07800",textTransform:"uppercase",letterSpacing:"0.05em",marginBottom:"0.3rem"}}>{"\uD83C\uDFEB At co-op"}</div>
+                  <div style={{display:"flex",flexWrap:"wrap",gap:"0.3rem"}}>
+                    {(data.coopClasses||[]).map(c=>(
+                      <span key={c} style={{padding:"0.2rem 0.55rem",background:"#fff3cc",borderRadius:"20px",fontSize:"0.72rem",fontWeight:"700",color:"#7a5500",border:"1px solid #f5c84260"}}>{c}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {activeSubjs.length>0&&(
+                <div>
+                  <div style={{fontSize:"0.63rem",fontWeight:"800",color:"#b07800",textTransform:"uppercase",letterSpacing:"0.05em",marginBottom:"0.3rem"}}>{"+ Also at home (optional)"}</div>
+                  <div style={{display:"flex",flexDirection:"column",gap:"0.28rem"}}>
+                    {activeSubjs.map(s=>{
+                      const selExtra=(sched[activeDay]||[]).includes(s.id);
+                      return (
+                        <button key={s.id} onClick={()=>toggleSubj(activeDay,s.id)} style={{display:"flex",gap:"0.65rem",alignItems:"center",padding:"0.45rem 0.75rem",border:`2px solid ${selExtra?pal.primary:pal.stone+"45"}`,borderRadius:"11px",background:selExtra?pal.pale:"#fff",cursor:"pointer",textAlign:"left",transition:"all 0.12s"}}>
+                          <span style={{fontSize:"1rem",width:"20px",textAlign:"center",flexShrink:0}}>{s.icon}</span>
+                          <span style={{flex:1,fontWeight:selExtra?"700":"400",color:selExtra?pal.primary:pal.inkM,fontSize:"0.82rem"}}>{s.label}</span>
+                          <div style={{width:"18px",height:"18px",borderRadius:"5px",border:`2px solid ${selExtra?pal.primary:pal.stone}`,background:selExtra?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                            {selExtra&&<span style={{color:"#fff",fontSize:"0.68rem",fontWeight:"900"}}>{"\u2713"}</span>}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </div>
@@ -687,17 +705,31 @@ function OnbSubjects({ pal, data, upd, onNext }) {
   };
   const sel = data.subjects || [];
   const allSubjects = [...SUBJECT_OPTIONS, ...(data.customSubjects||[])];
+  // Auto-highlight subjects covered at co-op
+  const coopClassNames = (data.coopClasses||[]).map(c=>c.toLowerCase().trim());
+  const isCoopSubj = (s) => coopClassNames.some(c=>c===s.label.toLowerCase().trim()||s.label.toLowerCase().includes(c)||c.includes(s.label.toLowerCase()));
   return (
     <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
       <StepHdr pal={pal} icon="\uD83D\uDD2C" title="Your Subjects" sub="Pick everything you teach. You can always add or remove later." />
+      {coopClassNames.length>0&&(
+        <div style={{background:"#fff8e6",borderRadius:"12px",padding:"0.55rem 0.85rem",marginBottom:"0.75rem",border:"1.5px solid #f5c84260",fontSize:"0.72rem",color:"#7a5500",fontWeight:"600"}}>
+          {"\uD83C\uDFEB Subjects marked Co-op are taught at your co-op \u2014 tap to include them in your subject list too."}
+        </div>
+      )}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.45rem",marginBottom:"0.85rem"}}>
         {allSubjects.map(s=>{
           const isSelected = sel.includes(s.id);
           const isCustom = s.id.startsWith("custom_");
+          const isCoop = isCoopSubj(s);
+          const borderColor = isCoop&&!isSelected?"#f5c842":isSelected?pal.primary:pal.stone+"50";
+          const bgColor = isCoop&&!isSelected?"#fffbee":isSelected?pal.pale:"transparent";
           return (
-            <button key={s.id} onClick={()=>toggleSubj(s.id)} style={{padding:"0.7rem 0.75rem",border:`2px solid ${isSelected?pal.primary:pal.stone+"50"}`,borderRadius:"12px",background:isSelected?pal.pale:"transparent",cursor:"pointer",textAlign:"left",display:"flex",gap:"0.5rem",alignItems:"center",transition:"all 0.13s",position:"relative"}}>
+            <button key={s.id} onClick={()=>toggleSubj(s.id)} style={{padding:"0.7rem 0.75rem",border:`2px solid ${borderColor}`,borderRadius:"12px",background:bgColor,cursor:"pointer",textAlign:"left",display:"flex",gap:"0.5rem",alignItems:"center",transition:"all 0.13s",position:"relative"}}>
               <span style={{fontSize:"1.15rem",flexShrink:0}}>{s.icon}</span>
-              <span style={{fontWeight:isSelected?"700":"400",color:isSelected?pal.primary:pal.inkM,fontSize:"0.78rem",flex:1}}>{s.label}</span>
+              <div style={{flex:1,minWidth:0}}>
+                <span style={{fontWeight:isSelected?"700":"400",color:isSelected?pal.primary:isCoop?"#7a5500":pal.inkM,fontSize:"0.78rem"}}>{s.label}</span>
+                {isCoop&&<div style={{fontSize:"0.58rem",fontWeight:"800",color:"#b07800",letterSpacing:"0.04em",marginTop:"1px"}}>{"\uD83C\uDFEB CO-OP"}</div>}
+              </div>
               {isSelected && !isCustom && <span style={{color:pal.primary,fontSize:"0.75rem",fontWeight:"900"}}>\u2713</span>}
               {isCustom && <span onClick={e=>{e.stopPropagation();removeCustom(s.id);}} style={{fontSize:"0.65rem",color:pal.bad,fontWeight:"900",cursor:"pointer",padding:"0 2px"}}>x</span>}
             </button>
@@ -1442,7 +1474,8 @@ function OnbCoop({ pal, data, upd, onNext }) {
             </div>
           </div>
 
-          {/* Time */}
+          {/* Time -- only shown if family uses timed schedule */}
+          {data.useScheduleTab!==false&&(
           <div style={{marginBottom:"1rem"}}>
             <Lbl pal={pal}>Start time</Lbl>
             <select value={data.coopTime||""} onChange={e=>upd("coopTime",e.target.value)}
@@ -1451,6 +1484,7 @@ function OnbCoop({ pal, data, upd, onNext }) {
               {TIMES.map(t=><option key={t} value={t}>{t}</option>)}
             </select>
           </div>
+          )}
 
           {/* Which kids */}
           {(data.children||[]).length>1&&(
