@@ -16416,6 +16416,7 @@ function GoalsScreen({pal,family,portfolioEntries=[],onUpdateFamily,onAddEntry,o
 
   const allGoalObjs  = [...GOALS,...(family.customGoals||[])];
   const activeGoals  = (family.goals||[]).map(id=>allGoalObjs.find(x=>x.id===id)).filter(Boolean);
+  const familyGoals  = activeGoals;
 
   const fetchGoalSuggs = async () => {
     setAiOpen(true); setAiLoading(true); setAiError(""); setAiSuggs([]);
@@ -16436,8 +16437,6 @@ function GoalsScreen({pal,family,portfolioEntries=[],onUpdateFamily,onAddEntry,o
     onUpdateFamily&&onUpdateFamily({customGoals:[...existing, newGoal], goals:[...(family.goals||[]), newGoal.id]});
   };
 
-  const allGoalObjs  = [...GOALS,...(family.customGoals||[])];
-  const familyGoals  = (family.goals||[]).map(id=>allGoalObjs.find(g=>g.id===id)).filter(Boolean);
   const [parentNote,   setParentNote]   = useState("");
   const [photos,       setPhotos]       = useState([]);
   const [goalsHit,     setGoalsHit]     = useState(new Set());
