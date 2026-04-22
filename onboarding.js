@@ -17,7 +17,7 @@ function OnboardingFlow({ pal, onComplete }) {
     morningGathering:true, morningGatheringName:"Morning Time",
     schoolDays:"Monday-Friday", startTime:"8:00", endTime:"15:00", breakStyle:"Short breaks every hour",
     goals:[],
-    coopFreq:"Every other week", extracurriculars:[],
+    coopFreq:"Every other week", coopDay:"Wednesday", extracurriculars:[],
     lifeReady:false, lifeReadyFreq:"monday_plus_practice", lifeReadyCategories:[],
     paletteId:"sage",
   });
@@ -168,11 +168,12 @@ function OnbScheduleCombined({ pal, data, upd, onNext }) {
   const DOW_LABELS=["Mon","Tue","Wed","Thu","Fri"];
   const DOW_FULL=["Monday","Tuesday","Wednesday","Thursday","Friday"];
   const DOW_MAP={"Monday":0,"Tuesday":1,"Wednesday":2,"Thursday":3,"Friday":4};
-  const coopDow=DOW_MAP[coopDay]??-1;
+  const doesCoop=data.coopFreq&&data.coopFreq!=="We don't do co-op";
+  const coopDow=doesCoop?(DOW_MAP[coopDay]??-1):-1;
   const [sched,setSched]=React.useState(()=>{
     if(data.weeklySchedule) return data.weeklySchedule;
     const init={};
-    for(let d=0;d<5;d++){if(d===coopDow){init[d]=null;continue;}init[d]=activeSubjs.map(s=>s.id);}
+    for(let d=0;d<5;d++){if(d===coopDow){init[d]=[];continue;}init[d]=activeSubjs.map(s=>s.id);}
     return init;
   });
   const [activeDay,setActiveDay]=React.useState(coopDow===0?1:0);
@@ -218,6 +219,32 @@ function OnbScheduleCombined({ pal, data, upd, onNext }) {
               </button>
             ))}
           </div>
+          {/* Session length -- only for timed families, and only if tracking hours */}
+          {data.useScheduleTab!==false&&(data.dailyHoursGoal||"No hour tracking")!=="No hour tracking"&&(
+            <div style={{background:pal.parchm,borderRadius:"13px",padding:"0.8rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}35`}}>
+              <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.84rem",marginBottom:"0.5rem"}}>{"\u23F1\uFE0F Typical session length"}</div>
+              <div style={{fontSize:"0.71rem",color:pal.slate,marginBottom:"0.55rem"}}>{"How long does each subject usually run? Used to estimate your daily schedule."}</div>
+              <div style={{display:"flex",gap:"0.4rem",flexWrap:"wrap"}}>
+                {SESSION_LENGTHS.map(l=>(
+                  <button key={l} onClick={()=>upd("sessionLength",l)} style={{padding:"0.38rem 0.8rem",border:`2px solid ${data.sessionLength===l?pal.primary:pal.stone+"50"}`,borderRadius:"20px",background:data.sessionLength===l?pal.pale:"transparent",cursor:"pointer",fontWeight:data.sessionLength===l?"700":"400",color:data.sessionLength===l?pal.primary:pal.inkM,fontSize:"0.8rem",transition:"all 0.13s"}}>
+                    {l}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          {/* Co-op start time -- only for timed families who do co-op */}
+          {data.useScheduleTab!==false&&data.coopFreq&&data.coopFreq!=="We don't do co-op"&&(
+            <div style={{background:"#fff8e6",borderRadius:"13px",padding:"0.8rem 1rem",marginBottom:"1rem",border:"1.5px solid #f5c84250"}}>
+              <div style={{fontWeight:"700",color:"#7a5500",fontSize:"0.84rem",marginBottom:"0.5rem"}}>{"\uD83C\uDFEB Co-op start time"}</div>
+              <div style={{fontSize:"0.71rem",color:"#b07800",marginBottom:"0.55rem"}}>{"What time does your co-op start? Helps build your schedule around it."}</div>
+              <select value={data.coopTime||""} onChange={e=>upd("coopTime",e.target.value)}
+                style={{width:"100%",padding:"0.55rem 0.75rem",border:"2px solid #f5c842",borderRadius:"11px",fontSize:"0.84rem",background:"#fffbee",color:"#7a5500",outline:"none",fontFamily:"inherit"}}>
+                <option value="">Select a time...</option>
+                {["7:00 AM","7:30 AM","8:00 AM","8:30 AM","9:00 AM","9:30 AM","10:00 AM","10:30 AM","11:00 AM","11:30 AM","12:00 PM","12:30 PM","1:00 PM","1:30 PM","2:00 PM"].map(t=><option key={t} value={t}>{t}</option>)}
+              </select>
+            </div>
+          )}
           <div style={{background:pal.pale,borderRadius:"13px",padding:"0.85rem 1rem",marginBottom:"1.2rem",border:`1.5px solid ${pal.primary}22`}}>
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:data.morningGathering?"0.65rem":"0"}}>
               <div>
@@ -253,7 +280,7 @@ function OnbScheduleCombined({ pal, data, upd, onNext }) {
               return (
                 <button key={i} onClick={()=>setActiveDay(i)} style={{flex:1,padding:"0.55rem 0.2rem",borderRadius:"12px",border:`2px solid ${isActive?pal.primary:isCopDay?"#f5c842":isOff?pal.stone+"40":pal.stone+"50"}`,background:isActive?pal.pale:isCopDay?"#fff8e6":"transparent",cursor:"pointer",textAlign:"center",transition:"all 0.13s"}}>
                   <div style={{fontSize:"0.65rem",fontWeight:"800",color:isActive?pal.primary:isCopDay?"#b07800":isOff?pal.stone:pal.inkM,textTransform:"uppercase",letterSpacing:"0.05em"}}>{d}</div>
-                  <div style={{fontSize:"0.58rem",color:isActive?pal.primary:isCopDay?"#b07800":isOff?pal.stone:pal.slate,marginTop:"2px",fontWeight:"600"}}>{isCopDay?"Co-op":isOff?"Off":subjCount+" subj"}</div>
+                  <div style={{fontSize:"0.58rem",color:isActive?pal.primary:isCopDay?"#b07800":isOff?pal.stone:pal.slate,marginTop:"2px",fontWeight:"600"}}>{isCopDay?"Co-op"+(subjCount>0?" +"+subjCount:""):isOff?"Off":subjCount+" subj"}</div>
                 </button>
               );
             })}
@@ -321,7 +348,7 @@ function OnbScheduleCombined({ pal, data, upd, onNext }) {
           <div style={{background:pal.parchm,borderRadius:"12px",padding:"0.65rem 0.85rem",marginBottom:"1.1rem",border:`1px solid ${pal.stone}25`}}>
             <div style={{fontSize:"0.64rem",fontWeight:"800",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.35rem"}}>{"Your week at a glance"}</div>
             <div style={{display:"flex",gap:"0.5rem",flexWrap:"wrap"}}>
-              {DOW_LABELS.map((d,i)=>{const isCopDay=i===coopDow;const isOff=sched[i]===null&&!isCopDay;const count=Array.isArray(sched[i])?sched[i].length:0;return (
+              {DOW_LABELS.map((d,i)=>{const isCopDay=i===coopDow;const isOff=sched[i]===null&&!isCopDay;const count=isCopDay?(sched[i]||[]).length:Array.isArray(sched[i])?sched[i].length:0;return (
                 <div key={i} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:"2px",cursor:"pointer"}} onClick={()=>setActiveDay(i)}>
                   <div style={{fontSize:"0.6rem",fontWeight:"700",color:isCopDay?"#b07800":isOff?pal.stone:pal.inkM}}>{d}</div>
                   <div style={{width:"36px",height:"36px",borderRadius:"9px",background:isCopDay?"#fff8e6":isOff?pal.parchm:pal.pale,border:`1.5px solid ${activeDay===i?pal.primary:isCopDay?"#f5c842":isOff?pal.stone+"30":pal.stone+"40"}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.68rem",fontWeight:"800",color:isCopDay?"#b07800":isOff?pal.stone:pal.primary}}>
@@ -751,14 +778,6 @@ function OnbSubjects({ pal, data, upd, onNext }) {
           + Add
         </button>
       </div>
-      <Lbl pal={pal}>Typical session length</Lbl>
-      <div style={{display:"flex",gap:"0.4rem",flexWrap:"wrap",marginBottom:"1.2rem"}}>
-        {SESSION_LENGTHS.map(l=>(
-          <button key={l} onClick={()=>upd("sessionLength",l)} style={{padding:"0.45rem 0.85rem",border:`2px solid ${data.sessionLength===l?pal.primary:pal.stone+"50"}`,borderRadius:"20px",background:data.sessionLength===l?pal.pale:"transparent",cursor:"pointer",fontWeight:data.sessionLength===l?"700":"400",color:data.sessionLength===l?pal.primary:pal.inkM,fontSize:"0.8rem",transition:"all 0.13s"}}>
-            {l}
-          </button>
-        ))}
-      </div>
 <Btn pal={pal} disabled={sel.length===0} onClick={onNext}>{"Next \u2192"}</Btn>
     </div>
   );
@@ -1061,7 +1080,7 @@ function OnbWeeklySchedule({ pal, data, upd, onNext }) {
               style={{flex:1,padding:"0.55rem 0.2rem",borderRadius:"12px",border:`2px solid ${isActive?pal.primary:isCopDay?"#f5c842":isOff?pal.stone+"40":pal.stone+"50"}`,background:isActive?pal.pale:isCopDay?"#fff8e6":isOff?"transparent":"transparent",cursor:"pointer",textAlign:"center",transition:"all 0.13s"}}>
               <div style={{fontSize:"0.65rem",fontWeight:"800",color:isActive?pal.primary:isCopDay?"#b07800":isOff?pal.stone:pal.inkM,textTransform:"uppercase",letterSpacing:"0.05em"}}>{d}</div>
               <div style={{fontSize:"0.58rem",color:isActive?pal.primary:isCopDay?"#b07800":isOff?pal.stone:pal.slate,marginTop:"2px",fontWeight:"600"}}>
-                {isCopDay?"Co-op":isOff?"Off":subjCount+" subj"}
+                {isCopDay?"Co-op"+(subjCount>0?" +"+subjCount:""):isOff?"Off":subjCount+" subj"}
               </div>
             </button>
           );
@@ -1474,17 +1493,7 @@ function OnbCoop({ pal, data, upd, onNext }) {
             </div>
           </div>
 
-          {/* Time -- only shown if family uses timed schedule */}
-          {data.useScheduleTab!==false&&(
-          <div style={{marginBottom:"1rem"}}>
-            <Lbl pal={pal}>Start time</Lbl>
-            <select value={data.coopTime||""} onChange={e=>upd("coopTime",e.target.value)}
-              style={{width:"100%",padding:"0.55rem 0.75rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.84rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit"}}>
-              <option value="">Select a time...</option>
-              {TIMES.map(t=><option key={t} value={t}>{t}</option>)}
-            </select>
-          </div>
-          )}
+          {/* Co-op start time is collected on the Schedule page */}
 
           {/* Which kids */}
           {(data.children||[]).length>1&&(
