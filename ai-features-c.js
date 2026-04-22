@@ -49,7 +49,7 @@ function AILessonPlannerModal({ pal, family, activeChild, portfolioEntries=[], o
       + (notes.trim()?"Parent notes / what to focus on: "+notes.trim()+"\n":"")
       + (recentNotes?"Recent learning context: "+recentNotes.slice(0,400)+"\n":"")
       + "\nCreate a Mon-Fri lesson plan. For each day include 2-3 subjects with:\n"
-      + "- A specific activity or lesson (not generic — name exact topics, books, or approaches)\n"
+      + "- A specific activity or lesson (not generic -- name exact topics, books, or approaches)\n"
       + "- One question to ask the student during or after\n"
       + "- Time estimate in minutes\n\n"
       + "Also include:\n"
@@ -158,7 +158,7 @@ ${(result.days||[]).map(d=>`
         {/* Header */}
         <div style={{padding:"0.7rem 1.2rem 0.6rem",borderBottom:"1px solid "+pal.stone+"45",flexShrink:0,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <div>
-            <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.95rem"}}>{"📅 Weekly Lesson Planner"}</div>
+            <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.95rem"}}>{"[cal] Weekly Lesson Planner"}</div>
             <div style={{fontSize:"0.72rem",color:pal.slate,marginTop:"2px"}}>
               {phase==="input"?"Tell me what to cover this week":phase==="loading"?"Building your plan\u2026":"Your week is planned!"}
             </div>
@@ -168,7 +168,7 @@ ${(result.days||[]).map(d=>`
 
         <div style={{flex:1,overflowY:"auto",padding:"0.9rem 1.2rem 0.5rem"}}>
 
-          {/* ── INPUT PHASE ── */}
+          {/* -- INPUT PHASE -- */}
           {phase==="input"&&(
             <div>
               {/* Child selector */}
@@ -233,10 +233,10 @@ ${(result.days||[]).map(d=>`
             </div>
           )}
 
-          {/* ── LOADING PHASE ── */}
+          {/* -- LOADING PHASE -- */}
           {phase==="loading"&&(
             <div style={{textAlign:"center",padding:"2.5rem 0"}}>
-              <div style={{fontSize:"3rem",marginBottom:"0.75rem",animation:"pulse 1.2s ease infinite"}}>{"📅"}</div>
+              <div style={{fontSize:"3rem",marginBottom:"0.75rem",animation:"pulse 1.2s ease infinite"}}>{"[cal]"}</div>
               <div style={{fontWeight:"800",color:pal.primary,fontSize:"0.95rem",marginBottom:"0.35rem"}}>{"Building your week\u2026"}</div>
               <div style={{fontSize:"0.78rem",color:pal.slate,lineHeight:1.65,maxWidth:"260px",margin:"0 auto"}}>
                 {"Creating specific daily lessons, questions to ask, and parent tips for "+child?.name+"."}
@@ -244,7 +244,7 @@ ${(result.days||[]).map(d=>`
             </div>
           )}
 
-          {/* ── RESULT PHASE ── */}
+          {/* -- RESULT PHASE -- */}
           {phase==="result"&&result&&(
             <div style={{animation:"fadeUp 0.2s ease"}}>
 
@@ -259,7 +259,7 @@ ${(result.days||[]).map(d=>`
               {/* Parent tip */}
               {result.parentTip&&(
                 <div style={{background:"#fffbeb",border:"1.5px solid #f5c84240",borderRadius:"11px",padding:"0.6rem 0.9rem",marginBottom:"0.75rem",display:"flex",gap:"0.5rem",alignItems:"flex-start"}}>
-                  <span style={{fontSize:"1rem",flexShrink:0}}>{"💡"}</span>
+                  <span style={{fontSize:"1rem",flexShrink:0}}>{"[idea]"}</span>
                   <div style={{fontSize:"0.78rem",color:pal.ink,lineHeight:1.5}}>{result.parentTip}</div>
                 </div>
               )}
@@ -267,7 +267,7 @@ ${(result.days||[]).map(d=>`
               {/* Struggling note */}
               {result.strugglingNote&&(
                 <div style={{background:"#fff8e6",border:"1.5px solid #f5c84250",borderRadius:"11px",padding:"0.6rem 0.9rem",marginBottom:"0.75rem",display:"flex",gap:"0.5rem",alignItems:"flex-start"}}>
-                  <span style={{fontSize:"1rem",flexShrink:0}}>{"🌱"}</span>
+                  <span style={{fontSize:"1rem",flexShrink:0}}>{"\u1f331"}</span>
                   <div style={{fontSize:"0.78rem",color:"#7a5500",lineHeight:1.5}}>{result.strugglingNote}</div>
                 </div>
               )}
@@ -288,7 +288,7 @@ ${(result.days||[]).map(d=>`
                         <span style={{fontSize:"0.65rem",color:pal.slate}}>{l.minutes+" min"}</span>
                       </div>
                       <div style={{fontSize:"0.78rem",color:pal.inkM,lineHeight:1.5,marginBottom:"0.25rem"}}>{l.activity}</div>
-                      <div style={{fontSize:"0.72rem",color:pal.primary,fontStyle:"italic"}}>{"❓ "+l.question}</div>
+                      <div style={{fontSize:"0.72rem",color:pal.primary,fontStyle:"italic"}}>{"\u2753 "+l.question}</div>
                     </div>
                   ))}
                 </div>
@@ -306,7 +306,7 @@ ${(result.days||[]).map(d=>`
               <button onClick={onClose} style={{padding:"0.7rem 1rem",border:"2px solid "+pal.stone,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem"}}>{"Cancel"}</button>
               <button onClick={generate}
                 style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>
-                {"📅 Plan My Week"}
+                {"[cal] Plan My Week"}
               </button>
             </>
           )}

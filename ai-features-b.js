@@ -84,9 +84,9 @@ For true/false: {"q":"...","type":"tf","options":["True","False"],"answer":"True
   const missed = answers.filter(a=>!a.correct).map(a=>a.q.slice(0,40));
 
   const GRADE_ENCOURAGEMENT = [
-    "Amazing work! Keep going! 🌟",
-    "You're doing great! 🎉",
-    "Nice job! Every quiz makes you smarter! 🚀",
+    "Amazing work! Keep going! [star]",
+    "You're doing great! \u1f389",
+    "Nice job! Every quiz makes you smarter! [rocket]",
   ];
 
   return (
@@ -100,7 +100,7 @@ For true/false: {"q":"...","type":"tf","options":["True","False"],"answer":"True
               <span style={{fontSize:"1.4rem"}}>{subjIcon}</span>
               <div>
                 <div style={{fontWeight:"900",color:"#fff",fontSize:"0.95rem"}}>{subjLabel+" Challenge!"}</div>
-                <div style={{fontSize:"0.65rem",color:"rgba(255,255,255,0.75)"}}>{grade+" · based on today's lesson"}</div>
+                <div style={{fontSize:"0.65rem",color:"rgba(255,255,255,0.75)"}}>{grade+" \u00b7 based on today's lesson"}</div>
               </div>
             </div>
             <button onClick={onClose} style={{background:"rgba(255,255,255,0.2)",border:"none",borderRadius:"50%",width:"28px",height:"28px",color:"#fff",cursor:"pointer",fontSize:"0.85rem",display:"flex",alignItems:"center",justifyContent:"center"}}>{"\u2715"}</button>
@@ -120,7 +120,7 @@ For true/false: {"q":"...","type":"tf","options":["True","False"],"answer":"True
           {/* Loading */}
           {phase==="loading"&&(
             <div style={{textAlign:"center",padding:"2rem 1rem"}}>
-              <div style={{fontSize:"2.5rem",marginBottom:"0.5rem",animation:"bounce 1s ease infinite"}}>{"🤔"}</div>
+              <div style={{fontSize:"2.5rem",marginBottom:"0.5rem",animation:"bounce 1s ease infinite"}}>{"[think]"}</div>
               <div style={{fontWeight:"800",color:SK.ink,fontSize:"0.9rem",marginBottom:"0.25rem"}}>{"Building your quiz..."}</div>
               <div style={{fontSize:"0.72rem",color:SK.lite}}>{"Making questions from today's lesson!"}</div>
             </div>
@@ -129,7 +129,7 @@ For true/false: {"q":"...","type":"tf","options":["True","False"],"answer":"True
           {/* No API key */}
           {phase==="nokey"&&(
             <div style={{textAlign:"center",padding:"1.5rem 1rem"}}>
-              <div style={{fontSize:"2rem",marginBottom:"0.5rem"}}>{"🔑"}</div>
+              <div style={{fontSize:"2rem",marginBottom:"0.5rem"}}>{"\u1f511"}</div>
               <div style={{fontWeight:"700",color:SK.ink,fontSize:"0.85rem",marginBottom:"0.3rem"}}>{"AI not set up yet"}</div>
               <div style={{fontSize:"0.72rem",color:SK.lite,lineHeight:1.6}}>{"Ask your parent to add an API key in Settings to unlock quizzes!"}</div>
             </div>
@@ -138,7 +138,7 @@ For true/false: {"q":"...","type":"tf","options":["True","False"],"answer":"True
           {/* Error */}
           {phase==="error"&&(
             <div style={{textAlign:"center",padding:"1.5rem 1rem"}}>
-              <div style={{fontSize:"2rem",marginBottom:"0.5rem"}}>{"😔"}</div>
+              <div style={{fontSize:"2rem",marginBottom:"0.5rem"}}>{"\u1f614"}</div>
               <div style={{fontWeight:"700",color:SK.ink,fontSize:"0.85rem",marginBottom:"0.5rem"}}>{"Couldn't make a quiz right now"}</div>
               <button onClick={generateQuiz} style={{padding:"0.5rem 1.2rem",border:"none",borderRadius:"12px",background:heroGrad,color:"#fff",fontWeight:"800",fontSize:"0.82rem",cursor:"pointer"}}>{"Try again"}</button>
             </div>
@@ -151,7 +151,7 @@ For true/false: {"q":"...","type":"tf","options":["True","False"],"answer":"True
             return (
               <div>
                 <div style={{background:SK.card,borderRadius:"20px",padding:"1.1rem 1rem",marginBottom:"1rem",boxShadow:"0 2px 14px rgba(0,0,0,0.07)"}}>
-                  <div style={{fontWeight:"900",color:SK.ink,fontSize:"0.92rem",lineHeight:1.5,marginBottom:"0.25rem"}}>{"💭 "+q.q}</div>
+                  <div style={{fontWeight:"900",color:SK.ink,fontSize:"0.92rem",lineHeight:1.5,marginBottom:"0.25rem"}}>{"\u1f4ad "+q.q}</div>
                 </div>
                 {/* Multiple choice / true-false */}
                 {(q.type==="mc"||q.type==="tf")&&(
@@ -169,7 +169,7 @@ For true/false: {"q":"...","type":"tf","options":["True","False"],"answer":"True
                           style={{padding:"0.75rem 1rem",border:"2.5px solid "+border,borderRadius:"16px",background:bg,fontFamily:"inherit",fontWeight:"700",fontSize:gradeGroup==="early"?"1rem":"0.85rem",color:SK.ink,cursor:feedback?"default":"pointer",textAlign:"left",transition:"all 0.2s"}}>
                           {gradeGroup!=="early"&&<span style={{color:c1,marginRight:"0.4rem"}}>{String.fromCharCode(65+oi)+"."}</span>}
                           {opt}
-                          {isSelected&&isCorrect&&<span style={{float:"right"}}>{"✓"}</span>}
+                          {isSelected&&isCorrect&&<span style={{float:"right"}}>{"\u2713"}</span>}
                         </button>
                       );
                     })}
@@ -191,7 +191,7 @@ For true/false: {"q":"...","type":"tf","options":["True","False"],"answer":"True
                 {/* Feedback overlay */}
                 {feedback&&(
                   <div style={{marginTop:"0.75rem",padding:"0.75rem 1rem",borderRadius:"14px",background:feedback==="correct"?"#e8f7ee":"#fff4e6",border:"2px solid "+(feedback==="correct"?"#2d9e5f":"#f5a442"),textAlign:"center"}}>
-                    <div style={{fontSize:"1.5rem",marginBottom:"2px"}}>{feedback==="correct"?"🎉":"💪"}</div>
+                    <div style={{fontSize:"1.5rem",marginBottom:"2px"}}>{feedback==="correct"?"\u1f389":"[flex]"}</div>
                     <div style={{fontWeight:"800",color:feedback==="correct"?"#2d9e5f":"#e87a00",fontSize:"0.85rem"}}>{feedback==="correct"?"Correct!":"Not quite..."}</div>
                     {feedback==="wrong"&&questions[current]?.explanation&&(
                       <div style={{fontSize:"0.72rem",color:SK.ink,marginTop:"3px",lineHeight:1.5}}>{questions[current].explanation}</div>
@@ -207,7 +207,7 @@ For true/false: {"q":"...","type":"tf","options":["True","False"],"answer":"True
             <div>
               <div style={{textAlign:"center",marginBottom:"1.2rem"}}>
                 <div style={{fontSize:"3.5rem",marginBottom:"0.4rem",animation:"bounce 1.5s ease infinite"}}>
-                  {score===questions.length?"🏆":score>=questions.length/2?"🌟":"💪"}
+                  {score===questions.length?"[trophy]":score>=questions.length/2?"[star]":"[flex]"}
                 </div>
                 <div style={{fontWeight:"900",color:SK.ink,fontSize:"1.3rem"}}>{score+"/"+questions.length}</div>
                 <div style={{fontSize:"0.8rem",color:SK.lite,marginTop:"3px"}}>
@@ -223,7 +223,7 @@ For true/false: {"q":"...","type":"tf","options":["True","False"],"answer":"True
                 {answers.map((a,i)=>(
                   <div key={i} style={{background:SK.card,borderRadius:"14px",padding:"0.7rem 0.85rem",border:"1.5px solid "+(a.correct?"#2d9e5f40":"#f5a44240")}}>
                     <div style={{display:"flex",alignItems:"center",gap:"0.4rem",marginBottom:a.correct?"0":"0.3rem"}}>
-                      <span style={{fontSize:"0.85rem"}}>{a.correct?"✅":"❌"}</span>
+                      <span style={{fontSize:"0.85rem"}}>{a.correct?"[ok]":"\u274c"}</span>
                       <span style={{fontSize:"0.75rem",fontWeight:"700",color:SK.ink,flex:1,lineHeight:1.4}}>{a.q}</span>
                     </div>
                     {!a.correct&&(
@@ -235,7 +235,7 @@ For true/false: {"q":"...","type":"tf","options":["True","False"],"answer":"True
               {/* Save to portfolio */}
               <button onClick={()=>onSaveResult({score,total:questions.length,missed,questions:answers,subject:subjLabel,grade})}
                 style={{width:"100%",padding:"0.85rem",border:"none",borderRadius:"16px",background:heroGrad,color:"#fff",fontWeight:"900",fontSize:"0.92rem",cursor:"pointer",boxShadow:"0 4px 18px "+c1+"40",marginBottom:"0.5rem"}}>
-                {"📊 Save results → Progress"}
+                {"\u1f4ca Save results -> Progress"}
               </button>
               <button onClick={onClose}
                 style={{width:"100%",padding:"0.5rem",border:"none",background:"transparent",color:SK.lite,fontSize:"0.76rem",cursor:"pointer"}}>{"Close"}</button>
@@ -253,7 +253,7 @@ For true/false: {"q":"...","type":"tf","options":["True","False"],"answer":"True
 
 /* ----------------------------------------------------------
    FIELD STUDY MODAL
-   Photo → AI identifies subject → fun facts + mini lesson
+   Photo -> AI identifies subject -> fun facts + mini lesson
    + printable worksheet
    ---------------------------------------------------------- */
 function FieldStudyModal({ pal, family, child, onAddEntry, onClose }) {
@@ -283,7 +283,7 @@ function FieldStudyModal({ pal, family, child, onAddEntry, onClose }) {
   // Past field study entries for this child
   const pastStudies = useMemo(() => {
     if(!onAddEntry) return [];
-    // We don't have direct portfolio access here so we read from a passed prop — 
+    // We don't have direct portfolio access here so we read from a passed prop -- 
     // use window.__rbPortfolio if available (set by root), otherwise empty
     try {
       const saved = localStorage.getItem("rootbloom_v1");
@@ -311,7 +311,7 @@ function FieldStudyModal({ pal, family, child, onAddEntry, onClose }) {
 
     const familySubjLabels = familySubjects.map(s=>s.label).join(", ") || "general subjects";
 
-    const prompt = `You are an enthusiastic nature and science educator helping a homeschool family.\nLook at this photo and identify what is in it — plants, animals, rocks, insects, objects, or scenes.\n\nStudent: ${name}, ${grade} (${gradeDesc})\nFamily goals: ${goalSummary(family)}\nFamily subjects: ${familySubjLabels}\n\nRespond ONLY with valid JSON:\n{\n  "subject": "what you see (e.g. Oak tree leaves, Monarch butterfly, Quartz crystal)",\n  "category": "plant|animal|insect|rock|weather|place|object|other",\n  "confidence": "high|medium|low",\n  "funFacts": [\n    "fun fact 1 written for this grade level",\n    "fun fact 2",\n    "fun fact 3",\n    "fun fact 4",\n    "fun fact 5"\n  ],\n  "miniLesson": {\n    "title": "Mini Lesson title (5-8 words)",\n    "introduction": "1-2 engaging sentences introducing the subject at grade level",\n    "keyPoints": [\n      "key point 1",\n      "key point 2",\n      "key point 3"\n    ],\n    "activity": "One hands-on activity the student can do right now",\n    "discussion": "One thought-provoking question to spark conversation",\n    "vocabulary": ["word1", "word2", "word3"]\n  },\n  "suggestedSubject": "the single best matching subject label from this list: ${familySubjLabels}",\n  "subjects": ["list of school subjects this connects to"]\n}`;
+    const prompt = `You are an enthusiastic nature and science educator helping a homeschool family.\nLook at this photo and identify what is in it -- plants, animals, rocks, insects, objects, or scenes.\n\nStudent: ${name}, ${grade} (${gradeDesc})\nFamily goals: ${goalSummary(family)}\nFamily subjects: ${familySubjLabels}\n\nRespond ONLY with valid JSON:\n{\n  "subject": "what you see (e.g. Oak tree leaves, Monarch butterfly, Quartz crystal)",\n  "category": "plant|animal|insect|rock|weather|place|object|other",\n  "confidence": "high|medium|low",\n  "funFacts": [\n    "fun fact 1 written for this grade level",\n    "fun fact 2",\n    "fun fact 3",\n    "fun fact 4",\n    "fun fact 5"\n  ],\n  "miniLesson": {\n    "title": "Mini Lesson title (5-8 words)",\n    "introduction": "1-2 engaging sentences introducing the subject at grade level",\n    "keyPoints": [\n      "key point 1",\n      "key point 2",\n      "key point 3"\n    ],\n    "activity": "One hands-on activity the student can do right now",\n    "discussion": "One thought-provoking question to spark conversation",\n    "vocabulary": ["word1", "word2", "word3"]\n  },\n  "suggestedSubject": "the single best matching subject label from this list: ${familySubjLabels}",\n  "subjects": ["list of school subjects this connects to"]\n}`;
 
     try {
       const raw    = await callClaude(prompt, base64, mime);
@@ -461,16 +461,16 @@ function FieldStudyModal({ pal, family, child, onAddEntry, onClose }) {
                 {"\uD83D\uDCD6 "+pastStudies.length}
               </button>
             )}
-            <button onClick={onClose} style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.85rem",display:"flex",alignItems:"center",justifyContent:"center"}}>{"×"}</button>
+            <button onClick={onClose} style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.85rem",display:"flex",alignItems:"center",justifyContent:"center"}}>{"\u00d7"}</button>
           </div>
         </div>
 
         <div style={{flex:1,overflowY:"auto",padding:"1rem 1.2rem"}}>
 
-          {/* ── CAPTURE ── */}
+          {/* -- CAPTURE -- */}
           {phase==="capture"&&(
             <div style={{textAlign:"center"}}>
-              <div style={{fontSize:"4rem",marginBottom:"0.75rem",animation:"bounce 2s ease infinite"}}>{"📸"}</div>
+              <div style={{fontSize:"4rem",marginBottom:"0.75rem",animation:"bounce 2s ease infinite"}}>{"[camera]"}</div>
               <div style={{fontWeight:"800",color:pal.ink,fontSize:"1rem",marginBottom:"0.35rem"}}>{"What did you find?"}</div>
               <div style={{fontSize:"0.78rem",color:pal.slate,lineHeight:1.65,marginBottom:"1.5rem",maxWidth:"280px",margin:"0 auto 1.5rem"}}>
                 {"Snap a photo of a plant, animal, rock, or anything interesting. Claude will identify it and build a mini lesson for "+name+"!"}
@@ -480,7 +480,7 @@ function FieldStudyModal({ pal, family, child, onAddEntry, onClose }) {
               <div style={{display:"flex",flexDirection:"column",gap:"0.6rem",maxWidth:"280px",margin:"0 auto"}}>
                 <button onClick={()=>camRef.current?.click()}
                   style={{padding:"0.9rem",border:"none",borderRadius:"16px",background:pal.accentGrad,color:"#fff",fontWeight:"900",fontSize:"0.95rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.5rem",boxShadow:`0 4px 18px ${pal.accent}40`}}>
-                  <span>{"📷"}</span><span>{"Take a Photo"}</span>
+                  <span>{"\u1f4f7"}</span><span>{"Take a Photo"}</span>
                 </button>
                 <button onClick={()=>fileRef.current?.click()}
                   style={{padding:"0.75rem",border:`2px solid ${pal.stone}`,borderRadius:"14px",background:"transparent",color:pal.inkM,fontWeight:"700",fontSize:"0.88rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.5rem"}}>
@@ -490,7 +490,7 @@ function FieldStudyModal({ pal, family, child, onAddEntry, onClose }) {
             </div>
           )}
 
-          {/* ── LOADING ── */}
+          {/* -- LOADING -- */}
           {phase==="loading"&&(
             <div style={{textAlign:"center",padding:"1.5rem 0"}}>
               {imageData&&<img src={"data:"+imageMime+";base64,"+imageData} alt="" style={{width:"100%",maxHeight:"180px",objectFit:"cover",borderRadius:"14px",marginBottom:"1rem"}}/>}
@@ -500,7 +500,7 @@ function FieldStudyModal({ pal, family, child, onAddEntry, onClose }) {
             </div>
           )}
 
-          {/* ── RESULT ── */}
+          {/* -- RESULT -- */}
           {phase==="result"&&result&&!result._error&&(
             <div style={{animation:"fadeUp 0.22s ease"}}>
               {imageData&&(
@@ -569,14 +569,14 @@ function FieldStudyModal({ pal, family, child, onAddEntry, onClose }) {
               {/* Mini lesson */}
               {result.miniLesson&&(
                 <div style={{background:pal.linen,borderRadius:"16px",padding:"0.9rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}35`}}>
-                  <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.88rem",marginBottom:"0.55rem"}}>{"📖 "+result.miniLesson.title}</div>
+                  <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.88rem",marginBottom:"0.55rem"}}>{"\u1f4d6 "+result.miniLesson.title}</div>
                   <div style={{fontSize:"0.8rem",color:pal.inkM,lineHeight:1.65,marginBottom:"0.65rem"}}>{result.miniLesson.introduction}</div>
                   {(result.miniLesson.keyPoints||[]).length>0&&(
                     <div style={{marginBottom:"0.65rem"}}>
                       <div style={{fontSize:"0.65rem",fontWeight:"700",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.3rem"}}>{"Key Points"}</div>
                       {result.miniLesson.keyPoints.map((kp,i)=>(
                         <div key={i} style={{display:"flex",gap:"0.4rem",alignItems:"flex-start",marginBottom:"0.3rem"}}>
-                          <span style={{color:pal.primary,flexShrink:0,marginTop:"2px"}}>{"→"}</span>
+                          <span style={{color:pal.primary,flexShrink:0,marginTop:"2px"}}>{"->"}</span>
                           <span style={{fontSize:"0.78rem",color:pal.ink,lineHeight:1.5}}>{kp}</span>
                         </div>
                       ))}
@@ -649,7 +649,7 @@ function FieldStudyModal({ pal, family, child, onAddEntry, onClose }) {
             </div>
           )}
 
-          {/* ── ERROR STATES ── */}
+          {/* -- ERROR STATES -- */}
           {phase==="result"&&result?._error==="nokey"&&(
             <div style={{textAlign:"center",padding:"1.5rem"}}>
               <div style={{fontSize:"2rem",marginBottom:"0.5rem"}}>{"\uD83D\uDD11"}</div>
@@ -659,17 +659,17 @@ function FieldStudyModal({ pal, family, child, onAddEntry, onClose }) {
           )}
           {phase==="result"&&result?._error==="fail"&&(
             <div style={{textAlign:"center",padding:"1.5rem"}}>
-              <div style={{fontSize:"2rem",marginBottom:"0.5rem"}}>{"😔"}</div>
+              <div style={{fontSize:"2rem",marginBottom:"0.5rem"}}>{"\u1f614"}</div>
               <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.88rem",marginBottom:"0.5rem"}}>{"Couldn\u2019t analyze the photo"}</div>
               <button onClick={()=>setPhase("capture")} style={{padding:"0.55rem 1.2rem",border:"none",borderRadius:"10px",background:pal.accentGrad,color:"#fff",fontWeight:"700",fontSize:"0.82rem",cursor:"pointer"}}>{"Try Again"}</button>
             </div>
           )}
 
-          {/* ── WORKSHEET ── */}
+          {/* -- WORKSHEET -- */}
           {phase==="worksheet"&&wsResult&&(
             <div style={{animation:"fadeUp 0.22s ease"}}>
               <div style={{background:pal.goodBg,borderRadius:"12px",padding:"0.75rem 0.9rem",marginBottom:"1rem",border:`1.5px solid ${pal.good}30`,display:"flex",gap:"0.6rem",alignItems:"center"}}>
-                <span style={{fontSize:"1.2rem"}}>{"✅"}</span>
+                <span style={{fontSize:"1.2rem"}}>{"[ok]"}</span>
                 <div>
                   <div style={{fontWeight:"700",color:pal.good,fontSize:"0.82rem"}}>{wsResult.title||"Field Study Worksheet ready!"}</div>
                   <div style={{fontSize:"0.7rem",color:pal.inkM,marginTop:"1px"}}>
@@ -691,7 +691,7 @@ function FieldStudyModal({ pal, family, child, onAddEntry, onClose }) {
             </div>
           )}
 
-          {/* ── JOURNAL ── */}
+          {/* -- JOURNAL -- */}
           {phase==="journal"&&(
             <div style={{animation:"fadeUp 0.22s ease"}}>
               <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.95rem",marginBottom:"0.25rem"}}>{"\uD83D\uDCD6 "+name+"\u2019s Field Journal"}</div>
@@ -725,7 +725,7 @@ function FieldStudyModal({ pal, family, child, onAddEntry, onClose }) {
 
         </div>
 
-        {/* ── BOTTOM BAR ── */}
+        {/* -- BOTTOM BAR -- */}
         <div style={{padding:"0.9rem 1.2rem",borderTop:`1px solid ${pal.stone}35`,flexShrink:0,display:"flex",gap:"0.55rem"}}>
           {phase==="capture"&&(
             <button onClick={onClose} style={{flex:1,padding:"0.7rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem",fontWeight:"600"}}>{"Cancel"}</button>
@@ -733,8 +733,8 @@ function FieldStudyModal({ pal, family, child, onAddEntry, onClose }) {
           {phase==="result"&&!result?._error&&(
             <>
               <button onClick={()=>{setPhase("capture");setResult(null);setImageData(null);setSavedSubj(null);setSharedToKid(false);setShowSubjPicker(false);}}
-                style={{padding:"0.7rem 0.9rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.82rem"}}>{"← New"}</button>
-              <button onClick={onClose} style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>{"Done ✓"}</button>
+                style={{padding:"0.7rem 0.9rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.82rem"}}>{"\u2190 New"}</button>
+              <button onClick={onClose} style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>{"Done \u2713"}</button>
             </>
           )}
           {(phase==="result"&&result?._error)&&(
@@ -742,13 +742,13 @@ function FieldStudyModal({ pal, family, child, onAddEntry, onClose }) {
           )}
           {phase==="worksheet"&&(
             <>
-              <button onClick={()=>setPhase("result")} style={{padding:"0.7rem 0.9rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.82rem"}}>{"← Back"}</button>
+              <button onClick={()=>setPhase("result")} style={{padding:"0.7rem 0.9rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.82rem"}}>{"\u2190 Back"}</button>
               <button onClick={openPrint} style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>{"\uD83D\uDDB8\uFE0F Print Worksheet"}</button>
             </>
           )}
           {phase==="journal"&&(
             <>
-              <button onClick={()=>setPhase("capture")} style={{padding:"0.7rem 0.9rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.82rem"}}>{"← New Study"}</button>
+              <button onClick={()=>setPhase("capture")} style={{padding:"0.7rem 0.9rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.82rem"}}>{"\u2190 New Study"}</button>
               <button onClick={onClose} style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>{"Done"}</button>
             </>
           )}

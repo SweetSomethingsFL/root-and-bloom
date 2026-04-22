@@ -1,5 +1,5 @@
 /* ============================================================
-   ROOT & BLOOM — AI FEATURES
+   ROOT & BLOOM -- AI FEATURES
    ai-features.js  |  Loaded after state-requirements.js
    Contains: callClaude, worksheet engine, unit builder,
              kid quiz, field study modal
@@ -38,7 +38,7 @@ async function callClaude(prompt, imageBase64, imageMime) {
   const { allowed, monthKey } = checkAILimit(runtimeLimit);
   if(!allowed) throw new Error("RATE_LIMIT");
 
-  // Build content — support optional image
+  // Build content -- support optional image
   let userContent;
   if(imageBase64 && imageMime) {
     userContent = [
@@ -123,11 +123,11 @@ function buildWorksheetPrompt(wsType, topic, child, family, extraContext, diffic
     ? `\nFamily learning goals: ${goals}. Weave these naturally into examples and scenarios where it fits.`
     : "";
 
-  return `You are an expert homeschool curriculum designer creating a professional, print-ready worksheet.\n\nSTUDENT: ${name}, ${grade} grade\nSCHOOL: ${schoolName}\nWORKSHEET TYPE: ${wsType}\nTOPIC: ${topic}\nCURRICULUM CONTEXT: ${curriculum}${goalInfluence}\n${extraContext ? "ADDITIONAL CONTEXT (what was actually taught): " + extraContext : ""}\n\nGRADE REQUIREMENTS: ${gradeInstructions}\n${diffInstructions}\nTYPE REQUIREMENTS: ${typeInstructions}\n\nSTRUCTURE: Your worksheet MUST include all four of these sections:\n1. learningObjective: one clear, specific sentence starting with "Students will be able to..."\n2. warmUp: one engaging starter question or quick activity (1-2 sentences, answered verbally or in 1 line)\n3. sections[]: the main worksheet content (see type requirements above)\n4. extension: one "Going Deeper" challenge for fast finishers (more open-ended, higher thinking)\n\nFORMATTING RULES:\n- Every fill-in item needs a clear blank marker (___)\n- Multiple choice items need exactly 4 options (A, B, C, D) with one correct answer\n- For grades K-2, ALWAYS include a word bank for fill-in items\n- For matching items, include leftCol (terms) and rightCol (definitions) arrays of equal length\n- Make items directly test or reinforce the SPECIFIC topic covered\n- Items should feel like a real teacher made them — specific, purposeful, interesting\n\nRespond with ONLY valid JSON (no markdown, no backticks):\n{\n  "title": "engaging worksheet title (max 8 words)",\n  "subject": "subject area",\n  "grade": "${grade}",\n  "schoolName": "${schoolName}",\n  "learningObjective": "Students will be able to ...",\n  "warmUp": "starter question or activity for the student",\n  "instructions": "one clear, friendly instruction sentence for the main section",\n  "wordBank": ["word1", "word2"],\n  "sections": [\n    {\n      "title": "section heading (e.g. Part A: Recall, Part B: Vocabulary)",\n      "items": [\n        {\n          "type": "fillin|mc|copywork|shortanswer|matching|tracing",\n          "content": "the question or prompt text",\n          "options": ["A option", "B option", "C option", "D option"],\n          "answer": "correct answer",\n          "lines": 2,\n          "leftCol": [],\n          "rightCol": []\n        }\n      ]\n    }\n  ],\n  "extension": "Going Deeper challenge for fast finishers",\n  "bonusChallenge": "one creative bonus challenge"\n}`;
+  return `You are an expert homeschool curriculum designer creating a professional, print-ready worksheet.\n\nSTUDENT: ${name}, ${grade} grade\nSCHOOL: ${schoolName}\nWORKSHEET TYPE: ${wsType}\nTOPIC: ${topic}\nCURRICULUM CONTEXT: ${curriculum}${goalInfluence}\n${extraContext ? "ADDITIONAL CONTEXT (what was actually taught): " + extraContext : ""}\n\nGRADE REQUIREMENTS: ${gradeInstructions}\n${diffInstructions}\nTYPE REQUIREMENTS: ${typeInstructions}\n\nSTRUCTURE: Your worksheet MUST include all four of these sections:\n1. learningObjective: one clear, specific sentence starting with "Students will be able to..."\n2. warmUp: one engaging starter question or quick activity (1-2 sentences, answered verbally or in 1 line)\n3. sections[]: the main worksheet content (see type requirements above)\n4. extension: one "Going Deeper" challenge for fast finishers (more open-ended, higher thinking)\n\nFORMATTING RULES:\n- Every fill-in item needs a clear blank marker (___)\n- Multiple choice items need exactly 4 options (A, B, C, D) with one correct answer\n- For grades K-2, ALWAYS include a word bank for fill-in items\n- For matching items, include leftCol (terms) and rightCol (definitions) arrays of equal length\n- Make items directly test or reinforce the SPECIFIC topic covered\n- Items should feel like a real teacher made them -- specific, purposeful, interesting\n\nRespond with ONLY valid JSON (no markdown, no backticks):\n{\n  "title": "engaging worksheet title (max 8 words)",\n  "subject": "subject area",\n  "grade": "${grade}",\n  "schoolName": "${schoolName}",\n  "learningObjective": "Students will be able to ...",\n  "warmUp": "starter question or activity for the student",\n  "instructions": "one clear, friendly instruction sentence for the main section",\n  "wordBank": ["word1", "word2"],\n  "sections": [\n    {\n      "title": "section heading (e.g. Part A: Recall, Part B: Vocabulary)",\n      "items": [\n        {\n          "type": "fillin|mc|copywork|shortanswer|matching|tracing",\n          "content": "the question or prompt text",\n          "options": ["A option", "B option", "C option", "D option"],\n          "answer": "correct answer",\n          "lines": 2,\n          "leftCol": [],\n          "rightCol": []\n        }\n      ]\n    }\n  ],\n  "extension": "Going Deeper challenge for fast finishers",\n  "bonusChallenge": "one creative bonus challenge"\n}`;
 }
 
 /* ----------------------------------------------------------
-   AI WORKSHEET MODAL — Chalkie-level rebuild
+   AI WORKSHEET MODAL -- Chalkie-level rebuild
    ---------------------------------------------------------- */
 function AIWorksheetModal({ pal, family, activeChild, wsType, onClose, portfolioEntries=[] }) {
   const [phase,      setPhase]     = useState("config"); // config|loading|result
@@ -150,7 +150,7 @@ function AIWorksheetModal({ pal, family, activeChild, wsType, onClose, portfolio
   const todayStr = new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
   const todayNotes = portfolioEntries
     .filter(e=>e.childIdx===childIdx && e.date===todayStr && e.note && e.note.trim())
-    .map(e=>e.subj+(e.note?" — "+e.note.replace("AI Summary:","").trim():""))
+    .map(e=>e.subj+(e.note?" -- "+e.note.replace("AI Summary:","").trim():""))
     .join(". ");
 
   React.useEffect(()=>{
@@ -158,7 +158,7 @@ function AIWorksheetModal({ pal, family, activeChild, wsType, onClose, portfolio
   },[todayNotes]);
 
   const WS_TYPE_OPTIONS = [
-    {id:"Mixed",             icon:"\u2728", label:"Mixed",             desc:"Best variety — MC, fill-in, short answer"},
+    {id:"Mixed",             icon:"\u2728", label:"Mixed",             desc:"Best variety -- MC, fill-in, short answer"},
     {id:"Multiple Choice",   icon:"\uD83D\uDD18", label:"Multiple Choice",   desc:"4-option questions throughout"},
     {id:"Fill-in-the-Blank", icon:"\u270F\uFE0F", label:"Fill-in-the-Blank", desc:"Blanks with optional word bank"},
     {id:"Short Answer",      icon:"\uD83D\uDCDD", label:"Short Answer",      desc:"Written response questions"},
@@ -245,12 +245,12 @@ function AIWorksheetModal({ pal, family, activeChild, wsType, onClose, portfolio
             <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.95rem"}}>{"\uD83E\uDDEE AI Worksheet Builder"}</div>
             <div style={{fontSize:"0.72rem",color:pal.slate,marginTop:"2px"}}>{name+" \u00b7 "+grade+" \u00b7 "+selType.icon+" "+selType.label}</div>
           </div>
-          <button onClick={onClose} style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.9rem",display:"flex",alignItems:"center",justifyContent:"center"}}>{"✕"}</button>
+          <button onClick={onClose} style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.9rem",display:"flex",alignItems:"center",justifyContent:"center"}}>{"x"}</button>
         </div>
 
         <div style={{flex:1,overflowY:"auto",padding:"0.9rem 1.2rem 0.5rem"}}>
 
-          {/* ── CONFIG PHASE ── */}
+          {/* -- CONFIG PHASE -- */}
           {phase==="config"&&(
             <div>
 
@@ -329,7 +329,7 @@ function AIWorksheetModal({ pal, family, activeChild, wsType, onClose, portfolio
             </div>
           )}
 
-          {/* ── LOADING PHASE ── */}
+          {/* -- LOADING PHASE -- */}
           {phase==="loading"&&(
             <div style={{textAlign:"center",padding:"2.5rem 0"}}>
               <div style={{fontSize:"3rem",marginBottom:"0.75rem",animation:"pulse 1.2s ease infinite"}}>{selType.icon||"\uD83D\uDCDD"}</div>
@@ -345,13 +345,13 @@ function AIWorksheetModal({ pal, family, activeChild, wsType, onClose, portfolio
             </div>
           )}
 
-          {/* ── RESULT PHASE ── */}
+          {/* -- RESULT PHASE -- */}
           {phase==="result"&&result&&(
             <div style={{animation:"fadeUp 0.2s ease"}}>
 
               {/* Success header */}
               <div style={{background:pal.goodBg,borderRadius:"13px",padding:"0.75rem 0.95rem",marginBottom:"1rem",border:"1.5px solid "+pal.good+"30",display:"flex",gap:"0.6rem",alignItems:"center"}}>
-                <span style={{fontSize:"1.2rem"}}>{"✅"}</span>
+                <span style={{fontSize:"1.2rem"}}>{"[ok]"}</span>
                 <div style={{flex:1}}>
                   <div style={{fontWeight:"700",color:pal.good,fontSize:"0.84rem"}}>{result.title||"Worksheet ready!"}</div>
                   <div style={{fontSize:"0.7rem",color:pal.inkM,marginTop:"1px"}}>
@@ -537,7 +537,7 @@ function AIUnitBuilderModal({ pal, family, activeChild, onSave, onClose }) {
               {["Pick a subject","Details","Generating...","Your unit plan"][step]}
             </div>
           </div>
-          {step!==2&&<button onClick={onClose} style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.9rem",display:"flex",alignItems:"center",justifyContent:"center"}}>{"✕"}</button>}
+          {step!==2&&<button onClick={onClose} style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.9rem",display:"flex",alignItems:"center",justifyContent:"center"}}>{"x"}</button>}
         </div>
         {/* Progress steps */}
         {step<3&&<div style={{display:"flex",gap:"4px",padding:"0.65rem 1.3rem 0",flexShrink:0}}>
@@ -650,7 +650,7 @@ function AIUnitBuilderModal({ pal, family, activeChild, onSave, onClose }) {
                       <span style={{fontSize:"0.78rem",color:pal.inkM,lineHeight:1.5}}>{a}</span>
                     </div>
                   ))}
-                  {w.resources&&<div style={{marginTop:"0.5rem",fontSize:"0.72rem",color:pal.slate,fontStyle:"italic"}}>📚 {w.resources}</div>}
+                  {w.resources&&<div style={{marginTop:"0.5rem",fontSize:"0.72rem",color:pal.slate,fontStyle:"italic"}}>[book] {w.resources}</div>}
                 </div>
               ))}
 
@@ -660,7 +660,7 @@ function AIUnitBuilderModal({ pal, family, activeChild, onSave, onClose }) {
                   <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.75rem",textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"0.45rem"}}>Assessment Ideas</div>
                   {result.assessmentIdeas.map((a,i)=>(
                     <div key={i} style={{display:"flex",gap:"0.5rem",alignItems:"flex-start",marginBottom:"0.28rem"}}>
-                      <span style={{fontSize:"0.8rem",flexShrink:0}}>💡</span>
+                      <span style={{fontSize:"0.8rem",flexShrink:0}}>[idea]</span>
                       <span style={{fontSize:"0.78rem",color:pal.inkM,lineHeight:1.5}}>{a}</span>
                     </div>
                   ))}
@@ -677,7 +677,7 @@ function AIUnitBuilderModal({ pal, family, activeChild, onSave, onClose }) {
             <>
               <button onClick={onClose} style={{padding:"0.7rem 1rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem"}}>Cancel</button>
               <button onClick={()=>subject&&setStep(1)} disabled={!subject} style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:subject?pal.accentGrad:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:subject?"pointer":"not-allowed"}}>
-                {"Next →"}
+                {"Next ->"}
               </button>
             </>
           )}
