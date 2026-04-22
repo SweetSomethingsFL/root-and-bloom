@@ -9917,39 +9917,6 @@ function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab, portf
           <button onClick={()=>setShowWS("custom")} style={{width:"100%",padding:"0.85rem",border:"none",borderRadius:"14px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.86rem",cursor:"pointer"}}>Build Custom Worksheet</button>
           <div style={{height:"1rem"}}/>
         </>)}
-      </div>
-
-      {/* Unit Add/Edit Modal */}
-      {(showAddUnit||editUnit) && <UnitModal pal={pal} family={family} initial={editUnit}
-        onClose={()=>{setShowAddUnit(false);setEditUnit(null);}}
-        onSave={u=>{editUnit?updateUnit(editUnit.id,u):addUnit(u);setShowAddUnit(false);setEditUnit(null);}}/>}
-
-      {/* AI Builder Modal */}
-      {showBuilder && (
-        <AIUnitBuilderModal
-          pal={pal} family={family} activeChild={activeChild}
-          onSave={unit=>{ const nu=[{id:uid(),...unit,aiGenerated:true,weeksDone:0},...units]; setUnits(nu);saveUnits(nu); setShowBuilder(false); setLearnTab("curriculum"); }}
-          onClose={()=>setShowBuilder(false)}
-        />
-      )}
-
-      {/* Worksheet Builder Modal */}
-      {showWS && (
-        <AIWorksheetModal
-          pal={pal} family={family} activeChild={activeChild}
-          wsType={showWS}
-          portfolioEntries={portfolioEntries}
-          onClose={()=>setShowWS(false)}
-        />
-      )}
-      {showPlanner && (
-        <AILessonPlannerModal
-          pal={pal} family={family} activeChild={activeChild}
-          portfolioEntries={portfolioEntries}
-          onClose={()=>setShowPlanner(false)}
-        />
-      )}
-
         {/* ===== CURRICULUM ADVISOR TAB ===== */}
         {learnTab==="advisor"&&(
           <div style={{display:"flex",flexDirection:"column",height:"calc(100vh - 160px)"}}>
@@ -10017,8 +9984,41 @@ function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab, portf
         )}
 
       </div>
+
+      {/* Unit Add/Edit Modal */}
+      {(showAddUnit||editUnit) && <UnitModal pal={pal} family={family} initial={editUnit}
+        onClose={()=>{setShowAddUnit(false);setEditUnit(null);}}
+        onSave={u=>{editUnit?updateUnit(editUnit.id,u):addUnit(u);setShowAddUnit(false);setEditUnit(null);}}/>}
+
+      {/* AI Builder Modal */}
+      {showBuilder && (
+        <AIUnitBuilderModal
+          pal={pal} family={family} activeChild={activeChild}
+          onSave={unit=>{ const nu=[{id:uid(),...unit,aiGenerated:true,weeksDone:0},...units]; setUnits(nu);saveUnits(nu); setShowBuilder(false); setLearnTab("curriculum"); }}
+          onClose={()=>setShowBuilder(false)}
+        />
+      )}
+
+      {/* Worksheet Builder Modal */}
+      {showWS && (
+        <AIWorksheetModal
+          pal={pal} family={family} activeChild={activeChild}
+          wsType={showWS}
+          portfolioEntries={portfolioEntries}
+          onClose={()=>setShowWS(false)}
+        />
+      )}
+      {showPlanner && (
+        <AILessonPlannerModal
+          pal={pal} family={family} activeChild={activeChild}
+          portfolioEntries={portfolioEntries}
+          onClose={()=>setShowPlanner(false)}
+        />
+      )}
+
     </div>
   </div>
+</div>
   );
 }
 
