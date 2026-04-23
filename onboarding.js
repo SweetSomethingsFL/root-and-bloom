@@ -301,36 +301,21 @@ function OnbScheduleCombined({ pal, data, upd, onNext }) {
               )}
               {activeSubjs.length>0&&(
                 <div>
-                  <div style={{fontSize:"0.63rem",fontWeight:"800",color:"#7c3aed",textTransform:"uppercase",letterSpacing:"0.05em",marginBottom:"0.3rem"}}>{"+ Also at home (tap to add lessons)"}</div>
+                  <div style={{fontSize:"0.63rem",fontWeight:"800",color:"#b07800",textTransform:"uppercase",letterSpacing:"0.05em",marginBottom:"0.3rem"}}>{"+ Also at home (optional)"}</div>
                   <div style={{display:"flex",flexDirection:"column",gap:"0.28rem"}}>
                     {activeSubjs.map(s=>{
-                      const coopCount=(sched[activeDay]||[]).filter(x=>x===s.id).length;
-                      const cycleCount=()=>{setSched(prev=>{
-                        const withoutThis=(prev[activeDay]||[]).filter(x=>x!==s.id);
-                        const next=coopCount>=3?withoutThis:[...withoutThis,...Array(coopCount+1).fill(s.id)];
-                        return {...prev,[activeDay]:next};
-                      });};
+                      const selExtra=(sched[activeDay]||[]).includes(s.id);
                       return (
-                        <button key={s.id} onClick={cycleCount} style={{display:"flex",gap:"0.65rem",alignItems:"center",padding:"0.45rem 0.75rem",border:`2px solid ${coopCount>0?"#c4b5fd":pal.stone+"45"}`,borderRadius:"11px",background:coopCount>0?"#f5f3ff":"#fff",cursor:"pointer",textAlign:"left",transition:"all 0.12s"}}>
+                        <button key={s.id} onClick={()=>toggleSubj(activeDay,s.id)} style={{display:"flex",gap:"0.65rem",alignItems:"center",padding:"0.45rem 0.75rem",border:`2px solid ${selExtra?pal.primary:pal.stone+"45"}`,borderRadius:"11px",background:selExtra?pal.pale:"#fff",cursor:"pointer",textAlign:"left",transition:"all 0.12s"}}>
                           <span style={{fontSize:"1rem",width:"20px",textAlign:"center",flexShrink:0}}>{s.icon}</span>
-                          <span style={{flex:1,fontWeight:coopCount>0?"700":"400",color:coopCount>0?"#7c3aed":pal.inkM,fontSize:"0.82rem"}}>{s.label}</span>
-                          {coopCount>0?(
-                            <div style={{display:"flex",alignItems:"center",gap:"0.25rem",flexShrink:0}}>
-                              <span style={{fontSize:"0.58rem",fontWeight:"800",color:"#7c3aed"}}>{"Co-op"}</span>
-                              <div style={{width:"20px",height:"20px",borderRadius:"50%",background:"#7c3aed",display:"flex",alignItems:"center",justifyContent:"center"}}>
-                                <span style={{color:"#fff",fontSize:"0.72rem",fontWeight:"900"}}>{coopCount}</span>
-                              </div>
-                            </div>
-                          ):(
-                            <div style={{width:"20px",height:"20px",borderRadius:"50%",border:"2px solid "+pal.stone,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                              <span style={{color:pal.stone,fontSize:"0.7rem",fontWeight:"700"}}>+</span>
-                            </div>
-                          )}
+                          <span style={{flex:1,fontWeight:selExtra?"700":"400",color:selExtra?pal.primary:pal.inkM,fontSize:"0.82rem"}}>{s.label}</span>
+                          <div style={{width:"18px",height:"18px",borderRadius:"5px",border:`2px solid ${selExtra?pal.primary:pal.stone}`,background:selExtra?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                            {selExtra&&<span style={{color:"#fff",fontSize:"0.68rem",fontWeight:"900"}}>{"\u2713"}</span>}
+                          </div>
                         </button>
                       );
                     })}
                   </div>
-                  <div style={{fontSize:"0.63rem",color:"#7c3aed",marginTop:"0.4rem",fontStyle:"italic"}}>{"Tap a subject to add lessons (1\u219222\u21923), tap again to clear."}</div>
                 </div>
               )}
             </div>
@@ -964,7 +949,7 @@ function OnbLessonGoals({ pal, data, upd, onNext }) {
         sub="How many lessons of each subject do you aim to do each day? Tap a number to cycle 0-1-2-3. This helps track your week." />
 
       <div style={{background:pal.pale,borderRadius:"12px",padding:"0.7rem 0.9rem",marginBottom:"1rem",border:`1.5px solid ${pal.primary}20`,fontSize:"0.74rem",color:pal.inkM,lineHeight:1.6}}>
-        {"Tip: 0 means that subject is not planned for that day. Tap each number to cycle through 0 → 1 → 2 → 3."}
+        {"Tip: 0 means that subject is not planned for that day. Tap each number to cycle through 0 → 1 → 2 → 3. Co-op day (purple) can also be set."}
         {coopDay&&<span>{" Co-op days ("}{coopDay}{") are marked automatically."}</span>}
       </div>
 
@@ -972,7 +957,7 @@ function OnbLessonGoals({ pal, data, upd, onNext }) {
       <div style={{display:"grid",gridTemplateColumns:"1fr repeat(5,36px)",gap:"0.3rem",marginBottom:"0.4rem",alignItems:"center"}}>
         <div/>
         {DOW_NAMES.map((d,i)=>(
-          <div key={d} style={{textAlign:"center",fontSize:"0.62rem",fontWeight:"800",color:i===coopDow?"#b07800":pal.slate,textTransform:"uppercase",letterSpacing:"0.05em"}}>{d}</div>
+          <div key={d} style={{textAlign:"center",fontSize:"0.62rem",fontWeight:"800",color:i===coopDow?"#7c3aed":pal.slate,textTransform:"uppercase",letterSpacing:"0.05em"}}>{d}</div>
         ))}
       </div>
 
@@ -996,7 +981,13 @@ function OnbLessonGoals({ pal, data, upd, onNext }) {
                   return (
                     <div key={dow} style={{display:"flex",alignItems:"center",justifyContent:"center"}}>
                       {isCoop ? (
-                        <div style={{width:"30px",height:"30px",borderRadius:"8px",background:"#fff8e6",border:"1.5px solid #f5c84240",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.55rem",color:"#b07800",fontWeight:"700",textAlign:"center",lineHeight:1.2}}>co{"·"}op</div>
+                        <button onClick={()=>cycle(s.id,dow)}
+                          style={{width:"30px",height:"30px",borderRadius:"8px",border:`2px solid ${(goals[s.id]?.[dow]||0)>0?"#c4b5fd":"#e0d0ff"}`,background:(goals[s.id]?.[dow]||0)>0?"#f5f3ff":"#faf8ff",cursor:"pointer",fontWeight:"800",fontSize:"0.75rem",color:(goals[s.id]?.[dow]||0)>0?"#7c3aed":"#c4b5fd",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:0,transition:"all 0.12s",gap:"1px"}}>
+                          {(goals[s.id]?.[dow]||0)>0
+                            ? <><span style={{fontSize:"0.62rem",fontWeight:"900",color:"#7c3aed"}}>{goals[s.id]?.[dow]}</span><span style={{fontSize:"0.42rem",color:"#7c3aed",fontWeight:"700",letterSpacing:"0.02em",lineHeight:1}}>co-op</span></>
+                            : <span style={{fontSize:"0.55rem",color:"#c4b5fd",fontWeight:"700",textAlign:"center",lineHeight:1.2}}>{"co·op"}</span>
+                          }
+                        </button>
                       ) : (
                         <button onClick={()=>cycle(s.id,dow)}
                           style={{width:"30px",height:"30px",borderRadius:"8px",border:`2px solid ${val>0?pal.primary:pal.stone+"50"}`,background:val>0?pal.pale:"transparent",cursor:"pointer",fontWeight:"800",fontSize:"0.82rem",color:val>0?pal.primary:pal.stone,display:"flex",alignItems:"center",justifyContent:"center",padding:0,transition:"all 0.12s"}}>
