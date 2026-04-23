@@ -14861,8 +14861,22 @@ function GoalsScreen({pal,family,portfolioEntries=[],onUpdateFamily,onAddEntry,o
   const [saved,        setSaved]        = useState(false);
   const fileRef = useRef(null);
   const toggleMilestone = (subj) => setMilestoneSubjs(prev=>{ const n=new Set(prev); n.has(subj)?n.delete(subj):n.add(subj); return n; });
-
   const toggleGoal = (id) => setGoalsHit(prev=>{ const n=new Set(prev); n.has(id)?n.delete(id):n.add(id); return n; });
+
+  // Day wrap derived values
+  const now = new Date();
+  const dateStr = now.toLocaleDateString("en-US",{month:"short",day:"numeric"});
+  const dateLabel = now.toLocaleDateString("en-US",{weekday:"long",month:"short",day:"numeric"});
+  const schedToday = (()=>{
+    const dow = now.getDay()===0?6:now.getDay()-1; // 0=Mon
+    const ws = family.weeklySchedule||{};
+    return Array.isArray(ws[dow]) ? ws[dow] : (family.subjects||[]);
+  })();
+  const allSubjMap2 = Object.fromEntries([...SUBJECT_OPTIONS,...(family.customSubjects||[])].map(s=>[s.id,s]));
+  const subjsDone = schedToday.map(id=>allSubjMap2[id]?.label||id);
+  const allDone = schedToday.length>0 && schedToday.every(id=>(family.goals||[]).includes(id)||true);
+  const [notesBySubj, setNotesBySubj] = useState({});
+  const onSave = (entries) => { entries.forEach(e=>onAddEntry&&onAddEntry(e)); };
 
   const handlePhoto = (e) => {
     Array.from(e.target.files).forEach(file=>{
