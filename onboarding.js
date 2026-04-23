@@ -33,7 +33,7 @@ function OnboardingFlow({ pal, onComplete }) {
       {step>0 && (
         <div style={{background:pal.deep,padding:"0.85rem 1.1rem 0.75rem",flexShrink:0}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.55rem"}}>
-            <button onClick={()=>setStep(s=>Math.max(0,s-1))} style={{background:"rgba(255,255,255,0.14)",border:"none",color:"#fff",borderRadius:"50%",width:"28px",height:"28px",cursor:"pointer",fontSize:"0.9rem",display:"flex",alignItems:"center",justifyContent:"center"}}>Back</button>
+            <button onClick={()=>setStep(s=>Math.max(0,s-1))} style={{background:"rgba(255,255,255,0.14)",border:"1.5px solid rgba(255,255,255,0.25)",color:"#fff",borderRadius:"20px",padding:"0.25rem 0.75rem",cursor:"pointer",fontSize:"0.75rem",fontWeight:"700",display:"flex",alignItems:"center",gap:"0.3rem"}}>{"\u2190"} Back</button>
             <span style={{fontSize:"0.7rem",color:"rgba(255,255,255,0.55)",fontWeight:"700",letterSpacing:"0.08em",textTransform:"uppercase"}}>{STEP_ICONS[step]} {STEPS[step]}</span>
             <span style={{fontSize:"0.68rem",color:"rgba(255,255,255,0.4)",fontWeight:"600"}}>{step + " of 12"}</span>
           </div>
@@ -301,21 +301,36 @@ function OnbScheduleCombined({ pal, data, upd, onNext }) {
               )}
               {activeSubjs.length>0&&(
                 <div>
-                  <div style={{fontSize:"0.63rem",fontWeight:"800",color:"#b07800",textTransform:"uppercase",letterSpacing:"0.05em",marginBottom:"0.3rem"}}>{"+ Also at home (optional)"}</div>
+                  <div style={{fontSize:"0.63rem",fontWeight:"800",color:"#7c3aed",textTransform:"uppercase",letterSpacing:"0.05em",marginBottom:"0.3rem"}}>{"+ Also at home (tap to add lessons)"}</div>
                   <div style={{display:"flex",flexDirection:"column",gap:"0.28rem"}}>
                     {activeSubjs.map(s=>{
-                      const selExtra=(sched[activeDay]||[]).includes(s.id);
+                      const coopCount=(sched[activeDay]||[]).filter(x=>x===s.id).length;
+                      const cycleCount=()=>{setSched(prev=>{
+                        const withoutThis=(prev[activeDay]||[]).filter(x=>x!==s.id);
+                        const next=coopCount>=3?withoutThis:[...withoutThis,...Array(coopCount+1).fill(s.id)];
+                        return {...prev,[activeDay]:next};
+                      });};
                       return (
-                        <button key={s.id} onClick={()=>toggleSubj(activeDay,s.id)} style={{display:"flex",gap:"0.65rem",alignItems:"center",padding:"0.45rem 0.75rem",border:`2px solid ${selExtra?pal.primary:pal.stone+"45"}`,borderRadius:"11px",background:selExtra?pal.pale:"#fff",cursor:"pointer",textAlign:"left",transition:"all 0.12s"}}>
+                        <button key={s.id} onClick={cycleCount} style={{display:"flex",gap:"0.65rem",alignItems:"center",padding:"0.45rem 0.75rem",border:`2px solid ${coopCount>0?"#c4b5fd":pal.stone+"45"}`,borderRadius:"11px",background:coopCount>0?"#f5f3ff":"#fff",cursor:"pointer",textAlign:"left",transition:"all 0.12s"}}>
                           <span style={{fontSize:"1rem",width:"20px",textAlign:"center",flexShrink:0}}>{s.icon}</span>
-                          <span style={{flex:1,fontWeight:selExtra?"700":"400",color:selExtra?pal.primary:pal.inkM,fontSize:"0.82rem"}}>{s.label}</span>
-                          <div style={{width:"18px",height:"18px",borderRadius:"5px",border:`2px solid ${selExtra?pal.primary:pal.stone}`,background:selExtra?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                            {selExtra&&<span style={{color:"#fff",fontSize:"0.68rem",fontWeight:"900"}}>{"✓"}</span>}
-                          </div>
+                          <span style={{flex:1,fontWeight:coopCount>0?"700":"400",color:coopCount>0?"#7c3aed":pal.inkM,fontSize:"0.82rem"}}>{s.label}</span>
+                          {coopCount>0?(
+                            <div style={{display:"flex",alignItems:"center",gap:"0.25rem",flexShrink:0}}>
+                              <span style={{fontSize:"0.58rem",fontWeight:"800",color:"#7c3aed"}}>{"Co-op"}</span>
+                              <div style={{width:"20px",height:"20px",borderRadius:"50%",background:"#7c3aed",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                                <span style={{color:"#fff",fontSize:"0.72rem",fontWeight:"900"}}>{coopCount}</span>
+                              </div>
+                            </div>
+                          ):(
+                            <div style={{width:"20px",height:"20px",borderRadius:"50%",border:"2px solid "+pal.stone,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                              <span style={{color:pal.stone,fontSize:"0.7rem",fontWeight:"700"}}>+</span>
+                            </div>
+                          )}
                         </button>
                       );
                     })}
                   </div>
+                  <div style={{fontSize:"0.63rem",color:"#7c3aed",marginTop:"0.4rem",fontStyle:"italic"}}>{"Tap a subject to add lessons (1\u219222\u21923), tap again to clear."}</div>
                 </div>
               )}
             </div>
@@ -734,12 +749,12 @@ function OnbSubjects({ pal, data, upd, onNext }) {
   const allSubjects = [...SUBJECT_OPTIONS, ...(data.customSubjects||[])];
   // Auto-highlight subjects covered at co-op
   const coopClassNames = (data.coopClasses||[]).map(c=>c.toLowerCase().trim());
-  const isCoopSubj = (s) => coopClassNames.some(c=>c===s.label.toLowerCase().trim()||s.label.toLowerCase().includes(c)||c.includes(s.label.toLowerCase()));
+  const isCoopSubj = (s) => coopClassNames.some(c=>c===s.label.toLowerCase().trim());
   return (
     <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
       <StepHdr pal={pal} icon="🔬" title="Your Subjects" sub="Pick everything you teach. You can always add or remove later." />
       {coopClassNames.length>0&&(
-        <div style={{background:"#fff8e6",borderRadius:"12px",padding:"0.55rem 0.85rem",marginBottom:"0.75rem",border:"1.5px solid #f5c84260",fontSize:"0.72rem",color:"#7a5500",fontWeight:"600"}}>
+        <div style={{background:"#f5f3ff",borderRadius:"12px",padding:"0.55rem 0.85rem",marginBottom:"0.75rem",border:"1.5px solid #c4b5fd",fontSize:"0.72rem",color:"#7c3aed",fontWeight:"600"}}>
           {"🏫 Subjects marked Co-op are taught at your co-op — tap to include them in your subject list too."}
         </div>
       )}
@@ -748,14 +763,14 @@ function OnbSubjects({ pal, data, upd, onNext }) {
           const isSelected = sel.includes(s.id);
           const isCustom = s.id.startsWith("custom_");
           const isCoop = isCoopSubj(s);
-          const borderColor = isCoop&&!isSelected?"#f5c842":isSelected?pal.primary:pal.stone+"50";
-          const bgColor = isCoop&&!isSelected?"#fffbee":isSelected?pal.pale:"transparent";
+          const COOP_C="#7c3aed";const borderColor = isCoop?"#c4b5fd":isSelected?pal.primary:pal.stone+"50";
+          const bgColor = isCoop?"#f5f3ff":isSelected?pal.pale:"transparent";
           return (
             <button key={s.id} onClick={()=>toggleSubj(s.id)} style={{padding:"0.7rem 0.75rem",border:`2px solid ${borderColor}`,borderRadius:"12px",background:bgColor,cursor:"pointer",textAlign:"left",display:"flex",gap:"0.5rem",alignItems:"center",transition:"all 0.13s",position:"relative"}}>
               <span style={{fontSize:"1.15rem",flexShrink:0}}>{s.icon}</span>
               <div style={{flex:1,minWidth:0}}>
-                <span style={{fontWeight:isSelected?"700":"400",color:isSelected?pal.primary:isCoop?"#7a5500":pal.inkM,fontSize:"0.78rem"}}>{s.label}</span>
-                {isCoop&&<div style={{fontSize:"0.58rem",fontWeight:"800",color:"#b07800",letterSpacing:"0.04em",marginTop:"1px"}}>{"🏫 CO-OP"}</div>}
+                <span style={{fontWeight:isSelected?"700":"400",color:isCoop?COOP_C:isSelected?pal.primary:pal.inkM,fontSize:"0.78rem"}}>{s.label}</span>
+                {isCoop&&<div style={{fontSize:"0.58rem",fontWeight:"800",color:COOP_C,letterSpacing:"0.04em",marginTop:"1px"}}>{"🏫 CO-OP"}</div>}
               </div>
               {isSelected && !isCustom && <span style={{color:pal.primary,fontSize:"0.75rem",fontWeight:"900"}}>✓</span>}
               {isCustom && <span onClick={e=>{e.stopPropagation();removeCustom(s.id);}} style={{fontSize:"0.65rem",color:pal.bad,fontWeight:"900",cursor:"pointer",padding:"0 2px"}}>x</span>}
