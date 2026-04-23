@@ -9,7 +9,7 @@ function OnboardingFlow({ pal, onComplete }) {
   const [data, setData] = useState({
     parentName:"", familyName:"", schoolName:"", state:"Tennessee",
     yearsHomeschooling:"0-1 years",
-    children:[{id:uid(),name:"",grade:"1st",avatar:"\uD83C\uDF3B"}],
+    children:[{id:uid(),name:"",grade:"1st",avatar:"🌻"}],
     curriculumStyle:["eclectic"],
     curriculumBrands:[],
     subjects:["bible","math","reading","language","science","history"],
@@ -25,7 +25,7 @@ function OnboardingFlow({ pal, onComplete }) {
   const STEPS = ["Welcome","Your Children","Schedule Style","Learning Style","Curriculum","Co-op","Subjects","Your Schedule","Lesson Goals","Goals","Life & Extras","Life Ready","You're All Set!"];
   const pct = Math.round((step/12)*100);
 
-  const STEP_ICONS = ["\uD83C\uDF31","\uD83D\uDC68\uD83D\uDC69\uD83D\uDC67\uD83D\uDC66","\uD83D\uDCCB","\uD83D\uDCDA","\uD83D\uDCD6","\uD83C\uDFEB","\uD83D\uDD2C","\uD83D\uDCC5","\uD83C\uDFAF","\uD83C\uDF1F","\uD83C\uDF3F","\uD83D\uDEE1","\uD83C\uDF89"];
+  const STEP_ICONS = ["🌱","👨👩👧👦","📋","📚","📖","🏫","🔬","📅","🎯","🌟","🌿","🛡","🎉"];
 
   return (
     <div style={{minHeight:"100vh",background:pal.sand,display:"flex",flexDirection:"column"}}>
@@ -67,7 +67,7 @@ function OnbSchedulePref({ pal, data, upd, onNext }) {
   return (
     <div style={{padding:"2rem 1.4rem 1.5rem",maxWidth:"430px",margin:"0 auto"}}>
       <div style={{textAlign:"center",marginBottom:"1.8rem"}}>
-        <div style={{fontSize:"2.8rem",marginBottom:"0.6rem"}}>{"\uD83D\uDCCB"}</div>
+        <div style={{fontSize:"2.8rem",marginBottom:"0.6rem"}}>{"📋"}</div>
         <div style={{fontWeight:"900",color:pal.ink,fontSize:"1.15rem",marginBottom:"0.4rem"}}>{"Daily schedule checklist?"}</div>
         <div style={{fontSize:"0.82rem",color:pal.slate,lineHeight:1.65}}>
           {"Some families love ticking off subjects one by one as they go. Others prefer logging everything at the end of the day. Which sounds like you?"}
@@ -78,24 +78,24 @@ function OnbSchedulePref({ pal, data, upd, onNext }) {
         <button onClick={()=>{upd("useScheduleTab",false);}}
           style={{padding:"1rem 1.2rem",border:`2.5px solid ${data.useScheduleTab===false?pal.primary:pal.stone+"50"}`,borderRadius:"16px",background:data.useScheduleTab===false?pal.pale:"transparent",cursor:"pointer",textAlign:"left",transition:"all 0.14s"}}>
           <div style={{display:"flex",gap:"0.75rem",alignItems:"center"}}>
-            <span style={{fontSize:"1.6rem"}}>{"\uD83D\uDCDD"}</span>
+            <span style={{fontSize:"1.6rem"}}>{"📝"}</span>
             <div>
               <div style={{fontWeight:"800",color:data.useScheduleTab===false?pal.primary:pal.ink,fontSize:"0.9rem"}}>{"Log at the end of the day"}</div>
-              <div style={{fontSize:"0.75rem",color:pal.slate,marginTop:"2px",lineHeight:1.5}}>{"Quick capture after school \u2014 one tap, done. Clean and simple."}</div>
+              <div style={{fontSize:"0.75rem",color:pal.slate,marginTop:"2px",lineHeight:1.5}}>{"Quick capture after school — one tap, done. Clean and simple."}</div>
             </div>
-            {data.useScheduleTab===false&&<div style={{marginLeft:"auto",color:pal.primary,fontSize:"1.2rem",flexShrink:0}}>{"\u2713"}</div>}
+            {data.useScheduleTab===false&&<div style={{marginLeft:"auto",color:pal.primary,fontSize:"1.2rem",flexShrink:0}}>{"✓"}</div>}
           </div>
         </button>
 
         <button onClick={()=>{upd("useScheduleTab",true);}}
           style={{padding:"1rem 1.2rem",border:`2.5px solid ${data.useScheduleTab===true?pal.primary:pal.stone+"50"}`,borderRadius:"16px",background:data.useScheduleTab===true?pal.pale:"transparent",cursor:"pointer",textAlign:"left",transition:"all 0.14s"}}>
           <div style={{display:"flex",gap:"0.75rem",alignItems:"center"}}>
-            <span style={{fontSize:"1.6rem"}}>{"\u2705"}</span>
+            <span style={{fontSize:"1.6rem"}}>{"✅"}</span>
             <div>
               <div style={{fontWeight:"800",color:data.useScheduleTab===true?pal.primary:pal.ink,fontSize:"0.9rem"}}>{"Checklist as I go"}</div>
               <div style={{fontSize:"0.75rem",color:pal.slate,marginTop:"2px",lineHeight:1.5}}>{"Tick subjects off one by one throughout the day. Great for keeping kids on track."}</div>
             </div>
-            {data.useScheduleTab===true&&<div style={{marginLeft:"auto",color:pal.primary,fontSize:"1.2rem",flexShrink:0}}>{"\u2713"}</div>}
+            {data.useScheduleTab===true&&<div style={{marginLeft:"auto",color:pal.primary,fontSize:"1.2rem",flexShrink:0}}>{"✓"}</div>}
           </div>
         </button>
       </div>
@@ -106,7 +106,7 @@ function OnbSchedulePref({ pal, data, upd, onNext }) {
 
       <button onClick={()=>{if(data.useScheduleTab===undefined)upd("useScheduleTab",false);onNext();}}
         style={{width:"100%",padding:"0.9rem",border:"none",borderRadius:"14px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.95rem",cursor:"pointer"}}>
-        {"Finish setup \u2192"}
+        {"Finish setup →"}
       </button>
     </div>
   );
@@ -135,7 +135,7 @@ function OnbCelebration({ pal, data, onNext }) {
         ))}
       </div>
       <div style={{position:"relative",zIndex:1,maxWidth:"380px"}}>
-        <div style={{fontSize:"4rem",marginBottom:"0.5rem",animation:"grow 0.5s ease"}}>{"\uD83C\uDF31"}</div>
+        <div style={{fontSize:"4rem",marginBottom:"0.5rem",animation:"grow 0.5s ease"}}>{"🌱"}</div>
         <h2 style={{fontFamily:"Georgia",fontSize:"1.6rem",fontWeight:"900",color:pal.ink,margin:"0 0 0.5rem",lineHeight:1.2}}>
           {"You're all set"}{data.parentName?", "+data.parentName:""}{"!"}
         </h2>
@@ -143,7 +143,7 @@ function OnbCelebration({ pal, data, onNext }) {
           {nameStr?"Root & Bloom is ready for "+nameStr+". Every lesson logged, every milestone captured, every step of the way.":"Root & Bloom is ready for your family. Let us grow something beautiful together."}
         </p>
         <div style={{display:"flex",flexDirection:"column",gap:"0.6rem",marginBottom:"2rem"}}>
-          {[{icon:"\uD83D\uDCDD",text:"Log your first lesson today"},{icon:"\uD83C\uDF1F",text:"Capture a milestone as it happens"},{icon:"\uD83D\uDC8C",text:"Kids can send you private notes from their portal"},{icon:"\uD83D\uDCCA",text:"Track progress all year long"},{icon:"\uD83C\uDF93",text:"Print a portfolio when you're ready"}].map((item,i)=>(
+          {[{icon:"📝",text:"Log your first lesson today"},{icon:"🌟",text:"Capture a milestone as it happens"},{icon:"💌",text:"Kids can send you private notes from their portal"},{icon:"📊",text:"Track progress all year long"},{icon:"🎓",text:"Print a portfolio when you're ready"}].map((item,i)=>(
             <div key={i} style={{display:"flex",alignItems:"center",gap:"0.75rem",padding:"0.65rem 1rem",background:pal.linen,borderRadius:"12px",border:`1.5px solid ${pal.stone}25`,textAlign:"left"}}>
               <span style={{fontSize:"1.2rem",flexShrink:0}}>{item.icon}</span>
               <span style={{fontSize:"0.82rem",color:pal.inkM,fontWeight:"600"}}>{item.text}</span>
@@ -151,7 +151,7 @@ function OnbCelebration({ pal, data, onNext }) {
           ))}
         </div>
         <button onClick={onNext} style={{width:"100%",padding:"0.95rem",border:"none",borderRadius:"14px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.95rem",cursor:"pointer",boxShadow:"0 4px 18px rgba(0,0,0,0.12)"}}>
-          {"One last thing \u2192"}
+          {"One last thing →"}
         </button>
       </div>
     </div>
@@ -182,9 +182,9 @@ function OnbScheduleCombined({ pal, data, upd, onNext }) {
   const saveAndNext=()=>{upd("weeklySchedule",sched);onNext();};
   return (
     <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
-      <StepHdr pal={pal} icon={"\uD83D\uDCC5"} title="Your Schedule" sub="Set your school year details and which subjects you cover each day." />
+      <StepHdr pal={pal} icon={"📅"} title="Your Schedule" sub="Set your school year details and which subjects you cover each day." />
       <div style={{display:"flex",background:pal.parchm,borderRadius:"12px",padding:"3px",gap:"2px",marginBottom:"1.1rem"}}>
-        {[["details","\uD83D\uDCD6 Details"],["weekly","\uD83D\uDCC6 Weekly"]].map(([val,label])=>(
+        {[["details","📖 Details"],["weekly","📆 Weekly"]].map(([val,label])=>(
           <button key={val} onClick={()=>setTab(val)} style={{flex:1,padding:"0.55rem 0.4rem",border:"none",borderRadius:"10px",background:tab===val?pal.linen:"transparent",cursor:"pointer",fontWeight:"700",color:tab===val?pal.primary:pal.slate,fontSize:"0.8rem",transition:"all 0.15s"}}>
             {label}
           </button>
@@ -193,7 +193,7 @@ function OnbScheduleCombined({ pal, data, upd, onNext }) {
       {tab==="details"&&(
         <div style={{animation:"fadeUp 0.2s ease"}}>
           <div style={{background:pal.pale,borderRadius:"14px",padding:"0.9rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.primary}22`}}>
-            <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.86rem",marginBottom:"0.55rem"}}>{"\uD83D\uDCD6 School Year Dates"}</div>
+            <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.86rem",marginBottom:"0.55rem"}}>{"📖 School Year Dates"}</div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.65rem"}}>
               <div><Lbl pal={pal}>Year started</Lbl><Input pal={pal} type="date" value={data.yearStart||""} onChange={v=>upd("yearStart",v)}/></div>
               <div><Lbl pal={pal}>Goal end date</Lbl><Input pal={pal} type="date" value={data.yearEnd||""} onChange={v=>upd("yearEnd",v)}/></div>
@@ -201,7 +201,7 @@ function OnbScheduleCombined({ pal, data, upd, onNext }) {
             <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"0.5rem"}}>{"Used to track your year progress. You can update this anytime in Settings."}</div>
           </div>
           <div style={{background:pal.parchm,borderRadius:"13px",padding:"0.8rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}35`}}>
-            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.84rem",marginBottom:"0.2rem"}}>{"\uD83D\uDD50 Daily hours goal (optional)"}</div>
+            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.84rem",marginBottom:"0.2rem"}}>{"🕐 Daily hours goal (optional)"}</div>
             <div style={{fontSize:"0.71rem",color:pal.slate,marginBottom:"0.55rem"}}>{"Florida requires 180 days but no hour minimum. Other states vary."}</div>
             <div style={{display:"flex",gap:"0.4rem",flexWrap:"wrap"}}>
               {["No hour tracking","2 hours/day","3 hours/day","4 hours/day","5 hours/day","6 hours/day"].map(h=>(
@@ -222,7 +222,7 @@ function OnbScheduleCombined({ pal, data, upd, onNext }) {
           {/* Session length -- only for timed families, and only if tracking hours */}
           {data.useScheduleTab!==false&&(data.dailyHoursGoal||"No hour tracking")!=="No hour tracking"&&(
             <div style={{background:pal.parchm,borderRadius:"13px",padding:"0.8rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}35`}}>
-              <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.84rem",marginBottom:"0.5rem"}}>{"\u23F1\uFE0F Typical session length"}</div>
+              <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.84rem",marginBottom:"0.5rem"}}>{"⏱️ Typical session length"}</div>
               <div style={{fontSize:"0.71rem",color:pal.slate,marginBottom:"0.55rem"}}>{"How long does each subject usually run? Used to estimate your daily schedule."}</div>
               <div style={{display:"flex",gap:"0.4rem",flexWrap:"wrap"}}>
                 {SESSION_LENGTHS.map(l=>(
@@ -236,7 +236,7 @@ function OnbScheduleCombined({ pal, data, upd, onNext }) {
           {/* Co-op start time -- only for timed families who do co-op */}
           {data.useScheduleTab!==false&&data.coopFreq&&data.coopFreq!=="We don't do co-op"&&(
             <div style={{background:"#fff8e6",borderRadius:"13px",padding:"0.8rem 1rem",marginBottom:"1rem",border:"1.5px solid #f5c84250"}}>
-              <div style={{fontWeight:"700",color:"#7a5500",fontSize:"0.84rem",marginBottom:"0.5rem"}}>{"\uD83C\uDFEB Co-op start time"}</div>
+              <div style={{fontWeight:"700",color:"#7a5500",fontSize:"0.84rem",marginBottom:"0.5rem"}}>{"🏫 Co-op start time"}</div>
               <div style={{fontSize:"0.71rem",color:"#b07800",marginBottom:"0.55rem"}}>{"What time does your co-op start? Helps build your schedule around it."}</div>
               <select value={data.coopTime||""} onChange={e=>upd("coopTime",e.target.value)}
                 style={{width:"100%",padding:"0.55rem 0.75rem",border:"2px solid #f5c842",borderRadius:"11px",fontSize:"0.84rem",background:"#fffbee",color:"#7a5500",outline:"none",fontFamily:"inherit"}}>
@@ -248,7 +248,7 @@ function OnbScheduleCombined({ pal, data, upd, onNext }) {
           <div style={{background:pal.pale,borderRadius:"13px",padding:"0.85rem 1rem",marginBottom:"1.2rem",border:`1.5px solid ${pal.primary}22`}}>
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:data.morningGathering?"0.65rem":"0"}}>
               <div>
-                <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.86rem"}}>{"\uD83C\uDF05 Morning gathering time?"}</div>
+                <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.86rem"}}>{"🌅 Morning gathering time?"}</div>
                 <div style={{fontSize:"0.72rem",color:pal.slate,marginTop:"2px"}}>{"A cozy start before individual subjects"}</div>
               </div>
               <button onClick={()=>upd("morningGathering",!data.morningGathering)} style={{width:"44px",height:"26px",borderRadius:"13px",border:"none",background:data.morningGathering?pal.primary:pal.stone+"60",cursor:"pointer",position:"relative",transition:"background 0.2s",flexShrink:0}}>
@@ -269,7 +269,7 @@ function OnbScheduleCombined({ pal, data, upd, onNext }) {
               </div>
             )}
           </div>
-          <Btn pal={pal} onClick={()=>setTab("weekly")}>{"Set weekly subjects \u2192"}</Btn>
+          <Btn pal={pal} onClick={()=>setTab("weekly")}>{"Set weekly subjects →"}</Btn>
         </div>
       )}
       {tab==="weekly"&&(
@@ -287,11 +287,11 @@ function OnbScheduleCombined({ pal, data, upd, onNext }) {
           </div>
           {activeDay===coopDow?(
             <div style={{background:"#fff8e6",borderRadius:"16px",padding:"0.9rem 1rem",border:"1.5px solid #f5c84250",marginBottom:"1rem"}}>
-              <div style={{fontWeight:"700",color:"#7a5500",fontSize:"0.86rem",marginBottom:"0.25rem"}}>{DOW_FULL[activeDay]+" \u2014 Co-op Day"}</div>
+              <div style={{fontWeight:"700",color:"#7a5500",fontSize:"0.86rem",marginBottom:"0.25rem"}}>{DOW_FULL[activeDay]+" — Co-op Day"}</div>
               <div style={{fontSize:"0.73rem",color:"#b07800",marginBottom:"0.6rem"}}>{"Co-op classes are shown below. You can also add extra subjects done at home on this day."}</div>
               {(data.coopClasses||[]).length>0&&(
                 <div style={{marginBottom:"0.75rem"}}>
-                  <div style={{fontSize:"0.63rem",fontWeight:"800",color:"#b07800",textTransform:"uppercase",letterSpacing:"0.05em",marginBottom:"0.3rem"}}>{"\uD83C\uDFEB At co-op"}</div>
+                  <div style={{fontSize:"0.63rem",fontWeight:"800",color:"#b07800",textTransform:"uppercase",letterSpacing:"0.05em",marginBottom:"0.3rem"}}>{"🏫 At co-op"}</div>
                   <div style={{display:"flex",flexWrap:"wrap",gap:"0.3rem"}}>
                     {(data.coopClasses||[]).map(c=>(
                       <span key={c} style={{padding:"0.2rem 0.55rem",background:"#fff3cc",borderRadius:"20px",fontSize:"0.72rem",fontWeight:"700",color:"#7a5500",border:"1px solid #f5c84260"}}>{c}</span>
@@ -310,7 +310,7 @@ function OnbScheduleCombined({ pal, data, upd, onNext }) {
                           <span style={{fontSize:"1rem",width:"20px",textAlign:"center",flexShrink:0}}>{s.icon}</span>
                           <span style={{flex:1,fontWeight:selExtra?"700":"400",color:selExtra?pal.primary:pal.inkM,fontSize:"0.82rem"}}>{s.label}</span>
                           <div style={{width:"18px",height:"18px",borderRadius:"5px",border:`2px solid ${selExtra?pal.primary:pal.stone}`,background:selExtra?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                            {selExtra&&<span style={{color:"#fff",fontSize:"0.68rem",fontWeight:"900"}}>{"\u2713"}</span>}
+                            {selExtra&&<span style={{color:"#fff",fontSize:"0.68rem",fontWeight:"900"}}>{"✓"}</span>}
                           </div>
                         </button>
                       );
@@ -337,7 +337,7 @@ function OnbScheduleCombined({ pal, data, upd, onNext }) {
                       <span style={{fontSize:"1.1rem",width:"22px",textAlign:"center",flexShrink:0}}>{s.icon}</span>
                       <span style={{flex:1,fontWeight:sel?"700":"400",color:sel?pal.primary:pal.inkM,fontSize:"0.84rem"}}>{s.label}</span>
                       <div style={{width:"20px",height:"20px",borderRadius:"5px",border:`2px solid ${sel?pal.primary:pal.stone}`,background:sel?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                        {sel&&<span style={{color:"#fff",fontSize:"0.72rem",fontWeight:"900"}}>{"\u2713"}</span>}
+                        {sel&&<span style={{color:"#fff",fontSize:"0.72rem",fontWeight:"900"}}>{"✓"}</span>}
                       </div>
                     </button>
                   );})}
@@ -352,15 +352,15 @@ function OnbScheduleCombined({ pal, data, upd, onNext }) {
                 <div key={i} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:"2px",cursor:"pointer"}} onClick={()=>setActiveDay(i)}>
                   <div style={{fontSize:"0.6rem",fontWeight:"700",color:isCopDay?"#b07800":isOff?pal.stone:pal.inkM}}>{d}</div>
                   <div style={{width:"36px",height:"36px",borderRadius:"9px",background:isCopDay?"#fff8e6":isOff?pal.parchm:pal.pale,border:`1.5px solid ${activeDay===i?pal.primary:isCopDay?"#f5c842":isOff?pal.stone+"30":pal.stone+"40"}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.68rem",fontWeight:"800",color:isCopDay?"#b07800":isOff?pal.stone:pal.primary}}>
-                    {isCopDay?"\uD83C\uDFEB":isOff?"\u2014":count}
+                    {isCopDay?"🏫":isOff?"—":count}
                   </div>
                 </div>
               );})}
             </div>
           </div>
           <div style={{display:"flex",gap:"0.5rem"}}>
-            <button onClick={()=>setTab("details")} style={{flex:1,padding:"0.72rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.86rem",cursor:"pointer"}}>{"\u2190 Details"}</button>
-            <Btn pal={pal} onClick={saveAndNext} style={{flex:2}}>{"Save & Next \u2192"}</Btn>
+            <button onClick={()=>setTab("details")} style={{flex:1,padding:"0.72rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.86rem",cursor:"pointer"}}>{"← Details"}</button>
+            <Btn pal={pal} onClick={saveAndNext} style={{flex:2}}>{"Save & Next →"}</Btn>
           </div>
         </div>
       )}
@@ -376,11 +376,11 @@ function OnbWelcome({ pal, data, upd, onNext }) {
       <div style={{background:pal.heroGrad,padding:"2.5rem 1.4rem 2rem",textAlign:"center",position:"relative",overflow:"hidden"}}>
         <div style={{position:"absolute",right:"-40px",top:"-40px",width:"160px",height:"160px",borderRadius:"50%",background:"rgba(255,255,255,0.05)"}}/>
         <div style={{position:"absolute",left:"-30px",bottom:"-30px",width:"120px",height:"120px",borderRadius:"50%",background:"rgba(255,255,255,0.04)"}}/>
-        <div style={{fontSize:"3.5rem",marginBottom:"0.75rem",animation:"grow 0.5s ease"}}>\uD83C\uDF31</div>
+        <div style={{fontSize:"3.5rem",marginBottom:"0.75rem",animation:"grow 0.5s ease"}}>🌱</div>
         <h1 style={{fontFamily:"Georgia",fontSize:"1.9rem",fontWeight:"900",color:"#fff",margin:"0 0 0.5rem",lineHeight:1.15}}>{"Your homeschool,"}<br/>{"beautifully organized."}</h1>
         <p style={{color:"rgba(255,255,255,0.75)",fontSize:"0.84rem",margin:"0 0 1rem",lineHeight:1.7}}>{"Root & Bloom replaces the chaos of spreadsheets and sticky notes with one calm, joyful space for logging, tracking, and celebrating every lesson."}</p>
         <div style={{display:"flex",justifyContent:"center",gap:"1.2rem",flexWrap:"wrap"}}>
-          {[{icon:"\uD83D\uDCDD",t:"Log lessons"},{icon:"\uD83D\uDCCA",t:"Track progress"},{icon:"\uD83C\uDF93",t:"Print portfolios"}].map((f,i)=>(
+          {[{icon:"📝",t:"Log lessons"},{icon:"📊",t:"Track progress"},{icon:"🎓",t:"Print portfolios"}].map((f,i)=>(
             <div key={i} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:"3px"}}>
               <span style={{fontSize:"1.3rem"}}>{f.icon}</span>
               <span style={{fontSize:"0.65rem",color:"rgba(255,255,255,0.7)",fontWeight:"600"}}>{f.t}</span>
@@ -429,14 +429,14 @@ function OnbWelcome({ pal, data, upd, onNext }) {
 
 /* --- STEP 1: Children --- */
 function OnbChildren({ pal, data, upd, onNext }) {
-  const addChild = () => upd("children",[...data.children,{id:uid(),name:"",grade:"1st",avatar:"\uD83C\uDF3B"}]);
+  const addChild = () => upd("children",[...data.children,{id:uid(),name:"",grade:"1st",avatar:"🌻"}]);
   const remChild = id  => upd("children",data.children.filter(c=>c.id!==id));
   const updChild = (id,k,v) => upd("children",data.children.map(c=>c.id===id?{...c,[k]:v}:c));
   const canNext = data.children.length>0 && data.children.every(c=>c.name.trim().length>0);
 
   return (
     <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
-      <StepHdr pal={pal} icon="\uD83D\uDC68\uD83D\uDC69\uD83D\uDC67\uD83D\uDC66" title="Your Children" sub={"Add each child you're homeschooling."} />
+      <StepHdr pal={pal} icon="👨👩👧👦" title="Your Children" sub={"Add each child you're homeschooling."} />
       <div style={{display:"flex",flexDirection:"column",gap:"0.75rem",marginBottom:"1rem"}}>
         {data.children.map((c,i)=>(
           <div key={c.id} style={{background:pal.linen,borderRadius:"18px",padding:"1rem 1.1rem",border:`1.5px solid ${pal.stone}50`,animation:"slideRight 0.2s ease"}}>
@@ -486,7 +486,7 @@ function OnbChildren({ pal, data, upd, onNext }) {
       <button onClick={addChild} style={{width:"100%",padding:"0.75rem",border:`2px dashed ${pal.stone}`,borderRadius:"14px",background:"transparent",color:pal.slate,fontSize:"0.84rem",fontWeight:"600",cursor:"pointer",marginBottom:"1.1rem"}}>
         + Add another child
       </button>
-      <Btn pal={pal} disabled={!canNext} onClick={onNext}>{"Next \u2192"}</Btn>
+      <Btn pal={pal} disabled={!canNext} onClick={onNext}>{"Next →"}</Btn>
     </div>
   );
 }
@@ -500,7 +500,7 @@ function OnbPhilosophy({ pal, data, upd, onNext }) {
   const sel = data.curriculumStyle || [];
   return (
     <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
-      <StepHdr pal={pal} icon="\uD83D\uDCDA" title="Learning Philosophy" sub="How does your family like to learn? Pick all that apply - most families blend a few!" />
+      <StepHdr pal={pal} icon="📚" title="Learning Philosophy" sub="How does your family like to learn? Pick all that apply - most families blend a few!" />
       <div style={{display:"flex",flexDirection:"column",gap:"0.5rem",marginBottom:"1.2rem"}}>
         {LEARNING_PHILOSOPHIES.map(s=>{
           const isSelected = sel.includes(s.id);
@@ -512,13 +512,13 @@ function OnbPhilosophy({ pal, data, upd, onNext }) {
                 <div style={{fontSize:"0.72rem",color:pal.slate,marginTop:"1px"}}>{s.desc}</div>
               </div>
               <div style={{width:"19px",height:"19px",borderRadius:"4px",border:`2px solid ${isSelected?pal.primary:pal.stone}`,background:isSelected?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                {isSelected&&<span style={{color:pal.onDark,fontSize:"0.75rem",fontWeight:"900"}}>\u2713</span>}
+                {isSelected&&<span style={{color:pal.onDark,fontSize:"0.75rem",fontWeight:"900"}}>✓</span>}
               </div>
             </button>
           );
         })}
       </div>
-      <Btn pal={pal} disabled={sel.length===0} onClick={onNext}>{"Next \u2192"}</Btn>
+      <Btn pal={pal} disabled={sel.length===0} onClick={onNext}>{"Next →"}</Btn>
     </div>
   );
 }
@@ -550,13 +550,13 @@ function OnbCurrBrands({ pal, data, upd, onNext }) {
     if(!name || !url) return;
     const id = "custom_curr_" + name.toLowerCase().replace(/\s+/g,"_");
     // Save immediately
-    const entry = {id, label:name, url, icon:"\uD83D\uDCD8", desc:"Custom curriculum", summary:""};
+    const entry = {id, label:name, url, icon:"📘", desc:"Custom curriculum", summary:""};
     const updated = [...customs.filter(c=>c.id!==id), entry];
     upd("customCurriculums", updated);
     upd("curriculumBrands", [...sel.filter(x=>x!==id), id]);
     // Now fetch the website via Anthropic API to learn about it
     setFetching(true);
-    setFetchMsg("Checking out " + name + "\u2019s website\u2026");
+    setFetchMsg("Checking out " + name + "’s website…");
     setFetchDone(false);
     try {
       const fetchKey = (() => { try{ return localStorage.getItem("rootbloom_apikey")||""; }catch(e){return "";} })();
@@ -570,7 +570,7 @@ function OnbCurrBrands({ pal, data, upd, onNext }) {
           tools:[{type:"web_search_20250305",name:"web_search"}],
           messages:[{
             role:"user",
-            content:"Please visit " + url + " and give me a 2-3 sentence summary of what this homeschool curriculum covers, its teaching philosophy, grade levels, and what makes it unique. Be concise and practical \u2014 this is for a homeschool parent profile."
+            content:"Please visit " + url + " and give me a 2-3 sentence summary of what this homeschool curriculum covers, its teaching philosophy, grade levels, and what makes it unique. Be concise and practical — this is for a homeschool parent profile."
           }]
         })
       });
@@ -579,13 +579,13 @@ function OnbCurrBrands({ pal, data, upd, onNext }) {
       if(summary) {
         const withSummary = [...customs.filter(c=>c.id!==id), {...entry, summary}];
         upd("customCurriculums", withSummary);
-        setFetchMsg("\u2713 Got it! " + name + " has been added to your profile.");
+        setFetchMsg("✓ Got it! " + name + " has been added to your profile.");
       } else {
-        setFetchMsg("\u2713 Added! We couldn\u2019t pull details from the site, but your curriculum is saved.");
+        setFetchMsg("✓ Added! We couldn’t pull details from the site, but your curriculum is saved.");
       }
       setFetchDone(true);
     } catch(e) {
-      setFetchMsg("\u2713 Added! The website lookup didn\u2019t load, but your curriculum is saved.");
+      setFetchMsg("✓ Added! The website lookup didn’t load, but your curriculum is saved.");
       setFetchDone(true);
     }
     setFetching(false);
@@ -603,24 +603,24 @@ function OnbCurrBrands({ pal, data, upd, onNext }) {
 
   return (
     <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
-      <StepHdr pal={pal} icon="\uD83D\uDCD6" title="Curriculum Programs" sub="Select everything you use. We will tailor your experience to fit how you already teach." />
+      <StepHdr pal={pal} icon="📖" title="Curriculum Programs" sub="Select everything you use. We will tailor your experience to fit how you already teach." />
 
       {/* Search */}
       <div style={{position:"relative",marginBottom:"0.85rem"}}>
         <input
           value={search} onChange={e=>setSearch(e.target.value)}
-          placeholder="Search curriculums\u2026"
+          placeholder="Search curriculums…"
           style={{width:"100%",padding:"0.6rem 0.85rem 0.6rem 2.2rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.82rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit"}}
           onFocus={e=>e.target.style.borderColor=pal.primary}
           onBlur={e=>e.target.style.borderColor=pal.stone}
         />
-        <span style={{position:"absolute",left:"0.7rem",top:"50%",transform:"translateY(-50%)",fontSize:"0.9rem",pointerEvents:"none"}}>\uD83D\uDD0D</span>
+        <span style={{position:"absolute",left:"0.7rem",top:"50%",transform:"translateY(-50%)",fontSize:"0.9rem",pointerEvents:"none"}}>🔍</span>
       </div>
 
       {/* AI fetch result banner */}
       {fetchMsg&&(
         <div style={{background:fetchDone?pal.goodBg:pal.pale,border:`1.5px solid ${fetchDone?pal.good:pal.primary}40`,borderRadius:"11px",padding:"0.65rem 0.9rem",marginBottom:"0.85rem",fontSize:"0.8rem",color:fetchDone?pal.good:pal.primary,fontWeight:"600"}}>
-          {fetching&&<span style={{marginRight:"6px"}}>\u23F3</span>}{fetchMsg}
+          {fetching&&<span style={{marginRight:"6px"}}>⏳</span>}{fetchMsg}
         </div>
       )}
 
@@ -636,7 +636,7 @@ function OnbCurrBrands({ pal, data, upd, onNext }) {
                 {c.summary&&<div style={{fontSize:"0.72rem",color:pal.slate,marginTop:"2px",lineHeight:1.5}}>{c.summary}</div>}
                 {c.url&&<div style={{fontSize:"0.68rem",color:pal.mid,marginTop:"2px"}}>{c.url}</div>}
               </div>
-              <button onClick={()=>removeCustom(c.id)} style={{background:"transparent",border:"none",color:pal.bad,fontSize:"0.8rem",cursor:"pointer",padding:"2px 4px",flexShrink:0}}>\u2715</button>
+              <button onClick={()=>removeCustom(c.id)} style={{background:"transparent",border:"none",color:pal.bad,fontSize:"0.8rem",cursor:"pointer",padding:"2px 4px",flexShrink:0}}>✕</button>
             </div>
           ))}
         </div>
@@ -655,12 +655,12 @@ function OnbCurrBrands({ pal, data, upd, onNext }) {
                 <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>{s.desc}</div>
               </div>
               <div style={{width:"19px",height:"19px",borderRadius:"4px",border:`2px solid ${isSelected?pal.accent:pal.stone}`,background:isSelected?pal.accent:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,flexShrink:0}}>
-                {isSelected&&<span style={{color:pal.onDark,fontSize:"0.75rem",fontWeight:"900"}}>\u2713</span>}
+                {isSelected&&<span style={{color:pal.onDark,fontSize:"0.75rem",fontWeight:"900"}}>✓</span>}
               </div>
             </button>
           );
         })}
-        {filtered.length===0&&<div style={{padding:"1rem",textAlign:"center",color:pal.slate,fontSize:"0.82rem"}}>No results for {"\u201C"}{search}{"\u201D"}</div>}
+        {filtered.length===0&&<div style={{padding:"1rem",textAlign:"center",color:pal.slate,fontSize:"0.82rem"}}>No results for {"“"}{search}{"”"}</div>}
       </div>
 
       {/* Add custom curriculum */}
@@ -679,7 +679,7 @@ function OnbCurrBrands({ pal, data, upd, onNext }) {
             onFocus={e=>e.target.style.borderColor=pal.primary}
             onBlur={e=>e.target.style.borderColor=pal.stone}
           />
-          <Lbl pal={pal}>Website URL * <span style={{fontSize:"0.68rem",color:pal.slate,fontWeight:"400"}}>(required \u2014 Root {"&"} Bloom will check it out)</span></Lbl>
+          <Lbl pal={pal}>Website URL * <span style={{fontSize:"0.68rem",color:pal.slate,fontWeight:"400"}}>(required — Root {"&"} Bloom will check it out)</span></Lbl>
           <input value={custUrl} onChange={e=>setCustUrl(e.target.value)}
             placeholder="https://www.yourcurriculum.com"
             type="url"
@@ -689,20 +689,20 @@ function OnbCurrBrands({ pal, data, upd, onNext }) {
           />
           {custUrl&&!urlValid&&<div style={{fontSize:"0.72rem",color:pal.bad,marginTop:"-0.5rem",marginBottom:"0.5rem"}}>Please enter a valid URL starting with https://</div>}
           <div style={{fontSize:"0.72rem",color:pal.slate,marginBottom:"0.75rem",lineHeight:1.5}}>
-            \uD83E\uDD16 Root {"&"} Bloom will visit the website and learn about this curriculum so it can give you better suggestions and planning help.
+            🤖 Root {"&"} Bloom will visit the website and learn about this curriculum so it can give you better suggestions and planning help.
           </div>
           <div style={{display:"flex",gap:"0.5rem"}}>
             <button onClick={()=>{setShowCustom(false);setCustName("");setCustUrl("");}}
               style={{padding:"0.6rem 1rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.82rem"}}>Cancel</button>
             <button onClick={addCustom} disabled={!custName.trim()||!urlValid||fetching}
               style={{flex:1,padding:"0.6rem",border:"none",borderRadius:"10px",background:custName.trim()&&urlValid&&!fetching?pal.accentGrad:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.82rem",cursor:custName.trim()&&urlValid&&!fetching?"pointer":"default"}}>
-              {fetching?"Fetching\u2026":"Add + Let AI Learn"}
+              {fetching?"Fetching…":"Add + Let AI Learn"}
             </button>
           </div>
         </div>
       )}
 
-      <Btn pal={pal} onClick={onNext}>{"Next \u2192"}</Btn>
+      <Btn pal={pal} onClick={onNext}>{"Next →"}</Btn>
     </div>
   );
 }
@@ -721,7 +721,7 @@ function OnbSubjects({ pal, data, upd, onNext }) {
     const cur = data.subjects || [];
     const customs = data.customSubjects || [];
     if (!customs.find(c=>c.id===id)) {
-      upd("customSubjects", [...customs, {id, label:val, icon:"\uD83D\uDCD0"}]);
+      upd("customSubjects", [...customs, {id, label:val, icon:"📐"}]);
     }
     if (!cur.includes(id)) upd("subjects", [...cur, id]);
     setCustomInput("");
@@ -737,10 +737,10 @@ function OnbSubjects({ pal, data, upd, onNext }) {
   const isCoopSubj = (s) => coopClassNames.some(c=>c===s.label.toLowerCase().trim()||s.label.toLowerCase().includes(c)||c.includes(s.label.toLowerCase()));
   return (
     <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
-      <StepHdr pal={pal} icon="\uD83D\uDD2C" title="Your Subjects" sub="Pick everything you teach. You can always add or remove later." />
+      <StepHdr pal={pal} icon="🔬" title="Your Subjects" sub="Pick everything you teach. You can always add or remove later." />
       {coopClassNames.length>0&&(
         <div style={{background:"#fff8e6",borderRadius:"12px",padding:"0.55rem 0.85rem",marginBottom:"0.75rem",border:"1.5px solid #f5c84260",fontSize:"0.72rem",color:"#7a5500",fontWeight:"600"}}>
-          {"\uD83C\uDFEB Subjects marked Co-op are taught at your co-op \u2014 tap to include them in your subject list too."}
+          {"🏫 Subjects marked Co-op are taught at your co-op — tap to include them in your subject list too."}
         </div>
       )}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.45rem",marginBottom:"0.85rem"}}>
@@ -755,9 +755,9 @@ function OnbSubjects({ pal, data, upd, onNext }) {
               <span style={{fontSize:"1.15rem",flexShrink:0}}>{s.icon}</span>
               <div style={{flex:1,minWidth:0}}>
                 <span style={{fontWeight:isSelected?"700":"400",color:isSelected?pal.primary:isCoop?"#7a5500":pal.inkM,fontSize:"0.78rem"}}>{s.label}</span>
-                {isCoop&&<div style={{fontSize:"0.58rem",fontWeight:"800",color:"#b07800",letterSpacing:"0.04em",marginTop:"1px"}}>{"\uD83C\uDFEB CO-OP"}</div>}
+                {isCoop&&<div style={{fontSize:"0.58rem",fontWeight:"800",color:"#b07800",letterSpacing:"0.04em",marginTop:"1px"}}>{"🏫 CO-OP"}</div>}
               </div>
-              {isSelected && !isCustom && <span style={{color:pal.primary,fontSize:"0.75rem",fontWeight:"900"}}>\u2713</span>}
+              {isSelected && !isCustom && <span style={{color:pal.primary,fontSize:"0.75rem",fontWeight:"900"}}>✓</span>}
               {isCustom && <span onClick={e=>{e.stopPropagation();removeCustom(s.id);}} style={{fontSize:"0.65rem",color:pal.bad,fontWeight:"900",cursor:"pointer",padding:"0 2px"}}>x</span>}
             </button>
           );
@@ -778,7 +778,7 @@ function OnbSubjects({ pal, data, upd, onNext }) {
           + Add
         </button>
       </div>
-<Btn pal={pal} disabled={sel.length===0} onClick={onNext}>{"Next \u2192"}</Btn>
+<Btn pal={pal} disabled={sel.length===0} onClick={onNext}>{"Next →"}</Btn>
     </div>
   );
 }
@@ -806,7 +806,7 @@ function OnbLifeReady({ pal, data, upd, onNext }) {
         <div style={{position:"relative"}}>
           <div style={{fontSize:"3rem",marginBottom:"0.5rem",animation:"grow 0.4s ease"}}>{LR_ICON}</div>
           <h2 style={{fontFamily:"Georgia",fontSize:"1.55rem",fontWeight:"900",color:"#fff",margin:"0 0 0.35rem",lineHeight:1.2}}>Prepared {"&"} Capable</h2>
-          <p style={{color:"rgba(255,255,255,0.78)",fontSize:"0.84rem",margin:"0 0 0.75rem",lineHeight:1.65}}>{"Practical, age-appropriate life skills your kids won't learn from a textbook \u2014 but need for real life."}</p>
+          <p style={{color:"rgba(255,255,255,0.78)",fontSize:"0.84rem",margin:"0 0 0.75rem",lineHeight:1.65}}>{"Practical, age-appropriate life skills your kids won't learn from a textbook — but need for real life."}</p>
           <div style={{display:"flex",flexWrap:"wrap",gap:"0.4rem"}}>
             {["First Aid","Food & Water","Home Repair","Navigation","Finance","Resilience"].map(t=>(
               <span key={t} style={{padding:"0.18rem 0.6rem",borderRadius:"20px",background:"rgba(255,255,255,0.18)",color:"rgba(255,255,255,0.9)",fontSize:"0.7rem",fontWeight:"700"}}>{t}</span>
@@ -820,23 +820,23 @@ function OnbLifeReady({ pal, data, upd, onNext }) {
         <div style={{display:"flex",gap:"0.6rem",marginBottom:"1.1rem"}}>
           <button onClick={()=>upd("lifeReady",true)}
             style={{flex:1,padding:"0.9rem",borderRadius:"14px",border:`2px solid ${opted?LR_COLOR:"#ddd"}`,background:opted?LR_COLOR+"18":"transparent",cursor:"pointer",textAlign:"center",transition:"all 0.15s"}}>
-            <div style={{fontSize:"1.5rem",marginBottom:"0.2rem"}}>\uD83C\uDF31</div>
+            <div style={{fontSize:"1.5rem",marginBottom:"0.2rem"}}>🌱</div>
             <div style={{fontWeight:"800",color:opted?LR_COLOR:"#666",fontSize:"0.85rem"}}>Yes! Add it</div>
             <div style={{fontSize:"0.68rem",color:opted?LR_COLOR:"#999",marginTop:"2px"}}>Weekly in our schedule</div>
           </button>
           <button onClick={()=>upd("lifeReady",false)}
             style={{flex:1,padding:"0.9rem",borderRadius:"14px",border:`2px solid ${!opted&&data.lifeReady===false?"#aaa":"#ddd"}`,background:"transparent",cursor:"pointer",textAlign:"center",transition:"all 0.15s"}}>
-            <div style={{fontSize:"1.5rem",marginBottom:"0.2rem"}}>{"\uD83D\uDC4B"}</div>
+            <div style={{fontSize:"1.5rem",marginBottom:"0.2rem"}}>{"👋"}</div>
             <div style={{fontWeight:"800",color:"#666",fontSize:"0.85rem"}}>Not right now</div>
             <div style={{fontSize:"0.68rem",color:"#999",marginTop:"2px"}}>You can add it later</div>
           </button>
         </div>
 
-        {/* Options \u2014 only shown if opted in */}
+        {/* Options — only shown if opted in */}
         {opted && (<>
           {/* Sample lesson */}
           <div style={{background:`${LR_COLOR}12`,borderRadius:"14px",padding:"0.9rem 1rem",marginBottom:"1rem",border:`2px solid ${LR_COLOR}25`}}>
-            <div style={{fontWeight:"800",color:LR_COLOR,fontSize:"0.8rem",marginBottom:"0.4rem"}}>\uD83D\uDCCB Example lesson this week</div>
+            <div style={{fontWeight:"800",color:LR_COLOR,fontSize:"0.8rem",marginBottom:"0.4rem"}}>📋 Example lesson this week</div>
             <div style={{fontWeight:"700",color:"#1a1a1a",fontSize:"0.88rem",marginBottom:"0.25rem"}}>
               {getLRTopicForWeek(data.children?.[0]?.grade||"5th")}
             </div>
@@ -850,9 +850,9 @@ function OnbLifeReady({ pal, data, upd, onNext }) {
           <Lbl pal={pal}>How often?</Lbl>
           <div style={{display:"flex",flexDirection:"column",gap:"0.4rem",marginBottom:"1rem"}}>
             {[
-              ["monday_plus_practice","Monday lesson + practice Tue-Thu","Recommended \uD83C\uDF31"],
+              ["monday_plus_practice","Monday lesson + practice Tue-Thu","Recommended 🌱"],
               ["monday_only","Monday lesson only","Light touch"],
-              ["flexible","Flexible \u2014 I will schedule it","Full control"],
+              ["flexible","Flexible — I will schedule it","Full control"],
             ].map(([id,label,note])=>(
               <button key={id} onClick={()=>upd("lifeReadyFreq",id)}
                 style={{padding:"0.7rem 1rem",border:`2px solid ${freq===id?LR_COLOR:pal.stone+"50"}`,borderRadius:"12px",background:freq===id?LR_COLOR+"15":"transparent",cursor:"pointer",textAlign:"left",display:"flex",justifyContent:"space-between",alignItems:"center",transition:"all 0.13s"}}>
@@ -882,7 +882,7 @@ function OnbLifeReady({ pal, data, upd, onNext }) {
                     <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"1px"}}>{c.desc}</div>
                   </div>
                   <div style={{width:"18px",height:"18px",borderRadius:"4px",border:`2px solid ${sel?LR_COLOR:pal.stone}`,background:sel?LR_COLOR:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                    {sel&&<span style={{color:"#fff",fontSize:"0.75rem",fontWeight:"900"}}>\u2713</span>}
+                    {sel&&<span style={{color:"#fff",fontSize:"0.75rem",fontWeight:"900"}}>✓</span>}
                   </div>
                 </button>
               );
@@ -891,7 +891,7 @@ function OnbLifeReady({ pal, data, upd, onNext }) {
         </>)}
 
         <Btn pal={pal} onClick={onNext}>
-          {opted?"Finish Setup \uD83C\uDF31":"Skip for now ->"}
+          {opted?"Finish Setup 🌱":"Skip for now ->"}
         </Btn>
       </div>
     </div>
@@ -945,11 +945,11 @@ function OnbLessonGoals({ pal, data, upd, onNext }) {
 
   return (
     <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
-      <StepHdr pal={pal} icon="\uD83C\uDFAF" title="Lesson Goals"
+      <StepHdr pal={pal} icon="🎯" title="Lesson Goals"
         sub="How many lessons of each subject do you aim to do each day? Tap a number to cycle 0-1-2-3. This helps track your week." />
 
       <div style={{background:pal.pale,borderRadius:"12px",padding:"0.7rem 0.9rem",marginBottom:"1rem",border:`1.5px solid ${pal.primary}20`,fontSize:"0.74rem",color:pal.inkM,lineHeight:1.6}}>
-        {"Tip: 0 means that subject is not planned for that day. Tap each number to cycle through 0 \u2192 1 \u2192 2 \u2192 3."}
+        {"Tip: 0 means that subject is not planned for that day. Tap each number to cycle through 0 → 1 → 2 → 3."}
         {coopDay&&<span>{" Co-op days ("}{coopDay}{") are marked automatically."}</span>}
       </div>
 
@@ -981,7 +981,7 @@ function OnbLessonGoals({ pal, data, upd, onNext }) {
                   return (
                     <div key={dow} style={{display:"flex",alignItems:"center",justifyContent:"center"}}>
                       {isCoop ? (
-                        <div style={{width:"30px",height:"30px",borderRadius:"8px",background:"#fff8e6",border:"1.5px solid #f5c84240",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.55rem",color:"#b07800",fontWeight:"700",textAlign:"center",lineHeight:1.2}}>co{"\u00b7"}op</div>
+                        <div style={{width:"30px",height:"30px",borderRadius:"8px",background:"#fff8e6",border:"1.5px solid #f5c84240",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.55rem",color:"#b07800",fontWeight:"700",textAlign:"center",lineHeight:1.2}}>co{"·"}op</div>
                       ) : (
                         <button onClick={()=>cycle(s.id,dow)}
                           style={{width:"30px",height:"30px",borderRadius:"8px",border:`2px solid ${val>0?pal.primary:pal.stone+"50"}`,background:val>0?pal.pale:"transparent",cursor:"pointer",fontWeight:"800",fontSize:"0.82rem",color:val>0?pal.primary:pal.stone,display:"flex",alignItems:"center",justifyContent:"center",padding:0,transition:"all 0.12s"}}>
@@ -1000,15 +1000,15 @@ function OnbLessonGoals({ pal, data, upd, onNext }) {
       <div style={{display:"flex",gap:"0.5rem"}}>
         <button onClick={onNext}
           style={{flex:1,padding:"0.72rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.86rem",cursor:"pointer"}}>
-          {"Skip \u2192"}
+          {"Skip →"}
         </button>
-        <Btn pal={pal} onClick={save} style={{flex:2}}>{"Save goals \u2192"}</Btn>
+        <Btn pal={pal} onClick={save} style={{flex:2}}>{"Save goals →"}</Btn>
       </div>
     </div>
   );
 }
 
-/* --- STEP 6: Weekly Schedule \u2014 which subjects on which days --- */
+/* --- STEP 6: Weekly Schedule — which subjects on which days --- */
 function OnbWeeklySchedule({ pal, data, upd, onNext }) {
   const customSubjs = data.customSubjects||[];
   const allSubjMap  = Object.fromEntries([...SUBJECT_OPTIONS,...customSubjs].map(s=>[s.id,s]));
@@ -1065,7 +1065,7 @@ function OnbWeeklySchedule({ pal, data, upd, onNext }) {
 
   return (
     <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
-      <StepHdr pal={pal} icon="\uD83D\uDCC6" title="Weekly Schedule"
+      <StepHdr pal={pal} icon="📆" title="Weekly Schedule"
         sub="Which subjects do you cover each day? Tap a day to set it up. You can always adjust this later." />
 
       {/* Day tabs */}
@@ -1091,8 +1091,8 @@ function OnbWeeklySchedule({ pal, data, upd, onNext }) {
       {isCoop ? (
         <div style={{background:"#fff8e6",borderRadius:"16px",padding:"0.9rem 1rem",border:"1.5px solid #f5c84250"}}>
           <div style={{display:"flex",alignItems:"center",gap:"0.5rem",marginBottom:"0.65rem"}}>
-            <span style={{fontSize:"1.1rem"}}>{"\uD83C\uDFEB"}</span>
-            <div style={{fontWeight:"800",color:"#7a5500",fontSize:"0.86rem"}}>{DOW_FULL[activeDay]} \u2014 Co-op Day</div>
+            <span style={{fontSize:"1.1rem"}}>{"🏫"}</span>
+            <div style={{fontWeight:"800",color:"#7a5500",fontSize:"0.86rem"}}>{DOW_FULL[activeDay]} — Co-op Day</div>
           </div>
           <div style={{fontSize:"0.73rem",color:"#b07800",marginBottom:"0.6rem",lineHeight:1.5}}>{"Which of your subjects do you cover at co-op?"}</div>
           <div style={{display:"flex",flexDirection:"column",gap:"0.25rem"}}>
@@ -1107,7 +1107,7 @@ function OnbWeeklySchedule({ pal, data, upd, onNext }) {
                   <span style={{fontSize:"0.9rem",width:"18px",textAlign:"center",flexShrink:0}}>{s.icon}</span>
                   <span style={{flex:1,fontWeight:sel?"700":"400",color:sel?"#7a5500":"#b07800",fontSize:"0.78rem"}}>{s.label}</span>
                   <div style={{width:"16px",height:"16px",borderRadius:"4px",border:`2px solid ${sel?"#b07800":"#f5c842"}`,background:sel?"#b07800":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                    {sel&&<span style={{color:"#fff",fontSize:"0.6rem",fontWeight:"900"}}>{"\u2713"}</span>}
+                    {sel&&<span style={{color:"#fff",fontSize:"0.6rem",fontWeight:"900"}}>{"✓"}</span>}
                   </div>
                 </button>
               );
@@ -1139,7 +1139,7 @@ function OnbWeeklySchedule({ pal, data, upd, onNext }) {
                     <span style={{fontSize:"1.1rem",width:"22px",textAlign:"center",flexShrink:0}}>{s.icon}</span>
                     <span style={{flex:1,fontWeight:sel?"700":"400",color:sel?pal.primary:pal.inkM,fontSize:"0.84rem"}}>{s.label}</span>
                     <div style={{width:"20px",height:"20px",borderRadius:"5px",border:`2px solid ${sel?pal.primary:pal.stone}`,background:sel?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.12s"}}>
-                      {sel&&<span style={{color:"#fff",fontSize:"0.72rem",fontWeight:"900"}}>{"\u2713"}</span>}
+                      {sel&&<span style={{color:"#fff",fontSize:"0.72rem",fontWeight:"900"}}>{"✓"}</span>}
                     </div>
                   </button>
                 );
@@ -1161,7 +1161,7 @@ function OnbWeeklySchedule({ pal, data, upd, onNext }) {
               <div key={i} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:"2px",cursor:"pointer"}} onClick={()=>setActiveDay(i)}>
                 <div style={{fontSize:"0.6rem",fontWeight:"700",color:isCopDay?"#b07800":isOff?pal.stone:pal.inkM}}>{d}</div>
                 <div style={{width:"36px",height:"36px",borderRadius:"9px",background:isCopDay?"#fff8e6":isOff?pal.parchm:pal.pale,border:`1.5px solid ${activeDay===i?pal.primary:isCopDay?"#f5c842":isOff?pal.stone+"30":pal.stone+"40"}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.68rem",fontWeight:"800",color:isCopDay?"#b07800":isOff?pal.stone:pal.primary}}>
-                  {isCopDay?"\uD83C\uDFEB":isOff?"\u2014":count}
+                  {isCopDay?"🏫":isOff?"—":count}
                 </div>
               </div>
             );
@@ -1172,9 +1172,9 @@ function OnbWeeklySchedule({ pal, data, upd, onNext }) {
       <div style={{display:"flex",gap:"0.5rem"}}>
         <button onClick={onNext}
           style={{flex:1,padding:"0.72rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.86rem",cursor:"pointer"}}>
-          {"Skip \u2192"}
+          {"Skip →"}
         </button>
-        <Btn pal={pal} onClick={save} style={{flex:2}}>{"Save schedule \u2192"}</Btn>
+        <Btn pal={pal} onClick={save} style={{flex:2}}>{"Save schedule →"}</Btn>
       </div>
     </div>
   );
@@ -1203,16 +1203,16 @@ function OnbSchedule({ pal, data, upd, onNext }) {
   const currentChild = children[childStep];
   const childCfg = currentChild?.scheduleConfig||{};
 
-  // Mode selection screen \u2014 shown first for multi-child
+  // Mode selection screen — shown first for multi-child
   if(multiChild && !schedMode2) {
     return (
       <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
-        <StepHdr pal={pal} icon="\uD83D\uDCC5" title="Schedule Setup" sub={"You have "+children.length+" children \u2014 how should we build their schedule?"} />
+        <StepHdr pal={pal} icon="📅" title="Schedule Setup" sub={"You have "+children.length+" children — how should we build their schedule?"} />
         <div style={{display:"flex",flexDirection:"column",gap:"0.65rem",marginBottom:"1.5rem"}}>
           {[
-            {id:"same",   icon:"\uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC67\u200D\uD83D\uDC66", title:"Same schedule",     desc:"All children follow the same daily plan. Great for mixed-age learning and unit studies."},
-            {id:"mixed",  icon:"\uD83D\uDD00",        title:"Mostly together",  desc:"Shared subjects like History and Science are done together. Math and Reading are done separately at each child's level."},
-            {id:"separate",icon:"\uD83D\uDCCB",       title:"Separate schedules",desc:"Each child has their own completely different daily schedule, subjects, and timing."},
+            {id:"same",   icon:"👨‍👩‍👧‍👦", title:"Same schedule",     desc:"All children follow the same daily plan. Great for mixed-age learning and unit studies."},
+            {id:"mixed",  icon:"🔀",        title:"Mostly together",  desc:"Shared subjects like History and Science are done together. Math and Reading are done separately at each child's level."},
+            {id:"separate",icon:"📋",       title:"Separate schedules",desc:"Each child has their own completely different daily schedule, subjects, and timing."},
           ].map(opt=>(
             <button key={opt.id} onClick={()=>upd("scheduleMode2",opt.id)}
               style={{display:"flex",gap:"0.85rem",alignItems:"flex-start",padding:"0.9rem 1rem",border:`2px solid ${schedMode2===opt.id?pal.primary:pal.stone+"50"}`,borderRadius:"14px",background:schedMode2===opt.id?pal.pale:"transparent",cursor:"pointer",textAlign:"left",transition:"all 0.14s"}}>
@@ -1224,7 +1224,7 @@ function OnbSchedule({ pal, data, upd, onNext }) {
             </button>
           ))}
         </div>
-        <Btn pal={pal} disabled={!schedMode2} onClick={()=>{}}>{"Next \u2192"}</Btn>
+        <Btn pal={pal} disabled={!schedMode2} onClick={()=>{}}>{"Next →"}</Btn>
       </div>
     );
   }
@@ -1234,7 +1234,7 @@ function OnbSchedule({ pal, data, upd, onNext }) {
     const sel = data.groupSubjects||[];
     return (
       <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
-        <StepHdr pal={pal} icon="\uD83D\uDD00" title="Shared Subjects" sub={"Which subjects do all your children do together?"} />
+        <StepHdr pal={pal} icon="🔀" title="Shared Subjects" sub={"Which subjects do all your children do together?"} />
         <div style={{fontSize:"0.75rem",color:pal.slate,marginBottom:"0.75rem",lineHeight:1.55}}>
           {"Examples: Morning Time, History, Science, Read-Aloud, Art, Music, P&C. You'll set individual subjects per child next."}
         </div>
@@ -1244,16 +1244,16 @@ function OnbSchedule({ pal, data, upd, onNext }) {
             return (
               <button key={s.id} onClick={()=>updGroupSubjs(s.id)}
                 style={{display:"flex",gap:"0.65rem",alignItems:"center",padding:"0.6rem 0.85rem",border:`2px solid ${isSel?pal.primary:pal.stone+"45"}`,borderRadius:"11px",background:isSel?pal.pale:"transparent",cursor:"pointer",transition:"all 0.12s"}}>
-                <span style={{fontSize:"1.1rem",width:"24px",textAlign:"center"}}>{s.icon||"\uD83D\uDCCB"}</span>
+                <span style={{fontSize:"1.1rem",width:"24px",textAlign:"center"}}>{s.icon||"📋"}</span>
                 <span style={{flex:1,fontWeight:isSel?"700":"400",color:isSel?pal.primary:pal.inkM,fontSize:"0.84rem"}}>{s.label}</span>
                 <div style={{width:"18px",height:"18px",borderRadius:"4px",border:`2px solid ${isSel?pal.primary:pal.stone}`,background:isSel?pal.primary:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                  {isSel&&<span style={{color:"#fff",fontSize:"0.7rem",fontWeight:"900"}}>{"\u2713"}</span>}
+                  {isSel&&<span style={{color:"#fff",fontSize:"0.7rem",fontWeight:"900"}}>{"✓"}</span>}
                 </div>
               </button>
             );
           })}
         </div>
-        <Btn pal={pal} onClick={()=>upd("groupSubjects",(data.groupSubjects||[]).length>0?(data.groupSubjects||[]):[])}>{"Next \u2192"}</Btn>
+        <Btn pal={pal} onClick={()=>upd("groupSubjects",(data.groupSubjects||[]).length>0?(data.groupSubjects||[]):[])}>{"Next →"}</Btn>
       </div>
     );
   }
@@ -1275,16 +1275,16 @@ function OnbSchedule({ pal, data, upd, onNext }) {
     return (
       <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
         <div style={{display:"flex",alignItems:"center",gap:"0.65rem",marginBottom:"1rem",padding:"0.75rem 1rem",background:`linear-gradient(135deg,${cp.c1}20,${cp.c2}15)`,borderRadius:"14px",border:`2px solid ${cp.c1}30`}}>
-          <div style={{width:"44px",height:"44px",borderRadius:"12px",background:`linear-gradient(135deg,${cp.c1},${cp.c2})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.4rem",flexShrink:0}}>{currentChild?.avatar||"\uD83C\uDF31"}</div>
+          <div style={{width:"44px",height:"44px",borderRadius:"12px",background:`linear-gradient(135deg,${cp.c1},${cp.c2})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.4rem",flexShrink:0}}>{currentChild?.avatar||"🌱"}</div>
           <div>
             <div style={{fontWeight:"900",color:pal.ink,fontSize:"0.95rem"}}>{currentChild?.name||"Child"}</div>
-            <div style={{fontSize:"0.72rem",color:pal.slate,marginTop:"1px"}}>{currentChild?.grade||""} {"\u00b7"} Child {childStep+1} of {children.length}</div>
+            <div style={{fontSize:"0.72rem",color:pal.slate,marginTop:"1px"}}>{currentChild?.grade||""} {"·"} Child {childStep+1} of {children.length}</div>
           </div>
         </div>
 
         {schedMode2==="mixed"&&alreadyGroup.length>0&&(
           <div style={{background:pal.pale,borderRadius:"11px",padding:"0.6rem 0.85rem",marginBottom:"0.75rem",fontSize:"0.72rem",color:pal.primary,border:`1.5px solid ${pal.primary}20`}}>
-            {"\u2713 Shared subjects already included: "+alreadyGroup.map(id=>allSubjOptions.find(s=>s.id===id)?.label||id).join(", ")}
+            {"✓ Shared subjects already included: "+alreadyGroup.map(id=>allSubjOptions.find(s=>s.id===id)?.label||id).join(", ")}
           </div>
         )}
 
@@ -1297,10 +1297,10 @@ function OnbSchedule({ pal, data, upd, onNext }) {
             return (
               <button key={s.id} onClick={()=>toggleChildSubj(s.id)}
                 style={{display:"flex",gap:"0.65rem",alignItems:"center",padding:"0.55rem 0.85rem",border:`2px solid ${isSel?cp.c1:pal.stone+"45"}`,borderRadius:"10px",background:isSel?cp.c1+"15":"transparent",cursor:"pointer",transition:"all 0.12s"}}>
-                <span style={{fontSize:"1.1rem",width:"24px",textAlign:"center"}}>{s.icon||"\uD83D\uDCCB"}</span>
+                <span style={{fontSize:"1.1rem",width:"24px",textAlign:"center"}}>{s.icon||"📋"}</span>
                 <span style={{flex:1,fontWeight:isSel?"700":"400",color:isSel?cp.c1:pal.inkM,fontSize:"0.83rem"}}>{s.label}</span>
                 <div style={{width:"18px",height:"18px",borderRadius:"4px",border:`2px solid ${isSel?cp.c1:pal.stone}`,background:isSel?cp.c1:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                  {isSel&&<span style={{color:"#fff",fontSize:"0.7rem",fontWeight:"900"}}>{"\u2713"}</span>}
+                  {isSel&&<span style={{color:"#fff",fontSize:"0.7rem",fontWeight:"900"}}>{"✓"}</span>}
                 </div>
               </button>
             );
@@ -1328,21 +1328,21 @@ function OnbSchedule({ pal, data, upd, onNext }) {
             if(childStep < children.length-1) { setChildStep(s=>s+1); }
             else { onNext(); }
           }}>
-            {childStep < children.length-1 ? "Next child \u2192" : "Done \u2014 Next \u2192"}
+            {childStep < children.length-1 ? "Next child →" : "Done — Next →"}
           </Btn>
         </div>
       </div>
     );
   }
 
-  // Same schedule (or single child) \u2014 original flow
+  // Same schedule (or single child) — original flow
   return (
     <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
-      <StepHdr pal={pal} icon="\uD83D\uDCC5" title="Your Schedule" sub={"We'll use this to set up your weekly template."} />
+      <StepHdr pal={pal} icon="📅" title="Your Schedule" sub={"We'll use this to set up your weekly template."} />
 
       {/* School year dates */}
       <div style={{background:pal.pale,borderRadius:"14px",padding:"0.9rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.primary}22`}}>
-        <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.86rem",marginBottom:"0.55rem"}}>\uD83D\uDCD6 School Year Dates</div>
+        <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.86rem",marginBottom:"0.55rem"}}>📖 School Year Dates</div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.65rem"}}>
           <div>
             <Lbl pal={pal}>Year started</Lbl>
@@ -1358,8 +1358,8 @@ function OnbSchedule({ pal, data, upd, onNext }) {
 
       {/* Hours goal */}
       <div style={{background:pal.parchm,borderRadius:"13px",padding:"0.8rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}35`}}>
-        <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.84rem",marginBottom:"0.2rem"}}>\uD83D\uDD50 Daily hours goal (optional)</div>
-        <div style={{fontSize:"0.71rem",color:pal.slate,marginBottom:"0.55rem"}}>Some states require a minimum number of hours per year. Florida requires 180 days but no hour minimum. Other states vary \u2014 check your state law.</div>
+        <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.84rem",marginBottom:"0.2rem"}}>🕐 Daily hours goal (optional)</div>
+        <div style={{fontSize:"0.71rem",color:pal.slate,marginBottom:"0.55rem"}}>Some states require a minimum number of hours per year. Florida requires 180 days but no hour minimum. Other states vary — check your state law.</div>
         <div style={{display:"flex",gap:"0.4rem",flexWrap:"wrap"}}>
           {["No hour tracking","2 hours/day","3 hours/day","4 hours/day","5 hours/day","6 hours/day"].map(h=>(
             <button key={h} onClick={()=>upd("dailyHoursGoal",h)} style={{padding:"0.3rem 0.7rem",borderRadius:"20px",border:`2px solid ${(data.dailyHoursGoal||"No hour tracking")===h?pal.primary:pal.stone+"50"}`,background:(data.dailyHoursGoal||"No hour tracking")===h?pal.pale:"transparent",cursor:"pointer",fontSize:"0.74rem",fontWeight:(data.dailyHoursGoal||"No hour tracking")===h?"700":"400",color:(data.dailyHoursGoal||"No hour tracking")===h?pal.primary:pal.inkM}}>
@@ -1380,7 +1380,7 @@ function OnbSchedule({ pal, data, upd, onNext }) {
 
       {/* Schedule style toggle */}
       <div style={{display:"flex",background:pal.parchm,borderRadius:"12px",padding:"3px",gap:"2px",marginBottom:"1rem"}}>
-        {[["checklist","\uD83D\uDCCB Checklist","No times, just a to-do list"],["timed","\uD83D\uDD51 Timed","Set start/end times for each block"]].map(([val,label,sub])=>(
+        {[["checklist","📋 Checklist","No times, just a to-do list"],["timed","🕑 Timed","Set start/end times for each block"]].map(([val,label,sub])=>(
           <button key={val} onClick={()=>upd("scheduleMode",val)} style={{flex:1,padding:"0.6rem 0.5rem",border:"none",borderRadius:"10px",background:(!data.scheduleMode&&val==="checklist")||data.scheduleMode===val?pal.linen:"transparent",cursor:"pointer",transition:"all 0.15s",textAlign:"center"}}>
             <div style={{fontWeight:"700",color:(!data.scheduleMode&&val==="checklist")||data.scheduleMode===val?pal.primary:pal.slate,fontSize:"0.8rem"}}>{label}</div>
             <div style={{fontSize:"0.65rem",color:pal.slate,marginTop:"1px"}}>{sub}</div>
@@ -1415,7 +1415,7 @@ function OnbSchedule({ pal, data, upd, onNext }) {
       <div style={{background:pal.pale,borderRadius:"13px",padding:"0.85rem 1rem",marginBottom:"1.2rem",border:`1.5px solid ${pal.primary}22`}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:data.morningGathering?"0.65rem":"0"}}>
           <div>
-            <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.86rem"}}>\uD83C\uDF05 Morning gathering time?</div>
+            <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.86rem"}}>🌅 Morning gathering time?</div>
             <div style={{fontSize:"0.72rem",color:pal.slate,marginTop:"2px"}}>A cozy start before individual subjects</div>
           </div>
           <button onClick={()=>upd("morningGathering",!data.morningGathering)} style={{width:"44px",height:"26px",borderRadius:"13px",border:"none",background:data.morningGathering?pal.primary:pal.stone+"60",cursor:"pointer",position:"relative",transition:"background 0.2s",flexShrink:0}}>
@@ -1437,7 +1437,7 @@ function OnbSchedule({ pal, data, upd, onNext }) {
         )}
       </div>
 
-      <Btn pal={pal} onClick={onNext}>{"Next \u2192"}</Btn>
+      <Btn pal={pal} onClick={onNext}>{"Next →"}</Btn>
     </div>
   );
 }
@@ -1462,7 +1462,7 @@ function OnbCoop({ pal, data, upd, onNext }) {
 
   return (
     <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
-      <StepHdr pal={pal} icon="\uD83C\uDFEB" title="Co-op" sub={"Tell us about your co-op so we can build it into your schedule and records."} />
+      <StepHdr pal={pal} icon="🏫" title="Co-op" sub={"Tell us about your co-op so we can build it into your schedule and records."} />
 
       {/* Do you co-op? */}
       <div style={{marginBottom:"1rem"}}>
@@ -1552,7 +1552,7 @@ function OnbCoop({ pal, data, upd, onNext }) {
                     <span style={{fontSize:"0.76rem",fontWeight:"700",color:pal.primary}}>{c}</span>
                     <button onClick={()=>removeClass(c)}
                       style={{width:"16px",height:"16px",borderRadius:"50%",background:pal.primary+"30",border:"none",color:pal.primary,fontSize:"0.62rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:"900",flexShrink:0}}>
-                      {"\u2715"}
+                      {"✕"}
                     </button>
                   </div>
                 ))}
@@ -1568,7 +1568,7 @@ function OnbCoop({ pal, data, upd, onNext }) {
         </div>
       )}
 
-      <Btn pal={pal} onClick={onNext}>{doesCoop?"Next \u2192":"Skip \u2192"}</Btn>
+      <Btn pal={pal} onClick={onNext}>{doesCoop?"Next →":"Skip →"}</Btn>
     </div>
   );
 }
@@ -1582,7 +1582,7 @@ function OnbGoals({ pal, data, upd, onNext }) {
     if (!val) return;
     const id = "custom_" + val.toLowerCase().replace(/\s+/g,"_");
     const customs = data.customGoals || [];
-    if (!customs.find(c=>c.id===id)) upd("customGoals",[...customs,{id,label:val,icon:"\uD83C\uDF1F"}]);
+    if (!customs.find(c=>c.id===id)) upd("customGoals",[...customs,{id,label:val,icon:"🌟"}]);
     const cur = data.goals || [];
     if (!cur.includes(id)) upd("goals",[...cur,id]);
     setCustomInput("");
@@ -1595,7 +1595,7 @@ function OnbGoals({ pal, data, upd, onNext }) {
   const hasGoals = (data.goals||[]).length>0;
   return (
     <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
-      <StepHdr pal={pal} icon="\uD83C\uDF1F" title="Your Goals" sub={"Optional \u2014 what matters most for your family this year? You can always set or change these later in Settings."} />
+      <StepHdr pal={pal} icon="🌟" title="Your Goals" sub={"Optional — what matters most for your family this year? You can always set or change these later in Settings."} />
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.5rem",marginBottom:"0.85rem"}}>
         {allGoals.map(g=>{
           const sel=(data.goals||[]).includes(g.id);
@@ -1604,7 +1604,7 @@ function OnbGoals({ pal, data, upd, onNext }) {
             <button key={g.id} onClick={()=>toggle(g.id)} style={{padding:"0.8rem 0.75rem",border:`2px solid ${sel?pal.primary:pal.stone+"50"}`,borderRadius:"14px",background:sel?pal.pale:"transparent",cursor:"pointer",textAlign:"center",display:"flex",flexDirection:"column",alignItems:"center",gap:"0.3rem",transition:"all 0.14s",position:"relative"}}>
               <span style={{fontSize:"1.5rem"}}>{g.icon}</span>
               <span style={{fontSize:"0.74rem",fontWeight:sel?"800":"500",color:sel?pal.primary:pal.inkM,lineHeight:1.25}}>{g.label}</span>
-              {isCustom&&<span onClick={e=>{e.stopPropagation();removeCustom(g.id);}} style={{position:"absolute",top:"4px",right:"6px",fontSize:"0.6rem",color:pal.bad,fontWeight:"900",cursor:"pointer"}}>{"\u2715"}</span>}
+              {isCustom&&<span onClick={e=>{e.stopPropagation();removeCustom(g.id);}} style={{position:"absolute",top:"4px",right:"6px",fontSize:"0.6rem",color:pal.bad,fontWeight:"900",cursor:"pointer"}}>{"✕"}</span>}
             </button>
           );
         })}
@@ -1619,9 +1619,9 @@ function OnbGoals({ pal, data, upd, onNext }) {
       <div style={{display:"flex",gap:"0.5rem"}}>
         <button onClick={onNext}
           style={{flex:1,padding:"0.72rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.86rem",cursor:"pointer"}}>
-          {"Skip \u2192"}
+          {"Skip →"}
         </button>
-        <Btn pal={pal} onClick={onNext} style={{flex:2}}>{hasGoals?"Next \u2192":"Skip \u2192"}</Btn>
+        <Btn pal={pal} onClick={onNext} style={{flex:2}}>{hasGoals?"Next →":"Skip →"}</Btn>
       </div>
     </div>
   );
@@ -1650,13 +1650,13 @@ function OnbExtras({ pal, data, upd, onNext }) {
   const allExtras = [...EXTRACURRICULARS.filter(e=>e!=="None right now"), ...(data.customExtracurriculars||[]), "None right now"];
   return (
     <div style={{padding:"1.4rem 1.2rem",animation:"fadeUp 0.25s ease"}}>
-      <StepHdr pal={pal} icon="\uD83C\uDF3F" title="Life & Extras" sub="A few last things to personalize your app." />
+      <StepHdr pal={pal} icon="🌿" title="Life & Extras" sub="A few last things to personalize your app." />
       <Lbl pal={pal}>Extracurriculars <span style={{fontWeight:"400",color:pal.slate}}>(pick all that apply)</span></Lbl>
       <div style={{display:"flex",flexWrap:"wrap",gap:"0.4rem",marginBottom:"0.6rem"}}>
         {allExtras.map(e=>(
           <button key={e} onClick={()=>toggleExtra(e)}
             style={{padding:"0.35rem 0.75rem",borderRadius:"20px",border:`2px solid ${data.extracurriculars.includes(e)?pal.primary:pal.stone+"50"}`,background:data.extracurriculars.includes(e)?pal.pale:"transparent",cursor:"pointer",display:"flex",alignItems:"center",gap:"0.3rem",transition:"all 0.13s"}}>
-            {data.extracurriculars.includes(e)&&<span style={{color:pal.primary,fontSize:"0.65rem",fontWeight:"900"}}>\u2713</span>}
+            {data.extracurriculars.includes(e)&&<span style={{color:pal.primary,fontSize:"0.65rem",fontWeight:"900"}}>✓</span>}
             <span style={{fontWeight:data.extracurriculars.includes(e)?"700":"400",color:data.extracurriculars.includes(e)?pal.primary:pal.inkM,fontSize:"0.78rem"}}>{e}</span>
           </button>
         ))}
@@ -1697,7 +1697,7 @@ function OnbExtras({ pal, data, upd, onNext }) {
         <button onClick={addCustomExtra} disabled={!customExtra.trim()} style={{padding:"0.55rem 0.9rem",border:"none",borderRadius:"11px",background:customExtra.trim()?pal.accentGrad:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.8rem",cursor:customExtra.trim()?"pointer":"default",flexShrink:0}}>+ Add</button>
       </div>
       <div style={{height:"0.5rem"}}/>
-      <Btn pal={pal} onClick={onNext}>{"Next \u2192"}</Btn>
+      <Btn pal={pal} onClick={onNext}>{"Next →"}</Btn>
     </div>
   );
 }
