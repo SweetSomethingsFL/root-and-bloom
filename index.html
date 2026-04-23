@@ -14822,32 +14822,54 @@ function NarrativeEditor({pal,ch,family,bySubject,attendanceDays,schoolName,cp,c
    GOALS SCREEN
 ======================================= */
 function GoalsScreen({pal,family,portfolioEntries=[],onUpdateFamily,onAddEntry,onTabChange}){
-  const [editing,       setEditing]     = useState(false);
-  const [customInput,   setCustomInput] = useState("");
-  const [aiOpen,        setAiOpen]      = useState(false);
-  const [aiLoading,     setAiLoading]   = useState(false);
-  const [aiSuggestions, setAiSuggs]     = useState([]);
-  const [aiError,       setAiError]     = useState("");
+  const [editing,     setEditing]     = React.useState(false);
+  const [draftGoals,  setDraftGoals]  = React.useState(family.goals||[]);
+  const [customInput, setCustomInput] = React.useState("");
+  const [logOpen,     setLogOpen]     = React.useState(null); // goalId being logged
+  const [logNote,     setLogNote]     = React.useState("");
+  const [aiOpen,      setAiOpen]      = React.useState(false);
+  const [aiLoading,   setAiLoading]   = React.useState(false);
+  const [aiSuggs,     setAiSuggs]     = React.useState([]);
+  const [aiError,     setAiError]     = React.useState("");
 
   const allGoalObjs = [...GOALS,...(family.customGoals||[])];
   const activeGoals = (family.goals||[]).map(id=>allGoalObjs.find(x=>x.id===id)).filter(Boolean);
 
-  const toggle = (id) => {
-    const cur = family.goals||[];
-    onUpdateFamily&&onUpdateFamily({goals: cur.includes(id)?cur.filter(g=>g!==id):[...cur,id]});
+  const todayStr = new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
+
+  // Per-goal entry counts and last-logged date
+  const goalStats = (g) => {
+    const nudge = GOAL_NUDGES[g.id];
+    const relSubjs = nudge?.subjs||[];
+    const related = relSubjs.length>0
+      ? portfolioEntries.filter(e=>relSubjs.includes(e.subj)||e.goalId===g.id)
+      : portfolioEntries.filter(e=>e.goalId===g.id);
+    const count = related.length;
+    const last = related.length>0
+      ? related.reduce((a,b)=>new Date(a.date+", "+new Date().getFullYear())>new Date(b.date+", "+new Date().getFullYear())?a:b)
+      : null;
+    const daysSince = last ? Math.floor((new Date()-new Date(last.date+", "+new Date().getFullYear()))/(24*60*60*1000)) : null;
+    const tone = daysSince===null?"quiet":daysSince<=3?"good":daysSince<=10?"gentle":"quiet";
+    return {count, last, daysSince, tone, nudge};
   };
 
-  const addCustom = () => {
+  const saveGoals = () => {
+    onUpdateFamily&&onUpdateFamily({goals:draftGoals});
+    setEditing(false);
+  };
+
+  const toggleDraft = (id) => {
+    setDraftGoals(cur=>cur.includes(id)?cur.filter(x=>x!==id):[...cur,id]);
+  };
+
+  const addCustomGoal = () => {
     const val = customInput.trim();
     if(!val) return;
-    const id = "custom_"+val.toLowerCase().replace(/\s+/g,"_")+"_"+Date.now();
-    const existing = family.customGoals||[];
-    if(existing.find(g=>g.label===val)) return;
+    const id = "custom_goal_"+Date.now();
     const newGoal = {id, label:val, icon:"\uD83C\uDF1F", isCustom:true};
-    onUpdateFamily&&onUpdateFamily({
-      customGoals:[...existing, newGoal],
-      goals:[...(family.goals||[]), id]
-    });
+    const updated = [...(family.customGoals||[]), newGoal];
+    onUpdateFamily&&onUpdateFamily({customGoals:updated, goals:[...(family.goals||[]),id]});
+    setDraftGoals(d=>[...d,id]);
     setCustomInput("");
   };
 
@@ -14856,9 +14878,24 @@ function GoalsScreen({pal,family,portfolioEntries=[],onUpdateFamily,onAddEntry,o
       customGoals:(family.customGoals||[]).filter(g=>g.id!==id),
       goals:(family.goals||[]).filter(g=>g!==id)
     });
+    setDraftGoals(d=>d.filter(x=>x!==id));
   };
 
-  const fetchGoalSuggs = async () => {
+  const saveLog = (goalId) => {
+    if(!logNote.trim()) return;
+    const g = allGoalObjs.find(x=>x.id===goalId);
+    if(!g) return;
+    const entry = {
+      id:"g_"+Date.now(), subj:g.label, date:todayStr,
+      note:logNote.trim(), thumb:g.icon||"\uD83C\uDF1F",
+      goalId, isGoalLog:true,
+    };
+    onAddEntry&&onAddEntry(entry);
+    setLogNote("");
+    setLogOpen(null);
+  };
+
+  const fetchAiSuggs = async () => {
     setAiOpen(true); setAiLoading(true); setAiError(""); setAiSuggs([]);
     try {
       const suggestions = await getGoalSuggestions(family);
@@ -14873,124 +14910,187 @@ function GoalsScreen({pal,family,portfolioEntries=[],onUpdateFamily,onAddEntry,o
   const addAiGoal = (label) => {
     const existing = family.customGoals||[];
     if(existing.find(g=>g.label===label)) return;
-    const newGoal = {id:"ai_"+Date.now()+"_"+Math.random().toString(36).slice(2,6), label, icon:"\u2728", isCustom:true};
-    onUpdateFamily&&onUpdateFamily({customGoals:[...existing, newGoal], goals:[...(family.goals||[]), newGoal.id]});
+    const id = "ai_goal_"+Date.now()+"_"+Math.random().toString(36).slice(2,5);
+    const newGoal = {id, label, icon:"\u2728", isCustom:true};
+    onUpdateFamily&&onUpdateFamily({
+      customGoals:[...existing, newGoal],
+      goals:[...(family.goals||[]), id]
+    });
   };
 
-  return (
+  // ── EDIT MODE ──────────────────────────────────────────────
+  if(editing) return (
     <div style={{minHeight:"100%",background:pal.sand,paddingBottom:"5rem"}}>
-      {/* Header */}
-      <div style={{background:pal.heroGrad,padding:"1.4rem 1.2rem 1rem"}}>
-        <div style={{fontWeight:"900",color:"#fff",fontSize:"1.1rem",marginBottom:"2px"}}>{"\uD83C\uDF1F Your Goals"}</div>
-        <div style={{fontSize:"0.76rem",color:"rgba(255,255,255,0.72)"}}>{"What matters most for your family this year"}</div>
+      <div style={{background:pal.heroGrad,padding:"1rem 1.2rem",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+        <div style={{fontWeight:"900",color:"#fff",fontSize:"1rem"}}>{"Edit Goals"}</div>
+        <div style={{display:"flex",gap:"0.5rem"}}>
+          <button onClick={()=>{setDraftGoals(family.goals||[]);setEditing(false);}}
+            style={{padding:"0.3rem 0.75rem",border:"2px solid rgba(255,255,255,0.4)",borderRadius:"9px",background:"transparent",color:"#fff",fontWeight:"700",fontSize:"0.75rem",cursor:"pointer"}}>Cancel</button>
+          <button onClick={saveGoals}
+            style={{padding:"0.3rem 0.75rem",border:"none",borderRadius:"9px",background:"rgba(255,255,255,0.2)",color:"#fff",fontWeight:"700",fontSize:"0.75rem",cursor:"pointer"}}>Save</button>
+        </div>
       </div>
-
       <div style={{padding:"1rem 1.1rem"}}>
-
-        {/* Active goals */}
-        {activeGoals.length>0&&(
-          <div style={{marginBottom:"1.2rem"}}>
-            <div style={{fontSize:"0.68rem",fontWeight:"800",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"0.55rem"}}>{"Active Goals"}</div>
-            <div style={{display:"flex",flexDirection:"column",gap:"0.4rem"}}>
-              {activeGoals.map(g=>(
-                <div key={g.id} style={{display:"flex",alignItems:"center",gap:"0.75rem",padding:"0.75rem 0.9rem",background:pal.linen,borderRadius:"14px",border:`1.5px solid ${pal.primary}25`}}>
-                  <span style={{fontSize:"1.4rem",flexShrink:0}}>{g.icon||"\uD83C\uDF1F"}</span>
-                  <span style={{flex:1,fontWeight:"700",color:pal.ink,fontSize:"0.86rem"}}>{g.label}</span>
-                  <button onClick={()=>toggle(g.id)}
-                    style={{width:"24px",height:"24px",borderRadius:"50%",background:pal.primary+"22",border:"none",color:pal.primary,fontSize:"0.8rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                    {"\u2715"}
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {activeGoals.length===0&&(
-          <div style={{background:pal.pale,borderRadius:"16px",padding:"1.4rem 1.2rem",textAlign:"center",marginBottom:"1.2rem",border:`1.5px solid ${pal.primary}20`}}>
-            <div style={{fontSize:"2rem",marginBottom:"0.5rem"}}>{"\uD83C\uDF1F"}</div>
-            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.88rem",marginBottom:"0.3rem"}}>{"No goals set yet"}</div>
-            <div style={{fontSize:"0.75rem",color:pal.slate,lineHeight:1.6}}>{"Pick from the list below or let AI suggest some based on your family."}</div>
-          </div>
-        )}
-
-        {/* Add custom goal */}
-        <div style={{display:"flex",gap:"0.5rem",marginBottom:"1.2rem"}}>
-          <input value={customInput} onChange={e=>setCustomInput(e.target.value)}
-            onKeyDown={e=>e.key==="Enter"&&addCustom()}
-            placeholder={"Add your own goal..."}
-            style={{flex:1,padding:"0.62rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.82rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit"}}
-            onFocus={e=>e.target.style.borderColor=pal.primary}
-            onBlur={e=>e.target.style.borderColor=pal.stone}/>
-          <button onClick={addCustom} disabled={!customInput.trim()}
-            style={{padding:"0.62rem 1rem",border:"none",borderRadius:"11px",background:customInput.trim()?pal.accentGrad:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.82rem",cursor:customInput.trim()?"pointer":"default",flexShrink:0}}>
-            {"+ Add"}
-          </button>
-        </div>
-
-        {/* AI suggestions */}
-        <div style={{background:pal.pale,borderRadius:"16px",border:`1.5px solid ${pal.primary}25`,marginBottom:"1.2rem",overflow:"hidden"}}>
-          <button onClick={aiOpen?()=>setAiOpen(false):fetchGoalSuggs}
-            style={{width:"100%",display:"flex",alignItems:"center",gap:"0.65rem",padding:"0.85rem 1rem",background:"transparent",border:"none",cursor:"pointer",textAlign:"left"}}>
-            <span style={{fontSize:"1.2rem"}}>{"\uD83E\uDD16"}</span>
-            <div style={{flex:1}}>
-              <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.86rem"}}>{"AI Goal Suggestions"}</div>
-              <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>{"Personalized for your family"}</div>
-            </div>
-            <span style={{color:pal.slate,fontSize:"0.9rem",transform:aiOpen?"rotate(90deg)":"none",transition:"transform 0.2s"}}>{"\u203a"}</span>
-          </button>
-          {aiOpen&&(
-            <div style={{padding:"0 1rem 1rem",borderTop:`1px solid ${pal.primary}15`}}>
-              {aiLoading&&(
-                <div style={{textAlign:"center",padding:"1rem",fontSize:"0.82rem",color:pal.slate}}>{"\u23F3 Generating suggestions..."}</div>
-              )}
-              {aiError&&(
-                <div style={{padding:"0.65rem 0.85rem",background:pal.sand,borderRadius:"10px",fontSize:"0.78rem",color:pal.bad,marginTop:"0.65rem"}}>{aiError}</div>
-              )}
-              {aiSuggestions.length>0&&(
-                <div style={{display:"flex",flexDirection:"column",gap:"0.35rem",marginTop:"0.65rem"}}>
-                  {aiSuggestions.map((label,i)=>{
-                    const already=(family.goals||[]).some(id=>allGoalObjs.find(g=>g.id===id&&g.label===label));
-                    return (
-                      <div key={i} style={{display:"flex",alignItems:"center",gap:"0.6rem",padding:"0.55rem 0.75rem",background:pal.linen,borderRadius:"11px",border:`1.5px solid ${already?pal.primary+"40":pal.stone+"30"}`}}>
-                        <span style={{fontSize:"0.9rem"}}>{"\u2728"}</span>
-                        <span style={{flex:1,fontSize:"0.82rem",color:pal.inkM,fontWeight:already?"700":"400"}}>{label}</span>
-                        {already
-                          ? <span style={{fontSize:"0.68rem",color:pal.primary,fontWeight:"700"}}>{"\u2713 Added"}</span>
-                          : <button onClick={()=>addAiGoal(label)}
-                              style={{padding:"0.22rem 0.6rem",border:"none",borderRadius:"8px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.7rem",cursor:"pointer",flexShrink:0}}>
-                              {"+ Add"}
-                            </button>
-                        }
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Goal picker — all available goals */}
-        <div style={{fontSize:"0.68rem",fontWeight:"800",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"0.55rem"}}>{"All Goals"}</div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.45rem"}}>
-          {allGoalObjs.map(g=>{
-            const isActive=(family.goals||[]).includes(g.id);
+        <div style={{fontSize:"0.7rem",color:pal.slate,marginBottom:"0.85rem",lineHeight:1.6}}>{"Tap to select or deselect goals. These help track what matters most this year."}</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.45rem",marginBottom:"1rem"}}>
+          {[...GOALS,...(family.customGoals||[])].map(g=>{
+            const sel=draftGoals.includes(g.id);
             const isCustom=g.isCustom||g.id.startsWith("custom_")||g.id.startsWith("ai_");
             return (
-              <button key={g.id} onClick={()=>toggle(g.id)}
-                style={{padding:"0.75rem",border:`2px solid ${isActive?pal.primary:pal.stone+"50"}`,borderRadius:"14px",background:isActive?pal.pale:"transparent",cursor:"pointer",textAlign:"center",display:"flex",flexDirection:"column",alignItems:"center",gap:"0.3rem",transition:"all 0.14s",position:"relative"}}>
+              <button key={g.id} onClick={()=>toggleDraft(g.id)}
+                style={{padding:"0.75rem",border:`2px solid ${sel?pal.primary:pal.stone+"50"}`,borderRadius:"14px",background:sel?pal.pale:"transparent",cursor:"pointer",textAlign:"center",display:"flex",flexDirection:"column",alignItems:"center",gap:"0.3rem",transition:"all 0.13s",position:"relative"}}>
                 <span style={{fontSize:"1.4rem"}}>{g.icon||"\uD83C\uDF1F"}</span>
-                <span style={{fontSize:"0.73rem",fontWeight:isActive?"800":"500",color:isActive?pal.primary:pal.inkM,lineHeight:1.25}}>{g.label}</span>
-                {isActive&&<span style={{position:"absolute",top:"6px",right:"7px",fontSize:"0.6rem",color:pal.primary,fontWeight:"900"}}>{"\u2713"}</span>}
-                {isCustom&&!isActive&&(
-                  <span onClick={e=>{e.stopPropagation();removeCustom(g.id);}}
-                    style={{position:"absolute",top:"4px",right:"6px",fontSize:"0.6rem",color:pal.bad,fontWeight:"900",cursor:"pointer"}}>{"\u2715"}</span>
-                )}
+                <span style={{fontSize:"0.72rem",fontWeight:sel?"800":"500",color:sel?pal.primary:pal.inkM,lineHeight:1.25}}>{g.label}</span>
+                {sel&&<span style={{position:"absolute",top:"5px",right:"7px",color:pal.primary,fontSize:"0.65rem",fontWeight:"900"}}>{"\u2713"}</span>}
+                {isCustom&&<span onClick={e=>{e.stopPropagation();removeCustom(g.id);}} style={{position:"absolute",top:"4px",left:"6px",fontSize:"0.6rem",color:pal.bad,fontWeight:"900",cursor:"pointer"}}>{"\u2715"}</span>}
               </button>
             );
           })}
         </div>
+        <div style={{display:"flex",gap:"0.5rem",marginBottom:"1rem"}}>
+          <input value={customInput} onChange={e=>setCustomInput(e.target.value)}
+            onKeyDown={e=>e.key==="Enter"&&addCustomGoal()}
+            placeholder={"Add a custom goal..."}
+            style={{flex:1,padding:"0.6rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.82rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit"}}
+            onFocus={e=>e.target.style.borderColor=pal.primary}
+            onBlur={e=>e.target.style.borderColor=pal.stone}/>
+          <button onClick={addCustomGoal} disabled={!customInput.trim()}
+            style={{padding:"0.6rem 1rem",border:"none",borderRadius:"11px",background:customInput.trim()?pal.accentGrad:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.82rem",cursor:customInput.trim()?"pointer":"default",flexShrink:0}}>
+            {"+ Add"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // ── MAIN VIEW ─────────────────────────────────────────────
+  return (
+    <div style={{minHeight:"100%",background:pal.sand,paddingBottom:"5rem"}}>
+      {/* Header */}
+      <div style={{background:pal.heroGrad,padding:"1rem 1.2rem",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+        <div>
+          <div style={{fontWeight:"900",color:"#fff",fontSize:"1.1rem"}}>{"\uD83C\uDF1F Goals"}</div>
+          <div style={{fontSize:"0.73rem",color:"rgba(255,255,255,0.72)"}}>
+            {activeGoals.length>0
+              ? activeGoals.length+" active goal"+(activeGoals.length!==1?"s":"")
+              : "Set goals to track what matters most"}
+          </div>
+        </div>
+        <button onClick={()=>{setDraftGoals(family.goals||[]);setEditing(true);}}
+          style={{padding:"0.35rem 0.8rem",border:"2px solid rgba(255,255,255,0.4)",borderRadius:"9px",background:"transparent",color:"#fff",fontWeight:"700",fontSize:"0.75rem",cursor:"pointer"}}>
+          {"Edit"}
+        </button>
+      </div>
+
+      <div style={{padding:"1rem 1.1rem"}}>
+
+        {/* Empty state */}
+        {activeGoals.length===0&&(
+          <div style={{background:pal.linen,borderRadius:"16px",padding:"1.5rem 1.2rem",textAlign:"center",border:`1.5px solid ${pal.stone}30`,marginBottom:"1rem"}}>
+            <div style={{fontSize:"2.2rem",marginBottom:"0.5rem"}}>{"\uD83C\uDF1F"}</div>
+            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.9rem",marginBottom:"0.3rem"}}>{"No goals yet"}</div>
+            <div style={{fontSize:"0.76rem",color:pal.slate,lineHeight:1.6,marginBottom:"1rem"}}>{"Goals help you track what matters most — faith, reading, nature, life skills, and more."}</div>
+            <button onClick={()=>{setDraftGoals([]);setEditing(true);}}
+              style={{padding:"0.6rem 1.4rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.84rem",cursor:"pointer"}}>
+              {"Set your goals"}
+            </button>
+          </div>
+        )}
+
+        {/* Goal cards */}
+        {activeGoals.map(g=>{
+          const {count,last,daysSince,tone,nudge} = goalStats(g);
+          const isOpen = logOpen===g.id;
+          const toneColor = tone==="good"?pal.good:tone==="gentle"?pal.primary:pal.slate;
+          const warmthMsg = tone==="good"
+            ? (g.label+" is going strong \u2014 great work!")
+            : tone==="gentle"
+            ? (nudge?.nudge||"Time to revisit "+g.label+" this week.")
+            : (nudge?.nudge||"Log something for "+g.label+" to start tracking.");
+          return (
+            <div key={g.id} style={{background:pal.linen,borderRadius:"16px",marginBottom:"0.75rem",border:`1.5px solid ${pal.stone}30`,overflow:"hidden"}}>
+              {/* Card header */}
+              <div style={{display:"flex",alignItems:"center",gap:"0.75rem",padding:"0.85rem 1rem 0.7rem"}}>
+                <div style={{width:"44px",height:"44px",borderRadius:"12px",background:`${pal.primary}18`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.5rem",flexShrink:0}}>
+                  {nudge?.icon||g.icon||"\uD83C\uDF1F"}
+                </div>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.9rem"}}>{g.label}</div>
+                  <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"2px"}}>
+                    {count>0
+                      ? count+" entr"+(count!==1?"ies":"y")+(last?" \u00b7 last: "+last.date:"")
+                      : "No entries yet"}
+                  </div>
+                </div>
+                <button onClick={()=>{setLogOpen(isOpen?null:g.id);setLogNote("");}}
+                  style={{padding:"0.3rem 0.7rem",border:`2px solid ${pal.primary}`,borderRadius:"9px",background:isOpen?pal.primary:"transparent",color:isOpen?"#fff":pal.primary,fontWeight:"700",fontSize:"0.72rem",cursor:"pointer",flexShrink:0}}>
+                  {isOpen?"Cancel":"Log"}
+                </button>
+              </div>
+              {/* Warmth nudge */}
+              <div style={{padding:"0 1rem 0.75rem",display:"flex",gap:"0.5rem",alignItems:"flex-start"}}>
+                <span style={{fontSize:"0.85rem",flexShrink:0}}>{tone==="good"?"\uD83C\uDF1F":tone==="gentle"?"\uD83D\uDCA7":"\uD83C\uDF31"}</span>
+                <div style={{fontSize:"0.75rem",color:toneColor,lineHeight:1.55,fontStyle:tone==="quiet"?"italic":"normal"}}>{warmthMsg}</div>
+              </div>
+              {/* Quick log */}
+              {isOpen&&(
+                <div style={{borderTop:`1px solid ${pal.stone}20`,padding:"0.75rem 1rem",background:pal.pale}}>
+                  <textarea value={logNote} onChange={e=>setLogNote(e.target.value)}
+                    placeholder={"What did you do toward this goal today?"}
+                    rows={2}
+                    style={{width:"100%",padding:"0.6rem 0.8rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.82rem",fontFamily:"inherit",background:"#fff",color:pal.ink,resize:"none",outline:"none",lineHeight:1.55,marginBottom:"0.55rem"}}
+                    onFocus={e=>e.target.style.borderColor=pal.primary}
+                    onBlur={e=>e.target.style.borderColor=pal.stone}/>
+                  <button onClick={()=>saveLog(g.id)} disabled={!logNote.trim()}
+                    style={{width:"100%",padding:"0.6rem",border:"none",borderRadius:"11px",background:logNote.trim()?pal.accentGrad:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.84rem",cursor:logNote.trim()?"pointer":"default"}}>
+                    {"Save to Portfolio"}
+                  </button>
+                </div>
+              )}
+            </div>
+          );
+        })}
+
+        {/* AI suggestions panel */}
+        {activeGoals.length>0&&(
+          <div style={{background:pal.pale,borderRadius:"16px",border:`1.5px solid ${pal.primary}25`,overflow:"hidden",marginTop:"0.5rem"}}>
+            <button onClick={aiOpen?()=>setAiOpen(false):fetchAiSuggs}
+              style={{width:"100%",display:"flex",alignItems:"center",gap:"0.65rem",padding:"0.85rem 1rem",background:"transparent",border:"none",cursor:"pointer",textAlign:"left"}}>
+              <span style={{fontSize:"1.2rem"}}>{"🤖"}</span>
+              <div style={{flex:1}}>
+                <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.85rem"}}>{"AI Goal Suggestions"}</div>
+                <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>{"Personalized for your family"}</div>
+              </div>
+              <span style={{color:pal.slate,fontSize:"1rem",transform:aiOpen?"rotate(90deg)":"none",transition:"transform 0.2s"}}>{"›"}</span>
+            </button>
+            {aiOpen&&(
+              <div style={{padding:"0 1rem 1rem",borderTop:`1px solid ${pal.primary}15`}}>
+                {aiLoading&&<div style={{textAlign:"center",padding:"1rem",fontSize:"0.82rem",color:pal.slate}}>{"⏳ Generating..."}</div>}
+                {aiError&&<div style={{padding:"0.65rem",background:pal.sand,borderRadius:"10px",fontSize:"0.78rem",color:pal.bad,marginTop:"0.65rem"}}>{aiError}</div>}
+                {aiSuggs.length>0&&(
+                  <div style={{display:"flex",flexDirection:"column",gap:"0.35rem",marginTop:"0.65rem"}}>
+                    {aiSuggs.map((label,i)=>{
+                      const already = allGoalObjs.some(g=>g.label===label&&(family.goals||[]).includes(g.id));
+                      return (
+                        <div key={i} style={{display:"flex",alignItems:"center",gap:"0.6rem",padding:"0.55rem 0.75rem",background:pal.linen,borderRadius:"11px",border:`1.5px solid ${already?pal.primary+"40":pal.stone+"30"}`}}>
+                          <span style={{fontSize:"0.9rem"}}>{"✨"}</span>
+                          <span style={{flex:1,fontSize:"0.82rem",color:pal.inkM,fontWeight:already?"700":"400"}}>{label}</span>
+                          {already
+                            ? <span style={{fontSize:"0.68rem",color:pal.primary,fontWeight:"700"}}>{"✓ Added"}</span>
+                            : <button onClick={()=>addAiGoal(label)}
+                                style={{padding:"0.22rem 0.6rem",border:"none",borderRadius:"8px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.7rem",cursor:"pointer",flexShrink:0}}>
+                                {"+ Add"}
+                              </button>
+                          }
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
       </div>
     </div>
