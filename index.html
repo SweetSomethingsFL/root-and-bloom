@@ -12388,6 +12388,9 @@ function LifeReadyScreen({pal,family,onBack}){
   const [generating,setGenerating]=useState(false);
   const [lesson,   setLesson]   = useState(null);
   const [error,    setError]    = useState(null);
+  const [openDisc,    setOpenDisc]    = useState({});
+  const [expandedDay, setExpandedDay] = useState(null);
+  const [showNext,    setShowNext]    = useState(false);
   const scrollRef = React.useRef(null);
   React.useEffect(()=>{
     if(scrollRef.current) scrollRef.current.scrollTop=0;
@@ -12527,7 +12530,7 @@ function LifeReadyScreen({pal,family,onBack}){
                 <div style={{background:pal.linen,borderRadius:"14px",padding:"0.9rem 1rem",border:"1.5px solid #e8e8e8"}}>
                   <div style={{fontSize:"0.6rem",fontWeight:"800",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.55rem"}}>💬 Discussion Questions</div>
                   {plan.discussion.map((item,i)=>{
-                    const [open, setOpen] = React.useState(false);
+                    const open = !!openDisc[i];
                     const q = typeof item==="string" ? item : item.q;
                     const answers = typeof item==="string" ? [] : (item.answers||[]);
                     return (
@@ -12538,7 +12541,7 @@ function LifeReadyScreen({pal,family,onBack}){
                         </div>
                         {answers.length>0&&(
                           <div style={{marginLeft:"1.4rem",marginTop:"0.3rem"}}>
-                            <button onClick={()=>setOpen(o=>!o)}
+                            <button onClick={()=>setOpenDisc(d=>({...d,[i]:!d[i]}))}
                               style={{fontSize:"0.65rem",color:LR_COLOR,fontWeight:"700",background:"transparent",border:`1px solid ${LR_COLOR}40`,borderRadius:"20px",padding:"0.12rem 0.6rem",cursor:"pointer"}}>
                               {open?"▲ Hide ideas":"▼ Example answers"}
                             </button>
@@ -12570,8 +12573,6 @@ function LifeReadyScreen({pal,family,onBack}){
           })()}
           {/* Week schedule — each day is expandable, plus next week preview */}
           {(()=>{
-            const [expandedDay, setExpandedDay] = React.useState(null);
-            const [showNext,    setShowNext]    = React.useState(false);
             const nextWeekTopic = getLRTopicForWeek(grade, 1);
             const nextWeekNum   = getLRWeekNumber(grade) + 1;
 
