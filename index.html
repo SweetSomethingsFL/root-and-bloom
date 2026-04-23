@@ -14822,17 +14822,41 @@ function NarrativeEditor({pal,ch,family,bySubject,attendanceDays,schoolName,cp,c
    GOALS SCREEN
 ======================================= */
 function GoalsScreen({pal,family,portfolioEntries=[],onUpdateFamily,onAddEntry,onTabChange}){
-  const [editing,     setEditing]     = useState(false);
-  const [draftGoals,  setDraftGoals]  = useState(family.goals||[]);
-  const [customInput, setCustomInput] = useState("");
-  const [aiOpen,      setAiOpen]      = useState(false);
-  const [aiLoading,   setAiLoading]   = useState(false);
-  const [aiSuggestions,setAiSuggs]   = useState([]);
-  const [aiError,     setAiError]     = useState("");
+  const [editing,       setEditing]     = useState(false);
+  const [customInput,   setCustomInput] = useState("");
+  const [aiOpen,        setAiOpen]      = useState(false);
+  const [aiLoading,     setAiLoading]   = useState(false);
+  const [aiSuggestions, setAiSuggs]     = useState([]);
+  const [aiError,       setAiError]     = useState("");
 
-  const allGoalObjs  = [...GOALS,...(family.customGoals||[])];
-  const activeGoals  = (family.goals||[]).map(id=>allGoalObjs.find(x=>x.id===id)).filter(Boolean);
-  const familyGoals  = activeGoals;
+  const allGoalObjs = [...GOALS,...(family.customGoals||[])];
+  const activeGoals = (family.goals||[]).map(id=>allGoalObjs.find(x=>x.id===id)).filter(Boolean);
+
+  const toggle = (id) => {
+    const cur = family.goals||[];
+    onUpdateFamily&&onUpdateFamily({goals: cur.includes(id)?cur.filter(g=>g!==id):[...cur,id]});
+  };
+
+  const addCustom = () => {
+    const val = customInput.trim();
+    if(!val) return;
+    const id = "custom_"+val.toLowerCase().replace(/\s+/g,"_")+"_"+Date.now();
+    const existing = family.customGoals||[];
+    if(existing.find(g=>g.label===val)) return;
+    const newGoal = {id, label:val, icon:"\uD83C\uDF1F", isCustom:true};
+    onUpdateFamily&&onUpdateFamily({
+      customGoals:[...existing, newGoal],
+      goals:[...(family.goals||[]), id]
+    });
+    setCustomInput("");
+  };
+
+  const removeCustom = (id) => {
+    onUpdateFamily&&onUpdateFamily({
+      customGoals:(family.customGoals||[]).filter(g=>g.id!==id),
+      goals:(family.goals||[]).filter(g=>g!==id)
+    });
+  };
 
   const fetchGoalSuggs = async () => {
     setAiOpen(true); setAiLoading(true); setAiError(""); setAiSuggs([]);
@@ -14841,211 +14865,137 @@ function GoalsScreen({pal,family,portfolioEntries=[],onUpdateFamily,onAddEntry,o
       setAiSuggs(suggestions);
     } catch(e) {
       setAiError(e.message==="NO_KEY"
-        ? "Add your API key in Settings → AI to use this feature."
-        : "Couldn't generate suggestions. Try again.");
+        ? "Add your API key in Settings \u2192 AI to use this feature."
+        : "Couldn\u2019t generate suggestions. Try again.");
     } finally { setAiLoading(false); }
   };
 
   const addAiGoal = (label) => {
     const existing = family.customGoals||[];
     if(existing.find(g=>g.label===label)) return;
-    const newGoal = {id:"ai_"+Date.now()+"_"+Math.random().toString(36).slice(2,6), label, icon:"✨", isCustom:true};
+    const newGoal = {id:"ai_"+Date.now()+"_"+Math.random().toString(36).slice(2,6), label, icon:"\u2728", isCustom:true};
     onUpdateFamily&&onUpdateFamily({customGoals:[...existing, newGoal], goals:[...(family.goals||[]), newGoal.id]});
   };
 
-  const [parentNote,   setParentNote]   = useState("");
-  const [photos,       setPhotos]       = useState([]);
-  const [goalsHit,     setGoalsHit]     = useState(new Set());
-  const [showGoals,    setShowGoals]    = useState(false);
-  const [milestoneSubjs, setMilestoneSubjs] = useState(new Set());
-  const [saved,        setSaved]        = useState(false);
-  const fileRef = useRef(null);
-  const toggleMilestone = (subj) => setMilestoneSubjs(prev=>{ const n=new Set(prev); n.has(subj)?n.delete(subj):n.add(subj); return n; });
-  const toggleGoal = (id) => setGoalsHit(prev=>{ const n=new Set(prev); n.has(id)?n.delete(id):n.add(id); return n; });
-
-  // Day wrap derived values
-  const now = new Date();
-  const dateStr = now.toLocaleDateString("en-US",{month:"short",day:"numeric"});
-  const dateLabel = now.toLocaleDateString("en-US",{weekday:"long",month:"short",day:"numeric"});
-  const schedToday = (()=>{
-    const dow = now.getDay()===0?6:now.getDay()-1; // 0=Mon
-    const ws = family.weeklySchedule||{};
-    return Array.isArray(ws[dow]) ? ws[dow] : (family.subjects||[]);
-  })();
-  const allSubjMap2 = Object.fromEntries([...SUBJECT_OPTIONS,...(family.customSubjects||[])].map(s=>[s.id,s]));
-  const subjsDone = schedToday.map(id=>allSubjMap2[id]?.label||id);
-  const allDone = schedToday.length>0 && schedToday.every(id=>(family.goals||[]).includes(id)||true);
-  const [notesBySubj, setNotesBySubj] = useState({});
-  const onSave = (entries) => { entries.forEach(e=>onAddEntry&&onAddEntry(e)); };
-
-  const handlePhoto = (e) => {
-    Array.from(e.target.files).forEach(file=>{
-      const r=new FileReader();
-      r.onload=ev=>setPhotos(p=>[...p,{dataUrl:ev.target.result}]);
-      r.readAsDataURL(file);
-    });
-    e.target.value="";
-  };
-
-  const handleSave = () => {
-    const entries = [];
-    family.children.forEach((ch,ci)=>{
-      subjsDone.forEach(subj=>{
-        const subjObj=[...SUBJECT_OPTIONS,...(family.customSubjects||[])].find(s=>s.label===subj||s.id===subj);
-        const entry = {
-          childIdx:ci, subj, date:dateStr,
-          title:subj+"—"+dateLabel,
-          note:notesBySubj[subj]||"",
-          thumb:subjObj?.icon||"📋",
-          isSubject:true,
-        };
-        if(milestoneSubjs.has(subj)) entry.isMilestone = true;
-        entries.push(entry);
-      });
-      entries.push({
-        childIdx:ci, subj:"Daily Notes", date:dateStr,
-        title:"Day Notes — "+dateLabel,
-        note:parentNote.trim(),
-        thumb:"📝",
-        subjects:subjsDone,
-        photos:photos.map(p=>p.dataUrl),
-        isDay:true,
-        goalsHit:[...goalsHit],
-      });
-    });
-    onSave(entries);
-    setSaved(true);
-  };
-  const onClose = () => { setSaved(false); if(onTabChange) onTabChange("home"); };
-
-  if(saved) return (
-    <div style={{position:"fixed",inset:0,zIndex:300,background:"rgba(0,0,0,0.45)",display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
-      <div style={{width:"100%",maxWidth:"430px",background:pal.goodBg,borderRadius:"22px 22px 0 0",padding:"1.6rem 1.5rem",animation:"slideUp 0.22s ease",textAlign:"center"}}>
-        <div style={{fontSize:"2.5rem",marginBottom:"0.4rem"}}>{"🌟"}</div>
-        <div style={{fontWeight:"800",color:pal.good,fontSize:"1rem"}}>{"Day wrapped up!"}</div>
-        <div style={{fontSize:"0.78rem",color:pal.inkM,marginTop:"4px",marginBottom:"1.2rem"}}>
-          {subjsDone.length+" subject"+(subjsDone.length!==1?"s":"")+" saved to portfolio · "+dateStr}
-        </div>
-        <button onClick={onClose}
-          style={{padding:"0.62rem 2rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>
-          {"Done ✓"}
-        </button>
-      </div>
-    </div>
-  );
-
   return (
-    <div style={{position:"fixed",inset:0,zIndex:300,background:"rgba(0,0,0,0.5)",backdropFilter:"blur(8px)",display:"flex",alignItems:"flex-end",justifyContent:"center"}} onClick={onClose}>
-      <div onClick={e=>e.stopPropagation()} style={{width:"100%",maxWidth:"430px",background:pal.linen,borderRadius:"24px 24px 0 0",animation:"slideUp 0.24s ease",paddingBottom:"env(safe-area-inset-bottom)",maxHeight:"88vh",display:"flex",flexDirection:"column"}}>
-        <div style={{padding:"0.65rem 0 0",display:"flex",justifyContent:"center",flexShrink:0}}>
-          <div style={{width:"36px",height:"4px",borderRadius:"99px",background:pal.stone+"60"}}/>
-        </div>
-        <div style={{padding:"0.6rem 1.1rem 0.75rem",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0}}>
-          <div>
-            <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.95rem"}}>{allDone?"🌟 Day complete!":"📝 Wrap up so far"}</div>
-            <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"2px"}}>{dateLabel+" · "+subjsDone.length+" subject"+(subjsDone.length!==1?"s":"")+" done"}</div>
-          </div>
-          <button onClick={onClose} style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.85rem",display:"flex",alignItems:"center",justifyContent:"center"}}>{"✕"}</button>
-        </div>
+    <div style={{minHeight:"100%",background:pal.sand,paddingBottom:"5rem"}}>
+      {/* Header */}
+      <div style={{background:pal.heroGrad,padding:"1.4rem 1.2rem 1rem"}}>
+        <div style={{fontWeight:"900",color:"#fff",fontSize:"1.1rem",marginBottom:"2px"}}>{"\uD83C\uDF1F Your Goals"}</div>
+        <div style={{fontSize:"0.76rem",color:"rgba(255,255,255,0.72)"}}>{"What matters most for your family this year"}</div>
+      </div>
 
-        <div style={{flex:1,overflowY:"auto",padding:"0 1.1rem 1.1rem"}}>
-          {/* Subjects summary */}
-          <div style={{background:pal.pale,borderRadius:"12px",padding:"0.65rem 0.85rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.primary}20`}}>
-            <div style={{fontSize:"0.68rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.4rem",textTransform:"uppercase",letterSpacing:"0.05em"}}>{"Subjects completed"}</div>
-            <div style={{display:"flex",gap:"0.3rem",flexWrap:"wrap"}}>
-              {subjsDone.map(s=>{
-                const so=[...SUBJECT_OPTIONS,...(family.customSubjects||[])].find(x=>x.label===s||x.id===s);
-                const ms=milestoneSubjs.has(s);
-                return (
-                  <button key={s} onClick={()=>toggleMilestone(s)} title="Mark as milestone"
-                    style={{display:"inline-flex",alignItems:"center",gap:"0.2rem",padding:"0.2rem 0.55rem",background:ms?pal.primary+"28":pal.primary+"14",borderRadius:"20px",fontSize:"0.72rem",fontWeight:"700",color:pal.primary,border:`1.5px solid ${ms?pal.primary:pal.primary+"30"}`,cursor:"pointer"}}>
-                    {ms?"🌟":(so?.icon||"📋")} {s}
+      <div style={{padding:"1rem 1.1rem"}}>
+
+        {/* Active goals */}
+        {activeGoals.length>0&&(
+          <div style={{marginBottom:"1.2rem"}}>
+            <div style={{fontSize:"0.68rem",fontWeight:"800",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"0.55rem"}}>{"Active Goals"}</div>
+            <div style={{display:"flex",flexDirection:"column",gap:"0.4rem"}}>
+              {activeGoals.map(g=>(
+                <div key={g.id} style={{display:"flex",alignItems:"center",gap:"0.75rem",padding:"0.75rem 0.9rem",background:pal.linen,borderRadius:"14px",border:`1.5px solid ${pal.primary}25`}}>
+                  <span style={{fontSize:"1.4rem",flexShrink:0}}>{g.icon||"\uD83C\uDF1F"}</span>
+                  <span style={{flex:1,fontWeight:"700",color:pal.ink,fontSize:"0.86rem"}}>{g.label}</span>
+                  <button onClick={()=>toggle(g.id)}
+                    style={{width:"24px",height:"24px",borderRadius:"50%",background:pal.primary+"22",border:"none",color:pal.primary,fontSize:"0.8rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                    {"\u2715"}
                   </button>
-                );
-              })}
+                </div>
+              ))}
             </div>
-            {subjsDone.length>0&&<div style={{fontSize:"0.65rem",color:pal.stone,marginTop:"0.35rem"}}>{"Tap a subject to mark it as a 🌟 milestone"}</div>}
-            {Object.keys(notesBySubj).length>0&&(
-              <div style={{marginTop:"0.55rem",borderTop:`1px solid ${pal.stone}25`,paddingTop:"0.45rem"}}>
-                {Object.entries(notesBySubj).map(([subj,note])=>(
-                  <div key={subj} style={{fontSize:"0.72rem",color:pal.inkM,marginBottom:"0.2rem"}}>
-                    <span style={{fontWeight:"700",color:pal.ink}}>{subj}:</span>{" "+note}
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
+        )}
 
-          {/* Parent note */}
-          <div style={{marginBottom:"0.75rem"}}>
-            <div style={{fontSize:"0.7rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.35rem"}}>{"Parent note (optional)"}</div>
-            <textarea value={parentNote} onChange={e=>setParentNote(e.target.value)}
-              placeholder={"How did the day go? Highlights, struggles, anything to remember…"}
-              rows={3}
-              style={{width:"100%",padding:"0.7rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"13px",fontSize:"0.84rem",fontFamily:"inherit",background:pal.parchm,color:pal.ink,resize:"none",outline:"none",lineHeight:1.6}}
-              onFocus={e=>e.target.style.borderColor=pal.primary}
-              onBlur={e=>e.target.style.borderColor=pal.stone}/>
+        {activeGoals.length===0&&(
+          <div style={{background:pal.pale,borderRadius:"16px",padding:"1.4rem 1.2rem",textAlign:"center",marginBottom:"1.2rem",border:`1.5px solid ${pal.primary}20`}}>
+            <div style={{fontSize:"2rem",marginBottom:"0.5rem"}}>{"\uD83C\uDF1F"}</div>
+            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.88rem",marginBottom:"0.3rem"}}>{"No goals set yet"}</div>
+            <div style={{fontSize:"0.75rem",color:pal.slate,lineHeight:1.6}}>{"Pick from the list below or let AI suggest some based on your family."}</div>
           </div>
+        )}
 
-          {/* Goals hit */}
-          {familyGoals.length>0&&(
-            <div style={{marginBottom:"0.75rem"}}>
-              <button onClick={()=>setShowGoals(g=>!g)}
-                style={{display:"flex",alignItems:"center",gap:"0.4rem",background:"transparent",border:"none",cursor:"pointer",padding:"0",marginBottom:showGoals?"0.45rem":"0"}}>
-                <span style={{fontSize:"0.7rem",fontWeight:"700",color:pal.inkM}}>{"🎯 Goals hit today"}</span>
-                {goalsHit.size>0&&<span style={{fontSize:"0.65rem",fontWeight:"800",color:pal.primary,background:pal.primary+"18",padding:"0.1rem 0.4rem",borderRadius:"99px"}}>{goalsHit.size}</span>}
-                <span style={{fontSize:"0.65rem",color:pal.slate}}>{showGoals?"▲":"▼"}</span>
-              </button>
-              {showGoals&&(
-                <div style={{display:"flex",gap:"0.3rem",flexWrap:"wrap"}}>
-                  {familyGoals.map(g=>{
-                    const sel=goalsHit.has(g.id);
+        {/* Add custom goal */}
+        <div style={{display:"flex",gap:"0.5rem",marginBottom:"1.2rem"}}>
+          <input value={customInput} onChange={e=>setCustomInput(e.target.value)}
+            onKeyDown={e=>e.key==="Enter"&&addCustom()}
+            placeholder={"Add your own goal..."}
+            style={{flex:1,padding:"0.62rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.82rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit"}}
+            onFocus={e=>e.target.style.borderColor=pal.primary}
+            onBlur={e=>e.target.style.borderColor=pal.stone}/>
+          <button onClick={addCustom} disabled={!customInput.trim()}
+            style={{padding:"0.62rem 1rem",border:"none",borderRadius:"11px",background:customInput.trim()?pal.accentGrad:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.82rem",cursor:customInput.trim()?"pointer":"default",flexShrink:0}}>
+            {"+ Add"}
+          </button>
+        </div>
+
+        {/* AI suggestions */}
+        <div style={{background:pal.pale,borderRadius:"16px",border:`1.5px solid ${pal.primary}25`,marginBottom:"1.2rem",overflow:"hidden"}}>
+          <button onClick={aiOpen?()=>setAiOpen(false):fetchGoalSuggs}
+            style={{width:"100%",display:"flex",alignItems:"center",gap:"0.65rem",padding:"0.85rem 1rem",background:"transparent",border:"none",cursor:"pointer",textAlign:"left"}}>
+            <span style={{fontSize:"1.2rem"}}>{"\uD83E\uDD16"}</span>
+            <div style={{flex:1}}>
+              <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.86rem"}}>{"AI Goal Suggestions"}</div>
+              <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>{"Personalized for your family"}</div>
+            </div>
+            <span style={{color:pal.slate,fontSize:"0.9rem",transform:aiOpen?"rotate(90deg)":"none",transition:"transform 0.2s"}}>{"\u203a"}</span>
+          </button>
+          {aiOpen&&(
+            <div style={{padding:"0 1rem 1rem",borderTop:`1px solid ${pal.primary}15`}}>
+              {aiLoading&&(
+                <div style={{textAlign:"center",padding:"1rem",fontSize:"0.82rem",color:pal.slate}}>{"\u23F3 Generating suggestions..."}</div>
+              )}
+              {aiError&&(
+                <div style={{padding:"0.65rem 0.85rem",background:pal.sand,borderRadius:"10px",fontSize:"0.78rem",color:pal.bad,marginTop:"0.65rem"}}>{aiError}</div>
+              )}
+              {aiSuggestions.length>0&&(
+                <div style={{display:"flex",flexDirection:"column",gap:"0.35rem",marginTop:"0.65rem"}}>
+                  {aiSuggestions.map((label,i)=>{
+                    const already=(family.goals||[]).some(id=>allGoalObjs.find(g=>g.id===id&&g.label===label));
                     return (
-                      <button key={g.id} onClick={()=>toggleGoal(g.id)}
-                        style={{display:"flex",alignItems:"center",gap:"0.25rem",padding:"0.25rem 0.55rem",border:`2px solid ${sel?pal.primary:pal.stone+"40"}`,borderRadius:"20px",background:sel?pal.primary+"18":"transparent",cursor:"pointer"}}>
-                        <span style={{fontSize:"0.8rem"}}>{g.icon||"🌿"}</span>
-                        <span style={{fontSize:"0.68rem",fontWeight:sel?"800":"500",color:sel?pal.primary:pal.inkM}}>{g.label}</span>
-                      </button>
+                      <div key={i} style={{display:"flex",alignItems:"center",gap:"0.6rem",padding:"0.55rem 0.75rem",background:pal.linen,borderRadius:"11px",border:`1.5px solid ${already?pal.primary+"40":pal.stone+"30"}`}}>
+                        <span style={{fontSize:"0.9rem"}}>{"\u2728"}</span>
+                        <span style={{flex:1,fontSize:"0.82rem",color:pal.inkM,fontWeight:already?"700":"400"}}>{label}</span>
+                        {already
+                          ? <span style={{fontSize:"0.68rem",color:pal.primary,fontWeight:"700"}}>{"\u2713 Added"}</span>
+                          : <button onClick={()=>addAiGoal(label)}
+                              style={{padding:"0.22rem 0.6rem",border:"none",borderRadius:"8px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.7rem",cursor:"pointer",flexShrink:0}}>
+                              {"+ Add"}
+                            </button>
+                        }
+                      </div>
                     );
                   })}
                 </div>
               )}
             </div>
           )}
-
-          {/* Photos */}
-          {photos.length>0&&(
-            <div style={{display:"flex",gap:"0.35rem",marginBottom:"0.65rem",overflowX:"auto"}}>
-              {photos.map((p,i)=>(
-                <div key={i} style={{position:"relative",flexShrink:0}}>
-                  <img src={p.dataUrl} alt="" style={{width:"60px",height:"60px",borderRadius:"10px",objectFit:"cover",border:`1.5px solid ${pal.stone}30`}}/>
-                  <button onClick={()=>setPhotos(ps=>ps.filter((_,pi)=>pi!==i))}
-                    style={{position:"absolute",top:"2px",right:"2px",width:"18px",height:"18px",borderRadius:"50%",background:"rgba(0,0,0,0.55)",border:"none",color:"#fff",fontSize:"0.55rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>{"✕"}</button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Action row */}
-          <div style={{display:"flex",gap:"0.5rem",alignItems:"center"}}>
-            <input ref={fileRef} type="file" accept="image/*" multiple onChange={handlePhoto} style={{display:"none"}}/>
-            <button onClick={()=>fileRef.current?.click()}
-              style={{width:"46px",height:"46px",borderRadius:"12px",border:`2px solid ${pal.stone+"50"}`,background:"transparent",color:pal.slate,fontSize:"1.2rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{"📷"}</button>
-            <button onClick={handleSave} disabled={subjsDone.length===0}
-              style={{flex:1,padding:"0.78rem",border:"none",borderRadius:"13px",background:subjsDone.length>0?pal.accentGrad:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.9rem",cursor:subjsDone.length>0?"pointer":"default"}}>
-              {"Save to Portfolio ✓"}
-            </button>
-          </div>
-          <div style={{fontSize:"0.63rem",color:pal.stone,textAlign:"center",marginTop:"0.45rem"}}>
-            {subjsDone.length+" subject"+(subjsDone.length!==1?"s":"")+" · "+dateStr+" · Saves to portfolio"}
-          </div>
         </div>
+
+        {/* Goal picker — all available goals */}
+        <div style={{fontSize:"0.68rem",fontWeight:"800",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"0.55rem"}}>{"All Goals"}</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.45rem"}}>
+          {allGoalObjs.map(g=>{
+            const isActive=(family.goals||[]).includes(g.id);
+            const isCustom=g.isCustom||g.id.startsWith("custom_")||g.id.startsWith("ai_");
+            return (
+              <button key={g.id} onClick={()=>toggle(g.id)}
+                style={{padding:"0.75rem",border:`2px solid ${isActive?pal.primary:pal.stone+"50"}`,borderRadius:"14px",background:isActive?pal.pale:"transparent",cursor:"pointer",textAlign:"center",display:"flex",flexDirection:"column",alignItems:"center",gap:"0.3rem",transition:"all 0.14s",position:"relative"}}>
+                <span style={{fontSize:"1.4rem"}}>{g.icon||"\uD83C\uDF1F"}</span>
+                <span style={{fontSize:"0.73rem",fontWeight:isActive?"800":"500",color:isActive?pal.primary:pal.inkM,lineHeight:1.25}}>{g.label}</span>
+                {isActive&&<span style={{position:"absolute",top:"6px",right:"7px",fontSize:"0.6rem",color:pal.primary,fontWeight:"900"}}>{"\u2713"}</span>}
+                {isCustom&&!isActive&&(
+                  <span onClick={e=>{e.stopPropagation();removeCustom(g.id);}}
+                    style={{position:"absolute",top:"4px",right:"6px",fontSize:"0.6rem",color:pal.bad,fontWeight:"900",cursor:"pointer"}}>{"\u2715"}</span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
       </div>
     </div>
   );
 }
-
-
 
 function ThemeModal({ pal, paletteId, setPaletteId, customA, customB, setCustomA, setCustomB, onClose }) {
   const [la,setLa]=useState(customA), [lb,setLb]=useState(customB);
