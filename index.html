@@ -4156,6 +4156,7 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
   const [local,       setLocal]      = useState(family ? {...family} : {});
   const [showAddSubj, setShowAddSubj]= useState(false);
   const [custSubjVal, setCustSubjVal]= useState("");
+  const [celebReset,  setCelebReset] = useState(false);
   const updL = (k,v) => setLocal(l=>({...l,[k]:v}));
   const updChild = (id,k,v) => setLocal(l=>({...l,children:l.children.map(c=>c.id===id?{...c,[k]:v}:c)}));
   const addChild = () => setLocal(l=>({...l,children:[...l.children,{id:uid(),name:"",grade:"1st",avatar:"🌻"}]}));
@@ -4781,22 +4782,80 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
 
         {tab==="ai" && (
           <div style={{animation:"fadeUp 0.18s ease"}}>
-            <SCard pal={pal} title="AI Assistant">
-              <div style={{fontSize:"0.78rem",color:pal.slate,lineHeight:1.7,marginBottom:"0.85rem"}}>
-                The AI features (worksheet builder, unit planner, portfolio summaries, chat assistant) need an Anthropic API key to work.
-                Get one free at <span style={{color:pal.primary,fontWeight:"700"}}>console.anthropic.com</span> — costs a few cents per month for typical use.
+
+            {/* Key status banner */}
+            {(()=>{
+              const hasKey = !!(local.apiKey||"").trim();
+              return (
+                <div style={{background:hasKey?"#edf9f0":"#fff8e6",borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:`1.5px solid ${hasKey?"#2d9e5f40":"#f5c84240"}`,display:"flex",alignItems:"center",gap:"0.65rem"}}>
+                  <span style={{fontSize:"1.4rem",flexShrink:0}}>{hasKey?"✅":"🔑"}</span>
+                  <div>
+                    <div style={{fontWeight:"800",color:hasKey?"#1a6e40":"#b07800",fontSize:"0.86rem"}}>
+                      {hasKey?"AI features are active":"AI features need a key to work"}
+                    </div>
+                    <div style={{fontSize:"0.7rem",color:hasKey?"#2d9e5f":"#a06000",marginTop:"2px",lineHeight:1.5}}>
+                      {hasKey?"Worksheets, lessons, Bloom tutor, chat assistant — all ready.":"Follow the steps below to get set up in about 2 minutes."}
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Step by step guide */}
+            {!(local.apiKey||"").trim()&&(
+              <SCard pal={pal} title="How to get your free API key">
+                <div style={{display:"flex",flexDirection:"column",gap:"0.75rem",marginBottom:"0.5rem"}}>
+                  {[
+                    {n:"1",icon:"🌐",title:"Go to console.anthropic.com",desc:"Open in your browser. It's Anthropic's website — the company that makes Claude AI."},
+                    {n:"2",icon:"📧",title:"Create a free account",desc:"Sign up with your email. No credit card needed just to create an account."},
+                    {n:"3",icon:"💳",title:"Add a small credit (optional but recommended)",desc:"Go to Billing → Add credit. We recommend $5 to start. Typical family uses $0.50–$2/month — that $5 lasts months."},
+                    {n:"4",icon:"🔑",title:"Create an API key",desc:'Go to "API Keys" in the left menu → click "Create Key" → give it any name like "Root and Bloom" → copy the key.'},
+                    {n:"5",icon:"📋",title:'Paste it in the field below',desc:'The key starts with "sk-ant-". Paste it in the API Key field below and tap Save.'},
+                  ].map(({n,icon,title,desc})=>(
+                    <div key={n} style={{display:"flex",gap:"0.65rem",alignItems:"flex-start"}}>
+                      <div style={{width:"24px",height:"24px",borderRadius:"50%",background:pal.primary,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.7rem",fontWeight:"900",color:"#fff",flexShrink:0,marginTop:"2px"}}>{n}</div>
+                      <div style={{flex:1}}>
+                        <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.82rem",marginBottom:"1px"}}>{icon+" "+title}</div>
+                        <div style={{fontSize:"0.72rem",color:pal.slate,lineHeight:1.55}}>{desc}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer"
+                  style={{display:"block",textAlign:"center",padding:"0.65rem",borderRadius:"11px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.84rem",textDecoration:"none",marginTop:"0.5rem"}}>
+                  {"Open console.anthropic.com \u2197"}
+                </a>
+              </SCard>
+            )}
+
+            {/* API Key input */}
+            <SCard pal={pal} title="API Key">
+              <div style={{fontSize:"0.74rem",color:pal.slate,lineHeight:1.6,marginBottom:"0.75rem"}}>
+                {"Your key is stored only on this device and never sent anywhere except directly to Anthropic when you use AI features."}
               </div>
-              <Lbl pal={pal}>API Key</Lbl>
-              <input
-                type="password"
-                value={local.apiKey||""}
-                onChange={e=>updL("apiKey",e.target.value)}
-                placeholder="sk-ant-..."
-                style={{width:"100%",padding:"0.62rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.82rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"monospace",marginBottom:"0.75rem"}}
-                onFocus={e=>e.target.style.borderColor=pal.primary}
-                onBlur={e=>e.target.style.borderColor=pal.stone}
-              />
+              <div style={{position:"relative",marginBottom:"0.75rem"}}>
+                <input
+                  id="apiKeyInput"
+                  type="password"
+                  value={local.apiKey||""}
+                  onChange={e=>updL("apiKey",e.target.value)}
+                  placeholder="sk-ant-..."
+                  style={{width:"100%",padding:"0.62rem 2.8rem 0.62rem 0.85rem",border:`2px solid ${(local.apiKey||"").trim()?pal.good:pal.stone}`,borderRadius:"11px",fontSize:"0.82rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"monospace",boxSizing:"border-box"}}
+                  onFocus={e=>e.target.style.borderColor=pal.primary}
+                  onBlur={e=>e.target.style.borderColor=(local.apiKey||"").trim()?pal.good:pal.stone}
+                />
+                <button onClick={()=>{const inp=document.getElementById("apiKeyInput");if(inp)inp.type=inp.type==="password"?"text":"password";}}
+                  style={{position:"absolute",right:"8px",top:"50%",transform:"translateY(-50%)",background:"transparent",border:"none",cursor:"pointer",fontSize:"0.8rem",color:pal.slate,padding:"4px"}}>
+                  {"👁"}
+                </button>
+              </div>
+              {(local.apiKey||"").trim()&&(
+                <div style={{display:"flex",alignItems:"center",gap:"0.4rem",fontSize:"0.72rem",color:pal.good,marginBottom:"0.75rem",fontWeight:"700"}}>
+                  <span>{"✓"}</span><span>{"Key entered — tap Save to activate"}</span>
+                </div>
+              )}
               <Lbl pal={pal}>Monthly AI call limit</Lbl>
+              <div style={{fontSize:"0.7rem",color:pal.slate,marginBottom:"0.5rem",lineHeight:1.5}}>{"Safeguard against unexpected usage. 50 calls covers a typical active week. Set to Unlimited if you trust yourself!"}</div>
               <div style={{display:"flex",flexWrap:"wrap",gap:"0.4rem",marginBottom:"0.85rem"}}>
                 {["10","25","50","100","200","Unlimited"].map(v=>(
                   <button key={v} onClick={()=>updL("aiMonthlyLimit",v)}
@@ -4806,17 +4865,32 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                 ))}
               </div>
               <AIUsageDisplay pal={pal}/>
-              <div style={{marginTop:"1rem",paddingTop:"1rem",borderTop:`1px solid ${pal.stone}30`}}>
-                <div style={{fontSize:"0.72rem",color:pal.slate,marginBottom:"0.5rem",fontWeight:"600",textTransform:"uppercase",letterSpacing:"0.05em"}}>{"Developer Tools"}</div>
+
+              {/* Cost explainer */}
+              <div style={{background:pal.parchm,borderRadius:"11px",padding:"0.7rem 0.85rem",marginTop:"0.75rem",border:`1px solid ${pal.stone}30`}}>
+                <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.76rem",marginBottom:"0.35rem"}}>{"💰 How much does it cost?"}</div>
+                <div style={{fontSize:"0.71rem",color:pal.slate,lineHeight:1.7}}>
+                  {"A typical active family uses roughly $0.50–$2 per month. Generating a worksheet costs about $0.01. The Bloom tutor costs about $0.005 per question. You can monitor your usage at console.anthropic.com anytime."}
+                </div>
+              </div>
+            </SCard>
+
+            {/* Developer tools */}
+            <SCard pal={pal} title="Developer Tools">
+              <div style={{fontSize:"0.72rem",color:pal.slate,marginBottom:"0.65rem",lineHeight:1.55}}>{"Reset first-time tips and celebration animations in the Student Portal."}</div>
+              {celebReset?(
+                <div style={{fontSize:"0.78rem",color:pal.good,fontWeight:"700",padding:"0.45rem 0"}}>{"✓ Reset! Open Student Portal to see them again."}</div>
+              ):(
                 <button onClick={()=>{
                   const keys=Object.keys(localStorage).filter(k=>k.startsWith("portalCeleb_")||k==="rootbloom_tips_seen");
                   keys.forEach(k=>localStorage.removeItem(k));
-                  alert("Celebrations reset! Open Student Portal to see them.");
+                  setCelebReset(true);
                 }} style={{padding:"0.45rem 1rem",border:`1.5px solid ${pal.stone}`,borderRadius:"10px",background:"transparent",color:pal.slate,fontSize:"0.76rem",fontWeight:"600",cursor:"pointer"}}>
                   {"🎉 Reset celebrations"}
                 </button>
-              </div>
+              )}
             </SCard>
+
           </div>
         )}
 
