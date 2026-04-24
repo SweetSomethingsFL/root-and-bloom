@@ -13309,8 +13309,50 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
           const subjBars = Object.entries(subjCounts).sort((a,b)=>b[1]-a[1]).slice(0,8);
           const maxCount = subjBars[0]?.[1]||1;
 
+          // Needs Attention: subjects with 0 entries in last 7 days (must have at least 1 entry ever)
+          const _naCreatedAt = family.createdAt ? new Date(family.createdAt) : null;
+          const _naDaysSince = _naCreatedAt ? Math.floor((today - _naCreatedAt)/(24*60*60*1000)) : 999;
+          const needsAttention = _naDaysSince >= 7 ? allSubjs.filter(s => {
+            const all = childEntries.filter(e=>e.subj===s.label);
+            if(all.length === 0) return false; // never logged -- skip
+            const last = all[0]; // entries are newest-first
+            try {
+              const d = new Date(last.date+", "+yr);
+              const daysSince = Math.floor((today - d)/(24*60*60*1000));
+              return daysSince >= 7;
+            } catch(ex) { return false; }
+          }) : [];
+
           return (
             <div>
+              {/* Needs Attention card */}
+              {needsAttention.length>0&&(
+                <div style={{background:"#fff8ed",borderRadius:"16px",padding:"0.85rem 1rem",marginBottom:"1rem",border:"2px solid #f5c84250"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:"0.5rem",marginBottom:"0.6rem"}}>
+                    <span style={{fontSize:"1rem"}}>{"⚠️"}</span>
+                    <div style={{flex:1}}>
+                      <div style={{fontWeight:"800",color:"#b07800",fontSize:"0.82rem"}}>{"Needs attention — "+ch?.name}</div>
+                      <div style={{fontSize:"0.68rem",color:"#a06000",marginTop:"1px"}}>{"No entries in the last 7+ days"}</div>
+                    </div>
+                  </div>
+                  <div style={{display:"flex",flexWrap:"wrap",gap:"0.35rem"}}>
+                    {needsAttention.map(s=>{
+                      const last = childEntries.filter(e=>e.subj===s.label)[0];
+                      let daysAgo = null;
+                      try { daysAgo = Math.floor((today - new Date(last.date+", "+yr))/(24*60*60*1000)); } catch(ex){}
+                      return (
+                        <button key={s.id} onClick={()=>{setActiveTab("timeline");setTimelineSubj(s.label);}}
+                          style={{display:"inline-flex",alignItems:"center",gap:"0.3rem",padding:"0.3rem 0.65rem",background:"#fff",borderRadius:"20px",border:"1.5px solid #f5c84260",cursor:"pointer"}}>
+                          <span style={{fontSize:"0.85rem"}}>{s.icon}</span>
+                          <span style={{fontSize:"0.73rem",fontWeight:"700",color:"#7a5500"}}>{s.label}</span>
+                          {daysAgo!==null&&<span style={{fontSize:"0.62rem",color:"#b07800",fontWeight:"600"}}>{daysAgo+"d"}</span>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div style={{fontSize:"0.63rem",color:"#a06000",marginTop:"0.55rem",fontStyle:"italic"}}>{"Tap a subject to see its timeline."}</div>
+                </div>
+              )}
               {/* Subject activity bar graph */}
               {subjBars.length>0&&(
                 <div style={{background:pal.linen,borderRadius:"16px",padding:"0.9rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}25`}}>
