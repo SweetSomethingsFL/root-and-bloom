@@ -1724,7 +1724,7 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
         </div>
       </div>
 
-      <div key={tab} style={{flex:1,overflowY:"auto",padding:"1.2rem 1.1rem"}}>
+      <div key={tab} style={{flex:1,overflowY:"auto",padding:"1.2rem 1.1rem",WebkitOverflowScrolling:"touch"}}>
         {tab==="family" && (
           <div style={{animation:"fadeUp 0.18s ease"}}>
             <SCard pal={pal} title="Family Info">
@@ -2295,7 +2295,7 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
       </div>
 
         {tab==="ai" && (
-          <div style={{animation:"fadeUp 0.18s ease"}}>
+          <div style={{animation:"fadeUp 0.18s ease",paddingBottom:"4rem"}}>
 
             {/* Key status banner */}
             {(()=>{
