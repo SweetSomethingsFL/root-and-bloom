@@ -453,6 +453,23 @@ const SUBJECT_OPTIONS = [
 ];
 const SESSION_LENGTHS = ["20 min","30 min","45 min","60 min","90 min"];
 
+const GOAL_NUDGES = {
+  faith:        {subjs:["Bible / Faith"],          icon:"+"},
+  reading:      {subjs:["Reading","Language Arts"], icon:"📖"},
+  college:      {subjs:["Math","Science","History","Language Arts","Latin","Foreign Language"], icon:"🎓"},
+  critical:     {subjs:["Math","Science","History","Geography"], icon:"🧠"},
+  worldview:    {subjs:["Bible / Faith","History","Geography"],  icon:"🌍"},
+  life:         {subjs:["Life Skills"],             icon:"🏠"},
+  independence: {subjs:["Life Skills","Typing / Tech"],          icon:"🦅"},
+  social:       {subjs:["PE / Movement"],           icon:"🤝"},
+  service:      {subjs:["Life Skills","Bible / Faith"],          icon:"🤎"},
+  entrepreneur: {subjs:["Math","Typing / Tech","Life Skills"],   icon:"💼"},
+  nature:       {subjs:["Nature Study","Science"],  icon:"🌿"},
+  sports:       {subjs:["PE / Movement"],           icon:"🏃"},
+  travel:       {subjs:["Geography","History","Foreign Language"],icon:"🗺"},
+  homestead:    {subjs:["Nature Study","Life Skills"],            icon:"🌻"},
+};
+
 /* ---- LIFE READY ---- */
 function loadSaved() {
   try { const s=localStorage.getItem(LS_KEY); return s?JSON.parse(s):null; } catch(e){return null;}
@@ -13765,6 +13782,63 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
                     <div style={{display:"flex",justifyContent:"space-between",marginTop:"4px"}}>
                       <span style={{fontSize:"0.6rem",color:pal.stone}}>{pct+"%"+" complete"}</span>
                       {goalDays-attendanceDays>0&&<span style={{fontSize:"0.6rem",color:pal.slate}}>{(goalDays-attendanceDays)+" days to goal"}</span>}
+                    </div>
+                  </div>
+                );
+              })()}
+              {/* Goal Connection card */}
+              {(()=>{
+                const allGoalObjs = [...GOALS,...(family.customGoals||[])];
+                const activeGoals = (family.goals||[]).map(id=>allGoalObjs.find(x=>x.id===id)).filter(Boolean);
+                if(activeGoals.length===0) return null;
+                const goalData = activeGoals.map(g=>{
+                  const nudge = GOAL_NUDGES[g.id];
+                  const relSubjs = nudge?.subjs||[];
+                  const relEntries = relSubjs.length>0
+                    ? childEntries.filter(e=>relSubjs.some(s=>e.subj===s||e.subj.includes(s.split(" ")[0])))
+                    : childEntries.filter(e=>e.goalId===g.id);
+                  const thisWeekCount = relEntries.filter(e=>isThisWeek(e.date)).length;
+                  const totalCount = relEntries.length;
+                  const lastEntry = relEntries[0]||null;
+                  let daysSince = null;
+                  if(lastEntry){ try{ daysSince=Math.floor((today-new Date(lastEntry.date+", "+yr))/(24*60*60*1000)); }catch(ex){} }
+                  const active = totalCount>0 && (daysSince===null||daysSince<=14);
+                  return {g, nudge, totalCount, thisWeekCount, daysSince, active, relSubjs};
+                });
+                const activeCount = goalData.filter(d=>d.active).length;
+                return (
+                  <div style={{background:pal.linen,borderRadius:"16px",padding:"0.85rem 1rem",marginBottom:"1rem",border:"1.5px solid "+pal.stone+"25"}}>
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"0.65rem"}}>
+                      <div style={{display:"flex",alignItems:"center",gap:"0.45rem"}}>
+                        <span style={{fontSize:"1rem"}}>{"🎯"}</span>
+                        <div>
+                          <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.82rem"}}>{"Learning Goals"}</div>
+                          <div style={{fontSize:"0.63rem",color:pal.slate,marginTop:"1px"}}>{activeCount+" of "+goalData.length+" actively worked on"}</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{display:"flex",flexDirection:"column",gap:"0.35rem"}}>
+                      {goalData.map(({g,nudge,totalCount,thisWeekCount,daysSince,active,relSubjs})=>(
+                        <div key={g.id} style={{display:"flex",alignItems:"center",gap:"0.6rem",padding:"0.45rem 0.65rem",borderRadius:"10px",background:active?pal.goodBg:"transparent",border:"1.5px solid "+(active?pal.good+"40":pal.stone+"25")}}>
+                          <span style={{fontSize:"1rem",flexShrink:0}}>{nudge?.icon||g.icon}</span>
+                          <div style={{flex:1,minWidth:0}}>
+                            <div style={{fontWeight:"700",color:active?pal.good:pal.inkM,fontSize:"0.78rem"}}>{g.label}</div>
+                            {relSubjs.length>0&&(
+                              <div style={{fontSize:"0.62rem",color:pal.stone,marginTop:"1px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{relSubjs.slice(0,3).join(", ")+(relSubjs.length>3?" +more":"")}</div>
+                            )}
+                          </div>
+                          <div style={{textAlign:"right",flexShrink:0}}>
+                            {totalCount>0?(
+                              <div>
+                                <div style={{fontWeight:"800",color:active?pal.good:pal.slate,fontSize:"0.82rem"}}>{totalCount}</div>
+                                <div style={{fontSize:"0.58rem",color:pal.stone}}>{thisWeekCount>0?thisWeekCount+" this wk":daysSince!==null?daysSince+"d ago":"entries"}</div>
+                              </div>
+                            ):(
+                              <div style={{fontSize:"0.65rem",color:pal.stone,fontStyle:"italic"}}>{"not started"}</div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 );
