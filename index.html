@@ -13324,17 +13324,21 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
     const prompt = "You are a warm, insightful homeschool learning coach writing a progress summary for a homeschool parent. "
       + "The parent has logged notes about their child\u2019s learning "+rangeLabel+". "
       + "Your job is to read these notes carefully and write a structured summary for each child.\n\n"
-      + "For each child, write THREE clearly labeled sections:\n"
+      + "For each child, write FOUR clearly labeled sections:\n"
       + "STRENGTHS: Name 2-3 specific subjects where this child is excelling or showing strong engagement. "
       + "Base this on: high note frequency, milestone tags [MILESTONE], positive language in notes, or depth of detail. "
       + "Quote or paraphrase specific moments from the notes.\n"
       + "GROWTH AREAS: Name 1-2 subjects that appear light (few or no entries), show struggle signals in the note language, "
       + "or haven\u2019t been logged recently. Be gentle and constructive \u2014 frame as opportunity, not failure.\n"
+      + "NEXT STEPS: Give 2-3 specific, concrete, actionable suggestions for what to do next week. "
+      + "Each suggestion must start with a verb and reference an actual subject or moment from the notes. "
+      + "Examples: 'Try a hands-on experiment to follow up on the volcano unit.' or 'Spend 10 minutes reviewing the multiplication facts that came up as tricky.' "
+      + "These should feel like advice from a coach who just read the notes, not generic tips.\n"
       + "OVERALL: 1-2 warm sentences capturing the child\u2019s learning story this period. Reference something specific.\n\n"
       + "Rules: Plain text only. No markdown, no bullet points, no asterisks. "
-      + "Label each section exactly as: STRENGTHS: / GROWTH AREAS: / OVERALL: "
+      + "Label each section exactly as: STRENGTHS: / GROWTH AREAS: / NEXT STEPS: / OVERALL: "
       + "Be specific \u2014 mention actual subjects and real moments from the notes. "
-      + "Keep each child\u2019s summary under 150 words.\n\n"
+      + "Keep each child\u2019s summary under 200 words.\n\n"
       + "Notes:\n"+noteLines.join("\n");
 
     try {
@@ -13582,19 +13586,20 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
                 const parsePulse = (text) => {
                   const sections = [];
                   const patterns = [
-                    {key:"strengths", label:"Strengths",    icon:"\u2b50", color:pal.good,    bg:pal.goodBg, border:pal.good+"40"},
-                    {key:"growth",    label:"Growth Areas", icon:"\U0001f331", color:"#b07800", bg:"#fff8e6",  border:"#f5c84240"},
-                    {key:"overall",   label:"Overall",      icon:"\u2728",  color:pal.primary, bg:pal.pale,  border:pal.primary+"30"},
+                    {key:"strengths",  label:"Strengths",    icon:"\u2b50", color:pal.good,    bg:pal.goodBg,  border:pal.good+"40"},
+                    {key:"growth",     label:"Growth Areas", icon:"\U0001f331", color:"#b07800", bg:"#fff8e6",   border:"#f5c84240"},
+                    {key:"nextsteps",  label:"Next Steps",   icon:"\uD83D\uDCCB", color:"#1a5fa8", bg:"#eef4ff",  border:"#2563a830"},
+                    {key:"overall",    label:"Overall",      icon:"\u2728",  color:pal.primary, bg:pal.pale,   border:pal.primary+"30"},
                   ];
                   const upper = text.toUpperCase();
                   patterns.forEach(p => {
-                    const marker = p.key==="growth" ? "GROWTH AREAS:" : p.key.toUpperCase()+":";
+                    const marker = p.key==="growth" ? "GROWTH AREAS:" : p.key==="nextsteps" ? "NEXT STEPS:" : p.key.toUpperCase()+":";
                     const idx = upper.indexOf(marker);
                     if(idx===-1) return;
                     const start = idx + marker.length;
                     const nextIdxs = patterns
                       .filter(pp=>pp.key!==p.key)
-                      .map(pp=>{ const m=pp.key==="growth"?"GROWTH AREAS:":pp.key.toUpperCase()+":"; return upper.indexOf(m, start); })
+                      .map(pp=>{ const m=pp.key==="growth"?"GROWTH AREAS:":pp.key==="nextsteps"?"NEXT STEPS:":pp.key.toUpperCase()+":"; return upper.indexOf(m, start); })
                       .filter(i=>i>start);
                     const end = nextIdxs.length>0 ? Math.min(...nextIdxs) : text.length;
                     const body = text.slice(start, end).trim();
