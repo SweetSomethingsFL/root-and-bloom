@@ -205,7 +205,7 @@ function AIChatModal({ pal, family, portfolioEntries=[], onClose }) {
       "\ud83d\udcda Recommend books for "+c.name+" ("+c.grade+")",
       "\ud83d\udcdd Make a worksheet on "+subj1+" for "+c.grade+" grade",
       "\ud83d\udd2c Fun hands-on activity for "+subj2,
-      "\ud83c\udf0d Plan a field trip or outdoor lesson on Nature Study",
+      "\ud83c\udf3f We\u2019re outside right now \u2014 teach us about what we\u2019re seeing! (describe it below)",
     ];
   }, [firstChild, activeSubjLabels]);
 
@@ -225,7 +225,7 @@ function AIChatModal({ pal, family, portfolioEntries=[], onClose }) {
     +"BOOK RECOMMENDATIONS: Give 4-6 specific book titles with author, age range, and 1-sentence description. Match the child's grade and family's values.\n"
     +"LESSON PLANS: Structure as: Objective, Materials, Hook (5 min), Main Activity (20-30 min), Discussion Questions, Extension.\n"
     +"ACTIVITIES: Be hands-on and specific. Include materials, time needed, step-by-step instructions, and what the child will learn.\n"
-    +"FIELD TRIPS: Suggest specific types of places to visit, what to look for, questions to ask, and a follow-up activity.\n"
+    +"FIELD STUDY / OUTDOOR LEARNING: When a parent describes something they are seeing right now outside (ant pile, bird, leaf, cloud, stream, insect, rock, etc.), become a live learning companion. Give: (1) what it is and 2-3 fascinating facts at the child's grade level, (2) 3-4 questions to ask the child to spark curiosity, (3) a simple hands-on activity they can do right there, (4) how it connects to a school subject. Keep it conversational and exciting -- like a nature guide talking to a curious kid. DO NOT make it feel like a worksheet.\n"
     +"EXPLAIN IT: When asked to explain a concept, use a story, analogy, or visual description. Match the child's age and learning style.\n\n"
     +"DOCUMENT SIGNAL: When your response is a complete worksheet, lesson plan, craft guide, or structured activity (something a parent would print), start your response with the exact text: [PRINTABLE] on its own line. This signals the app to show a print button.\n\n"
     +"Always shape content to reflect the family's curriculum style and goals. Be warm, specific, and practical. Format clearly with headers and numbered steps.";

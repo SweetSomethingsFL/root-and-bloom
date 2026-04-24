@@ -6239,7 +6239,7 @@ function GoalsNudgeCard({pal,family,portfolioEntries,todayStr,onTabChange}){
   );
 }
 
-function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress, navIds=[], onAddEntry, onCheckin, checkinDates={}, observationLog=[], onOpenJournal, attendanceLog=[], studentVisits={}, homeLayout=["thisweek","todaycard","fieldstudy","progress_nudge","consistency","missedday","behindweek","subjectgap","goals","pandc"], onSetHomeLayout, notifDismissed={}, onDismissNotif, onOpenEOY, onOpenFieldStudy, quizNotifs=[], onDismissQuizNotif }) {
+function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress, navIds=[], onAddEntry, onCheckin, checkinDates={}, observationLog=[], onOpenJournal, attendanceLog=[], studentVisits={}, homeLayout=["thisweek","todaycard","progress_nudge","consistency","missedday","behindweek","subjectgap","goals","pandc"], onSetHomeLayout, notifDismissed={}, onDismissNotif, onOpenEOY, onOpenFieldStudy, quizNotifs=[], onDismissQuizNotif }) {
   const stateInfo  = getStateInfo(family.state||"");
   const stateHours = stateInfo.hours||"";
   const dayMatch   = stateHours.match(/(\d+)\s*day/i);
@@ -6934,29 +6934,8 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
     touchDragIdx.current = null; setDragIdx(null); setDragOverIdx(null);
   };
 
-  const renderSection_fieldstudy = () => {
-    if(!onOpenFieldStudy) return null;
-    const ch = child!=="all" ? family.children.find(c=>c.id===child) : family.children[0];
-    return (
-      <div key="fieldstudy" data-section="fieldstudy">
-        <button onClick={()=>onOpenFieldStudy&&onOpenFieldStudy(ch)}
-          style={{width:"100%",display:"flex",gap:"0.85rem",alignItems:"center",background:"linear-gradient(135deg,#2d6a3f12,#2d9e5f08)",borderRadius:"16px",padding:"0.9rem 1rem",marginBottom:"1rem",border:"1.5px solid #2d6a3f25",cursor:"pointer",textAlign:"left"}}>
-          <div style={{width:"46px",height:"46px",borderRadius:"13px",background:"linear-gradient(135deg,#2d6a3f,#2d9e5f)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.4rem",flexShrink:0}}>{"🔭"}</div>
-          <div style={{flex:1,minWidth:0}}>
-            <div style={{fontWeight:"800",color:"#1a4a2a",fontSize:"0.88rem",marginBottom:"2px"}}>{"Field Study"}</div>
-            <div style={{fontSize:"0.72rem",color:"#3a6a4a",lineHeight:1.5}}>{"Snap a photo of anything — a plant, bug, rock, or artifact. AI identifies it and builds a lesson."}</div>
-          </div>
-          <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:"2px",flexShrink:0}}>
-            <span style={{fontSize:"1.1rem"}}>{"📷"}</span>
-            <span style={{fontSize:"0.6rem",color:"#2d6a3f",fontWeight:"700"}}>{"Tap"}</span>
-          </div>
-        </button>
-      </div>
-    );
-  };
-
-  const SECTION_LABELS = {"progress_nudge":"Progress Nudge","thisweek":"This Week","todaycard":"Today\u2019s Plan","consistency":"Consistency Nudge","missedday":"Missed Day Alert","behindweek":"Behind This Week","subjectgap":"Subject Gap","goals":"Goals Nudge","pandc":"Prepared \u0026 Capable","fieldstudy":"Field Study"};
-  const SECTION_ICONS  = {"progress_nudge":"\u2728","thisweek":"\ud83d\udcc5","todaycard":"\ud83d\udccb","consistency":"\ud83d\udd25","missedday":"\ud83d\udcc6","behindweek":"\u26a0\ufe0f","subjectgap":"\u23f0","goals":"\ud83c\udf1f","pandc":"\ud83c\udfa8","fieldstudy":"\ud83d\udd2d"};
+  const SECTION_LABELS = {"progress_nudge":"Progress Nudge","thisweek":"This Week","todaycard":"Today\u2019s Plan","consistency":"Consistency Nudge","missedday":"Missed Day Alert","behindweek":"Behind This Week","subjectgap":"Subject Gap","goals":"Goals Nudge","pandc":"Prepared \u0026 Capable"};
+  const SECTION_ICONS  = {"progress_nudge":"\u2728","thisweek":"\ud83d\udcc5","todaycard":"\ud83d\udccb","consistency":"\ud83d\udd25","missedday":"\ud83d\udcc6","behindweek":"\u26a0\ufe0f","subjectgap":"\u23f0","goals":"\ud83c\udf1f","pandc":"\ud83c\udfa8"};
   const sectionRenderMap = {
     progress_nudge: renderSection_progress_nudge,
     thisweek:       renderSection_thisweek,
@@ -6967,7 +6946,6 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
     subjectgap:     renderSection_subjectgap,
     goals:          renderSection_goals,
     pandc:          renderSection_pandc,
-    fieldstudy:     renderSection_fieldstudy,
   };
 
   return (
