@@ -453,23 +453,6 @@ const SUBJECT_OPTIONS = [
 ];
 const SESSION_LENGTHS = ["20 min","30 min","45 min","60 min","90 min"];
 
-const GOAL_NUDGES = {
-  faith:        {subjs:["Bible / Faith"],          icon:"+"},
-  reading:      {subjs:["Reading","Language Arts"], icon:"📖"},
-  college:      {subjs:["Math","Science","History","Language Arts","Latin","Foreign Language"], icon:"🎓"},
-  critical:     {subjs:["Math","Science","History","Geography"], icon:"🧠"},
-  worldview:    {subjs:["Bible / Faith","History","Geography"],  icon:"🌍"},
-  life:         {subjs:["Life Skills"],             icon:"🏠"},
-  independence: {subjs:["Life Skills","Typing / Tech"],          icon:"🦅"},
-  social:       {subjs:["PE / Movement"],           icon:"🤝"},
-  service:      {subjs:["Life Skills","Bible / Faith"],          icon:"🤎"},
-  entrepreneur: {subjs:["Math","Typing / Tech","Life Skills"],   icon:"💼"},
-  nature:       {subjs:["Nature Study","Science"],  icon:"🌿"},
-  sports:       {subjs:["PE / Movement"],           icon:"🏃"},
-  travel:       {subjs:["Geography","History","Foreign Language"],icon:"🗺"},
-  homestead:    {subjs:["Nature Study","Life Skills"],            icon:"🌻"},
-};
-
 /* ---- LIFE READY ---- */
 function loadSaved() {
   try { const s=localStorage.getItem(LS_KEY); return s?JSON.parse(s):null; } catch(e){return null;}
