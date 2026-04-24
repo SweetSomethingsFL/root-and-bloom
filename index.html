@@ -1060,6 +1060,156 @@ function printFullPortfolio(family, entries, child, attendanceDays, stateInfoUnu
 
 /* ---- Print Evaluator Letter separately ---- */
 
+function printProgressReport(family, entries, child, attendanceDays, goals) {
+  const schoolName  = family.schoolName||(family.familyName+" Academy")||"Home School";
+  const yearStartNum= family.yearStart?new Date(family.yearStart).getFullYear():new Date().getFullYear();
+  const yearEndNum  = family.yearEnd?new Date(family.yearEnd).getFullYear():yearStartNum+1;
+  const today       = new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
+  const childName   = child?.name||"Student";
+  const grade       = child?.grade||"";
+  const avatar      = child?.avatar||"";
+  const goalDays    = 180;
+  const attPct      = Math.min(100,Math.round((attendanceDays/goalDays)*100));
+  const barColor    = attPct>=80?"#2a4a28":attPct>=50?"#2563a8":"#b07800";
+
+  const subjEntries = entries.filter(e=>!e.isDay&&e.subj!=="Daily Notes"&&e.subj!=="Daily Check-In");
+  const milestones  = subjEntries.filter(e=>e.isMilestone);
+  const bySubject   = {};
+  subjEntries.forEach(e=>{ if(!bySubject[e.subj]) bySubject[e.subj]=[]; bySubject[e.subj].push(e); });
+  const subjectList = Object.keys(bySubject).sort((a,b)=>bySubject[b].length-bySubject[a].length);
+
+  const yr = new Date().getFullYear();
+  const sevenDaysAgo = new Date(); sevenDaysAgo.setDate(sevenDaysAgo.getDate()-7);
+  const needsAttn = subjectList.filter(subj=>{
+    const all = bySubject[subj]; if(!all||all.length===0) return false;
+    try{ const d=new Date(all[0].date+", "+yr); return d<sevenDaysAgo; }catch(ex){return false;}
+  });
+
+  const allGoalObjs = [...(goals||[]),...(family.customGoals||[])];
+  const activeGoals = (family.goals||[]).map(id=>allGoalObjs.find(x=>x.id===id)).filter(Boolean);
+
+  const css = "*{box-sizing:border-box;margin:0;padding:0}"
+    +"body{font-family:Arial,sans-serif;color:#1a1a1a;font-size:10pt;line-height:1.5;background:#fff}"
+    +"@media print{@page{margin:1cm;size:letter}.no-print{display:none}}"
+    +".banner{background:#2a4a28;padding:20px 28px;display:flex;justify-content:space-between;align-items:center}"
+    +".b-title{font-size:8pt;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:3px}"
+    +".b-name{font-size:20pt;font-weight:700;color:#fff;margin-top:2px}"
+    +".b-meta{font-size:9pt;color:rgba(255,255,255,0.65);margin-top:3px}"
+    +".b-chip{background:rgba(255,255,255,0.15);border-radius:10px;padding:10px 16px;text-align:center;min-width:60px}"
+    +".b-chip-v{font-size:20pt;font-weight:700;color:#fff}"
+    +".body{padding:20px 28px;background:#faf8f4}"
+    +".stat-row{display:flex;gap:10px;margin-bottom:18px}"
+    +".stat{text-align:center;flex:1;background:#fff;border-radius:8px;border:1px solid #e2ddd8;padding:10px 8px}"
+    +".stat-n{font-size:18pt;font-weight:700;color:#2a4a28}"
+    +".stat-l{font-size:7.5pt;color:#888;text-transform:uppercase;letter-spacing:0.05em;margin-top:2px}"
+    +".section{background:#fff;border-radius:10px;border:1px solid #e2ddd8;padding:12px 16px;margin-bottom:12px}"
+    +".sec-hdr{font-size:7.5pt;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#888;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #f0ece6}"
+    +".subj-tag{background:#e8f0e8;color:#2a4a28;font-size:7pt;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;border-radius:4px;padding:3px 8px;display:inline-block;margin-bottom:6px}"
+    +".entry-row{display:flex;gap:10px;padding:5px 0;border-bottom:1px solid #f8f5f1;font-size:9pt}"
+    +".entry-row:last-child{border-bottom:none}"
+    +".entry-date{color:#999;min-width:46px;flex-shrink:0;font-size:8pt}"
+    +".entry-note{color:#333;flex:1;line-height:1.5}"
+    +".milestone-badge{background:#fff8e6;border:1px solid #f5c84240;border-radius:6px;padding:6px 10px;margin-bottom:6px}"
+    +".attn-chip{display:inline-block;background:#fff8ed;border:1px solid #f5c84260;border-radius:20px;padding:3px 10px;font-size:8pt;color:#7a5500;margin:2px}"
+    +".goal-chip{display:inline-block;background:#e8f0e8;border:1px solid #c8dfc8;border-radius:20px;padding:3px 10px;font-size:8pt;color:#2a4a28;margin:2px}"
+    +".att-bar{height:10px;background:#e8e3db;border-radius:99px;overflow:hidden;margin:6px 0}"
+    +".att-fill{height:100%;border-radius:99px}"
+    +".footer{padding:10px 28px 16px;display:flex;justify-content:space-between;font-size:7.5pt;color:#aaa;border-top:1px solid #e8e3db}"
+    +".print-btn{position:fixed;bottom:20px;right:20px;padding:10px 22px;background:#2a4a28;color:#fff;border:none;border-radius:10px;font-size:10pt;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.18)}";
+
+  let html = "<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>"
+    +"<title>"+childName+" Progress Report "+yearStartNum+"&ndash;"+yearEndNum+"</title>"
+    +"<style>"+css+"</style></head><body>"
+    +"<div class='banner'><div>"
+    +"<div class='b-title'>"+schoolName+" &bull; Progress Report</div>"
+    +"<div class='b-name'>"+avatar+" "+childName+"</div>"
+    +"<div class='b-meta'>"+grade+" &bull; "+(family.state||"")+" &bull; "+yearStartNum+"&ndash;"+yearEndNum+"</div>"
+    +"</div><div class='b-chip'><div style='font-size:7pt;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.1em'>Days</div>"
+    +"<div class='b-chip-v'>"+attendanceDays+"</div></div></div>"
+    +"<div class='body'>"
+    +"<div class='stat-row'>"
+    +"<div class='stat'><div class='stat-n'>"+attendanceDays+"</div><div class='stat-l'>Days Logged</div></div>"
+    +"<div class='stat'><div class='stat-n'>"+subjEntries.length+"</div><div class='stat-l'>Entries</div></div>"
+    +"<div class='stat'><div class='stat-n'>"+subjectList.length+"</div><div class='stat-l'>Subjects</div></div>"
+    +"<div class='stat'><div class='stat-n'>"+milestones.length+"</div><div class='stat-l'>Milestones</div></div>"
+    +"</div>";
+
+  // Attendance bar
+  html += "<div class='section'>"
+    +"<div class='sec-hdr'>Attendance Progress</div>"
+    +"<div style='display:flex;justify-content:space-between;font-size:9pt;margin-bottom:4px'>"
+    +"<span style='font-weight:700;color:"+barColor+"'>"+attendanceDays+" of "+goalDays+" days</span>"
+    +"<span style='color:#888'>"+attPct+"% complete</span></div>"
+    +"<div class='att-bar'><div class='att-fill' style='width:"+attPct+"%;background:"+barColor+"'></div></div>"
+    +"</div>";
+
+  // Goals
+  if(activeGoals.length>0){
+    html += "<div class='section'><div class='sec-hdr'>Learning Goals</div><div>"
+      +activeGoals.map(g=>"<span class='goal-chip'>"+g.icon+" "+g.label+"</span>").join("")
+      +"</div></div>";
+  }
+
+  // Needs attention
+  if(needsAttn.length>0){
+    html += "<div class='section' style='border-color:#f5c84250;background:#fffbf0'>"
+      +"<div class='sec-hdr' style='color:#b07800'>Needs Attention (7+ days since last entry)</div><div>"
+      +needsAttn.map(s=>"<span class='attn-chip'>"+s+"</span>").join("")
+      +"</div></div>";
+  }
+
+  // Subject coverage
+  html += "<div class='section'><div class='sec-hdr'>Subject Coverage</div>";
+  subjectList.forEach(subj=>{
+    const subjEnts = bySubject[subj];
+    html += "<div style='margin-bottom:12px'>"
+      +"<div style='display:flex;align-items:center;gap:8px;margin-bottom:4px'>"
+      +"<div class='subj-tag'>"+subj+"</div>"
+      +"<div style='font-size:8pt;color:#999;margin-left:auto'>"+subjEnts.length+" entr"+(subjEnts.length===1?"y":"ies")+"</div></div>";
+    subjEnts.slice(0,3).forEach(e=>{
+      const note=(e.note||"").replace("AI Summary: ","").trim();
+      if(!note) return;
+      html += "<div class='entry-row'>"
+        +"<div class='entry-date'>"+(e.date||"")+"</div>"
+        +"<div class='entry-note'>"+(e.isMilestone?"<span style='color:#b07800;font-weight:700'>&#11088; </span>":"")+note+"</div>"
+        +"</div>";
+    });
+    if(subjEnts.length>3){
+      html += "<div style='font-size:8pt;color:#aaa;padding:4px 0'>+"+(subjEnts.length-3)+" more entries</div>";
+    }
+    html += "</div>";
+  });
+  html += "</div>";
+
+  // Milestones
+  if(milestones.length>0){
+    html += "<div class='section'><div class='sec-hdr'>Milestones</div>";
+    milestones.slice(0,10).forEach(e=>{
+      html += "<div class='milestone-badge'>"
+        +"<div style='display:flex;gap:8px;align-items:baseline'>"
+        +"<span style='font-size:8pt;color:#b07800;font-weight:700'>&#11088;</span>"
+        +"<span style='font-size:8pt;color:#b07800;font-weight:700;text-transform:uppercase;letter-spacing:0.06em'>"+e.subj+"</span>"
+        +"<span style='font-size:7.5pt;color:#999;margin-left:auto'>"+(e.date||"")+"</span></div>"
+        +"<div style='font-size:9pt;color:#333;margin-top:3px'>"+(e.note||"").replace("AI Summary: ","").trim()+"</div>"
+        +"</div>";
+    });
+    html += "</div>";
+  }
+
+  // Signature + footer
+  html += "<div style='display:flex;gap:24px;margin:20px 0 16px;padding-top:16px;border-top:1.5px solid #ccc'>"
+    +"<div style='flex:1'><div style='border-bottom:1.5px solid #999;height:30px;margin-bottom:4px'></div><div style='font-size:7.5pt;color:#888'>Parent Signature</div></div>"
+    +"<div style='flex:1'><div style='border-bottom:1.5px solid #999;height:30px;margin-bottom:4px'></div><div style='font-size:7.5pt;color:#888'>Date</div></div>"
+    +"</div>"
+    +"<div class='footer'><span>"+schoolName+" &bull; "+childName+"</span><span>Generated: "+today+"</span></div>"
+    +"<button class='print-btn no-print' onclick='window.print()'>Print / Save PDF</button>"
+    +"<script>window.onload=function(){setTimeout(function(){window.print();},600);};<\/script>"
+    +"</body></html>";
+
+  const w=window.open("","_blank","width=820,height=980,scrollbars=yes");
+  if(w){w.document.write(html);w.document.close();}
+}
+
 function printPortfolioPDF(family, entries, child, attendanceDays, stateInfo, dateOverride) {
   const schoolName  = family.schoolName||(family.familyName+" Academy")||"Home School";
   const yearStartNum= family.yearStart ? new Date(family.yearStart).getFullYear() : new Date().getFullYear();
@@ -13564,7 +13714,7 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
               {/* Weekly Digest button */}
               {savedPulses.length>0&&(
                 <button onClick={()=>setShowDigest(true)}
-                  style={{width:"100%",display:"flex",alignItems:"center",gap:"0.6rem",padding:"0.75rem 1rem",border:"2px solid "+pal.primary+"30",borderRadius:"13px",background:"linear-gradient(135deg,"+pal.primary+"10,"+pal.accent+"08)",cursor:"pointer",textAlign:"left",marginBottom:"1rem"}}>
+                  style={{width:"100%",display:"flex",alignItems:"center",gap:"0.6rem",padding:"0.75rem 1rem",border:"2px solid "+pal.primary+"30",borderRadius:"13px",background:"linear-gradient(135deg,"+pal.primary+"10,"+pal.accent+"08)",cursor:"pointer",textAlign:"left",marginBottom:"0.5rem"}}>
                   <span style={{fontSize:"1.3rem",flexShrink:0}}>{"\uD83D\uDCCB"}</span>
                   <div style={{flex:1}}>
                     <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.82rem"}}>{"Weekly Digest"}</div>
@@ -13573,6 +13723,17 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
                   <span style={{color:pal.primary,fontSize:"0.85rem",flexShrink:0}}>{"\u203a"}</span>
                 </button>
               )}
+
+              {/* Print Progress Report button */}
+              <button onClick={()=>printProgressReport(family, portfolioEntries.filter(e=>e.childIdx===selectedChild), ch, attendanceDays, GOALS)}
+                style={{width:"100%",display:"flex",alignItems:"center",gap:"0.6rem",padding:"0.75rem 1rem",border:"2px solid #2a4a2830",borderRadius:"13px",background:"linear-gradient(135deg,#2a4a2810,#2a4a2806)",cursor:"pointer",textAlign:"left",marginBottom:"1rem"}}>
+                <span style={{fontSize:"1.3rem",flexShrink:0}}>{"\uD83D\uDDA8\uFE0F"}</span>
+                <div style={{flex:1}}>
+                  <div style={{fontWeight:"700",color:"#2a4a28",fontSize:"0.82rem"}}>{"Print Progress Report"}</div>
+                  <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>{"Attendance, subjects, milestones, goals \u00b7 evaluator-ready PDF"}</div>
+                </div>
+                <span style={{color:"#2a4a28",fontSize:"0.85rem",flexShrink:0}}>{"\u203a"}</span>
+              </button>
 
               {/* Attendance + year progress card */}
               {(()=>{
