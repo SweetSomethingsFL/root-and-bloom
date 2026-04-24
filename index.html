@@ -225,7 +225,7 @@ function buildWorksheetHTML(wsData, child, grade, wsType) {
 <!-- HEADER -->
 <div class="header">
   <div>
-    <div class="school-name">${wsData.schoolName || "Ramos Academy"}</div>
+    <div class="school-name">${wsData.schoolName || "Home School"}</div>
     <div class="title">${wsData.title || "Worksheet"}</div>
     <div class="subtitle">${wsData.subject || ""} ${wsData.grade ? "· " + wsData.grade : ""}</div>
   </div>
@@ -339,7 +339,7 @@ ${wsData.extension ? `<div style="background:#eef4ff;border:1.5px solid rgba(37,
 
 <!-- FOOTER -->
 <div class="footer">
-  <span>${wsData.schoolName || "Ramos Academy"} · ${today}</span>
+  <span>${wsData.schoolName || "Home School"} · ${today}</span>
   <span>Root & Bloom Homeschool App</span>
 </div>
 
@@ -1853,7 +1853,7 @@ function RootAndBloom() {
           onMouseUp={e=>e.currentTarget.style.transform="scale(1)"}
           onTouchStart={e=>e.currentTarget.style.transform="scale(0.9)"}
           onTouchEnd={e=>e.currentTarget.style.transform="scale(1)"}>
-          
+          {"\uD83C\uDF31"}
         </button>
 
         {/* Bottom nav */}
@@ -1908,7 +1908,7 @@ function RootAndBloom() {
             onClose={()=>setPastDayWrapUp(null)}
           />
         )}
-        {showAIChat    && <AIChatModal     pal={pal} family={family} onClose={()=>setShowAIChat(false)} />}
+        {showAIChat    && <AIChatModal     pal={pal} family={family} portfolioEntries={portfolioEntries} onClose={()=>setShowAIChat(false)} />}
         {showTheme    && <ThemeModal     pal={pal} paletteId={paletteId} setPaletteId={setPaletteId} customA={customA} customB={customB} setCustomA={setCustomA} setCustomB={setCustomB} onClose={()=>setShowTheme(false)} />}
         {showNav      && <NavModal       pal={pal} navIds={navIds} setNavIds={setNavIds} onClose={()=>setShowNav(false)} />}
         {showSwitcher && <ViewSwitcher   pal={pal} family={family} onParent={()=>setShowSwitcher(false)} onStudent={switchToStudent} />}
@@ -3009,6 +3009,15 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
                         }}
                         style={{marginTop:"0.3rem",padding:"0.28rem 0.65rem",borderRadius:"20px",border:"1.5px solid "+c1+"40",background:SK.cream,color:c1,fontSize:"0.66rem",fontWeight:"700",cursor:"pointer"}}>
                         {"📝 Log this as a discovery!"}
+                      </button>
+                    )}
+                    {msg.role==="bloom"&&i>0&&(
+                      <button onClick={()=>{
+                          const prevQ = bloomMsgs[i-1]?.text||"";
+                          sendToBloom("Can you explain that differently? Maybe use a story, a real-life example, or a simple analogy. I want to really understand: "+prevQ);
+                        }}
+                        style={{marginTop:"0.3rem",marginLeft:"0.35rem",padding:"0.28rem 0.65rem",borderRadius:"20px",border:"1.5px solid "+c1+"30",background:"#fff",color:SK.mid,fontSize:"0.66rem",fontWeight:"700",cursor:"pointer"}}>
+                        {"💡 Explain differently"}
                       </button>
                     )}
                   </div>
@@ -6734,7 +6743,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
                   const ch = family.children.find(c=>c.id===child)||family.children[0];
                   const grade = ch?.grade||"elementary";
                   const apiKey=(()=>{try{return localStorage.getItem("rootbloom_apikey")||"";}catch(e){return "";}})();
-                  if(!apiKey){alert("Add your API key in Settings → AI to get activity ideas.");return;}
+                  if(!apiKey){if(window.confirm("No API key found. Go to Settings → AI to add one?")) document.querySelector && [...document.querySelectorAll("button")].find(b=>b.textContent.includes("Settings"))?.click(); return;}
                   const win=window.open("","_blank","width=480,height=580");
                   if(!win)return;
                   win.document.write("<div style='font-family:Georgia,serif;padding:1.5rem'><h3>✨ Finding ideas for "+subj+"...</h3></div>");
@@ -8502,7 +8511,12 @@ function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab, portf
             </div>
             {advMsgs.length===0&&(
               <div style={{display:"flex",flexDirection:"column",gap:"0.4rem",marginBottom:"0.75rem",flexShrink:0}}>
-                {["📖 How do I teach long division to a hands-on learner?","🔬 What are fun science experiments we can do at home?","🌍 How do I make history come alive for my kids?","📝 How do I structure our school day for multiple grade levels?"].map((q,i)=>(
+                {[
+                  "📖 How do I teach "+((family.subjects||[]).length>0?([...SUBJECT_OPTIONS,...(family.customSubjects||[])].find(s=>s.id===(family.subjects||[])[0])?.label||"reading"):"reading")+" to a hands-on learner?",
+                  "🔬 Give me a fun hands-on science experiment we can do at home this week",
+                  "🌍 How do I make history come alive for "+(activeChild?.name||"my kids")+"?",
+                  "📝 How do I structure our school day for "+(family.children.length>1?"multiple grade levels":"a "+( activeChild?.grade||"3rd grade")+" student")+"?",
+                ].map((q,i)=>(
                   <button key={i} onClick={()=>{
                       const question = q.slice(2).trim();
                       setAdvInput("");
@@ -8597,172 +8611,7 @@ function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab, portf
 }
 
 
-/* =======================================
-   AI CHAT MODAL - persistent assistant
-   Calls Claude API live for any request
-======================================= */
-function AIChatModal({ pal, family, onClose }) {
-  const [messages, setMessages] = useState([
-    { role:"assistant", content:`Hi! I'm your Root & Bloom assistant 🌱\n\nI can help you create **worksheets**, **lesson plans**, **unit studies**, **discussion questions**, or anything else for your homeschool. Just tell me what you need!\n\nTry something like:\n* "Make a worksheet on fractions for 4th grade"\n* "Write a nature journal prompt for my 7-year-old"\n* "Plan a 3-day unit on the American Revolution"` }
-  ]);
-  const [input,    setInput]    = useState("");
-  const [loading,  setLoading]  = useState(false);
-  const bottomRef = useRef(null);
-  const inputRef  = useRef(null);
-
-  const childNames = (family?.children||[]).map(c=>`${c.name} (${c.grade})`).join(", ");
-  const philosophies = Array.isArray(family?.curriculumStyle)
-    ? family.curriculumStyle.join(", ")
-    : (family?.curriculumStyle || "eclectic");
-
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({behavior:"smooth"});
-  }, [messages, loading]);
-
-  const send = async () => {
-    const text = input.trim();
-    if (!text || loading) return;
-    const runtimeKey = (() => { try{ return localStorage.getItem("rootbloom_apikey")||""; }catch(e){return "";} })();
-    if(!runtimeKey){setMessages(m=>[...m,{role:"user",content:text},{role:"assistant",content:"AI features need an API key. Add one in Settings to get started!"}]);setInput("");return;}
-    const {allowed,used,limit} = checkAILimit();
-    if(!allowed){setMessages(m=>[...m,{role:"user",content:text},{role:"assistant",content:"Monthly AI limit of "+limit+" uses reached. Resets next month!"}]);setInput("");return;}
-    setInput("");
-    const userMsg = {role:"user", content:text};
-    const updated = [...messages, userMsg];
-    setMessages(updated);
-    setLoading(true);
-    try {
-      const history = updated.map(m=>({role:m.role, content:m.content}));
-      const res = await fetch("https://api.anthropic.com/v1/messages",{
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json",
-          "x-api-key":runtimeKey,
-          "anthropic-version":"2023-06-01",
-          "anthropic-dangerous-direct-browser-access":"true"
-        },
-        body:JSON.stringify({
-          model:"claude-sonnet-4-6",
-          max_tokens:1500,
-          system:"You are a warm, creative homeschool assistant for Root & Bloom app. You help homeschool families with worksheets, lesson plans, unit studies, discussion questions, project ideas, and any educational content they need.\n\n"
-            +"Family info:\n"
-            +"- Children: "+(childNames||"not specified")+"\n"
-            +"- Curriculum: "+curriculumContext(family)+"\n"
-            +"- State: "+(family?.state||"not specified")+"\n"
-            +"- Family goals: "+goalSummary(family)+"\n"
-            +"- Active subjects: "+((family?.subjects||[]).join(", ")||"not specified")+"\n\n"
-            +"Always shape your suggestions to reflect the family's goals. If they prioritize Faith & Character, weave in character development. If Strong Readers, emphasize reading-based learning. If STEM Focus, lean into experiments and inquiry. If Nature & Outdoors, suggest outdoor and nature-based activities.\n\n"
-            +"When creating worksheets or lesson plans, format them clearly with headers and numbered items. Be warm, encouraging, and practical. Keep responses focused and useful.",
-          messages:history
-        })
-      });
-      const data = await res.json();
-      const reply = data.content?.map(b=>b.text||"").join("")||"Sorry, I couldn't get a response. Please try again.";
-      setMessages(m=>[...m,{role:"assistant",content:reply}]);
-    } catch(e) {
-      const msg = e.message==="NO_KEY"
-        ? "AI features need an API key. Add your key in the app settings."
-        : e.message==="RATE_LIMIT"
-        ? "Monthly AI limit reached (50 uses). Reset next month or update the limit in settings."
-        : "Something went wrong. Please check your connection and try again.";
-      setMessages(m=>[...m,{role:"assistant",content:msg}]);
-    }
-    setLoading(false);
-  };
-
-  const handleKey = e => { if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); send(); }};
-
-  const QUICK = [
-    "Make a worksheet for today",
-    "Give me a fun project idea",
-    "Write discussion questions",
-    "Plan a lesson on nature",
-  ];
-
-  const renderMessage = (text) => {
-    return text.split("\n").map((line,i)=>{
-      const bold = line.replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>");
-      return <div key={i} style={{marginBottom:line===""?"0.4rem":"0"}} dangerouslySetInnerHTML={{__html:bold||"&nbsp;"}} />;
-    });
-  };
-
-  return (
-    <div style={{position:"fixed",inset:0,zIndex:200,display:"flex",flexDirection:"column",background:pal.sand,maxWidth:"430px",margin:"0 auto"}}>
-      {/* Header */}
-      <div style={{background:pal.heroGrad,padding:"0.9rem 1.1rem",display:"flex",alignItems:"center",gap:"0.75rem",flexShrink:0}}>
-        <div style={{width:"38px",height:"38px",borderRadius:"50%",background:"rgba(255,255,255,0.2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.2rem",flexShrink:0}}></div>
-        <div style={{flex:1}}>
-          <div style={{fontWeight:"800",color:"#fff",fontSize:"0.95rem"}}>AI Assistant</div>
-          <div style={{fontSize:"0.72rem",color:"rgba(255,255,255,0.65)"}}>Worksheets, lessons, projects & more</div>
-        </div>
-        <button onClick={onClose} style={{background:"rgba(255,255,255,0.15)",border:"none",borderRadius:"8px",padding:"0.3rem 0.65rem",color:"#fff",cursor:"pointer",fontSize:"0.8rem",fontWeight:"700"}}>{"✕"}</button>
-      </div>
-
-      {/* Messages */}
-      <div style={{flex:1,overflowY:"auto",padding:"1rem",display:"flex",flexDirection:"column",gap:"0.75rem"}}>
-        {messages.map((m,i)=>(
-          <div key={i} style={{display:"flex",justifyContent:m.role==="user"?"flex-end":"flex-start"}}>
-            {m.role==="assistant" && (
-              <div style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.accentGrad,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.8rem",flexShrink:0,marginRight:"0.5rem",alignSelf:"flex-end",marginBottom:"2px"}}></div>
-            )}
-            <div style={{
-              maxWidth:"82%",padding:"0.65rem 0.9rem",borderRadius:m.role==="user"?"16px 16px 4px 16px":"16px 16px 16px 4px",
-              background:m.role==="user"?pal.accentGrad:pal.linen,
-              color:m.role==="user"?pal.onDark:pal.ink,
-              fontSize:"0.82rem",lineHeight:1.6,
-              border:m.role==="assistant"?`1px solid ${pal.stone}50`:"none"
-            }}>
-              {renderMessage(m.content)}
-            </div>
-          </div>
-        ))}
-        {loading && (
-          <div style={{display:"flex",alignItems:"center",gap:"0.5rem"}}>
-            <div style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.accentGrad,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.8rem"}}></div>
-            <div style={{background:pal.linen,border:`1px solid ${pal.stone}50`,borderRadius:"16px 16px 16px 4px",padding:"0.65rem 0.9rem"}}>
-              <div style={{display:"flex",gap:"4px",alignItems:"center"}}>
-                {[0,1,2].map(i=><div key={i} style={{width:"6px",height:"6px",borderRadius:"50%",background:pal.primary,opacity:0.4,animation:`bounce 1s ease ${i*0.15}s infinite`}}/>)}
-              </div>
-            </div>
-          </div>
-        )}
-        {/* Quick prompts - show only at start */}
-        {messages.length===1 && !loading && (
-          <div style={{display:"flex",flexWrap:"wrap",gap:"0.4rem",marginTop:"0.25rem"}}>
-            {QUICK.map(q=>(
-              <button key={q} onClick={()=>{setInput(q); setTimeout(()=>inputRef.current?.focus(),50);}}
-                style={{padding:"0.4rem 0.75rem",border:`1.5px solid ${pal.primary}40`,borderRadius:"20px",background:pal.pale,color:pal.primary,fontSize:"0.74rem",fontWeight:"600",cursor:"pointer"}}>
-                {q}
-              </button>
-            ))}
-          </div>
-        )}
-        <div ref={bottomRef}/>
-      </div>
-
-      {/* Input */}
-      <div style={{padding:"0.75rem 1rem",borderTop:`1.5px solid ${pal.stone}40`,background:pal.linen,flexShrink:0}}>
-        <div style={{display:"flex",gap:"0.5rem",alignItems:"flex-end"}}>
-          <textarea
-            ref={inputRef}
-            value={input}
-            onChange={e=>setInput(e.target.value)}
-            onKeyDown={handleKey}
-            placeholder="Ask me anything... worksheet, lesson plan, project idea..."
-            rows={2}
-            style={{flex:1,resize:"none",padding:"0.6rem 0.8rem",border:`1.5px solid ${pal.stone}60`,borderRadius:"12px",background:"#fff",fontSize:"0.82rem",fontFamily:"inherit",color:pal.ink,outline:"none",lineHeight:1.5}}
-          />
-          <button onClick={send} disabled={!input.trim()||loading}
-            style={{width:"40px",height:"40px",borderRadius:"50%",border:"none",background:input.trim()&&!loading?pal.accentGrad:"#ccc",color:"#fff",fontSize:"1rem",cursor:input.trim()&&!loading?"pointer":"default",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",transition:"background 0.15s"}}>
-            >
-          </button>
-        </div>
-        <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"0.4rem",textAlign:"center"}}>Press Enter to send - Shift+Enter for new line</div>
-      </div>
-      <style>{`@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}`}</style>
-    </div>
-  );
-}
+// AIChatModal moved to ai-features-2.js
 
 /* ---- Unit Study Add/Edit Modal ---- */
 function UnitModal({pal,family,initial,onClose,onSave}){
@@ -10739,7 +10588,7 @@ function EntryDetailModal({pal,family,entry,onClose,onEdit}){
           <button onClick={()=>{
             const ch = family.children[entry.childIdx];
             const apiKey=(()=>{try{return localStorage.getItem("rootbloom_apikey")||"";}catch(e){return "";}})();
-            if(!apiKey){alert("Add your API key in Settings → AI to use this feature.");return;}
+            if(!apiKey){if(window.confirm("No API key found. Go to Settings → AI to add one?")) document.querySelector && [...document.querySelectorAll("button")].find(b=>b.textContent.includes("Settings"))?.click(); return;}
             const win=window.open("","_blank","width=500,height=600");
             if(!win)return;
             win.document.write("<div style='font-family:Georgia,serif;padding:1.5rem'><h2 style='color:#2d6a3f'>✨ Building lesson...</h2></div>");
@@ -14625,7 +14474,7 @@ function WeeklyDigestModal({ pal, family, savedPulses=[], portfolioEntries=[], a
   };
 
   const handleDownload = () => {
-    const sn = family.schoolName||(family.familyName+" Academy")||"Ramos Academy";
+    const sn = family.schoolName||(family.familyName+" Academy")||"Home School";
     const todayFmt = today.toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
     let html = "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Weekly Digest "+weekLabel+"</title>"
       +"<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Georgia,serif;font-size:11px;color:#1a1a1a;padding:0.6in 0.75in;max-width:8.5in;margin:0 auto}"
