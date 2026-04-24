@@ -4193,7 +4193,7 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
   const [schoolSubTab, setSchoolSubTab] = useState("school");
 
   return (
-    <div style={{minHeight:"100vh",background:pal.sand,display:"flex",flexDirection:"column",animation:"fadeIn 0.18s ease"}}>
+    <div style={{height:"100vh",background:pal.sand,display:"flex",flexDirection:"column",animation:"fadeIn 0.18s ease",overflow:"hidden"}}>
       {/* Header */}
       <div style={{background:pal.heroGrad,padding:"1rem 1.1rem 0",flexShrink:0}}>
         <div style={{display:"flex",alignItems:"center",gap:"0.75rem",marginBottom:"0.9rem"}}>
