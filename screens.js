@@ -3105,9 +3105,19 @@ function ScheduleScreen({pal,family,child,setChild,onMarkComplete,onProgressUpda
 
   // Persist checked + skipped state in localStorage so partial progress saves across navigation
   const SCHED_KEY = "rootbloom_sched_v1";
-  const loadSchedState = () => { try{const s=localStorage.getItem(SCHED_KEY);return s?JSON.parse(s):{checked:{},skipped:{},notes:{}};}catch(e){return{checked:{},skipped:{},notes:{}};}};
+  const schedWeekKey = weekStart.toDateString();
+  const loadSchedState = () => {
+    try{
+      const s=localStorage.getItem(SCHED_KEY);
+      if(!s) return {checked:{},skipped:{},notes:{},weekKey:""};
+      const parsed=JSON.parse(s);
+      // Reset if it is a new week
+      if(parsed.weekKey!==schedWeekKey) return {checked:{},skipped:{},notes:{},weekKey:schedWeekKey};
+      return parsed;
+    }catch(e){return{checked:{},skipped:{},notes:{},weekKey:""};}
+  };
   const [schedState, setSchedState] = useState(()=>loadSchedState());
-  const saveSchedState = (ns) => { try{localStorage.setItem(SCHED_KEY,JSON.stringify(ns));}catch(e){} };
+  const saveSchedState = (ns) => { try{localStorage.setItem(SCHED_KEY,JSON.stringify({...ns,weekKey:schedWeekKey}));}catch(e){} };
   const [expandedNoteKey, setExpandedNoteKey] = useState(null); // which block has note open
 
   const checked = schedState.checked || {};
@@ -3187,6 +3197,16 @@ function ScheduleScreen({pal,family,child,setChild,onMarkComplete,onProgressUpda
             {"✏️ Edit"}
           </button>
         </div>
+        {/* Weekend banner */}
+        {todayIdx===-1&&(
+          <div style={{background:pal.pale,borderRadius:"13px",padding:"0.75rem 1rem",marginBottom:"0.85rem",border:`2px solid ${pal.primary}22`,display:"flex",gap:"0.65rem",alignItems:"center"}}>
+            <span style={{fontSize:"1.3rem",flexShrink:0}}>{"🌴"}</span>
+            <div>
+              <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.82rem"}}>{"It's the weekend!"}</div>
+              <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>{"Here's next week's plan. Enjoy your break!"}</div>
+            </div>
+          </div>
+        )}
         {/* Day strip - real dates */}
         <div style={{display:"flex",gap:"0.35rem",marginBottom:"1rem"}}>
           {DAYS.map((d,i)=>(
@@ -3379,6 +3399,113 @@ function ScheduleScreen({pal,family,child,setChild,onMarkComplete,onProgressUpda
 }
 
 /* ---- Schedule Quick Editors (Lesson Goals + Weekly Schedule inline cards) ---- */
+
+function WrapUpModal({pal,family,subjsDone,notesBySubj,dateLabel,dateStr,allDone,onSave,onClose}) {
+  subjsDone = subjsDone||[];
+  notesBySubj = notesBySubj||{};
+  const allSubjOptions = [...SUBJECT_OPTIONS,...(family.customSubjects||[])];
+  const [childIdx, setChildIdx] = useState(0);
+  const [notes, setNotes] = useState(()=>{
+    const init = {};
+    subjsDone.forEach(function(s){ init[s] = notesBySubj[s]||""; });
+    return init;
+  });
+  const [saving, setSaving] = useState(false);
+  const ch = family.children[childIdx]||family.children[0];
+
+  const handleSave = () => {
+    setSaving(true);
+    const entries = [];
+    family.children.forEach(function(c,ci){
+      subjsDone.forEach(function(subj){
+        const so = allSubjOptions.find(function(x){return x.label===subj;});
+        entries.push({
+          childIdx: ci,
+          subj: subj,
+          title: subj,
+          note: notes[subj]||"",
+          date: dateStr,
+          icon: so ? so.icon : "",
+          isMilestone: false,
+          isDay: false,
+        });
+      });
+    });
+    onSave(entries);
+  };
+
+  return (
+    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.55)",backdropFilter:"blur(10px)",zIndex:300,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
+      <div style={{background:pal.linen,borderRadius:"28px 28px 0 0",width:"100%",maxWidth:"430px",maxHeight:"88vh",display:"flex",flexDirection:"column",boxShadow:"0 -16px 60px rgba(0,0,0,0.3)",animation:"slideUp 0.28s ease"}}>
+        <div style={{padding:"0.7rem 0 0",display:"flex",justifyContent:"center",flexShrink:0}}>
+          <div style={{width:"36px",height:"4px",borderRadius:"99px",background:pal.stone}}/>
+        </div>
+        <div style={{padding:"0.9rem 1.2rem 0.5rem",flexShrink:0}}>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <div>
+              <div style={{fontWeight:"900",color:pal.ink,fontSize:"1rem"}}>{allDone ? "Day complete!" : "Day Summary"}</div>
+              <div style={{fontSize:"0.72rem",color:pal.slate,marginTop:"2px"}}>{dateLabel}</div>
+            </div>
+            <div style={{fontSize:"2rem"}}>{allDone ? "🌟" : "📝"}</div>
+          </div>
+        </div>
+        <div style={{flex:1,overflowY:"auto",minHeight:0,padding:"0.5rem 1.2rem"}}>
+          {family.children.length>1&&(
+            <div style={{display:"flex",gap:"0.35rem",marginBottom:"0.85rem",overflowX:"auto"}}>
+              {family.children.map((c,i)=>{
+                const ccp=CHILD_COLOR_PALETTES.find(p=>p.id===(c.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+                const sel=i===childIdx;
+                return (
+                  <button key={c.id} onClick={()=>setChildIdx(i)}
+                    style={{display:"flex",alignItems:"center",gap:"0.3rem",padding:"0.3rem 0.75rem",border:`2px solid ${sel?ccp.c1:pal.stone+"40"}`,borderRadius:"20px",background:sel?ccp.c1+"18":"transparent",cursor:"pointer",flexShrink:0}}>
+                    <span style={{fontSize:"1rem"}}>{c.avatar}</span>
+                    <span style={{fontSize:"0.74rem",fontWeight:sel?"800":"500",color:sel?ccp.c1:pal.inkM}}>{c.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          {subjsDone.length===0?(
+            <div style={{textAlign:"center",padding:"1.5rem 0",color:pal.slate,fontSize:"0.82rem"}}>{"No subjects checked off yet."}</div>
+          ):(
+            <div>
+              <div style={{fontSize:"0.68rem",fontWeight:"800",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"0.55rem"}}>{"Completed today"}</div>
+              {subjsDone.map(function(subj){
+                const so=allSubjOptions.find(function(x){return x.label===subj;});
+                return (
+                  <div key={subj} style={{background:pal.parchm,borderRadius:"13px",padding:"0.75rem 0.9rem",marginBottom:"0.5rem",border:`1.5px solid ${pal.stone}25`}}>
+                    <div style={{display:"flex",alignItems:"center",gap:"0.55rem",marginBottom:"0.5rem"}}>
+                      <span style={{fontSize:"1.1rem"}}>{so ? so.icon : ""}</span>
+                      <span style={{fontWeight:"700",color:pal.ink,fontSize:"0.85rem",flex:1}}>{subj}</span>
+                      <span style={{color:pal.good,fontSize:"0.85rem"}}>{"\u2713"}</span>
+                    </div>
+                    <textarea
+                      value={notes[subj]||""}
+                      onChange={e=>setNotes(n=>({...n,[subj]:e.target.value}))}
+                      rows={2}
+                      placeholder={"What did "+ch.name+" learn or do in "+subj+"? (optional)"}
+                      style={{width:"100%",padding:"0.5rem 0.7rem",border:`1.5px solid ${pal.primary}40`,borderRadius:"9px",fontSize:"0.78rem",fontFamily:"inherit",background:pal.linen,color:pal.ink,resize:"none",outline:"none",lineHeight:1.55}}/>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          <div style={{height:"0.5rem"}}/>
+        </div>
+        <div style={{padding:"0.75rem 1.2rem 1.5rem",flexShrink:0,borderTop:`1px solid ${pal.stone}20`}}>
+          <button onClick={handleSave} disabled={saving||subjsDone.length===0}
+            style={{width:"100%",padding:"0.9rem",border:"none",borderRadius:"14px",background:subjsDone.length>0?pal.accentGrad:"#ddd",color:subjsDone.length>0?"#fff":pal.stone,fontWeight:"800",fontSize:"0.9rem",cursor:subjsDone.length>0?"pointer":"default",marginBottom:"0.5rem"}}>
+            {saving ? "Saving..." : "Save & Log to Portfolio"}
+          </button>
+          <button onClick={onClose}
+            style={{width:"100%",padding:"0.65rem",border:`1.5px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.82rem",cursor:"pointer"}}>
+            {"Close without saving"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function QuickCaptureModal({pal, family, activeChildId, onClose, onSave, attendanceLog=[], onAttendanceAdd}) {
   const allSubjOptions = [...SUBJECT_OPTIONS, ...(family.customSubjects||[])];
