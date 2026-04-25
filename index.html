@@ -7730,9 +7730,14 @@ function DailyLogSection({pal,cp,ch,childEntries,subjEntries}){
 
   // Sort dates newest first
   const allDates = Object.values(byDate).sort((a,b)=>{
-    // Parse "Mar 25" style dates for sorting
+    // Parse "Mar 25" style dates for sorting -- year-aware to handle Jan/Dec boundary
     try{
-      const parse = s => new Date(s+", "+new Date().getFullYear());
+      const now = new Date();
+      const parse = s => {
+        const d1 = new Date(s+", "+now.getFullYear());
+        const d2 = new Date(s+", "+(now.getFullYear()-1));
+        return d1 <= now ? d1 : d2;
+      };
       return parse(b.date) - parse(a.date);
     }catch{return 0;}
   });
