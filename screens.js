@@ -1671,6 +1671,7 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
   const [showAddSubj, setShowAddSubj]= useState(false);
   const [custSubjVal, setCustSubjVal]= useState("");
   const [celebReset,  setCelebReset] = useState(false);
+  const [showApiKey,  setShowApiKey] = useState(false);
   const updL = (k,v) => setLocal(l=>({...l,[k]:v}));
   const updChild = (id,k,v) => setLocal(l=>({...l,children:l.children.map(c=>c.id===id?{...c,[k]:v}:c)}));
   const addChild = () => setLocal(l=>({...l,children:[...l.children,{id:uid(),name:"",grade:"1st",avatar:"🌻"}]}));
@@ -2332,18 +2333,18 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
               </div>
               <div style={{display:"flex",gap:"0.5rem",alignItems:"center",marginBottom:"0.75rem",width:"100%",boxSizing:"border-box"}}>
                 <input
-                  id="apiKeyInput"
-                  type="password"
+                  type={showApiKey?"text":"password"}
                   value={local.apiKey||""}
                   onChange={e=>updL("apiKey",e.target.value)}
                   placeholder="sk-ant-..."
+                  autoComplete="off"
                   style={{flex:1,minWidth:0,padding:"0.62rem 0.85rem",border:`2px solid ${(local.apiKey||"").trim()?pal.good:pal.stone}`,borderRadius:"11px",fontSize:"0.82rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"monospace",boxSizing:"border-box"}}
                   onFocus={e=>e.target.style.borderColor=pal.primary}
                   onBlur={e=>e.target.style.borderColor=(local.apiKey||"").trim()?pal.good:pal.stone}
                 />
-                <button onClick={()=>{const inp=document.getElementById("apiKeyInput");if(inp)inp.type=inp.type==="password"?"text":"password";}}
+                <button onClick={()=>setShowApiKey(v=>!v)}
                   style={{flexShrink:0,width:"36px",height:"36px",background:pal.parchm,border:`1.5px solid ${pal.stone}`,borderRadius:"9px",cursor:"pointer",fontSize:"0.8rem",color:pal.slate,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                  {"👁"}
+                  {showApiKey?"🙈":"👁"}
                 </button>
               </div>
               {(local.apiKey||"").trim()&&(
