@@ -5435,7 +5435,9 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
 
   const isThisWeek = (dateStr) => {
     try {
-      const d = new Date(dateStr+", "+yr); 
+      const d1 = new Date(dateStr+", "+yr);
+      const d2 = new Date(dateStr+", "+(yr-1));
+      const d = d1 <= today ? d1 : d2;
       return d >= weekStart && d <= weekEnd;
     } catch(e){ return false; }
   };
@@ -5527,7 +5529,8 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
       if(r==="week") return isThisWeek(e.date);
       if(r==="month") {
         try{
-          const d=new Date(e.date+", "+yr);
+          const d1=new Date(e.date+", "+yr);
+          const d=d1<=today?d1:new Date(e.date+", "+(yr-1));
           return d.getMonth()===today.getMonth() && d.getFullYear()===today.getFullYear();
         }catch(ex){return false;}
       }
@@ -5680,7 +5683,7 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
           const rangeLabel = pulseRange==="week"?"This week":pulseRange==="month"?"This month":"All time";
           const rangeEntries = pulseRange==="week" ? weekEntries
             : pulseRange==="month" ? childEntries.filter(e=>{
-                try{const d=new Date(e.date+", "+yr);return d.getMonth()===today.getMonth()&&d.getFullYear()===today.getFullYear();}catch(ex){return false;}
+                try{const d1=new Date(e.date+", "+yr);const d=d1<=today?d1:new Date(e.date+", "+(yr-1));return d.getMonth()===today.getMonth()&&d.getFullYear()===today.getFullYear();}catch(ex){return false;}
               })
             : childEntries;
           const rangeSubjs = [...new Set(rangeEntries.map(e=>e.subj))];
@@ -6868,7 +6871,7 @@ function WeeklyDigestModal({ pal, family, savedPulses=[], portfolioEntries=[], a
   const yr       = today.getFullYear();
 
   const isThisWeek = (dateStr) => {
-    try{ const d=new Date(dateStr+", "+yr); return d>=weekStart&&d<=weekEnd; }catch(e){return false;}
+    try{ const d1=new Date(dateStr+", "+yr); const d2=new Date(dateStr+", "+(yr-1)); const d=d1<=today?d1:d2; return d>=weekStart&&d<=weekEnd; }catch(e){return false;}
   };
 
   const weekStart2Wks = new Date(weekStart); weekStart2Wks.setDate(weekStart.getDate()-7);
