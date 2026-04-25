@@ -1707,7 +1707,7 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
   const [schoolSubTab, setSchoolSubTab] = useState("school");
 
   return (
-    <div style={{minHeight:"100vh",background:pal.sand,display:"flex",flexDirection:"column",animation:"fadeIn 0.18s ease"}}>
+    <div style={{height:"100vh",background:pal.sand,display:"flex",flexDirection:"column",animation:"fadeIn 0.18s ease",overflow:"hidden"}}>
       {/* Header */}
       <div style={{background:pal.heroGrad,padding:"1rem 1.1rem 0",flexShrink:0}}>
         <div style={{display:"flex",alignItems:"center",gap:"0.75rem",marginBottom:"0.9rem"}}>
@@ -1724,9 +1724,9 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
         </div>
       </div>
 
-      <div key={tab} style={{flex:1,padding:"1.2rem 1.1rem"}}>
+      <div key={tab} style={{flex:1,overflowY:"auto",padding:"1.2rem 1.1rem",minHeight:0,WebkitOverflowScrolling:"touch"}}>
         {tab==="family" && (
-          <div style={{animation:"fadeUp 0.18s ease"}}>
+          <div style={{animation:"fadeUp 0.18s ease",paddingBottom:"1rem"}}>
             <SCard pal={pal} title="Family Info">
               <Lbl pal={pal}>Parent name</Lbl>
               <Input pal={pal} value={local.parentName||""} onChange={v=>updL("parentName",v)} placeholder="Your name" />
