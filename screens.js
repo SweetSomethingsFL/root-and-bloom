@@ -4889,6 +4889,14 @@ function CoopScreen({pal,family,coopLog,onLog,onUpdateFamily,onAddEntry}){
           ))}
         </div>
 
+        {doesCoop&&!needsSetup&&(
+          <button onClick={()=>setShowQL(true)}
+            style={{width:"100%",padding:"0.9rem",border:"none",borderRadius:"14px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.88rem",cursor:"pointer",marginBottom:"0.5rem",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.6rem",boxShadow:`0 4px 18px ${pal.accent}35`}}>
+            <span style={{fontSize:"1.1rem"}}>{"🏫"}</span>
+            <span>{"Log a Co-op Session"}</span>
+          </button>
+        )}
+
       </div>)} {/* end info tab */}
 
       {/* PHOTOS TAB */}
