@@ -2315,31 +2315,20 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
               );
             })()}
 
-            {/* Step by step guide */}
+            {/* Setup link -- only when no key */}
             {!(local.apiKey||"").trim()&&(
-              <SCard pal={pal} title="How to get your free API key">
-                <div style={{display:"flex",flexDirection:"column",gap:"0.75rem",marginBottom:"0.5rem"}}>
-                  {[
-                    {n:"1",icon:"🌐",title:"Go to console.anthropic.com",desc:"Open in your browser. It's Anthropic's website — the company that makes Claude AI."},
-                    {n:"2",icon:"📧",title:"Create a free account",desc:"Sign up with your email. No credit card needed just to create an account."},
-                    {n:"3",icon:"💳",title:"Add a small credit (optional but recommended)",desc:"Go to Billing → Add credit. We recommend $5 to start. Typical family uses $0.50–$2/month — that $5 lasts months."},
-                    {n:"4",icon:"🔑",title:"Create an API key",desc:'Go to "API Keys" in the left menu → click "Create Key" → give it any name like "Root and Bloom" → copy the key.'},
-                    {n:"5",icon:"📋",title:'Paste it in the field below',desc:'The key starts with "sk-ant-". Paste it in the API Key field below and tap Save.'},
-                  ].map(({n,icon,title,desc})=>(
-                    <div key={n} style={{display:"flex",gap:"0.65rem",alignItems:"flex-start"}}>
-                      <div style={{width:"24px",height:"24px",borderRadius:"50%",background:pal.primary,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.7rem",fontWeight:"900",color:"#fff",flexShrink:0,marginTop:"2px"}}>{n}</div>
-                      <div style={{flex:1}}>
-                        <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.82rem",marginBottom:"1px"}}>{icon+" "+title}</div>
-                        <div style={{fontSize:"0.72rem",color:pal.slate,lineHeight:1.55}}>{desc}</div>
-                      </div>
-                    </div>
-                  ))}
+              <div style={{background:"#fff8e6",borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:"1.5px solid #f5c84240"}}>
+                <div style={{fontWeight:"700",color:"#b07800",fontSize:"0.82rem",marginBottom:"0.35rem"}}>{"📋 How to get your API key"}</div>
+                <div style={{fontSize:"0.72rem",color:"#7a5500",lineHeight:1.6,marginBottom:"0.65rem"}}>
+                  {"1. Go to console.anthropic.com and create a free account."}<br/>
+                  {"2. Add $5 credit (lasts months for a typical family)."}<br/>
+                  {"3. Go to API Keys → Create Key → copy it → paste below."}
                 </div>
                 <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer"
-                  style={{display:"block",textAlign:"center",padding:"0.65rem",borderRadius:"11px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.84rem",textDecoration:"none",marginTop:"0.5rem"}}>
-                  {"Open console.anthropic.com \u2197"}
+                  style={{display:"inline-block",padding:"0.45rem 1rem",borderRadius:"9px",background:"#b07800",color:"#fff",fontWeight:"700",fontSize:"0.78rem",textDecoration:"none"}}>
+                  {"Open console.anthropic.com ↗"}
                 </a>
-              </SCard>
+              </div>
             )}
 
             {/* API Key input */}
@@ -2347,14 +2336,14 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
               <div style={{fontSize:"0.74rem",color:pal.slate,lineHeight:1.6,marginBottom:"0.75rem"}}>
                 {"Your key is stored only on this device and never sent anywhere except directly to Anthropic when you use AI features."}
               </div>
-              <div style={{display:"flex",gap:"0.5rem",alignItems:"center",marginBottom:"0.75rem"}}>
+              <div style={{display:"flex",gap:"0.5rem",alignItems:"center",marginBottom:"0.75rem",width:"100%",boxSizing:"border-box"}}>
                 <input
                   id="apiKeyInput"
                   type="password"
                   value={local.apiKey||""}
                   onChange={e=>updL("apiKey",e.target.value)}
                   placeholder="sk-ant-..."
-                  style={{flex:1,padding:"0.62rem 0.85rem",border:`2px solid ${(local.apiKey||"").trim()?pal.good:pal.stone}`,borderRadius:"11px",fontSize:"0.82rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"monospace",boxSizing:"border-box",minWidth:0}}
+                  style={{flex:1,minWidth:0,padding:"0.62rem 0.85rem",border:`2px solid ${(local.apiKey||"").trim()?pal.good:pal.stone}`,borderRadius:"11px",fontSize:"0.82rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"monospace",boxSizing:"border-box"}}
                   onFocus={e=>e.target.style.borderColor=pal.primary}
                   onBlur={e=>e.target.style.borderColor=(local.apiKey||"").trim()?pal.good:pal.stone}
                 />
