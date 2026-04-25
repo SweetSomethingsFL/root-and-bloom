@@ -4817,6 +4817,19 @@ function CoopScreen({pal,family,coopLog,onLog,onUpdateFamily,onAddEntry}){
       <div style={{padding:"0 1rem"}}>
       {coopTab==="info"&&(<div>
 
+        {/* No co-op configured yet */}
+        {!doesCoop&&!showSetup&&(
+          <div style={{background:pal.linen,borderRadius:"16px",padding:"1.5rem",textAlign:"center",border:`1.5px solid ${pal.stone}30`,marginBottom:"1rem"}}>
+            <div style={{fontSize:"2.5rem",marginBottom:"0.5rem"}}>{"🏫"}</div>
+            <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.9rem",marginBottom:"0.3rem"}}>{"No co-op set up yet"}</div>
+            <div style={{fontSize:"0.76rem",color:pal.slate,lineHeight:1.6,marginBottom:"1rem"}}>{"Tell us about your co-op — meeting day, group name, and classes — so sessions appear on your schedule and hours log to transcripts automatically."}</div>
+            <button onClick={()=>setShowSetup(true)}
+              style={{padding:"0.6rem 1.4rem",border:"none",borderRadius:"11px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.84rem",cursor:"pointer"}}>
+              {"Set Up Co-op →"}
+            </button>
+          </div>
+        )}
+
         {/* Setup prompt — shown if co-op is on but not fully configured */}
         {needsSetup&&!showSetup&&(
           <div style={{background:`linear-gradient(135deg,${pal.primary}12,${pal.accent}08)`,borderRadius:"16px",padding:"1rem 1.1rem",marginBottom:"1rem",border:`2px solid ${pal.primary}25`}}>
