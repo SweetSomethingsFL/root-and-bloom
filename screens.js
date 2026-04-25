@@ -4776,7 +4776,16 @@ function CoopScreen({pal,family,coopLog,onLog,onUpdateFamily,onAddEntry}){
   const totalHrs = coopLog.reduce((s,l)=>s+(parseFloat(l.hrs)||0),0);
   const thisMonth = new Date().toLocaleDateString("en-US",{month:"short",year:"numeric"});
   const monthHrs  = coopLog.filter(l=>{
-    try{ return new Date(l.date+", "+new Date().getFullYear()).toLocaleDateString("en-US",{month:"short",year:"numeric"})===thisMonth; }catch{return false;}
+    try{
+      const now = new Date();
+      const yr1 = now.getFullYear();
+      const yr2 = yr1 - 1;
+      const d1 = new Date(l.date+", "+yr1);
+      const d2 = new Date(l.date+", "+yr2);
+      // Pick the parse that is not in the future
+      const d = d1 <= now ? d1 : d2;
+      return d.toLocaleDateString("en-US",{month:"short",year:"numeric"})===thisMonth;
+    }catch{return false;}
   }).reduce((s,l)=>s+(parseFloat(l.hrs)||0),0);
 
   const saveLog = (logData) => {
