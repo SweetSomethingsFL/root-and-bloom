@@ -2293,7 +2293,6 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
             </SCard>
           </div>
         )}
-      </div>
 
         {tab==="ai" && (
           <div style={{animation:"fadeUp 0.18s ease",paddingBottom:"4rem"}}>
@@ -2422,6 +2421,8 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
             </SCard>
           </div>
         )}
+
+      </div>
 
       {/* Save bar */}
       <div style={{padding:"0.9rem 1.1rem",borderTop:`1px solid ${pal.stone}50`,background:pal.linen,flexShrink:0,display:"flex",gap:"0.6rem"}}>
