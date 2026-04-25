@@ -4370,7 +4370,7 @@ function AttendanceScreen({pal,family,days,attendanceLog=[],portfolioEntries=[],
     <div class="sig"><div class="sig-line">Parent / Educator Signature</div><div class="sig-line">Date</div></div>
     <button onclick="window.print()" style="margin-top:1.5rem;padding:0.6rem 1.5rem;background:#2a6a2a;color:#fff;border:none;border-radius:8px;font-size:1rem;cursor:pointer">Print / Save PDF</button>
     </body></html>`);
-    win.document.close();
+    setTimeout(()=>win.document.close(),0);
   };
 
   return (
@@ -6407,7 +6407,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
     <div class="school-header">
       <div>
         <div class="school-name">${schoolName}</div>
-        <div class="school-sub">${family.state||""} ${family.state&&family.parentName?" · ":""}${family.parentName||""}</div>
+        <div class="school-sub">${family.state||""}</div>
       </div>
       <div class="badge">Official Transcript</div>
     </div>
@@ -6436,7 +6436,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
 
     <button class="print-btn" onclick="window.print()">🖨 Print / Save as PDF</button>
     </body></html>`);
-    win.document.close();
+    setTimeout(()=>win.document.close(),0);
   };
 
   const printReadingLog = () => {
@@ -6472,7 +6472,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
       + "@media print{.pbtn{display:none}}"
       + "</style></head><body>"
       + "<div class=\"hdr\"><div><div class=\"sn\">"+sn+"</div>"
-      + "<div class=\"sub\">"+(family.state||"")+" "+(family.parentName||"")+"</div></div>"
+      + "<div class=\"sub\">"+(family.state||"")+"</div></div>"
       + "<div class=\"badge\">Reading Log</div></div>"
       + "<div class=\"ig\">"
       + "<div class=\"ic\"><div class=\"il\">Student</div><div class=\"iv\">"+ch.name+"</div></div>"
@@ -6485,7 +6485,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
       + "<button class=\"pbtn\" onclick=\"window.print()\">Print / Save as PDF</button>"
       + "</body></html>";
     win.document.write(html);
-    win.document.close();
+    setTimeout(()=>win.document.close(),0);
   };
 
   // All subjects to show (active + any with entries)
@@ -6645,7 +6645,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
             <div style={{borderBottom:`2px solid ${cp.c1}40`,paddingBottom:"0.85rem",marginBottom:"0.9rem",display:"flex",justifyContent:"space-between",alignItems:"flex-end"}}>
               <div>
                 <div style={{fontWeight:"900",color:cp.c1,fontSize:"1rem"}}>{schoolName}</div>
-                <div style={{fontSize:"0.7rem",color:pal.slate}}>{family.state} {"\u00b7"} {family.parentName}</div>
+                <div style={{fontSize:"0.7rem",color:pal.slate}}>{family.state}</div>
               </div>
               <button onClick={printRecord} style={{padding:"0.3rem 0.7rem",borderRadius:"8px",border:"none",background:pal.accentGrad,color:"#fff",fontWeight:"700",fontSize:"0.7rem",cursor:"pointer"}}>{"🖨 Print"}</button>
             </div>
@@ -6805,11 +6805,6 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
         </>)}
 
       </div>
-      <style>{`@media print {
-  nav, .no-print, button { display:none!important }
-  body { background: white!important; font-family: Georgia, serif!important; }
-  #root > div { max-width: 100%!important; }
-}`}</style>
       {showDigest&&(
         <WeeklyDigestModal
           pal={pal} family={family}
