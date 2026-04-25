@@ -6337,6 +6337,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
   const printRecord = () => {
     const win = window.open("","_blank","width=860,height=1000,scrollbars=yes");
     if(!win) return;
+    const fullName = ch.name+(ch.lastName?" "+ch.lastName:"");
 
     // Build course rows
     const courseRows = allSubjNames.map(subj=>{
@@ -6373,7 +6374,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
       ? `<tr style="background:#f5f5f5"><th>Subject</th><th>Grade</th><th>Credits</th><th>Status</th><th style="text-align:right">Entries</th></tr>`
       : `<tr style="background:#f5f5f5"><th>Subject</th><th>Status</th><th style="text-align:right">Entries</th></tr>`;
 
-    win.document.write(`<!DOCTYPE html><html><head><title>Transcript — ${ch.name}</title>
+    win.document.write(`<!DOCTYPE html><html><head><title>Transcript — ${fullName}</title>
     <style>
       *{box-sizing:border-box;margin:0;padding:0}
       body{font-family:Georgia,serif;color:#1a1a1a;background:#fff;padding:2.5rem;max-width:760px;margin:0 auto;font-size:10pt;line-height:1.5}
@@ -6414,7 +6415,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
 
     <div class="section-title">Student Information</div>
     <div class="info-grid">
-      <div class="info-cell"><div class="info-label">Student Name</div><div class="info-value">${ch.name}</div></div>
+      <div class="info-cell"><div class="info-label">Student Name</div><div class="info-value">${fullName}</div></div>
       <div class="info-cell"><div class="info-label">Grade Level</div><div class="info-value">${ch.grade}</div></div>
       <div class="info-cell"><div class="info-label">School Year</div><div class="info-value">${yearStart} — ${yearEnd}</div></div>
       <div class="info-cell"><div class="info-label">State</div><div class="info-value">${family.state||"—"}</div></div>
@@ -6442,6 +6443,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
   const printReadingLog = () => {
     const win = window.open("","_blank","width=800,height=900,scrollbars=yes");
     if(!win) return;
+    const fullName = ch.name+(ch.lastName?" "+ch.lastName:"");
     const rows = readingEntries.map(function(e,i){
       const bg = i%2===0 ? "#fff" : "#f9f9f9";
       const title = (e.readingTitle||e.title||"").replace(/</g,"&lt;").replace(/>/g,"&gt;");
@@ -6452,7 +6454,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
     const sn = schoolName;
     const today = new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
     const html = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\">"
-      + "<title>Reading Log — "+ch.name+"</title>"
+      + "<title>Reading Log — "+fullName+"</title>"
       + "<style>"
       + "*{box-sizing:border-box;margin:0;padding:0}"
       + "body{font-family:Georgia,serif;color:#1a1a1a;background:#fff;padding:2.5rem;max-width:720px;margin:0 auto;font-size:10pt;line-height:1.5}"
@@ -6475,7 +6477,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
       + "<div class=\"sub\">"+(family.state||"")+"</div></div>"
       + "<div class=\"badge\">Reading Log</div></div>"
       + "<div class=\"ig\">"
-      + "<div class=\"ic\"><div class=\"il\">Student</div><div class=\"iv\">"+ch.name+"</div></div>"
+      + "<div class=\"ic\"><div class=\"il\">Student</div><div class=\"iv\">"+fullName+"</div></div>"
       + "<div class=\"ic\"><div class=\"il\">Grade</div><div class=\"iv\">"+ch.grade+"</div></div>"
       + "<div class=\"ic\"><div class=\"il\">Titles Logged</div><div class=\"iv\">"+readingEntries.length+"</div></div>"
       + "</div>"
