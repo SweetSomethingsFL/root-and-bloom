@@ -6635,7 +6635,7 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
           )}
           <button onClick={()=>setShowDigest(true)}
             style={{width:"100%",padding:"0.75rem",border:"none",borderRadius:"13px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.84rem",cursor:"pointer",marginBottom:"0.75rem",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.4rem"}}>
-            <span>{"\xf0\x9f\x93\x8b"}</span><span>{"Weekly Digest"}</span>
+            <span>{"📋"}</span><span>{"Weekly Digest"}</span>
           </button>
           <div style={{height:"0.5rem"}}/>
         </>)}
