@@ -1707,7 +1707,7 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
   const [schoolSubTab, setSchoolSubTab] = useState("school");
 
   return (
-    <div style={{height:"100vh",background:pal.sand,display:"flex",flexDirection:"column",animation:"fadeIn 0.18s ease",overflow:"hidden"}}>
+    <div style={{position:"fixed",inset:0,background:pal.sand,display:"flex",flexDirection:"column",animation:"fadeIn 0.18s ease",overflow:"hidden"}}>
       {/* Header */}
       <div style={{background:pal.heroGrad,padding:"1rem 1.1rem 0",flexShrink:0}}>
         <div style={{display:"flex",alignItems:"center",gap:"0.75rem",marginBottom:"0.9rem"}}>
@@ -1724,7 +1724,7 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
         </div>
       </div>
 
-      <div key={tab} style={{flex:1,overflowY:"auto",padding:"1.2rem 1.1rem",WebkitOverflowScrolling:"touch"}}>
+      <div key={tab} style={{flex:1,overflowY:"scroll",padding:"1.2rem 1.1rem",WebkitOverflowScrolling:"touch"}}>
         {tab==="family" && (
           <div style={{animation:"fadeUp 0.18s ease"}}>
             <SCard pal={pal} title="Family Info">
@@ -2347,19 +2347,19 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
               <div style={{fontSize:"0.74rem",color:pal.slate,lineHeight:1.6,marginBottom:"0.75rem"}}>
                 {"Your key is stored only on this device and never sent anywhere except directly to Anthropic when you use AI features."}
               </div>
-              <div style={{position:"relative",marginBottom:"0.75rem"}}>
+              <div style={{display:"flex",gap:"0.5rem",alignItems:"center",marginBottom:"0.75rem"}}>
                 <input
                   id="apiKeyInput"
                   type="password"
                   value={local.apiKey||""}
                   onChange={e=>updL("apiKey",e.target.value)}
                   placeholder="sk-ant-..."
-                  style={{width:"100%",padding:"0.62rem 2.8rem 0.62rem 0.85rem",border:`2px solid ${(local.apiKey||"").trim()?pal.good:pal.stone}`,borderRadius:"11px",fontSize:"0.82rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"monospace",boxSizing:"border-box"}}
+                  style={{flex:1,padding:"0.62rem 0.85rem",border:`2px solid ${(local.apiKey||"").trim()?pal.good:pal.stone}`,borderRadius:"11px",fontSize:"0.82rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"monospace",boxSizing:"border-box",minWidth:0}}
                   onFocus={e=>e.target.style.borderColor=pal.primary}
                   onBlur={e=>e.target.style.borderColor=(local.apiKey||"").trim()?pal.good:pal.stone}
                 />
                 <button onClick={()=>{const inp=document.getElementById("apiKeyInput");if(inp)inp.type=inp.type==="password"?"text":"password";}}
-                  style={{position:"absolute",right:"8px",top:"50%",transform:"translateY(-50%)",background:"transparent",border:"none",cursor:"pointer",fontSize:"0.8rem",color:pal.slate,padding:"4px"}}>
+                  style={{flexShrink:0,width:"36px",height:"36px",background:pal.parchm,border:`1.5px solid ${pal.stone}`,borderRadius:"9px",cursor:"pointer",fontSize:"0.8rem",color:pal.slate,display:"flex",alignItems:"center",justifyContent:"center"}}>
                   {"👁"}
                 </button>
               </div>
