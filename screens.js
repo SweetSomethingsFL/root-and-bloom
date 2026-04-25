@@ -1724,7 +1724,7 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
         </div>
       </div>
 
-      <div key={tab} style={{flex:1,overflowY:"auto",padding:"1.2rem 1.1rem",WebkitOverflowScrolling:"touch"}}>
+      <div key={tab} style={{flex:1,overflowY:"auto",overflowX:"hidden",padding:"1.2rem 1.1rem",WebkitOverflowScrolling:"touch",minHeight:0}}>
         {tab==="family" && (
           <div style={{animation:"fadeUp 0.18s ease"}}>
             <SCard pal={pal} title="Family Info">
@@ -2296,24 +2296,18 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
 
         {tab==="ai" && (
           <div style={{animation:"fadeUp 0.18s ease",paddingBottom:"4rem"}}>
-
             {/* Key status banner */}
-            {(()=>{
-              const hasKey = !!(local.apiKey||"").trim();
-              return (
-                <div style={{background:hasKey?"#edf9f0":"#fff8e6",borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:`1.5px solid ${hasKey?"#2d9e5f40":"#f5c84240"}`,display:"flex",alignItems:"center",gap:"0.65rem"}}>
-                  <span style={{fontSize:"1.4rem",flexShrink:0}}>{hasKey?"✅":"🔑"}</span>
-                  <div>
-                    <div style={{fontWeight:"800",color:hasKey?"#1a6e40":"#b07800",fontSize:"0.86rem"}}>
-                      {hasKey?"AI features are active":"AI features need a key to work"}
-                    </div>
-                    <div style={{fontSize:"0.7rem",color:hasKey?"#2d9e5f":"#a06000",marginTop:"2px",lineHeight:1.5}}>
-                      {hasKey?"Worksheets, lessons, Bloom tutor, chat assistant — all ready.":"Follow the steps below to get set up in about 2 minutes."}
-                    </div>
-                  </div>
+            <div style={{background:(local.apiKey||"").trim()?"#edf9f0":"#fff8e6",borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:`1.5px solid ${(local.apiKey||"").trim()?"#2d9e5f40":"#f5c84240"}`,display:"flex",alignItems:"center",gap:"0.65rem"}}>
+              <span style={{fontSize:"1.4rem",flexShrink:0}}>{(local.apiKey||"").trim()?"✅":"🔑"}</span>
+              <div>
+                <div style={{fontWeight:"800",color:(local.apiKey||"").trim()?"#1a6e40":"#b07800",fontSize:"0.86rem"}}>
+                  {(local.apiKey||"").trim()?"AI features are active":"AI features need a key to work"}
                 </div>
-              );
-            })()}
+                <div style={{fontSize:"0.7rem",color:(local.apiKey||"").trim()?"#2d9e5f":"#a06000",marginTop:"2px",lineHeight:1.5}}>
+                  {(local.apiKey||"").trim()?"Worksheets, lessons, Bloom tutor, chat assistant — all ready.":"Follow the steps below to get set up in about 2 minutes."}
+                </div>
+              </div>
+            </div>
 
             {/* Setup link -- only when no key */}
             {!(local.apiKey||"").trim()&&(
