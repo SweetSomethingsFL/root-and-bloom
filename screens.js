@@ -133,6 +133,7 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
   const SCHEDULE = generateSchedule(family);
   const familyGoalObjs = [...GOALS,...(family.customGoals||[])].filter(g=>(family.goals||[]).includes(g.id));
   const todayDateStr2 = new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
+  const isWeekend = (()=>{ const d=new Date().getDay(); return d===0||d===6; })();
 
   const checkSubject = (bi, b) => {
     if(checked[bi]) return;
@@ -329,7 +330,9 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
               <div style={{position:"absolute",right:"-25px",bottom:"-25px",width:"110px",height:"110px",borderRadius:"50%",background:"rgba(255,255,255,0.07)"}}/>
               <div style={{fontSize:"3.8rem",marginBottom:"0.4rem",animation:"bounce 2.2s ease infinite"}}>{child.avatar}</div>
               <div style={{fontWeight:"900",color:"#fff",fontSize:"1.55rem",lineHeight:1.2}}>{greetKid()},<br/>{child.name}! 🌟</div>
-              <div style={{fontSize:"0.82rem",color:"rgba(255,255,255,0.72)",marginTop:"0.25rem"}}>Ready to learn something awesome?</div>
+              <div style={{fontSize:"0.82rem",color:"rgba(255,255,255,0.72)",marginTop:"0.25rem"}}>
+                {isWeekend ? "It's the weekend — enjoy your time off! 🌴" : "Ready to learn something awesome?"}
+              </div>
             </div>
 
             {/* Floating streak card */}
@@ -345,6 +348,17 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
             </div>
 
             <div style={{padding:"1.3rem 1rem 0"}}>
+
+              {/* Weekend banner */}
+              {isWeekend&&(
+                <div style={{background:`linear-gradient(135deg,${c1}18,${c2}10)`,borderRadius:"18px",padding:"1rem 1.1rem",marginBottom:"0.9rem",border:`2px solid ${c1}30`,display:"flex",gap:"0.75rem",alignItems:"center"}}>
+                  <span style={{fontSize:"2rem",flexShrink:0}}>🌴</span>
+                  <div>
+                    <div style={{fontWeight:"900",color:c1,fontSize:"0.95rem"}}>{"No school today!"}</div>
+                    <div style={{fontSize:"0.76rem",color:SK.lite,marginTop:"2px",lineHeight:1.55}}>{"Rest, play, and recharge. You can still log something cool if you want — it counts! 🌟"}</div>
+                  </div>
+                </div>
+              )}
               {/* Kid goals */}
               {kidGoals.length>0&&(
                 <div style={{background:SK.card,borderRadius:"18px",padding:"0.9rem 1rem",marginBottom:"0.9rem",boxShadow:"0 2px 12px rgba(0,0,0,0.07)"}}>
@@ -477,7 +491,8 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
                 );
               })()}
 
-              {/* Today peek */}
+              {/* Today peek — hidden on weekends */}
+              {!isWeekend&&(<>
               <div style={{fontWeight:"800",color:SK.ink,fontSize:"0.92rem",marginBottom:"0.6rem"}}>{"📅 Today\u2019s Plan"}</div>
               {SCHEDULE.slice(0,4).map((b,i)=>(
                 <div key={i} style={{background:SK.card,borderRadius:"14px",padding:"0.65rem 0.9rem",display:"flex",gap:"0.65rem",alignItems:"center",marginBottom:"0.42rem",boxShadow:"0 1px 7px rgba(0,0,0,0.05)"}}>
@@ -485,6 +500,7 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
                   <div style={{flex:1}}><div style={{fontWeight:"700",color:SK.ink,fontSize:"0.85rem"}}>{b.s}</div><div style={{fontSize:"0.68rem",color:SK.lite}}>{b.dur} min</div></div>
                 </div>
               ))}
+              </>)}
             </div>
           </div>
         )}
