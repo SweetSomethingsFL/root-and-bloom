@@ -1361,7 +1361,7 @@ function RootAndBloom() {
   const [view,           setView]           = useState("splash");
   const [activeTab,      setActiveTab]      = useState("home");
   const [navIds,         setNavIds]         = useState(saved?.navIds||["home","progress","portfolio","more"]);
-  const [homeLayout,     setHomeLayout]     = useState(["todaycard","subjectgap","pandc","progress_nudge","thisweek"]);
+  const [homeLayout,     setHomeLayout]     = useState(["subjectgap","pandc","progress_nudge","thisweek"]);
   const [portfolioLayout,setPortfolioLayout]= useState(saved?.portfolioLayout||["yearoverview","subjects","photosextras","worksheetreminder","statereminder"]);
   const [childFilt,      setChildFilt]      = useState("all");
   const [lastCheckinDate,setLastCheckinDate]= useState(saved?.lastCheckinDate||null);
@@ -3214,7 +3214,7 @@ function GoalsNudgeCard({pal,family,portfolioEntries,todayStr,onTabChange}){
   );
 }
 
-function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress, navIds=[], onAddEntry, onCheckin, checkinDates={}, observationLog=[], onOpenJournal, attendanceLog=[], studentVisits={}, homeLayout=["todaycard","subjectgap","pandc","progress_nudge","thisweek"], onSetHomeLayout, notifDismissed={}, onDismissNotif, onOpenEOY, onOpenFieldStudy, quizNotifs=[], onDismissQuizNotif }) {
+function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress, navIds=[], onAddEntry, onCheckin, checkinDates={}, observationLog=[], onOpenJournal, attendanceLog=[], studentVisits={}, homeLayout=["subjectgap","pandc","progress_nudge","thisweek"], onSetHomeLayout, notifDismissed={}, onDismissNotif, onOpenEOY, onOpenFieldStudy, quizNotifs=[], onDismissQuizNotif }) {
   const stateInfo  = getStateInfo(family.state||"");
   const stateHours = stateInfo.hours||"";
   const dayMatch   = stateHours.match(/(\d+)\s*day/i);
@@ -3677,9 +3677,6 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
         const now4 = new Date();
         const yr4  = now4.getFullYear();
         // Only show after family has been using the app for 7+ days
-        const _createdAt4 = family.createdAt ? new Date(family.createdAt) : null;
-        const _daysSinceSignup4 = _createdAt4 ? Math.floor((now4-_createdAt4)/(24*60*60*1000)) : 999;
-        if(_daysSinceSignup4 < 7) return null;
         const activeSubjIds4 = family.subjects||[];
         const customSubjs4   = family.customSubjects||[];
         const allSubjMap4    = Object.fromEntries([...SUBJECT_OPTIONS,...customSubjs4].map(s=>[s.id,s]));
@@ -3697,7 +3694,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
         });
         const gapSubjs = activeSubjIds4.map(id=>allSubjMap4[id]).filter(Boolean).filter(s=>{
           const last = lastLogged[s.label];
-          if(!last) return entries4.length>5; // only nudge if we have some history
+          if(!last) return true; // show all subjects with no recent log
           const days = Math.floor((now4-last)/(24*60*60*1000));
           return days>=7;
         }).map(s=>{
@@ -4017,13 +4014,13 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
           ))}
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:"0.5rem"}}>
             <div style={{fontSize:"0.68rem",color:pal.slate,fontStyle:"italic"}}>{"Drag to reorder \u00b7 tap Hide to remove"}</div>
-            <button onClick={()=>onSetHomeLayout&&onSetHomeLayout(["todaycard","subjectgap","pandc","progress_nudge","thisweek"])}
+            <button onClick={()=>onSetHomeLayout&&onSetHomeLayout(["subjectgap","pandc","progress_nudge","thisweek"])}
               style={{fontSize:"0.65rem",color:pal.primary,fontWeight:"700",background:"transparent",border:"none",cursor:"pointer",padding:"0.2rem 0.4rem"}}>
               {"Reset to default"}
             </button>
           </div>
           {(()=>{
-            const allSids=["todaycard","subjectgap","pandc","progress_nudge","thisweek","consistency","goals"];
+            const allSids=["subjectgap","pandc","progress_nudge","thisweek","consistency","goals","todaycard"];
             const hiddenSids=allSids.filter(s=>!homeLayout.includes(s));
             if(!hiddenSids.length) return null;
             return (
