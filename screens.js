@@ -7522,4 +7522,3 @@ function GoalsScreen({pal,family,portfolioEntries=[],onUpdateFamily,onAddEntry,o
     </div>
   );
 }
-
