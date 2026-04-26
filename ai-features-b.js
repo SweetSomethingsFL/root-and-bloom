@@ -256,101 +256,138 @@ For true/false: {"q":"...","type":"tf","options":["True","False"],"answer":"True
    Photo -> AI identifies subject -> fun facts + mini lesson
    + printable worksheet
    ---------------------------------------------------------- */
-function FieldStudyModal({ pal, family, child, onAddEntry, onClose }) {
-  const [phase,       setPhase]      = useState("capture"); // capture|loading|result|worksheet|journal
-  const [imageData,   setImageData]  = useState(null);
-  const [imageMime,   setImageMime]  = useState("image/jpeg");
-  const [result,      setResult]     = useState(null);
-  const [wsResult,    setWsResult]   = useState(null);
-  const [wsLoading,   setWsLoading]  = useState(false);
-  const [wsError,     setWsError]    = useState(null);
-  const [savedSubj,   setSavedSubj]  = useState(null);   // subject chosen by parent for logging
-  const [showSubjPicker, setShowSubjPicker] = useState(false);
-  const [sharedToKid, setSharedToKid] = useState(false);
-  const fileRef = useRef(null);
-  const camRef  = useRef(null);
+function FieldStudyModal({ pal, family, child, allEntries, onAddEntry, onClose, onComplete }) {
+  const [phase,        setPhase]       = useState("capture");
+  const [imageData,    setImageData]   = useState(null);
+  const [imageMime,    setImageMime]   = useState("image/jpeg");
+  const [result,       setResult]      = useState(null);
+  const [webImageUrl,  setWebImageUrl] = useState(null);
+  const [factIdx,      setFactIdx]     = useState(0);
+  const [wsDeclined,   setWsDeclined]  = useState(false);
+  const [wsWanted,     setWsWanted]    = useState(false);
+  const [wsResult,     setWsResult]    = useState(null);
+  const [wsLoading,    setWsLoading]   = useState(false);
+  const [editNote,     setEditNote]    = useState("");
+  const [saving,       setSaving]      = useState(false);
+  const fileRef = React.useRef(null);
+  const camRef  = React.useRef(null);
 
-  const grade    = child?.grade || "3rd";
+  const grade    = child ? (child.grade || "3rd") : "3rd";
   const gradeNum = parseInt(grade.replace(/\D/g,"")) || 3;
-  const name     = child?.name || "Student";
+  const name     = child ? (child.name || "Student") : "Student";
+  const isYoung  = gradeNum <= 3;
+  const isMid    = gradeNum >= 4 && gradeNum <= 6;
 
-  // All family subjects resolved to label+icon
-  const familySubjects = useMemo(() => {
+  const familySubjects = React.useMemo(() => {
     const all = [...(SUBJECT_OPTIONS||[]), ...(family.customSubjects||[])];
     return (family.subjects||[]).map(id => all.find(s=>s.id===id)).filter(Boolean);
   }, [family]);
 
-  // Past field study entries for this child
-  const pastStudies = useMemo(() => {
-    if(!onAddEntry) return [];
-    // We don't have direct portfolio access here so we read from a passed prop -- 
-    // use window.__rbPortfolio if available (set by root), otherwise empty
+  const pastStudies = React.useMemo(() => {
     try {
-      const saved = localStorage.getItem("rootbloom_v1");
-      if(!saved) return [];
-      const data = JSON.parse(saved);
       const childIdx = (family.children||[]).findIndex(c=>c.id===child?.id);
-      return (data.portfolio||[])
-        .filter(e=>e.isFieldStudy && e.childIdx===childIdx)
-        .sort((a,b)=>b.ts||0 - a.ts||0)
-        .slice(0, 20);
+      return (allEntries||[]).filter(e=>e.isFieldStudy && e.childIdx===childIdx)
+        .sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,20);
     } catch(e) { return []; }
-  }, [child, family]);
+  }, [child, family, allEntries]);
+
+  const fetchWebImage = async (subject, category) => {
+    try {
+      const safeQuery = encodeURIComponent(
+        (category==="plant"||category==="animal"||category==="insect"||category==="rock")
+          ? ("educational " + subject + " nature photo child safe")
+          : ("educational " + subject + " child safe")
+      );
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({
+          model:"claude-sonnet-4-20250514",
+          max_tokens:200,
+          messages:[{role:"user",content:"Find a safe, age-appropriate educational image URL for a child learning about: "+subject+". Reply ONLY with a single direct image URL from a reputable educational source (Wikipedia, Wikimedia Commons, National Geographic, Smithsonian, NASA, NOAA). The URL must end in .jpg or .png. No other text."}]
+        })
+      });
+      const data = await res.json();
+      const text = (data.content||[]).find(c=>c.type==="text")?.text||"";
+      const urlMatch = text.match(/https?:\/\/[^\s"<>]+\.(?:jpg|png)/i);
+      if(urlMatch) setWebImageUrl(urlMatch[0]);
+    } catch(e) { /* silently fail */ }
+  };
 
   const analyzeImage = async (base64, mime) => {
     setImageData(base64);
     setImageMime(mime);
     setPhase("loading");
-    setSharedToKid(false);
-    setSavedSubj(null);
+    setFactIdx(0);
+    setWsDeclined(false);
+    setWsWanted(false);
+    setWsResult(null);
+    setWebImageUrl(null);
 
-    const gradeDesc = gradeNum<=2 ? "K-2nd grade, very simple fun language, short sentences"
-      : gradeNum<=5 ? "3rd-5th grade, engaging and curious tone"
-      : gradeNum<=8 ? "6th-8th grade, scientific and analytical"
-      : "9th-12th grade, college-prep depth";
+    const gradeDesc = gradeNum<=2 ? "K-2nd grade: use very simple words, short sentences (5-8 words), concepts a 5-7 year old understands. Avoid scientific terms unless explained simply."
+      : gradeNum<=3 ? "3rd grade: simple engaging language, relatable comparisons, 1-2 sentences per fact. Fun and curious tone."
+      : gradeNum<=5 ? "4th-5th grade: engaging and curious tone, introduce some scientific vocabulary with brief explanation."
+      : gradeNum<=8 ? "6th-8th grade: scientific and analytical, proper terminology expected."
+      : "9th-12th grade: college-prep depth, scientific rigor.";
 
     const familySubjLabels = familySubjects.map(s=>s.label).join(", ") || "general subjects";
+    const goalStr = goalSummary ? goalSummary(family) : "";
 
-    const prompt = `You are an enthusiastic nature and science educator helping a homeschool family.\nLook at this photo and identify what is in it -- plants, animals, rocks, insects, objects, or scenes.\n\nStudent: ${name}, ${grade} (${gradeDesc})\nFamily goals: ${goalSummary(family)}\nFamily subjects: ${familySubjLabels}\n\nRespond ONLY with valid JSON:\n{\n  "subject": "what you see (e.g. Oak tree leaves, Monarch butterfly, Quartz crystal)",\n  "category": "plant|animal|insect|rock|weather|place|object|other",\n  "confidence": "high|medium|low",\n  "funFacts": [\n    "fun fact 1 written for this grade level",\n    "fun fact 2",\n    "fun fact 3",\n    "fun fact 4",\n    "fun fact 5"\n  ],\n  "miniLesson": {\n    "title": "Mini Lesson title (5-8 words)",\n    "introduction": "1-2 engaging sentences introducing the subject at grade level",\n    "keyPoints": [\n      "key point 1",\n      "key point 2",\n      "key point 3"\n    ],\n    "activity": "One hands-on activity the student can do right now",\n    "discussion": "One thought-provoking question to spark conversation",\n    "vocabulary": ["word1", "word2", "word3"]\n  },\n  "suggestedSubject": "the single best matching subject label from this list: ${familySubjLabels}",\n  "subjects": ["list of school subjects this connects to"]\n}`;
+    const prompt = "You are an enthusiastic nature and science educator for a homeschool family.\n"
+      + "Look at this photo and identify what is shown.\n\n"
+      + "Student: " + name + ", " + grade + "\n"
+      + "Grade guidance: " + gradeDesc + "\n"
+      + "Family subjects: " + familySubjLabels + "\n"
+      + (goalStr ? "Family goals: " + goalStr + "\n" : "")
+      + "\nIMPORTANT: ALL content must be strictly age-appropriate and grade-appropriate for " + grade + ". "
+      + "No mature themes, no frightening content, no graphic descriptions of predation or death. "
+      + "Keep everything positive, safe, and educational.\n\n"
+      + "Respond ONLY with valid JSON, no other text:\n"
+      + "{\n"
+      + '  "subject": "what you see (e.g. Oak tree, Monarch butterfly)",\n'
+      + '  "category": "plant|animal|insect|rock|weather|place|object|other",\n'
+      + '  "confidence": "high|medium|low",\n'
+      + '  "needsWebImage": true or false (true if the photo alone is unclear and a reference image would help the child learn better),\n'
+      + '  "funFacts": ["fact 1 at exact grade level","fact 2","fact 3","fact 4","fact 5"],\n'
+      + '  "discussionQuestion": "one thought-provoking but age-appropriate question to ask the child",\n'
+      + '  "miniLesson": {\n'
+      + '    "title": "5-8 word title",\n'
+      + '    "introduction": "1-2 sentences at grade level",\n'
+      + '    "keyPoints": ["point 1","point 2","point 3"],\n'
+      + '    "activity": "one hands-on activity they can do right now",\n'
+      + '    "vocabulary": ["word1","word2","word3"]\n'
+      + '  },\n'
+      + '  "suggestedSubject": "best matching subject from: ' + familySubjLabels + '",\n'
+      + '  "logNote": "2-3 sentence portfolio note summarizing what ' + name + ' observed, what facts were shared, and the discussion question asked. Written in third person. Grade-appropriate."\n'
+      + "}";
 
     try {
       const raw    = await callClaude(prompt, base64, mime);
       const clean  = raw.replace(/```json|```/g,"").trim();
       const parsed = JSON.parse(clean);
-      setResult(parsed);
 
-      // Pick best subject: match AI suggestion against family subjects
       const suggested = parsed.suggestedSubject || parsed.subjects?.[0] || "Science";
       const match = familySubjects.find(s =>
         s.label.toLowerCase()===suggested.toLowerCase() ||
         suggested.toLowerCase().includes(s.label.toLowerCase().split(" ")[0])
       );
-      const chosenSubj = match || familySubjects.find(s=>s.label.toLowerCase().includes("science")) || familySubjects[0] || {label:"Science",icon:"\uD83D\uDD2D",id:"science"};
-      setSavedSubj(chosenSubj);
+      const chosenSubj = match
+        || familySubjects.find(s=>s.label.toLowerCase().includes("science"))
+        || familySubjects[0]
+        || {label:"Science", icon:"\uD83D\uDD2D", id:"science"};
 
-      setPhase("result");
+      parsed._chosenSubj = chosenSubj;
+      setResult(parsed);
+      setEditNote(parsed.logNote || "");
 
-      // Auto-save portfolio entry
-      if(onAddEntry && child) {
-        const childIdx = family.children.findIndex(c=>c.id===child.id);
-        if(childIdx >= 0) {
-          onAddEntry({
-            childIdx,
-            subj: chosenSubj.label,
-            title: "\uD83D\uDD2D Field Study: " + parsed.subject,
-            note: "Identified: " + parsed.subject + ". " + (parsed.funFacts?.[0]||""),
-            thumb: parsed.category==="plant"?"\uD83C\uDF3F":parsed.category==="animal"?"\uD83E\uDD8B":parsed.category==="insect"?"\uD83D\uDC1B":parsed.category==="rock"?"\uD83E\uDEA8":"\uD83D\uDD2D",
-            date: new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"}),
-            ts: Date.now(),
-            photos: [base64],
-            selfLogged: false,
-            isFieldStudy: true,
-          });
-        }
+      if(parsed.needsWebImage) {
+        fetchWebImage(parsed.subject, parsed.category);
       }
+
+      setPhase(isYoung ? "kid_young" : "kid_older");
     } catch(e) {
       setResult({_error: e.message==="NO_KEY" ? "nokey" : "fail"});
-      setPhase("result");
+      setPhase("result_error");
     }
   };
 
@@ -360,88 +397,100 @@ function FieldStudyModal({ pal, family, child, onAddEntry, onClose }) {
     const mime = file.type || "image/jpeg";
     const reader = new FileReader();
     reader.onload = ev => {
-      const base64 = ev.target.result.split(",")[1];
-      analyzeImage(base64, mime);
+      analyzeImage(ev.target.result.split(",")[1], mime);
     };
     reader.readAsDataURL(file);
     e.target.value = "";
   };
 
-  const changeSubject = (subj) => {
-    // Re-save the portfolio entry with updated subject
-    if(onAddEntry && child && result && !result._error) {
-      const childIdx = family.children.findIndex(c=>c.id===child.id);
-      if(childIdx >= 0) {
-        onAddEntry({
-          childIdx,
-          subj: subj.label,
-          title: "\uD83D\uDD2D Field Study: " + result.subject,
-          note: "Identified: " + result.subject + ". " + (result.funFacts?.[0]||""),
-          thumb: "\uD83D\uDD2D",
-          date: new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"}),
-          ts: Date.now(),
-          photos: [imageData],
-          selfLogged: false,
-          isFieldStudy: true,
-          _replaceSubj: savedSubj?.label, // hint for dedup if needed
-        });
-      }
-    }
-    setSavedSubj(subj);
-    setShowSubjPicker(false);
-  };
-
-  const shareToKid = () => {
-    if(!result || result._error || !onAddEntry || !child) return;
+  const saveToPortfolio = () => {
+    if(!onAddEntry || !child || !result || saving) return;
+    setSaving(true);
     const childIdx = family.children.findIndex(c=>c.id===child.id);
-    if(childIdx < 0) return;
+    if(childIdx < 0) { setSaving(false); return; }
+    const photos = imageData ? ["data:"+imageMime+";base64,"+imageData] : [];
+    if(webImageUrl) photos.push(webImageUrl);
     onAddEntry({
       childIdx,
-      subj: savedSubj?.label || "Science",
-      title: "\uD83D\uDD2D Field Study: " + result.subject,
-      note: (result.funFacts?.[0]||"") + " " + (result.miniLesson?.discussion ? "Think about this: " + result.miniLesson.discussion : ""),
-      thumb: "\uD83D\uDD2D",
+      subj: result._chosenSubj?.label || "Science",
+      title: "Field Study: " + result.subject,
+      note: editNote,
+      thumb: result.category==="plant" ? "\uD83C\uDF3F"
+        : result.category==="animal" ? "\uD83E\uDD8B"
+        : result.category==="insect" ? "\uD83D\uDC1B"
+        : result.category==="rock"   ? "\uD83E\uDEA8" : "\uD83D\uDD2D",
       date: new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"}),
       ts: Date.now(),
-      photos: imageData ? [imageData] : [],
-      isMilestone: true,   // shows in Stars tab
+      photos,
       selfLogged: false,
       isFieldStudy: true,
-      isSharedDiscovery: true,
+      isMilestone: true,
     });
-    setSharedToKid(true);
+    if(onComplete) {
+      onComplete({
+        child, result,
+        wsDeclined, wsWanted, wsResult,
+        subj: result._chosenSubj?.label || "Science",
+        saved: true,
+      });
+    }
+    setSaving(false);
+    onClose();
+  };
+
+  const skipPortfolio = () => {
+    if(onComplete) {
+      onComplete({
+        child, result,
+        wsDeclined, wsWanted, wsResult,
+        subj: result._chosenSubj?.label || "Science",
+        saved: false,
+      });
+    }
+    onClose();
   };
 
   const generateWorksheet = async () => {
-    if(!result || result._error) return;
-    setWsLoading(true); setWsError(null);
+    if(!result || wsLoading) return;
+    setWsLoading(true);
     try {
-      const extraCtx = `Based on a field observation of: ${result.subject}. Key vocabulary: ${(result.miniLesson?.vocabulary||[]).join(", ")}. Key concepts: ${(result.miniLesson?.keyPoints||[]).join("; ")}`;
-      const prompt = buildWorksheetPrompt("Science", result.subject + " \u2014 Field Study", child, family, extraCtx);
+      const extraCtx = "Based on a field observation of: " + result.subject
+        + ". Key vocabulary: " + (result.miniLesson?.vocabulary||[]).join(", ")
+        + ". Key concepts: " + (result.miniLesson?.keyPoints||[]).join("; ");
+      const prompt = buildWorksheetPrompt("Science", result.subject + " Field Study", child, family, extraCtx);
       const raw    = await callClaude(prompt);
       const clean  = raw.replace(/```json|```/g,"").trim();
       setWsResult(JSON.parse(clean));
-      setPhase("worksheet");
+      setWsWanted(true);
     } catch(e) {
-      setWsError("Couldn\u2019t generate worksheet right now.");
+      setWsResult({_error:true});
     }
     setWsLoading(false);
   };
 
   const openPrint = () => {
-    if(!wsResult) return;
+    if(!wsResult || wsResult._error) return;
     const html = buildWorksheetHTML(wsResult, child, grade, "Field Study");
-    const win  = window.open("", "_blank");
+    const win  = window.open("","_blank");
     if(!win) return;
     win.document.write(html);
-    win.document.close();
+    setTimeout(()=>win.document.close(), 0);
   };
 
-  const CATEGORY_ICONS = { plant:"\uD83C\uDF3F", animal:"\uD83E\uDD8B", insect:"\uD83D\uDC1B", rock:"\uD83E\uDEA8", weather:"\u26C5", place:"\uD83D\uDCCD", object:"\uD83D\uDD0D", other:"\uD83D\uDD2D" };
+  const reset = () => {
+    setPhase("capture"); setResult(null); setImageData(null);
+    setWebImageUrl(null); setFactIdx(0); setWsDeclined(false);
+    setWsWanted(false); setWsResult(null); setWsLoading(false);
+    setEditNote(""); setSaving(false);
+  };
+
+  const displayImage = imageData ? ("data:"+imageMime+";base64,"+imageData) : null;
+  const facts = result?.funFacts || [];
+  const CATEGORY_ICONS = {plant:"\uD83C\uDF3F",animal:"\uD83E\uDD8B",insect:"\uD83D\uDC1B",rock:"\uD83E\uDEA8",weather:"\u26C5",place:"\uD83D\uDCCD",object:"\uD83D\uDD0D",other:"\uD83D\uDD2D"};
 
   return (
-    <div style={{position:"fixed",inset:0,background:"rgba(10,20,10,0.82)",backdropFilter:"blur(14px)",zIndex:300,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
-      <div style={{background:pal.linen,borderRadius:"28px 28px 0 0",width:"100%",maxWidth:"430px",maxHeight:"92vh",display:"flex",flexDirection:"column",boxShadow:"0 -16px 60px rgba(0,0,0,0.4)",animation:"slideUp 0.28s ease"}}>
+    <div style={{position:"fixed",inset:0,background:"rgba(10,20,10,0.85)",backdropFilter:"blur(14px)",zIndex:300,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
+      <div style={{background:pal.linen,borderRadius:"28px 28px 0 0",width:"100%",maxWidth:"430px",maxHeight:"94vh",display:"flex",flexDirection:"column",boxShadow:"0 -16px 60px rgba(0,0,0,0.4)",animation:"slideUp 0.28s ease"}}>
 
         {/* Handle */}
         <div style={{padding:"0.7rem 0 0",display:"flex",justifyContent:"center",flexShrink:0}}>
@@ -449,317 +498,376 @@ function FieldStudyModal({ pal, family, child, onAddEntry, onClose }) {
         </div>
 
         {/* Header */}
-        <div style={{padding:"0.75rem 1.2rem 0.65rem",borderBottom:`1px solid ${pal.stone}35`,flexShrink:0,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <div style={{padding:"0.65rem 1.2rem 0.55rem",borderBottom:`1px solid ${pal.stone}35`,flexShrink:0,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <div>
-            <div style={{fontWeight:"800",color:pal.ink,fontSize:"1rem"}}>{"\uD83D\uDD2D Field Study"}</div>
-            <div style={{fontSize:"0.72rem",color:pal.slate,marginTop:"1px"}}>{"Snap a photo \u00b7 Get facts \u00b7 Build a lesson"}</div>
+            <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.95rem"}}>{"Field Study"}</div>
+            <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"1px"}}>{"Snap a photo to discover and learn"}</div>
           </div>
           <div style={{display:"flex",gap:"0.4rem",alignItems:"center"}}>
-            {pastStudies.length>0&&(
+            {pastStudies.length>0&&phase==="capture"&&(
               <button onClick={()=>setPhase("journal")}
-                style={{padding:"0.25rem 0.65rem",border:"1.5px solid "+pal.primary+"50",borderRadius:"20px",background:phase==="journal"?pal.pale:"transparent",color:pal.primary,fontSize:"0.68rem",fontWeight:"700",cursor:"pointer"}}>
-                {"\uD83D\uDCD6 "+pastStudies.length}
+                style={{padding:"0.22rem 0.6rem",border:"1.5px solid "+pal.primary+"50",borderRadius:"20px",background:"transparent",color:pal.primary,fontSize:"0.67rem",fontWeight:"700",cursor:"pointer"}}>
+                {"Journal ("+pastStudies.length+")"}
               </button>
             )}
-            <button onClick={onClose} style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.85rem",display:"flex",alignItems:"center",justifyContent:"center"}}>{"\u00d7"}</button>
+            <button onClick={onClose} style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.85rem",display:"flex",alignItems:"center",justifyContent:"center"}}>{"x"}</button>
           </div>
         </div>
 
-        <div style={{flex:1,overflowY:"auto",padding:"1rem 1.2rem"}}>
+        <div style={{flex:1,overflowY:"auto",minHeight:0}}>
 
-          {/* -- CAPTURE -- */}
+          {/* CAPTURE */}
           {phase==="capture"&&(
-            <div style={{textAlign:"center"}}>
-              <div style={{fontSize:"4rem",marginBottom:"0.75rem",animation:"bounce 2s ease infinite"}}>{"[camera]"}</div>
-              <div style={{fontWeight:"800",color:pal.ink,fontSize:"1rem",marginBottom:"0.35rem"}}>{"What did you find?"}</div>
+            <div style={{padding:"1.5rem 1.2rem",textAlign:"center"}}>
+              <div style={{width:"90px",height:"90px",borderRadius:"50%",background:pal.pale,border:`3px solid ${pal.primary}30`,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 1rem",fontSize:"2.8rem"}}>{"[cam]"}</div>
+              <div style={{fontWeight:"800",color:pal.ink,fontSize:"1rem",marginBottom:"0.3rem"}}>{"What did "+name+" find?"}</div>
               <div style={{fontSize:"0.78rem",color:pal.slate,lineHeight:1.65,marginBottom:"1.5rem",maxWidth:"280px",margin:"0 auto 1.5rem"}}>
-                {"Snap a photo of a plant, animal, rock, or anything interesting. Claude will identify it and build a mini lesson for "+name+"!"}
+                {"Take a photo of anything interesting. Claude will identify it and create a lesson just for "+grade+"!"}
               </div>
-              <input ref={camRef} type="file" accept="image/*" capture="environment" style={{display:"none"}} onChange={handleFile}/>
+              <input ref={camRef}  type="file" accept="image/*" capture="environment" style={{display:"none"}} onChange={handleFile}/>
               <input ref={fileRef} type="file" accept="image/*" style={{display:"none"}} onChange={handleFile}/>
               <div style={{display:"flex",flexDirection:"column",gap:"0.6rem",maxWidth:"280px",margin:"0 auto"}}>
                 <button onClick={()=>camRef.current?.click()}
-                  style={{padding:"0.9rem",border:"none",borderRadius:"16px",background:pal.accentGrad,color:"#fff",fontWeight:"900",fontSize:"0.95rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.5rem",boxShadow:`0 4px 18px ${pal.accent}40`}}>
-                  <span>{"\u1f4f7"}</span><span>{"Take a Photo"}</span>
+                  style={{padding:"0.9rem",border:"none",borderRadius:"16px",background:pal.accentGrad,color:"#fff",fontWeight:"900",fontSize:"0.95rem",cursor:"pointer",boxShadow:`0 4px 18px ${pal.accent}40`}}>
+                  {"Take a Photo"}
                 </button>
                 <button onClick={()=>fileRef.current?.click()}
-                  style={{padding:"0.75rem",border:`2px solid ${pal.stone}`,borderRadius:"14px",background:"transparent",color:pal.inkM,fontWeight:"700",fontSize:"0.88rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.5rem"}}>
-                  <span>{"\uD83D\uDDBC\uFE0F"}</span><span>{"Choose from Library"}</span>
+                  style={{padding:"0.75rem",border:`2px solid ${pal.stone}`,borderRadius:"14px",background:"transparent",color:pal.inkM,fontWeight:"700",fontSize:"0.88rem",cursor:"pointer"}}>
+                  {"Choose from Library"}
                 </button>
               </div>
             </div>
           )}
 
-          {/* -- LOADING -- */}
+          {/* LOADING */}
           {phase==="loading"&&(
-            <div style={{textAlign:"center",padding:"1.5rem 0"}}>
-              {imageData&&<img src={"data:"+imageMime+";base64,"+imageData} alt="" style={{width:"100%",maxHeight:"180px",objectFit:"cover",borderRadius:"14px",marginBottom:"1rem"}}/>}
-              <div style={{fontSize:"2.5rem",marginBottom:"0.5rem",animation:"pulse 1.2s ease infinite"}}>{"\uD83D\uDD2D"}</div>
-              <div style={{fontWeight:"800",color:pal.primary,fontSize:"0.9rem",marginBottom:"0.25rem"}}>{"Identifying what you found\u2026"}</div>
-              <div style={{fontSize:"0.74rem",color:pal.slate,lineHeight:1.6}}>{"Claude is looking at your photo and building a mini lesson. Takes about 15 seconds."}</div>
+            <div style={{padding:"1.5rem 1.2rem",textAlign:"center"}}>
+              {displayImage&&<img src={displayImage} alt="" style={{width:"100%",maxHeight:"200px",objectFit:"cover",borderRadius:"14px",marginBottom:"1rem"}}/>}
+              <div style={{fontWeight:"800",color:pal.primary,fontSize:"0.9rem",marginBottom:"0.25rem"}}>{"Identifying what "+name+" found..."}}</div>
+              <div style={{fontSize:"0.74rem",color:pal.slate,lineHeight:1.6}}>{"Claude is looking at the photo and building a "+grade+"-level lesson. About 15 seconds."}</div>
+              <div style={{marginTop:"1.5rem",display:"flex",justifyContent:"center",gap:"0.4rem"}}>
+                {[0,1,2].map(i=>(
+                  <div key={i} style={{width:"8px",height:"8px",borderRadius:"50%",background:pal.primary,opacity:0.3+i*0.35,animation:"pulse 1.2s ease infinite",animationDelay:i*0.2+"s"}}/>
+                ))}
+              </div>
             </div>
           )}
 
-          {/* -- RESULT -- */}
-          {phase==="result"&&result&&!result._error&&(
-            <div style={{animation:"fadeUp 0.22s ease"}}>
-              {imageData&&(
-                <img src={"data:"+imageMime+";base64,"+imageData} alt="" style={{width:"100%",maxHeight:"200px",objectFit:"cover",borderRadius:"14px",marginBottom:"1rem"}}/>
-              )}
-
-              {/* Subject card + subject picker */}
-              <div style={{background:pal.pale,borderRadius:"16px",padding:"0.85rem 1rem",marginBottom:"1rem",border:`2px solid ${pal.primary}25`}}>
-                <div style={{display:"flex",alignItems:"center",gap:"0.6rem",marginBottom:"0.4rem"}}>
-                  <span style={{fontSize:"1.8rem"}}>{CATEGORY_ICONS[result.category]||"\uD83D\uDD2D"}</span>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontWeight:"900",color:pal.primary,fontSize:"1rem"}}>{result.subject}</div>
-                    <div style={{fontSize:"0.65rem",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.08em"}}>{result.category+" \u00b7 "+result.confidence+" confidence"}</div>
-                  </div>
-                </div>
-                {(result.subjects||[]).length>0&&(
-                  <div style={{display:"flex",gap:"0.3rem",flexWrap:"wrap",marginBottom:"0.6rem"}}>
-                    {result.subjects.map((s,i)=>(
-                      <span key={i} style={{fontSize:"0.65rem",padding:"0.1rem 0.5rem",background:pal.primary+"18",borderRadius:"20px",color:pal.primary,fontWeight:"700"}}>{s}</span>
-                    ))}
+          {/* KID VIEW - YOUNG (K-3) */}
+          {phase==="kid_young"&&result&&(
+            <div style={{padding:"0.75rem 1.2rem"}}>
+              {/* Photo + web image */}
+              <div style={{position:"relative",marginBottom:"1rem"}}>
+                {displayImage&&(
+                  <img src={displayImage} alt="" style={{width:"100%",maxHeight:"220px",objectFit:"cover",borderRadius:"16px"}}/>
+                )}
+                {webImageUrl&&(
+                  <div style={{marginTop:"0.5rem"}}>
+                    <img src={webImageUrl} alt={"Reference: "+result.subject} style={{width:"100%",maxHeight:"160px",objectFit:"cover",borderRadius:"12px"}} onError={e=>e.target.style.display="none"}/>
+                    <div style={{fontSize:"0.58rem",color:pal.slate,textAlign:"right",marginTop:"2px"}}>{"Reference image"}</div>
                   </div>
                 )}
-                {/* Subject logging picker */}
-                <div style={{borderTop:"1px solid "+pal.stone+"30",paddingTop:"0.55rem",marginTop:"0.35rem"}}>
-                  <div style={{fontSize:"0.65rem",color:pal.slate,marginBottom:"0.35rem",fontWeight:"600"}}>{"Logged under subject:"}</div>
-                  {showSubjPicker?(
-                    <div style={{display:"flex",flexWrap:"wrap",gap:"0.3rem"}}>
-                      {familySubjects.map(s=>(
-                        <button key={s.id} onClick={()=>changeSubject(s)}
-                          style={{padding:"0.25rem 0.6rem",border:"1.5px solid "+(savedSubj?.id===s.id?pal.primary:pal.stone+"50"),borderRadius:"20px",background:savedSubj?.id===s.id?pal.pale:"transparent",color:savedSubj?.id===s.id?pal.primary:pal.inkM,fontSize:"0.7rem",fontWeight:"700",cursor:"pointer"}}>
-                          {s.icon+" "+s.label}
-                        </button>
-                      ))}
-                    </div>
-                  ):(
-                    <button onClick={()=>setShowSubjPicker(true)}
-                      style={{display:"flex",alignItems:"center",gap:"0.4rem",padding:"0.3rem 0.7rem",border:"1.5px solid "+pal.primary+"40",borderRadius:"20px",background:pal.primary+"10",cursor:"pointer"}}>
-                      <span style={{fontSize:"0.85rem"}}>{savedSubj?.icon||"\uD83D\uDCCB"}</span>
-                      <span style={{fontSize:"0.75rem",fontWeight:"700",color:pal.primary}}>{savedSubj?.label||"Science"}</span>
-                      <span style={{fontSize:"0.65rem",color:pal.slate}}>{"(tap to change)"}</span>
-                    </button>
-                  )}
+              </div>
+
+              {/* Subject title - large */}
+              <div style={{textAlign:"center",marginBottom:"1rem"}}>
+                <div style={{fontSize:"2rem",marginBottom:"0.3rem"}}>{CATEGORY_ICONS[result.category]||"\uD83D\uDD2D"}</div>
+                <div style={{fontWeight:"900",color:pal.primary,fontSize:"1.3rem",lineHeight:1.2}}>{result.subject}</div>
+              </div>
+
+              {/* Facts one at a time */}
+              {facts.length>0&&(
+                <div style={{background:pal.pale,borderRadius:"18px",padding:"1.2rem",marginBottom:"1rem",border:`2px solid ${pal.primary}20`,minHeight:"100px",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center"}}>
+                  <div style={{fontSize:"0.6rem",fontWeight:"700",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:"0.5rem"}}>{"Did you know?"}</div>
+                  <div style={{fontWeight:"700",color:pal.ink,fontSize:isYoung?"1rem":"0.9rem",lineHeight:1.6}}>{facts[factIdx]}</div>
+                  <div style={{display:"flex",gap:"0.3rem",marginTop:"0.75rem"}}>
+                    {facts.map((_,i)=>(
+                      <div key={i} style={{width:"6px",height:"6px",borderRadius:"50%",background:i===factIdx?pal.primary:pal.stone+"60",transition:"all 0.15s"}}/>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Discussion question */}
+              {result.discussionQuestion&&factIdx===facts.length-1&&(
+                <div style={{background:"#fffbeb",borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:"1.5px solid #f5c84240"}}>
+                  <div style={{fontSize:"0.62rem",fontWeight:"700",color:"#b07800",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.25rem"}}>{"Talk About It"}</div>
+                  <div style={{fontSize:"0.84rem",color:pal.ink,lineHeight:1.6,fontStyle:"italic"}}>{"\""+result.discussionQuestion+"\""}</div>
+                </div>
+              )}
+
+              {/* Navigation */}
+              <div style={{display:"flex",gap:"0.5rem",marginBottom:"0.75rem"}}>
+                {factIdx>0&&(
+                  <button onClick={()=>setFactIdx(f=>f-1)}
+                    style={{flex:1,padding:"0.7rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.inkM,fontWeight:"700",fontSize:"0.82rem",cursor:"pointer"}}>
+                    {"Back"}
+                  </button>
+                )}
+                {factIdx<facts.length-1?(
+                  <button onClick={()=>setFactIdx(f=>f+1)}
+                    style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>
+                    {"Next Fact"}
+                  </button>
+                ):(
+                  <button onClick={()=>setPhase("parent_review")}
+                    style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"900",fontSize:"0.88rem",cursor:"pointer"}}>
+                    {"Show Mom/Dad!"}
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* KID VIEW - OLDER (4-6 and 7+) */}
+          {phase==="kid_older"&&result&&(
+            <div style={{padding:"0.75rem 1.2rem"}}>
+              {displayImage&&<img src={displayImage} alt="" style={{width:"100%",maxHeight:"180px",objectFit:"cover",borderRadius:"14px",marginBottom:"0.75rem"}}/>}
+              {webImageUrl&&(
+                <div style={{marginBottom:"0.75rem"}}>
+                  <img src={webImageUrl} alt={"Reference: "+result.subject} style={{width:"100%",maxHeight:"140px",objectFit:"cover",borderRadius:"12px"}} onError={e=>e.target.style.display="none"}/>
+                  <div style={{fontSize:"0.58rem",color:pal.slate,textAlign:"right",marginTop:"2px"}}>{"Reference image"}</div>
+                </div>
+              )}
+
+              {/* Subject */}
+              <div style={{display:"flex",alignItems:"center",gap:"0.6rem",marginBottom:"0.85rem",background:pal.pale,borderRadius:"14px",padding:"0.7rem 0.9rem",border:`2px solid ${pal.primary}20`}}>
+                <span style={{fontSize:"1.8rem"}}>{CATEGORY_ICONS[result.category]||"\uD83D\uDD2D"}</span>
+                <div>
+                  <div style={{fontWeight:"900",color:pal.primary,fontSize:"1rem"}}>{result.subject}</div>
+                  <div style={{fontSize:"0.65rem",color:pal.slate}}>{result.category+" - "+grade+" level"}</div>
                 </div>
               </div>
 
-              {/* Share to Stars button */}
-              <button onClick={sharedToKid?null:shareToKid}
-                style={{width:"100%",padding:"0.6rem 1rem",border:"1.5px solid "+(sharedToKid?"#2d9e5f60":pal.primary+"40"),borderRadius:"12px",background:sharedToKid?"#edf9f0":pal.pale,color:sharedToKid?"#2d9e5f":pal.primary,fontWeight:"700",fontSize:"0.78rem",cursor:sharedToKid?"default":"pointer",marginBottom:"1rem",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.4rem"}}>
-                <span>{sharedToKid?"\u2713":"\uD83C\uDF1F"}</span>
-                <span>{sharedToKid?"Saved to "+name+"\u2019s Stars!":"Share discovery to "+name+"\u2019s Stars tab"}</span>
-              </button>
-
-              {/* Fun facts */}
-              <div style={{marginBottom:"1rem"}}>
-                <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.75rem",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.55rem"}}>{"\uD83C\uDF1F Fun Facts"}</div>
-                <div style={{display:"flex",flexDirection:"column",gap:"0.4rem"}}>
-                  {(result.funFacts||[]).map((fact,i)=>(
-                    <div key={i} style={{background:"#fff",borderRadius:"12px",padding:"0.6rem 0.8rem",border:`1.5px solid ${pal.stone}20`,display:"flex",gap:"0.5rem",alignItems:"flex-start"}}>
-                      <span style={{fontSize:"0.85rem",flexShrink:0}}>{"\u2736"}</span>
-                      <span style={{fontSize:"0.8rem",color:pal.ink,lineHeight:1.55}}>{fact}</span>
-                    </div>
-                  ))}
-                </div>
+              {/* All facts */}
+              <div style={{marginBottom:"0.85rem"}}>
+                <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.72rem",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.4rem"}}>{"Fun Facts"}</div>
+                {facts.map((fact,i)=>(
+                  <div key={i} style={{background:"#fff",borderRadius:"10px",padding:"0.55rem 0.75rem",border:`1.5px solid ${pal.stone}20`,marginBottom:"0.35rem",display:"flex",gap:"0.45rem",alignItems:"flex-start"}}>
+                    <span style={{color:pal.primary,fontWeight:"900",fontSize:"0.7rem",flexShrink:0,marginTop:"2px"}}>{i+1+"."}</span>
+                    <span style={{fontSize:"0.8rem",color:pal.ink,lineHeight:1.55}}>{fact}</span>
+                  </div>
+                ))}
               </div>
 
               {/* Mini lesson */}
               {result.miniLesson&&(
-                <div style={{background:pal.linen,borderRadius:"16px",padding:"0.9rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}35`}}>
-                  <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.88rem",marginBottom:"0.55rem"}}>{"\u1f4d6 "+result.miniLesson.title}</div>
-                  <div style={{fontSize:"0.8rem",color:pal.inkM,lineHeight:1.65,marginBottom:"0.65rem"}}>{result.miniLesson.introduction}</div>
-                  {(result.miniLesson.keyPoints||[]).length>0&&(
-                    <div style={{marginBottom:"0.65rem"}}>
-                      <div style={{fontSize:"0.65rem",fontWeight:"700",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.3rem"}}>{"Key Points"}</div>
-                      {result.miniLesson.keyPoints.map((kp,i)=>(
-                        <div key={i} style={{display:"flex",gap:"0.4rem",alignItems:"flex-start",marginBottom:"0.3rem"}}>
-                          <span style={{color:pal.primary,flexShrink:0,marginTop:"2px"}}>{"->"}</span>
-                          <span style={{fontSize:"0.78rem",color:pal.ink,lineHeight:1.5}}>{kp}</span>
-                        </div>
-                      ))}
+                <div style={{background:pal.linen,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.stone}30`}}>
+                  <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem",marginBottom:"0.45rem"}}>{result.miniLesson.title}</div>
+                  <div style={{fontSize:"0.79rem",color:pal.inkM,lineHeight:1.6,marginBottom:"0.5rem"}}>{result.miniLesson.introduction}</div>
+                  {(result.miniLesson.keyPoints||[]).map((kp,i)=>(
+                    <div key={i} style={{display:"flex",gap:"0.35rem",alignItems:"flex-start",marginBottom:"0.25rem"}}>
+                      <span style={{color:pal.primary,flexShrink:0,marginTop:"2px",fontSize:"0.75rem"}}>{"->"}</span>
+                      <span style={{fontSize:"0.77rem",color:pal.ink,lineHeight:1.5}}>{kp}</span>
                     </div>
-                  )}
+                  ))}
                   {result.miniLesson.activity&&(
-                    <div style={{background:pal.pale,borderRadius:"10px",padding:"0.55rem 0.75rem",marginBottom:"0.5rem",border:`1.5px solid ${pal.primary}20`}}>
-                      <div style={{fontSize:"0.65rem",fontWeight:"700",color:pal.primary,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.2rem"}}>{"\uD83E\uDDEA Try This"}</div>
-                      <div style={{fontSize:"0.78rem",color:pal.inkM,lineHeight:1.5}}>{result.miniLesson.activity}</div>
+                    <div style={{background:pal.pale,borderRadius:"9px",padding:"0.5rem 0.7rem",marginTop:"0.5rem",border:`1.5px solid ${pal.primary}20`}}>
+                      <div style={{fontSize:"0.62rem",fontWeight:"700",color:pal.primary,textTransform:"uppercase",marginBottom:"0.15rem"}}>{"Try This"}</div>
+                      <div style={{fontSize:"0.76rem",color:pal.inkM,lineHeight:1.5}}>{result.miniLesson.activity}</div>
                     </div>
                   )}
-                  {result.miniLesson.discussion&&(
-                    <div style={{background:"#fffbeb",borderRadius:"10px",padding:"0.55rem 0.75rem",border:"1.5px solid #f5c84240"}}>
-                      <div style={{fontSize:"0.65rem",fontWeight:"700",color:"#b07800",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.2rem"}}>{"\uD83D\uDCAC Talk About It"}</div>
-                      <div style={{fontSize:"0.78rem",color:pal.inkM,lineHeight:1.5,fontStyle:"italic"}}>{"\""+result.miniLesson.discussion+"\""}</div>
-                    </div>
-                  )}
+                </div>
+              )}
+
+              {/* Discussion question */}
+              {result.discussionQuestion&&(
+                <div style={{background:"#fffbeb",borderRadius:"12px",padding:"0.75rem 0.9rem",marginBottom:"0.85rem",border:"1.5px solid #f5c84240"}}>
+                  <div style={{fontSize:"0.62rem",fontWeight:"700",color:"#b07800",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.2rem"}}>{"Think About It"}</div>
+                  <div style={{fontSize:"0.8rem",color:pal.ink,lineHeight:1.55,fontStyle:"italic"}}>{"\""+result.discussionQuestion+"\""}</div>
                 </div>
               )}
 
               {/* Vocabulary */}
               {(result.miniLesson?.vocabulary||[]).length>0&&(
-                <div style={{background:"#fff",borderRadius:"12px",padding:"0.65rem 0.85rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}25`}}>
-                  <div style={{fontSize:"0.65rem",fontWeight:"700",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.4rem"}}>{"\uD83D\uDCDA Vocabulary"}</div>
-                  <div style={{display:"flex",flexWrap:"wrap",gap:"0.35rem"}}>
+                <div style={{background:"#fff",borderRadius:"12px",padding:"0.6rem 0.8rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.stone}25`}}>
+                  <div style={{fontSize:"0.62rem",fontWeight:"700",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.35rem"}}>{"Vocabulary"}</div>
+                  <div style={{display:"flex",flexWrap:"wrap",gap:"0.3rem"}}>
                     {result.miniLesson.vocabulary.map((w,i)=>(
-                      <span key={i} style={{fontSize:"0.78rem",padding:"0.2rem 0.6rem",background:pal.pale,borderRadius:"20px",border:`1.5px solid ${pal.primary}30`,color:pal.primary,fontWeight:"700"}}>{w}</span>
+                      <span key={i} style={{fontSize:"0.76rem",padding:"0.18rem 0.55rem",background:pal.pale,borderRadius:"20px",border:`1.5px solid ${pal.primary}30`,color:pal.primary,fontWeight:"700"}}>{w}</span>
                     ))}
                   </div>
                 </div>
               )}
 
-              {/* Worksheet CTA */}
-              <button onClick={generateWorksheet} disabled={wsLoading}
-                style={{width:"100%",padding:"0.85rem",border:"none",borderRadius:"14px",background:wsLoading?"#ccc":pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.9rem",cursor:wsLoading?"default":"pointer",marginBottom:"0.5rem"}}>
-                {wsLoading?"\u23F3 Building worksheet\u2026":"\uD83D\uDCC4 Build a Worksheet from This"}
-              </button>
-              {wsError&&<div style={{fontSize:"0.72rem",color:"#a03030",textAlign:"center"}}>{wsError}</div>}
-
-              {/* Share to Stars + Study Again */}
-              <div style={{display:"flex",gap:"0.5rem",marginTop:"0.5rem"}}>
-                <button onClick={()=>{
-                  if(sharedToKid||!onAddEntry||!child||!result) return;
-                  const ci=family.children.findIndex(c=>c.id===child.id);
-                  if(ci<0) return;
-                  onAddEntry({
-                    childIdx:ci,
-                    subj:savedSubj||result.subjects?.[0]||"Science",
-                    title:"\u2b50 Discovery: "+result.subject,
-                    note:"I found: "+result.subject+"! "+((result.funFacts||[])[0]||""),
-                    thumb:"\u2b50",
-                    date:new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"}),
-                    photos:imageData?[imageData]:[],
-                    isMilestone:true,
-                    isFieldStudy:true,
-                    selfLogged:false,
-                    ts:Date.now(),
-                  });
-                  setSharedToKid(true);
-                }}
-                  disabled={sharedToKid}
-                  style={{flex:1,padding:"0.7rem",border:"1.5px solid "+(sharedToKid?"#2d9e5f":"#f5c842"),borderRadius:"12px",background:sharedToKid?"#edf9f0":"#fffbeb",color:sharedToKid?"#2d9e5f":"#b07800",fontWeight:"700",fontSize:"0.78rem",cursor:sharedToKid?"default":"pointer"}}>
-                  {sharedToKid?"\u2b50 Added to Stars!":"\u2b50 Share to Stars"}
-                </button>
-                <button onClick={()=>{setPhase("capture");setResult(null);setImageData(null);setWsResult(null);setWsError(null);setSharedToKid(false);setSavedSubj(null);setShowSubjPicker(false);}}
-                  style={{flex:1,padding:"0.7rem",border:"1.5px solid "+pal.stone+"50",borderRadius:"12px",background:"transparent",color:pal.inkM,fontWeight:"700",fontSize:"0.78rem",cursor:"pointer"}}>
-                  {"\uD83D\uDD04 Study Again"}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* -- ERROR STATES -- */}
-          {phase==="result"&&result?._error==="nokey"&&(
-            <div style={{textAlign:"center",padding:"1.5rem"}}>
-              <div style={{fontSize:"2rem",marginBottom:"0.5rem"}}>{"\uD83D\uDD11"}</div>
-              <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.88rem",marginBottom:"0.35rem"}}>{"AI not set up yet"}</div>
-              <div style={{fontSize:"0.74rem",color:pal.slate,lineHeight:1.6}}>{"Add your Anthropic API key in Settings \u2192 AI to unlock Field Study and all AI features."}</div>
-            </div>
-          )}
-          {phase==="result"&&result?._error==="fail"&&(
-            <div style={{textAlign:"center",padding:"1.5rem"}}>
-              <div style={{fontSize:"2rem",marginBottom:"0.5rem"}}>{"\u1f614"}</div>
-              <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.88rem",marginBottom:"0.5rem"}}>{"Couldn\u2019t analyze the photo"}</div>
-              <button onClick={()=>setPhase("capture")} style={{padding:"0.55rem 1.2rem",border:"none",borderRadius:"10px",background:pal.accentGrad,color:"#fff",fontWeight:"700",fontSize:"0.82rem",cursor:"pointer"}}>{"Try Again"}</button>
-            </div>
-          )}
-
-          {/* -- WORKSHEET -- */}
-          {phase==="worksheet"&&wsResult&&(
-            <div style={{animation:"fadeUp 0.22s ease"}}>
-              <div style={{background:pal.goodBg,borderRadius:"12px",padding:"0.75rem 0.9rem",marginBottom:"1rem",border:`1.5px solid ${pal.good}30`,display:"flex",gap:"0.6rem",alignItems:"center"}}>
-                <span style={{fontSize:"1.2rem"}}>{"[ok]"}</span>
-                <div>
-                  <div style={{fontWeight:"700",color:pal.good,fontSize:"0.82rem"}}>{wsResult.title||"Field Study Worksheet ready!"}</div>
-                  <div style={{fontSize:"0.7rem",color:pal.inkM,marginTop:"1px"}}>
-                    {(wsResult.sections||[{items:wsResult.items||[]}]).reduce((sum,s)=>sum+(s.items||[]).length,0)+" items \u00b7 "+grade+" level"}
+              {/* Worksheet prompt */}
+              {!wsDeclined&&!wsWanted&&!wsResult&&(
+                <div style={{background:pal.pale,borderRadius:"14px",padding:"0.9rem 1rem",marginBottom:"0.75rem",border:`2px solid ${pal.primary}20`}}>
+                  <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.84rem",marginBottom:"0.25rem"}}>{"Want to do a worksheet about "+result.subject+"?"}</div>
+                  <div style={{fontSize:"0.72rem",color:pal.slate,marginBottom:"0.65rem"}}>{"It can be saved to your portfolio when you are done!"}</div>
+                  <div style={{display:"flex",gap:"0.5rem"}}>
+                    <button onClick={generateWorksheet} disabled={wsLoading}
+                      style={{flex:1,padding:"0.55rem",border:"none",borderRadius:"10px",background:wsLoading?"#ccc":pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.8rem",cursor:wsLoading?"default":"pointer"}}>
+                      {wsLoading?"Building...":"Yes, let's do it!"}
+                    </button>
+                    <button onClick={()=>setWsDeclined(true)}
+                      style={{flex:1,padding:"0.55rem",border:`1.5px solid ${pal.stone}`,borderRadius:"10px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.8rem",cursor:"pointer"}}>
+                      {"Maybe later"}
+                    </button>
                   </div>
                 </div>
-              </div>
-              {(wsResult.sections||[{items:wsResult.items||[]}]).slice(0,1).map((section,si)=>(
-                <div key={si} style={{marginBottom:"1rem"}}>
-                  {(section.items||[]).slice(0,3).map((item,i)=>(
-                    <div key={i} style={{background:"#fff",borderRadius:"10px",padding:"0.6rem 0.8rem",marginBottom:"0.4rem",border:`1.5px solid ${pal.stone}20`,display:"flex",gap:"0.5rem",alignItems:"flex-start"}}>
-                      <div style={{width:"20px",height:"20px",borderRadius:"50%",background:pal.primary,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.65rem",fontWeight:"900",color:"#fff",flexShrink:0,marginTop:"1px"}}>{i+1}</div>
-                      <div style={{fontSize:"0.78rem",color:pal.ink,lineHeight:1.5,flex:1}}>{item.content}</div>
-                    </div>
-                  ))}
-                  {(section.items||[]).length>3&&<div style={{fontSize:"0.7rem",color:pal.slate,textAlign:"center",fontStyle:"italic"}}>{"+ "+(section.items||[]).length-3+" more items"}</div>}
+              )}
+
+              {wsResult&&!wsResult._error&&(
+                <div style={{background:pal.goodBg,borderRadius:"12px",padding:"0.7rem 0.9rem",marginBottom:"0.75rem",border:`1.5px solid ${pal.good}30`,display:"flex",gap:"0.5rem",alignItems:"center"}}>
+                  <span style={{fontSize:"1.1rem"}}>{"[ok]"}</span>
+                  <div style={{flex:1}}>
+                    <div style={{fontWeight:"700",color:pal.good,fontSize:"0.82rem"}}>{wsResult.title||"Worksheet ready!"}</div>
+                    <div style={{fontSize:"0.68rem",color:pal.inkM}}>{"Tap Print to save it to your portfolio"}</div>
+                  </div>
+                  <button onClick={openPrint} style={{padding:"0.3rem 0.65rem",border:"none",borderRadius:"9px",background:pal.good,color:"#fff",fontWeight:"700",fontSize:"0.72rem",cursor:"pointer"}}>{"Print"}</button>
                 </div>
-              ))}
+              )}
+
+              {wsResult?._error&&(
+                <div style={{fontSize:"0.72rem",color:"#a03030",textAlign:"center",marginBottom:"0.5rem"}}>{"Worksheet could not be generated. Try again later."}</div>
+              )}
+
+              {/* Tell Mom/Dad */}
+              <button onClick={()=>setPhase("parent_review")}
+                style={{width:"100%",padding:"0.85rem",border:"none",borderRadius:"14px",background:pal.accentGrad,color:"#fff",fontWeight:"900",fontSize:"0.9rem",cursor:"pointer",marginBottom:"0.5rem"}}>
+                {"Tell Mom/Dad about this!"}
+              </button>
+              <button onClick={reset}
+                style={{width:"100%",padding:"0.6rem",border:`1.5px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.8rem",cursor:"pointer"}}>
+                {"Study something else"}
+              </button>
             </div>
           )}
 
-          {/* -- JOURNAL -- */}
+          {/* PARENT REVIEW */}
+          {phase==="parent_review"&&result&&(
+            <div style={{padding:"0.75rem 1.2rem"}}>
+              <div style={{background:pal.pale,borderRadius:"14px",padding:"0.75rem 1rem",marginBottom:"0.85rem",border:`2px solid ${pal.primary}22`,display:"flex",gap:"0.5rem",alignItems:"center"}}>
+                <span style={{fontSize:"1.2rem"}}>{"[parent]"}</span>
+                <div>
+                  <div style={{fontWeight:"800",color:pal.primary,fontSize:"0.84rem"}}>{"Parent Review"}</div>
+                  <div style={{fontSize:"0.7rem",color:pal.slate}}>{name+" just completed a field study!"}</div>
+                </div>
+              </div>
+
+              {/* What was found */}
+              <div style={{background:"#fff",borderRadius:"14px",padding:"0.8rem 1rem",marginBottom:"0.75rem",border:`1.5px solid ${pal.stone}25`}}>
+                <div style={{display:"flex",alignItems:"center",gap:"0.5rem",marginBottom:"0.4rem"}}>
+                  <span style={{fontSize:"1.4rem"}}>{CATEGORY_ICONS[result.category]||"\uD83D\uDD2D"}</span>
+                  <div>
+                    <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.9rem"}}>{result.subject}</div>
+                    <div style={{fontSize:"0.63rem",color:pal.slate}}>{result._chosenSubj?.label||"Science"}+" - "+result.confidence+" confidence"}</div>
+                  </div>
+                </div>
+                {displayImage&&<img src={displayImage} alt="" style={{width:"100%",maxHeight:"150px",objectFit:"cover",borderRadius:"10px",marginTop:"0.4rem"}}/>}
+              </div>
+
+              {/* What was shared */}
+              <div style={{marginBottom:"0.75rem"}}>
+                <div style={{fontSize:"0.65rem",fontWeight:"700",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.35rem"}}>{"What "+name+" learned"}</div>
+                {facts.slice(0,isYoung?factIdx+1:facts.length).map((fact,i)=>(
+                  <div key={i} style={{fontSize:"0.76rem",color:pal.inkM,padding:"0.3rem 0",borderBottom:`1px solid ${pal.stone}15`,lineHeight:1.5}}>{fact}</div>
+                ))}
+                {result.discussionQuestion&&(
+                  <div style={{marginTop:"0.35rem",fontSize:"0.73rem",color:"#7a5500",fontStyle:"italic"}}>{"Q: "+result.discussionQuestion}</div>
+                )}
+              </div>
+
+              {/* Worksheet status */}
+              {wsDeclined&&(
+                <div style={{background:"#fffbeb",borderRadius:"12px",padding:"0.7rem 0.9rem",marginBottom:"0.75rem",border:"1.5px solid #f5c84240"}}>
+                  <div style={{fontWeight:"700",color:"#7a5500",fontSize:"0.8rem",marginBottom:"0.2rem"}}>{name+" declined the worksheet"}</div>
+                  <div style={{fontSize:"0.7rem",color:pal.slate,marginBottom:"0.5rem"}}>{"Would you like to send it to "+name+"'s page anyway?"}</div>
+                  <button onClick={generateWorksheet} disabled={wsLoading}
+                    style={{padding:"0.35rem 0.85rem",border:"none",borderRadius:"9px",background:wsLoading?"#ccc":"#e8a020",color:"#fff",fontWeight:"700",fontSize:"0.75rem",cursor:wsLoading?"default":"pointer"}}>
+                    {wsLoading?"Generating...":"Yes, send to "+name}
+                  </button>
+                </div>
+              )}
+              {wsResult&&!wsResult._error&&wsDeclined&&(
+                <div style={{background:pal.goodBg,borderRadius:"10px",padding:"0.55rem 0.8rem",marginBottom:"0.75rem",border:`1.5px solid ${pal.good}30`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                  <span style={{fontSize:"0.78rem",fontWeight:"700",color:pal.good}}>{"Worksheet ready for "+name+"!"}</span>
+                  <button onClick={openPrint} style={{padding:"0.25rem 0.6rem",border:"none",borderRadius:"8px",background:pal.good,color:"#fff",fontWeight:"700",fontSize:"0.7rem",cursor:"pointer"}}>{"Print"}</button>
+                </div>
+              )}
+
+              {/* Editable note */}
+              <div style={{marginBottom:"0.75rem"}}>
+                <div style={{fontSize:"0.65rem",fontWeight:"700",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:"0.35rem"}}>{"Portfolio Note (tap to edit)"}</div>
+                <textarea value={editNote} onChange={e=>setEditNote(e.target.value)} rows={4}
+                  style={{width:"100%",padding:"0.65rem 0.8rem",border:`1.5px solid ${pal.primary}40`,borderRadius:"11px",fontSize:"0.8rem",fontFamily:"inherit",background:"#fff",color:pal.ink,resize:"none",outline:"none",lineHeight:1.6}}/>
+              </div>
+
+              {/* Save or skip */}
+              <button onClick={saveToPortfolio} disabled={saving}
+                style={{width:"100%",padding:"0.9rem",border:"none",borderRadius:"14px",background:saving?"#ccc":pal.accentGrad,color:"#fff",fontWeight:"900",fontSize:"0.9rem",cursor:saving?"default":"pointer",marginBottom:"0.5rem"}}>
+                {saving?"Saving...":"Save to Portfolio"}
+              </button>
+              <button onClick={skipPortfolio}
+                style={{width:"100%",padding:"0.6rem",border:`1.5px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.8rem",cursor:"pointer"}}>
+                {"Skip - don't save"}
+              </button>
+            </div>
+          )}
+
+          {/* ERROR STATES */}
+          {phase==="result_error"&&result?._error==="nokey"&&(
+            <div style={{padding:"2rem 1.5rem",textAlign:"center"}}>
+              <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.88rem",marginBottom:"0.35rem"}}>{"AI not set up yet"}</div>
+              <div style={{fontSize:"0.74rem",color:pal.slate,lineHeight:1.6}}>{"Add your Anthropic API key in Settings to unlock Field Study."}</div>
+              <button onClick={onClose} style={{marginTop:"1rem",padding:"0.55rem 1.2rem",border:"none",borderRadius:"10px",background:pal.accentGrad,color:"#fff",fontWeight:"700",fontSize:"0.82rem",cursor:"pointer"}}>{"Close"}</button>
+            </div>
+          )}
+          {phase==="result_error"&&result?._error==="fail"&&(
+            <div style={{padding:"2rem 1.5rem",textAlign:"center"}}>
+              <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.88rem",marginBottom:"0.5rem"}}>{"Could not analyze the photo"}</div>
+              <button onClick={reset} style={{padding:"0.55rem 1.2rem",border:"none",borderRadius:"10px",background:pal.accentGrad,color:"#fff",fontWeight:"700",fontSize:"0.82rem",cursor:"pointer"}}>{"Try Again"}</button>
+            </div>
+          )}
+
+          {/* JOURNAL */}
           {phase==="journal"&&(
-            <div style={{animation:"fadeUp 0.22s ease"}}>
-              <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.95rem",marginBottom:"0.25rem"}}>{"\uD83D\uDCD6 "+name+"\u2019s Field Journal"}</div>
-              <div style={{fontSize:"0.72rem",color:pal.slate,marginBottom:"1rem"}}>{pastStudies.length+" discovery"+(pastStudies.length===1?"":"ies")+" recorded"}</div>
+            <div style={{padding:"0.75rem 1.2rem"}}>
+              <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.95rem",marginBottom:"0.2rem"}}>{name+"'s Field Journal"}</div>
+              <div style={{fontSize:"0.72rem",color:pal.slate,marginBottom:"1rem"}}>{pastStudies.length+" discover"+(pastStudies.length===1?"y":"ies")}</div>
               {pastStudies.length===0?(
-                <div style={{background:pal.linen,borderRadius:"14px",padding:"2rem",textAlign:"center",border:"1.5px solid "+pal.stone+"25"}}>
-                  <div style={{fontSize:"2rem",marginBottom:"0.5rem"}}>{"\uD83D\uDD2D"}</div>
-                  <div style={{fontSize:"0.8rem",color:pal.slate}}>{"No field studies yet \u2014 snap a photo to start the journal!"}</div>
+                <div style={{background:pal.linen,borderRadius:"14px",padding:"2rem",textAlign:"center"}}>
+                  <div style={{fontSize:"0.8rem",color:pal.slate}}>{"No field studies yet. Snap a photo to start!"}</div>
                 </div>
               ):(
-                <div style={{display:"flex",flexDirection:"column",gap:"0.65rem"}}>
+                <div style={{display:"flex",flexDirection:"column",gap:"0.6rem"}}>
                   {pastStudies.map((e,i)=>(
-                    <div key={e.id||i} style={{background:"#fff",borderRadius:"14px",overflow:"hidden",border:"1.5px solid "+pal.stone+"25",display:"flex",gap:0}}>
+                    <div key={e.id||i} style={{background:"#fff",borderRadius:"13px",overflow:"hidden",border:"1.5px solid "+pal.stone+"25",display:"flex",gap:0}}>
                       {e.photos&&e.photos[0]&&(
-                        <img src={e.photos[0]} alt="" style={{width:"80px",height:"80px",objectFit:"cover",flexShrink:0}}/>
+                        <img src={e.photos[0]} alt="" style={{width:"75px",height:"75px",objectFit:"cover",flexShrink:0}} onError={ev=>ev.target.style.display="none"}/>
                       )}
-                      <div style={{flex:1,padding:"0.65rem 0.75rem",minWidth:0}}>
-                        <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.82rem",marginBottom:"2px",overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis"}}>
-                          {(e.title||"").replace("\uD83D\uDD2D Field Study: ","")}
+                      <div style={{flex:1,padding:"0.6rem 0.75rem",minWidth:0}}>
+                        <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.81rem",marginBottom:"2px",overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis"}}>
+                          {(e.title||"").replace("Field Study: ","")}
                         </div>
-                        <div style={{fontSize:"0.68rem",color:pal.primary,fontWeight:"600",marginBottom:"2px"}}>{e.subj}</div>
-                        <div style={{fontSize:"0.65rem",color:pal.slate}}>{e.date}</div>
-                        {e.note&&<div style={{fontSize:"0.72rem",color:pal.inkM,marginTop:"4px",lineHeight:1.5,overflow:"hidden",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical"}}>{e.note}</div>}
+                        <div style={{fontSize:"0.67rem",color:pal.primary,fontWeight:"600",marginBottom:"2px"}}>{e.subj}</div>
+                        <div style={{fontSize:"0.63rem",color:pal.slate}}>{e.date}</div>
                       </div>
                     </div>
                   ))}
                 </div>
               )}
+              <button onClick={()=>setPhase("capture")} style={{width:"100%",padding:"0.7rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.85rem",cursor:"pointer",marginTop:"1rem"}}>
+                {"New Field Study"}
+              </button>
             </div>
           )}
 
         </div>
 
-        {/* -- BOTTOM BAR -- */}
-        <div style={{padding:"0.9rem 1.2rem",borderTop:`1px solid ${pal.stone}35`,flexShrink:0,display:"flex",gap:"0.55rem"}}>
-          {phase==="capture"&&(
-            <button onClick={onClose} style={{flex:1,padding:"0.7rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem",fontWeight:"600"}}>{"Cancel"}</button>
+        {/* Bottom bar */}
+        <div style={{padding:"0.75rem 1.2rem 1.2rem",borderTop:`1px solid ${pal.stone}35`,flexShrink:0}}>
+          {(phase==="capture"||phase==="journal")&&(
+            <button onClick={onClose} style={{width:"100%",padding:"0.65rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem",fontWeight:"600"}}>{"Close"}</button>
           )}
-          {phase==="result"&&!result?._error&&(
-            <>
-              <button onClick={()=>{setPhase("capture");setResult(null);setImageData(null);setSavedSubj(null);setSharedToKid(false);setShowSubjPicker(false);}}
-                style={{padding:"0.7rem 0.9rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.82rem"}}>{"\u2190 New"}</button>
-              <button onClick={onClose} style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>{"Done \u2713"}</button>
-            </>
-          )}
-          {(phase==="result"&&result?._error)&&(
-            <button onClick={onClose} style={{flex:1,padding:"0.7rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem",fontWeight:"600"}}>{"Close"}</button>
-          )}
-          {phase==="worksheet"&&(
-            <>
-              <button onClick={()=>setPhase("result")} style={{padding:"0.7rem 0.9rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.82rem"}}>{"\u2190 Back"}</button>
-              <button onClick={openPrint} style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>{"\uD83D\uDDB8\uFE0F Print Worksheet"}</button>
-            </>
-          )}
-          {phase==="journal"&&(
-            <>
-              <button onClick={()=>setPhase("capture")} style={{padding:"0.7rem 0.9rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.82rem"}}>{"\u2190 New Study"}</button>
-              <button onClick={onClose} style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>{"Done"}</button>
-            </>
+          {(phase==="kid_young"||phase==="kid_older")&&phase!=="parent_review"&&(
+            <button onClick={reset} style={{width:"100%",padding:"0.65rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.82rem",fontWeight:"600"}}>{"Start Over"}</button>
           )}
         </div>
+
       </div>
     </div>
   );
 }
 
-/* ----------------------------------------------------------
-   AI LESSON PLANNER MODAL
-   Parent inputs what they want to cover -> AI generates
-   a day-by-day Mon-Fri plan per child
-   ---------------------------------------------------------- */

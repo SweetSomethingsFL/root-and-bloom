@@ -1445,6 +1445,7 @@ function RootAndBloom() {
   const [eoyDismissed,      setEoyDismissed]      = useState(saved?.eoyDismissed||null);
   const [notifDismissed,    setNotifDismissed]    = useState(saved?.notifDismissed||{});
   const [quizNotifs,        setQuizNotifs]        = useState(()=>{ try{ const s=localStorage.getItem("rootbloom_quiz_notifs"); return s?JSON.parse(s):[]; }catch(e){return [];} });
+  const [fieldStudyNotifs,  setFieldStudyNotifs]  = useState(()=>{ try{ const s=localStorage.getItem("rootbloom_fs_notifs"); return s?JSON.parse(s):[]; }catch(e){return [];} });
   const [showNewYear,       setShowNewYear]        = useState(false);
   const [newYearDismissed,  setNewYearDismissed]   = useState(saved?.newYearDismissed||null);
   const [showJournal,       setShowJournal]       = useState(null); // childId or null
@@ -1741,6 +1742,12 @@ function RootAndBloom() {
               setQuizNotifs(updated);
               try{ localStorage.setItem("rootbloom_quiz_notifs",JSON.stringify(updated)); }catch(ex){}
             }}
+            fieldStudyNotifs={fieldStudyNotifs}
+            onDismissFieldStudyNotif={(id)=>{
+              const updated=fieldStudyNotifs.map(n=>n.id===id?{...n,dismissed:true}:n);
+              setFieldStudyNotifs(updated);
+              try{ localStorage.setItem("rootbloom_fs_notifs",JSON.stringify(updated)); }catch(ex){}
+            }}
           />}
           {activeTab==="schedule" && <ScheduleScreen pal={pal} family={family} child={childFilt} setChild={setChildFilt}
             lastCheckinDate={lastCheckinDate}
@@ -1939,6 +1946,12 @@ function RootAndBloom() {
             allEntries={portfolioEntries}
             onAddEntry={addPortfolioEntry}
             onClose={()=>setShowFieldStudy(false)}
+            onComplete={(data)=>{
+              const notif={id:"fs_"+Date.now(),child:data.child,result:data.result,subj:data.subj,saved:data.saved,wsDeclined:data.wsDeclined,wsWanted:data.wsWanted,ts:Date.now(),dismissed:false};
+              const updated=[notif,...fieldStudyNotifs].slice(0,10);
+              setFieldStudyNotifs(updated);
+              try{ localStorage.setItem("rootbloom_fs_notifs",JSON.stringify(updated)); }catch(ex){}
+            }}
           />
         )}
         {showEOY && family && <EOYChecklistModal pal={pal} family={family} childIdx={eoyChild} setChildIdx={setEoyChild}
@@ -3214,7 +3227,7 @@ function GoalsNudgeCard({pal,family,portfolioEntries,todayStr,onTabChange}){
   );
 }
 
-function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress, navIds=[], onAddEntry, onCheckin, checkinDates={}, observationLog=[], onOpenJournal, attendanceLog=[], studentVisits={}, homeLayout=["goals","pandc","progress_nudge","thisweek"], onSetHomeLayout, notifDismissed={}, onDismissNotif, onOpenEOY, onOpenFieldStudy, quizNotifs=[], onDismissQuizNotif }) {
+function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress, navIds=[], onAddEntry, onCheckin, checkinDates={}, observationLog=[], onOpenJournal, attendanceLog=[], studentVisits={}, homeLayout=["goals","pandc","progress_nudge","thisweek"], onSetHomeLayout, notifDismissed={}, onDismissNotif, onOpenEOY, onOpenFieldStudy, quizNotifs=[], onDismissQuizNotif, fieldStudyNotifs=[], onDismissFieldStudyNotif }) {
   const stateInfo  = getStateInfo(family.state||"");
   const stateHours = stateInfo.hours||"";
   const dayMatch   = stateHours.match(/(\d+)\s*day/i);
@@ -3931,6 +3944,34 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
           </div>
         </div>
       );})()}
+      {/* Field study notification banners */}
+      {(fieldStudyNotifs||[]).filter(n=>!n.dismissed).map(n=>(
+        <div key={n.id} style={{background:pal.pale,borderRadius:"13px",padding:"0.75rem 1rem",marginBottom:"0.6rem",border:`2px solid ${pal.primary}22`}}>
+          <div style={{display:"flex",alignItems:"flex-start",gap:"0.6rem"}}>
+            <span style={{fontSize:"1.2rem",flexShrink:0}}>{n.child?.avatar||"🔭"}</span>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontWeight:"800",color:pal.primary,fontSize:"0.82rem",marginBottom:"2px"}}>
+                {(n.child?.name||"") + " completed a Field Study!"}
+              </div>
+              <div style={{fontSize:"0.72rem",color:pal.ink,marginBottom:"2px"}}>
+                {n.result?.subject||n.subj}
+              </div>
+              {n.wsDeclined&&!n.wsWanted&&(
+                <div style={{fontSize:"0.68rem",color:"#b07800",marginBottom:"4px"}}>
+                  {(n.child?.name||"")+" declined the worksheet"}
+                </div>
+              )}
+              <div style={{fontSize:"0.67rem",color:pal.slate}}>
+                {n.saved?"Saved to portfolio":"Not saved yet"}
+              </div>
+            </div>
+            <button onClick={()=>onDismissFieldStudyNotif&&onDismissFieldStudyNotif(n.id)}
+              style={{padding:"0.15rem 0.5rem",border:`1.5px solid ${pal.stone}`,borderRadius:"20px",background:"transparent",color:pal.slate,fontSize:"0.65rem",fontWeight:"600",cursor:"pointer",flexShrink:0}}>
+              {"Dismiss"}
+            </button>
+          </div>
+        </div>
+      ))}
       {/* ── Layout edit toggle ── */}
       <div style={{display:"flex",justifyContent:"flex-end",marginBottom:"0.5rem"}}>
         <button onClick={()=>setLayoutEdit(v=>!v)}
@@ -5209,8 +5250,7 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
             <PortfolioSubjectRow key={sd.subj} sd={sd} cp={cp} pal={pal} family={family}
               expanded={expandedSubj===sd.subj}
               onToggle={()=>setExpandedSubj(expandedSubj===sd.subj?null:sd.subj)}
-              onDetail={setDetail}
-              onLog={()=>{setShowDailyLog(true);}}/>
+              onDetail={setDetail}/>
           ))}
         </PortfolioCard>}
 
@@ -5416,11 +5456,6 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
           const loggedToday = childEntries.some(e=>e.date===todayDateStr&&!e.isDay);
           return (
             <div style={{display:"flex",gap:"0.45rem",marginBottom:"1rem"}}>
-              <button onClick={()=>setShowDailyLog(true)}
-                style={{flex:1,padding:"0.65rem 0.5rem",border:"none",borderRadius:"12px",background:loggedToday?pal.goodBg:pal.accentGrad,color:loggedToday?pal.good:"#fff",fontWeight:"800",fontSize:"0.78rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.35rem",border:loggedToday?`2px solid ${pal.good}40`:"none"}}>
-                <span>{loggedToday?"✓":"+"}</span>
-                <span>{loggedToday?"Logged Today":"Log Today"}</span>
-              </button>
               <button onClick={()=>setShowAdd(true)}
                 style={{flex:1,padding:"0.65rem 0.5rem",border:`2px solid ${pal.stone}50`,borderRadius:"12px",background:"transparent",color:pal.inkM,fontWeight:"700",fontSize:"0.78rem",cursor:"pointer"}}>
                 Quick Add
@@ -6020,9 +6055,8 @@ function PortfolioSubjectRow({sd,cp,pal,family,expanded,onToggle,onDetail,onLog}
 
   return (
     <div style={{borderRadius:"12px",border:`1.5px solid ${isVeryStale?"#e74c3c30":isStale?"#f39c1230":expanded?cp.c1+"60":pal.stone+"25"}`,overflow:"hidden",background:"#fff",marginBottom:"0.35rem",transition:"all 0.15s"}}>
-      <div style={{display:"flex",alignItems:"center"}}>
-        <button onClick={onToggle}
-          style={{flex:1,display:"flex",gap:"0.65rem",alignItems:"center",padding:"0.65rem 0.8rem",background:"transparent",border:"none",cursor:"pointer",textAlign:"left",minWidth:0}}>
+      <button onClick={onToggle}
+        style={{width:"100%",display:"flex",gap:"0.65rem",alignItems:"center",padding:"0.65rem 0.8rem",background:"transparent",border:"none",cursor:"pointer",textAlign:"left",minWidth:0}}>
           <div style={{width:"36px",height:"36px",borderRadius:"9px",background:`linear-gradient(135deg,${cp.c1}22,${cp.c2}15)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1rem",flexShrink:0}}>{icon}</div>
           <div style={{flex:1,minWidth:0}}>
             <div style={{display:"flex",alignItems:"center",gap:"0.4rem",flexWrap:"wrap"}}>
@@ -6041,12 +6075,7 @@ function PortfolioSubjectRow({sd,cp,pal,family,expanded,onToggle,onDetail,onLog}
             <span style={{fontWeight:"800",color:cp.c1,fontSize:"0.74rem"}}>{sd.entries.length}</span>
           </div>
           <span style={{color:pal.slate,fontSize:"1rem",transform:expanded?"rotate(90deg)":"none",transition:"transform 0.2s",flexShrink:0}}>{"\u203a"}</span>
-        </button>
-        <button onClick={e=>{e.stopPropagation();onLog&&onLog();}}
-          style={{padding:"0.3rem 0.55rem",margin:"0 0.5rem 0 0",border:`1.5px solid ${cp.c1}50`,borderRadius:"9px",background:cp.c1+"12",color:cp.c1,fontWeight:"800",fontSize:"0.68rem",cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}}>
-          {"+ Log"}
-        </button>
-      </div>
+      </button>
       {expanded&&(
         <div style={{borderTop:`1px solid ${pal.stone}15`}}>
           {recentEntries.map((e,i)=>(
