@@ -3753,67 +3753,6 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
       {/* ── Goals Nudge Card ── */}
         <GoalsNudgeCard pal={pal} family={family} portfolioEntries={portfolioEntries} todayStr={todayStr} onTabChange={onTabChange}/>
 
-        {/* Today schedule preview */}
-        {(()=>{
-          // Check if today is a co-op day or day-off per weeklySchedule
-          const todayJs2 = new Date().getDay();
-          const todayIdx2 = todayJs2===0||todayJs2===6 ? null : todayJs2-1;
-          const ws2 = family.weeklySchedule;
-          const todayDaySubjs = (ws2&&todayIdx2!==null) ? ws2[todayIdx2] : undefined;
-          const isTodayCoop2 = family.coopDay && ["Monday","Tuesday","Wednesday","Thursday","Friday"][todayIdx2??-1]===family.coopDay;
-          const isTodayOff   = todayDaySubjs===null && !isTodayCoop2;
-          if(isTodayOff) {
-            return (
-              <div style={{background:pal.parchm,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}30`,display:"flex",gap:"0.6rem",alignItems:"center"}}>
-                <span style={{fontSize:"1.2rem"}}>{"🛋"}</span>
-                <div>
-                  <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.84rem"}}>{"No school today"}</div>
-                  <div style={{fontSize:"0.72rem",color:pal.slate,marginTop:"2px"}}>{"Rest day — nothing scheduled."}</div>
-                </div>
-              </div>
-            );
-          }
-          if(isTodayCoop2) {
-            const coopSubjsList = family.coopClasses||[];
-            return (
-              <div style={{background:"#fff8e6",borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:"1.5px solid #f5c84250"}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.45rem"}}>
-                  <span style={{fontWeight:"800",color:"#7a5500",fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>{"Co-op Day 🏫"}</span>
-                  <button onClick={()=>onTabChange("coop")} style={{fontSize:"0.72rem",color:"#b07800",fontWeight:"700",background:"transparent",border:"none",cursor:"pointer"}}>{"Open Co-op →"}</button>
-                </div>
-                {coopSubjsList.length>0 ? (
-                  <div style={{display:"flex",flexWrap:"wrap",gap:"0.3rem"}}>
-                    {coopSubjsList.slice(0,6).map(s=>(
-                      <span key={s} style={{padding:"0.22rem 0.6rem",background:"rgba(245,200,66,0.15)",borderRadius:"20px",fontSize:"0.74rem",fontWeight:"700",color:"#7a5500",border:"1px solid #f5c84240"}}>{s}</span>
-                    ))}
-                  </div>
-                ) : (
-                  <div style={{fontSize:"0.74rem",color:"#b07800"}}>{"Co-op classes set up in Settings → School."}</div>
-                )}
-              </div>
-            );
-          }
-          return null;
-        })()}
-        {visible.length > 0 && (<>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.5rem"}}>
-            <span style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>{"Today's Plan"}</span>
-            <button onClick={()=>onTabChange(visible.some(b=>b.isCoop)?"coop":"schedule")} style={{fontSize:"0.72rem",color:pal.primary,fontWeight:"700",background:"transparent",border:"none",cursor:"pointer"}}>{visible.some(b=>b.isCoop)?"Co-op →":"Schedule →"}</button>
-          </div>
-          <div style={{display:"flex",flexDirection:"column",gap:"0.42rem",marginBottom:"1rem"}}>
-            {visible.slice(0,4).map((b,i)=>(
-              <div key={i} onClick={()=>onTabChange(b.isCoop?"coop":"schedule")} style={{background:b.isCoop?pal.pale:pal.linen,borderRadius:"13px",padding:"0.65rem 0.85rem",display:"flex",gap:"0.75rem",alignItems:"center",border:`1.5px solid ${b.isCoop?pal.primary+"40":pal.stone+"45"}`,cursor:"pointer"}}>
-                <div style={{width:"36px",height:"36px",borderRadius:"9px",background:b.isCoop?`${pal.primary}25`:`${pal.primary}18`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.1rem",flexShrink:0}}>{b.i}</div>
-                <div style={{flex:1,minWidth:0}}>
-                  <div style={{fontWeight:"700",color:b.isCoop?pal.primary:pal.ink,fontSize:"0.84rem",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{b.s}</div>
-                  <div style={{fontSize:"0.7rem",color:pal.slate}}>{b.isCoop?("Co-op day · Tap to log"+""):(b.t?h12(b.t)+" · ":"")+b.dur+" min"}</div>
-                </div>
-                {b.isCoop&&<span style={{fontSize:"0.7rem",color:pal.primary,fontWeight:"800",flexShrink:0}}>{"Log →"}</span>}
-              </div>
-            ))}
-            {visible.length > 4 && <div style={{textAlign:"center",fontSize:"0.72rem",color:pal.slate,fontStyle:"italic"}}>+{visible.length-4} more blocks</div>}
-          </div>
-        </>)}
     </div>
   );
 
