@@ -1361,7 +1361,7 @@ function RootAndBloom() {
   const [view,           setView]           = useState("splash");
   const [activeTab,      setActiveTab]      = useState("home");
   const [navIds,         setNavIds]         = useState(saved?.navIds||["home","progress","portfolio","more"]);
-  const [homeLayout,     setHomeLayout]     = useState(["subjectgap","pandc","progress_nudge","thisweek"]);
+  const [homeLayout,     setHomeLayout]     = useState(["goals","pandc","progress_nudge","thisweek"]);
   const [portfolioLayout,setPortfolioLayout]= useState(saved?.portfolioLayout||["yearoverview","subjects","photosextras","worksheetreminder","statereminder"]);
   const [childFilt,      setChildFilt]      = useState("all");
   const [lastCheckinDate,setLastCheckinDate]= useState(saved?.lastCheckinDate||null);
@@ -3214,7 +3214,7 @@ function GoalsNudgeCard({pal,family,portfolioEntries,todayStr,onTabChange}){
   );
 }
 
-function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress, navIds=[], onAddEntry, onCheckin, checkinDates={}, observationLog=[], onOpenJournal, attendanceLog=[], studentVisits={}, homeLayout=["subjectgap","pandc","progress_nudge","thisweek"], onSetHomeLayout, notifDismissed={}, onDismissNotif, onOpenEOY, onOpenFieldStudy, quizNotifs=[], onDismissQuizNotif }) {
+function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress, navIds=[], onAddEntry, onCheckin, checkinDates={}, observationLog=[], onOpenJournal, attendanceLog=[], studentVisits={}, homeLayout=["goals","pandc","progress_nudge","thisweek"], onSetHomeLayout, notifDismissed={}, onDismissNotif, onOpenEOY, onOpenFieldStudy, quizNotifs=[], onDismissQuizNotif }) {
   const stateInfo  = getStateInfo(family.state||"");
   const stateHours = stateInfo.hours||"";
   const dayMatch   = stateHours.match(/(\d+)\s*day/i);
@@ -3897,7 +3897,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
     touchDragIdx.current = null; setDragIdx(null); setDragOverIdx(null);
   };
 
-  const SECTION_LABELS = {"progress_nudge":"Progress Check-in","thisweek":"This Week","todaycard":"Today\u2019s Plan","consistency":"Consistency","missedday":"Missed Day Alert","behindweek":"Behind This Week","subjectgap":"Working Towards","goals":"Goals","pandc":"Prepared \u0026 Capable"};
+  const SECTION_LABELS = {"progress_nudge":"Progress Check-in","thisweek":"This Week","todaycard":"Today\u2019s Plan","consistency":"Consistency","missedday":"Missed Day Alert","behindweek":"Behind This Week","subjectgap":"Subject Gap","goals":"Working Towards","pandc":"Prepared \u0026 Capable"};
   const SECTION_ICONS  = {"progress_nudge":"\u2728","thisweek":"\ud83d\udcc5","todaycard":"\ud83d\udccb","consistency":"\ud83d\udd25","missedday":"\ud83d\udcc6","behindweek":"\u26a0\ufe0f","subjectgap":"\u23f0","goals":"\ud83c\udf1f","pandc":"\ud83c\udfa8"};
   const sectionRenderMap = {
     progress_nudge: renderSection_progress_nudge,
@@ -3982,6 +3982,16 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
         )}
 
 
+      {/* Weekend banner — always shown on Sat/Sun */}
+      {(()=>{const _d=new Date().getDay();return(_d===0||_d===6)&&(
+        <div style={{background:pal.pale,borderRadius:"13px",padding:"0.75rem 1rem",marginBottom:"0.85rem",border:`2px solid ${pal.primary}22`,display:"flex",gap:"0.65rem",alignItems:"center"}}>
+          <span style={{fontSize:"1.3rem",flexShrink:0}}>{"🌴"}</span>
+          <div>
+            <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.82rem"}}>{"It’s the weekend!"}</div>
+            <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>{"Enjoy your break — see you Monday!"}</div>
+          </div>
+        </div>
+      );})()}
       {/* ── Layout edit toggle ── */}
       <div style={{display:"flex",justifyContent:"flex-end",marginBottom:"0.5rem"}}>
         <button onClick={()=>setLayoutEdit(v=>!v)}
@@ -4014,13 +4024,13 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
           ))}
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:"0.5rem"}}>
             <div style={{fontSize:"0.68rem",color:pal.slate,fontStyle:"italic"}}>{"Drag to reorder \u00b7 tap Hide to remove"}</div>
-            <button onClick={()=>onSetHomeLayout&&onSetHomeLayout(["subjectgap","pandc","progress_nudge","thisweek"])}
+            <button onClick={()=>onSetHomeLayout&&onSetHomeLayout(["goals","pandc","progress_nudge","thisweek"])}
               style={{fontSize:"0.65rem",color:pal.primary,fontWeight:"700",background:"transparent",border:"none",cursor:"pointer",padding:"0.2rem 0.4rem"}}>
               {"Reset to default"}
             </button>
           </div>
           {(()=>{
-            const allSids=["subjectgap","pandc","progress_nudge","thisweek","consistency","goals","todaycard"];
+            const allSids=["goals","pandc","progress_nudge","thisweek","consistency","subjectgap","todaycard"];
             const hiddenSids=allSids.filter(s=>!homeLayout.includes(s));
             if(!hiddenSids.length) return null;
             return (
