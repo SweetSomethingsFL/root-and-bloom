@@ -7625,7 +7625,7 @@ function GoalsScreen({pal,family,portfolioEntries=[],onUpdateFamily,onAddEntry,o
 ======================================= */
 function StateRequirementsScreen({pal, family, onBack}) {
   const [expandedSection, setExpandedSection] = useState(null);
-  const DATA_DATE = "March 29, 2026";
+  const DATA_DATE = "April 26, 2026";
   const HSLDA_URL = "https://hslda.org/legal";
 
   const state = family.state || "";
