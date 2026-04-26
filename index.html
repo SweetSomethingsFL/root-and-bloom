@@ -3447,6 +3447,17 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
     <div key="todaycard" data-section="todaycard">
       {/* ── Smart Today Card — single unified action ── */}
         {(()=>{
+          const _dow = new Date().getDay();
+          const isWeekend = _dow===0||_dow===6;
+          if(isWeekend) return (
+            <div style={{background:pal.pale,borderRadius:"13px",padding:"0.75rem 1rem",marginBottom:"0.85rem",border:`2px solid ${pal.primary}22`,display:"flex",gap:"0.65rem",alignItems:"center"}}>
+              <span style={{fontSize:"1.3rem",flexShrink:0}}>{"🌴"}</span>
+              <div>
+                <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.82rem"}}>{"It’s the weekend!"}</div>
+                <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>{"Here’s your plan for next week."}</div>
+              </div>
+            </div>
+          );
           const prog = (todayProgress && todayProgress.date===todayStr) ? todayProgress : null;
           const schedDone = prog && prog.total>0 && prog.count>=prog.total;
           const inProgress = prog && prog.count>0 && !schedDone;
@@ -3787,15 +3798,6 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
           }
           return null;
         })()}
-        {(()=>{const _dow=new Date().getDay();return(_dow===0||_dow===6)&&(
-          <div style={{background:pal.pale,borderRadius:"13px",padding:"0.75rem 1rem",marginBottom:"0.85rem",border:`2px solid ${pal.primary}22`,display:"flex",gap:"0.65rem",alignItems:"center"}}>
-            <span style={{fontSize:"1.3rem",flexShrink:0}}>{"🌴"}</span>
-            <div>
-              <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.82rem"}}>{"It’s the weekend!"}</div>
-              <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>{"Here’s your plan for next week."}</div>
-            </div>
-          </div>
-        );})()}
         {visible.length > 0 && (<>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.5rem"}}>
             <span style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>{"Today's Plan"}</span>
@@ -3863,27 +3865,6 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
           </>);
         })()}
 
-        {/* Recent portfolio entries */}
-        {portfolioEntries.length > 0 && (<>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.5rem"}}>
-            <span style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>Recent Work</span>
-            <button onClick={()=>onTabChange("portfolio")} style={{fontSize:"0.72rem",color:pal.primary,fontWeight:"700",background:"transparent",border:"none",cursor:"pointer"}}>All →</button>
-          </div>
-          <div style={{display:"flex",flexDirection:"column",gap:"0.42rem",marginBottom:"1rem"}}>
-            {portfolioEntries.slice(0,3).map((p,i)=>{
-              const ch = family.children[p.childIdx];
-              return (
-                <div key={p.id} style={{background:pal.linen,borderRadius:"13px",padding:"0.65rem 0.85rem",display:"flex",gap:"0.75rem",alignItems:"center",border:`1.5px solid ${pal.stone}35`}}>
-                  <div style={{width:"36px",height:"36px",borderRadius:"9px",background:pal.pale,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.2rem",flexShrink:0}}>{p.thumb||"📋"}</div>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.82rem",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</div>
-                    <div style={{fontSize:"0.68rem",color:pal.slate}}>{p.subj} · {p.date} {ch?"· "+ch.avatar+" "+ch.name:""}</div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </>)}
     </div>
   );
 
@@ -3955,261 +3936,6 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
         <FirstVisitTip pal={pal} screen="home"/>
 
         {/* ── Notification Banners ── */}
-        {(()=>{
-          const todayStr2 = new Date().toDateString();
-          const isDismissedToday = (key) => notifDismissed[key]===todayStr2;
-          const dismiss = (key) => onDismissNotif&&onDismissNotif(key);
-          const notifPrefs = family.notifPrefs||{};
-          const notifOn = (key) => notifPrefs[key]!==false;
-          const banners = [];
-
-          // 1. No-log streak banner (2+ days since last checkin, not already checked in today)
-          const checkedInToday2 = lastCheckinDate===todayStr2;
-          if(notifOn("nolog") && !checkedInToday2 && lastCheckinDate && !isDismissedToday("nolog")) {
-            const daysSince = Math.floor((new Date()-new Date(lastCheckinDate))/(24*60*60*1000));
-            if(daysSince>=2) {
-              banners.push(
-                <div key="nolog" style={{background:"#fff8e6",borderRadius:"14px",padding:"0.75rem 1rem",marginBottom:"0.75rem",border:"1.5px solid #f5c84260",display:"flex",gap:"0.65rem",alignItems:"center"}}>
-                  <span style={{fontSize:"1.2rem",flexShrink:0}}>{"📅"}</span>
-                  <div style={{flex:1}}>
-                    <div style={{fontWeight:"700",color:"#7a5500",fontSize:"0.82rem"}}>
-                      {daysSince===2?"Yesterday wasn\u2019t logged yet":daysSince+" days since your last log"}
-                    </div>
-                    <div style={{fontSize:"0.7rem",color:"#b07800",marginTop:"1px"}}>{"Quick log keeps your streak alive 🌱"}</div>
-                  </div>
-                  <button onClick={()=>dismiss("nolog")} style={{background:"transparent",border:"none",color:"#b07800",fontSize:"0.8rem",cursor:"pointer",flexShrink:0,padding:"0 4px"}}>{"Later"}</button>
-                </div>
-              );
-            }
-          }
-
-          // 2. Attendance behind pace banner
-          if(notifOn("attendance") && !isDismissedToday("attendance_behind") && family.yearStart && family.yearEnd) {
-            const si2 = getStateInfo(family.state||"");
-            const REQUIRED2 = parseInt((si2.hours||"180").match(/\d+/)?.[0]||"180");
-            const start2=new Date(family.yearStart), end2=new Date(family.yearEnd), now2=new Date();
-            const totalDays2=(end2-start2)/(24*60*60*1000);
-            const elapsed2=Math.max(0,(now2-start2)/(24*60*60*1000));
-            const expectedPct2=Math.min(100,Math.round((elapsed2/totalDays2)*100));
-            const actualPct2=Math.min(100,Math.round((attendanceDays/REQUIRED2)*100));
-            const behindBy = expectedPct2 - actualPct2;
-            if(behindBy>=15 && actualPct2<95) {
-              const daysShort = Math.round((behindBy/100)*REQUIRED2);
-              banners.push(
-                <div key="attendance" style={{background:"#fff0f0",borderRadius:"14px",padding:"0.75rem 1rem",marginBottom:"0.75rem",border:"1.5px solid #ffaaaa60",display:"flex",gap:"0.65rem",alignItems:"center"}}>
-                  <span style={{fontSize:"1.2rem",flexShrink:0}}>{"⚠️"}</span>
-                  <div style={{flex:1}}>
-                    <div style={{fontWeight:"700",color:"#cc4444",fontSize:"0.82rem"}}>{"Attendance behind pace"}</div>
-                    <div style={{fontSize:"0.7rem",color:"#aa3333",marginTop:"1px"}}>{"About "+daysShort+" days behind — tap Attendance to see your catch-up plan"}</div>
-                  </div>
-                  <button onClick={()=>dismiss("attendance_behind")} style={{background:"transparent",border:"none",color:"#aa3333",fontSize:"0.8rem",cursor:"pointer",flexShrink:0,padding:"0 4px"}}>{"OK"}</button>
-                </div>
-              );
-            }
-          }
-
-          // 3. Year-end approaching banner (within 4 weeks, not dismissed)
-          if(notifOn("yearend") && !isDismissedToday("yearend_approaching") && family.yearEnd) {
-            const weeksLeft2 = getEOYWeeksLeft(family);
-            if(weeksLeft2!==null && weeksLeft2<=4 && weeksLeft2>=0) {
-              banners.push(
-                <div key="yearend" style={{background:"linear-gradient(135deg,"+pal.primary+"14,"+pal.accent+"08)",borderRadius:"14px",padding:"0.75rem 1rem",marginBottom:"0.75rem",border:"2px solid "+pal.primary+"30",display:"flex",gap:"0.65rem",alignItems:"center"}}>
-                  <span style={{fontSize:"1.2rem",flexShrink:0}}>{"🎓"}</span>
-                  <div style={{flex:1}}>
-                    <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.82rem"}}>
-                      {weeksLeft2===0?"Year complete! Time for your end-of-year review.":weeksLeft2===1?"Last week of the school year!":weeksLeft2+" weeks left in the school year"}
-                    </div>
-                    <div style={{fontSize:"0.7rem",color:pal.inkM,marginTop:"1px"}}>{"Checklist, year review, and grade promotion →"}</div>
-                  </div>
-                  <div style={{display:"flex",gap:"0.3rem",flexShrink:0}}>
-                    <button onClick={()=>onOpenEOY&&onOpenEOY()} style={{padding:"0.3rem 0.65rem",border:"none",borderRadius:"8px",background:pal.accentGrad,color:"#fff",fontSize:"0.72rem",fontWeight:"800",cursor:"pointer"}}>{"Review"}</button>
-                    <button onClick={()=>dismiss("yearend_approaching")} style={{background:"transparent",border:"none",color:pal.slate,fontSize:"0.8rem",cursor:"pointer",padding:"0 4px"}}>{"Later"}</button>
-                  </div>
-                </div>
-              );
-            }
-          }
-
-          // 4. Quiz completion banners — show undismissed quiz notifs from today
-          const todayStrQ = new Date().toDateString();
-          const freshQuizNotifs = (quizNotifs||[]).filter(n=>!n.dismissed && new Date(n.ts).toDateString()===todayStrQ);
-          freshQuizNotifs.forEach(n=>{
-            const pct = n.total>0 ? Math.round((n.score/n.total)*100) : 0;
-            const allRight = n.score===n.total;
-            const bg    = allRight ? "#edf9f0" : "#fff8e6";
-            const border = allRight ? "#2d9e5f40" : "#f5c84240";
-            const textC  = allRight ? "#1a6e40"  : "#7a5500";
-            const subC   = allRight ? "#2d9e5f"  : "#b07800";
-            banners.push(
-              <div key={n.id} style={{background:bg,borderRadius:"14px",padding:"0.75rem 1rem",marginBottom:"0.75rem",border:"1.5px solid "+border,display:"flex",gap:"0.65rem",alignItems:"center"}}>
-                <span style={{fontSize:"1.3rem",flexShrink:0}}>{n.childAvatar}</span>
-                <div style={{flex:1,minWidth:0}}>
-                  <div style={{fontWeight:"700",color:textC,fontSize:"0.82rem"}}>
-                    {n.childName+" finished a "+n.subj+" quiz \u2014 "+n.score+"/"+n.total+" ("+pct+"%)"}
-                  </div>
-                  <div style={{fontSize:"0.7rem",color:subC,marginTop:"1px"}}>
-                    {allRight ? "Perfect score! \uD83C\uDF1F" : n.missed&&n.missed.length>0 ? "Needs review: "+n.missed.slice(0,2).join(", ")+(n.missed.length>2?" \u2026":"") : "Keep practising!"}
-                  </div>
-                </div>
-                <div style={{display:"flex",gap:"0.3rem",flexShrink:0}}>
-                  <button onClick={()=>onTabChange&&onTabChange("progress")} style={{padding:"0.3rem 0.65rem",border:"none",borderRadius:"8px",background:allRight?"#2d9e5f":"#e8a020",color:"#fff",fontSize:"0.72rem",fontWeight:"800",cursor:"pointer"}}>{"View"}</button>
-                  <button onClick={()=>onDismissQuizNotif&&onDismissQuizNotif(n.id)} style={{background:"transparent",border:"none",color:subC,fontSize:"0.8rem",cursor:"pointer",padding:"0 4px"}}>{"OK"}</button>
-                </div>
-              </div>
-            );
-          });
-
-          // 5. Parent note banners
-          const studentNoteEnabled = (family.notifPrefs||{}).studentNote!==false;
-          const parentNotes = studentNoteEnabled ? portfolioEntries.filter(e=>e.isParentNote) : [];
-          const unseenNotes = parentNotes.filter(e=>{
-            const seenKey = "rootbloom_pnote_seen_"+e.id;
-            try{ return !localStorage.getItem(seenKey); }catch{ return true; }
-          });
-          unseenNotes.forEach(n=>{
-            const ch = family.children[n.childIdx];
-            banners.push(
-              <div key={"pn_"+n.id} style={{background:"#fff0f9",borderRadius:"14px",padding:"0.75rem 1rem",marginBottom:"0.5rem",border:"1.5px solid #e879a040",display:"flex",gap:"0.75rem",alignItems:"flex-start"}}>
-                <span style={{fontSize:"1.4rem",flexShrink:0}}>{"💌"}</span>
-                <div style={{flex:1,minWidth:0}}>
-                  <div style={{fontWeight:"800",color:"#9d174d",fontSize:"0.84rem",marginBottom:"2px"}}>{(ch?.avatar||"")+" "+(ch?.name||"Your student")+" left you a note"}</div>
-                  <div style={{fontSize:"0.78rem",color:"#be185d",lineHeight:1.5,marginBottom:"0.4rem"}}>{n.note.replace("NOTE TO PARENT: ","")}</div>
-                  <div style={{fontSize:"0.68rem",color:"#9d174d",opacity:0.7}}>{n.date}</div>
-                </div>
-                <button onClick={()=>{ try{localStorage.setItem("rootbloom_pnote_seen_"+n.id,"1");}catch{} onDismissNotif&&onDismissNotif("pnote_"+n.id); }}
-                  style={{background:"transparent",border:"none",color:"#9d174d",fontSize:"0.8rem",cursor:"pointer",padding:"0 4px",flexShrink:0}}>{"✕"}</button>
-              </div>
-            );
-          });
-
-          // 6. Sunday weekly digest nudge
-          const isSunday = new Date().getDay()===0;
-          const digestKey = "rootbloom_digest_nudge_"+new Date().toDateString();
-          const digestDismissed = (() => { try{ return !!localStorage.getItem(digestKey); }catch(e){return false;} })();
-          const hasPulse = (() => { try{ const s=localStorage.getItem("rootbloom_pulses"); return s&&JSON.parse(s).length>0; }catch(e){return false;} })();
-          if(isSunday && hasPulse && !digestDismissed) {
-            banners.push(
-              <div key="digest" style={{background:"linear-gradient(135deg,"+pal.primary+"14,"+pal.accent+"08)",borderRadius:"14px",padding:"0.75rem 1rem",marginBottom:"0.75rem",border:"2px solid "+pal.primary+"25",display:"flex",gap:"0.65rem",alignItems:"center"}}>
-                <span style={{fontSize:"1.2rem",flexShrink:0}}>{"\uD83D\uDCCB"}</span>
-                <div style={{flex:1}}>
-                  <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.82rem"}}>{"Your weekly digest is ready"}</div>
-                  <div style={{fontSize:"0.7rem",color:pal.inkM,marginTop:"1px"}}>{"Review the week \u2014 quiz scores, milestones, and progress summary"}</div>
-                </div>
-                <div style={{display:"flex",gap:"0.3rem",flexShrink:0}}>
-                  <button onClick={()=>onTabChange&&onTabChange("progress")} style={{padding:"0.3rem 0.65rem",border:"none",borderRadius:"8px",background:pal.accentGrad,color:"#fff",fontSize:"0.72rem",fontWeight:"800",cursor:"pointer"}}>{"View"}</button>
-                  <button onClick={()=>{try{localStorage.setItem(digestKey,"1");}catch(e){}dismiss("digest");}} style={{background:"transparent",border:"none",color:pal.slate,fontSize:"0.8rem",cursor:"pointer",padding:"0 4px"}}>{"Later"}</button>
-                </div>
-              </div>
-            );
-          }
-
-          return banners.length>0 ? <div>{banners}</div> : null;
-        })()}
-
-        {/* ── Multi-child dashboard — shown when "All" selected and 2+ children ── */}
-        {child==="all" && family.children.length>1 && (()=>{
-          const todayDateStr = new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
-          const weekStart = new Date();
-          weekStart.setDate(weekStart.getDate() - (weekStart.getDay()===0?6:weekStart.getDay()-1));
-          const weekDates = Array.from({length:5},(_,i)=>{
-            const d=new Date(weekStart); d.setDate(weekStart.getDate()+i);
-            return d.toLocaleDateString("en-US",{month:"short",day:"numeric"});
-          });
-
-          return (
-            <div style={{marginBottom:"1rem"}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.5rem"}}>
-                <span style={{fontWeight:"800",color:pal.inkM,fontSize:"0.78rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>{"Today's Roster"}</span>
-                <span style={{fontSize:"0.68rem",color:pal.slate}}>{new Date().toLocaleDateString("en-US",{weekday:"long"})}</span>
-              </div>
-              <div style={{display:"flex",flexDirection:"column",gap:"0.42rem"}}>
-                {family.children.map((c,ci)=>{
-                  const cp = CHILD_COLOR_PALETTES.find(p=>p.id===(c.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
-                  const childEntries = portfolioEntries.filter(e=>e.childIdx===ci);
-                  const loggedToday = checkinDates[c.id]===todayStr || childEntries.some(e=>e.date===todayDateStr&&!e.isDay);
-                  const weekEntries = childEntries.filter(e=>weekDates.includes(e.date)&&!e.isDay).length;
-                  const lastEntry = childEntries[0];
-
-                  // Get child's subjects for mini progress dots
-                  const childSubjs = family.scheduleMode2==="separate"||family.scheduleMode2==="mixed"
-                    ? (c.scheduleConfig?.subjects||family.subjects||[])
-                    : (family.subjects||[]);
-                  const loggedSubjsToday = new Set(childEntries.filter(e=>e.date===todayDateStr&&!e.isDay).map(e=>e.subj));
-                  const subjDone = childSubjs.filter(id=>{
-                    const s=[...SUBJECT_OPTIONS,...(family.customSubjects||[])].find(x=>x.id===id);
-                    return s&&loggedSubjsToday.has(s.label);
-                  }).length;
-                  const selfLoggedToday = childEntries.filter(e=>e.date===todayDateStr&&e.selfLogged);
-
-                  return (
-                    <button key={c.id} onClick={()=>setChild(c.id)}
-                      style={{display:"flex",gap:"0.75rem",alignItems:"center",padding:"0.75rem 0.9rem",background:loggedToday?`linear-gradient(135deg,${cp.c1}18,${cp.c2}10)`:`${pal.linen}`,borderRadius:"14px",border:`2px solid ${loggedToday?cp.c1+"50":pal.stone+"30"}`,cursor:"pointer",textAlign:"left",transition:"all 0.15s",width:"100%"}}>
-
-                      {/* Avatar */}
-                      <div style={{width:"44px",height:"44px",borderRadius:"12px",background:`linear-gradient(135deg,${cp.c1},${cp.c2})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.4rem",flexShrink:0,position:"relative"}}>
-                        {c.avatar}
-                        {loggedToday&&(
-                          <div style={{position:"absolute",bottom:"-3px",right:"-3px",width:"16px",height:"16px",borderRadius:"50%",background:pal.good,border:"2px solid #fff",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.5rem",color:"#fff",fontWeight:"900"}}>
-                            {"✓"}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Name + grade + last activity */}
-                      <div style={{flex:1,minWidth:0}}>
-                        <div style={{display:"flex",alignItems:"baseline",gap:"0.4rem",marginBottom:"2px"}}>
-                          <span style={{fontWeight:"800",color:pal.ink,fontSize:"0.88rem"}}>{c.name}</span>
-                          <span style={{fontSize:"0.65rem",color:pal.slate,fontWeight:"500"}}>{c.grade}</span>
-                          {studentVisits[c.id]===todayStr&&(
-                            <span style={{fontSize:"0.58rem",fontWeight:"700",color:pal.primary,background:pal.pale,padding:"0.1rem 0.4rem",borderRadius:"99px",border:`1px solid ${pal.primary}30`}}>{"📱 in portal"}</span>
-                          )}
-                        </div>
-                        {loggedToday?(
-                          <div style={{fontSize:"0.68rem",color:pal.good,fontWeight:"600"}}>
-                            {"✓ Logged today"}
-                            {childSubjs.length>0&&" · "+subjDone+"/"+childSubjs.length+" subjects"}
-                            {selfLoggedToday.length>0&&(
-                              <span style={{color:pal.primary,fontWeight:"700"}}>{" · "+selfLoggedToday.length+" by "+c.name}</span>
-                            )}
-                          </div>
-                        ):(
-                          <div style={{fontSize:"0.68rem",color:pal.slate}}>
-                            {studentVisits[c.id]&&studentVisits[c.id]!==todayStr
-                              ? "Portal: "+new Date(studentVisits[c.id]).toLocaleDateString("en-US",{month:"short",day:"numeric"})+" · "+(lastEntry?"logged "+lastEntry.date:"no entries")
-                              : lastEntry
-                                ? "Last logged: "+lastEntry.date
-                                : "No entries yet"}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Week entries badge + journal button + arrow */}
-                      <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:"4px",flexShrink:0}}>
-                        <div style={{background:loggedToday?cp.c1:pal.parchm,borderRadius:"20px",padding:"0.18rem 0.55rem",display:"flex",alignItems:"center",gap:"0.25rem"}}>
-                          <span style={{fontSize:"0.68rem",fontWeight:"800",color:loggedToday?"#fff":pal.slate}}>{weekEntries}</span>
-                          <span style={{fontSize:"0.58rem",color:loggedToday?"rgba(255,255,255,0.8)":pal.stone,fontWeight:"600"}}>this wk</span>
-                        </div>
-                        <div style={{display:"flex",gap:"0.3rem",alignItems:"center"}}>
-                          <button onClick={e=>{e.stopPropagation();onOpenJournal&&onOpenJournal(c.id);}}
-                            style={{padding:"0.15rem 0.45rem",border:`1.5px solid ${pal.stone}40`,borderRadius:"8px",background:pal.parchm,color:pal.slate,fontSize:"0.65rem",cursor:"pointer",fontWeight:"600"}}>
-                            {"📓"}
-                          </button>
-                          <button onClick={e=>{e.stopPropagation();onOpenFieldStudy&&onOpenFieldStudy(c);}}
-                            title="Field Study"
-                            style={{padding:"0.15rem 0.45rem",border:`1.5px solid ${pal.stone}40`,borderRadius:"8px",background:pal.parchm,color:pal.slate,fontSize:"0.65rem",cursor:"pointer",fontWeight:"600"}}>
-                            {"🔭"}
-                          </button>
-                          <span style={{fontSize:"0.72rem",color:pal.stone}}>{"\u203a"}</span>
-                        </div>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })()}
-
         {/* Stats row - filtered by selected child (or single-child families) */}
         {(child!=="all" || family.children.length===1) && (()=>{
           const ci = child==="all" ? 0 : family.children.findIndex(c=>c.id===child);
