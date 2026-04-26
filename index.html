@@ -1361,7 +1361,7 @@ function RootAndBloom() {
   const [view,           setView]           = useState("splash");
   const [activeTab,      setActiveTab]      = useState("home");
   const [navIds,         setNavIds]         = useState(saved?.navIds||["home","progress","portfolio","more"]);
-  const [homeLayout,     setHomeLayout]     = useState(saved?.homeLayout||["thisweek","todaycard","consistency","subjectgap","goals","pandc"]);
+  const [homeLayout,     setHomeLayout]     = useState(saved?.homeLayout||["todaycard","subjectgap","pandc","progress_nudge","thisweek"]);
   const [portfolioLayout,setPortfolioLayout]= useState(saved?.portfolioLayout||["yearoverview","subjects","photosextras","worksheetreminder","statereminder"]);
   const [childFilt,      setChildFilt]      = useState("all");
   const [lastCheckinDate,setLastCheckinDate]= useState(saved?.lastCheckinDate||null);
@@ -3214,7 +3214,7 @@ function GoalsNudgeCard({pal,family,portfolioEntries,todayStr,onTabChange}){
   );
 }
 
-function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress, navIds=[], onAddEntry, onCheckin, checkinDates={}, observationLog=[], onOpenJournal, attendanceLog=[], studentVisits={}, homeLayout=["thisweek","todaycard","progress_nudge","consistency","missedday","behindweek","subjectgap","goals","pandc"], onSetHomeLayout, notifDismissed={}, onDismissNotif, onOpenEOY, onOpenFieldStudy, quizNotifs=[], onDismissQuizNotif }) {
+function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress, navIds=[], onAddEntry, onCheckin, checkinDates={}, observationLog=[], onOpenJournal, attendanceLog=[], studentVisits={}, homeLayout=["todaycard","subjectgap","pandc","progress_nudge","thisweek"], onSetHomeLayout, notifDismissed={}, onDismissNotif, onOpenEOY, onOpenFieldStudy, quizNotifs=[], onDismissQuizNotif }) {
   const stateInfo  = getStateInfo(family.state||"");
   const stateHours = stateInfo.hours||"";
   const dayMatch   = stateHours.match(/(\d+)\s*day/i);
@@ -3900,7 +3900,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
     touchDragIdx.current = null; setDragIdx(null); setDragOverIdx(null);
   };
 
-  const SECTION_LABELS = {"progress_nudge":"Progress Nudge","thisweek":"This Week","todaycard":"Today\u2019s Plan","consistency":"Consistency Nudge","missedday":"Missed Day Alert","behindweek":"Behind This Week","subjectgap":"Subject Gap","goals":"Goals Nudge","pandc":"Prepared \u0026 Capable"};
+  const SECTION_LABELS = {"progress_nudge":"Progress Check-in","thisweek":"This Week","todaycard":"Today\u2019s Plan","consistency":"Consistency","missedday":"Missed Day Alert","behindweek":"Behind This Week","subjectgap":"Working Towards","goals":"Goals","pandc":"Prepared \u0026 Capable"};
   const SECTION_ICONS  = {"progress_nudge":"\u2728","thisweek":"\ud83d\udcc5","todaycard":"\ud83d\udccb","consistency":"\ud83d\udd25","missedday":"\ud83d\udcc6","behindweek":"\u26a0\ufe0f","subjectgap":"\u23f0","goals":"\ud83c\udf1f","pandc":"\ud83c\udfa8"};
   const sectionRenderMap = {
     progress_nudge: renderSection_progress_nudge,
@@ -4017,13 +4017,13 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
           ))}
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:"0.5rem"}}>
             <div style={{fontSize:"0.68rem",color:pal.slate,fontStyle:"italic"}}>{"Drag to reorder \u00b7 tap Hide to remove"}</div>
-            <button onClick={()=>onSetHomeLayout&&onSetHomeLayout(["thisweek","todaycard","consistency","subjectgap","goals","pandc"])}
+            <button onClick={()=>onSetHomeLayout&&onSetHomeLayout(["todaycard","subjectgap","pandc","progress_nudge","thisweek"])}
               style={{fontSize:"0.65rem",color:pal.primary,fontWeight:"700",background:"transparent",border:"none",cursor:"pointer",padding:"0.2rem 0.4rem"}}>
               {"Reset to default"}
             </button>
           </div>
           {(()=>{
-            const allSids=["thisweek","todaycard","progress_nudge","consistency","missedday","behindweek","subjectgap","goals","pandc"];
+            const allSids=["todaycard","subjectgap","pandc","progress_nudge","thisweek","consistency","goals"];
             const hiddenSids=allSids.filter(s=>!homeLayout.includes(s));
             if(!hiddenSids.length) return null;
             return (
