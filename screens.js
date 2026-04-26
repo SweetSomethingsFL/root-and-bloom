@@ -4413,6 +4413,7 @@ function AttendanceScreen({pal,family,days,attendanceLog=[],portfolioEntries=[],
   const [calYear,    setCalYear]    = useState(()=>new Date().getFullYear());
   const [showAdd,    setShowAdd]    = useState(false);
   const [showLogPast,setShowLogPast]= useState(false);
+  const [hidePending,setHidePending]= useState(false);
   const [logPastDate,setLogPastDate]= useState(new Date().toISOString().slice(0,10));
   const [syncMsg,  setSyncMsg]  = useState(null);
   const [addDate,  setAddDate]  = useState(new Date().toISOString().slice(0,10));
@@ -4426,10 +4427,13 @@ function AttendanceScreen({pal,family,days,attendanceLog=[],portfolioEntries=[],
   // Build monthly breakdown from attendanceLog
   const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const monthCounts = {};
+  const _now_att = new Date();
+  const _yr_att  = _now_att.getFullYear();
   attendanceLog.forEach(e=>{
     if(!TYPE_COUNTS[e.type]) return;
     try{
-      const d=new Date(e.date+", "+new Date().getFullYear());
+      const d1=new Date(e.date+", "+_yr_att);
+      const d=d1<=_now_att?d1:new Date(e.date+", "+(_yr_att-1));
       if(isNaN(d)) return;
       const key=d.getMonth();
       monthCounts[key]=(monthCounts[key]||0)+1;
@@ -4438,7 +4442,12 @@ function AttendanceScreen({pal,family,days,attendanceLog=[],portfolioEntries=[],
 
   // Build ledger sorted newest first
   const ledger = [...attendanceLog].sort((a,b)=>{
-    try{ return new Date(b.date+", "+new Date().getFullYear())-new Date(a.date+", "+new Date().getFullYear()); }catch{return 0;}
+    try{
+      const now_l=new Date(); const yr_l=now_l.getFullYear();
+      const da1=new Date(a.date+", "+yr_l); const da=da1<=now_l?da1:new Date(a.date+", "+(yr_l-1));
+      const db1=new Date(b.date+", "+yr_l); const db=db1<=now_l?db1:new Date(b.date+", "+(yr_l-1));
+      return db-da;
+    }catch{return 0;}
   });
 
   // Get portfolio dates not yet in log for sync
@@ -4486,7 +4495,7 @@ function AttendanceScreen({pal,family,days,attendanceLog=[],portfolioEntries=[],
     @media print{button{display:none}}</style></head><body>
     <h1>${family.schoolName||family.familyName+" Academy"}</h1>
     <h2>Attendance Record &bull; ${family.state||""} &bull; ${new Date().getFullYear()}</h2>
-    <p style="margin-bottom:1rem"><b>Student(s):</b> ${family.children.map(c=>c.name+" ("+c.grade+")").join(", ")}</p>
+    <p style="margin-bottom:1rem"><b>Student(s):</b> ${family.children.map(c=>(c.name+(c.lastName?" "+c.lastName:""))+" ("+c.grade+")").join(", ")}</p>
     <div class="stats">
       <div class="stat"><div class="stat-n">${days}</div><div class="stat-l">Days Logged</div></div>
       <div class="stat"><div class="stat-n">${REQUIRED}</div><div class="stat-l">Required</div></div>
@@ -4507,7 +4516,7 @@ function AttendanceScreen({pal,family,days,attendanceLog=[],portfolioEntries=[],
       <div style={{padding:"0 1rem"}}>
 
         {/* Pending schedule days banner */}
-        {pending>0&&(
+        {pending>0&&!hidePending&&(
           <div style={{background:pal.pale,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:`2px solid ${pal.primary}30`,display:"flex",gap:"0.75rem",alignItems:"flex-start"}}>
             <div style={{width:"38px",height:"38px",borderRadius:"10px",background:pal.primary,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.2rem",flexShrink:0}}>{"📅"}</div>
             <div style={{flex:1}}>
@@ -4515,7 +4524,7 @@ function AttendanceScreen({pal,family,days,attendanceLog=[],portfolioEntries=[],
               <div style={{fontSize:"0.74rem",color:pal.inkM,marginBottom:"0.55rem",lineHeight:1.5}}>Your schedule shows {pending} {pending===1?"day":"days"} checked off. Add {pending===1?"it":"them"} to your attendance record?</div>
               <div style={{display:"flex",gap:"0.45rem"}}>
                 <button onClick={onConfirmPull} style={{flex:1,padding:"0.5rem",border:"none",borderRadius:"9px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.78rem",cursor:"pointer"}}>{"✓ Yes, add "+pending}</button>
-                <button style={{padding:"0.5rem 0.75rem",border:`1.5px solid ${pal.stone}`,borderRadius:"9px",background:"transparent",color:pal.slate,fontSize:"0.78rem",cursor:"pointer"}}>Later</button>
+                <button onClick={()=>setHidePending(true)} style={{padding:"0.5rem 0.75rem",border:`1.5px solid ${pal.stone}`,borderRadius:"9px",background:"transparent",color:pal.slate,fontSize:"0.78rem",cursor:"pointer"}}>Later</button>
               </div>
             </div>
           </div>
@@ -7522,3 +7531,4 @@ function GoalsScreen({pal,family,portfolioEntries=[],onUpdateFamily,onAddEntry,o
     </div>
   );
 }
+
