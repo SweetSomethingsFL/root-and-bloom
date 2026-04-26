@@ -3202,8 +3202,8 @@ function ScheduleScreen({pal,family,child,setChild,onMarkComplete,onProgressUpda
           <div style={{background:pal.pale,borderRadius:"13px",padding:"0.75rem 1rem",marginBottom:"0.85rem",border:`2px solid ${pal.primary}22`,display:"flex",gap:"0.65rem",alignItems:"center"}}>
             <span style={{fontSize:"1.3rem",flexShrink:0}}>{"🌴"}</span>
             <div>
-              <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.82rem"}}>{"It's the weekend!"}</div>
-              <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>{"Here's next week's plan. Enjoy your break!"}</div>
+              <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.82rem"}}>{"It’s the weekend!"}</div>
+              <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>{"Here’s next week’s plan. Enjoy your break!"}</div>
             </div>
           </div>
         )}
