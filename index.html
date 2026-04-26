@@ -5042,11 +5042,16 @@ function UnitModal({pal,family,initial,onClose,onSave}){
   const [plan,    setPlan]    = useState(initial?.plan||"");
   const [notes,   setNotes]   = useState(initial?.notes||"");
   const [customSubj, setCustomSubj] = useState("");
+  const [readingTitle, setReadingTitle] = useState(initial?.readingTitle||"");
 
   const customSubjs = family.customSubjects||[];
   const allSubjs = [...SUBJECT_OPTIONS,...customSubjs];
   const activeSubjs = (family.subjects||[]).map(id=>allSubjs.find(s=>s.id===id)).filter(Boolean);
   const subjOptions = activeSubjs.map(s=>s.label);
+  const READING_SUBJS_UM = ["Reading","Reading/Language Arts","Bible / Faith","Literature"];
+  const isReadingSubj = READING_SUBJS_UM.some(r=>finalSubj.toLowerCase().includes(r.toLowerCase()));
+  const READING_TITLE_STATES = ["FL","PA","OH","VA","NC"];
+  const needsReadingTitle = isReadingSubj && READING_TITLE_STATES.includes(family.state||"");
 
   const canSave = title.trim()&&(subject||customSubj.trim());
   const finalSubj = subject||customSubj.trim();
@@ -5126,7 +5131,7 @@ function UnitModal({pal,family,initial,onClose,onSave}){
         </div>
         <div style={{padding:"0.9rem 1.3rem",borderTop:`1px solid ${pal.stone}45`,display:"flex",gap:"0.6rem",flexShrink:0}}>
           <button onClick={onClose} style={{padding:"0.7rem 1rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem"}}>Cancel</button>
-          <button onClick={()=>canSave&&onSave({title,subject:finalSubj,icon,weeks,plan,notes})} disabled={!canSave}
+          <button onClick={()=>canSave&&onSave({title,subject:finalSubj,icon,weeks,plan,notes,readingTitle:readingTitle.trim()||undefined})} disabled={!canSave}
             style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:canSave?pal.accentGrad:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:canSave?"pointer":"default"}}>
             {isEdit?"Save Changes":"Add Unit"}
           </button>

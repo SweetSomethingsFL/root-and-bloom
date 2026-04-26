@@ -5188,7 +5188,7 @@ function LifeReadyScreen({pal,family,onBack}){
   const freq  = family.lifeReadyFreq||"monday_plus_practice";
   const LS_KEY = "rootbloom_lr_lesson";
 
-  useState(()=>{
+  React.useEffect(()=>{
     try{ const s=localStorage.getItem(LS_KEY); if(s){const p=JSON.parse(s);if(p.topic===topic)setLesson(p);} }catch(e){}
   },[]);
 
@@ -7274,10 +7274,19 @@ function GoalsScreen({pal,family,portfolioEntries=[],onUpdateFamily,onAddEntry,o
       ? portfolioEntries.filter(e=>relSubjs.includes(e.subj)||e.goalId===g.id)
       : portfolioEntries.filter(e=>e.goalId===g.id);
     const count = related.length;
+    const now = new Date(); now.setHours(0,0,0,0);
+    const yr = now.getFullYear();
     const last = related.length>0
-      ? related.reduce((a,b)=>new Date(a.date+", "+new Date().getFullYear())>new Date(b.date+", "+new Date().getFullYear())?a:b)
+      ? related.reduce((a,b)=>{
+          const da1=new Date(a.date+", "+yr); const da=da1<=now?da1:new Date(a.date+", "+(yr-1));
+          const db1=new Date(b.date+", "+yr); const db=db1<=now?db1:new Date(b.date+", "+(yr-1));
+          return da>db?a:b;
+        })
       : null;
-    const daysSince = last ? Math.floor((new Date()-new Date(last.date+", "+new Date().getFullYear()))/(24*60*60*1000)) : null;
+    const daysSince = last ? (() => {
+      const d1=new Date(last.date+", "+yr); const d=d1<=now?d1:new Date(last.date+", "+(yr-1));
+      return Math.floor((now-d)/(24*60*60*1000));
+    })() : null;
     const tone = daysSince===null?"quiet":daysSince<=3?"good":daysSince<=10?"gentle":"quiet";
     return {count, last, daysSince, tone, nudge};
   };
