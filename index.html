@@ -5160,7 +5160,19 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
     bySubject[e.subj].entries.push(e);
     if(e.photos&&e.photos.length>0) bySubject[e.subj].hasPhotos=true;
   });
-  const subjectList = Object.values(bySubject).sort((a,b)=>b.entries.length-a.entries.length);
+  const now_sort = new Date();
+  const yr_sort = now_sort.getFullYear();
+  const parseEntryDate = (dateStr) => {
+    if(!dateStr) return new Date(0);
+    const d1 = new Date(dateStr+", "+yr_sort);
+    const d2 = new Date(dateStr+", "+(yr_sort-1));
+    return d1 <= now_sort ? d1 : d2;
+  };
+  const subjectList = Object.values(bySubject).sort((a,b)=>{
+    const aLast = parseEntryDate(a.entries[a.entries.length-1]?.date);
+    const bLast = parseEntryDate(b.entries[b.entries.length-1]?.date);
+    return bLast - aLast; // most recently logged first
+  });
   const schoolName  = family.schoolName||(family.familyName+" Academy")||"Home School";
 
   if(showYearView) return <YearOverview pal={pal} family={family} activeCh={activeCh} cp={cp}
@@ -5197,7 +5209,8 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
             <PortfolioSubjectRow key={sd.subj} sd={sd} cp={cp} pal={pal} family={family}
               expanded={expandedSubj===sd.subj}
               onToggle={()=>setExpandedSubj(expandedSubj===sd.subj?null:sd.subj)}
-              onDetail={setDetail}/>
+              onDetail={setDetail}
+              onLog={()=>{setShowDailyLog(true);}}/>
           ))}
         </PortfolioCard>}
 
@@ -5976,40 +5989,64 @@ function PortfolioCard({pal,icon,title,count,note,children}){
 }
 
 /* ---- Portfolio Subject Row (replaces SubjectBubble) ---- */
-function PortfolioSubjectRow({sd,cp,pal,family,expanded,onToggle,onDetail}){
+function PortfolioSubjectRow({sd,cp,pal,family,expanded,onToggle,onDetail,onLog}){
   const customSubjs = family.customSubjects||[];
   const allSubjs = [...SUBJECT_OPTIONS,...customSubjs];
   const subj = allSubjs.find(x=>x.label===sd.subj);
   const icon = subj?.icon||"📋";
   const now = new Date();
+  const yr = now.getFullYear();
   const weekStart = new Date(now);
   weekStart.setDate(now.getDate()-(now.getDay()===0?6:now.getDay()-1));
   weekStart.setHours(0,0,0,0);
-  const yearNum = now.getFullYear();
   const thisWeekEntries = sd.entries.filter(e=>{
-    try{ const d=new Date(e.date+", "+yearNum); return d>=weekStart; }catch{return false;}
+    try{ const d1=new Date(e.date+", "+yr); const d=d1<=now?d1:new Date(e.date+", "+(yr-1)); return d>=weekStart; }catch{return false;}
   });
   const recentEntries = [...sd.entries].reverse().slice(0,8);
+  const lastEntry = sd.entries[sd.entries.length-1];
+  const lastDate = lastEntry?.date;
+  const daysSince = lastDate ? (()=>{
+    try{
+      const d1=new Date(lastDate+", "+yr);
+      const d=d1<=now?d1:new Date(lastDate+", "+(yr-1));
+      return Math.floor((now-d)/(24*60*60*1000));
+    }catch{return null;}
+  })() : null;
+  const isStale = daysSince!==null && daysSince>=7;
+  const isVeryStale = daysSince!==null && daysSince>=14;
+  const staleColor = isVeryStale?"#c0392b":isStale?"#e67e22":pal.good;
+  const staleBg = isVeryStale?"#fdf0ee":isStale?"#fef9ed":pal.goodBg;
+  const staleLabel = daysSince===0?"today":daysSince===1?"yesterday":daysSince!==null?daysSince+"d ago":lastDate||"";
 
   return (
-    <div style={{borderRadius:"12px",border:`1.5px solid ${expanded?cp.c1+"60":pal.stone+"25"}`,overflow:"hidden",background:"#fff",marginBottom:"0.35rem",transition:"all 0.15s"}}>
-      <button onClick={onToggle}
-        style={{width:"100%",display:"flex",gap:"0.65rem",alignItems:"center",padding:"0.65rem 0.8rem",background:"transparent",border:"none",cursor:"pointer",textAlign:"left"}}>
-        <div style={{width:"36px",height:"36px",borderRadius:"9px",background:`linear-gradient(135deg,${cp.c1}22,${cp.c2}15)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1rem",flexShrink:0}}>{icon}</div>
-        <div style={{flex:1,minWidth:0}}>
-          <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.83rem"}}>{sd.subj}</div>
-          <div style={{fontSize:"0.63rem",color:pal.slate,marginTop:"1px"}}>
-            {thisWeekEntries.length>0
-              ? thisWeekEntries.length+" this week \u2022 "+sd.entries.length+" total"
-              : sd.entries.length+" total \u2022 last: "+(sd.entries[sd.entries.length-1]?.date||"")}
+    <div style={{borderRadius:"12px",border:`1.5px solid ${isVeryStale?"#e74c3c30":isStale?"#f39c1230":expanded?cp.c1+"60":pal.stone+"25"}`,overflow:"hidden",background:"#fff",marginBottom:"0.35rem",transition:"all 0.15s"}}>
+      <div style={{display:"flex",alignItems:"center"}}>
+        <button onClick={onToggle}
+          style={{flex:1,display:"flex",gap:"0.65rem",alignItems:"center",padding:"0.65rem 0.8rem",background:"transparent",border:"none",cursor:"pointer",textAlign:"left",minWidth:0}}>
+          <div style={{width:"36px",height:"36px",borderRadius:"9px",background:`linear-gradient(135deg,${cp.c1}22,${cp.c2}15)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1rem",flexShrink:0}}>{icon}</div>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{display:"flex",alignItems:"center",gap:"0.4rem",flexWrap:"wrap"}}>
+              <span style={{fontWeight:"700",color:pal.ink,fontSize:"0.83rem"}}>{sd.subj}</span>
+              {isVeryStale&&<span style={{fontSize:"0.58rem",fontWeight:"800",color:"#c0392b",background:"#fdf0ee",padding:"0.08rem 0.4rem",borderRadius:"99px",flexShrink:0}}>{"Needs attention"}</span>}
+              {isStale&&!isVeryStale&&<span style={{fontSize:"0.58rem",fontWeight:"800",color:"#e67e22",background:"#fef9ed",padding:"0.08rem 0.4rem",borderRadius:"99px",flexShrink:0}}>{"Check in"}</span>}
+            </div>
+            <div style={{fontSize:"0.63rem",marginTop:"2px",display:"flex",gap:"0.4rem",alignItems:"center",flexWrap:"wrap"}}>
+              <span style={{color:pal.slate}}>{sd.entries.length+" entries"}</span>
+              {thisWeekEntries.length>0&&<span style={{color:pal.good,fontWeight:"700"}}>{thisWeekEntries.length+" this week"}</span>}
+              <span style={{color:staleColor,fontWeight:isStale?"700":"400"}}>{"• "+staleLabel}</span>
+            </div>
           </div>
-        </div>
-        {sd.hasPhotos&&<span style={{fontSize:"0.78rem",flexShrink:0}}>{"📷"}</span>}
-        <div style={{background:cp.c1+"20",borderRadius:"20px",padding:"0.1rem 0.45rem",flexShrink:0}}>
-          <span style={{fontWeight:"800",color:cp.c1,fontSize:"0.74rem"}}>{sd.entries.length}</span>
-        </div>
-        <span style={{color:pal.slate,fontSize:"1rem",transform:expanded?"rotate(90deg)":"none",transition:"transform 0.2s",flexShrink:0}}>{"›"}</span>
-      </button>
+          {sd.hasPhotos&&<span style={{fontSize:"0.78rem",flexShrink:0}}>{"📷"}</span>}
+          <div style={{background:cp.c1+"20",borderRadius:"20px",padding:"0.1rem 0.45rem",flexShrink:0}}>
+            <span style={{fontWeight:"800",color:cp.c1,fontSize:"0.74rem"}}>{sd.entries.length}</span>
+          </div>
+          <span style={{color:pal.slate,fontSize:"1rem",transform:expanded?"rotate(90deg)":"none",transition:"transform 0.2s",flexShrink:0}}>{"\u203a"}</span>
+        </button>
+        <button onClick={e=>{e.stopPropagation();onLog&&onLog();}}
+          style={{padding:"0.3rem 0.55rem",margin:"0 0.5rem 0 0",border:`1.5px solid ${cp.c1}50`,borderRadius:"9px",background:cp.c1+"12",color:cp.c1,fontWeight:"800",fontSize:"0.68rem",cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}}>
+          {"+ Log"}
+        </button>
+      </div>
       {expanded&&(
         <div style={{borderTop:`1px solid ${pal.stone}15`}}>
           {recentEntries.map((e,i)=>(
@@ -6025,7 +6062,7 @@ function PortfolioSubjectRow({sd,cp,pal,family,expanded,onToggle,onDetail}){
                 {e.note&&e.note.trim()&&!e.isSubject&&<div style={{fontSize:"0.62rem",color:pal.slate,marginTop:"1px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.note.slice(0,60)}</div>}
               </div>
               <div style={{fontSize:"0.61rem",color:pal.stone,flexShrink:0}}>{e.date}</div>
-              <span style={{color:pal.stone,fontSize:"0.8rem",flexShrink:0}}>{"›"}</span>
+              <span style={{color:pal.stone,fontSize:"0.8rem",flexShrink:0}}>{"\u203a"}</span>
             </div>
           ))}
           {sd.entries.length>8&&(
