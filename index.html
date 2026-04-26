@@ -1361,13 +1361,7 @@ function RootAndBloom() {
   const [view,           setView]           = useState("splash");
   const [activeTab,      setActiveTab]      = useState("home");
   const [navIds,         setNavIds]         = useState(saved?.navIds||["home","progress","portfolio","more"]);
-  const _savedLayout = saved?.homeLayout;
-  const _defaultLayout = ["todaycard","subjectgap","pandc","progress_nudge","thisweek"];
-  // Migrate: if saved layout contains removed sections or wrong order, reset to default
-  const _cleanLayout = _savedLayout
-    ? _savedLayout.filter(s=>["todaycard","subjectgap","pandc","progress_nudge","thisweek","consistency","goals"].includes(s))
-    : _defaultLayout;
-  const [homeLayout,     setHomeLayout]     = useState(_cleanLayout.length>=1 ? _cleanLayout : _defaultLayout);
+  const [homeLayout,     setHomeLayout]     = useState(["todaycard","subjectgap","pandc","progress_nudge","thisweek"]);
   const [portfolioLayout,setPortfolioLayout]= useState(saved?.portfolioLayout||["yearoverview","subjects","photosextras","worksheetreminder","statereminder"]);
   const [childFilt,      setChildFilt]      = useState("all");
   const [lastCheckinDate,setLastCheckinDate]= useState(saved?.lastCheckinDate||null);
@@ -1462,7 +1456,7 @@ function RootAndBloom() {
 
   // Auto-save whenever key state changes
   useEffect(()=>{
-    savePersist({family,navIds,homeLayout,portfolioLayout,portfolio:portfolioEntries,coopLog,attendanceDays,attendanceLog,observationLog,checkinDates,studentVisits,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed,notifDismissed});
+    savePersist({family,navIds,portfolioLayout,portfolio:portfolioEntries,coopLog,attendanceDays,attendanceLog,observationLog,checkinDates,studentVisits,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed,notifDismissed});
   },[family,navIds,homeLayout,portfolioLayout,portfolioEntries,coopLog,attendanceDays,attendanceLog,observationLog,checkinDates,studentVisits,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed,notifDismissed]);
 
   // Forward scroll events from outside app container to scrollable inner element
