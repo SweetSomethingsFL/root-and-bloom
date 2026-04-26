@@ -1361,7 +1361,13 @@ function RootAndBloom() {
   const [view,           setView]           = useState("splash");
   const [activeTab,      setActiveTab]      = useState("home");
   const [navIds,         setNavIds]         = useState(saved?.navIds||["home","progress","portfolio","more"]);
-  const [homeLayout,     setHomeLayout]     = useState(saved?.homeLayout||["todaycard","subjectgap","pandc","progress_nudge","thisweek"]);
+  const _savedLayout = saved?.homeLayout;
+  const _defaultLayout = ["todaycard","subjectgap","pandc","progress_nudge","thisweek"];
+  // Migrate: if saved layout contains removed sections or wrong order, reset to default
+  const _cleanLayout = _savedLayout
+    ? _savedLayout.filter(s=>["todaycard","subjectgap","pandc","progress_nudge","thisweek","consistency","goals"].includes(s))
+    : _defaultLayout;
+  const [homeLayout,     setHomeLayout]     = useState(_cleanLayout.length>=1 ? _cleanLayout : _defaultLayout);
   const [portfolioLayout,setPortfolioLayout]= useState(saved?.portfolioLayout||["yearoverview","subjects","photosextras","worksheetreminder","statereminder"]);
   const [childFilt,      setChildFilt]      = useState("all");
   const [lastCheckinDate,setLastCheckinDate]= useState(saved?.lastCheckinDate||null);
