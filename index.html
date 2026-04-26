@@ -1384,6 +1384,8 @@ function RootAndBloom() {
       return e;
     });
   });
+  // Child-submitted entries awaiting parent approval
+  const [pendingEntries,setPendingEntries]=useState(()=>saved?.pendingEntries||[]);
   const [coopLog, setCoopLog] = useState(saved?.coopLog||[]);
   const [attendanceDays,    setAttendanceDays]    = useState(saved?.attendanceDays||0);
   const [attendanceLog,     setAttendanceLog]     = useState(saved?.attendanceLog||[]);
@@ -1457,8 +1459,8 @@ function RootAndBloom() {
 
   // Auto-save whenever key state changes
   useEffect(()=>{
-    savePersist({family,navIds,portfolioLayout,portfolio:portfolioEntries,coopLog,attendanceDays,attendanceLog,observationLog,checkinDates,studentVisits,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed,notifDismissed});
-  },[family,navIds,homeLayout,portfolioLayout,portfolioEntries,coopLog,attendanceDays,attendanceLog,observationLog,checkinDates,studentVisits,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed,notifDismissed]);
+    savePersist({family,navIds,portfolioLayout,portfolio:portfolioEntries,pendingEntries,coopLog,attendanceDays,attendanceLog,observationLog,checkinDates,studentVisits,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed,notifDismissed});
+  },[family,navIds,homeLayout,portfolioLayout,portfolioEntries,pendingEntries,coopLog,attendanceDays,attendanceLog,observationLog,checkinDates,studentVisits,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed,notifDismissed]);
 
   // Forward scroll events from outside app container to scrollable inner element
   useEffect(()=>{
@@ -1706,6 +1708,15 @@ function RootAndBloom() {
           }}
           onOpenFieldStudy={()=>{setFieldStudyChild(activeStudent);setShowFieldStudy(true);}}
           celebResetToken={celebResetToken}
+          onSubmitEntry={(entry)=>{
+            const childIdx=family.children.findIndex(c=>c.id===activeStudent.id);
+            const trustLevel=(activeStudent.trustLevel)||"approve";
+            if(trustLevel==="auto"){
+              addPortfolioEntry({...entry,childIdx,selfLogged:true});
+            } else {
+              setPendingEntries(p=>[{id:"pend_"+Date.now()+"_"+Math.random().toString(36).slice(2,6),...entry,childIdx,selfLogged:true,submittedAt:new Date().toISOString()},...p]);
+            }
+          }}
           onBack={backToParent}
         />
       )}
@@ -1774,6 +1785,12 @@ function RootAndBloom() {
             lastCheckinDate={lastCheckinDate} coopLog={coopLog} portfolioLayout={portfolioLayout} onSetPortfolioLayout={setPortfolioLayout}
             attendanceLog={attendanceLog} notifDismissed={notifDismissed} onDismissNotif={(k)=>setNotifDismissed(d=>({...d,[k]:new Date().toDateString()}))} onOpenEOY={()=>{setEoyChild(0);setShowEOY(true);}}
             onOpenFieldStudy={(ch)=>{setFieldStudyChild(ch);setShowFieldStudy(true);}}
+            pendingEntries={pendingEntries}
+            onApprovePending={(id,edits)=>{
+              const e=pendingEntries.find(p=>p.id===id);
+              if(e){ addPortfolioEntry({...e,...(edits||{})}); setPendingEntries(p=>p.filter(x=>x.id!==id)); }
+            }}
+            onDeclinePending={(id)=>setPendingEntries(p=>p.filter(x=>x.id!==id))}
             onCheckin={()=>handleChildCheckin(childFilt!=="all"?childFilt:family.children?.[0]?.id)}/>}
           {activeTab==="attendance"  && <AttendanceScreen  pal={pal} family={family} days={attendanceDays} attendanceLog={attendanceLog} portfolioEntries={portfolioEntries} coopLog={coopLog}
             onAddDay={(entry)=>{
@@ -1843,8 +1860,9 @@ function RootAndBloom() {
             </div>
           )}
           {!showLifeReady && activeTab==="more"        && <MoreScreen        pal={pal} family={family}
-              onNav={id=>{ if(id==="settings") openSettings(); else setActiveTab(id); }}
+              onNav={id=>{ if(id==="settings") openSettings(); else if(id==="statereqs") setActiveTab("statereqs"); else setActiveTab(id); }}
               onTheme={()=>setShowTheme(true)} onNavEdit={()=>setShowNav(true)} onSettings={openSettings} onLifeReady={()=>setShowLifeReady(true)} />}
+          {activeTab==="statereqs" && <StateRequirementsScreen pal={pal} family={family} onBack={()=>setActiveTab("more")} />}
         </div>
 
         {/* Floating Quick Capture Button */}
@@ -1873,7 +1891,9 @@ function RootAndBloom() {
           {navTabs.map(t=>{
             const active=activeTab===t.id;
             const isProgress=t.id==="progress";
+            const isPortfolio=t.id==="portfolio";
             const quizBubbleCount=isProgress?(quizNotifs||[]).filter(n=>!n.dismissed&&new Date(n.ts).toDateString()===new Date().toDateString()).length:0;
+            const pendingCount=isPortfolio?pendingEntries.length:0;
             return (
               <button key={t.id} onClick={()=>setActiveTab(t.id)}
                 style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:"2px",padding:"0.4rem 0",border:"none",background:"transparent",cursor:"pointer",position:"relative",transition:"transform 0.1s"}}
@@ -1885,6 +1905,7 @@ function RootAndBloom() {
                 <div style={{position:"relative",display:"inline-flex"}}>
                   <span style={{fontSize:"1.28rem",lineHeight:1}}>{t.icon}</span>
                   {quizBubbleCount>0&&<div style={{position:"absolute",top:"-4px",right:"-6px",minWidth:"16px",height:"16px",borderRadius:"99px",background:"#e84c3d",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.55rem",fontWeight:"900",color:"#fff",padding:"0 3px",lineHeight:1,boxShadow:"0 1px 4px rgba(0,0,0,0.25)"}}>{quizBubbleCount}</div>}
+                  {pendingCount>0&&<div style={{position:"absolute",top:"-4px",right:"-6px",minWidth:"16px",height:"16px",borderRadius:"99px",background:"#e8943a",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.55rem",fontWeight:"900",color:"#fff",padding:"0 3px",lineHeight:1,boxShadow:"0 1px 4px rgba(0,0,0,0.25)"}}>{pendingCount}</div>}
                 </div>
                 <span style={{fontSize:"0.59rem",fontWeight:active?"800":"500",color:active?pal.primary:pal.slate,transition:"color 0.15s"}}>{t.label}</span>
               </button>
@@ -1992,6 +2013,7 @@ function MoreScreen({pal,family,onNav,onTheme,onNavEdit,onSettings,onLifeReady})
     {id:"transcripts", icon:"🎓", label:"Records"},
     {id:"coop",        icon:"🏫", label:"Co-op"},
     {id:"goals",       icon:"🌟", label:"Goals"},
+    {id:"statereqs",   icon:"🛡️",  label:"State Guide"},
     {id:"settings",    icon:"⚙️",  label:"Settings"},
   ];
   return (
@@ -5147,13 +5169,15 @@ function UnitModal({pal,family,initial,onClose,onSave}){
 ======================================= */
 // AIUnitBuilderModal + AIWorksheetModal moved to ai-features.js
 
-function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEditEntry,attendanceDays=0,lastCheckinDate,coopLog=[],portfolioLayout=["yearoverview","subjects","photosextras","worksheetreminder","statereminder"],onSetPortfolioLayout,onCheckin}){
+function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEditEntry,attendanceDays=0,lastCheckinDate,coopLog=[],portfolioLayout=["yearoverview","subjects","photosextras","worksheetreminder","statereminder"],onSetPortfolioLayout,onCheckin,pendingEntries=[],onApprovePending,onDeclinePending}){
   const [showDailyLog,   setShowDailyLog]   = useState(false);
   const [showAdd,        setShowAdd]        = useState(false);
   const [showAddExtra,   setShowAddExtra]   = useState(false);
   const [showAddBook,    setShowAddBook]    = useState(false);
   const [editEntry,      setEditEntry]      = useState(null);
   const [detailEntry,    setDetail]         = useState(null);
+  const [editPending,    setEditPending]    = useState(null);   // {id, note} being edited before approve
+  const [editPendingNote,setEditPendingNote]= useState("");
   const [expandedSubj,   setExpandedSubj]   = useState(null);
   const [showYearView,   setShowYearView]   = useState(false);
   const [portfolioEdit,  setPortfolioEdit]  = useState(false);
@@ -5401,6 +5425,60 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
     <div style={{animation:"fadeUp 0.22s ease"}}>
       <ScreenHdr pal={pal} title="Portfolio" sub={activeCh?.name||"Select a child"} icon="🗂"/>
       <FirstVisitTip pal={pal} screen="portfolio"/>
+
+      {/* ── Pending child submissions ── */}
+      {pendingEntries.length>0&&(
+        <div style={{margin:"0 0 0.25rem",padding:"0 1rem"}}>
+          <div style={{background:"#fff8e1",borderRadius:"16px",border:"2px solid #f9a825",overflow:"hidden"}}>
+            <div style={{padding:"0.75rem 1rem 0.5rem",display:"flex",alignItems:"center",gap:"0.6rem"}}>
+              <span style={{fontSize:"1.2rem"}}>📬</span>
+              <div style={{flex:1}}>
+                <div style={{fontWeight:"800",color:"#5d4037",fontSize:"0.88rem"}}>
+                  {pendingEntries.length} submission{pendingEntries.length!==1?"s":""} waiting for your review
+                </div>
+                <div style={{fontSize:"0.68rem",color:"#8d6e63",marginTop:"1px"}}>Your child sent these from their portfolio</div>
+              </div>
+            </div>
+            {pendingEntries.map((e,i)=>{
+              const childObj=family.children.find(c=>c.id===e.childId)||family.children[e.childIdx||0]||{};
+              const isEditing=editPending===e.id;
+              return (
+                <div key={e.id} style={{borderTop:"1px solid #ffe082",padding:"0.7rem 1rem",background:i%2===0?"#fffde7":"#fff8e1"}}>
+                  <div style={{display:"flex",alignItems:"flex-start",gap:"0.6rem",marginBottom:"0.5rem"}}>
+                    <span style={{fontSize:"1.1rem",flexShrink:0}}>{childObj.avatar||"🌱"}</span>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{fontWeight:"700",color:"#3e2723",fontSize:"0.82rem"}}>{childObj.name||e.childName||"Child"} — {e.subj}</div>
+                      <div style={{fontSize:"0.68rem",color:"#795548",marginTop:"1px"}}>{e.date}</div>
+                      {!isEditing&&<div style={{fontSize:"0.78rem",color:"#4e342e",lineHeight:1.55,marginTop:"0.3rem"}}>{e.note}</div>}
+                    </div>
+                  </div>
+                  {isEditing?(
+                    <div style={{display:"flex",flexDirection:"column",gap:"0.4rem",marginBottom:"0.5rem"}}>
+                      <textarea value={editPendingNote} onChange={ev=>setEditPendingNote(ev.target.value)}
+                        rows={3} style={{width:"100%",padding:"0.5rem 0.7rem",border:"2px solid #f9a825",borderRadius:"10px",fontSize:"0.8rem",fontFamily:"inherit",resize:"none",outline:"none",lineHeight:1.5,background:"#fff"}}/>
+                      <div style={{display:"flex",gap:"0.4rem"}}>
+                        <button onClick={()=>{setEditPending(null);setEditPendingNote("");}}
+                          style={{flex:1,padding:"0.45rem",border:"2px solid #ddd",borderRadius:"9px",background:"transparent",color:"#888",fontWeight:"700",fontSize:"0.74rem",cursor:"pointer"}}>Cancel</button>
+                        <button onClick={()=>{onApprovePending&&onApprovePending(e.id,{note:editPendingNote.trim()||e.note});setEditPending(null);setEditPendingNote("");}}
+                          style={{flex:2,padding:"0.45rem",border:"none",borderRadius:"9px",background:"#2e7d32",color:"#fff",fontWeight:"800",fontSize:"0.74rem",cursor:"pointer"}}>✅ Save & Approve</button>
+                      </div>
+                    </div>
+                  ):(
+                    <div style={{display:"flex",gap:"0.4rem"}}>
+                      <button onClick={()=>onDeclinePending&&onDeclinePending(e.id)}
+                        style={{flex:1,padding:"0.38rem 0.5rem",border:"2px solid #ef9a9a",borderRadius:"9px",background:"transparent",color:"#c62828",fontWeight:"700",fontSize:"0.72rem",cursor:"pointer"}}>🗑 Decline</button>
+                      <button onClick={()=>{setEditPending(e.id);setEditPendingNote(e.note||"");}}
+                        style={{flex:1,padding:"0.38rem 0.5rem",border:"2px solid #f9a825",borderRadius:"9px",background:"transparent",color:"#e65100",fontWeight:"700",fontSize:"0.72rem",cursor:"pointer"}}>✏️ Edit</button>
+                      <button onClick={()=>onApprovePending&&onApprovePending(e.id)}
+                        style={{flex:2,padding:"0.38rem 0.5rem",border:"none",borderRadius:"9px",background:"#2e7d32",color:"#fff",fontWeight:"800",fontSize:"0.72rem",cursor:"pointer"}}>✅ Approve</button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
       {(()=>{
         const si=getStateInfo(family.state||"");
         if(!si.portfolio) return null;

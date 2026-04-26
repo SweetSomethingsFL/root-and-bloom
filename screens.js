@@ -1,7 +1,11 @@
-function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onCoopLog, onBack, checkinStreak=0, checkinDates={}, onQuizComplete, onOpenFieldStudy, celebResetToken=0 }) {
+function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onCoopLog, onBack, checkinStreak=0, checkinDates={}, onQuizComplete, onOpenFieldStudy, celebResetToken=0, onSubmitEntry }) {
   const [sTab,         setSTab]         = useState("home");
   const [noteText,     setNoteText]     = useState("");
   const [noteSaved,    setNoteSaved]    = useState(false);
+  const [submitOpen,   setSubmitOpen]   = useState(false);
+  const [submitSubj,   setSubmitSubj]   = useState("");
+  const [submitNote,   setSubmitNote]   = useState("");
+  const [submitSent,   setSubmitSent]   = useState(false);
   const [showCoopPopup,setShowCoopPopup]= useState(isCoop && (family.coopFreq||'') !== "We don't do co-op" && (family.coopFreq||'') !== '');
   const [coopDone,     setCoopDone]     = useState(false);
   // Subject check-off — persisted per child per day
@@ -713,6 +717,62 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
                 </>
               );
             })()}
+
+            {/* Submit to Portfolio */}
+            <div style={{marginTop:"1rem",background:SK.card,borderRadius:"22px",padding:"1rem 1.1rem",boxShadow:"0 2px 14px rgba(0,0,0,0.07)"}}>
+              <div style={{fontWeight:"900",color:SK.ink,fontSize:"0.9rem",marginBottom:"0.25rem"}}>{"📬 Share with Mom/Dad"}</div>
+              <div style={{fontSize:"0.73rem",color:SK.lite,lineHeight:1.6,marginBottom:"0.75rem"}}>{"Did something awesome today? Send it to your portfolio for approval!"}</div>
+              {submitSent?(
+                <div style={{textAlign:"center",padding:"0.75rem",background:"#e8f5e9",borderRadius:"14px"}}>
+                  <div style={{fontSize:"1.8rem",marginBottom:"0.3rem"}}>{"🎉"}</div>
+                  <div style={{fontWeight:"800",color:"#2e7d32",fontSize:"0.88rem"}}>{"Sent!"}</div>
+                  <div style={{fontSize:"0.72rem",color:"#555",marginTop:"2px"}}>{"Your parent will review it soon."}</div>
+                  <button onClick={()=>{setSubmitSent(false);setSubmitNote("");setSubmitSubj("");setSubmitOpen(false);}}
+                    style={{marginTop:"0.6rem",padding:"0.35rem 0.9rem",border:"none",borderRadius:"10px",background:"#c8e6c9",color:"#1b5e20",fontWeight:"700",fontSize:"0.74rem",cursor:"pointer"}}>{"Send Another"}</button>
+                </div>
+              ):!submitOpen?(
+                <button onClick={()=>setSubmitOpen(true)}
+                  style={{width:"100%",padding:"0.7rem",border:"none",borderRadius:"14px",background:`linear-gradient(135deg,${c1},${c2})`,color:"#fff",fontWeight:"800",fontSize:"0.86rem",cursor:"pointer",boxShadow:`0 3px 12px ${c1}44`}}>
+                  {"📬 Submit Something"}
+                </button>
+              ):(
+                <div style={{display:"flex",flexDirection:"column",gap:"0.5rem"}}>
+                  <input value={submitSubj} onChange={e=>setSubmitSubj(e.target.value)}
+                    placeholder={"What subject? (e.g. Reading, Math, Art...)"}
+                    style={{padding:"0.55rem 0.75rem",border:`2px solid ${c1}40`,borderRadius:"11px",fontSize:"0.8rem",fontFamily:"inherit",background:"#fff",color:SK.ink,outline:"none"}}
+                    onFocus={e=>e.target.style.borderColor=c1}
+                    onBlur={e=>e.target.style.borderColor=c1+"40"}/>
+                  <textarea value={submitNote} onChange={e=>setSubmitNote(e.target.value)}
+                    placeholder={"Tell your parent what you learned or made today! \u2b50"}
+                    rows={3}
+                    style={{padding:"0.55rem 0.75rem",border:`2px solid ${c1}40`,borderRadius:"11px",fontSize:"0.8rem",fontFamily:"inherit",background:"#fff",color:SK.ink,resize:"none",outline:"none",lineHeight:1.55}}
+                    onFocus={e=>e.target.style.borderColor=c1}
+                    onBlur={e=>e.target.style.borderColor=c1+"40"}/>
+                  <div style={{display:"flex",gap:"0.5rem"}}>
+                    <button onClick={()=>{setSubmitOpen(false);setSubmitNote("");setSubmitSubj("");}}
+                      style={{flex:1,padding:"0.55rem",border:`2px solid ${c1}30`,borderRadius:"11px",background:"transparent",color:SK.lite,fontWeight:"700",fontSize:"0.78rem",cursor:"pointer"}}>{"Cancel"}</button>
+                    <button
+                      onClick={()=>{
+                        if(!submitNote.trim()) return;
+                        const ds=new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
+                        onSubmitEntry&&onSubmitEntry({
+                          subj:submitSubj.trim()||"My Work",
+                          note:submitNote.trim(),
+                          date:ds,
+                          thumb:"\uD83D\uDCEC",
+                          title:child.name+"'s submission \u2014 "+(submitSubj.trim()||"My Work"),
+                          childId:child.id,childName:child.name,childAvatar:child.avatar,
+                        });
+                        setSubmitSent(true);
+                      }}
+                      disabled={!submitNote.trim()}
+                      style={{flex:2,padding:"0.55rem",border:"none",borderRadius:"11px",background:submitNote.trim()?`linear-gradient(135deg,${c1},${c2})`:"#ddd",color:"#fff",fontWeight:"800",fontSize:"0.82rem",cursor:submitNote.trim()?"pointer":"default"}}>
+                      {"Send to Portfolio \uD83D\uDCEC"}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -7536,6 +7596,207 @@ function GoalsScreen({pal,family,portfolioEntries=[],onUpdateFamily,onAddEntry,o
           </div>
         )}
 
+      </div>
+    </div>
+  );
+}
+
+
+/* =======================================
+   STATE REQUIREMENTS SCREEN
+   Personalized homeschool law cheat sheet
+   Last data review: 2026-03-29
+======================================= */
+function StateRequirementsScreen({pal, family, onBack}) {
+  const [expandedSection, setExpandedSection] = useState(null);
+  const DATA_DATE = "March 29, 2026";
+  const HSLDA_URL = "https://hslda.org/legal";
+
+  const state = family.state || "";
+  const children = family.children || [];
+  const si = getStateInfo(state);
+  const TIER_LABELS = {1:"Very Flexible",2:"Moderate",3:"Structured",4:"Most Regulated"};
+  const TIER_COLORS = {1:"#2e7d32",2:"#f57c00",3:"#e65100",4:"#b71c1c"};
+  const tierColor = TIER_COLORS[si.tier] || "#555";
+  const tierLabel = TIER_LABELS[si.tier] || "Unknown";
+
+  // Per-child compliance details
+  const childDetails = children.map(c => getComplianceInfo(state, c.grade||"5th"));
+
+  // Build checklist items
+  const checklist = [
+    si.attendance  && {icon:"📋", label:"Attendance Records", detail:"Keep a daily log of school days completed."},
+    si.workSamples && {icon:"📁", label:"Work Samples", detail:"Save samples from beginning, middle, and end of year for each subject."},
+    si.readingLog  && {icon:"📖", label:"Reading Log (by title)", detail:"Florida and Pennsylvania require listing books and materials by full title."},
+    si.quarterly   && {icon:"📬", label:"Quarterly Reports", detail:"Submit reports to your local school district every quarter."},
+    si.testing!=="Not required" && si.testing && {icon:"📝", label:"Annual Assessment", detail:si.testing},
+    {icon:"📜", label:"Notification: "+si.notify, detail:"Required filing with your state or school district."},
+  ].filter(Boolean);
+
+  const Section = ({id, icon, title, children: kids}) => {
+    const open = expandedSection===id;
+    return (
+      <div style={{background:pal.linen,borderRadius:"16px",marginBottom:"0.55rem",border:`1.5px solid ${pal.stone}30`,overflow:"hidden"}}>
+        <button onClick={()=>setExpandedSection(open?null:id)}
+          style={{width:"100%",display:"flex",alignItems:"center",gap:"0.7rem",padding:"0.85rem 1rem",background:"transparent",border:"none",cursor:"pointer",textAlign:"left"}}>
+          <span style={{fontSize:"1.2rem",flexShrink:0}}>{icon}</span>
+          <span style={{flex:1,fontWeight:"700",color:pal.ink,fontSize:"0.88rem"}}>{title}</span>
+          <span style={{color:pal.slate,fontSize:"0.9rem",transform:open?"rotate(90deg)":"none",transition:"transform 0.18s",flexShrink:0}}>›</span>
+        </button>
+        {open&&(
+          <div style={{padding:"0 1rem 0.9rem",borderTop:`1px solid ${pal.stone}20`}}>
+            {kids}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div style={{minHeight:"100vh",background:pal.sand,display:"flex",flexDirection:"column",animation:"fadeIn 0.2s ease"}}>
+      {/* Header */}
+      <div style={{background:pal.heroGrad,padding:"1rem 1.1rem 0",flexShrink:0}}>
+        <div style={{display:"flex",alignItems:"center",gap:"0.75rem",marginBottom:"0.85rem"}}>
+          <button onClick={onBack} style={{width:"32px",height:"32px",borderRadius:"50%",background:"rgba(255,255,255,0.18)",border:"none",color:"#fff",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.9rem",flexShrink:0}}>{"<"}</button>
+          <div>
+            <div style={{fontWeight:"900",color:"#fff",fontSize:"1.1rem"}}>🛡️ State Guide</div>
+            <div style={{fontSize:"0.72rem",color:"rgba(255,255,255,0.65)"}}>{state||"Your State"} Homeschool Requirements</div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{flex:1,overflowY:"auto",padding:"1rem 1.1rem",paddingBottom:"2rem"}}>
+
+        {/* Disclaimer */}
+        <div style={{background:"#fff8e1",borderRadius:"14px",padding:"0.75rem 1rem",marginBottom:"0.9rem",border:"1.5px solid #f9a825",display:"flex",gap:"0.6rem",alignItems:"flex-start"}}>
+          <span style={{fontSize:"1.1rem",flexShrink:0}}>⚠️</span>
+          <div style={{fontSize:"0.72rem",color:"#5d4037",lineHeight:1.6}}>
+            <strong>For informational purposes only.</strong> Laws change — always verify with <a href={HSLDA_URL} target="_blank" rel="noopener noreferrer" style={{color:"#e65100",fontWeight:"700"}}>HSLDA.org</a> or your state DOE before making legal decisions. Data last reviewed <strong>{DATA_DATE}</strong>.
+          </div>
+        </div>
+
+        {!state && (
+          <div style={{background:pal.linen,borderRadius:"16px",padding:"1.5rem",textAlign:"center",marginBottom:"1rem"}}>
+            <div style={{fontSize:"2rem",marginBottom:"0.5rem"}}>📍</div>
+            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.9rem",marginBottom:"0.3rem"}}>No state set</div>
+            <div style={{fontSize:"0.76rem",color:pal.slate,lineHeight:1.6}}>Set your state in Settings → Family to see personalized requirements.</div>
+          </div>
+        )}
+
+        {state && (<>
+          {/* Tier badge */}
+          <div style={{background:pal.linen,borderRadius:"16px",padding:"1rem 1.1rem",marginBottom:"0.9rem",border:`1.5px solid ${pal.stone}30`}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"0.65rem"}}>
+              <div style={{fontWeight:"900",color:pal.ink,fontSize:"1rem"}}>{state}</div>
+              <div style={{background:tierColor+"18",borderRadius:"20px",padding:"0.2rem 0.7rem",border:`1.5px solid ${tierColor}40`}}>
+                <span style={{fontSize:"0.68rem",fontWeight:"800",color:tierColor}}>Tier {si.tier} — {tierLabel}</span>
+              </div>
+            </div>
+            <div style={{fontSize:"0.78rem",color:pal.inkM,lineHeight:1.65,marginBottom:"0.6rem"}}>{si.portfolio}</div>
+            <div style={{display:"flex",gap:"0.4rem",flexWrap:"wrap"}}>
+              {si.attendance&&<span style={{background:"#e8f5e9",borderRadius:"20px",padding:"0.15rem 0.55rem",fontSize:"0.65rem",fontWeight:"700",color:"#2e7d32"}}>📋 Attendance</span>}
+              {si.workSamples&&<span style={{background:"#e3f2fd",borderRadius:"20px",padding:"0.15rem 0.55rem",fontSize:"0.65rem",fontWeight:"700",color:"#1565c0"}}>📁 Work Samples</span>}
+              {si.readingLog&&<span style={{background:"#fce4ec",borderRadius:"20px",padding:"0.15rem 0.55rem",fontSize:"0.65rem",fontWeight:"700",color:"#880e4f"}}>📖 Reading Log</span>}
+              {si.quarterly&&<span style={{background:"#fff3e0",borderRadius:"20px",padding:"0.15rem 0.55rem",fontSize:"0.65rem",fontWeight:"700",color:"#e65100"}}>📬 Quarterly</span>}
+            </div>
+          </div>
+
+          {/* Quick checklist */}
+          <Section id="checklist" icon="✅" title="Your Compliance Checklist">
+            <div style={{display:"flex",flexDirection:"column",gap:"0.45rem",marginTop:"0.7rem"}}>
+              {checklist.map((item,i)=>(
+                <div key={i} style={{display:"flex",gap:"0.6rem",alignItems:"flex-start",padding:"0.55rem 0.75rem",background:pal.pale,borderRadius:"12px"}}>
+                  <span style={{fontSize:"1rem",flexShrink:0,marginTop:"1px"}}>{item.icon}</span>
+                  <div>
+                    <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.8rem"}}>{item.label}</div>
+                    <div style={{fontSize:"0.72rem",color:pal.slate,lineHeight:1.55,marginTop:"2px"}}>{item.detail}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Section>
+
+          {/* Hours & Deadlines */}
+          <Section id="hours" icon="🕐" title="Hours & Deadlines">
+            <div style={{marginTop:"0.7rem",display:"flex",flexDirection:"column",gap:"0.45rem"}}>
+              <div style={{display:"flex",gap:"0.6rem",padding:"0.55rem 0.75rem",background:pal.pale,borderRadius:"12px"}}>
+                <span style={{fontSize:"1rem",flexShrink:0}}>📆</span>
+                <div>
+                  <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.8rem"}}>Required Hours / Days</div>
+                  <div style={{fontSize:"0.78rem",color:pal.inkM,marginTop:"2px"}}>{si.hours||"See state DOE"}</div>
+                </div>
+              </div>
+              <div style={{display:"flex",gap:"0.6rem",padding:"0.55rem 0.75rem",background:pal.pale,borderRadius:"12px"}}>
+                <span style={{fontSize:"1rem",flexShrink:0}}>⏰</span>
+                <div>
+                  <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.8rem"}}>Key Deadline</div>
+                  <div style={{fontSize:"0.78rem",color:pal.inkM,marginTop:"2px"}}>{si.deadline||"Check state DOE"}</div>
+                </div>
+              </div>
+              <div style={{display:"flex",gap:"0.6rem",padding:"0.55rem 0.75rem",background:pal.pale,borderRadius:"12px"}}>
+                <span style={{fontSize:"1rem",flexShrink:0}}>🗂️</span>
+                <div>
+                  <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.8rem"}}>Keep Records For</div>
+                  <div style={{fontSize:"0.78rem",color:pal.inkM,marginTop:"2px"}}>{si.keepFor||"Recommended: 5 years"}</div>
+                </div>
+              </div>
+            </div>
+          </Section>
+
+          {/* Required subjects */}
+          {si.subjects && si.subjects.length>0 && (
+            <Section id="subjects" icon="📚" title={`Required Subjects (${si.subjects.length})`}>
+              <div style={{display:"flex",flexWrap:"wrap",gap:"0.35rem",marginTop:"0.7rem"}}>
+                {si.subjects.map((s,i)=>(
+                  <span key={i} style={{background:`${pal.primary}15`,borderRadius:"20px",padding:"0.2rem 0.6rem",fontSize:"0.72rem",fontWeight:"600",color:pal.primary}}>{s}</span>
+                ))}
+              </div>
+            </Section>
+          )}
+
+          {/* Per-child details */}
+          {children.length>0 && (
+            <Section id="children" icon="🌱" title="Per-Child Notes">
+              <div style={{marginTop:"0.7rem",display:"flex",flexDirection:"column",gap:"0.65rem"}}>
+                {children.map((c,i)=>{
+                  const ci = childDetails[i];
+                  if(!ci) return null;
+                  return (
+                    <div key={c.id} style={{padding:"0.75rem",background:pal.pale,borderRadius:"13px",border:`1.5px solid ${pal.stone}20`}}>
+                      <div style={{display:"flex",alignItems:"center",gap:"0.55rem",marginBottom:"0.5rem"}}>
+                        <span style={{fontSize:"1.3rem"}}>{c.avatar}</span>
+                        <div>
+                          <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem"}}>{c.name}</div>
+                          <div style={{fontSize:"0.65rem",color:pal.slate}}>{c.grade} · {ci.level}</div>
+                        </div>
+                      </div>
+                      <div style={{fontSize:"0.76rem",color:pal.inkM,lineHeight:1.65,marginBottom:"0.4rem"}}>{ci.gradeNote}</div>
+                      <div style={{fontSize:"0.72rem",color:pal.slate,fontStyle:"italic"}}>Assessment: {ci.testing}</div>
+                      {ci.needsTest&&<div style={{marginTop:"0.4rem",background:"#fff3e0",borderRadius:"9px",padding:"0.35rem 0.6rem",fontSize:"0.72rem",color:"#b71c1c",fontWeight:"700"}}>⚠️ Assessment required this year</div>}
+                    </div>
+                  );
+                })}
+              </div>
+            </Section>
+          )}
+
+          {/* Notification requirement */}
+          <Section id="notify" icon="📬" title="How to Notify the State">
+            <div style={{marginTop:"0.7rem",fontSize:"0.8rem",color:pal.inkM,lineHeight:1.7}}>{si.notify}</div>
+            <a href={HSLDA_URL} target="_blank" rel="noopener noreferrer"
+              style={{display:"inline-flex",alignItems:"center",gap:"0.4rem",marginTop:"0.75rem",padding:"0.45rem 0.9rem",background:pal.primary,borderRadius:"11px",color:"#fff",fontWeight:"700",fontSize:"0.76rem",textDecoration:"none"}}>
+              Verify on HSLDA.org →
+            </a>
+          </Section>
+        </>)}
+
+        {/* Footer */}
+        <div style={{marginTop:"0.5rem",padding:"0.75rem",background:pal.linen,borderRadius:"14px",border:`1.5px solid ${pal.stone}20`}}>
+          <div style={{fontSize:"0.68rem",color:pal.slate,lineHeight:1.6,textAlign:"center"}}>
+            Data last reviewed <strong>{DATA_DATE}</strong>. Root &amp; Bloom reviews state requirements quarterly.<br/>
+            Always confirm current law at <a href={HSLDA_URL} target="_blank" rel="noopener noreferrer" style={{color:pal.primary,fontWeight:"700"}}>HSLDA.org</a> or your state Department of Education.
+          </div>
+        </div>
       </div>
     </div>
   );
