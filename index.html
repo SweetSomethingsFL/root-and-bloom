@@ -1361,7 +1361,7 @@ function RootAndBloom() {
   const [view,           setView]           = useState("splash");
   const [activeTab,      setActiveTab]      = useState("home");
   const [navIds,         setNavIds]         = useState(saved?.navIds||["home","progress","portfolio","more"]);
-  const [homeLayout,     setHomeLayout]     = useState(saved?.homeLayout||["thisweek","todaycard","progress_nudge","consistency","missedday","behindweek","subjectgap","goals","pandc"]);
+  const [homeLayout,     setHomeLayout]     = useState(saved?.homeLayout||["thisweek","todaycard","consistency","subjectgap","goals","pandc"]);
   const [portfolioLayout,setPortfolioLayout]= useState(saved?.portfolioLayout||["yearoverview","subjects","photosextras","worksheetreminder","statereminder"]);
   const [childFilt,      setChildFilt]      = useState("all");
   const [lastCheckinDate,setLastCheckinDate]= useState(saved?.lastCheckinDate||null);
@@ -4289,7 +4289,13 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
               <span style={{fontSize:"1.2rem",color:pal.stone,flexShrink:0,letterSpacing:"-1px"}}>{"≡"}</span>
             </div>
           ))}
-          <div style={{textAlign:"center",fontSize:"0.68rem",color:pal.slate,marginTop:"0.5rem",fontStyle:"italic"}}>{"Drag to reorder \u00b7 tap Hide to remove"}</div>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:"0.5rem"}}>
+            <div style={{fontSize:"0.68rem",color:pal.slate,fontStyle:"italic"}}>{"Drag to reorder \u00b7 tap Hide to remove"}</div>
+            <button onClick={()=>onSetHomeLayout&&onSetHomeLayout(["thisweek","todaycard","consistency","subjectgap","goals","pandc"])}
+              style={{fontSize:"0.65rem",color:pal.primary,fontWeight:"700",background:"transparent",border:"none",cursor:"pointer",padding:"0.2rem 0.4rem"}}>
+              {"Reset to default"}
+            </button>
+          </div>
           {(()=>{
             const allSids=["thisweek","todaycard","progress_nudge","consistency","missedday","behindweek","subjectgap","goals","pandc"];
             const hiddenSids=allSids.filter(s=>!homeLayout.includes(s));
