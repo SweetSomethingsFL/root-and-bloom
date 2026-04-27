@@ -421,8 +421,8 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
 
               {/* Note to parent */}
               <div style={{background:SK.card,borderRadius:"20px",padding:"1.1rem",marginBottom:"0.9rem",boxShadow:"0 2px 14px rgba(0,0,0,0.07)",border:"2px dashed "+SK.sun+"80"}}>
-                <div style={{fontWeight:"900",color:SK.ink,fontSize:"0.95rem",marginBottom:"0.2rem"}}>{"💌 Note for Mom/Dad"}</div>
-                <div style={{fontSize:"0.72rem",color:SK.lite,marginBottom:"0.6rem"}}>{"Write something for your parent to see!"}</div>
+                <div style={{fontWeight:"900",color:SK.ink,fontSize:"0.95rem",marginBottom:"0.2rem"}}>{"💌 Note for "+(family.studentTitle||"your teacher")}</div>
+                <div style={{fontSize:"0.72rem",color:SK.lite,marginBottom:"0.6rem"}}>{"Write something for "+(family.studentTitle||"your teacher")+" to see!"}</div>
                 <textarea value={parentNoteText} onChange={e=>setParentNoteText(e.target.value)}
                   placeholder={"e.g. I need help with fractions, or I really liked science today!"} rows={2}
                   style={{width:"100%",padding:"0.7rem",border:"2.5px solid "+SK.sun+"60",borderRadius:"12px",fontSize:"0.84rem",fontFamily:"inherit",background:SK.sunL,color:SK.ink,resize:"none",outline:"none",lineHeight:1.5}}

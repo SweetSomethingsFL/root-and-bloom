@@ -723,10 +723,10 @@ function FieldStudyModal({ pal, family, child, allEntries, onAddEntry, onClose, 
                 <div style={{fontSize:"0.72rem",color:"#a03030",textAlign:"center",marginBottom:"0.5rem"}}>{"Worksheet could not be generated. Try again later."}</div>
               )}
 
-              {/* Tell Mom/Dad */}
+              {/* Tell parent */}
               <button onClick={()=>setPhase("parent_review")}
                 style={{width:"100%",padding:"0.85rem",border:"none",borderRadius:"14px",background:pal.accentGrad,color:"#fff",fontWeight:"900",fontSize:"0.9rem",cursor:"pointer",marginBottom:"0.5rem"}}>
-                {"Tell Mom/Dad about this!"}
+                {"Tell "+(family&&family.studentTitle?family.studentTitle:"your teacher")+" about this!"}
               </button>
               <button onClick={reset}
                 style={{width:"100%",padding:"0.6rem",border:`1.5px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.8rem",cursor:"pointer"}}>
