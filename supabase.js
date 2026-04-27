@@ -46,6 +46,7 @@ function sbSave(obj) {
   sb.auth.getSession().then(function(res) {
     var session = res.data && res.data.session;
     console.log("sbSave session:", session ? "found user="+session.user.id : "NULL");
+    console.log("sbSave token:", session ? session.access_token.slice(0,20)+"..." : "NONE");
     if (!session || !session.user) return;
     sb.from(SB_TABLE)
       .upsert(
