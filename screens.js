@@ -7824,6 +7824,26 @@ function StateRequirementsScreen({pal, family, onBack}) {
             </a>
           </Section>
 
+          {/* Umbrella school option — only shown for states where it applies */}
+          {si.umbrellaNote&&(
+            <Section id="umbrella" icon="🏫" title={si.umbrellaRequired?"Umbrella School — Required Path":"Umbrella School — Optional"}>
+              <div style={{marginTop:"0.7rem",display:"flex",flexDirection:"column",gap:"0.55rem"}}>
+                {si.umbrellaRequired&&(
+                  <div style={{background:"#fff3e0",borderRadius:"11px",padding:"0.5rem 0.75rem",border:"1.5px solid #f9a825",display:"flex",gap:"0.5rem",alignItems:"flex-start"}}>
+                    <span style={{fontSize:"0.9rem",flexShrink:0}}>{"⚠️"}</span>
+                    <div style={{fontSize:"0.72rem",color:"#5d4037",fontWeight:"700",lineHeight:1.5}}>{"Umbrella or district enrollment is required in "+state+" — you must choose one."}</div>
+                  </div>
+                )}
+                <div style={{fontSize:"0.8rem",color:pal.inkM,lineHeight:1.7}}>{si.umbrellaNote}</div>
+                <div style={{padding:"0.55rem 0.75rem",background:pal.pale,borderRadius:"11px",border:`1.5px solid ${pal.stone}20`}}>
+                  <div style={{fontSize:"0.71rem",color:pal.slate,lineHeight:1.6}}>
+                    {"Root \u0026 Bloom doesn't endorse specific umbrella providers. Search \u201c"+state+" umbrella school\u201d or ask in your local homeschool community for recommendations."}
+                  </div>
+                </div>
+              </div>
+            </Section>
+          )}
+
           {/* Official Resources */}
           <Section id="resources" icon="🔗" title="Official Resources">
             <div style={{marginTop:"0.7rem",display:"flex",flexDirection:"column",gap:"0.5rem"}}>
