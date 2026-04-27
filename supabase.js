@@ -31,9 +31,10 @@ function getSB() {
 ------------------------------------------------------------ */
 function sbSave(obj) {
   var sb = getSB();
-  if (!sb) return;
+  if (!sb) { console.log("sbSave: no sb client"); return; }
   sb.auth.getSession().then(function(res) {
     var session = res.data && res.data.session;
+    console.log("sbSave session:", session ? "found user="+session.user.id : "NULL");
     if (!session || !session.user) return;
     sb.from(SB_TABLE)
       .upsert(
