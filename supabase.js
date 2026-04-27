@@ -45,19 +45,21 @@ function sbSave(obj) {
   if (!sb) { console.log("sbSave: no sb client"); return; }
   sb.auth.getSession().then(function(res) {
     var session = res.data && res.data.session;
-    console.log("sbSave session:", session ? "found user="+session.user.id : "NULL");
-    console.log("sbSave token:", session ? session.access_token.slice(0,20)+"..." : "NONE");
     if (!session || !session.user) return;
-    sb.from(SB_TABLE)
-      .upsert(
-        { user_id: session.user.id, payload: obj, updated_at: new Date().toISOString() },
-        { onConflict: "user_id" }
-      )
-      .then(function(result) {
-        if (result.error) {
-          console.error("sbSave error:", result.error.message, result.error.code);
-        }
-      });
+    var token = session.access_token;
+    // Use fetch directly with the session token to bypass any client auth issues
+    fetch(SUPABASE_URL + "/rest/v1/" + SB_TABLE, {
+      method: "POST",
+      headers: {
+        "apikey": SUPABASE_KEY,
+        "Authorization": "Bearer " + token,
+        "Content-Type": "application/json",
+        "Prefer": "resolution=merge-duplicates"
+      },
+      body: JSON.stringify({ user_id: session.user.id, payload: obj, updated_at: new Date().toISOString() })
+    }).then(function(r) {
+      if (!r.ok) { r.text().then(function(t){ console.error("sbSave fetch error:", r.status, t); }); }
+    }).catch(function(e){ console.error("sbSave fetch exception:", e); });
   });
 }
 
@@ -70,15 +72,17 @@ async function loadFromSupabase(sb) {
     var res     = await sb.auth.getSession();
     var session = res.data && res.data.session;
     if (!session || !session.user) return null;
-    var result = await sb.from(SB_TABLE)
-      .select("payload")
-      .eq("user_id", session.user.id)
-      .single();
-    if (result.error) {
-      console.error("loadFromSupabase error:", result.error.message, result.error.code);
-      return null;
-    }
-    return result.data ? result.data.payload : null;
+    var token = session.access_token;
+    var r = await fetch(SUPABASE_URL + "/rest/v1/" + SB_TABLE + "?user_id=eq." + session.user.id + "&select=payload&limit=1", {
+      headers: {
+        "apikey": SUPABASE_KEY,
+        "Authorization": "Bearer " + token,
+        "Content-Type": "application/json"
+      }
+    });
+    if (!r.ok) { console.error("loadFromSupabase error:", r.status); return null; }
+    var rows = await r.json();
+    return (rows && rows.length > 0) ? rows[0].payload : null;
   } catch(e) { console.error("loadFromSupabase exception:", e); return null; }
 }
 
