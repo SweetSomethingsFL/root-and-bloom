@@ -908,11 +908,10 @@ function OnbLessonGoals({ pal, data, upd, onNext }) {
   const customSubjs = data.customSubjects||[];
   const allSubjMap  = Object.fromEntries([...SUBJECT_OPTIONS,...customSubjs].map(s=>[s.id,s]));
   const activeSubjs = (data.subjects||[]).map(id=>allSubjMap[id]).filter(Boolean);
-  const doesCoop    = data.coopFreq && data.coopFreq !== "We don't do co-op";
-  const coopDay     = doesCoop ? data.coopDay : null; // e.g. "Friday"
+  const coopDay     = data.coopDay; // e.g. "Friday"
   const DOW_NAMES   = ["Mon","Tue","Wed","Thu","Fri"];
   const DOW_MAP     = {"Monday":0,"Tuesday":1,"Wednesday":2,"Thursday":3,"Friday":4};
-  const coopDow     = doesCoop ? (DOW_MAP[coopDay]??-1) : -1;
+  const coopDow     = DOW_MAP[coopDay]??-1;
 
   // Initialise goals from existing data or sensible defaults
   const [goals, setGoals] = React.useState(()=>{
@@ -954,8 +953,8 @@ function OnbLessonGoals({ pal, data, upd, onNext }) {
         sub="How many lessons of each subject do you aim to do each day? Tap a number to cycle 0-1-2-3. This helps track your week." />
 
       <div style={{background:pal.pale,borderRadius:"12px",padding:"0.7rem 0.9rem",marginBottom:"1rem",border:`1.5px solid ${pal.primary}20`,fontSize:"0.74rem",color:pal.inkM,lineHeight:1.6}}>
-        {"Tip: 0 means that subject is not planned for that day. Tap each number to cycle through 0 → 1 → 2 → 3."}
-        {doesCoop&&coopDay&&<span style={{color:"#7c3aed"}}>{" Co-op days ("}{coopDay}{") are marked in purple."}</span>}
+        {"Tip: 0 means that subject is not planned for that day. Tap each number to cycle through 0 → 1 → 2 → 3. Co-op day (purple) can also be set."}
+        {coopDay&&<span>{" Co-op days ("}{coopDay}{") are marked automatically."}</span>}
       </div>
 
       {/* Day headers */}
