@@ -8108,8 +8108,8 @@ function Btn({pal,children,onClick,disabled,style={}}){
 function Input({pal,value,onChange,placeholder,type="text"}){
   return <input type={type} value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder} style={{width:"100%",padding:"0.62rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.85rem",background:pal.parchm,color:pal.ink,outline:"none",transition:"border-color 0.18s"}} onFocus={e=>e.target.style.borderColor=pal.primary} onBlur={e=>e.target.style.borderColor=pal.stone}/>;
 }
-function Select({pal,value,onChange,options}){
-  return <select value={value} onChange={e=>onChange(e.target.value)} style={{width:"100%",padding:"0.62rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.85rem",background:pal.parchm,color:pal.ink,outline:"none",cursor:"pointer"}}>{options.map(o=><option key={o} value={o}>{o}</option>)}</select>;
+function Select({pal,value,onChange,options,placeholder}){
+  return <select value={value} onChange={e=>onChange(e.target.value)} style={{width:"100%",padding:"0.62rem 0.85rem",border:`2px solid ${value?pal.stone:pal.primary}`,borderRadius:"11px",fontSize:"0.85rem",background:pal.parchm,color:value?pal.ink:pal.slate,outline:"none",cursor:"pointer"}}>{placeholder&&!value&&<option value="" disabled>{placeholder}</option>}{options.map(o=><option key={o} value={o}>{o}</option>)}</select>;
 }
 function Lbl({pal,children}){
   return <div style={{fontSize:"0.72rem",fontWeight:"700",color:pal.inkM,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"0.38rem"}}>{children}</div>;

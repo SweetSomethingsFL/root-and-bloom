@@ -7,7 +7,7 @@
 function OnboardingFlow({ pal, onComplete }) {
   const [step, setStep] = useState(0);
   const [data, setData] = useState({
-    parentName:"", familyName:"", schoolName:"", state:"Tennessee",
+    parentName:"", familyName:"", schoolName:"", state:"",
     yearsHomeschooling:"0-1 years",
     children:[{id:uid(),name:"",grade:"1st",avatar:"🌻"}],
     curriculumStyle:["eclectic"],
@@ -202,7 +202,7 @@ function OnbScheduleCombined({ pal, data, upd, onNext }) {
           </div>
           <div style={{background:pal.parchm,borderRadius:"13px",padding:"0.8rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}35`}}>
             <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.84rem",marginBottom:"0.2rem"}}>{"🕐 Daily hours goal (optional)"}</div>
-            <div style={{fontSize:"0.71rem",color:pal.slate,marginBottom:"0.55rem"}}>{"Florida requires 180 days but no hour minimum. Other states vary."}</div>
+            <div style={{fontSize:"0.71rem",color:pal.slate,marginBottom:"0.55rem"}}>{(()=>{const sc=STATE_COMPLIANCE&&data.state?STATE_COMPLIANCE[data.state]:null;const h=sc?.hours;return h&&h!=="None"&&h!=="None required"?data.state+" requires "+h+". Check your state law for any hour minimums.":"Most states count days, not hours. Check your state law for any minimums.";})()}</div>
             <div style={{display:"flex",gap:"0.4rem",flexWrap:"wrap"}}>
               {["No hour tracking","2 hours/day","3 hours/day","4 hours/day","5 hours/day","6 hours/day"].map(h=>(
                 <button key={h} onClick={()=>upd("dailyHoursGoal",h)} style={{padding:"0.3rem 0.7rem",borderRadius:"20px",border:`2px solid ${(data.dailyHoursGoal||"No hour tracking")===h?pal.primary:pal.stone+"50"}`,background:(data.dailyHoursGoal||"No hour tracking")===h?pal.pale:"transparent",cursor:"pointer",fontSize:"0.74rem",fontWeight:(data.dailyHoursGoal||"No hour tracking")===h?"700":"400",color:(data.dailyHoursGoal||"No hour tracking")===h?pal.primary:pal.inkM}}>
@@ -399,7 +399,7 @@ function OnbWelcome({ pal, data, upd, onNext }) {
         <Input pal={pal} value={data.schoolName} onChange={v=>upd("schoolName",v)} placeholder="e.g. Thornwood Academy" />
         <div style={{height:"0.85rem"}}/>
         <Lbl pal={pal}>Your state</Lbl>
-        <Select pal={pal} value={data.state} onChange={v=>upd("state",v)} options={US_STATES} />
+        <Select pal={pal} value={data.state} onChange={v=>upd("state",v)} options={US_STATES} placeholder="Select your state..." />
         <div style={{height:"0.85rem"}}/>
         <Lbl pal={pal}>How long have you been homeschooling?</Lbl>
         <div style={{display:"flex",flexWrap:"wrap",gap:"0.4rem"}}>
