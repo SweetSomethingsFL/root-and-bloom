@@ -1741,7 +1741,7 @@ function CoopQuickLogModal({ pal, family, onSave, onClose }) {
    ONBOARDING FLOW - 6 Steps
 ======================================= */
 
-function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, customA, customB, setCustomA, setCustomB, navIds, setNavIds, onBack, onCelebReset, deviceChild, setDeviceChild }) {
+function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, customA, customB, setCustomA, setCustomB, navIds, setNavIds, onBack, onCelebReset, deviceChild, setDeviceChild, onSignOut }) {
   const [tab,         setTab]        = useState("family");
   const [local,       setLocal]      = useState(family ? {...family} : {});
   const [showAddSubj, setShowAddSubj]= useState(false);
@@ -2570,20 +2570,8 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
             </SCard>
             <SCard pal={pal} title="Account">
               <div style={{fontSize:"0.77rem",color:pal.inkM,lineHeight:1.65,marginBottom:"0.75rem"}}>{"Sign out but keep your data in the cloud — you can log back in on any device to restore everything."}</div>
-              <button onClick={()=>{
-                if(window.confirm("Sign out of this device?")){
-                  try{
-                    const keys=Object.keys(localStorage).filter(k=>k.startsWith("rootbloom"));
-                    keys.forEach(k=>localStorage.removeItem(k));
-                    const sb=typeof getSB==="function"?getSB():null;
-                    if(sb){
-                      sb.auth.signOut().then(function(){ window.location.reload(); });
-                    } else {
-                      window.location.reload();
-                    }
-                  }catch(e){ window.location.reload(); }
-                }
-              }} style={{width:"100%",padding:"0.65rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.inkM,fontWeight:"700",fontSize:"0.82rem",cursor:"pointer",marginBottom:"0.75rem"}}>
+              <button onClick={()=>{ if(window.confirm("Sign out of this device?")){ onSignOut&&onSignOut(); } }}
+                style={{width:"100%",padding:"0.65rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.inkM,fontWeight:"700",fontSize:"0.82rem",cursor:"pointer",marginBottom:"0.75rem"}}>
                 {"🔓 Sign Out"}
               </button>
               <div style={{fontSize:"0.77rem",color:pal.inkM,lineHeight:1.65,marginBottom:"0.75rem",marginTop:"0.25rem"}}>{"Permanently delete your account and all cloud data. This cannot be undone."}</div>
