@@ -457,7 +457,7 @@ const SESSION_LENGTHS = ["20 min","30 min","45 min","60 min","90 min"];
 
 /* ---- SUPABASE INIT ---- */
 const SUPABASE_URL = "https://yykonehakqypwwrwfbpg.supabase.co";
-const SUPABASE_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5a29uZWhha3F5cHd3cndmYnBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyOTk4MjQsImV4cCI6MjA5Mjg3NTgyNH0.iuiyhhFa5_574dslaHyhMX1npwz9fDb8Rwzx9nGO4Fw;
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5a29uZWhha3F5cHd3cndmYnBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyOTk4MjQsImV4cCI6MjA5Mjg3NTgyNH0.iuiyhhFa5_574dslaHyhMX1npwz9fDb8Rwzx9nGO4Fw";
 let _sbClient = null;
 function getSB() {
   if(!_sbClient && window.supabase && SUPABASE_KEY !== "PASTE_YOUR_ANON_KEY_HERE") {
