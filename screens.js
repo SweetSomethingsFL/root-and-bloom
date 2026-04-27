@@ -1907,7 +1907,7 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                 </div>
               )}
             </SCard>
-          </div>
+      
         )}
 
         {tab==="children" && (
