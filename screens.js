@@ -1889,6 +1889,24 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                   <div><Lbl pal={pal}>Last Name</Lbl><Input pal={pal} value={c.lastName||""} onChange={v=>updChild(c.id,"lastName",v)} placeholder={"Last name"} /></div>
                   <div><Lbl pal={pal}>Grade</Lbl><Select pal={pal} value={c.grade} onChange={v=>updChild(c.id,"grade",v)} options={GRADES} /></div>
                 </div>
+                {/* Portfolio trust level */}
+                <div style={{marginTop:"0.75rem",padding:"0.7rem 0.85rem",background:pal.pale,borderRadius:"12px",border:`1.5px solid ${pal.stone}30`}}>
+                  <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:"0.75rem"}}>
+                    <div style={{flex:1}}>
+                      <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.82rem"}}>📬 Portfolio submissions</div>
+                      <div style={{fontSize:"0.69rem",color:pal.slate,marginTop:"2px",lineHeight:1.5}}>
+                        {(c.trustLevel||"approve")==="approve"
+                          ? c.name+"'s entries wait for your approval before saving"
+                          : "Entries save automatically — you can review anytime"}
+                      </div>
+                    </div>
+                    <button
+                      onClick={()=>updChild(c.id,"trustLevel",(c.trustLevel||"approve")==="approve"?"auto":"approve")}
+                      style={{flexShrink:0,width:"48px",height:"26px",borderRadius:"13px",border:"none",cursor:"pointer",position:"relative",transition:"background 0.2s",background:(c.trustLevel||"approve")==="approve"?pal.stone:pal.primary}}>
+                      <div style={{position:"absolute",top:"3px",width:"20px",height:"20px",borderRadius:"50%",background:"#fff",boxShadow:"0 1px 4px rgba(0,0,0,0.22)",transition:"left 0.2s",left:(c.trustLevel||"approve")==="approve"?"3px":"25px"}}/>
+                    </button>
+                  </div>
+                </div>
               </SCard>
             ))}
             <button onClick={addChild} style={{width:"100%",padding:"0.75rem",border:`2px dashed ${pal.stone}`,borderRadius:"14px",background:"transparent",color:pal.slate,fontSize:"0.84rem",fontWeight:"600",cursor:"pointer",marginBottom:"0.75rem"}}>
