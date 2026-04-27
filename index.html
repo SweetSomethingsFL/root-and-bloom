@@ -1620,15 +1620,19 @@ function RootAndBloom() {
     });
   },[]);
 
-  // Device mode: if this device is locked to a child, jump straight to their portal after auth
-  useEffect(()=>{
-    if(!authDone || !family || !deviceChild) return;
+  // Device mode: if this device is locked to a person, jump straight to their view after auth
+useEffect(()=>{
+  if(!authDone || !family || !deviceChild) return;
+  if(deviceChild==="__parent__") {
+    setView("parent");
+  } else {
     const locked = family.children.find(c=>c.id===deviceChild);
     if(locked) {
       setActiveStudent(locked);
       setView("student");
     }
-  },[authDone, deviceChild, family]);
+  }
+},[authDone, deviceChild, family]);
   const handleGradeUp = (childIdx, newGrade) => {
     setFamily(f => {
       const updated = {...f, children: f.children.map((c,i) =>
