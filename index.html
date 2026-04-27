@@ -1066,7 +1066,7 @@ function printProgressReport(family, entries, child, attendanceDays, goals) {
   const yearStartNum= family.yearStart?new Date(family.yearStart).getFullYear():new Date().getFullYear();
   const yearEndNum  = family.yearEnd?new Date(family.yearEnd).getFullYear():yearStartNum+1;
   const today       = new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
-  const childName   = child?.name||"Student";
+  const childName   = child ? (child.name+(child.lastName?" "+child.lastName:"")) : "Student";
   const grade       = child?.grade||"";
   const avatar      = child?.avatar||"";
   const goalDays    = 180;
@@ -1216,7 +1216,7 @@ function printPortfolioPDF(family, entries, child, attendanceDays, stateInfo, da
   const yearStartNum= family.yearStart ? new Date(family.yearStart).getFullYear() : new Date().getFullYear();
   const yearEndNum  = family.yearEnd   ? new Date(family.yearEnd).getFullYear()   : yearStartNum+1;
   const state       = family.state||"";
-  const childName   = child?.name||"Student";
+  const childName   = child ? (child.name+(child.lastName?" "+child.lastName:"")) : "Student";
   const grade       = child?.grade||"";
   const avatar      = child?.avatar||"";
 

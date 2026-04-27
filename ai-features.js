@@ -82,7 +82,7 @@ function buildWorksheetPrompt(wsType, topic, child, family, extraContext, diffic
   const name     = child?.name || "Student";
   const goals    = goalSummary(family);
   const curriculum = curriculumContext(family);
-  const schoolName = family?.schoolName || (family?.familyName ? family.familyName + " Academy" : "Ramos Academy");
+  const schoolName = family?.schoolName || (family?.familyName ? family.familyName + " Academy" : "Our Homeschool");
   const diff = difficulty || "standard";
 
   const gradeGroup = gradeNum <= 2 ? "early" : gradeNum <= 5 ? "mid" : gradeNum <= 8 ? "upper" : "high";
@@ -468,9 +468,9 @@ function AIUnitBuilderModal({ pal, family, activeChild, onSave, onClose }) {
   const [dots,     setDots]     = useState(".");
 
   // Animate dots while generating
-  useState(()=>{
+  useEffect(()=>{
     if(step!==2) return;
-    const t=setInterval(()=>setDots(d=>d.length>=3?".":"d.+."), 600);
+    const t=setInterval(()=>setDots(d=>d.length>=3?".":d+"."), 600);
     return ()=>clearInterval(t);
   },[step]);
 

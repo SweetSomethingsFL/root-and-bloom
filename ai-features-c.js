@@ -216,7 +216,7 @@ ${(result.days||[]).map(d=>`
                 <textarea
                   value={notes}
                   onChange={e=>setNotes(e.target.value)}
-                  placeholder={"e.g. We\u2019re starting long division this week. Reading Charlotte\u2019s Web ch.4-6. Review the American Revolution. Raeley needs more handwriting practice."}
+                  placeholder={"e.g. We\u2019re starting long division this week. Reading Charlotte\u2019s Web ch.4-6. Review the American Revolution. Focus on handwriting practice."}
                   rows={4}
                   style={{width:"100%",padding:"0.65rem 0.85rem",border:"2px solid "+pal.stone,borderRadius:"11px",fontSize:"0.82rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit",resize:"none",lineHeight:1.6}}
                   onFocus={e=>e.target.style.borderColor=pal.primary}
