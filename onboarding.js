@@ -398,6 +398,10 @@ function OnbWelcome({ pal, data, upd, onNext }) {
         <Lbl pal={pal}>School name <span style={{fontWeight:"400",color:pal.slate}}>(optional)</span></Lbl>
         <Input pal={pal} value={data.schoolName} onChange={v=>upd("schoolName",v)} placeholder="e.g. Thornwood Academy" />
         <div style={{height:"0.85rem"}}/>
+        <Lbl pal={pal}>What do your students call you? <span style={{fontWeight:"400",color:pal.slate}}>(optional)</span></Lbl>
+        <Input pal={pal} value={data.studentTitle||""} onChange={v=>upd("studentTitle",v)} placeholder="e.g. Mama, Nana, Coach, Ms. Rivera..." />
+        <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"0.3rem",lineHeight:1.5}}>{"Used in the student portal (e.g. \"Share with Mama\")."}</div>
+        <div style={{height:"0.85rem"}}/>
         <Lbl pal={pal}>Your state</Lbl>
         <Select pal={pal} value={data.state} onChange={v=>upd("state",v)} options={US_STATES} placeholder="Select your state..." />
         <div style={{height:"0.85rem"}}/>

@@ -612,7 +612,7 @@ function FieldStudyModal({ pal, family, child, allEntries, onAddEntry, onClose, 
                 ):(
                   <button onClick={()=>setPhase("parent_review")}
                     style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"900",fontSize:"0.88rem",cursor:"pointer"}}>
-                    {"Show Mom/Dad!"}
+                    {"Show "+(family&&family.studentTitle?family.studentTitle:"your teacher")+"!"}
                   </button>
                 )}
               </div>

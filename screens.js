@@ -736,7 +736,7 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
 
             {/* Submit to Portfolio */}
             <div style={{marginTop:"1rem",background:SK.card,borderRadius:"22px",padding:"1rem 1.1rem",boxShadow:"0 2px 14px rgba(0,0,0,0.07)"}}>
-              <div style={{fontWeight:"900",color:SK.ink,fontSize:"0.9rem",marginBottom:"0.25rem"}}>{"📬 Share with Mom/Dad"}</div>
+              <div style={{fontWeight:"900",color:SK.ink,fontSize:"0.9rem",marginBottom:"0.25rem"}}>{"📬 Share with "+(family.studentTitle||"your teacher")}</div>
               <div style={{fontSize:"0.73rem",color:SK.lite,lineHeight:1.6,marginBottom:"0.75rem"}}>{"Did something awesome today? Send it to your portfolio for approval!"}</div>
               {submitSent?(
                 <div style={{textAlign:"center",padding:"0.75rem",background:"#e8f5e9",borderRadius:"14px"}}>
@@ -1741,7 +1741,7 @@ function CoopQuickLogModal({ pal, family, onSave, onClose }) {
    ONBOARDING FLOW - 6 Steps
 ======================================= */
 
-function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, customA, customB, setCustomA, setCustomB, navIds, setNavIds, onBack, onCelebReset }) {
+function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, customA, customB, setCustomA, setCustomB, navIds, setNavIds, onBack, onCelebReset, deviceChild, setDeviceChild }) {
   const [tab,         setTab]        = useState("family");
   const [local,       setLocal]      = useState(family ? {...family} : {});
   const [showAddSubj, setShowAddSubj]= useState(false);
@@ -1811,6 +1811,10 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
               <Lbl pal={pal}>Family name</Lbl>
               <Input pal={pal} value={local.familyName||""} onChange={v=>updL("familyName",v)} placeholder="e.g. The Johnson Family" />
               <div style={{height:"0.75rem"}}/>
+              <Lbl pal={pal}>What do your students call you? <span style={{fontWeight:"400",color:pal.slate}}>(optional)</span></Lbl>
+              <Input pal={pal} value={local.studentTitle||""} onChange={v=>updL("studentTitle",v)} placeholder="e.g. Mama, Nana, Coach, Ms. Rivera..." />
+              <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"0.3rem",lineHeight:1.5}}>{"Shown in the student portal as \"Share with Mama\" etc."}</div>
+              <div style={{height:"0.75rem"}}/>
               <Lbl pal={pal}>State</Lbl>
               <Select pal={pal} value={local.state||"Tennessee"} onChange={v=>updL("state",v)} options={US_STATES} />
             </SCard>
@@ -1859,6 +1863,38 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                   </button>
                 ))}
               </div>
+            </SCard>
+            <SCard pal={pal} title="📱 Device Mode">
+              <div style={{fontSize:"0.78rem",color:pal.inkM,lineHeight:1.6,marginBottom:"0.85rem"}}>{"Lock this device to one child's portal. Great for a kid's tablet — they open the app and land straight in their space. You can always reset it here."}</div>
+              {deviceChild ? (()=>{
+                const locked = (local.children||[]).find(c=>c.id===deviceChild);
+                return (
+                  <div style={{background:pal.pale,borderRadius:"14px",padding:"0.75rem 0.9rem",border:`1.5px solid ${pal.primary}25`,marginBottom:"0.75rem"}}>
+                    <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.84rem",marginBottom:"2px"}}>{"📌 Locked to: "+(locked?locked.avatar+" "+locked.name:"a child")}</div>
+                    <div style={{fontSize:"0.7rem",color:pal.slate}}>{"This device always opens to their portal."}</div>
+                  </div>
+                );
+              })():null}
+              {deviceChild ? (
+                <button onClick={()=>setDeviceChild(null)}
+                  style={{width:"100%",padding:"0.6rem",border:`2px solid ${pal.stone}50`,borderRadius:"12px",background:"transparent",color:pal.inkM,fontWeight:"700",fontSize:"0.8rem",cursor:"pointer"}}>
+                  {"🔓 Remove device lock"}
+                </button>
+              ):(
+                <div style={{display:"flex",flexDirection:"column",gap:"0.4rem"}}>
+                  {(local.children||[]).map(c=>(
+                    <button key={c.id} onClick={()=>setDeviceChild(c.id)}
+                      style={{padding:"0.6rem 0.85rem",border:`2px solid ${pal.stone}40`,borderRadius:"12px",background:"#fff",cursor:"pointer",display:"flex",alignItems:"center",gap:"0.6rem",textAlign:"left"}}>
+                      <span style={{fontSize:"1.3rem"}}>{c.avatar||"🌻"}</span>
+                      <div style={{flex:1}}>
+                        <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.84rem"}}>{c.name||"Child"}</div>
+                        <div style={{fontSize:"0.68rem",color:pal.slate}}>{"Lock this device to "+( c.name||"this child")+"'s portal"}</div>
+                      </div>
+                      <span style={{color:pal.slate,fontSize:"0.9rem"}}>{">"}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </SCard>
           </div>
         )}

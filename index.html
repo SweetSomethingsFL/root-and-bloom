@@ -356,6 +356,7 @@ ${wsData.extension ? `<div style="background:#eef4ff;border:1.5px solid rgba(37,
    ---------------------------------------------------------- */
 </script>
   <script src="state-requirements.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="pc-lessons.js"></script>
   <script src="data.js"></script>
   <script type="text/babel" data-presets="react" src="ai-features.js"></script>
@@ -454,12 +455,41 @@ const SUBJECT_OPTIONS = [
 ];
 const SESSION_LENGTHS = ["20 min","30 min","45 min","60 min","90 min"];
 
-/* ---- LIFE READY ---- */
+/* ---- SUPABASE INIT ---- */
+const SUPABASE_URL = "https://yykonehakqypwwrwfbpg.supabase.co";
+const SUPABASE_KEY = "PASTE_YOUR_ANON_KEY_HERE";
+let _sbClient = null;
+function getSB() {
+  if(!_sbClient && window.supabase && SUPABASE_KEY !== "PASTE_YOUR_ANON_KEY_HERE") {
+    _sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  }
+  return _sbClient;
+}
+const SB_TABLE = "family_data";
+
+/* ---- LOAD / SAVE ---- */
 function loadSaved() {
   try { const s=localStorage.getItem(LS_KEY); return s?JSON.parse(s):null; } catch(e){return null;}
 }
 function savePersist(obj) {
   try { localStorage.setItem(LS_KEY, JSON.stringify(obj)); } catch(e){}
+  const sb = getSB();
+  if(sb) {
+    sb.auth.getUser().then(function(res){
+      if(res.data&&res.data.user) {
+        sb.from(SB_TABLE).upsert({user_id:res.data.user.id, payload:obj, updated_at:new Date().toISOString()},{onConflict:"user_id"}).then(function(){});
+      }
+    });
+  }
+}
+async function loadFromSupabase(sb) {
+  try {
+    const {data:u} = await sb.auth.getUser();
+    if(!u||!u.user) return null;
+    const {data,error} = await sb.from(SB_TABLE).select("payload").eq("user_id",u.user.id).single();
+    if(error||!data) return null;
+    return data.payload;
+  } catch(e){return null;}
 }
 
 function getComplianceInfo(state, grade) {
@@ -1357,6 +1387,12 @@ const ALL_SECTIONS_EXT = [...ALL_SECTIONS.map(s=>(["schedule","portfolio"].inclu
 
 function RootAndBloom() {
   const saved = useMemo(()=>loadSaved(),[]);
+  // Auth state -- "login" until user authenticates or skips
+  const [authDone,       setAuthDone]       = useState(false);
+  // Device mode -- stored in localStorage only (not synced), e.g. a child's tablet
+  const [deviceChild,    setDeviceChild]    = useState(()=>{
+    try{return localStorage.getItem("rootbloom_device_child")||null;}catch(e){return null;}
+  });
   const [family,         setFamily]         = useState(saved?.family||null);
   const [view,           setView]           = useState("splash");
   const [activeTab,      setActiveTab]      = useState("home");
@@ -1537,7 +1573,46 @@ function RootAndBloom() {
     return ()=>window.removeEventListener("rootbloom-nav", handler);
   },[]);
 
+  const handleLogin = (cloudData) => {
+    // cloudData is the Supabase payload (or null if skipped/no account)
+    if(cloudData) {
+      // Merge cloud data into state (cloud wins)
+      if(cloudData.family) setFamily(cloudData.family);
+      if(cloudData.navIds) setNavIds(cloudData.navIds);
+      if(cloudData.portfolioLayout) setPortfolioLayout(cloudData.portfolioLayout);
+      if(cloudData.portfolio) setPortfolioEntries(cloudData.portfolio);
+      if(cloudData.pendingEntries) setPendingEntries(cloudData.pendingEntries);
+      if(cloudData.coopLog) setCoopLog(cloudData.coopLog);
+      if(cloudData.attendanceDays!=null) setAttendanceDays(cloudData.attendanceDays);
+      if(cloudData.attendanceLog) setAttendanceLog(cloudData.attendanceLog);
+      if(cloudData.observationLog) setObservationLog(cloudData.observationLog);
+      if(cloudData.checkinDates) setCheckinDates(cloudData.checkinDates);
+      if(cloudData.studentVisits) setStudentVisits(cloudData.studentVisits);
+      if(cloudData.paletteId) setPaletteId(cloudData.paletteId);
+      if(cloudData.customA) setCustomA(cloudData.customA);
+      if(cloudData.customB) setCustomB(cloudData.customB);
+      if(cloudData.lastCheckinDate) setLastCheckinDate(cloudData.lastCheckinDate);
+      if(cloudData.checkinStreak!=null) setCheckinStreak(cloudData.checkinStreak);
+      // Use cloud family to determine next view
+      const resolvedFamily = cloudData.family||null;
+      setAuthDone(true);
+      setView(resolvedFamily?"parent":"onboarding");
+    } else {
+      setAuthDone(true);
+      setView(family?"parent":"onboarding");
+    }
+  };
   const handleSplash     = () => setView(family?"parent":"onboarding");
+
+  // Device mode: if this device is locked to a child, jump straight to their portal after auth
+  useEffect(()=>{
+    if(!authDone || !family || !deviceChild) return;
+    const locked = family.children.find(c=>c.id===deviceChild);
+    if(locked) {
+      setActiveStudent(locked);
+      setView("student");
+    }
+  },[authDone, deviceChild, family]);
   const handleGradeUp = (childIdx, newGrade) => {
     setFamily(f => {
       const updated = {...f, children: f.children.map((c,i) =>
@@ -1679,14 +1754,19 @@ function RootAndBloom() {
         input,textarea,select,button{font-family:inherit}
       `}</style>
 
-      {/* -- SPLASH -- */}
-      {view==="splash"     && <SplashScreen   pal={pal} onContinue={handleSplash} />}
+      {/* -- LOGIN / SPLASH -- */}
+      {!authDone && <LoginScreen pal={pal} onLogin={handleLogin} />}
+      {authDone && view==="splash" && <SplashScreen pal={pal} onContinue={handleSplash} />}
       {view==="onboarding" && <OnboardingFlow pal={pal} onComplete={finishOnboarding} />}
       {view==="settings"   && <SettingsScreen pal={pal} family={family} setFamily={setFamily}
           paletteId={paletteId} setPaletteId={setPaletteId}
           customA={customA} customB={customB} setCustomA={setCustomA} setCustomB={setCustomB}
           navIds={navIds} setNavIds={setNavIds} onBack={closeSettings}
-          onCelebReset={()=>setCelebResetToken(t=>t+1)} />}
+          onCelebReset={()=>setCelebResetToken(t=>t+1)}
+          deviceChild={deviceChild} setDeviceChild={(id)=>{
+            setDeviceChild(id);
+            try{ if(id){ localStorage.setItem("rootbloom_device_child",id); }else{ localStorage.removeItem("rootbloom_device_child"); } }catch(e){}
+          }} />}
 
       {/* -- STUDENT PORTAL -- */}
       {view==="student" && activeStudent && family && (
@@ -2052,6 +2132,112 @@ function MoreScreen({pal,family,onNav,onTheme,onNavEdit,onSettings,onLifeReady})
     </div>
   );
 }
+
+/* =======================================
+   LOGIN SCREEN
+======================================= */
+function LoginScreen({ pal, onLogin }) {
+  const [mode,     setMode]     = React.useState("login");
+  const [email,    setEmail]    = React.useState("");
+  const [pw,       setPw]       = React.useState("");
+  const [pwShow,   setPwShow]   = React.useState(false);
+  const [loading,  setLoading]  = React.useState(false);
+  const [err,      setErr]      = React.useState("");
+  const [msg,      setMsg]      = React.useState("");
+  const sbReady    = !!(window.supabase && SUPABASE_KEY !== "PASTE_YOUR_ANON_KEY_HERE");
+
+  const handleSubmit = async () => {
+    setErr(""); setMsg("");
+    if(!sbReady){ setErr("Supabase not configured yet. Add your anon key to index.html."); return; }
+    if(!email.trim()||!pw){ setErr("Please enter your email and password."); return; }
+    setLoading(true);
+    const sb = getSB();
+    if(!sb){ setErr("Could not connect to Supabase."); setLoading(false); return; }
+    try {
+      let result;
+      if(mode==="login"){
+        result = await sb.auth.signInWithPassword({email:email.trim(),password:pw});
+      } else {
+        result = await sb.auth.signUp({email:email.trim(),password:pw});
+      }
+      if(result.error){ setErr(result.error.message); setLoading(false); return; }
+      if(mode==="signup" && result.data&&!result.data.session){
+        setMsg("Check your email to confirm your account, then come back and log in!");
+        setMode("login"); setLoading(false); return;
+      }
+      // Pull cloud data or start fresh
+      const cloudData = await loadFromSupabase(sb);
+      onLogin(cloudData);
+    } catch(e){ setErr("Something went wrong. Try again."); }
+    setLoading(false);
+  };
+
+  const handleSkip = () => { onLogin(null); };
+
+  return (
+    <div style={{height:"100vh",background:pal.heroGrad,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"0 1.2rem",fontFamily:"Georgia,serif"}}>
+      <div style={{width:"100%",maxWidth:"400px"}}>
+        <div style={{textAlign:"center",marginBottom:"2rem"}}>
+          <div style={{fontSize:"4rem",marginBottom:"0.75rem"}}>{"🌱"}</div>
+          <h1 style={{fontFamily:"Georgia,serif",fontSize:"2rem",fontWeight:"800",color:"#fff",margin:"0 0 0.3rem",lineHeight:1.1}}>{"Root & Bloom"}</h1>
+          <p style={{color:"rgba(255,255,255,0.65)",fontSize:"0.84rem",margin:0}}>{"Your homeschool, beautifully organized"}</p>
+        </div>
+        <div style={{background:"rgba(255,255,255,0.12)",borderRadius:"22px",padding:"1.5rem 1.3rem",backdropFilter:"blur(10px)",border:"1px solid rgba(255,255,255,0.2)"}}>
+          {/* Mode toggle */}
+          <div style={{display:"flex",gap:"0.4rem",marginBottom:"1.2rem",background:"rgba(0,0,0,0.15)",borderRadius:"14px",padding:"4px"}}>
+            {["login","signup"].map(m=>(
+              <button key={m} onClick={()=>{setMode(m);setErr("");setMsg("");}}
+                style={{flex:1,padding:"0.5rem",border:"none",borderRadius:"11px",background:mode===m?"rgba(255,255,255,0.95)":"transparent",color:mode===m?pal.primary:"rgba(255,255,255,0.7)",fontWeight:mode===m?"800":"500",fontSize:"0.84rem",cursor:"pointer",transition:"all 0.16s",fontFamily:"inherit"}}>
+                {m==="login"?"Log In":"Create Account"}
+              </button>
+            ))}
+          </div>
+          {err&&<div style={{background:"rgba(180,0,0,0.25)",border:"1px solid rgba(255,100,100,0.4)",borderRadius:"10px",padding:"0.55rem 0.8rem",fontSize:"0.77rem",color:"#ffe0e0",marginBottom:"0.85rem",lineHeight:1.5}}>{err}</div>}
+          {msg&&<div style={{background:"rgba(0,150,80,0.25)",border:"1px solid rgba(100,220,150,0.4)",borderRadius:"10px",padding:"0.55rem 0.8rem",fontSize:"0.77rem",color:"#d0ffe0",marginBottom:"0.85rem",lineHeight:1.5}}>{msg}</div>}
+          <div style={{marginBottom:"0.75rem"}}>
+            <div style={{fontSize:"0.72rem",color:"rgba(255,255,255,0.7)",fontWeight:"600",marginBottom:"0.3rem"}}>{"Email"}</div>
+            <input type="email" value={email} onChange={e=>setEmail(e.target.value)}
+              placeholder={"your@email.com"}
+              style={{width:"100%",padding:"0.65rem 0.85rem",border:"1.5px solid rgba(255,255,255,0.25)",borderRadius:"12px",background:"rgba(255,255,255,0.15)",color:"#fff",fontSize:"0.88rem",fontFamily:"inherit",outline:"none",boxSizing:"border-box"}}
+              onFocus={e=>{e.target.style.borderColor="rgba(255,255,255,0.7)";}}
+              onBlur={e=>{e.target.style.borderColor="rgba(255,255,255,0.25)";}} />
+          </div>
+          <div style={{marginBottom:"1.1rem"}}>
+            <div style={{fontSize:"0.72rem",color:"rgba(255,255,255,0.7)",fontWeight:"600",marginBottom:"0.3rem"}}>{"Password"}</div>
+            <div style={{position:"relative"}}>
+              <input type={pwShow?"text":"password"} value={pw} onChange={e=>setPw(e.target.value)}
+                placeholder={"Password"}
+                onKeyDown={e=>e.key==="Enter"&&handleSubmit()}
+                style={{width:"100%",padding:"0.65rem 2.5rem 0.65rem 0.85rem",border:"1.5px solid rgba(255,255,255,0.25)",borderRadius:"12px",background:"rgba(255,255,255,0.15)",color:"#fff",fontSize:"0.88rem",fontFamily:"inherit",outline:"none",boxSizing:"border-box"}}
+                onFocus={e=>{e.target.style.borderColor="rgba(255,255,255,0.7)";}}
+                onBlur={e=>{e.target.style.borderColor="rgba(255,255,255,0.25)";}} />
+              <button onClick={()=>setPwShow(v=>!v)}
+                style={{position:"absolute",right:"0.6rem",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"rgba(255,255,255,0.6)",cursor:"pointer",fontSize:"0.82rem",padding:"0.2rem"}}>
+                {pwShow?"Hide":"Show"}
+              </button>
+            </div>
+          </div>
+          <button onClick={handleSubmit} disabled={loading}
+            style={{width:"100%",padding:"0.8rem",border:"none",borderRadius:"14px",background:loading?"rgba(255,255,255,0.3)":"rgba(255,255,255,0.95)",color:loading?"rgba(255,255,255,0.6)":pal.primary,fontWeight:"800",fontSize:"0.92rem",cursor:loading?"not-allowed":"pointer",transition:"all 0.16s",fontFamily:"inherit"}}>
+            {loading?"...":(mode==="login"?"Log In →":"Create Account →")}
+          </button>
+          <div style={{textAlign:"center",marginTop:"1rem"}}>
+            <button onClick={handleSkip}
+              style={{background:"none",border:"none",color:"rgba(255,255,255,0.45)",fontSize:"0.72rem",cursor:"pointer",textDecoration:"underline",fontFamily:"inherit"}}>
+              {"Continue without an account"}
+            </button>
+          </div>
+        </div>
+        {!sbReady&&(
+          <div style={{marginTop:"1rem",background:"rgba(200,120,0,0.3)",border:"1px solid rgba(255,200,100,0.4)",borderRadius:"12px",padding:"0.65rem 0.9rem",fontSize:"0.72rem",color:"rgba(255,240,200,0.9)",lineHeight:1.6,textAlign:"center"}}>
+            {"Supabase key not yet added. Multi-device sync is disabled. Tap Continue without an account to use the app with local storage only."}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 
 function SplashScreen({ pal, onContinue }) {
   const [ready, setReady] = useState(false);
