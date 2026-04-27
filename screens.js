@@ -1455,7 +1455,7 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
                 style={{width:"48px",height:"48px",borderRadius:"13px",border:"2px solid "+(quickNotePhoto?c1:"#ece5dc"),background:quickNotePhoto?c1+"15":"transparent",color:quickNotePhoto?c1:SK.lite,fontSize:"1.3rem",cursor:"pointer",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>{"📷"}</button>
               <button onClick={()=>saveQuickNote(quickNotePrompt.blockIdx, quickNotePrompt.b, quickNoteText, quickNotePhoto)}
                 style={{flex:1,padding:"0.82rem",border:"none",borderRadius:"13px",background:"linear-gradient(135deg,"+SK.sky+","+SK.grass+")",color:"#fff",fontWeight:"900",fontSize:"0.88rem",cursor:"pointer"}}>
-                {quickNoteText.trim()||quickNotePhoto?"Save \xe2\x9c\x93":"Done \xe2\x9c\x93"}
+                {quickNoteText.trim()||quickNotePhoto?"Save ✓":"Done ✓"}
               </button>
             </div>
             <button onClick={()=>saveQuickNote(quickNotePrompt.blockIdx, quickNotePrompt.b, "", null)}
