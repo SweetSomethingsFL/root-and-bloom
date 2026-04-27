@@ -1865,13 +1865,15 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
               </div>
             </SCard>
             <SCard pal={pal} title="📱 Device Mode">
-              <div style={{fontSize:"0.78rem",color:pal.inkM,lineHeight:1.6,marginBottom:"0.85rem"}}>{"Lock this device to one child's portal. Great for a kid's tablet — they open the app and land straight in their space. You can always reset it here."}</div>
+              <SCard pal={pal} title="📱 Device Mode">
+              <div style={{fontSize:"0.78rem",color:pal.inkM,lineHeight:1.6,marginBottom:"0.85rem"}}>{"Lock this device to one person. Great for a shared tablet — whoever it belongs to opens the app and lands straight in their space."}</div>
               {deviceChild ? (()=>{
-                const locked = (local.children||[]).find(c=>c.id===deviceChild);
+                const isParent = deviceChild==="__parent__";
+                const locked = isParent ? null : (local.children||[]).find(c=>c.id===deviceChild);
                 return (
                   <div style={{background:pal.pale,borderRadius:"14px",padding:"0.75rem 0.9rem",border:`1.5px solid ${pal.primary}25`,marginBottom:"0.75rem"}}>
-                    <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.84rem",marginBottom:"2px"}}>{"📌 Locked to: "+(locked?locked.avatar+" "+locked.name:"a child")}</div>
-                    <div style={{fontSize:"0.7rem",color:pal.slate}}>{"This device always opens to their portal."}</div>
+                    <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.84rem",marginBottom:"2px"}}>{"📌 Locked to: "+(isParent?"👩 "+(local.parentName||"Parent"):locked?locked.avatar+" "+locked.name:"a child")}</div>
+                    <div style={{fontSize:"0.7rem",color:pal.slate}}>{isParent?"This device always opens to the parent dashboard.":"This device always opens to their portal."}</div>
                   </div>
                 );
               })():null}
@@ -1882,13 +1884,22 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                 </button>
               ):(
                 <div style={{display:"flex",flexDirection:"column",gap:"0.4rem"}}>
+                  <button onClick={()=>setDeviceChild("__parent__")}
+                    style={{padding:"0.6rem 0.85rem",border:`2px solid ${pal.primary}40`,borderRadius:"12px",background:pal.pale,cursor:"pointer",display:"flex",alignItems:"center",gap:"0.6rem",textAlign:"left"}}>
+                    <span style={{fontSize:"1.3rem"}}>{"👩"}</span>
+                    <div style={{flex:1}}>
+                      <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.84rem"}}>{local.parentName||"Parent"}</div>
+                      <div style={{fontSize:"0.68rem",color:pal.slate}}>{"Lock this device to the parent dashboard"}</div>
+                    </div>
+                    <span style={{color:pal.slate,fontSize:"0.9rem"}}>{">"}</span>
+                  </button>
                   {(local.children||[]).map(c=>(
                     <button key={c.id} onClick={()=>setDeviceChild(c.id)}
                       style={{padding:"0.6rem 0.85rem",border:`2px solid ${pal.stone}40`,borderRadius:"12px",background:"#fff",cursor:"pointer",display:"flex",alignItems:"center",gap:"0.6rem",textAlign:"left"}}>
                       <span style={{fontSize:"1.3rem"}}>{c.avatar||"🌻"}</span>
                       <div style={{flex:1}}>
                         <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.84rem"}}>{c.name||"Child"}</div>
-                        <div style={{fontSize:"0.68rem",color:pal.slate}}>{"Lock this device to "+( c.name||"this child")+"'s portal"}</div>
+                        <div style={{fontSize:"0.68rem",color:pal.slate}}>{"Lock this device to "+(c.name||"this child")+"'s portal"}</div>
                       </div>
                       <span style={{color:pal.slate,fontSize:"0.9rem"}}>{">"}</span>
                     </button>
