@@ -32,15 +32,19 @@ function getSB() {
 function sbSave(obj) {
   var sb = getSB();
   if (!sb) return;
-  sb.auth.getUser().then(function(res) {
-    if (res.data && res.data.user) {
-      sb.from(SB_TABLE)
-        .upsert(
-          { user_id: res.data.user.id, payload: obj, updated_at: new Date().toISOString() },
-          { onConflict: "user_id" }
-        )
-        .then(function() {});
-    }
+  sb.auth.getSession().then(function(res) {
+    var session = res.data && res.data.session;
+    if (!session || !session.user) return;
+    sb.from(SB_TABLE)
+      .upsert(
+        { user_id: session.user.id, payload: obj, updated_at: new Date().toISOString() },
+        { onConflict: "user_id" }
+      )
+      .then(function(result) {
+        if (result.error) {
+          console.error("sbSave error:", result.error.message, result.error.code);
+        }
+      });
   });
 }
 
@@ -50,16 +54,19 @@ function sbSave(obj) {
 ------------------------------------------------------------ */
 async function loadFromSupabase(sb) {
   try {
-    var res  = await sb.auth.getUser();
-    var user = res.data && res.data.user;
-    if (!user) return null;
+    var res     = await sb.auth.getSession();
+    var session = res.data && res.data.session;
+    if (!session || !session.user) return null;
     var result = await sb.from(SB_TABLE)
       .select("payload")
-      .eq("user_id", user.id)
+      .eq("user_id", session.user.id)
       .single();
-    if (result.error || !result.data) return null;
-    return result.data.payload;
-  } catch(e) { return null; }
+    if (result.error) {
+      console.error("loadFromSupabase error:", result.error.message, result.error.code);
+      return null;
+    }
+    return result.data ? result.data.payload : null;
+  } catch(e) { console.error("loadFromSupabase exception:", e); return null; }
 }
 
 /* ---------- DELETE ACCOUNT ----------

@@ -1793,10 +1793,14 @@ function RootAndBloom() {
             };
             if(sb && family){
               // Force a cloud save before signing out
-              sb.auth.getUser().then(function(res){
-                if(res.data&&res.data.user){
+              sb.auth.getSession().then(function(res){
+                var session = res.data && res.data.session;
+                if(session && session.user){
                   const payload = {family,navIds,portfolioLayout,portfolio:portfolioEntries,pendingEntries,coopLog,attendanceDays,attendanceLog,observationLog,checkinDates,studentVisits,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed,notifDismissed};
-                  sb.from("family_data").upsert({user_id:res.data.user.id,payload:payload,updated_at:new Date().toISOString()},{onConflict:"user_id"}).then(function(){ doSignOut(); });
+                  sb.from("family_data").upsert({user_id:session.user.id,payload:payload,updated_at:new Date().toISOString()},{onConflict:"user_id"}).then(function(result){
+                    if(result.error) console.error("sign out save error:", result.error.message);
+                    doSignOut();
+                  });
                 } else { doSignOut(); }
               });
             } else { doSignOut(); }
