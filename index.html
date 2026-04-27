@@ -1696,8 +1696,8 @@ function RootAndBloom() {
     if (freq === "We don't do co-op" || freq === "") return false;
     const coopDay = family.coopDay || "";
     if (!coopDay) return false;
-    const DOW_MAP = {"Monday":1,"Tuesday":2,"Wednesday":3,"Thursday":4,"Friday":5,"Saturday":6};
-    return new Date().getDay() === (DOW_MAP[coopDay] || -1);
+    const todayName = new Date().toLocaleDateString("en-US",{weekday:"long"});
+    return todayName === coopDay;
   })();
 
   return (
