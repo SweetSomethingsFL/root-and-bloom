@@ -1913,6 +1913,7 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
         )}
 
         {tab==="children" && (
+          <div style={{animation:"fadeUp 0.18s ease"}}>
             {(local.children||[]).map((c,i)=>(
               <SCard key={c.id} pal={pal} title={"Child " + (i+1)} action={local.children.length>1?{label:"Remove",fn:()=>remChild(c.id)}:null}>
                 <div style={{display:"flex",gap:"0.35rem",flexWrap:"wrap",marginBottom:"0.65rem"}}>
