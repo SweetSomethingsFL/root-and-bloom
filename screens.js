@@ -1780,7 +1780,7 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
     onBack();
   };
 
-  const STABS = [["family","👨👩👧👦 Family"],["children","🌱 Children"],["school","🏫 School"],["theme","🎨 Theme"],["nav","Nav"],["ai","🤖 AI"],["notifs","🔔 Alerts"]];
+  const STABS = [["family","👨👩👧👦 Family"],["children","🌱 Children"],["school","🏫 School"],["theme","🎨 Theme"],["nav","Nav"],["ai","🤖 AI"],["notifs","🔔 Alerts"],["account","⚙️ Account"]];
   const [schoolSubTab, setSchoolSubTab] = useState("school");
 
   return (
@@ -2548,6 +2548,41 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                   </div>
                 );
               })}
+            </SCard>
+          </div>
+        )}
+
+        {tab==="account" && (
+          <div style={{animation:"fadeUp 0.18s ease",paddingBottom:"1rem"}}>
+            <SCard pal={pal} title="Reset App">
+              <div style={{fontSize:"0.77rem",color:pal.inkM,lineHeight:1.65,marginBottom:"1rem"}}>{"This will erase ALL your data on this device — family info, children, portfolio, attendance, everything. It cannot be undone."}</div>
+              <button onClick={()=>{
+                if(window.confirm("Erase all data on this device and start over? This cannot be undone.")){
+                  try{
+                    const keys=Object.keys(localStorage).filter(k=>k.startsWith("rootbloom"));
+                    keys.forEach(k=>localStorage.removeItem(k));
+                  }catch(e){}
+                  window.location.reload();
+                }
+              }} style={{width:"100%",padding:"0.7rem",border:"2px solid #c0392b",borderRadius:"12px",background:"#fdf0ee",color:"#c0392b",fontWeight:"800",fontSize:"0.84rem",cursor:"pointer"}}>
+                {"🗑️ Reset App — Erase All Data"}
+              </button>
+            </SCard>
+            <SCard pal={pal} title="Delete Account">
+              <div style={{fontSize:"0.77rem",color:pal.inkM,lineHeight:1.65,marginBottom:"1rem"}}>{"This signs you out and removes your account from this device. Your data in Supabase is not deleted — you can sign back in on any device to restore it. To fully delete your account, go to your Supabase dashboard."}</div>
+              <button onClick={()=>{
+                if(window.confirm("Sign out and remove account from this device?")){
+                  try{
+                    const sb=typeof getSB==="function"?getSB():null;
+                    if(sb) sb.auth.signOut().then(function(){});
+                    const keys=Object.keys(localStorage).filter(k=>k.startsWith("rootbloom"));
+                    keys.forEach(k=>localStorage.removeItem(k));
+                  }catch(e){}
+                  window.location.reload();
+                }
+              }} style={{width:"100%",padding:"0.7rem",border:"2px solid #c0392b",borderRadius:"12px",background:"#fdf0ee",color:"#c0392b",fontWeight:"800",fontSize:"0.84rem",cursor:"pointer"}}>
+                {"🔓 Sign Out + Clear Device"}
+              </button>
             </SCard>
           </div>
         )}
