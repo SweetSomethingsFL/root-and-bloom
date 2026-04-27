@@ -1862,11 +1862,8 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                     {h}
                   </button>
                 ))}
-             </div>
-        )}
-
-        {tab==="account" && (
-          <div style={{animation:"fadeUp 0.18s ease",paddingBottom:"1rem"}}>
+              </div>
+            </SCard>
             <SCard pal={pal} title="📱 Device Mode">
               <div style={{fontSize:"0.78rem",color:pal.inkM,lineHeight:1.6,marginBottom:"0.85rem"}}>{"Lock this device to one person. Great for a shared tablet — whoever it belongs to opens the app and lands straight in their space."}</div>
               {deviceChild ? (()=>{
@@ -8048,4 +8045,3 @@ function StateRequirementsScreen({pal, family, onBack}) {
     </div>
   );
 }
-
