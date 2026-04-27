@@ -1813,6 +1813,8 @@ function RootAndBloom() {
               setFieldStudyNotifs(updated);
               try{ localStorage.setItem("rootbloom_fs_notifs",JSON.stringify(updated)); }catch(ex){}
             }}
+            homeLayout={homeLayout}
+            onSetHomeLayout={setHomeLayout}
           />}
           {activeTab==="schedule" && <ScheduleScreen pal={pal} family={family} child={childFilt} setChild={setChildFilt}
             lastCheckinDate={lastCheckinDate}
@@ -3409,7 +3411,22 @@ function GoalsNudgeCard({pal,family,portfolioEntries,todayStr,onTabChange}){
   );
 }
 
-function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress, navIds=[], onAddEntry, onCheckin, checkinDates={}, observationLog=[], onOpenJournal, attendanceLog=[], studentVisits={}, homeLayout=["goals","pandc","progress_nudge","thisweek"], onSetHomeLayout, notifDismissed={}, onDismissNotif, onOpenEOY, onOpenFieldStudy, quizNotifs=[], onDismissQuizNotif, fieldStudyNotifs=[], onDismissFieldStudyNotif }) {
+/* ── School day helper -- is today a school day for this family? ── */
+function isSchoolDay(schoolDays) {
+  const dayName = new Date().toLocaleDateString("en-US",{weekday:"long"});
+  const dayMap = {"Sunday":0,"Monday":1,"Tuesday":2,"Wednesday":3,"Thursday":4,"Friday":5,"Saturday":6};
+  const d = dayMap[dayName];
+  if(!schoolDays || schoolDays==="Monday-Friday") return d>=1&&d<=5;
+  if(schoolDays==="Monday-Thursday")  return d>=1&&d<=4;
+  if(schoolDays==="Tuesday-Friday")   return d>=2&&d<=5;
+  if(schoolDays==="Mon/Wed/Fri")      return d===1||d===3||d===5;
+  if(schoolDays==="Tue/Thu")          return d===2||d===4;
+  // fallback: Mon-Fri
+  return d>=1&&d<=5;
+}
+
+
+function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress, navIds=[], onAddEntry, onCheckin, checkinDates={}, observationLog=[], onOpenJournal, attendanceLog=[], studentVisits={}, homeLayout=["goals","pandc","progress_nudge","thisweek","todaycard"], onSetHomeLayout, notifDismissed={}, onDismissNotif, onOpenEOY, onOpenFieldStudy, quizNotifs=[], onDismissQuizNotif, fieldStudyNotifs=[], onDismissFieldStudyNotif }) {
   const stateInfo  = getStateInfo(family.state||"");
   const stateHours = stateInfo.hours||"";
   const dayMatch   = stateHours.match(/(\d+)\s*day/i);
@@ -3642,17 +3659,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
     <div key="todaycard" data-section="todaycard">
       {/* ── Smart Today Card — single unified action ── */}
         {(()=>{
-          const _dow = new Date().getDay();
-          const isWeekend = _dow===0||_dow===6;
-          if(isWeekend) return (
-            <div style={{background:pal.pale,borderRadius:"13px",padding:"0.75rem 1rem",marginBottom:"0.85rem",border:`2px solid ${pal.primary}22`,display:"flex",gap:"0.65rem",alignItems:"center"}}>
-              <span style={{fontSize:"1.3rem",flexShrink:0}}>{"🌴"}</span>
-              <div>
-                <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.82rem"}}>{"It’s the weekend!"}</div>
-                <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>{"Here’s your plan for next week."}</div>
-              </div>
-            </div>
-          );
+          if(!isSchoolDay(family.schoolDays)) return null;
           const prog = (todayProgress && todayProgress.date===todayStr) ? todayProgress : null;
           const schedDone = prog && prog.total>0 && prog.count>=prog.total;
           const inProgress = prog && prog.count>0 && !schedDone;
@@ -4116,13 +4123,13 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
         )}
 
 
-      {/* Weekend banner — always shown on Sat/Sun */}
-      {(()=>{const _d=new Date().getDay();return(_d===0||_d===6)&&(
+      {/* Weekend / non-school-day banner */}
+      {(()=>{const _isSchool=isSchoolDay(family.schoolDays);return !_isSchool&&(
         <div style={{background:pal.pale,borderRadius:"13px",padding:"0.75rem 1rem",marginBottom:"0.85rem",border:`2px solid ${pal.primary}22`,display:"flex",gap:"0.65rem",alignItems:"center"}}>
-          <span style={{fontSize:"1.3rem",flexShrink:0}}>{"🌴"}</span>
+          <span style={{fontSize:"1.3rem",flexShrink:0}}>{"\uD83C\uDF34"}</span>
           <div>
-            <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.82rem"}}>{"It’s the weekend!"}</div>
-            <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>{"Enjoy your break — see you Monday!"}</div>
+            <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.82rem"}}>{"No school today!"}</div>
+            <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>{"Enjoy your day off \u2014 see you next school day!"}</div>
           </div>
         </div>
       );})()}
