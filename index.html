@@ -357,6 +357,7 @@ ${wsData.extension ? `<div style="background:#eef4ff;border:1.5px solid rgba(37,
 </script>
   <script src="state-requirements.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="supabase.js"></script>
   <script src="pc-lessons.js"></script>
   <script src="data.js"></script>
   <script type="text/babel" data-presets="react" src="ai-features.js"></script>
@@ -455,41 +456,13 @@ const SUBJECT_OPTIONS = [
 ];
 const SESSION_LENGTHS = ["20 min","30 min","45 min","60 min","90 min"];
 
-/* ---- SUPABASE INIT ---- */
-const SUPABASE_URL = "https://yykonehakqypwwrwfbpg.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5a29uZWhha3F5cHd3cndmYnBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyOTk4MjQsImV4cCI6MjA5Mjg3NTgyNH0.iuiyhhFa5_574dslaHyhMX1npwz9fDb8Rwzx9nGO4Fw";
-let _sbClient = null;
-function getSB() {
-  if(!_sbClient && window.supabase && SUPABASE_KEY !== "PASTE_YOUR_ANON_KEY_HERE") {
-    _sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  }
-  return _sbClient;
-}
-const SB_TABLE = "family_data";
-
 /* ---- LOAD / SAVE ---- */
 function loadSaved() {
   try { const s=localStorage.getItem(LS_KEY); return s?JSON.parse(s):null; } catch(e){return null;}
 }
 function savePersist(obj) {
   try { localStorage.setItem(LS_KEY, JSON.stringify(obj)); } catch(e){}
-  const sb = getSB();
-  if(sb) {
-    sb.auth.getUser().then(function(res){
-      if(res.data&&res.data.user) {
-        sb.from(SB_TABLE).upsert({user_id:res.data.user.id, payload:obj, updated_at:new Date().toISOString()},{onConflict:"user_id"}).then(function(){});
-      }
-    });
-  }
-}
-async function loadFromSupabase(sb) {
-  try {
-    const {data:u} = await sb.auth.getUser();
-    if(!u||!u.user) return null;
-    const {data,error} = await sb.from(SB_TABLE).select("payload").eq("user_id",u.user.id).single();
-    if(error||!data) return null;
-    return data.payload;
-  } catch(e){return null;}
+  sbSave(obj);
 }
 
 function getComplianceInfo(state, grade) {

@@ -2568,10 +2568,10 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                 {"🗑️ Reset App — Erase All Data"}
               </button>
             </SCard>
-            <SCard pal={pal} title="Delete Account">
-              <div style={{fontSize:"0.77rem",color:pal.inkM,lineHeight:1.65,marginBottom:"1rem"}}>{"This signs you out and removes your account from this device. Your data in Supabase is not deleted — you can sign back in on any device to restore it. To fully delete your account, go to your Supabase dashboard."}</div>
+            <SCard pal={pal} title="Account">
+              <div style={{fontSize:"0.77rem",color:pal.inkM,lineHeight:1.65,marginBottom:"0.75rem"}}>{"Sign out but keep your data in the cloud — you can log back in on any device to restore everything."}</div>
               <button onClick={()=>{
-                if(window.confirm("Sign out and remove account from this device?")){
+                if(window.confirm("Sign out of this device?")){
                   try{
                     const sb=typeof getSB==="function"?getSB():null;
                     if(sb) sb.auth.signOut().then(function(){});
@@ -2580,8 +2580,27 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                   }catch(e){}
                   window.location.reload();
                 }
-              }} style={{width:"100%",padding:"0.7rem",border:"2px solid #c0392b",borderRadius:"12px",background:"#fdf0ee",color:"#c0392b",fontWeight:"800",fontSize:"0.84rem",cursor:"pointer"}}>
-                {"🔓 Sign Out + Clear Device"}
+              }} style={{width:"100%",padding:"0.65rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.inkM,fontWeight:"700",fontSize:"0.82rem",cursor:"pointer",marginBottom:"0.75rem"}}>
+                {"🔓 Sign Out"}
+              </button>
+              <div style={{fontSize:"0.77rem",color:pal.inkM,lineHeight:1.65,marginBottom:"0.75rem",marginTop:"0.25rem"}}>{"Permanently delete your account and all cloud data. This cannot be undone."}</div>
+              <button onClick={()=>{
+                if(window.confirm("Permanently delete your account and ALL data? This cannot be undone.")){
+                  if(typeof sbDeleteAccount==="function"){
+                    sbDeleteAccount().then(function(result){
+                      if(result.error){ alert("Could not delete account: "+result.error); return; }
+                      try{
+                        const keys=Object.keys(localStorage).filter(k=>k.startsWith("rootbloom"));
+                        keys.forEach(k=>localStorage.removeItem(k));
+                      }catch(e){}
+                      window.location.reload();
+                    });
+                  } else {
+                    alert("Delete account is not available right now.");
+                  }
+                }
+              }} style={{width:"100%",padding:"0.65rem",border:"2px solid #c0392b",borderRadius:"12px",background:"#fdf0ee",color:"#c0392b",fontWeight:"800",fontSize:"0.82rem",cursor:"pointer"}}>
+                {"🗑️ Delete Account Permanently"}
               </button>
             </SCard>
           </div>
