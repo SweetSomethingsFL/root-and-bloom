@@ -2117,7 +2117,7 @@ function LoginScreen({ pal, onLogin }) {
   const [loading,  setLoading]  = React.useState(false);
   const [err,      setErr]      = React.useState("");
   const [msg,      setMsg]      = React.useState("");
-  const sbReady    = !!(window.supabase && SUPABASE_KEY !== "PASTE_YOUR_ANON_KEY_HERE");
+  const sbReady    = !!(window.supabase && window.SUPABASE_KEY && window.SUPABASE_KEY !== "PASTE_YOUR_ANON_KEY_HERE");
 
   const handleSubmit = async () => {
     setErr(""); setMsg("");
