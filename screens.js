@@ -1862,10 +1862,12 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                     {h}
                   </button>
                 ))}
-              </div>
-            </SCard>
+             </div>
+        )}
+
+        {tab==="account" && (
+          <div style={{animation:"fadeUp 0.18s ease",paddingBottom:"1rem"}}>
             <SCard pal={pal} title="📱 Device Mode">
-              <SCard pal={pal} title="📱 Device Mode">
               <div style={{fontSize:"0.78rem",color:pal.inkM,lineHeight:1.6,marginBottom:"0.85rem"}}>{"Lock this device to one person. Great for a shared tablet — whoever it belongs to opens the app and lands straight in their space."}</div>
               {deviceChild ? (()=>{
                 const isParent = deviceChild==="__parent__";
@@ -1907,11 +1909,10 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                 </div>
               )}
             </SCard>
-      
+          </div>
         )}
 
         {tab==="children" && (
-          <div style={{animation:"fadeUp 0.18s ease"}}>
             {(local.children||[]).map((c,i)=>(
               <SCard key={c.id} pal={pal} title={"Child " + (i+1)} action={local.children.length>1?{label:"Remove",fn:()=>remChild(c.id)}:null}>
                 <div style={{display:"flex",gap:"0.35rem",flexWrap:"wrap",marginBottom:"0.65rem"}}>
