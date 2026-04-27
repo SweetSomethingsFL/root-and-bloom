@@ -7844,6 +7844,72 @@ function StateRequirementsScreen({pal, family, onBack}) {
             </Section>
           )}
 
+          {/* Dual enrollment — only shown when at least one child is in high school */}
+          {si.dualEnrollment&&children.some(c=>(parseInt((c.grade||"").replace(/\D/g,""))||0)>=9)&&(()=>{
+            const de = si.dualEnrollment;
+            const stateFunded = de.whoPaysTuition.includes("state");
+            const booksFunded = de.whoPaysBooks==="state";
+            return (
+              <Section id="dual" icon="🎓" title="Dual Enrollment — College While Homeschooling">
+                <div style={{marginTop:"0.7rem",display:"flex",flexDirection:"column",gap:"0.55rem"}}>
+
+                  {/* State-funded badge */}
+                  {stateFunded&&(
+                    <div style={{background:"#e8f5e9",borderRadius:"11px",padding:"0.5rem 0.75rem",border:"1.5px solid #a5d6a7",display:"flex",gap:"0.5rem",alignItems:"center"}}>
+                      <span style={{fontSize:"1rem",flexShrink:0}}>{"🎉"}</span>
+                      <div style={{fontSize:"0.76rem",color:"#1b5e20",fontWeight:"800",lineHeight:1.4}}>
+                        {booksFunded
+                          ? "Great news — "+state+" pays tuition AND books for eligible homeschoolers!"
+                          : "Great news — "+state+" pays tuition for eligible homeschoolers!"}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Quick facts grid */}
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.4rem"}}>
+                    {[
+                      {icon:"📋",label:"Program",val:de.law},
+                      {icon:"🎒",label:"Eligible from",val:de.gradeMin},
+                      {icon:"📊",label:"GPA required",val:de.gpaMin},
+                      {icon:"💰",label:"Tuition",val:de.whoPaysTuition==="state"||de.whoPaysTuition==="state (grant)"?"State-funded":"Family pays"},
+                      {icon:"📚",label:"Books",val:de.whoPaysBooks==="state"?"State-funded":"Family pays"},
+                    ].map((f,i)=>(
+                      <div key={i} style={{padding:"0.5rem 0.65rem",background:pal.pale,borderRadius:"10px",border:`1.5px solid ${pal.stone}20`}}>
+                        <div style={{fontSize:"0.65rem",color:pal.slate,marginBottom:"1px"}}>{f.icon} {f.label}</div>
+                        <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.76rem",lineHeight:1.3}}>{f.val}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Notes */}
+                  <div style={{fontSize:"0.79rem",color:pal.inkM,lineHeight:1.7,padding:"0.55rem 0.75rem",background:pal.pale,borderRadius:"11px"}}>
+                    {de.notes}
+                  </div>
+
+                  {/* Disclaimer */}
+                  <div style={{padding:"0.5rem 0.75rem",background:"#fff8e1",borderRadius:"11px",border:"1.5px solid #f9a825"}}>
+                    <div style={{fontSize:"0.69rem",color:"#5d4037",lineHeight:1.6}}>
+                      {"⚠️ Dual enrollment policies change regularly. Always verify current eligibility, GPA requirements, and funding with the college and your state education department before enrolling."}
+                    </div>
+                  </div>
+
+                  {/* Link */}
+                  {de.link&&(
+                    <a href={de.link} target="_blank" rel="noopener noreferrer"
+                      style={{display:"flex",alignItems:"center",gap:"0.6rem",padding:"0.6rem 0.85rem",background:pal.pale,borderRadius:"11px",textDecoration:"none",border:`1.5px solid ${pal.stone}25`}}>
+                      <span style={{fontSize:"1rem",flexShrink:0}}>🔗</span>
+                      <div style={{flex:1}}>
+                        <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.8rem"}}>{state+" Dual Enrollment Info"}</div>
+                        <div style={{fontSize:"0.67rem",color:pal.slate,marginTop:"1px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{de.link}</div>
+                      </div>
+                      <span style={{color:pal.slate,fontSize:"0.8rem",flexShrink:0}}>{"›"}</span>
+                    </a>
+                  )}
+                </div>
+              </Section>
+            );
+          })()}
+
           {/* Official Resources */}
           <Section id="resources" icon="🔗" title="Official Resources">
             <div style={{marginTop:"0.7rem",display:"flex",flexDirection:"column",gap:"0.5rem"}}>
