@@ -7805,8 +7805,9 @@ function StateRequirementsScreen({pal, family, onBack}) {
                         </div>
                       </div>
                       <div style={{fontSize:"0.76rem",color:pal.inkM,lineHeight:1.65,marginBottom:"0.4rem"}}>{ci.gradeNote}</div>
-                      <div style={{fontSize:"0.72rem",color:pal.slate,fontStyle:"italic"}}>Assessment: {ci.testing}</div>
-                      {ci.needsTest&&<div style={{marginTop:"0.4rem",background:"#fff3e0",borderRadius:"9px",padding:"0.35rem 0.6rem",fontSize:"0.72rem",color:"#b71c1c",fontWeight:"700"}}>⚠️ Assessment required this year</div>}
+                      <div style={{fontSize:"0.72rem",color:pal.slate,fontStyle:"italic",marginBottom:"0.35rem"}}>Assessment: {ci.testing}</div>
+                      {si.evaluatorNote&&<div style={{fontSize:"0.72rem",color:pal.inkM,lineHeight:1.55,padding:"0.35rem 0.6rem",background:pal.pale,borderRadius:"9px"}}>{"👤 "+si.evaluatorNote}</div>}
+                      {ci.needsTest&&<div style={{marginTop:"0.4rem",background:"#fff3e0",borderRadius:"9px",padding:"0.35rem 0.6rem",fontSize:"0.72rem",color:"#b71c1c",fontWeight:"700"}}>{"⚠️ Assessment required this year"}</div>}
                     </div>
                   );
                 })}
@@ -7819,8 +7820,40 @@ function StateRequirementsScreen({pal, family, onBack}) {
             <div style={{marginTop:"0.7rem",fontSize:"0.8rem",color:pal.inkM,lineHeight:1.7}}>{si.notify}</div>
             <a href={HSLDA_URL} target="_blank" rel="noopener noreferrer"
               style={{display:"inline-flex",alignItems:"center",gap:"0.4rem",marginTop:"0.75rem",padding:"0.45rem 0.9rem",background:pal.primary,borderRadius:"11px",color:"#fff",fontWeight:"700",fontSize:"0.76rem",textDecoration:"none"}}>
-              Verify on HSLDA.org →
+              {"Verify on HSLDA.org \u2192"}
             </a>
+          </Section>
+
+          {/* Official Resources */}
+          <Section id="resources" icon="🔗" title="Official Resources">
+            <div style={{marginTop:"0.7rem",display:"flex",flexDirection:"column",gap:"0.5rem"}}>
+              {si.stateUrl&&(
+                <a href={si.stateUrl} target="_blank" rel="noopener noreferrer"
+                  style={{display:"flex",alignItems:"center",gap:"0.65rem",padding:"0.7rem 0.85rem",background:pal.pale,borderRadius:"13px",textDecoration:"none",border:`1.5px solid ${pal.stone}25`}}>
+                  <span style={{fontSize:"1.1rem",flexShrink:0}}>🏛️</span>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.82rem"}}>{state} Department of Education</div>
+                    <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"1px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{si.stateUrl}</div>
+                  </div>
+                  <span style={{color:pal.slate,fontSize:"0.8rem",flexShrink:0}}>{"›"}</span>
+                </a>
+              )}
+              <a href={HSLDA_URL} target="_blank" rel="noopener noreferrer"
+                style={{display:"flex",alignItems:"center",gap:"0.65rem",padding:"0.7rem 0.85rem",background:pal.pale,borderRadius:"13px",textDecoration:"none",border:`1.5px solid ${pal.stone}25`}}>
+                <span style={{fontSize:"1.1rem",flexShrink:0}}>⚖️</span>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.82rem"}}>HSLDA — Legal Reference</div>
+                  <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"1px"}}>hslda.org/legal</div>
+                </div>
+                <span style={{color:pal.slate,fontSize:"0.8rem",flexShrink:0}}>{"›"}</span>
+              </a>
+              {si.evaluatorNote&&(
+                <div style={{padding:"0.7rem 0.85rem",background:"#e8f5e9",borderRadius:"13px",border:"1.5px solid #a5d6a7"}}>
+                  <div style={{fontWeight:"700",color:"#1b5e20",fontSize:"0.8rem",marginBottom:"0.3rem"}}>{"👤 Who can evaluate?"}</div>
+                  <div style={{fontSize:"0.76rem",color:"#2e7d32",lineHeight:1.6}}>{si.evaluatorNote}</div>
+                </div>
+              )}
+            </div>
           </Section>
         </>)}
 
