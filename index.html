@@ -2209,8 +2209,11 @@ function LoginScreen({ pal, onLogin }) {
         setMsg("Check your email to confirm your account, then come back and log in!");
         setMode("login"); setLoading(false); return;
       }
+      // Reset SB client so it picks up the fresh session token
+      if(typeof resetSB === "function") resetSB();
+      const sb2 = getSB();
       // Pull cloud data or start fresh
-      const cloudData = await loadFromSupabase(sb);
+      const cloudData = await loadFromSupabase(sb2||sb);
       onLogin(cloudData);
     } catch(e){ setErr("Something went wrong. Try again."); }
     setLoading(false);

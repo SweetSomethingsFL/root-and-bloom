@@ -18,10 +18,21 @@ window.SUPABASE_URL = SUPABASE_URL;
 var _sbClient = null;
 function getSB() {
   if (!_sbClient && window.supabase && SUPABASE_KEY !== "PASTE_YOUR_ANON_KEY_HERE") {
-    _sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    _sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: {
+        storage: window.localStorage,
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true
+      }
+    });
     window.SUPABASE_KEY = SUPABASE_KEY;
   }
   return _sbClient;
+}
+// Reset client (call after sign in to ensure fresh session is picked up)
+function resetSB() {
+  _sbClient = null;
 }
 
 /* ---------- SAVE ----------
