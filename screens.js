@@ -2573,12 +2573,15 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
               <button onClick={()=>{
                 if(window.confirm("Sign out of this device?")){
                   try{
-                    const sb=typeof getSB==="function"?getSB():null;
-                    if(sb) sb.auth.signOut().then(function(){});
                     const keys=Object.keys(localStorage).filter(k=>k.startsWith("rootbloom"));
                     keys.forEach(k=>localStorage.removeItem(k));
-                  }catch(e){}
-                  window.location.reload();
+                    const sb=typeof getSB==="function"?getSB():null;
+                    if(sb){
+                      sb.auth.signOut().then(function(){ window.location.reload(); });
+                    } else {
+                      window.location.reload();
+                    }
+                  }catch(e){ window.location.reload(); }
                 }
               }} style={{width:"100%",padding:"0.65rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.inkM,fontWeight:"700",fontSize:"0.82rem",cursor:"pointer",marginBottom:"0.75rem"}}>
                 {"🔓 Sign Out"}
