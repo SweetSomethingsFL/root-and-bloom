@@ -7,7 +7,7 @@
 
 /* ---------- CONFIG ---------- */
 var SUPABASE_URL = "https://yykonehakqypwwrwfbpg.supabase.co";
-var SUPABASE_KEY = "PASTE_YOUR_ANON_KEY_HERE";
+var SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5a29uZWhha3F5cHd3cndmYnBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyOTk4MjQsImV4cCI6MjA5Mjg3NTgyNH0.iuiyhhFa5_574dslaHyhMX1npwz9fDb8Rwzx9nGO4Fw";
 var SB_TABLE     = "family_data";
 // Also expose on window so Babel scripts can read them reliably
 window.SUPABASE_KEY = SUPABASE_KEY;
