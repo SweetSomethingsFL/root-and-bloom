@@ -7,7 +7,7 @@
 function OnboardingFlow({ pal, onComplete }) {
   const [step, setStep] = useState(0);
   const [data, setData] = useState({
-    parentName:"", familyName:"", schoolName:"", state:"",
+    parentName:"", familyName:"", schoolName:"", studentTitle:"", state:"",
     yearsHomeschooling:"0-1 years",
     children:[{id:uid(),name:"",grade:"1st",avatar:"🌻"}],
     curriculumStyle:["eclectic"],
