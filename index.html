@@ -3392,7 +3392,17 @@ function NewYearModal({pal,family,onStart,onDismiss}){
 ======================================= */
 function GoalsNudgeCard({pal,family,portfolioEntries,todayStr,onTabChange}){
   const goals = family.goals||[];
-  if(goals.length===0) return null;
+  if(goals.length===0) return (
+    <div onClick={()=>onTabChange("goals")}
+      style={{background:pal.linen,borderRadius:"16px",border:`1.5px solid ${pal.primary}20`,marginBottom:"1rem",padding:"0.85rem 1rem",cursor:"pointer",display:"flex",gap:"0.75rem",alignItems:"center"}}>
+      <div style={{width:"42px",height:"42px",borderRadius:"11px",background:`${pal.primary}15`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0}}>{"🎯"}</div>
+      <div style={{flex:1}}>
+        <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.85rem",marginBottom:"2px"}}>{"Set your learning goals"}</div>
+        <div style={{fontSize:"0.71rem",color:pal.slate,lineHeight:1.5}}>{"Tap to choose what your family is working toward this year."}</div>
+      </div>
+      <span style={{color:pal.primary,fontSize:"0.9rem"}}>{"›"}</span>
+    </div>
+  );
 
   // Check if dismissed today
   const [dismissed, setDismissed] = useState(()=>{
@@ -3420,7 +3430,17 @@ function GoalsNudgeCard({pal,family,portfolioEntries,todayStr,onTabChange}){
     return {id, g, nudge, subjectLogged, score: subjectLogged?0:2};
   }).filter(Boolean).sort((a,b)=>b.score-a.score);
 
-  if(scored.length===0) return null;
+  if(scored.length===0) return (
+    <div onClick={()=>onTabChange("goals")}
+      style={{background:pal.linen,borderRadius:"16px",border:`1.5px solid ${pal.primary}20`,marginBottom:"1rem",padding:"0.85rem 1rem",cursor:"pointer",display:"flex",gap:"0.75rem",alignItems:"center"}}>
+      <div style={{width:"42px",height:"42px",borderRadius:"11px",background:`${pal.primary}15`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0}}>{"🎯"}</div>
+      <div style={{flex:1}}>
+        <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.85rem",marginBottom:"2px"}}>{"Working toward your goals"}</div>
+        <div style={{fontSize:"0.71rem",color:pal.slate,lineHeight:1.5}}>{goals.length+" goal"+(goals.length===1?"":"s")+" set — tap to review your progress."}</div>
+      </div>
+      <span style={{color:pal.primary,fontSize:"0.9rem"}}>{"›"}</span>
+    </div>
+  );
 
   const primary = scored[0]; // most actionable goal
   const completed = primary.subjectLogged;
@@ -3585,33 +3605,40 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
 
 
   // ── Section render functions ──────────────────────────────────────────────
-  const renderSection_progress_nudge = () => (
-    <div key="progress_nudge" data-section="progress_nudge">
-      {/* ── Progress check-in nudge — fires after 3+ notes, no pulse yet this week ── */}
-        {(()=>{
-          const wkStart2  = new Date(); const dow3=wkStart2.getDay(); wkStart2.setDate(wkStart2.getDate()-(dow3===0?6:dow3-1)); wkStart2.setHours(0,0,0,0);
-          const savedPW   = (() => { try{ return localStorage.getItem("rootbloom_pulse_week")||""; }catch(e){return "";} })();
-          const alreadyDone = savedPW===wkStart2.toDateString();
-          if(alreadyDone) return null;
-          const ci3 = child==="all" ? 0 : family.children.findIndex(c=>c.id===child);
-          const wkEntries3 = portfolioEntries.filter(e=>!e.isDay&&e.note&&e.note.trim()&&(()=>{
-            try{const d=new Date(e.date+", "+new Date().getFullYear());return d>=wkStart2;}catch(ex){return false;}
-          })());
-          if(wkEntries3.length<3) return null;
-          return (
-            <div onClick={()=>onTabChange("progress")}
-              style={{background:"linear-gradient(135deg,"+pal.primary+"12,"+pal.accent+"08)",borderRadius:"13px",padding:"0.7rem 0.9rem",marginBottom:"0.85rem",border:"1.5px solid "+pal.primary+"25",cursor:"pointer",display:"flex",gap:"0.6rem",alignItems:"center"}}>
-              <span style={{fontSize:"1.2rem",flexShrink:0}}>{"\u2728"}</span>
-              <div style={{flex:1}}>
-                <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.8rem"}}>{"Progress check-in ready"}</div>
-                <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>{wkEntries3.length+" notes this week \u2014 tap to generate a summary"}</div>
-              </div>
-              <span style={{fontSize:"0.8rem",color:pal.primary}}>{"\u203a"}</span>
-            </div>
-          );
-        })()}
-    </div>
-  );
+  const renderSection_progress_nudge = () => {
+    const wkStart2  = new Date(); const dow3=wkStart2.getDay(); wkStart2.setDate(wkStart2.getDate()-(dow3===0?6:dow3-1)); wkStart2.setHours(0,0,0,0);
+    const savedPW   = (() => { try{ return localStorage.getItem("rootbloom_pulse_week")||""; }catch(e){return "";} })();
+    const alreadyDone = savedPW===wkStart2.toDateString();
+    if(alreadyDone) return null;
+    const wkEntries3 = portfolioEntries.filter(e=>!e.isDay&&e.note&&e.note.trim()&&(()=>{
+      try{const d=new Date(e.date+", "+new Date().getFullYear());return d>=wkStart2;}catch(ex){return false;}
+    })());
+    if(wkEntries3.length<3) {
+      if(portfolioEntries.length===0) return (
+        <div key="progress_nudge" data-section="progress_nudge" onClick={()=>onAddEntry&&onAddEntry()}
+          style={{background:pal.linen,borderRadius:"13px",padding:"0.7rem 0.9rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.primary}20`,cursor:"pointer",display:"flex",gap:"0.6rem",alignItems:"center"}}>
+          <span style={{fontSize:"1.2rem",flexShrink:0}}>{"📝"}</span>
+          <div style={{flex:1}}>
+            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.8rem",marginBottom:"1px"}}>{"Log your first lesson"}</div>
+            <div style={{fontSize:"0.7rem",color:pal.slate,lineHeight:1.5}}>{"Tap to add an entry — your progress summary will appear here."}</div>
+          </div>
+          <span style={{color:pal.primary,fontSize:"0.9rem"}}>{"›"}</span>
+        </div>
+      );
+      return null;
+    }
+    return (
+      <div key="progress_nudge" data-section="progress_nudge" onClick={()=>onTabChange("progress")}
+        style={{background:"linear-gradient(135deg,"+pal.primary+"12,"+pal.accent+"08)",borderRadius:"13px",padding:"0.7rem 0.9rem",marginBottom:"0.85rem",border:"1.5px solid "+pal.primary+"25",cursor:"pointer",display:"flex",gap:"0.6rem",alignItems:"center"}}>
+        <span style={{fontSize:"1.2rem",flexShrink:0}}>{"\u2728"}</span>
+        <div style={{flex:1}}>
+          <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.8rem"}}>{"Progress check-in ready"}</div>
+          <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"1px"}}>{wkEntries3.length+" notes this week — tap to generate a summary"}</div>
+        </div>
+        <span style={{fontSize:"0.8rem",color:pal.primary}}>{"›"}</span>
+      </div>
+    );
+  };
 
   const renderSection_thisweek = () => (
     <div key="thisweek" data-section="thisweek">
@@ -3623,8 +3650,33 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
           const customSubjs2 = family.customSubjects||[];
           const allSubjMap2  = Object.fromEntries([...SUBJECT_OPTIONS,...customSubjs2].map(s=>[s.id,s]));
           const activeSubjList2 = activeSubjIds.map(id=>allSubjMap2[id]).filter(Boolean);
-          if(activeSubjList2.length===0) return null;
-          if(portfolioEntries.length===0) return null;
+          if(activeSubjList2.length===0) return (
+            <div onClick={()=>onTabChange("settings")}
+              style={{background:pal.linen,borderRadius:"16px",padding:"0.85rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}40`,cursor:"pointer",display:"flex",gap:"0.75rem",alignItems:"center"}}>
+              <div style={{width:"42px",height:"42px",borderRadius:"11px",background:`${pal.primary}12`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0}}>{"📚"}</div>
+              <div style={{flex:1}}>
+                <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.85rem",marginBottom:"2px"}}>{"Choose your subjects"}</div>
+                <div style={{fontSize:"0.71rem",color:pal.slate,lineHeight:1.5}}>{"Go to Settings to pick the subjects your family is studying."}</div>
+              </div>
+              <span style={{color:pal.primary,fontSize:"0.9rem"}}>{"›"}</span>
+            </div>
+          );
+          if(portfolioEntries.length===0) return (
+            <div onClick={()=>onAddEntry&&onAddEntry()}
+              style={{background:pal.linen,borderRadius:"16px",padding:"0.85rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}40`,cursor:"pointer"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.5rem"}}>
+                <span style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>{"This Week"}</span>
+              </div>
+              <div style={{display:"flex",gap:"0.75rem",alignItems:"center"}}>
+                <div style={{width:"42px",height:"42px",borderRadius:"11px",background:`${pal.primary}12`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0}}>{"✏️"}</div>
+                <div style={{flex:1}}>
+                  <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.84rem",marginBottom:"2px"}}>{"No lessons logged yet"}</div>
+                  <div style={{fontSize:"0.71rem",color:pal.slate,lineHeight:1.5}}>{"Tap to log your first lesson and start tracking the week."}</div>
+                </div>
+                <span style={{color:pal.primary,fontSize:"0.9rem"}}>{"›"}</span>
+              </div>
+            </div>
+          );
 
           // Week boundaries
           const weekStart2 = new Date();
@@ -3727,11 +3779,12 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
     </div>
   );
 
-  const renderSection_todaycard = () => (
+  const renderSection_todaycard = () => {
+    if(!isSchoolDay(family.schoolDays)) return null;
+    return (
     <div key="todaycard" data-section="todaycard">
       {/* ── Smart Today Card — single unified action ── */}
         {(()=>{
-          if(!isSchoolDay(family.schoolDays)) return null;
           const prog = (todayProgress && todayProgress.date===todayStr) ? todayProgress : null;
           const schedDone = prog && prog.total>0 && prog.count>=prog.total;
           const inProgress = prog && prog.count>0 && !schedDone;
@@ -3884,7 +3937,8 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
           );
         })()}
     </div>
-  );
+    );
+  };
 
   const renderSection_behindweek = () => (
     <div key="behindweek" data-section="behindweek">
@@ -4024,16 +4078,24 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
 
   const renderSection_goals = () => (
     <div key="goals" data-section="goals">
-      {/* ── Goals Nudge Card ── */}
-        <GoalsNudgeCard pal={pal} family={family} portfolioEntries={portfolioEntries} todayStr={todayStr} onTabChange={onTabChange}/>
-
+      <GoalsNudgeCard pal={pal} family={family} portfolioEntries={portfolioEntries} todayStr={todayStr} onTabChange={onTabChange}/>
     </div>
   );
 
   const renderSection_pandc = () => (
     <div key="pandc" data-section="pandc">
       {/* ── P&C This Week ── */}
-        {family.lifeReady && (()=>{
+        {!family.lifeReady ? (
+          <div onClick={()=>onTabChange("preparedcapable")}
+            style={{background:pal.linen,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}40`,cursor:"pointer",display:"flex",gap:"0.75rem",alignItems:"center"}}>
+            <div style={{width:"42px",height:"42px",borderRadius:"11px",background:"#f0faf3",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0}}>{"🌿"}</div>
+            <div style={{flex:1}}>
+              <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.85rem",marginBottom:"2px"}}>{"Prepared & Capable"}</div>
+              <div style={{fontSize:"0.71rem",color:pal.slate,lineHeight:1.5}}>{"Real-life skills your kids will use forever. Tap to explore."}</div>
+            </div>
+            <span style={{color:pal.primary,fontSize:"0.9rem"}}>{"\u203a"}</span>
+          </div>
+        ) : (()=>{
           const ch    = family.children[0];
           const grade = ch?.grade||"5th";
           const topic = getLRTopicForWeek(grade);
@@ -4073,7 +4135,8 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
               </div>
             )}
           </>);
-        })()}
+        })()
+        }
 
     </div>
   );
