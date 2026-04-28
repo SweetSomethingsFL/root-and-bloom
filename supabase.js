@@ -42,42 +42,25 @@ function resetSB() {
 ------------------------------------------------------------ */
 function sbSave(obj) {
   var sb = getSB();
-  if (!sb) return;
-  // refreshSession() ensures we have a fresh token even if the 1-hour access token has expired
-  sb.auth.refreshSession().then(function(refreshRes) {
-    var session = (refreshRes.data && refreshRes.data.session) ? refreshRes.data.session : null;
-    if (!session) {
-      // fallback: try getSession in case refresh isn't needed
-      sb.auth.getSession().then(function(res) {
-        var s = res.data && res.data.session;
-        if (!s || !s.user) return;
-        _doSave(s.access_token, s.user.id, obj);
-      });
-      return;
-    }
-    _doSave(session.access_token, session.user.id, obj);
-  }).catch(function() {
-    sb.auth.getSession().then(function(res) {
-      var s = res.data && res.data.session;
-      if (!s || !s.user) return;
-      _doSave(s.access_token, s.user.id, obj);
-    });
+  if (!sb) { console.log("sbSave: no sb client"); return; }
+  sb.auth.getSession().then(function(res) {
+    var session = res.data && res.data.session;
+    if (!session || !session.user) return;
+    var token = session.access_token;
+    // Use fetch directly with the session token to bypass any client auth issues
+    fetch(SUPABASE_URL + "/rest/v1/" + SB_TABLE, {
+      method: "POST",
+      headers: {
+        "apikey": SUPABASE_KEY,
+        "Authorization": "Bearer " + token,
+        "Content-Type": "application/json",
+        "Prefer": "resolution=merge-duplicates"
+      },
+      body: JSON.stringify({ user_id: session.user.id, payload: obj, updated_at: new Date().toISOString() })
+    }).then(function(r) {
+      if (!r.ok) { r.text().then(function(t){ console.error("sbSave fetch error:", r.status, t); }); }
+    }).catch(function(e){ console.error("sbSave fetch exception:", e); });
   });
-}
-function _doSave(token, userId, obj) {
-  fetch(SUPABASE_URL + "/rest/v1/" + SB_TABLE, {
-    method: "POST",
-    headers: {
-      "apikey": SUPABASE_KEY,
-      "Authorization": "Bearer " + token,
-      "Content-Type": "application/json",
-      "Prefer": "resolution=merge-duplicates"
-    },
-    body: JSON.stringify({ user_id: userId, payload: obj, updated_at: new Date().toISOString() })
-  }).then(function(r) {
-    if (!r.ok) { r.text().then(function(t){ console.error("sbSave error:", r.status, t); }); }
-    else { console.log("sbSave: saved OK"); }
-  }).catch(function(e){ console.error("sbSave exception:", e); });
 }
 
 /* ---------- LOAD ----------
@@ -86,18 +69,14 @@ function _doSave(token, userId, obj) {
 ------------------------------------------------------------ */
 async function loadFromSupabase(sb) {
   try {
-    // Try refresh first to get a fresh token
-    var refreshRes = await sb.auth.refreshSession();
-    var session = (refreshRes.data && refreshRes.data.session) ? refreshRes.data.session : null;
-    if (!session) {
-      var fallback = await sb.auth.getSession();
-      session = fallback.data && fallback.data.session;
-    }
+    var res     = await sb.auth.getSession();
+    var session = res.data && res.data.session;
     if (!session || !session.user) return null;
+    var token = session.access_token;
     var r = await fetch(SUPABASE_URL + "/rest/v1/" + SB_TABLE + "?user_id=eq." + session.user.id + "&select=payload&limit=1", {
       headers: {
         "apikey": SUPABASE_KEY,
-        "Authorization": "Bearer " + session.access_token,
+        "Authorization": "Bearer " + token,
         "Content-Type": "application/json"
       }
     });
