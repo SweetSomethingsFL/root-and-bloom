@@ -1330,6 +1330,8 @@ function RootAndBloom() {
             }}
             homeLayout={homeLayout}
             onSetHomeLayout={setHomeLayout}
+            coopLog={coopLog}
+            onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))}
           />}
           {activeTab==="schedule" && <ScheduleScreen pal={pal} family={family} child={childFilt} setChild={setChildFilt}
             lastCheckinDate={lastCheckinDate}
@@ -2757,7 +2759,7 @@ function isSchoolDay(schoolDays) {
 }
 
 
-function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress, navIds=[], onAddEntry, onCheckin, checkinDates={}, observationLog=[], onOpenJournal, attendanceLog=[], studentVisits={}, homeLayout=["goals","pandc","progress_nudge","thisweek","todaycard"], onSetHomeLayout, notifDismissed={}, onDismissNotif, onOpenEOY, onOpenFieldStudy, quizNotifs=[], onDismissQuizNotif, fieldStudyNotifs=[], onDismissFieldStudyNotif }) {
+function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress, navIds=[], onAddEntry, onCheckin, checkinDates={}, observationLog=[], onOpenJournal, attendanceLog=[], studentVisits={}, homeLayout=["goals","pandc","progress_nudge","thisweek","todaycard"], onSetHomeLayout, notifDismissed={}, onDismissNotif, onOpenEOY, onOpenFieldStudy, quizNotifs=[], onDismissQuizNotif, fieldStudyNotifs=[], onDismissFieldStudyNotif, coopLog=[], onUpdateFamily }) {
   const stateInfo  = getStateInfo(family.state||"");
   const stateHours = stateInfo.hours||"";
   const dayMatch   = stateHours.match(/(\d+)\s*day/i);
