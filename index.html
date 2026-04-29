@@ -807,7 +807,7 @@ function RootAndBloom() {
   const [view,           setView]           = useState("splash");
   const [activeTab,      setActiveTab]      = useState("home");
   const [navIds,         setNavIds]         = useState(saved?.navIds||["home","progress","portfolio","more"]);
-  const [homeLayout,     setHomeLayout]     = useState(["goals","pandc","progress_nudge","thisweek","todaycard"]);
+  const [homeLayout,     setHomeLayout]     = useState(["goals","pandc","coop","progress_nudge","thisweek","todaycard"]);
   const [portfolioLayout,setPortfolioLayout]= useState(saved?.portfolioLayout||["yearoverview","subjects","photosextras","worksheetreminder","statereminder"]);
   const [childFilt,      setChildFilt]      = useState("all");
   const [lastCheckinDate,setLastCheckinDate]= useState(saved?.lastCheckinDate||null);
@@ -3424,8 +3424,49 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
     touchDragIdx.current = null; setDragIdx(null); setDragOverIdx(null);
   };
 
-  const SECTION_LABELS = {"progress_nudge":"Progress Check-in","thisweek":"This Week","todaycard":"Today\u2019s Plan","consistency":"Consistency","missedday":"Missed Day Alert","behindweek":"Behind This Week","subjectgap":"Subject Gap","goals":"Working Towards","pandc":"Prepared \u0026 Capable"};
-  const SECTION_ICONS  = {"progress_nudge":"\u2728","thisweek":"\ud83d\udcc5","todaycard":"\ud83d\udccb","consistency":"\ud83d\udd25","missedday":"\ud83d\udcc6","behindweek":"\u26a0\ufe0f","subjectgap":"\u23f0","goals":"\ud83c\udf1f","pandc":"\ud83c\udfa8"};
+  const SECTION_LABELS = {"progress_nudge":"Progress Check-in","thisweek":"This Week","todaycard":"Today’s Plan","consistency":"Consistency","missedday":"Missed Day Alert","behindweek":"Behind This Week","subjectgap":"Subject Gap","goals":"Working Towards","pandc":"Prepared & Capable","coop":"Co-op Tracker"};
+  const SECTION_ICONS  = {"progress_nudge":"\u2728","thisweek":"\ud83d\udcc5","todaycard":"\ud83d\udccb","consistency":"\ud83d\udd25","missedday":"\ud83d\udcc6","behindweek":"\u26a0\ufe0f","subjectgap":"\u23f0","goals":"\ud83c\udf1f","pandc":"\ud83c\udfa8","coop":"\ud83c\udfe2"};
+
+  const renderSection_coop = () => {
+    const doesCoop = family.coopFreq && family.coopFreq !== "We don't do co-op";
+    if(!doesCoop) return null;
+    const coopName = family.coopName || "Co-op";
+    const coopDay  = family.coopDay  || "";
+    const lastLog  = coopLog.length > 0 ? coopLog[0] : null;
+    const totalHrs = coopLog.reduce((s,l)=>s+(parseFloat(l.hrs)||0),0);
+    const DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    const todayDow = new Date().getDay();
+    const coopDowIdx = DOW.findIndex(d=>coopDay.startsWith(d));
+    const daysUntil = coopDowIdx>=0 ? ((coopDowIdx-todayDow+7)%7)||7 : null;
+    const isToday = coopDowIdx===todayDow;
+    const nextLabel = isToday ? "Today!" : daysUntil===1 ? "Tomorrow" : daysUntil!=null ? "in "+daysUntil+" days" : "";
+    return (
+      <div key="coop" data-section="coop" onClick={()=>onTabChange("coop")}
+        style={{background:pal.linen,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:"1.5px solid "+pal.stone+"40",cursor:"pointer"}}>
+        <div style={{display:"flex",alignItems:"center",gap:"0.75rem",marginBottom:lastLog?"0.55rem":"0"}}>
+          <div style={{width:"42px",height:"42px",borderRadius:"11px",background:"#edf4ff",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0}}>{"\ud83c\udfe2"}</div>
+          <div style={{flex:1}}>
+            <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.85rem",marginBottom:"2px"}}>{coopName}</div>
+            <div style={{fontSize:"0.7rem",color:pal.slate}}>
+              {nextLabel ? (isToday ? "Co-op is today!" : "Next: "+nextLabel+(coopDay?" \u00b7 "+coopDay:"")) : coopDay||"Co-op scheduled"}
+              {totalHrs>0 ? " \u00b7 "+totalHrs+"h total" : ""}
+            </div>
+          </div>
+          <span style={{color:pal.primary,fontSize:"0.9rem"}}>{"\u203a"}</span>
+        </div>
+        {lastLog&&(
+          <div style={{background:pal.parchm,borderRadius:"9px",padding:"0.45rem 0.65rem",display:"flex",gap:"0.5rem",alignItems:"center"}}>
+            <span style={{fontSize:"0.8rem",flexShrink:0}}>{"\ud83d\udcc5"}</span>
+            <div style={{flex:1,minWidth:0}}>
+              <span style={{fontSize:"0.7rem",color:pal.inkM,fontWeight:"600"}}>{lastLog.date}</span>
+              <span style={{fontSize:"0.68rem",color:pal.slate}}>{" \u00b7 "+(lastLog.session||"Session")+" \u00b7 "+lastLog.hrs+"h"}</span>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const sectionRenderMap = {
     progress_nudge: renderSection_progress_nudge,
     thisweek:       renderSection_thisweek,
@@ -3436,6 +3477,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
     subjectgap:     renderSection_subjectgap,
     goals:          renderSection_goals,
     pandc:          renderSection_pandc,
+    coop:           renderSection_coop,
   };
 
   return (
@@ -3645,7 +3687,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
           ))}
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:"0.5rem"}}>
             <div style={{fontSize:"0.68rem",color:pal.slate,fontStyle:"italic"}}>{"Drag to reorder \u00b7 tap Hide to remove"}</div>
-            <button onClick={()=>onSetHomeLayout&&onSetHomeLayout(["goals","pandc","progress_nudge","thisweek","todaycard"])}
+            <button onClick={()=>onSetHomeLayout&&onSetHomeLayout(["goals","pandc","progress_nudge","goals","pandc","coop","progress_nudge","thisweek","todaycard"])}
               style={{fontSize:"0.65rem",color:pal.primary,fontWeight:"700",background:"transparent",border:"none",cursor:"pointer",padding:"0.2rem 0.4rem"}}>
               {"Reset to default"}
             </button>

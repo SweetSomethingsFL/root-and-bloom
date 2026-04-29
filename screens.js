@@ -1557,9 +1557,10 @@ function CoopQuickLogModal({ pal, family, onSave, onClose }) {
     ? family.coopClasses
     : ["Bible / Faith","Art","Science","History","Literature","Math","Music","PE","Other"];
 
-  const [step,         setStep]        = useState(0); // 0=subjects+hrs, 1=notes, 2=photos, 3=done
+  const [step,         setStep]        = useState(0); // 0=subjects+hrs, 1=attendance, 2=notes, 3=photos, 4=done
   const [selSubjs,     setSelSubjs]    = useState(new Set());
   const [hrs,          setHrs]         = useState("2");
+  const [attendees,    setAttendees]   = useState(new Set(family.children.map(c=>c.id)));
   const [subjectNotes, setSubjectNotes]= useState({}); // {childId: {subj: note}}
   const [photos,       setPhotos]      = useState([]);
   const fileRef = useRef(null);
@@ -1590,18 +1591,19 @@ function CoopQuickLogModal({ pal, family, onSave, onClose }) {
       session: subjList.join(", ")||"Co-op",
       subjects: subjList,
       hrs: parseFloat(hrs),
+      attendees: [...attendees],
       subjectNotes,
       notes: Object.fromEntries(
-        family.children.map(c=>[c.id,
+        family.children.filter(c=>attendees.has(c.id)).map(c=>[c.id,
           subjList.map(s=>(subjectNotes[c.id]?.[s]||"")).filter(Boolean).join(" | ")
         ])
       ),
       photos: photos.map(p=>p.dataUrl),
     });
-    setStep(3);
+    setStep(4);
   };
 
-  const STEP_LABELS = ["Subjects","Notes","Photos","Done"];
+  const STEP_LABELS = ["Subjects","Who Came","Notes","Photos","Done"];
 
   return (
     <div style={{position:"fixed",inset:0,background:"rgba(10,20,10,0.78)",backdropFilter:"blur(14px)",zIndex:200,display:"flex",alignItems:"center",justifyContent:"center",padding:"1rem"}}>
@@ -1659,12 +1661,34 @@ function CoopQuickLogModal({ pal, family, onSave, onClose }) {
             </div>
           </>)}
 
-          {/* Step 1: Per-subject notes per child */}
+          {/* Step 1: Who attended */}
           {step===1&&(<>
+            <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.8rem",marginBottom:"0.55rem"}}>{"Who came today?"}</div>
+            <div style={{fontSize:"0.73rem",color:pal.slate,lineHeight:1.5,marginBottom:"0.75rem"}}>{"Tap to toggle — all children are selected by default."}</div>
+            <div style={{display:"flex",flexDirection:"column",gap:"0.4rem",marginBottom:"1rem"}}>
+              {family.children.map(ch=>{
+                const cp=CHILD_COLOR_PALETTES.find(p=>p.id===(ch.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+                const here=attendees.has(ch.id);
+                return (
+                  <button key={ch.id} onClick={()=>setAttendees(prev=>{const n=new Set(prev);here?n.delete(ch.id):n.add(ch.id);return n;})}
+                    style={{display:"flex",alignItems:"center",gap:"0.75rem",padding:"0.7rem 0.9rem",border:"2px solid "+(here?cp.c1:pal.stone+"50"),borderRadius:"13px",background:here?"linear-gradient(135deg,"+cp.c1+"15,"+cp.c2+"08)":"transparent",cursor:"pointer",textAlign:"left",transition:"all 0.12s"}}>
+                    <div style={{width:"36px",height:"36px",borderRadius:"10px",background:here?"linear-gradient(135deg,"+cp.c1+","+cp.c2+")":pal.parchm,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.1rem",flexShrink:0,transition:"background 0.12s"}}>{ch.avatar}</div>
+                    <span style={{fontWeight:here?"700":"400",color:here?pal.ink:pal.slate,fontSize:"0.88rem",flex:1}}>{ch.name}</span>
+                    <div style={{width:"20px",height:"20px",borderRadius:"50%",border:"2px solid "+(here?cp.c1:pal.stone),background:here?cp.c1:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                      {here&&<span style={{color:"#fff",fontSize:"0.65rem",fontWeight:"900"}}>{"✓"}</span>}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </>)}
+
+          {/* Step 2: Per-subject notes per child */}
+          {step===2&&(<>
             <div style={{fontSize:"0.76rem",color:pal.slate,lineHeight:1.55,marginBottom:"0.85rem"}}>
               Add notes for each subject — what did each child do or learn?
             </div>
-            {family.children.map(c=>{
+            {family.children.filter(c=>attendees.has(c.id)).map(c=>{
               const cp=CHILD_COLOR_PALETTES.find(p=>p.id===(c.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
               return (
                 <div key={c.id} style={{marginBottom:"1rem"}}>
@@ -1693,7 +1717,7 @@ function CoopQuickLogModal({ pal, family, onSave, onClose }) {
           </>)}
 
           {/* Step 2: Photos */}
-          {step===2&&(<>
+          {step===3&&(<>
             <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.8rem",marginBottom:"0.3rem"}}>{"Add Photos"}</div>
             <div style={{fontSize:"0.73rem",color:pal.slate,marginBottom:"0.75rem",lineHeight:1.5}}>
               Optional — photos will be saved with each subject entry in the portfolio.
@@ -1722,7 +1746,7 @@ function CoopQuickLogModal({ pal, family, onSave, onClose }) {
           </>)}
 
           {/* Step 3: Done */}
-          {step===3&&(
+          {step===4&&(
             <div style={{textAlign:"center",padding:"1rem 0"}}>
               <div style={{fontSize:"3rem",marginBottom:"0.5rem"}}>{"🏫"}</div>
               <div style={{fontWeight:"800",color:pal.primary,fontSize:"1rem",marginBottom:"0.35rem"}}>Co-op logged!</div>
@@ -1738,7 +1762,7 @@ function CoopQuickLogModal({ pal, family, onSave, onClose }) {
 
         {/* Footer */}
         <div style={{padding:"0.85rem 1.2rem",borderTop:`1px solid ${pal.stone}30`,flexShrink:0,display:"flex",gap:"0.5rem"}}>
-          {step<3?(
+          {step<4?(
             <>
               {step>0?(
                 <button onClick={()=>setStep(s=>s-1)}
@@ -1752,10 +1776,10 @@ function CoopQuickLogModal({ pal, family, onSave, onClose }) {
                 </button>
               )}
               <button
-                onClick={()=>{ if(step===2){handleSave();} else setStep(s=>s+1); }}
+                onClick={()=>{ if(step===3){handleSave();} else setStep(s=>s+1); }}
                 disabled={step===0&&!canNext0}
                 style={{flex:1,padding:"0.65rem",border:"none",borderRadius:"11px",background:step===0&&!canNext0?"#ccc":pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.86rem",cursor:step===0&&!canNext0?"default":"pointer"}}>
-                {step===2?"Save to Portfolio ✓":"Next →"}
+                {step===3?"Save to Portfolio ✓":"Next →"}
               </button>
             </>
           ):(
@@ -5107,7 +5131,28 @@ function CoopScreen({pal,family,coopLog,onLog,onUpdateFamily,onAddEntry}){
   const [showQL,    setShowQL]    = useState(false);
   const [showSetup, setShowSetup] = useState(false);
   const [expanded,  setExpanded]  = useState(null);
-  const [coopTab,   setCoopTab]   = useState("info"); // info | photos | history
+  const [coopTab,   setCoopTab]   = useState("info"); // info | photos | history | topics
+  const [coopAISummary, setCoopAISummary] = useState({}); // {className: {text, loading, error}}
+
+  const runCoopAI = async (className) => {
+    setCoopAISummary(s=>({...s,[className]:{loading:true,text:null,error:null}}));
+    try {
+      const sessions = coopLog.filter(l=>(l.subjects||[]).includes(className)||(l.classes||[]).includes(className));
+      if(sessions.length===0){setCoopAISummary(s=>({...s,[className]:{loading:false,text:null,error:"no_data"}}));return;}
+      const lines = sessions.map(l=>{
+        const notes = family.children.map(c=>{
+          const n=(l.subjectNotes&&l.subjectNotes[c.id]&&l.subjectNotes[c.id][className])||"";
+          return n.trim() ? c.name+": "+n : "";
+        }).filter(Boolean).join(" | ");
+        return l.date+" ("+l.hrs+"h)"+(notes?" - "+notes:"");
+      }).join("\n");
+      const prompt = "You are a homeschool co-op assistant. Summarize what this family covered in "+className+" at their co-op this semester. Be warm, specific, and encouraging. Keep it to 3-4 sentences.\n\nSession notes:\n"+lines+"\n\nFamily: "+family.schoolName+". "+curriculumContext(family);
+      const result = await callClaude(prompt);
+      setCoopAISummary(s=>({...s,[className]:{loading:false,text:result,error:null}}));
+    } catch(e) {
+      setCoopAISummary(s=>({...s,[className]:{loading:false,text:null,error:e.message==="NO_KEY"?"no_key":"error"}}));
+    }
+  };
 
   const freq      = family.coopFreq||"";
   const doesCoop  = freq && freq!=="We don't do co-op";
@@ -5160,7 +5205,7 @@ function CoopScreen({pal,family,coopLog,onLog,onUpdateFamily,onAddEntry}){
       <FirstVisitTip pal={pal} screen="coop"/>
       {/* Tab bar */}
       <div style={{display:"flex",background:pal.parchm,borderRadius:"12px",padding:"3px",gap:"2px",margin:"0 1rem 1rem"}}>
-        {[["info","📋 Info"],["photos","📷 Photos"],["history","📅 History"]].map(([id,label])=>(
+        {[["info","📋 Info"],["photos","📷 Photos"],["history","📅 History"],["topics","📊 Topics"]].map(([id,label])=>(
           <button key={id} onClick={()=>setCoopTab(id)}
             style={{flex:1,padding:"0.5rem 0.3rem",border:"none",borderRadius:"10px",background:coopTab===id?pal.linen:"transparent",cursor:"pointer",fontWeight:"700",color:coopTab===id?pal.primary:pal.slate,fontSize:"0.78rem",transition:"all 0.15s"}}>
             {label}
@@ -5361,6 +5406,88 @@ function CoopScreen({pal,family,coopLog,onLog,onUpdateFamily,onAddEntry}){
         )}
         <div style={{height:"0.5rem"}}/>
       </div>)} {/* end history tab */}
+      {/* TOPICS TAB */}
+      {coopTab==="topics"&&(<div style={{padding:"0 1rem"}}>
+        {(()=>{
+          const allClasses = [...new Set([
+            ...(family.coopClasses||[]),
+            ...coopLog.flatMap(l=>l.subjects||l.classes||[])
+          ])].filter(Boolean);
+          if(allClasses.length===0) return (
+            <div style={{background:pal.linen,borderRadius:"16px",padding:"2rem 1.5rem",textAlign:"center",border:"1.5px solid "+pal.stone+"30",marginBottom:"1rem"}}>
+              <div style={{fontSize:"2rem",marginBottom:"0.5rem"}}>{"📊"}</div>
+              <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.88rem",marginBottom:"0.3rem"}}>{"No topics yet"}</div>
+              <div style={{fontSize:"0.76rem",color:pal.slate,lineHeight:1.6}}>{"Log co-op sessions with subjects to see a cumulative topic view here."}</div>
+            </div>
+          );
+          return allClasses.map(cls=>{
+            const sessions = coopLog.filter(l=>(l.subjects||l.classes||[]).includes(cls));
+            const totalH = sessions.reduce((s,l)=>s+(parseFloat(l.hrs)||0),0);
+            const allNotes = sessions.flatMap(l=>
+              family.children.map(c=>{
+                const n=(l.subjectNotes&&l.subjectNotes[c.id]&&l.subjectNotes[c.id][cls])||"";
+                return n.trim() ? {child:c, note:n, date:l.date} : null;
+              }).filter(Boolean)
+            );
+            const ai = coopAISummary[cls]||{};
+            return (
+              <div key={cls} style={{background:pal.linen,borderRadius:"16px",border:"1.5px solid "+pal.stone+"30",marginBottom:"0.75rem",overflow:"hidden"}}>
+                <div style={{padding:"0.85rem 1rem",display:"flex",alignItems:"center",gap:"0.65rem"}}>
+                  <div style={{width:"38px",height:"38px",borderRadius:"10px",background:pal.pale,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.1rem",flexShrink:0}}>{"📚"}</div>
+                  <div style={{flex:1}}>
+                    <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem"}}>{cls}</div>
+                    <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"1px"}}>{sessions.length+" session"+(sessions.length!==1?"s":"")+" · "+totalH+"h total"}</div>
+                  </div>
+                </div>
+                {allNotes.length>0&&(
+                  <div style={{borderTop:"1px solid "+pal.stone+"20",padding:"0.65rem 1rem"}}>
+                    <div style={{fontSize:"0.65rem",color:pal.slate,fontWeight:"700",textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"0.45rem"}}>{"Notes from sessions"}</div>
+                    <div style={{display:"flex",flexDirection:"column",gap:"0.4rem"}}>
+                      {allNotes.slice(0,5).map((n,i)=>(
+                        <div key={i} style={{display:"flex",gap:"0.5rem",alignItems:"flex-start"}}>
+                          <span style={{fontSize:"0.8rem",flexShrink:0,marginTop:"1px"}}>{n.child.avatar}</span>
+                          <div style={{flex:1}}>
+                            <span style={{fontSize:"0.68rem",fontWeight:"700",color:pal.inkM}}>{n.child.name}</span>
+                            <span style={{fontSize:"0.68rem",color:pal.slate}}>{" · "+n.date}</span>
+                            <div style={{fontSize:"0.75rem",color:pal.ink,marginTop:"1px",lineHeight:1.5}}>{n.note}</div>
+                          </div>
+                        </div>
+                      ))}
+                      {allNotes.length>5&&<div style={{fontSize:"0.67rem",color:pal.slate,fontStyle:"italic"}}>{"+"+(allNotes.length-5)+" more notes"}</div>}
+                    </div>
+                  </div>
+                )}
+                {/* AI Summary */}
+                <div style={{borderTop:"1px solid "+pal.stone+"20",padding:"0.65rem 1rem"}}>
+                  {ai.text&&(
+                    <div style={{background:pal.pale,borderRadius:"10px",padding:"0.6rem 0.75rem",marginBottom:"0.5rem",border:"1.5px solid "+pal.primary+"20"}}>
+                      <div style={{fontSize:"0.65rem",color:pal.primary,fontWeight:"700",textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"0.3rem"}}>{"AI Summary"}</div>
+                      <div style={{fontSize:"0.78rem",color:pal.ink,lineHeight:1.65}}>{ai.text}</div>
+                    </div>
+                  )}
+                  {ai.error==="no_key"&&<div style={{fontSize:"0.72rem",color:pal.slate,fontStyle:"italic",marginBottom:"0.4rem"}}>{"Add an API key in Settings to generate an AI summary."}</div>}
+                  {ai.error==="no_data"&&<div style={{fontSize:"0.72rem",color:pal.slate,fontStyle:"italic",marginBottom:"0.4rem"}}>{"No session notes found for this class."}</div>}
+                  {ai.error==="error"&&<div style={{fontSize:"0.72rem",color:"#aa3333",marginBottom:"0.4rem"}}>{"Could not generate summary — try again."}</div>}
+                  {!ai.text&&(
+                    <button onClick={()=>runCoopAI(cls)} disabled={!!ai.loading}
+                      style={{width:"100%",padding:"0.5rem",border:"none",borderRadius:"10px",background:ai.loading?"#ddd":pal.accentGrad,color:ai.loading?pal.slate:"#fff",fontWeight:"700",fontSize:"0.78rem",cursor:ai.loading?"default":"pointer"}}>
+                      {ai.loading ? "Generating summary..." : "✨ AI summary for "+cls}
+                    </button>
+                  )}
+                  {ai.text&&(
+                    <button onClick={()=>runCoopAI(cls)} disabled={!!ai.loading}
+                      style={{width:"100%",padding:"0.4rem",border:"1.5px solid "+pal.stone,borderRadius:"10px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.72rem",cursor:"pointer",marginTop:"0.35rem"}}>
+                      {ai.loading ? "Regenerating..." : "↺ Regenerate"}
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          });
+        })()}
+        <div style={{height:"0.5rem"}}/>
+      </div>)}
+
       </div> {/* end outer padding div */}
       {showQL&&<CoopQuickLogModal pal={pal} family={family} onSave={saveLog} onClose={()=>setShowQL(false)}/>}
     </div>
