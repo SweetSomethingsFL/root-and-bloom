@@ -824,6 +824,7 @@ function RootAndBloom() {
   const [quizNotifs,        setQuizNotifs]        = useState(()=>{ try{ const s=localStorage.getItem("rootbloom_quiz_notifs"); return s?JSON.parse(s):[]; }catch(e){return [];} });
   const [fieldStudyNotifs,  setFieldStudyNotifs]  = useState(()=>{ try{ const s=localStorage.getItem("rootbloom_fs_notifs"); return s?JSON.parse(s):[]; }catch(e){return [];} });
   const [showNewYear,       setShowNewYear]        = useState(false);
+  const [showDigest,        setShowDigest]         = useState(false);
   const [newYearDismissed,  setNewYearDismissed]   = useState(saved?.newYearDismissed||null);
   const [showJournal,       setShowJournal]       = useState(null); // childId or null
   const [pastDayWrapUp,     setPastDayWrapUp]     = useState(null);
@@ -1270,7 +1271,7 @@ function RootAndBloom() {
               setTodayProgress({count,total,date:todayStr});
             }}
           />}
-          {activeTab==="progress"    && <ProgressScreen   pal={pal} family={family} child={childFilt} setChild={setChildFilt} portfolioEntries={portfolioEntries} attendanceDays={attendanceDays} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} onOpenEOY={()=>{setEoyChild(0);setShowEOY(true);}} />}
+          {activeTab==="progress"    && <ProgressScreen   pal={pal} family={family} child={childFilt} setChild={setChildFilt} portfolioEntries={portfolioEntries} attendanceDays={attendanceDays} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} onOpenEOY={()=>{setEoyChild(0);setShowEOY(true);}} onOpenDigest={()=>setShowDigest(true)} />}
           {activeTab==="learn"       && <LearnScreen       pal={pal} family={family} child={childFilt} setChild={setChildFilt} learnTab={learnTab} setLearnTab={setLearnTab} portfolioEntries={portfolioEntries} />}
           {activeTab==="portfolio"   && <PortfolioScreen   pal={pal} family={family} child={childFilt} setChild={setChildFilt} entries={portfolioEntries} onAddEntry={addPortfolioEntry} onEditEntry={editPortfolioEntry} attendanceDays={attendanceDays}
             lastCheckinDate={lastCheckinDate} coopLog={coopLog} portfolioLayout={portfolioLayout} onSetPortfolioLayout={setPortfolioLayout}
@@ -1449,6 +1450,10 @@ function RootAndBloom() {
           if(newEntries.length>0){setAttendanceLog(l=>[...newEntries,...l]);setAttendanceDays(d=>d+newEntries.length);}
           setShowSchedConfirm(false);
         }} onClose={()=>setShowSchedConfirm(false)} />}
+        {showDigest   && <WeeklyDigestModal pal={pal} family={family}
+          savedPulses={(()=>{try{const s=localStorage.getItem("rootbloom_pulses");return s?JSON.parse(s):[];}catch(e){return [];}})()}
+          portfolioEntries={portfolioEntries} attendanceDays={attendanceDays}
+          onClose={()=>setShowDigest(false)} />}
         {showCatchup  && <CatchupModal   pal={pal} family={family} days={attendanceDays} needed={parseInt((getStateInfo(family.state||"").hours||"180").match(/\d+/)?.[0]||"180")} onClose={()=>setShowCatchup(false)} />}
         {showCelebration && celebData && <CelebrationModal pal={pal} data={celebData} onEnter={enterApp}/>}
         {showTour && <TourModal pal={pal} onDone={finishTour}/>}

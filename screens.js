@@ -1865,14 +1865,13 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
               </div>
             </SCard>
             <SCard pal={pal} title="📱 Device Mode">
-              <div style={{fontSize:"0.78rem",color:pal.inkM,lineHeight:1.6,marginBottom:"0.85rem"}}>{"Lock this device to one person. Great for a shared tablet — whoever it belongs to opens the app and lands straight in their space."}</div>
+              <div style={{fontSize:"0.78rem",color:pal.inkM,lineHeight:1.6,marginBottom:"0.85rem"}}>{"Lock this device to one child's portal. Great for a kid's tablet — they open the app and land straight in their space. You can always reset it here."}</div>
               {deviceChild ? (()=>{
-                const isParent = deviceChild==="__parent__";
-                const locked = isParent ? null : (local.children||[]).find(c=>c.id===deviceChild);
+                const locked = (local.children||[]).find(c=>c.id===deviceChild);
                 return (
                   <div style={{background:pal.pale,borderRadius:"14px",padding:"0.75rem 0.9rem",border:`1.5px solid ${pal.primary}25`,marginBottom:"0.75rem"}}>
-                    <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.84rem",marginBottom:"2px"}}>{"📌 Locked to: "+(isParent?"👩 "+(local.parentName||"Parent"):locked?locked.avatar+" "+locked.name:"a child")}</div>
-                    <div style={{fontSize:"0.7rem",color:pal.slate}}>{isParent?"This device always opens to the parent dashboard.":"This device always opens to their portal."}</div>
+                    <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.84rem",marginBottom:"2px"}}>{"📌 Locked to: "+(locked?locked.avatar+" "+locked.name:"a child")}</div>
+                    <div style={{fontSize:"0.7rem",color:pal.slate}}>{"This device always opens to their portal."}</div>
                   </div>
                 );
               })():null}
@@ -1883,22 +1882,13 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                 </button>
               ):(
                 <div style={{display:"flex",flexDirection:"column",gap:"0.4rem"}}>
-                  <button onClick={()=>setDeviceChild("__parent__")}
-                    style={{padding:"0.6rem 0.85rem",border:`2px solid ${pal.primary}40`,borderRadius:"12px",background:pal.pale,cursor:"pointer",display:"flex",alignItems:"center",gap:"0.6rem",textAlign:"left"}}>
-                    <span style={{fontSize:"1.3rem"}}>{"👩"}</span>
-                    <div style={{flex:1}}>
-                      <div style={{fontWeight:"700",color:pal.primary,fontSize:"0.84rem"}}>{local.parentName||"Parent"}</div>
-                      <div style={{fontSize:"0.68rem",color:pal.slate}}>{"Lock this device to the parent dashboard"}</div>
-                    </div>
-                    <span style={{color:pal.slate,fontSize:"0.9rem"}}>{">"}</span>
-                  </button>
                   {(local.children||[]).map(c=>(
                     <button key={c.id} onClick={()=>setDeviceChild(c.id)}
                       style={{padding:"0.6rem 0.85rem",border:`2px solid ${pal.stone}40`,borderRadius:"12px",background:"#fff",cursor:"pointer",display:"flex",alignItems:"center",gap:"0.6rem",textAlign:"left"}}>
                       <span style={{fontSize:"1.3rem"}}>{c.avatar||"🌻"}</span>
                       <div style={{flex:1}}>
                         <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.84rem"}}>{c.name||"Child"}</div>
-                        <div style={{fontSize:"0.68rem",color:pal.slate}}>{"Lock this device to "+(c.name||"this child")+"'s portal"}</div>
+                        <div style={{fontSize:"0.68rem",color:pal.slate}}>{"Lock this device to "+( c.name||"this child")+"'s portal"}</div>
                       </div>
                       <span style={{color:pal.slate,fontSize:"0.9rem"}}>{">"}</span>
                     </button>
@@ -5717,7 +5707,7 @@ function LifeReadyScreen({pal,family,onBack}){
    Weekly pulse · Subject timelines · Milestones · AI check-in
 ======================================= */
 
-function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], attendanceDays=0, onUpdateFamily, onOpenEOY}) {
+function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], attendanceDays=0, onUpdateFamily, onOpenEOY, onOpenDigest}) {
   const [activeTab,    setActiveTab]    = React.useState("pulse");   // pulse | timeline | milestones | skills | grades
   const [selectedChild, setSelectedChild] = React.useState(
     child && child!=="all" ? family.children.findIndex(c=>c.id===child) : 0
@@ -5965,6 +5955,23 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
         );
       })()}
 
+
+      {/* Weekly Digest button */}
+      {onOpenDigest&&(
+        <div style={{padding:"0 1rem",marginBottom:"0.5rem"}}>
+          <button onClick={onOpenDigest}
+            style={{width:"100%",display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0.65rem 0.9rem",border:"2px solid "+pal.stone+"40",borderRadius:"13px",background:"transparent",cursor:"pointer"}}>
+            <div style={{display:"flex",alignItems:"center",gap:"0.55rem"}}>
+              <span style={{fontSize:"1.1rem"}}>{"📋"}</span>
+              <div style={{textAlign:"left"}}>
+                <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.82rem"}}>{"Weekly Digest"}</div>
+                <div style={{fontSize:"0.66rem",color:pal.slate,marginTop:"1px"}}>{"This week by subject, milestones and quiz scores"}</div>
+              </div>
+            </div>
+            <span style={{color:pal.stone,fontSize:"0.9rem"}}>{"›"}</span>
+          </button>
+        </div>
+      )}
 
       {/* Child selector */}
       {family.children.length>1&&(
@@ -8045,3 +8052,4 @@ function StateRequirementsScreen({pal, family, onBack}) {
     </div>
   );
 }
+
