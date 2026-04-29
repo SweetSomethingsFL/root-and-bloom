@@ -3360,7 +3360,6 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
               <span style={{fontWeight:"800",color:allDone?pal.good:LR_COLOR,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>
                 {allDone?"\u2713":LR_ICON} Prepared {"&"} Capable
               </span>
-              <button onClick={()=>onTabChange("preparedcapable")} style={{fontSize:"0.72rem",color:LR_COLOR,fontWeight:"700",background:"transparent",border:"none",cursor:"pointer"}}>{"Open \u2192"}</button>
             </div>
             {family.children.map((ch,ci)=>{
               const grade = ch.grade||"5th";
@@ -3369,16 +3368,18 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
               const done  = !!pcDoneMap[ch.id];
               const cp    = CHILD_COLOR_PALETTES.find(p=>p.id===(ch.colorId||"sunshine"))||CHILD_COLOR_PALETTES[ci%CHILD_COLOR_PALETTES.length];
               return done ? (
-                <div key={ch.id} style={{background:pal.goodBg,borderRadius:"13px",padding:"0.65rem 0.9rem",marginBottom:"0.5rem",border:`1.5px solid ${pal.good}30`,display:"flex",gap:"0.6rem",alignItems:"center"}}>
+                <div key={ch.id} onClick={()=>{setChild(ch.id);onTabChange("preparedcapable");}}
+                  style={{background:pal.goodBg,borderRadius:"13px",padding:"0.65rem 0.9rem",marginBottom:"0.5rem",border:`1.5px solid ${pal.good}30`,display:"flex",gap:"0.6rem",alignItems:"center",cursor:"pointer"}}>
                   <span style={{fontSize:"1rem",flexShrink:0}}>{ch.avatar}</span>
                   <div style={{flex:1,minWidth:0}}>
                     <span style={{fontWeight:"700",color:pal.good,fontSize:"0.78rem"}}>{ch.name}</span>
                     <span style={{fontSize:"0.68rem",color:pal.slate}}>{" \u00b7 Week "+week+" done \u2713"}</span>
                   </div>
-                  <button onClick={()=>onTabChange("preparedcapable")} style={{padding:"0.2rem 0.55rem",border:`1px solid ${pal.good}40`,borderRadius:"8px",background:"transparent",color:pal.good,fontSize:"0.65rem",fontWeight:"700",cursor:"pointer",flexShrink:0}}>{"Review"}</button>
+                  <span style={{color:pal.good,fontSize:"0.85rem",flexShrink:0}}>{"\u203a"}</span>
                 </div>
               ) : (
-                <div key={ch.id} style={{background:`linear-gradient(135deg,${cp.c1}12,${cp.c2}08)`,borderRadius:"13px",padding:"0.65rem 0.9rem",marginBottom:"0.5rem",border:`1.5px solid ${cp.c1}30`}}>
+                <div key={ch.id} onClick={()=>{setChild(ch.id);onTabChange("preparedcapable");}}
+                  style={{background:`linear-gradient(135deg,${cp.c1}12,${cp.c2}08)`,borderRadius:"13px",padding:"0.65rem 0.9rem",marginBottom:"0.5rem",border:`1.5px solid ${cp.c1}30`,cursor:"pointer"}}>
                   <div style={{display:"flex",gap:"0.6rem",alignItems:"center"}}>
                     <div style={{width:"36px",height:"36px",borderRadius:"10px",background:`linear-gradient(135deg,${cp.c1},${cp.c2})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.1rem",flexShrink:0}}>{ch.avatar}</div>
                     <div style={{flex:1,minWidth:0}}>
