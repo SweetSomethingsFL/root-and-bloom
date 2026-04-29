@@ -982,7 +982,19 @@ function RootAndBloom() {
   const navTabs = ALL_SECTIONS_EXT.filter(s=>navIdsExt.includes(s.id));
 
   // Listen for in-app navigation events (e.g. "View in Portfolio" links)
-  useEffect(()=>{\n    const handler = (e) => { setActiveTab(e.detail); };\n    window.addEventListener(\"rootbloom-nav\", handler);\n    return ()=>window.removeEventListener(\"rootbloom-nav\", handler);\n  },[]);\n\n  useEffect(()=>{\n    const goOnline  = ()=>setIsOnline(true);\n    const goOffline = ()=>setIsOnline(false);\n    window.addEventListener(\"online\",  goOnline);\n    window.addEventListener(\"offline\", goOffline);\n    return ()=>{ window.removeEventListener(\"online\", goOnline); window.removeEventListener(\"offline\", goOffline); };\n  },[]);
+  useEffect(()=>{
+    const handler = (e) => { setActiveTab(e.detail); };
+    window.addEventListener("rootbloom-nav", handler);
+    return ()=>window.removeEventListener("rootbloom-nav", handler);
+  },[]);
+
+  useEffect(()=>{
+    const goOnline  = ()=>setIsOnline(true);
+    const goOffline = ()=>setIsOnline(false);
+    window.addEventListener("online",  goOnline);
+    window.addEventListener("offline", goOffline);
+    return ()=>{ window.removeEventListener("online", goOnline); window.removeEventListener("offline", goOffline); };
+  },[]);
 
   const handleLogin = (cloudData) => {
     // cloudData is the Supabase payload (or null if skipped/no account)
