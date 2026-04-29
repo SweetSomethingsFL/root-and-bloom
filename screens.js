@@ -1,4 +1,4 @@
-function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onCoopLog, onBack, checkinStreak=0, checkinDates={}, onQuizComplete, onOpenFieldStudy, celebResetToken=0, onSubmitEntry }) {
+function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onCoopLog, onBack, checkinStreak=0, checkinDates={}, onQuizComplete, onOpenFieldStudy, celebResetToken=0, onSubmitEntry, parentNotes={}, onMarkNoteRead }) {
   const [sTab,         setSTab]         = useState("home");
   const [noteText,     setNoteText]     = useState("");
   const [noteSaved,    setNoteSaved]    = useState(false);
@@ -16,6 +16,7 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
   const saveChecked = (next) => { try{ localStorage.setItem(SCHED_SK_KEY,JSON.stringify({date:todayStr2,checked:next})); }catch{} };
   // Reading modal
   const [readingPrompt, setReadingPrompt] = useState(null); // {blockIdx, subjLabel, subjIcon} | null
+  const [noteOpen,     setNoteOpen]     = useState(false);
   const [readingTitle2, setReadingTitle2] = useState("");
   // Goals tab logged state
   const [goalsLoggedToday, setGoalsLoggedToday] = useState(new Set());
@@ -359,6 +360,38 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
                   </div>
                 </div>
               )}
+              {/* Parent note notification */}
+              {(()=>{
+                const note = (parentNotes||{})[child.id];
+                if(!note||!note.text) return null;
+                const studentTitle = family.studentTitle||"your teacher";
+                return (
+                  <div style={{background:note.read?"linear-gradient(135deg,"+c1+"10,"+c2+"08)":"linear-gradient(135deg,"+c1+"22,"+c2+"15)",borderRadius:"18px",padding:"0.85rem 1rem",marginBottom:"0.9rem",border:"2px solid "+(note.read?c1+"30":c1+"60"),boxShadow:note.read?"none":"0 3px 16px "+c1+"25"}}>
+                    {!noteOpen ? (
+                      <button onClick={()=>{setNoteOpen(true);if(!note.read&&onMarkNoteRead)onMarkNoteRead(child.id);}}
+                        style={{width:"100%",display:"flex",alignItems:"center",gap:"0.65rem",background:"transparent",border:"none",cursor:"pointer",padding:"0",textAlign:"left"}}>
+                        <div style={{width:"40px",height:"40px",borderRadius:"12px",background:"linear-gradient(135deg,"+c1+","+c2+")",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0}}>{"💌"}</div>
+                        <div style={{flex:1}}>
+                          <div style={{fontWeight:"900",color:c1,fontSize:"0.88rem"}}>{"A note from "+studentTitle+"!"}</div>
+                          <div style={{fontSize:"0.7rem",color:SK.lite,marginTop:"1px"}}>{note.date+" \u00b7 Tap to read"}</div>
+                        </div>
+                        {!note.read&&<div style={{width:"10px",height:"10px",borderRadius:"50%",background:c1,flexShrink:0}}/>}
+                      </button>
+                    ) : (
+                      <div>
+                        <div style={{display:"flex",alignItems:"center",gap:"0.5rem",marginBottom:"0.65rem"}}>
+                          <span style={{fontSize:"1.2rem"}}>{"💌"}</span>
+                          <div style={{fontWeight:"900",color:c1,fontSize:"0.85rem",flex:1}}>{"From "+studentTitle}</div>
+                          <div style={{fontSize:"0.65rem",color:SK.lite}}>{note.date}</div>
+                        </div>
+                        <div style={{fontSize:"0.88rem",color:SK.ink,lineHeight:"1.65",fontWeight:"600",background:"rgba(255,255,255,0.6)",borderRadius:"12px",padding:"0.65rem 0.8rem"}}>{note.text}</div>
+                        <div style={{fontSize:"0.65rem",color:SK.lite,marginTop:"0.45rem",textAlign:"right"}}>{"💚 read"}</div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
               {/* Kid goals */}
               {kidGoals.length>0&&(
                 <div style={{background:SK.card,borderRadius:"18px",padding:"0.9rem 1rem",marginBottom:"0.9rem",boxShadow:"0 2px 12px rgba(0,0,0,0.07)"}}>

@@ -724,6 +724,77 @@ function downloadPortfolioHTML(html, filename) {
   } catch(e) { return false; }
 }
 
+function ParentNoteModal({pal, family, onClose, onSend, parentNotes={}}) {
+  const [selectedChild, setSelectedChild] = React.useState(family.children.length===1 ? family.children[0].id : null);
+  const [noteText, setNoteText] = React.useState("");
+  const [sent, setSent] = React.useState(false);
+  const studentTitle = family.studentTitle || "your teacher";
+  const handleSend = () => {
+    if(!selectedChild || !noteText.trim()) return;
+    onSend(selectedChild, noteText.trim());
+    setSent(true);
+    setTimeout(onClose, 1400);
+  };
+  return (
+    <div style={{position:"fixed",inset:0,zIndex:200,display:"flex",alignItems:"flex-end",justifyContent:"center",background:"rgba(0,0,0,0.45)"}}
+      onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
+      <div style={{width:"100%",maxWidth:"430px",background:"#fff",borderRadius:"24px 24px 0 0",padding:"1.4rem 1.2rem 2rem",animation:"slideUp 0.22s ease"}}>
+        {sent ? (
+          <div style={{textAlign:"center",padding:"1.5rem 0"}}>
+            <div style={{fontSize:"2.5rem",marginBottom:"0.5rem"}}>{"💌"}</div>
+            <div style={{fontWeight:"800",color:pal.inkM,fontSize:"1rem"}}>{"Note sent!"}</div>
+            <div style={{fontSize:"0.78rem",color:pal.slate,marginTop:"0.3rem"}}>
+              {(family.children.find(c=>c.id===selectedChild)?.name||"")+" will see it when they open their portal."}
+            </div>
+          </div>
+        ) : (
+          <>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"1.1rem"}}>
+              <div style={{fontWeight:"800",color:pal.inkM,fontSize:"1rem"}}>{"💌 Note to Child"}</div>
+              <button onClick={onClose} style={{width:"28px",height:"28px",borderRadius:"50%",border:"none",background:pal.parchm,color:pal.slate,cursor:"pointer",fontSize:"0.9rem"}}>{"x"}</button>
+            </div>
+            {family.children.length > 1 && (
+              <div style={{marginBottom:"0.9rem"}}>
+                <div style={{fontSize:"0.72rem",color:pal.slate,fontWeight:"700",textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"0.4rem"}}>{"Who is this for?"}</div>
+                <div style={{display:"flex",gap:"0.45rem",flexWrap:"wrap"}}>
+                  {family.children.map(ch=>{
+                    const prev = parentNotes[ch.id];
+                    return (
+                    <div key={ch.id} style={{display:"flex",flexDirection:"column",alignItems:"flex-start",gap:"0.2rem"}}>
+                      <button onClick={()=>setSelectedChild(ch.id)}
+                        style={{display:"flex",alignItems:"center",gap:"0.35rem",padding:"0.4rem 0.75rem",border:"2px solid "+(selectedChild===ch.id?pal.primary:pal.stone),borderRadius:"22px",background:selectedChild===ch.id?pal.primary+"18":"transparent",cursor:"pointer",fontSize:"0.82rem",fontWeight:"700",color:selectedChild===ch.id?pal.primary:pal.slate}}>
+                        <span>{ch.avatar}</span><span>{ch.name}</span>
+                      </button>
+                      {prev&&prev.text&&(
+                        <div style={{fontSize:"0.62rem",color:prev.read?"#2d8a4e":pal.slate,fontWeight:"600",paddingLeft:"0.3rem"}}>
+                          {prev.read ? "💚 read" : "💌 not read yet"}
+                        </div>
+                      )}
+                    </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            <div style={{marginBottom:"0.9rem"}}>
+              <div style={{fontSize:"0.72rem",color:pal.slate,fontWeight:"700",textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:"0.4rem"}}>{"Your note"}</div>
+              <textarea value={noteText} onChange={e=>setNoteText(e.target.value)}
+                placeholder={"e.g. Great job on math yesterday! Focus on reading first today. Love, "+studentTitle}
+                rows={3}
+                style={{width:"100%",border:"1.5px solid "+pal.stone,borderRadius:"12px",padding:"0.7rem 0.85rem",fontSize:"0.85rem",color:pal.ink,background:pal.linen,resize:"none",outline:"none",fontFamily:"inherit",lineHeight:"1.55"}}/>
+              <div style={{fontSize:"0.65rem",color:pal.slate,marginTop:"3px",textAlign:"right"}}>{noteText.length+"/200"}</div>
+            </div>
+            <button onClick={handleSend} disabled={!selectedChild||!noteText.trim()}
+              style={{width:"100%",padding:"0.78rem",border:"none",borderRadius:"13px",background:selectedChild&&noteText.trim()?pal.accentGrad:"#ddd",color:selectedChild&&noteText.trim()?"#fff":pal.slate,fontWeight:"800",fontSize:"0.88rem",cursor:selectedChild&&noteText.trim()?"pointer":"default"}}>
+              {"Send Note 💌"}
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function RootAndBloom() {
   const saved = useMemo(()=>loadSaved(),[]);
   // Auth state -- "login" until user authenticates or skips
@@ -814,6 +885,8 @@ function RootAndBloom() {
   const [showCatchup,       setShowCatchup]       = useState(false);
   const [showAIChat,        setShowAIChat]        = useState(false);
   const [showQuickCapture,  setShowQuickCapture]  = useState(false);
+  const [showParentNote,    setShowParentNote]    = useState(false);
+  const [showFABMenu,       setShowFABMenu]       = useState(false);
   const [showLifeReady,     setShowLifeReady]     = useState(false);
   const [showEOY,           setShowEOY]           = useState(false);
   const [showFieldStudy,    setShowFieldStudy]    = useState(false);
@@ -1208,6 +1281,12 @@ function RootAndBloom() {
             }
           }}
           onBack={backToParent}
+          parentNotes={family.parentNotes||{}}
+          onMarkNoteRead={(childId)=>{
+            const notes = {...(family.parentNotes||{})};
+            if(notes[childId]) notes[childId] = {...notes[childId], read:true};
+            setFamily(f=>({...f, parentNotes:notes}));
+          }}
         />
       )}
 
@@ -1357,13 +1436,31 @@ function RootAndBloom() {
           {activeTab==="statereqs" && <StateRequirementsScreen pal={pal} family={family} onBack={()=>setActiveTab("more")} />}
         </div>
 
-        {/* Floating Quick Capture Button */}
-        <button onClick={()=>setShowQuickCapture(true)} style={{position:"fixed",bottom:"80px",left:"calc(50% - 205px)",width:"52px",height:"52px",borderRadius:"50%",background:pal.heroGrad||pal.accentGrad,border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.4rem",zIndex:49,boxShadow:`0 3px 14px ${pal.primary}55`,transition:"transform 0.15s"}}
+        {/* Floating Quick Capture Button + Parent Note menu */}
+        {showFABMenu&&(
+          <button onClick={()=>setShowFABMenu(false)} aria-label="close menu"
+            style={{position:"fixed",inset:0,zIndex:48,background:"rgba(0,0,0,0.18)",border:"none",cursor:"default"}}>
+          </button>
+        )}
+        {showFABMenu&&(
+          <div style={{position:"fixed",bottom:"140px",left:"calc(50% - 205px)",zIndex:50,display:"flex",flexDirection:"column",gap:"0.4rem",alignItems:"flex-start"}}>
+            <button onClick={()=>{setShowFABMenu(false);setShowQuickCapture(true);}}
+              style={{display:"flex",alignItems:"center",gap:"0.5rem",padding:"0.55rem 0.9rem",border:"none",borderRadius:"22px",background:"#fff",boxShadow:"0 3px 14px rgba(0,0,0,0.18)",cursor:"pointer",fontSize:"0.82rem",fontWeight:"700",color:"#1a1a1a",whiteSpace:"nowrap"}}>
+              <span style={{fontSize:"1.1rem"}}>{"✏️"}</span>{"Quick Log"}
+            </button>
+            <button onClick={()=>{setShowFABMenu(false);setShowParentNote(true);}}
+              style={{display:"flex",alignItems:"center",gap:"0.5rem",padding:"0.55rem 0.9rem",border:"none",borderRadius:"22px",background:"#fff",boxShadow:"0 3px 14px rgba(0,0,0,0.18)",cursor:"pointer",fontSize:"0.82rem",fontWeight:"700",color:"#1a1a1a",whiteSpace:"nowrap"}}>
+              <span style={{fontSize:"1.1rem"}}>{"💌"}</span>{"Note to Child"}
+            </button>
+          </div>
+        )}
+        <button onClick={()=>setShowFABMenu(v=>!v)}
+          style={{position:"fixed",bottom:"80px",left:"calc(50% - 205px)",width:"52px",height:"52px",borderRadius:"50%",background:showFABMenu?"#1a1a1a":pal.heroGrad||pal.accentGrad,border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.4rem",zIndex:49,boxShadow:`0 3px 14px ${pal.primary}55`,transition:"transform 0.15s, background 0.15s"}}
           onMouseDown={e=>e.currentTarget.style.transform="scale(0.9)"}
           onMouseUp={e=>e.currentTarget.style.transform="scale(1)"}
           onTouchStart={e=>e.currentTarget.style.transform="scale(0.9)"}
           onTouchEnd={e=>e.currentTarget.style.transform="scale(1)"}>
-          {"✏️"}
+          {showFABMenu ? "✕" : "✏️"}
         </button>
 
         {/* Floating AI Chat Button */}
@@ -1408,6 +1505,14 @@ function RootAndBloom() {
         {/* Modals */}
 
 
+      {showParentNote && <ParentNoteModal pal={pal} family={family}
+          parentNotes={family.parentNotes||{}}
+          onClose={()=>setShowParentNote(false)}
+          onSend={(childId, text)=>{
+            const notes = {...(family.parentNotes||{})};
+            notes[childId] = {text, date:new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"}), read:false};
+            setFamily(f=>({...f, parentNotes:notes}));
+          }}/>}
       {showQuickCapture && <QuickCaptureModal pal={pal} family={family} activeChildId={childFilt}
           onClose={()=>setShowQuickCapture(false)}
           attendanceLog={attendanceLog}
