@@ -13,18 +13,34 @@ function goalSummary(family) {
   return (family.goals||[]).map(id=>{ const g=all.find(x=>x.id===id); return g?g.label:""; }).filter(Boolean).join(", ")||"General homeschool education";
 }
 
+var PHILOSOPHY_GUIDANCE = {
+  classical:    "Use Socratic questioning, emphasize grammar/logic/rhetoric stages, recommend primary sources and memorization.",
+  charlotte:    "Suggest living books over textbooks, include nature study and narration, keep lessons short and varied.",
+  classical_c:  "Include memory work, suggest co-op-friendly activities, use weekly review cycles.",
+  traditional:  "Use structured lessons with clear objectives, textbook-style explanations, and regular assessments.",
+  unit:         "Connect all subjects to a central theme or topic, suggest cross-curricular projects and deep dives.",
+  waldorf:      "Incorporate arts, movement, and storytelling, avoid screens, emphasize imagination and rhythm.",
+  montessori:   "Encourage child-led exploration, suggest hands-on materials, avoid worksheets in favor of self-directed work.",
+  eclectic:     "Be flexible -- blend methods based on what works for this child, no single approach required.",
+  unschooling:  "Follow the child's interests entirely, frame learning as life experience, avoid forced structure.",
+  ai:           "Design the full curriculum -- suggest subjects, pacing, and materials appropriate for the child's grade."
+};
+
 function curriculumContext(family) {
   const brands = (family.curriculumBrands||[]).map(id=>{
     const b = (CURRICULUM_BRANDS||[]).find(x=>x.id===id);
     return b ? b.label : "";
   }).filter(Boolean);
-  const phil = (family.learningPhilosophies||[]).map(id=>{
+  const philIds = (family.learningPhilosophies||[]);
+  const phil = philIds.map(id=>{
     const p = (LEARNING_PHILOSOPHIES||[]).find(x=>x.id===id);
     return p ? p.label : "";
   }).filter(Boolean);
+  const guidance = philIds.map(id=>PHILOSOPHY_GUIDANCE[id]).filter(Boolean);
   const parts = [];
-  if(brands.length) parts.push("Curriculum: "+brands.join(", "));
-  if(phil.length)   parts.push("Approach: "+phil.join(", "));
+  if(brands.length)   parts.push("Curriculum: "+brands.join(", "));
+  if(phil.length)     parts.push("Approach: "+phil.join(", "));
+  if(guidance.length) parts.push("Teaching style: "+guidance.join(" "));
   return parts.join(" | ") || "Eclectic homeschool";
 }
 
