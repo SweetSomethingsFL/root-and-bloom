@@ -5498,7 +5498,7 @@ function CoopScreen({pal,family,coopLog,onLog,onUpdateFamily,onAddEntry}){
    Full dedicated page for the subject
 ======================================= */
 
-function LifeReadyScreen({pal,family,onBack}){
+function LifeReadyScreen({pal,family,onBack,defaultChildId}){
   const [tab,      setTab]      = useState("this_week");
   const [generating,setGenerating]=useState(false);
   const [lesson,   setLesson]   = useState(null);
@@ -5506,6 +5506,13 @@ function LifeReadyScreen({pal,family,onBack}){
   const [openDisc,    setOpenDisc]    = useState({});
   const [expandedDay, setExpandedDay] = useState(null);
   const [showNext,    setShowNext]    = useState(false);
+  const [activeChild, setActiveChild] = useState(()=>{
+    if(defaultChildId) {
+      const idx = (family.children||[]).findIndex(c=>c.id===defaultChildId);
+      return idx>=0 ? idx : 0;
+    }
+    return 0;
+  });
   const scrollRef = React.useRef(null);
   React.useEffect(()=>{
     if(scrollRef.current) scrollRef.current.scrollTop=0;
@@ -5517,7 +5524,7 @@ function LifeReadyScreen({pal,family,onBack}){
     document.body.scrollTop=0;
   },[]);
 
-  const grade = family.children?.[0]?.grade||"5th";
+  const grade = family.children?.[activeChild]?.grade||"5th";
   const topic = getLRTopicForWeek(grade);
   const cats  = family.lifeReadyCategories||LR_CATEGORIES.map(c=>c.id);
   const freq  = family.lifeReadyFreq||"monday_plus_practice";
@@ -5567,6 +5574,16 @@ function LifeReadyScreen({pal,family,onBack}){
           <button onClick={onBack} style={{width:"32px",height:"32px",borderRadius:"50%",background:"rgba(255,255,255,0.18)",border:"none",color:"#fff",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.9rem",flexShrink:0}}>{"<"[0]}</button>
           <span style={{fontWeight:"900",color:"#fff",fontSize:"1.15rem"}}>{LR_ICON} Prepared {"&"} Capable</span>
         </div>
+        {family.children.length>1&&(
+          <div style={{display:"flex",gap:"0.35rem",flexWrap:"wrap",marginBottom:"0.65rem"}}>
+            {family.children.map((ch,ci)=>(
+              <button key={ch.id} onClick={()=>setActiveChild(ci)}
+                style={{display:"flex",alignItems:"center",gap:"0.3rem",padding:"0.28rem 0.65rem",border:"none",borderRadius:"20px",background:activeChild===ci?"rgba(255,255,255,0.92)":"rgba(255,255,255,0.18)",color:activeChild===ci?LR_COLOR:"#fff",fontWeight:activeChild===ci?"800":"500",fontSize:"0.74rem",cursor:"pointer"}}>
+                <span>{ch.avatar}</span><span>{ch.name}</span>
+              </button>
+            ))}
+          </div>
+        )}
         <div style={{display:"flex",gap:"2px",overflowX:"auto",paddingBottom:"0"}}>
           {[["this_week","This Week"],["topics","Topics"],["settings","Settings"]].map(([id,l])=>(
             <button key={id} onClick={()=>setTab(id)} style={{padding:"0.45rem 0.85rem",border:"none",borderRadius:"10px 10px 0 0",background:tab===id?"rgba(255,255,255,0.18)":"transparent",color:tab===id?"#fff":"rgba(255,255,255,0.5)",fontSize:"0.74rem",fontWeight:tab===id?"700":"400",cursor:"pointer",whiteSpace:"nowrap",flexShrink:0}}>

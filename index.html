@@ -888,6 +888,7 @@ function RootAndBloom() {
   const [showParentNote,    setShowParentNote]    = useState(false);
   const [showFABMenu,       setShowFABMenu]       = useState(false);
   const [showLifeReady,     setShowLifeReady]     = useState(false);
+  const [pcChildId,         setPcChildId]         = useState(null);
   const [showEOY,           setShowEOY]           = useState(false);
   const [showFieldStudy,    setShowFieldStudy]    = useState(false);
   const [fieldStudyChild,   setFieldStudyChild]   = useState(null);
@@ -1332,6 +1333,7 @@ function RootAndBloom() {
             onSetHomeLayout={setHomeLayout}
             coopLog={coopLog}
             onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))}
+            onOpenPC={(childId)=>{setPcChildId(childId);setActiveTab("preparedcapable");}}
           />}
           {activeTab==="schedule" && <ScheduleScreen pal={pal} family={family} child={childFilt} setChild={setChildFilt}
             lastCheckinDate={lastCheckinDate}
@@ -1423,7 +1425,7 @@ function RootAndBloom() {
           {activeTab==="coop"        && <CoopScreen        pal={pal} family={family} coopLog={coopLog} onLog={e=>setCoopLog(l=>[e,...l])} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} onAddEntry={addPortfolioEntry} />}
           {activeTab==="transcripts" && <TranscriptsScreen pal={pal} family={family} portfolioEntries={portfolioEntries} attendanceDays={attendanceDays} coopLog={coopLog} observationLog={observationLog} />}
           {showLifeReady && family && <LifeReadyScreen pal={pal} family={family} onBack={()=>setShowLifeReady(false)}/>}
-          {activeTab==="preparedcapable" && family?.lifeReady && <LifeReadyScreen pal={pal} family={family} onBack={()=>setActiveTab("home")}/>}
+          {activeTab==="preparedcapable" && family?.lifeReady && <LifeReadyScreen pal={pal} family={family} onBack={()=>{setActiveTab("home");setPcChildId(null);}} defaultChildId={pcChildId}/>}
           {activeTab==="preparedcapable" && !family?.lifeReady && (
             <div style={{animation:"fadeUp 0.22s ease",padding:"2rem 1.2rem",textAlign:"center"}}>
               <div style={{fontSize:"3rem",marginBottom:"0.75rem"}}>🛡</div>
@@ -2759,7 +2761,7 @@ function isSchoolDay(schoolDays) {
 }
 
 
-function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress, navIds=[], onAddEntry, onCheckin, checkinDates={}, observationLog=[], onOpenJournal, attendanceLog=[], studentVisits={}, homeLayout=["goals","pandc","progress_nudge","thisweek","todaycard"], onSetHomeLayout, notifDismissed={}, onDismissNotif, onOpenEOY, onOpenFieldStudy, quizNotifs=[], onDismissQuizNotif, fieldStudyNotifs=[], onDismissFieldStudyNotif, coopLog=[], onUpdateFamily }) {
+function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, checkinStreak, lastCheckinDate, portfolioEntries, onTabChange, todayProgress, navIds=[], onAddEntry, onCheckin, checkinDates={}, observationLog=[], onOpenJournal, attendanceLog=[], studentVisits={}, homeLayout=["goals","pandc","progress_nudge","thisweek","todaycard"], onSetHomeLayout, notifDismissed={}, onDismissNotif, onOpenEOY, onOpenFieldStudy, quizNotifs=[], onDismissQuizNotif, fieldStudyNotifs=[], onDismissFieldStudyNotif, coopLog=[], onUpdateFamily, onOpenPC }) {
   const stateInfo  = getStateInfo(family.state||"");
   const stateHours = stateInfo.hours||"";
   const dayMatch   = stateHours.match(/(\d+)\s*day/i);
@@ -3368,7 +3370,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
               const done  = !!pcDoneMap[ch.id];
               const cp    = CHILD_COLOR_PALETTES.find(p=>p.id===(ch.colorId||"sunshine"))||CHILD_COLOR_PALETTES[ci%CHILD_COLOR_PALETTES.length];
               return done ? (
-                <div key={ch.id} onClick={()=>{setChild(ch.id);onTabChange("preparedcapable");}}
+                <div key={ch.id} onClick={()=>onOpenPC&&onOpenPC(ch.id)}
                   style={{background:pal.goodBg,borderRadius:"13px",padding:"0.65rem 0.9rem",marginBottom:"0.5rem",border:`1.5px solid ${pal.good}30`,display:"flex",gap:"0.6rem",alignItems:"center",cursor:"pointer"}}>
                   <span style={{fontSize:"1rem",flexShrink:0}}>{ch.avatar}</span>
                   <div style={{flex:1,minWidth:0}}>
@@ -3378,7 +3380,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
                   <span style={{color:pal.good,fontSize:"0.85rem",flexShrink:0}}>{"\u203a"}</span>
                 </div>
               ) : (
-                <div key={ch.id} onClick={()=>{setChild(ch.id);onTabChange("preparedcapable");}}
+                <div key={ch.id} onClick={()=>onOpenPC&&onOpenPC(ch.id)}
                   style={{background:`linear-gradient(135deg,${cp.c1}12,${cp.c2}08)`,borderRadius:"13px",padding:"0.65rem 0.9rem",marginBottom:"0.5rem",border:`1.5px solid ${cp.c1}30`,cursor:"pointer"}}>
                   <div style={{display:"flex",gap:"0.6rem",alignItems:"center"}}>
                     <div style={{width:"36px",height:"36px",borderRadius:"10px",background:`linear-gradient(135deg,${cp.c1},${cp.c2})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.1rem",flexShrink:0}}>{ch.avatar}</div>
