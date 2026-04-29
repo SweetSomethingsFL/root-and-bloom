@@ -6887,7 +6887,7 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
 
 
 
-function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coopLog=[],observationLog=[]}){
+function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coopLog=[],observationLog=[],onUpdateFamily}){
   const [activeChild, setActiveChild] = useState(0);
   const [activeView,  setActiveView]  = useState("overview"); // overview | transcript | reading | narrative
   const [showDigest,  setShowDigest]  = useState(false);
@@ -6933,6 +6933,20 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
     const updated = {...subjGrades, [subj]:{...(subjGrades[subj]||{}), [field]:val}};
     setSubjGrades(updated);
     try{ localStorage.setItem(GRADES_KEY, JSON.stringify(updated)); }catch(e){}
+  };
+
+  const [showAddBook, setShowAddBook] = useState(false);
+  const [bookTitle,   setBookTitle]   = useState("");
+  const [bookAuthor,  setBookAuthor]  = useState("");
+  const [bookStart,   setBookStart]   = useState("");
+  const [bookFinish,  setBookFinish]  = useState("");
+  const dedicatedBooks = (family.readingLog||[]).filter(b=>b.childId===ch.id);
+  const saveBook = () => {
+    if(!bookTitle.trim()) return;
+    const entry = {id:"book_"+Date.now(),childId:ch.id,title:bookTitle.trim(),author:bookAuthor.trim()||undefined,startDate:bookStart||undefined,finishDate:bookFinish||undefined,date:new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})};
+    const updated = [...(family.readingLog||[]), entry];
+    if(typeof onUpdateFamily==="function") onUpdateFamily({readingLog:updated});
+    setShowAddBook(false); setBookTitle(""); setBookAuthor(""); setBookStart(""); setBookFinish("");
   };
 
   const printRecord = () => {
@@ -7045,12 +7059,27 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
     const win = window.open("","_blank","width=800,height=900,scrollbars=yes");
     if(!win) return;
     const fullName = ch.name+(ch.lastName?" "+ch.lastName:"");
+    const bookRows = dedicatedBooks.slice().reverse().map(function(b,i){
+      const bg = i%2===0 ? "#fff" : "#f9f9f9";
+      const title = (b.title||"").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+      const author = b.author ? "by "+(b.author||"").replace(/</g,"&lt;") : "";
+      const dates = b.startDate&&b.finishDate ? b.startDate+" – "+b.finishDate : b.startDate ? "Started "+b.startDate : b.finishDate ? "Finished "+b.finishDate : "";
+      return "<tr style=\"background:"+bg+"\">"
+        +"<td style=\"padding:0.45rem 0.65rem;border-bottom:1px solid #eee;font-weight:700;font-size:0.9rem\">"+title+"</td>"
+        +"<td style=\"padding:0.45rem 0.65rem;border-bottom:1px solid #eee;color:#555;font-size:0.82rem\">"+author+"</td>"
+        +"<td style=\"padding:0.45rem 0.65rem;border-bottom:1px solid #eee;color:#888;font-size:0.82rem;white-space:nowrap\">"+dates+"</td>"
+        +"</tr>";
+    }).join("");
     const rows = readingEntries.map(function(e,i){
       const bg = i%2===0 ? "#fff" : "#f9f9f9";
       const title = (e.readingTitle||e.title||"").replace(/</g,"&lt;").replace(/>/g,"&gt;");
       const subj  = (e.subj||"").replace(/</g,"&lt;");
       const date  = (e.date||"");
-      return "<tr style=\"background:"+bg+"\">"        +"<td style=\"padding:0.45rem 0.65rem;border-bottom:1px solid #eee;font-weight:700;font-size:0.9rem\">"+title+"</td>"        +"<td style=\"padding:0.45rem 0.65rem;border-bottom:1px solid #eee;color:#555;font-size:0.82rem\">"+subj+"</td>"        +"<td style=\"padding:0.45rem 0.65rem;border-bottom:1px solid #eee;color:#888;font-size:0.82rem;white-space:nowrap\">"+date+"</td>"        +"</tr>";
+      return "<tr style=\"background:"+bg+"\">"
+        +"<td style=\"padding:0.45rem 0.65rem;border-bottom:1px solid #eee;font-weight:700;font-size:0.9rem\">"+title+"</td>"
+        +"<td style=\"padding:0.45rem 0.65rem;border-bottom:1px solid #eee;color:#555;font-size:0.82rem\">"+subj+"</td>"
+        +"<td style=\"padding:0.45rem 0.65rem;border-bottom:1px solid #eee;color:#888;font-size:0.82rem;white-space:nowrap\">"+date+"</td>"
+        +"</tr>";
     }).join("");
     const sn = schoolName;
     const today = new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
@@ -7080,13 +7109,81 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
       + "<div class=\"ig\">"
       + "<div class=\"ic\"><div class=\"il\">Student</div><div class=\"iv\">"+fullName+"</div></div>"
       + "<div class=\"ic\"><div class=\"il\">Grade</div><div class=\"iv\">"+ch.grade+"</div></div>"
-      + "<div class=\"ic\"><div class=\"il\">Titles Logged</div><div class=\"iv\">"+readingEntries.length+"</div></div>"
+      + "<div class=\"ic\"><div class=\"il\">Total Titles</div><div class=\"iv\">"+(dedicatedBooks.length+readingEntries.length)+"</div></div>"
       + "</div>"
-      + "<table><thead><tr><th>Title / Material</th><th>Subject</th><th>Date</th></tr></thead>"
-      + "<tbody>"+(rows||"<tr><td colspan=\"3\" style=\"text-align:center;color:#999;padding:1rem\">No reading entries.</td></tr>")+"</tbody></table>"
+      + (dedicatedBooks.length>0 ? "<h3 style=\"font-size:0.85rem;color:#2a6a2a;margin-bottom:0.5rem;font-family:Arial,sans-serif\">Books</h3><table><thead><tr><th>Title</th><th>Author</th><th>Dates</th></tr></thead><tbody>"+bookRows+"</tbody></table><br/>" : "")
+      + (readingEntries.length>0 ? "<h3 style=\"font-size:0.85rem;color:#2a6a2a;margin-bottom:0.5rem;font-family:Arial,sans-serif\">From Portfolio</h3><table><thead><tr><th>Title / Material</th><th>Subject</th><th>Date</th></tr></thead><tbody>"+rows+"</tbody></table>" : "")
+      + (dedicatedBooks.length===0&&readingEntries.length===0 ? "<p style=\"color:#999;text-align:center;padding:1rem\">No reading titles logged yet.</p>" : "")
       + "<div class=\"footer\">Generated by Root &amp; Bloom · "+today+"</div>"
       + "<button class=\"pbtn\" onclick=\"window.print()\">Print / Save as PDF</button>"
       + "</body></html>";
+    win.document.write(html);
+    setTimeout(()=>win.document.close(),0);
+  };
+
+  const generateNOI = () => {
+    const win = window.open("","_blank","width=800,height=900,scrollbars=yes");
+    if(!win) return;
+    const si = getStateInfo(family.state||"");
+    const parentName = family.parentName||(family.familyName+" Family")||"Parent / Guardian";
+    const schoolNm = family.schoolName||(family.familyName+" Academy")||"Home School";
+    const state = family.state||"";
+    const today = new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
+    const todayIso = new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
+    const notify = si.notify||"";
+    const deadline = si.deadline||"";
+    const tier = si.tier||1;
+    const childLines = (family.children||[]).map(c=>{
+      const dob = c.dob ? " (DOB: "+c.dob+")" : "";
+      return c.name+(c.lastName?" "+c.lastName:"")+" — "+c.grade+dob;
+    }).join(", ");
+    const noNoticeNeeded = tier===1 && (notify==="None required"||notify==="");
+    const html = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\">"
+      +"<title>Notice of Intent — "+state+"</title>"
+      +"<style>"
+      +"*{box-sizing:border-box;margin:0;padding:0}"
+      +"body{font-family:Georgia,serif;color:#1a1a1a;background:#fff;padding:2.5rem;max-width:680px;margin:0 auto;font-size:11pt;line-height:1.7}"
+      +".badge{display:inline-block;background:#1a5276;color:#fff;padding:0.25rem 0.75rem;border-radius:20px;font-size:0.72rem;font-weight:700;font-family:Arial,sans-serif;margin-bottom:1.2rem}"
+      +".hdr{border-bottom:3px solid #1a5276;padding-bottom:0.75rem;margin-bottom:1.5rem}"
+      +".school{font-size:1.2rem;font-weight:900;color:#1a5276}"
+      +".meta{font-size:0.78rem;color:#666;margin-top:2px}"
+      +".body p{margin-bottom:1rem}"
+      +".sigs{margin-top:2.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}"
+      +".sig-line{border-bottom:1.5px solid #333;margin-bottom:4px;height:32px}"
+      +".sig-lbl{font-size:0.7rem;color:#666;font-family:Arial,sans-serif}"
+      +".notice{background:#f0f7ff;border-left:4px solid #1a5276;border-radius:0 8px 8px 0;padding:0.6rem 1rem;margin-bottom:1.2rem;font-size:0.78rem;font-family:Arial,sans-serif;color:#1a5276}"
+      +".footer{margin-top:2rem;padding-top:0.75rem;border-top:1px solid #eee;font-size:0.65rem;color:#aaa;text-align:center;font-family:Arial,sans-serif}"
+      +".pbtn{margin-top:1.5rem;padding:0.6rem 1.5rem;background:#1a5276;color:#fff;border:none;border-radius:8px;font-size:0.95rem;cursor:pointer;font-family:Arial,sans-serif;font-weight:700}"
+      +"@media print{.pbtn{display:none}}"
+      +"</style></head><body>"
+      +"<div class=\"hdr\"><div class=\"school\">"+schoolNm+"</div>"
+      +"<div class=\"meta\">"+state+" &nbsp;·&nbsp; "+today+"</div></div>"
+      +"<div class=\"badge\">"+state+" — Notice of Intent to Homeschool</div>"
+      +(noNoticeNeeded
+        ? "<div class=\"notice\">"+state+" does not require a notice of intent. No filing is needed with your local school district. You may keep this letter for your own records.</div>"
+        : "<div class=\"notice\">"+state+" requires: "+notify+(deadline?" &nbsp;·&nbsp; Deadline: "+deadline:"")+"</div>"
+      )
+      +"<div class=\"body\">"
+      +"<p>To Whom It May Concern,</p>"
+      +"<p>I am writing to notify you that the following student(s) will be receiving home instruction during the current school year under the laws of "+state+".</p>"
+      +"<p><strong>Students:</strong> "+childLines+"</p>"
+      +"<p><strong>School Name:</strong> "+schoolNm+"</p>"
+      +"<p><strong>Parent / Educator:</strong> "+parentName+"</p>"
+      +"<p>Instruction will include the following subject areas: "+((family.subjects||[]).length>0
+        ? (family.subjects||[]).slice(0,6).join(", ")+(family.subjects.length>6?" and others":"")
+        : "core academic subjects including language arts, mathematics, science, and social studies")+".</p>"
+      +(si.attendance ? "<p>Attendance records will be maintained as required by law.</p>" : "")
+      +(si.workSamples ? "<p>A portfolio of student work will be compiled and available for review.</p>" : "")
+      +"<p>Please feel free to contact me with any questions or if additional information is required.</p>"
+      +"<p>Sincerely,</p>"
+      +"</div>"
+      +"<div class=\"sigs\">"
+      +"<div><div class=\"sig-line\"></div><div class=\"sig-lbl\">Parent / Educator Signature</div></div>"
+      +"<div><div class=\"sig-line\"></div><div class=\"sig-lbl\">Date</div></div>"
+      +"</div>"
+      +"<div class=\"footer\">Generated by Root &amp; Bloom &nbsp;·&nbsp; "+today+" &nbsp;·&nbsp; Verify current requirements at "+si.stateUrl+"</div>"
+      +"<button class=\"pbtn\" onclick=\"window.print()\">Print / Save as PDF</button>"
+      +"</body></html>";
     win.document.write(html);
     setTimeout(()=>win.document.close(),0);
   };
@@ -7241,6 +7338,12 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
             style={{width:"100%",padding:"0.75rem",border:"none",borderRadius:"13px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.84rem",cursor:"pointer",marginBottom:"0.75rem",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.5rem"}}>
             <span>{"📋"}</span><span>{"Weekly Digest"}</span>
           </button>
+          {family.state&&(
+            <button onClick={generateNOI}
+              style={{width:"100%",padding:"0.75rem",border:`2px solid ${pal.primary}40`,borderRadius:"13px",background:"transparent",color:pal.primary,fontWeight:"800",fontSize:"0.84rem",cursor:"pointer",marginBottom:"0.75rem",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.5rem"}}>
+              <span>{"📄"}</span><span>{"Generate Notice of Intent Letter"}</span>
+            </button>
+          )}
           <div style={{height:"0.5rem"}}/>
         </>)}
 
@@ -7351,35 +7454,99 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
         {/* ====== READING LOG VIEW ====== */}
         {activeView==="reading"&&(<>
           <div style={{background:pal.pale,borderRadius:"13px",padding:"0.7rem 1rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.primary}20`,fontSize:"0.76rem",color:pal.inkM,lineHeight:1.6}}>
-            {"📖 Florida and Pennsylvania require reading titles to be logged by name. This log pulls from your portfolio entries that have a book or material title recorded."}
+            {"📖 Florida and Pennsylvania require reading titles logged by name. Add books directly here or log them through portfolio entries."}
           </div>
 
-          {readingEntries.length===0?(
+          {/* Add Book button */}
+          <button onClick={()=>setShowAddBook(b=>!b)}
+            style={{width:"100%",padding:"0.62rem",border:`2px dashed ${pal.primary}60`,borderRadius:"12px",background:showAddBook?pal.pale:"transparent",color:pal.primary,fontWeight:"700",fontSize:"0.82rem",cursor:"pointer",marginBottom:"0.75rem",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.4rem"}}>
+            {showAddBook ? "✕ Cancel" : "+ Add Book"}
+          </button>
+
+          {/* Add Book form */}
+          {showAddBook&&(
+            <div style={{background:pal.linen,borderRadius:"14px",padding:"1rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.stone}35`}}>
+              <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.84rem",marginBottom:"0.7rem"}}>{"📚 New Book"}</div>
+              <div style={{marginBottom:"0.55rem"}}>
+                <div style={{fontSize:"0.7rem",color:pal.slate,fontWeight:"600",marginBottom:"3px"}}>Title *</div>
+                <input value={bookTitle} onChange={e=>setBookTitle(e.target.value)} placeholder={"e.g. Charlotte's Web"}
+                  style={{width:"100%",padding:"0.55rem 0.75rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.83rem",background:pal.parchm,color:pal.ink,outline:"none"}}/>
+              </div>
+              <div style={{marginBottom:"0.55rem"}}>
+                <div style={{fontSize:"0.7rem",color:pal.slate,fontWeight:"600",marginBottom:"3px"}}>Author (optional)</div>
+                <input value={bookAuthor} onChange={e=>setBookAuthor(e.target.value)} placeholder={"e.g. E.B. White"}
+                  style={{width:"100%",padding:"0.55rem 0.75rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.83rem",background:pal.parchm,color:pal.ink,outline:"none"}}/>
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.5rem",marginBottom:"0.75rem"}}>
+                <div>
+                  <div style={{fontSize:"0.7rem",color:pal.slate,fontWeight:"600",marginBottom:"3px"}}>Start date</div>
+                  <input type="date" value={bookStart} onChange={e=>setBookStart(e.target.value)}
+                    style={{width:"100%",padding:"0.52rem 0.6rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.8rem",background:pal.parchm,color:pal.ink,outline:"none"}}/>
+                </div>
+                <div>
+                  <div style={{fontSize:"0.7rem",color:pal.slate,fontWeight:"600",marginBottom:"3px"}}>Finish date</div>
+                  <input type="date" value={bookFinish} onChange={e=>setBookFinish(e.target.value)}
+                    style={{width:"100%",padding:"0.52rem 0.6rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.8rem",background:pal.parchm,color:pal.ink,outline:"none"}}/>
+                </div>
+              </div>
+              <button onClick={saveBook} disabled={!bookTitle.trim()}
+                style={{width:"100%",padding:"0.65rem",border:"none",borderRadius:"11px",background:bookTitle.trim()?pal.accentGrad:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.84rem",cursor:bookTitle.trim()?"pointer":"not-allowed"}}>
+                {"Save Book"}
+              </button>
+            </div>
+          )}
+
+          {/* Merged reading list */}
+          {(dedicatedBooks.length===0&&readingEntries.length===0)?(
             <div style={{background:pal.linen,borderRadius:"14px",padding:"1.5rem",textAlign:"center",border:`1.5px solid ${pal.stone}30`,marginBottom:"1rem"}}>
               <div style={{fontSize:"2rem",marginBottom:"0.4rem"}}>📚</div>
-              <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.86rem",marginBottom:"0.25rem"}}>No reading titles logged yet</div>
-              <div style={{fontSize:"0.74rem",color:pal.slate,lineHeight:1.5}}>When you log a Reading entry and include a book title, it will appear here. Florida families must log titles by name.</div>
+              <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.86rem",marginBottom:"0.25rem"}}>No books logged yet</div>
+              <div style={{fontSize:"0.74rem",color:pal.slate,lineHeight:1.5}}>Tap {"\"+ Add Book\""} above or include a title when logging Reading entries.</div>
             </div>
           ):(
             <>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:"0.55rem"}}>
-                <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.86rem"}}>Reading Log</div>
-                <div style={{fontSize:"0.7rem",color:pal.slate,fontWeight:"600"}}>{readingEntries.length} title{readingEntries.length!==1?"s":""}</div>
-              </div>
-              <div style={{background:pal.linen,borderRadius:"14px",border:`1.5px solid ${pal.stone}30`,overflow:"hidden",marginBottom:"1rem"}}>
-                {readingEntries.map((e,i)=>(
-                  <div key={e.id||i} style={{display:"flex",gap:"0.65rem",alignItems:"flex-start",padding:"0.65rem 0.85rem",borderTop:i>0?`1px solid ${pal.stone}20`:"none"}}>
-                    <span style={{fontSize:"1rem",flexShrink:0,marginTop:"1px"}}>{"📖"}</span>
-                    <div style={{flex:1,minWidth:0}}>
-                      <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.82rem",lineHeight:1.3}}>{e.readingTitle||e.title}</div>
-                      <div style={{fontSize:"0.65rem",color:pal.slate,marginTop:"2px"}}>{e.subj} {"\u00b7"} {e.date}</div>
-                      {e.note&&e.note.trim()&&(
-                        <div style={{fontSize:"0.72rem",color:pal.inkM,marginTop:"3px",fontStyle:"italic",lineHeight:1.5}}>{e.note.slice(0,100)}{e.note.length>100?"...":""}</div>
-                      )}
-                    </div>
+              {dedicatedBooks.length>0&&(
+                <>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:"0.45rem"}}>
+                    <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.84rem"}}>Books</div>
+                    <div style={{fontSize:"0.7rem",color:pal.slate,fontWeight:"600"}}>{dedicatedBooks.length} {dedicatedBooks.length===1?"book":"books"}</div>
                   </div>
-                ))}
-              </div>
+                  <div style={{background:pal.linen,borderRadius:"14px",border:`1.5px solid ${pal.stone}30`,overflow:"hidden",marginBottom:"0.85rem"}}>
+                    {dedicatedBooks.slice().reverse().map((b,i)=>(
+                      <div key={b.id||i} style={{display:"flex",gap:"0.65rem",alignItems:"flex-start",padding:"0.65rem 0.85rem",borderTop:i>0?`1px solid ${pal.stone}20`:"none"}}>
+                        <span style={{fontSize:"1rem",flexShrink:0,marginTop:"1px"}}>{"📚"}</span>
+                        <div style={{flex:1,minWidth:0}}>
+                          <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.82rem",lineHeight:1.3}}>{b.title}</div>
+                          {b.author&&<div style={{fontSize:"0.68rem",color:pal.inkM,marginTop:"1px"}}>{"by "+b.author}</div>}
+                          <div style={{fontSize:"0.65rem",color:pal.slate,marginTop:"2px"}}>
+                            {b.startDate&&b.finishDate ? b.startDate+" – "+b.finishDate : b.startDate ? "Started "+b.startDate : b.finishDate ? "Finished "+b.finishDate : b.date||""}
+                          </div>
+                        </div>
+                        {b.finishDate&&<span style={{fontSize:"0.8rem",flexShrink:0,marginTop:"2px"}}>{"✅"}</span>}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+              {readingEntries.length>0&&(
+                <>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:"0.45rem"}}>
+                    <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.84rem"}}>From Portfolio</div>
+                    <div style={{fontSize:"0.7rem",color:pal.slate,fontWeight:"600"}}>{readingEntries.length} {readingEntries.length===1?"entry":"entries"}</div>
+                  </div>
+                  <div style={{background:pal.linen,borderRadius:"14px",border:`1.5px solid ${pal.stone}30`,overflow:"hidden",marginBottom:"0.85rem"}}>
+                    {readingEntries.map((e,i)=>(
+                      <div key={e.id||i} style={{display:"flex",gap:"0.65rem",alignItems:"flex-start",padding:"0.65rem 0.85rem",borderTop:i>0?`1px solid ${pal.stone}20`:"none"}}>
+                        <span style={{fontSize:"1rem",flexShrink:0,marginTop:"1px"}}>{"📖"}</span>
+                        <div style={{flex:1,minWidth:0}}>
+                          <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.82rem",lineHeight:1.3}}>{e.readingTitle||e.title}</div>
+                          <div style={{fontSize:"0.65rem",color:pal.slate,marginTop:"2px"}}>{e.subj} {"\u00b7"} {e.date}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
               <button onClick={printReadingLog}
                 style={{width:"100%",padding:"0.7rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.84rem",cursor:"pointer",marginBottom:"1rem"}}>
                 {"🖨 Print Reading Log"}

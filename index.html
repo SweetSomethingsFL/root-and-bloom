@@ -887,6 +887,7 @@ function RootAndBloom() {
   const [showQuickCapture,  setShowQuickCapture]  = useState(false);
   const [showParentNote,    setShowParentNote]    = useState(false);
   const [showFABMenu,       setShowFABMenu]       = useState(false);
+  const [isOnline,          setIsOnline]          = useState(()=>navigator.onLine);
   const [showLifeReady,     setShowLifeReady]     = useState(false);
   const [pcChildId,         setPcChildId]         = useState(null);
   const [showEOY,           setShowEOY]           = useState(false);
@@ -981,11 +982,7 @@ function RootAndBloom() {
   const navTabs = ALL_SECTIONS_EXT.filter(s=>navIdsExt.includes(s.id));
 
   // Listen for in-app navigation events (e.g. "View in Portfolio" links)
-  useEffect(()=>{
-    const handler = (e) => { setActiveTab(e.detail); };
-    window.addEventListener("rootbloom-nav", handler);
-    return ()=>window.removeEventListener("rootbloom-nav", handler);
-  },[]);
+  useEffect(()=>{\n    const handler = (e) => { setActiveTab(e.detail); };\n    window.addEventListener(\"rootbloom-nav\", handler);\n    return ()=>window.removeEventListener(\"rootbloom-nav\", handler);\n  },[]);\n\n  useEffect(()=>{\n    const goOnline  = ()=>setIsOnline(true);\n    const goOffline = ()=>setIsOnline(false);\n    window.addEventListener(\"online\",  goOnline);\n    window.addEventListener(\"offline\", goOffline);\n    return ()=>{ window.removeEventListener(\"online\", goOnline); window.removeEventListener(\"offline\", goOffline); };\n  },[]);
 
   const handleLogin = (cloudData) => {
     // cloudData is the Supabase payload (or null if skipped/no account)
@@ -1423,7 +1420,7 @@ function RootAndBloom() {
             }} />}
           {activeTab==="goals"       && <GoalsScreen       pal={pal} family={family} portfolioEntries={portfolioEntries} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} onAddEntry={addPortfolioEntry} onTabChange={setActiveTab}/>}
           {activeTab==="coop"        && <CoopScreen        pal={pal} family={family} coopLog={coopLog} onLog={e=>setCoopLog(l=>[e,...l])} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} onAddEntry={addPortfolioEntry} />}
-          {activeTab==="transcripts" && <TranscriptsScreen pal={pal} family={family} portfolioEntries={portfolioEntries} attendanceDays={attendanceDays} coopLog={coopLog} observationLog={observationLog} />}
+          {activeTab==="transcripts" && <TranscriptsScreen pal={pal} family={family} portfolioEntries={portfolioEntries} attendanceDays={attendanceDays} coopLog={coopLog} observationLog={observationLog} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} />}
           {showLifeReady && family && <LifeReadyScreen pal={pal} family={family} onBack={()=>setShowLifeReady(false)}/>}
           {activeTab==="preparedcapable" && family?.lifeReady && <LifeReadyScreen pal={pal} family={family} onBack={()=>{setActiveTab("home");setPcChildId(null);}} defaultChildId={pcChildId}/>}
           {activeTab==="preparedcapable" && !family?.lifeReady && (
@@ -1481,6 +1478,11 @@ function RootAndBloom() {
 
         {/* Bottom nav */}
         <nav style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:"430px",background:pal.linen,borderTop:`1.5px solid ${pal.stone}60`,height:"68px",display:"flex",alignItems:"center",zIndex:50}}>
+          {(!isOnline||deviceChild)&&(
+            <div style={{position:"absolute",top:"-22px",left:"50%",transform:"translateX(-50%)",background:!isOnline?"#c0392b":pal.slate,color:"#fff",fontSize:"0.58rem",fontWeight:"700",padding:"2px 10px",borderRadius:"99px 99px 0 0",letterSpacing:"0.06em",whiteSpace:"nowrap",opacity:0.92}}>
+              {!isOnline ? "⚡ Offline — changes saved locally" : "📱 Device mode"}
+            </div>
+          )}
           {navTabs.map(t=>{
             const active=activeTab===t.id;
             const isProgress=t.id==="progress";
