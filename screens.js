@@ -5731,6 +5731,7 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
   const [gradeStruggleLoading, setGradeStruggleLoading] = React.useState(false);
   const [gradeStruggleError,   setGradeStruggleError]   = React.useState(null);
   const [showDigest,   setShowDigest]   = React.useState(false);
+  const [localPulse,   setLocalPulse]   = React.useState(null);
 
   const ch       = family.children[selectedChild] || family.children[0];
   const cp       = CHILD_COLOR_PALETTES.find(p=>p.id===(ch?.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
@@ -5830,6 +5831,49 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
     return {...s, total:all.length, weekCount:week.length, recent, noteCount:notes.length, weekDots};
   }).sort((a,b)=>b.total-a.total);
 
+  // ── Local (no-AI) pulse summary ──────────────────────────────────────────
+  const generateLocalPulse = (range) => {
+    const r = range || pulseRange;
+    const filterEntry = (e) => {
+      if(r==="week") return isThisWeek(e.date);
+      if(r==="month") {
+        try{
+          const d1=new Date(e.date+", "+yr);
+          const d=d1<=today?d1:new Date(e.date+", "+(yr-1));
+          return d.getMonth()===today.getMonth()&&d.getFullYear()===today.getFullYear();
+        }catch(ex){return false;}
+      }
+      return true;
+    };
+    const rangeLabel = r==="week"?"this week":r==="month"?"this month":"all time";
+    const lines = [];
+    let totalEntries = 0;
+    let totalMilestones = 0;
+    family.children.forEach((c,ci)=>{
+      const cEntries = portfolioEntries.filter(e=>e.childIdx===ci&&!e.isDay&&filterEntry(e));
+      if(cEntries.length===0) return;
+      totalEntries += cEntries.length;
+      const miles = cEntries.filter(e=>e.isMilestone);
+      totalMilestones += miles.length;
+      const subjCounts = {};
+      cEntries.forEach(e=>{ if(e.subj) subjCounts[e.subj]=(subjCounts[e.subj]||0)+1; });
+      const sorted = Object.entries(subjCounts).sort((a,b)=>b[1]-a[1]);
+      const topSubjs = sorted.slice(0,3).map(([s,n])=>s+(n>1?" ("+n+")":"")).join(", ");
+      const noteCount = cEntries.filter(e=>e.note&&e.note.trim().length>5).length;
+      lines.push(c.name+" logged "+cEntries.length+" entr"+(cEntries.length===1?"y":"ies")+" "+rangeLabel
+        +(topSubjs?", covering "+topSubjs:"")
+        +(noteCount>0?". "+noteCount+" had detailed notes":"")
+        +(miles.length>0?". Milestones: "+miles.map(e=>(e.note||e.title||"").replace("AI Summary:","").trim()).filter(Boolean).slice(0,2).join("; "):"")
+        +".");
+    });
+    if(lines.length===0) return;
+    const opener = totalEntries>=10 ? "Great progress " : totalEntries>=5 ? "Solid work " : "Good start ";
+    const summary = opener+rangeLabel+"! "+lines.join(" ")
+      +(totalMilestones>0?" Total milestones: "+totalMilestones+"." :"");
+    setLocalPulse({text:summary, range:r, date:today.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})});
+    setPulseError(null);
+  };
+
   // ── AI pulse — supports week / month / all-time ──────────────────────────
   const generatePulse = async (range) => {
     const r = range || pulseRange;
@@ -5895,7 +5939,8 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
       setPulseResult(trimmed);
       if(r==="week") savePulse(trimmed, r);
     } catch(e) {
-      setPulseError(e.message==="NO_KEY"?"no_key":e.message==="RATE_LIMIT"?"rate_limit":"error");
+      if(e.message==="NO_KEY") { generateLocalPulse(r); }
+      else { setPulseError(e.message==="RATE_LIMIT"?"rate_limit":"error"); }
     }
     setPulseLoading(false);
   };
@@ -6198,14 +6243,32 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
 
               {/* Errors */}
               {pulseError==="no_notes"&&<div style={{background:pal.parchm,borderRadius:"14px",padding:"0.85rem",marginBottom:"1rem",fontSize:"0.8rem",color:pal.inkM,textAlign:"center",border:"1.5px solid "+pal.stone+"30"}}>{"No notes found for this period \u2014 add notes when logging subjects."}</div>}
-              {pulseError==="no_key"&&<div style={{background:"#fff8ed",borderRadius:"14px",padding:"0.85rem",marginBottom:"1rem",fontSize:"0.8rem",color:"#7a5500",textAlign:"center",border:"1.5px solid #f5c84240"}}>{"Add an API key in Settings to use AI summaries."}</div>}
               {(pulseError==="rate_limit"||pulseError==="error")&&<div style={{background:"#fff0f0",borderRadius:"14px",padding:"0.85rem",marginBottom:"1rem",fontSize:"0.8rem",color:"#aa3333",textAlign:"center",border:"1.5px solid #ffaaaa40"}}>{pulseError==="rate_limit"?"Monthly AI limit reached.":"Could not generate \u2014 check your connection."}</div>}
+
+              {/* Local pulse result (no API key) */}
+              {localPulse&&!pulseResult&&(
+                <div style={{background:pal.pale,borderRadius:"16px",padding:"0.9rem 1rem",marginBottom:"1rem",border:"1.5px solid "+pal.primary+"25"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:"0.4rem",marginBottom:"0.5rem"}}>
+                    <span style={{fontSize:"0.85rem"}}>{"📊"}</span>
+                    <span style={{fontWeight:"800",color:pal.primary,fontSize:"0.72rem",textTransform:"uppercase",letterSpacing:"0.07em"}}>{"Progress Snapshot"}</span>
+                    <span style={{fontSize:"0.62rem",color:pal.stone,marginLeft:"auto"}}>{localPulse.date}</span>
+                  </div>
+                  <div style={{fontSize:"0.82rem",color:pal.ink,lineHeight:1.7}}>{localPulse.text}</div>
+                  <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"0.5rem",fontStyle:"italic"}}>{"Add an API key in Settings \u2192 AI to generate a full AI-written summary."}</div>
+                </div>
+              )}
 
               {/* Generate / regenerate */}
               {!pulseLoading&&(
-                <button onClick={()=>generatePulse(pulseRange)} disabled={rangeNotes===0}
-                  style={{width:"100%",padding:"0.82rem",border:"none",borderRadius:"13px",background:rangeNotes>0?pal.accentGrad:"#ddd",color:rangeNotes>0?"#fff":pal.stone,fontWeight:"800",fontSize:"0.88rem",cursor:rangeNotes>0?"pointer":"default",marginBottom:"1rem"}}>
-                  {pulseResult?"\u2728 Regenerate summary":"\u2728 Generate "+rangeLabel.toLowerCase()+" summary"}
+                <button onClick={()=>{ setLocalPulse(null); generatePulse(pulseRange); }} disabled={rangeNotes===0}
+                  style={{width:"100%",padding:"0.82rem",border:"none",borderRadius:"13px",background:rangeNotes>0?pal.accentGrad:"#ddd",color:rangeNotes>0?"#fff":pal.stone,fontWeight:"800",fontSize:"0.88rem",cursor:rangeNotes>0?"pointer":"default",marginBottom:"0.5rem"}}>
+                  {pulseResult?"\u2728 Regenerate AI summary":"\u2728 Generate AI summary"}
+                </button>
+              )}
+              {!pulseLoading&&rangeNotes>0&&!pulseResult&&(
+                <button onClick={()=>{ setPulseResult(null); generateLocalPulse(pulseRange); }}
+                  style={{width:"100%",padding:"0.65rem",border:"2px solid "+pal.primary+"30",borderRadius:"13px",background:"transparent",color:pal.primary,fontWeight:"700",fontSize:"0.82rem",cursor:"pointer",marginBottom:"1rem"}}>
+                  {"📊 Quick summary (no AI needed)"}
                 </button>
               )}
 
