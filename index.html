@@ -2974,18 +2974,30 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
             );
           }
 
-          // State 1: Haven't started yet
+          // State 1: Haven't started yet -- show today's subjects
+          const todaySubjBlocks = blocks.filter(b=>b.s&&b.s!=="Lunch").slice(0,6);
+          const hasSched = todaySubjBlocks.length > 0;
           return (
             <div style={{background:pal.accentGrad,borderRadius:"16px",padding:"1rem 1.1rem",marginBottom:"1rem",border:"none",boxShadow:`0 5px 20px ${pal.accent}30`}}>
-              <div style={{display:"flex",alignItems:"center",gap:"0.75rem",marginBottom:"0.75rem"}}>
+              <div style={{display:"flex",alignItems:"center",gap:"0.75rem",marginBottom:hasSched?"0.65rem":"0.75rem"}}>
                 <div style={{width:"44px",height:"44px",borderRadius:"12px",background:"rgba(255,255,255,0.18)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0}}>{"📋"}</div>
                 <div style={{flex:1,textAlign:"left"}}>
-                  <div style={{fontWeight:"800",color:"#fff",fontSize:"0.92rem",marginBottom:"2px"}}>{"Start today's school day"}</div>
+                  <div style={{fontWeight:"800",color:"#fff",fontSize:"0.92rem",marginBottom:"2px"}}>{hasSched ? "Today’s plan" : "Today’s school day"}</div>
                   <div style={{fontSize:"0.72rem",color:"rgba(255,255,255,0.75)"}}>
-                    {checkinStreak>0 ? "🔥 "+checkinStreak+" day streak — keep it going!" : navIds.includes("schedule") ? "Log what you did or check off the schedule" : "Tap below to log today’s school day"}
+                    {checkinStreak>0 ? "🔥 "+checkinStreak+" day streak — keep it going!" : hasSched ? todaySubjBlocks.length+" subject"+(todaySubjBlocks.length!==1?"s":"")+" on the schedule" : "Tap below to log today"}
                   </div>
                 </div>
               </div>
+              {hasSched&&(
+                <div style={{display:"flex",flexWrap:"wrap",gap:"0.35rem",marginBottom:"0.65rem"}}>
+                  {todaySubjBlocks.map((b,bi)=>(
+                    <div key={bi} style={{display:"flex",alignItems:"center",gap:"0.28rem",background:"rgba(255,255,255,0.18)",borderRadius:"20px",padding:"0.22rem 0.6rem",fontSize:"0.7rem",color:"#fff",fontWeight:"600"}}>
+                      {b.i&&<span style={{fontSize:"0.85rem"}}>{b.i}</span>}
+                      <span>{b.s}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
               <div style={{display:"flex",gap:"0.5rem"}}>
                 <button onClick={startLog}
                   style={{flex:1,padding:"0.58rem",border:"none",borderRadius:"11px",background:"rgba(255,255,255,0.92)",color:pal.primary,fontWeight:"800",fontSize:"0.82rem",cursor:"pointer"}}>
