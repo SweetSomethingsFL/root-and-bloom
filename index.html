@@ -2803,12 +2803,18 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
     const yr = getLRYearStart().getFullYear();
     return yr+"-"+schoolWeek;
   };
-  const [pcDone, setPcDone] = useState(()=>{
-    try{ const s=localStorage.getItem(PC_KEY); return s?JSON.parse(s).weekKey===getPCWeekKey():false; }catch(e){return false;}
+  const [pcDoneMap, setPcDoneMap] = useState(()=>{
+    try{ const s=localStorage.getItem(PC_KEY); const d=s?JSON.parse(s):{}; const wk=getPCWeekKey();
+      // support old format (single bool) and new format (per-child map)
+      if(typeof d === 'object' && d.weekKey) return {}; // old format, reset
+      return (d.weekKey2===wk) ? (d.children||{}) : {};
+    }catch(e){return {};}
   });
-  const markPCDone = () => {
-    try{ localStorage.setItem(PC_KEY,JSON.stringify({weekKey:getPCWeekKey(),date:new Date().toDateString()})); }catch(e){}
-    setPcDone(true);
+  const pcDone = Object.keys(pcDoneMap).length > 0 && family.children.every(c=>pcDoneMap[c.id]);
+  const markPCDone = (childId) => {
+    const next = {...pcDoneMap, [childId]: true};
+    setPcDoneMap(next);
+    try{ localStorage.setItem(PC_KEY,JSON.stringify({weekKey2:getPCWeekKey(),children:next})); }catch(e){}
   };
   const visible = blocks.filter(b=>child==="all"||b.c==="all"||b.c===child);
   const pct = REQUIRED ? Math.min(100, Math.round((attendanceDays/REQUIRED)*100)) : null;
@@ -3337,11 +3343,10 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
 
   const renderSection_pandc = () => (
     <div key="pandc" data-section="pandc">
-      {/* ── P&C This Week ── */}
         {!family.lifeReady ? (
           <div onClick={()=>onTabChange("preparedcapable")}
             style={{background:pal.linen,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}40`,cursor:"pointer",display:"flex",gap:"0.75rem",alignItems:"center"}}>
-            <div style={{width:"42px",height:"42px",borderRadius:"11px",background:"#f0faf3",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0}}>{"🌿"}</div>
+            <div style={{width:"42px",height:"42px",borderRadius:"11px",background:"#f0faf3",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0}}>{"\ud83c\udf3f"}</div>
             <div style={{flex:1}}>
               <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.85rem",marginBottom:"2px"}}>{"Prepared & Capable"}</div>
               <div style={{fontSize:"0.71rem",color:pal.slate,lineHeight:1.5}}>{"Real-life skills your kids will use forever. Tap to explore."}</div>
@@ -3349,44 +3354,45 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
             <span style={{color:pal.primary,fontSize:"0.9rem"}}>{"\u203a"}</span>
           </div>
         ) : (()=>{
-          const ch    = family.children[0];
-          const grade = ch?.grade||"5th";
-          const topic = getLRTopicForWeek(grade);
-          const week  = getLRWeekNumber(grade);
+          const allDone = family.children.every(c=>pcDoneMap[c.id]);
           return (<>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.5rem"}}>
-              <span style={{fontWeight:"800",color:pcDone?pal.good:LR_COLOR,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>
-                {pcDone?"✓":LR_ICON} Prepared {"&"} Capable
+              <span style={{fontWeight:"800",color:allDone?pal.good:LR_COLOR,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>
+                {allDone?"\u2713":LR_ICON} Prepared {"&"} Capable
               </span>
-              <button onClick={()=>onTabChange("preparedcapable")} style={{fontSize:"0.72rem",color:LR_COLOR,fontWeight:"700",background:"transparent",border:"none",cursor:"pointer"}}>Open →</button>
+              <button onClick={()=>onTabChange("preparedcapable")} style={{fontSize:"0.72rem",color:LR_COLOR,fontWeight:"700",background:"transparent",border:"none",cursor:"pointer"}}>{"Open \u2192"}</button>
             </div>
-            {pcDone ? (
-              /* Completed state */
-              <div style={{background:pal.goodBg,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.good}40`,display:"flex",gap:"0.75rem",alignItems:"center"}}>
-                <div style={{width:"42px",height:"42px",borderRadius:"11px",background:pal.good,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0}}>✓</div>
-                <div style={{flex:1,minWidth:0}}>
-                  <div style={{fontWeight:"800",color:pal.good,fontSize:"0.86rem"}}>Week {week} complete!</div>
-                  <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"2px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{topic}</div>
-                </div>
-                <button onClick={()=>onTabChange("preparedcapable")} style={{padding:"0.3rem 0.65rem",border:`1.5px solid ${pal.good}50`,borderRadius:"9px",background:"transparent",color:pal.good,fontSize:"0.68rem",fontWeight:"700",cursor:"pointer",flexShrink:0}}>Review</button>
-              </div>
-            ) : (
-              /* Active / not yet done state */
-              <div style={{background:`linear-gradient(135deg,${LR_COLOR}12,${LR_COLOR2}08)`,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:`1.5px solid ${LR_COLOR}25`}}>
-                <div style={{display:"flex",gap:"0.75rem",alignItems:"center"}}>
-                  <div style={{width:"42px",height:"42px",borderRadius:"11px",background:`linear-gradient(135deg,${LR_COLOR},${LR_COLOR2})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0}}>{LR_ICON}</div>
+            {family.children.map((ch,ci)=>{
+              const grade = ch.grade||"5th";
+              const topic = getLRTopicForWeek(grade);
+              const week  = getLRWeekNumber(grade);
+              const done  = !!pcDoneMap[ch.id];
+              const cp    = CHILD_COLOR_PALETTES.find(p=>p.id===(ch.colorId||"sunshine"))||CHILD_COLOR_PALETTES[ci%CHILD_COLOR_PALETTES.length];
+              return done ? (
+                <div key={ch.id} style={{background:pal.goodBg,borderRadius:"13px",padding:"0.65rem 0.9rem",marginBottom:"0.5rem",border:`1.5px solid ${pal.good}30`,display:"flex",gap:"0.6rem",alignItems:"center"}}>
+                  <span style={{fontSize:"1rem",flexShrink:0}}>{ch.avatar}</span>
                   <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:"0.65rem",fontWeight:"700",color:LR_COLOR,textTransform:"uppercase",letterSpacing:"0.05em",marginBottom:"1px"}}>This Week · Week {week}</div>
-                    <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.86rem",lineHeight:1.3}}>{topic}</div>
-                    <div style={{fontSize:"0.67rem",color:pal.slate,marginTop:"2px"}}>{grade} · {ch?.name||"your student"}</div>
+                    <span style={{fontWeight:"700",color:pal.good,fontSize:"0.78rem"}}>{ch.name}</span>
+                    <span style={{fontSize:"0.68rem",color:pal.slate}}>{" \u00b7 Week "+week+" done \u2713"}</span>
                   </div>
-                  <button onClick={e=>{e.stopPropagation();markPCDone();}}
-                    style={{padding:"0.38rem 0.65rem",border:"none",borderRadius:"10px",background:`linear-gradient(135deg,${LR_COLOR},${LR_COLOR2})`,color:"#fff",fontSize:"0.68rem",fontWeight:"800",cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}}>
-                    Done ✓
-                  </button>
+                  <button onClick={()=>onTabChange("preparedcapable")} style={{padding:"0.2rem 0.55rem",border:`1px solid ${pal.good}40`,borderRadius:"8px",background:"transparent",color:pal.good,fontSize:"0.65rem",fontWeight:"700",cursor:"pointer",flexShrink:0}}>{"Review"}</button>
                 </div>
-              </div>
-            )}
+              ) : (
+                <div key={ch.id} style={{background:`linear-gradient(135deg,${cp.c1}12,${cp.c2}08)`,borderRadius:"13px",padding:"0.65rem 0.9rem",marginBottom:"0.5rem",border:`1.5px solid ${cp.c1}30`}}>
+                  <div style={{display:"flex",gap:"0.6rem",alignItems:"center"}}>
+                    <div style={{width:"36px",height:"36px",borderRadius:"10px",background:`linear-gradient(135deg,${cp.c1},${cp.c2})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.1rem",flexShrink:0}}>{ch.avatar}</div>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{fontSize:"0.62rem",fontWeight:"700",color:cp.c1,textTransform:"uppercase",letterSpacing:"0.05em",marginBottom:"1px"}}>{ch.name+" \u00b7 "+grade+" \u00b7 Week "+week}</div>
+                      <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.82rem",lineHeight:1.3,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{topic}</div>
+                    </div>
+                    <button onClick={e=>{e.stopPropagation();markPCDone(ch.id);}}
+                      style={{padding:"0.32rem 0.6rem",border:"none",borderRadius:"9px",background:`linear-gradient(135deg,${cp.c1},${cp.c2})`,color:"#fff",fontSize:"0.68rem",fontWeight:"800",cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}}>
+                      {"Done \u2713"}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
           </>);
         })()
         }
