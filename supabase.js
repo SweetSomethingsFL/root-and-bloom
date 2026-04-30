@@ -123,6 +123,7 @@ window.generateNOIDoc = function(family) {
   if(!win) return;
   var si     = getStateInfo(family.state||"");
   var noi    = si.noi||{};
+  console.log("DEBUG generateNOIDoc — state:", family.state, "si keys:", Object.keys(si), "noi:", JSON.stringify(noi));
   var state  = family.state||"";
   var schoolNm   = family.schoolName||(family.familyName+" Academy")||"Home School";
   var parentName = family.parentName||(family.familyName+" Family")||"Parent / Guardian";
