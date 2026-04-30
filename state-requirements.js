@@ -98,7 +98,13 @@ const STATE_COMPLIANCE = {
 //  Returns default fallback if state not found
 // ============================================================
 function getStateInfo(state) {
-  return STATE_COMPLIANCE[state] || {
+  if(!state) return STATE_COMPLIANCE["Florida"] || {};
+  // Try exact match first
+  if(STATE_COMPLIANCE[state]) return STATE_COMPLIANCE[state];
+  // Try mapping abbreviation to full name
+  const ABBR = {AL:"Alabama",AK:"Alaska",AZ:"Arizona",AR:"Arkansas",CA:"California",CO:"Colorado",CT:"Connecticut",DE:"Delaware",FL:"Florida",GA:"Georgia",HI:"Hawaii",ID:"Idaho",IL:"Illinois",IN:"Indiana",IA:"Iowa",KS:"Kansas",KY:"Kentucky",LA:"Louisiana",ME:"Maine",MD:"Maryland",MA:"Massachusetts",MI:"Michigan",MN:"Minnesota",MS:"Mississippi",MO:"Missouri",MT:"Montana",NE:"Nebraska",NV:"Nevada",NH:"New Hampshire",NJ:"New Jersey",NM:"New Mexico",NY:"New York",NC:"North Carolina",ND:"North Dakota",OH:"Ohio",OK:"Oklahoma",OR:"Oregon",PA:"Pennsylvania",RI:"Rhode Island",SC:"South Carolina",SD:"South Dakota",TN:"Tennessee",TX:"Texas",UT:"Utah",VT:"Vermont",VA:"Virginia",WA:"Washington",WV:"West Virginia",WI:"Wisconsin",WY:"Wyoming"};
+  const full = ABBR[state.toUpperCase()];
+  if(full && STATE_COMPLIANCE[full]) return STATE_COMPLIANCE[full];
     tier:2, notify:"Check your state DOE", hours:"Check your state",
     portfolio:"Keep activity log and work samples — varies by state",
     testing:"Check your state", deadline:"Check your state DOE website",

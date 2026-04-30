@@ -2271,6 +2271,10 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
               <Input pal={pal} value={local.schoolName||""} onChange={v=>updL("schoolName",v)} placeholder="e.g. Thornwood Academy" />
             </SCard>
 
+            <SCard pal={pal} title="Home Address" note="Used in Notice of Intent letters">
+              <Input pal={pal} value={local.address||""} onChange={v=>updL("address",v)} placeholder="e.g. 123 Main St, Orlando, FL 32801" />
+            </SCard>
+
             <SCard pal={pal} title="Progress Report" note="Settings for the printable progress report">
               <Lbl pal={pal}>Grading mode</Lbl>
               <div style={{display:"flex",gap:"0.38rem",marginBottom:"0.75rem"}}>
@@ -7204,7 +7208,8 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
         +"<table><thead><tr><th>Student Name</th><th>Grade</th><th>Date of Birth</th></tr></thead><tbody>"+childRows+"</tbody></table>"
         +"<p><strong>School Name:</strong> "+schoolNm+"<br>"
         +"<strong>Parent / Supervisor:</strong> "+parentName+"<br>"
-        +"<strong>Program Address:</strong> ____________________________</p>"
+        +"<strong>Program Address:</strong> "+(family.address||"____________________________")+"</p>"
+        +((!family.address)?"<div class=\"warn\">💡 Add your address in Settings to auto-fill this field.</div>":"")
         +"<p>Home instruction will include the following subjects: "+subjList+".</p>"
         +(si.attendance ? "<p>Attendance records will be maintained as required by "+state+" law.</p>" : "")
         +(si.workSamples ? "<p>A portfolio of student work samples will be compiled and made available for review as required.</p>" : "")
