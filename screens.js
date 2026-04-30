@@ -7124,64 +7124,114 @@ function TranscriptsScreen({pal,family,portfolioEntries=[],attendanceDays=0,coop
   const generateNOI = () => {
     const win = window.open("","_blank","width=800,height=900,scrollbars=yes");
     if(!win) return;
-    const si = getStateInfo(family.state||"");
+    const si     = getStateInfo(family.state||"");
+    const noi    = si.noi||{};
+    const state  = family.state||"";
+    const schoolNm   = family.schoolName||(family.familyName+" Academy")||"Home School";
     const parentName = family.parentName||(family.familyName+" Family")||"Parent / Guardian";
-    const schoolNm = family.schoolName||(family.familyName+" Academy")||"Home School";
-    const state = family.state||"";
-    const today = new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
-    const todayIso = new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
-    const notify = si.notify||"";
-    const deadline = si.deadline||"";
-    const tier = si.tier||1;
-    const childLines = (family.children||[]).map(c=>{
-      const dob = c.dob ? " (DOB: "+c.dob+")" : "";
-      return c.name+(c.lastName?" "+c.lastName:"")+" — "+c.grade+dob;
-    }).join(", ");
-    const noNoticeNeeded = tier===1 && (notify==="None required"||notify==="");
+    const today  = new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
+    const noNotice = noi.type==="none" || !noi.type;
+    const isNotarized = noi.notarized===true;
+    const frequency = noi.frequency||"";
+    const filedTo   = noi.filedTo||"local school district superintendent";
+    const noiDeadline = noi.deadline||si.deadline||"";
+    const tip       = noi.tip||"";
+    const noNoticeNote = noi.noNoticeNote||"";
+    const reqFields = noi.requiredFields||[];
+    const childRows = (family.children||[]).map(c=>{
+      const dob = c.dob ? " | DOB: "+c.dob : "";
+      const fullN = c.name+(c.lastName?" "+c.lastName:"");
+      return "<tr><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #eee;font-weight:700'>"+fullN+"</td>"
+        +"<td style='padding:0.35rem 0.6rem;border-bottom:1px solid #eee;color:#555'>"+c.grade+"</td>"
+        +"<td style='padding:0.35rem 0.6rem;border-bottom:1px solid #eee;color:#777'>"+dob+"</td></tr>";
+    }).join("");
+    const subjList = (family.subjects||[]).length>0
+      ? (family.subjects||[]).slice(0,8).join(", ")+(family.subjects.length>8?" and others":"")
+      : "language arts, mathematics, science, and social studies";
+    const typeLabel = {
+      "letter":"Letter of Intent","affidavit":"Affidavit","form":"Required Form",
+      "declaration":"Declaration of Intent","certificate":"Certificate of Enrollment",
+      "notice":"Notice of Intent","registration":"School Registration",
+      "letter+IHIP":"Letter of Intent (Step 1 of 2 — IHIP also required)","option":"Notice of Intent"
+    }[noi.type||"letter"]||"Notice of Intent";
+
     const html = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\">"
-      +"<title>Notice of Intent — "+state+"</title>"
+      +"<title>"+typeLabel+" — "+state+"</title>"
       +"<style>"
       +"*{box-sizing:border-box;margin:0;padding:0}"
-      +"body{font-family:Georgia,serif;color:#1a1a1a;background:#fff;padding:2.5rem;max-width:680px;margin:0 auto;font-size:11pt;line-height:1.7}"
-      +".badge{display:inline-block;background:#1a5276;color:#fff;padding:0.25rem 0.75rem;border-radius:20px;font-size:0.72rem;font-weight:700;font-family:Arial,sans-serif;margin-bottom:1.2rem}"
-      +".hdr{border-bottom:3px solid #1a5276;padding-bottom:0.75rem;margin-bottom:1.5rem}"
+      +"body{font-family:Georgia,serif;color:#1a1a1a;background:#fff;padding:2.5rem;max-width:700px;margin:0 auto;font-size:11pt;line-height:1.75}"
+      +".hdr{border-bottom:3px solid #1a5276;padding-bottom:0.75rem;margin-bottom:1.4rem}"
       +".school{font-size:1.2rem;font-weight:900;color:#1a5276}"
-      +".meta{font-size:0.78rem;color:#666;margin-top:2px}"
+      +".meta{font-size:0.78rem;color:#666;margin-top:3px}"
+      +".badge{display:inline-block;background:#1a5276;color:#fff;padding:0.25rem 0.8rem;border-radius:20px;font-size:0.72rem;font-weight:700;font-family:Arial,sans-serif;margin-bottom:1rem}"
+      +".info{background:#f0f7ff;border-left:4px solid #1a5276;border-radius:0 8px 8px 0;padding:0.6rem 1rem;margin-bottom:1rem;font-size:0.79rem;font-family:Arial,sans-serif;color:#1a5276;line-height:1.5}"
+      +".warn{background:#fff8e1;border-left:4px solid #f59e0b;border-radius:0 8px 8px 0;padding:0.6rem 1rem;margin-bottom:1rem;font-size:0.79rem;font-family:Arial,sans-serif;color:#92400e;line-height:1.5}"
+      +".none{background:#f0fdf4;border-left:4px solid #16a34a;border-radius:0 8px 8px 0;padding:0.6rem 1rem;margin-bottom:1rem;font-size:0.79rem;font-family:Arial,sans-serif;color:#14532d;line-height:1.5}"
       +".body p{margin-bottom:1rem}"
-      +".sigs{margin-top:2.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}"
-      +".sig-line{border-bottom:1.5px solid #333;margin-bottom:4px;height:32px}"
-      +".sig-lbl{font-size:0.7rem;color:#666;font-family:Arial,sans-serif}"
-      +".notice{background:#f0f7ff;border-left:4px solid #1a5276;border-radius:0 8px 8px 0;padding:0.6rem 1rem;margin-bottom:1.2rem;font-size:0.78rem;font-family:Arial,sans-serif;color:#1a5276}"
-      +".footer{margin-top:2rem;padding-top:0.75rem;border-top:1px solid #eee;font-size:0.65rem;color:#aaa;text-align:center;font-family:Arial,sans-serif}"
-      +".pbtn{margin-top:1.5rem;padding:0.6rem 1.5rem;background:#1a5276;color:#fff;border:none;border-radius:8px;font-size:0.95rem;cursor:pointer;font-family:Arial,sans-serif;font-weight:700}"
+      +"table{width:100%;border-collapse:collapse;margin-bottom:1rem}"
+      +"th{padding:0.35rem 0.6rem;background:#f5f5f5;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em;color:#555;font-family:Arial,sans-serif;font-weight:700;text-align:left}"
+      +".fields{background:#fafafa;border:1px solid #e5e7eb;border-radius:6px;padding:0.6rem 0.85rem;margin-bottom:1rem;font-size:0.78rem;font-family:Arial,sans-serif;color:#374151}"
+      +".fields ul{margin:0.3rem 0 0 1rem;padding:0}"
+      +".fields li{margin-bottom:0.2rem}"
+      +".notarized{background:#fef3c7;border:1px solid #f59e0b;border-radius:6px;padding:0.4rem 0.8rem;font-size:0.76rem;font-family:Arial,sans-serif;color:#92400e;margin-bottom:1rem;font-weight:700}"
+      +".sigs{margin-top:2.5rem;display:grid;grid-template-columns:1fr 1fr;gap:2rem}"
+      +".sig-line{border-bottom:1.5px solid #333;margin-bottom:4px;height:36px}"
+      +".sig-lbl{font-size:0.68rem;color:#666;font-family:Arial,sans-serif}"
+      +".footer{margin-top:1.5rem;padding-top:0.75rem;border-top:1px solid #eee;font-size:0.65rem;color:#aaa;text-align:center;font-family:Arial,sans-serif;line-height:1.6}"
+      +".pbtn{margin-top:1.25rem;padding:0.55rem 1.4rem;background:#1a5276;color:#fff;border:none;border-radius:8px;font-size:0.92rem;cursor:pointer;font-family:Arial,sans-serif;font-weight:700}"
       +"@media print{.pbtn{display:none}}"
       +"</style></head><body>"
       +"<div class=\"hdr\"><div class=\"school\">"+schoolNm+"</div>"
       +"<div class=\"meta\">"+state+" &nbsp;·&nbsp; "+today+"</div></div>"
-      +"<div class=\"badge\">"+state+" — Notice of Intent to Homeschool</div>"
-      +(noNoticeNeeded
-        ? "<div class=\"notice\">"+state+" does not require a notice of intent. No filing is needed with your local school district. You may keep this letter for your own records.</div>"
-        : "<div class=\"notice\">"+state+" requires: "+notify+(deadline?" &nbsp;·&nbsp; Deadline: "+deadline:"")+"</div>"
+      +"<div class=\"badge\">"+state+" — "+typeLabel+"</div>"
+      +(noNotice
+        ? "<div class=\"none\">"+state+" does not require a notice of intent to homeschool. "+noNoticeNote+" You may keep this for your own records.</div>"
+        : "<div class=\"info\">"
+          +"<strong>Filed to:</strong> "+filedTo+"<br>"
+          +"<strong>Frequency:</strong> "+(frequency==="once"?"File once when starting (not annually)":frequency==="annual"?"Required annually":"")+"<br>"
+          +(noiDeadline ? "<strong>Deadline:</strong> "+noiDeadline+"<br>" : "")
+          +"</div>"
       )
-      +"<div class=\"body\">"
-      +"<p>To Whom It May Concern,</p>"
-      +"<p>I am writing to notify you that the following student(s) will be receiving home instruction during the current school year under the laws of "+state+".</p>"
-      +"<p><strong>Students:</strong> "+childLines+"</p>"
-      +"<p><strong>School Name:</strong> "+schoolNm+"</p>"
-      +"<p><strong>Parent / Educator:</strong> "+parentName+"</p>"
-      +"<p>Instruction will include the following subject areas: "+((family.subjects||[]).length>0
-        ? (family.subjects||[]).slice(0,6).join(", ")+(family.subjects.length>6?" and others":"")
-        : "core academic subjects including language arts, mathematics, science, and social studies")+".</p>"
-      +(si.attendance ? "<p>Attendance records will be maintained as required by law.</p>" : "")
-      +(si.workSamples ? "<p>A portfolio of student work will be compiled and available for review.</p>" : "")
-      +"<p>Please feel free to contact me with any questions or if additional information is required.</p>"
-      +"<p>Sincerely,</p>"
+      +(isNotarized ? "<div class=\"notarized\">⚠️ This document must be notarized (or use an Unsworn Declaration) before filing.</div>" : "")
+      +(reqFields.length>0&&!noNotice ? "<div class=\"fields\"><strong>Required information:</strong><ul>"+reqFields.map(function(f){return "<li>"+f+"</li>";}).join("")+"</ul></div>" : "")
+      +(tip&&!noNotice ? "<div class=\"warn\">💡 "+tip+"</div>" : "")
+      +(noNotice ? "" :
+        "<div class=\"body\">"
+        +"<p>"+today+"</p>"
+        +"<p>To the Superintendent of Schools,<br>"+filedTo+"</p>"
+        +"<p>Dear Superintendent,</p>"
+        +"<p>I am writing to formally notify you of my intention to provide home instruction for my child(ren) listed below, in accordance with the laws of "+state+".</p>"
+        +"<table><thead><tr><th>Student Name</th><th>Grade</th><th>Date of Birth</th></tr></thead><tbody>"+childRows+"</tbody></table>"
+        +"<p><strong>School Name:</strong> "+schoolNm+"<br>"
+        +"<strong>Parent / Supervisor:</strong> "+parentName+"<br>"
+        +"<strong>Program Address:</strong> ____________________________</p>"
+        +"<p>Home instruction will include the following subjects: "+subjList+".</p>"
+        +(si.attendance ? "<p>Attendance records will be maintained as required by "+state+" law.</p>" : "")
+        +(si.workSamples ? "<p>A portfolio of student work samples will be compiled and made available for review as required.</p>" : "")
+        +(noi.type==="affidavit"||isNotarized ? "<p>I hereby attest under penalty of law that all information provided herein is true and accurate, and that this home education program will be conducted in compliance with the applicable laws of "+state+".</p>" : "<p>This home education program will be conducted in compliance with the applicable laws of "+state+". Please feel free to contact me with any questions.</p>")
+        +"<p>Respectfully,</p>"
+        +"</div>"
+      )
+      +(noNotice ? "" :
+        "<div class=\"sigs\">"
+        +"<div><div class=\"sig-line\"></div><div class=\"sig-lbl\">Parent / Supervisor Signature</div></div>"
+        +"<div><div class=\"sig-line\"></div><div class=\"sig-lbl\">Date</div></div>"
+        +"</div>"
+        +(isNotarized
+          ? "<div style=\"margin-top:1.5rem;border:1px solid #ccc;border-radius:6px;padding:1rem;font-family:Arial,sans-serif;font-size:0.78rem;color:#555\">"
+            +"<strong>NOTARY / ACKNOWLEDGMENT</strong><br><br>"
+            +"Sworn to and subscribed before me this ______ day of _____________, 20_____.<br><br>"
+            +"<div style=\"display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:1rem\">"
+            +"<div><div style=\"border-bottom:1px solid #333;height:32px;margin-bottom:4px\"></div><div>Notary Public Signature</div></div>"
+            +"<div><div style=\"border-bottom:1px solid #333;height:32px;margin-bottom:4px\"></div><div>Commission Expires</div></div>"
+            +"</div></div>"
+          : "")
+      )
+      +"<div class=\"footer\">"
+      +"Generated by Root &amp; Bloom &nbsp;·&nbsp; "+today+"<br>"
+      +"Verify current requirements at "+si.stateUrl+"<br>"
+      +"This document is a template. Consult your state DOE or HSLDA for the most current requirements."
       +"</div>"
-      +"<div class=\"sigs\">"
-      +"<div><div class=\"sig-line\"></div><div class=\"sig-lbl\">Parent / Educator Signature</div></div>"
-      +"<div><div class=\"sig-line\"></div><div class=\"sig-lbl\">Date</div></div>"
-      +"</div>"
-      +"<div class=\"footer\">Generated by Root &amp; Bloom &nbsp;·&nbsp; "+today+" &nbsp;·&nbsp; Verify current requirements at "+si.stateUrl+"</div>"
       +"<button class=\"pbtn\" onclick=\"window.print()\">Print / Save as PDF</button>"
       +"</body></html>";
     win.document.write(html);
