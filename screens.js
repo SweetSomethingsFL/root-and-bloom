@@ -45,6 +45,14 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
   const [c1,c2]   = [colorPalette.c1, colorPalette.c2];
   const heroGrad  = `linear-gradient(135deg,${c1},${c2})`;
 
+  // Birthday detection
+  const isBirthday = (()=>{
+    if(!child.dob) return false;
+    const d = new Date(child.dob+"T00:00:00");
+    const n = new Date();
+    return d.getMonth()===n.getMonth() && d.getDate()===n.getDate();
+  })();
+
   // Compute real streak from portfolio entries for this child
   const realStreak = (() => {
     const yr = new Date().getFullYear();
@@ -329,11 +337,18 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
             {/* Big hero */}
             <div style={{background:heroGrad,padding:"1.5rem 1.2rem 2.5rem",position:"relative",overflow:"hidden"}}>
               <div style={{position:"absolute",right:"-25px",bottom:"-25px",width:"110px",height:"110px",borderRadius:"50%",background:"rgba(255,255,255,0.07)"}}/>
-              <div style={{fontSize:"3.8rem",marginBottom:"0.4rem",animation:"bounce 2.2s ease infinite"}}>{child.avatar}</div>
-              <div style={{fontWeight:"900",color:"#fff",fontSize:"1.55rem",lineHeight:1.2}}>{greetKid()},<br/>{child.name}! 🌟</div>
+              <div style={{fontSize:"3.8rem",marginBottom:"0.4rem",animation:"bounce 2.2s ease infinite"}}>{isBirthday ? "🎂" : child.avatar}</div>
+              <div style={{fontWeight:"900",color:"#fff",fontSize:"1.55rem",lineHeight:1.2}}>{isBirthday ? "Happy Birthday," : greetKid()+","}<br/>{child.name}{"! "}{isBirthday ? "🎉" : "🌟"}</div>
               <div style={{fontSize:"0.82rem",color:"rgba(255,255,255,0.72)",marginTop:"0.25rem"}}>
-                {isWeekend ? "It's the weekend — enjoy your time off! 🌴" : "Ready to learn something awesome?"}
+                {isBirthday ? "Today is YOUR special day — celebrate! 🎈🎁" : isWeekend ? "It's the weekend — enjoy your time off! 🌴" : "Ready to learn something awesome?"}
               </div>
+              {isBirthday&&(
+                <div style={{position:"absolute",inset:0,pointerEvents:"none",overflow:"hidden"}}>
+                  {Array.from({length:24},(_,i)=>({id:i,x:Math.random()*100,delay:Math.random()*2,dur:1.8+Math.random()*1.5,color:["#fff","#fde68a","#fbb6ce","#a7f3d0","#bfdbfe"][i%5],size:5+Math.random()*8})).map(p=>(
+                    <div key={p.id} style={{position:"absolute",left:p.x+"%",top:"-10px",width:p.size+"px",height:p.size+"px",background:p.color,borderRadius:p.id%2===0?"50%":"3px",animation:`confettiFall ${p.dur}s ${p.delay}s ease-in infinite`,opacity:0.85}}/>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Floating streak card */}
