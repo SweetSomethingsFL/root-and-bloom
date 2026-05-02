@@ -799,6 +799,7 @@ function RootAndBloom() {
   const saved = useMemo(()=>loadSaved(),[]);
   // Auth state -- "login" until user authenticates or skips
   const [authDone,       setAuthDone]       = useState(null); // null=checking, false=show login, true=logged in
+  const [isDemo,         setIsDemo]         = useState(false);
   // Device mode -- stored in localStorage only (not synced), e.g. a child's tablet
   const [deviceChild,    setDeviceChild]    = useState(()=>{
     try{return localStorage.getItem("rootbloom_device_child")||null;}catch(e){return null;}
@@ -1039,7 +1040,10 @@ function RootAndBloom() {
       setAuthDone(true);
       setView(resolvedFamily?"parent":"onboarding");
     } else {
-      // No cloud data -- use whatever is in localStorage
+      // No cloud data -- use whatever is in localStorage (or seed demo family)
+      if(isDemo || (!family && !localStorage.getItem("rootbloom_data"))) {
+        // Will be set by onDemo handler — just proceed
+      }
       setAuthDone(true);
       setView(family?"parent":"onboarding");
     }
@@ -1242,7 +1246,36 @@ function RootAndBloom() {
 
       {/* -- LOGIN / SPLASH -- */}
       {authDone===null && <div style={{height:"100vh",background:pal.heroGrad,display:"flex",alignItems:"center",justifyContent:"center"}}><div style={{width:"36px",height:"36px",borderRadius:"50%",border:"3px solid rgba(255,255,255,0.3)",borderTopColor:"#fff",animation:"spin 0.8s linear infinite"}}/></div>}
-      {authDone===false && <LoginScreen pal={pal} onLogin={handleLogin} />}
+      {authDone===false && <LoginScreen pal={pal} onLogin={handleLogin} onDemo={()=>{
+        setIsDemo(true);
+        const DEMO_FAMILY = {
+          parentName:"Sarah",familyName:"The Rivera Family",schoolName:"Bloom Academy",
+          state:"Florida",address:"123 Maple Lane, Orlando, FL 32801",phone:"(407) 555-0192",
+          subjects:["math","reading","language","science","history","art"],
+          scheduleMode2:"same",startTime:"9:00 AM",scheduleDays:["Mon","Tue","Wed","Thu","Fri"],
+          coopFreq:"Weekly",coopDay:"Friday",coopName:"Orchard Co-op",
+          curriculumStyle:["eclectic"],yearsHomeschooling:"2-3 years",
+          children:[
+            {id:"demo_c1",name:"Lily",lastName:"Rivera",grade:"3rd",avatar:"🌸",colorId:"rose",dob:"2016-03-15",trustLevel:"approve"},
+            {id:"demo_c2",name:"Marco",lastName:"Rivera",grade:"6th",avatar:"🦊",colorId:"harvest",dob:"2013-09-22",trustLevel:"auto"},
+            {id:"demo_c3",name:"Bea",lastName:"Rivera",grade:"Pre-K",avatar:"🐢",colorId:"ocean",dob:"2020-11-08",trustLevel:"approve"},
+          ],
+          resources:[
+            {id:"res_d1",title:"Khan Academy",url:"https://khanacademy.org",type:"link",subj:"math",childIds:["demo_c1","demo_c2"],note:"Great for extra practice",date:"Sep 1, 2024"},
+            {id:"res_d2",title:"Charlotte's Web",url:"",type:"book",subj:"reading",childIds:["demo_c1"],note:"E.B. White — read aloud together",date:"Oct 3, 2024"},
+            {id:"res_d3",title:"Mystery Science",url:"https://mysteryscience.com",type:"video",subj:"science",childIds:["demo_c1","demo_c2","demo_c3"],note:"",date:"Sep 15, 2024"},
+          ],
+          readingLog:[
+            {id:"rl_d1",childId:"demo_c1",title:"Charlotte's Web",author:"E.B. White",startDate:"2024-10-01",finishDate:"2024-10-28",date:"Oct 28, 2024"},
+            {id:"rl_d2",childId:"demo_c2",title:"The Hobbit",author:"J.R.R. Tolkien",startDate:"2024-09-10",finishDate:"",date:"Sep 10, 2024"},
+          ],
+        };
+        setFamily(DEMO_FAMILY);
+        setAttendanceDays(142);
+        setCheckinStreak(7);
+        setAuthDone(true);
+        setView("parent");
+      }} />}
       {authDone && view==="splash" && <SplashScreen pal={pal} onContinue={handleSplash} />}
       {view==="onboarding" && <OnboardingFlow pal={pal} onComplete={finishOnboarding} />}
       {view==="settings"   && <SettingsScreen pal={pal} family={family} setFamily={setFamily}
@@ -1337,7 +1370,7 @@ function RootAndBloom() {
         </div>
 
         {/* Main content */}
-        <div ref={mainScrollRef} className="app-scroll-root" style={{flex:1,overflowY:"auto",paddingBottom:"72px"}}>
+        <div ref={mainScrollRef} className="app-scroll-root" style={{flex:1,overflowY:"auto",paddingBottom:"72px",paddingTop:isDemo?"32px":"0"}}>
           {activeTab==="home" && <HomeScreen pal={pal} family={family} child={childFilt} setChild={setChildFilt} onTheme={()=>setShowTheme(true)} attendanceDays={attendanceDays} checkinStreak={checkinStreak} lastCheckinDate={lastCheckinDate} portfolioEntries={portfolioEntries} onTabChange={setActiveTab} todayProgress={todayProgress} navIds={navIds}
             attendanceLog={attendanceLog}
             onAddEntry={addPortfolioEntry}
@@ -1508,6 +1541,17 @@ function RootAndBloom() {
             {"\uD83C\uDF31"}
           </button>
         </div>
+
+        {/* Demo mode banner */}
+        {isDemo&&(
+          <div style={{position:"fixed",top:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:"430px",background:"linear-gradient(90deg,#7c3aed,#a855f7)",color:"#fff",zIndex:200,display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0.45rem 1rem",fontSize:"0.72rem",fontWeight:"700"}}>
+            <span>{"🌱 Demo Mode — changes won't be saved"}</span>
+            <button onClick={()=>{ setIsDemo(false); setAuthDone(false); setFamily(null); setAttendanceDays(0); setCheckinStreak(0); }}
+              style={{background:"rgba(255,255,255,0.25)",border:"none",borderRadius:"8px",color:"#fff",fontWeight:"800",fontSize:"0.68rem",padding:"0.22rem 0.6rem",cursor:"pointer",flexShrink:0,marginLeft:"0.5rem"}}>
+              {"Create Account →"}
+            </button>
+          </div>
+        )}
 
         {/* Bottom nav */}
         <nav style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:"430px",background:pal.linen,borderTop:`1.5px solid ${pal.stone}60`,height:"68px",display:"flex",alignItems:"center",zIndex:50}}>
@@ -1696,7 +1740,7 @@ function MoreScreen({pal,family,onNav,onTheme,onNavEdit,onSettings,onLifeReady})
 /* =======================================
    LOGIN SCREEN
 ======================================= */
-function LoginScreen({ pal, onLogin }) {
+function LoginScreen({ pal, onLogin, onDemo }) {
   const [mode,     setMode]     = React.useState("login");
   const [email,    setEmail]    = React.useState("");
   const [pw,       setPw]       = React.useState("");
@@ -1788,6 +1832,12 @@ function LoginScreen({ pal, onLogin }) {
             <button onClick={handleSkip}
               style={{background:"none",border:"none",color:"rgba(255,255,255,0.45)",fontSize:"0.72rem",cursor:"pointer",textDecoration:"underline",fontFamily:"inherit"}}>
               {"Continue without an account"}
+            </button>
+          </div>
+          <div style={{textAlign:"center",marginTop:"0.65rem"}}>
+            <button onClick={onDemo}
+              style={{background:"rgba(255,255,255,0.15)",border:"1.5px solid rgba(255,255,255,0.35)",borderRadius:"12px",color:"#fff",fontSize:"0.78rem",fontWeight:"700",cursor:"pointer",fontFamily:"inherit",padding:"0.5rem 1.2rem",width:"100%"}}>
+              {"✨ Try a Demo — no account needed"}
             </button>
           </div>
         </div>
