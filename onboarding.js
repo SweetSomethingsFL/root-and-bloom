@@ -8,6 +8,7 @@ function OnboardingFlow({ pal, onComplete }) {
   const [step, setStep] = useState(0);
   const [data, setData] = useState({
     parentName:"", familyName:"", schoolName:"", studentTitle:"", state:"",
+    address:"", phone:"",
     yearsHomeschooling:"0-1 years",
     children:[{id:uid(),name:"",grade:"1st",avatar:"🌻"}],
     curriculumStyle:["eclectic"],
@@ -22,10 +23,10 @@ function OnboardingFlow({ pal, onComplete }) {
     paletteId:"sage",
   });
   const upd = (k,v) => setData(d=>({...d,[k]:v}));
-  const STEPS = ["Welcome","Your Children","Schedule Style","Learning Style","Curriculum","Co-op","Subjects","Your Schedule","Lesson Goals","Goals","Life & Extras","Life Ready","You're All Set!"];
-  const pct = Math.round((step/12)*100);
+  const STEPS = ["Welcome","Your Children","Schedule Style","Learning Style","Curriculum","Co-op","Subjects","Your Schedule","Lesson Goals","Goals","Life & Extras","Life Ready","Contact & Legal","You're All Set!"];
+  const pct = Math.round((step/13)*100);
 
-  const STEP_ICONS = ["🌱","👨👩👧👦","📋","📚","📖","🏫","🔬","📅","🎯","🌟","🌿","🛡","🎉"];
+  const STEP_ICONS = ["🌱","👨👩👧👦","📋","📚","📖","🏫","🔬","📅","🎯","🌟","🌿","🛡","📬","🎉"];
 
   return (
     <div style={{minHeight:"100vh",background:pal.sand,display:"flex",flexDirection:"column"}}>
@@ -56,7 +57,8 @@ function OnboardingFlow({ pal, onComplete }) {
         {step===9  && <OnbGoals           pal={pal} data={data} upd={upd} onNext={()=>setStep(10)} />}
         {step===10 && <OnbExtras          pal={pal} data={data} upd={upd} onNext={()=>setStep(11)} />}
         {step===11 && <OnbLifeReady       pal={pal} data={data} upd={upd} onNext={()=>setStep(12)} />}
-        {step===12 && <OnbCelebration     pal={pal} data={data} upd={upd} onNext={()=>onComplete(data)} />}
+        {step===12 && <OnbContactLegal    pal={pal} data={data} upd={upd} onNext={()=>setStep(13)} />}
+        {step===13 && <OnbCelebration     pal={pal} data={data} upd={upd} onNext={()=>onComplete(data)} />}
       </div>
     </div>
   );
@@ -115,6 +117,55 @@ function OnbSchedulePref({ pal, data, upd, onNext }) {
 
 
 /* --- CELEBRATION STEP (step 11) --- */
+function OnbContactLegal({ pal, data, upd, onNext }) {
+  const updChild = (id, field, val) => {
+    upd("children", (data.children||[]).map(c=>c.id===id?{...c,[field]:val}:c));
+  };
+  return (
+    <div style={{padding:"1.6rem 1.4rem 2rem"}}>
+      <div style={{fontSize:"2.2rem",marginBottom:"0.5rem",textAlign:"center"}}>{"📬"}</div>
+      <h2 style={{fontFamily:"Georgia",fontSize:"1.3rem",fontWeight:"900",color:pal.ink,textAlign:"center",marginBottom:"0.35rem"}}>{"Contact & Legal Info"}</h2>
+      <p style={{fontSize:"0.8rem",color:pal.slate,textAlign:"center",marginBottom:"1.4rem",lineHeight:1.6}}>{"Used to auto-fill your Notice of Intent letter. You can skip this and add it later in Settings."}</p>
+
+      <div style={{background:pal.pale,borderRadius:"13px",padding:"1rem",border:`1.5px solid ${pal.primary}20`,marginBottom:"1.1rem"}}>
+        <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.85rem",marginBottom:"0.75rem"}}>{"Family Contact"}</div>
+        <div style={{marginBottom:"0.6rem"}}>
+          <div style={{fontSize:"0.7rem",fontWeight:"700",color:pal.slate,marginBottom:"3px"}}>{"Home Address"}</div>
+          <input value={data.address||""} onChange={e=>upd("address",e.target.value)}
+            placeholder={"e.g. 123 Main St, Orlando, FL 32801"}
+            style={{width:"100%",padding:"0.55rem 0.75rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.83rem",background:pal.parchm,color:pal.ink,outline:"none"}}/>
+        </div>
+        <div>
+          <div style={{fontSize:"0.7rem",fontWeight:"700",color:pal.slate,marginBottom:"3px"}}>{"Phone Number"}</div>
+          <input value={data.phone||""} onChange={e=>upd("phone",e.target.value)}
+            placeholder={"e.g. (407) 555-1234"}
+            style={{width:"100%",padding:"0.55rem 0.75rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.83rem",background:pal.parchm,color:pal.ink,outline:"none"}}/>
+        </div>
+      </div>
+
+      <div style={{background:pal.pale,borderRadius:"13px",padding:"1rem",border:`1.5px solid ${pal.primary}20`,marginBottom:"1.4rem"}}>
+        <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.85rem",marginBottom:"0.75rem"}}>{"Student Dates of Birth"}</div>
+        {(data.children||[]).map(c=>(
+          <div key={c.id} style={{marginBottom:"0.6rem",display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.5rem",alignItems:"center"}}>
+            <div style={{fontSize:"0.82rem",fontWeight:"700",color:pal.ink}}>{c.name}</div>
+            <input type="date" value={c.dob||""} onChange={e=>updChild(c.id,"dob",e.target.value)}
+              style={{width:"100%",padding:"0.5rem 0.6rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.8rem",background:pal.parchm,color:pal.ink,outline:"none"}}/>
+          </div>
+        ))}
+      </div>
+
+      <button onClick={onNext}
+        style={{width:"100%",padding:"0.9rem",border:"none",borderRadius:"14px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.92rem",cursor:"pointer",marginBottom:"0.65rem"}}>
+        {"Continue →"}
+      </button>
+      <button onClick={onNext}
+        style={{width:"100%",padding:"0.65rem",border:"none",borderRadius:"14px",background:"transparent",color:pal.slate,fontWeight:"600",fontSize:"0.8rem",cursor:"pointer"}}>
+        {"Skip for now"}
+      </button>
+    </div>
+  );
+}
+
 function OnbCelebration({ pal, data, onNext }) {
   const [confetti, setConfetti] = React.useState([]);
   React.useEffect(()=>{

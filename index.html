@@ -2790,6 +2790,15 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
   const [dragIdx,      setDragIdx]      = useState(null);
   const [dragOverIdx,  setDragOverIdx]  = useState(null);
 
+  // Birthday detection
+  const todayMD = (()=>{ const n=new Date(); return (n.getMonth()+1)+"-"+n.getDate(); })();
+  const birthdayKids = (family.children||[]).filter(c=>{
+    if(!c.dob) return false;
+    const d = new Date(c.dob+"T00:00:00");
+    return (d.getMonth()+1)+"-"+d.getDate() === todayMD;
+  });
+  const hasBirthday = birthdayKids.length > 0;
+
   // Start logging — build queue of children who haven't been logged today
   const startLog = () => {
     const todayDateStr = new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
@@ -3649,6 +3658,27 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
           </div>
         </div>
       );})()}
+      {/* ── Birthday banner ── */}
+      {hasBirthday&&(
+        <div style={{margin:"0 0 0.85rem",borderRadius:"16px",background:"linear-gradient(135deg,#f9a8d4,#fde68a,#a7f3d0)",padding:"1rem 1.1rem",position:"relative",overflow:"hidden",boxShadow:"0 4px 18px rgba(249,168,212,0.35)"}}>
+          <div style={{position:"absolute",inset:0,pointerEvents:"none",overflow:"hidden"}}>
+            {Array.from({length:18},(_,i)=>({id:i,x:Math.random()*100,delay:Math.random()*2,dur:2+Math.random()*1.5,color:["#f472b6","#fbbf24","#34d399","#60a5fa","#a78bfa"][i%5],size:5+Math.random()*7})).map(p=>(
+              <div key={p.id} style={{position:"absolute",left:p.x+"%",top:"-10px",width:p.size+"px",height:p.size+"px",background:p.color,borderRadius:p.id%2===0?"50%":"3px",animation:`confettiFall ${p.dur}s ${p.delay}s ease-in infinite`,opacity:0.8}}/>
+            ))}
+          </div>
+          <div style={{position:"relative",zIndex:1,display:"flex",alignItems:"center",gap:"0.75rem"}}>
+            <div style={{fontSize:"2rem",flexShrink:0}}>{"🎂"}</div>
+            <div>
+              <div style={{fontWeight:"900",color:"#7c2d12",fontSize:"0.95rem",lineHeight:1.2}}>
+                {"Happy Birthday, "+birthdayKids.map(c=>c.name).join(" & ")+"! 🎉"}
+              </div>
+              <div style={{fontSize:"0.75rem",color:"#92400e",marginTop:"2px",fontWeight:"600"}}>
+                {"Wishing you a beautiful day full of learning and joy!"}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       {/* ── Friday digest nudge ── */}
       {(()=>{
         const _dow = new Date().getDay(); // 5=Fri, 6=Sat
