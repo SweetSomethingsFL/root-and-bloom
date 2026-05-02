@@ -1982,6 +1982,10 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                   <div><Lbl pal={pal}>Last Name</Lbl><Input pal={pal} value={c.lastName||""} onChange={v=>updChild(c.id,"lastName",v)} placeholder={"Last name"} /></div>
                   <div><Lbl pal={pal}>Grade</Lbl><Select pal={pal} value={c.grade} onChange={v=>updChild(c.id,"grade",v)} options={GRADES} /></div>
                 </div>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.65rem",marginTop:"0.65rem"}}>
+                  <div><Lbl pal={pal}>Date of Birth</Lbl><input type="date" value={c.dob||""} onChange={e=>updChild(c.id,"dob",e.target.value)} style={{width:"100%",padding:"0.52rem 0.75rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.83rem",background:pal.parchm,color:pal.ink,outline:"none"}}/></div>
+                  <div><Lbl pal={pal}>Student ID <span style={{fontWeight:"400",color:pal.slate}}>(optional)</span></Lbl><Input pal={pal} value={c.studentId||""} onChange={v=>updChild(c.id,"studentId",v)} placeholder={"e.g. 2024-001"} /></div>
+                </div>
                 {/* Portfolio trust level */}
                 <div style={{marginTop:"0.75rem",padding:"0.7rem 0.85rem",background:pal.pale,borderRadius:"12px",border:`1.5px solid ${pal.stone}30`}}>
                   <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:"0.75rem"}}>
@@ -2273,6 +2277,10 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
 
             <SCard pal={pal} title="Home Address" note="Used in Notice of Intent letters">
               <Input pal={pal} value={local.address||""} onChange={v=>updL("address",v)} placeholder="e.g. 123 Main St, Orlando, FL 32801" />
+            </SCard>
+
+            <SCard pal={pal} title="Phone Number" note="Used in Notice of Intent letters">
+              <Input pal={pal} value={local.phone||""} onChange={v=>updL("phone",v)} placeholder="e.g. (407) 555-1234" />
             </SCard>
 
             <SCard pal={pal} title="Progress Report" note="Settings for the printable progress report">
