@@ -343,9 +343,9 @@ function StudentPortal({ child, family, pal, isCoop, allEntries, onAddEntry, onC
                 {isBirthday ? "Today is YOUR special day — celebrate! 🎈🎁" : isWeekend ? "It's the weekend — enjoy your time off! 🌴" : "Ready to learn something awesome?"}
               </div>
               {isBirthday&&(
-                <div style={{position:"absolute",inset:0,pointerEvents:"none",overflow:"hidden"}}>
-                  {Array.from({length:24},(_,i)=>({id:i,x:Math.random()*100,delay:Math.random()*2,dur:1.8+Math.random()*1.5,color:["#fff","#fde68a","#fbb6ce","#a7f3d0","#bfdbfe"][i%5],size:5+Math.random()*8})).map(p=>(
-                    <div key={p.id} style={{position:"absolute",left:p.x+"%",top:"-10px",width:p.size+"px",height:p.size+"px",background:p.color,borderRadius:p.id%2===0?"50%":"3px",animation:`confettiFall ${p.dur}s ${p.delay}s ease-in infinite`,opacity:0.85}}/>
+                <div style={{position:"absolute",top:0,left:0,right:0,bottom:0,pointerEvents:"none",overflow:"hidden",borderRadius:"inherit"}}>
+                  {Array.from({length:24},(_,i)=>({id:i,x:(i*7+13)%97,delay:(i*0.17)%2,dur:1.8+(i*0.11)%1.5,color:["#fff","#fde68a","#fbb6ce","#a7f3d0","#bfdbfe"][i%5],size:5+(i*3)%8})).map(p=>(
+                    <div key={p.id} style={{position:"absolute",left:p.x+"%",top:"5px",width:p.size+"px",height:p.size+"px",background:p.color,borderRadius:p.id%2===0?"50%":"3px",animation:`confettiFall ${p.dur}s ${p.delay}s ease-in infinite`,opacity:0.85}}/>
                   ))}
                 </div>
               )}
