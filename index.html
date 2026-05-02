@@ -4239,6 +4239,150 @@ function incrementAILimit(monthKey) {
 // Returns a rich goals string for AI prompts — human-readable, context-rich
 // callClaude, goalSummary, curriculumContext moved to ai-features.js
 
+function ResourceLibrary({pal, family, onUpdateFamily}) {
+  const resources = family.resources||[];
+  const subjects = [...new Set((family.subjects||[]).concat((family.customSubjects||[]).map(s=>s.id)))];
+  const subjectLabel = id => {
+    const opt = [...(SUBJECT_OPTIONS||[]),...(family.customSubjects||[])].find(s=>s.id===id);
+    return opt ? (opt.icon?opt.icon+" "+opt.label:opt.label) : id;
+  };
+  const [resSearch,  setResSearch]  = useState("");
+  const [resSubj,    setResSubj]    = useState("all");
+  const [showAdd,    setShowAdd]    = useState(false);
+  const [rTitle,     setRTitle]     = useState("");
+  const [rUrl,       setRUrl]       = useState("");
+  const [rType,      setRType]      = useState("link");
+  const [rSubj,      setRSubj]      = useState(subjects[0]||"");
+  const [rNote,      setRNote]      = useState("");
+  const [rChildIds,  setRChildIds]  = useState([]);
+  const TYPE_ICONS = {link:"🔗",video:"🎥",book:"📚",pdf:"📄",other:"📌"};
+  const saveResource = () => {
+    if(!rTitle.trim()) return;
+    const entry = {id:"res_"+Date.now(),title:rTitle.trim(),url:rUrl.trim()||undefined,type:rType,subj:rSubj,childIds:rChildIds,note:rNote.trim()||undefined,date:new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})};
+    if(onUpdateFamily) onUpdateFamily({resources:[...resources,entry]});
+    setShowAdd(false); setRTitle(""); setRUrl(""); setRType("link"); setRNote(""); setRChildIds([]);
+  };
+  const deleteResource = id => {
+    if(onUpdateFamily) onUpdateFamily({resources:resources.filter(r=>r.id!==id)});
+  };
+  const filtered = resources.filter(r=>{
+    if(resSubj!=="all" && r.subj!==resSubj) return false;
+    if(resSearch && !r.title.toLowerCase().includes(resSearch.toLowerCase())) return false;
+    return true;
+  });
+  const bySubj = {};
+  filtered.forEach(r=>{ const s=r.subj||"other"; if(!bySubj[s]) bySubj[s]=[]; bySubj[s].push(r); });
+  return (
+    <div>
+      <div style={{display:"flex",gap:"0.5rem",marginBottom:"0.75rem",flexWrap:"wrap"}}>
+        <input value={resSearch} onChange={e=>setResSearch(e.target.value)} placeholder={"Search resources..."}
+          style={{flex:1,minWidth:"120px",padding:"0.5rem 0.75rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.82rem",background:pal.parchm,color:pal.ink,outline:"none"}}/>
+        <select value={resSubj} onChange={e=>setResSubj(e.target.value)}
+          style={{padding:"0.5rem 0.6rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.78rem",background:pal.parchm,color:pal.ink,outline:"none"}}>
+          <option value="all">All subjects</option>
+          {subjects.map(s=><option key={s} value={s}>{subjectLabel(s)}</option>)}
+        </select>
+      </div>
+      <button onClick={()=>setShowAdd(v=>!v)}
+        style={{width:"100%",padding:"0.62rem",border:`2px dashed ${pal.primary}60`,borderRadius:"12px",background:showAdd?pal.pale:"transparent",color:pal.primary,fontWeight:"700",fontSize:"0.82rem",cursor:"pointer",marginBottom:"0.75rem",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.4rem"}}>
+        {showAdd?"✕ Cancel":"+ Add Resource"}
+      </button>
+      {showAdd&&(
+        <div style={{background:pal.linen,borderRadius:"14px",padding:"1rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.stone}35`}}>
+          <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.84rem",marginBottom:"0.7rem"}}>{"New Resource"}</div>
+          <div style={{marginBottom:"0.5rem"}}>
+            <div style={{fontSize:"0.7rem",color:pal.slate,fontWeight:"600",marginBottom:"3px"}}>{"Title *"}</div>
+            <input value={rTitle} onChange={e=>setRTitle(e.target.value)} placeholder={"e.g. Khan Academy Fractions"}
+              style={{width:"100%",padding:"0.52rem 0.7rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.82rem",background:pal.parchm,color:pal.ink,outline:"none"}}/>
+          </div>
+          <div style={{marginBottom:"0.5rem"}}>
+            <div style={{fontSize:"0.7rem",color:pal.slate,fontWeight:"600",marginBottom:"3px"}}>{"URL (optional)"}</div>
+            <input value={rUrl} onChange={e=>setRUrl(e.target.value)} placeholder={"https://..."}
+              style={{width:"100%",padding:"0.52rem 0.7rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.82rem",background:pal.parchm,color:pal.ink,outline:"none"}}/>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.5rem",marginBottom:"0.5rem"}}>
+            <div>
+              <div style={{fontSize:"0.7rem",color:pal.slate,fontWeight:"600",marginBottom:"3px"}}>{"Type"}</div>
+              <select value={rType} onChange={e=>setRType(e.target.value)}
+                style={{width:"100%",padding:"0.5rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.8rem",background:pal.parchm,color:pal.ink,outline:"none"}}>
+                {Object.entries(TYPE_ICONS).map(([k,v])=><option key={k} value={k}>{v+" "+k.charAt(0).toUpperCase()+k.slice(1)}</option>)}
+              </select>
+            </div>
+            <div>
+              <div style={{fontSize:"0.7rem",color:pal.slate,fontWeight:"600",marginBottom:"3px"}}>{"Subject"}</div>
+              <select value={rSubj} onChange={e=>setRSubj(e.target.value)}
+                style={{width:"100%",padding:"0.5rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.8rem",background:pal.parchm,color:pal.ink,outline:"none"}}>
+                {subjects.map(s=><option key={s} value={s}>{subjectLabel(s)}</option>)}
+                <option value="general">{"General"}</option>
+              </select>
+            </div>
+          </div>
+          <div style={{marginBottom:"0.5rem"}}>
+            <div style={{fontSize:"0.7rem",color:pal.slate,fontWeight:"600",marginBottom:"5px"}}>{"For which children? (optional)"}</div>
+            <div style={{display:"flex",gap:"0.4rem",flexWrap:"wrap"}}>
+              {(family.children||[]).map(c=>{
+                const sel = rChildIds.includes(c.id);
+                return (
+                  <button key={c.id} onClick={()=>setRChildIds(ids=>sel?ids.filter(i=>i!==c.id):[...ids,c.id])}
+                    style={{padding:"0.28rem 0.65rem",border:`2px solid ${sel?pal.primary:pal.stone}`,borderRadius:"20px",background:sel?pal.pale:"transparent",color:sel?pal.primary:pal.slate,fontSize:"0.74rem",fontWeight:"700",cursor:"pointer"}}>
+                    {c.avatar}{" "}{c.name}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <div style={{marginBottom:"0.75rem"}}>
+            <div style={{fontSize:"0.7rem",color:pal.slate,fontWeight:"600",marginBottom:"3px"}}>{"Notes (optional)"}</div>
+            <input value={rNote} onChange={e=>setRNote(e.target.value)} placeholder={"e.g. Great for extra fraction practice"}
+              style={{width:"100%",padding:"0.52rem 0.7rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.82rem",background:pal.parchm,color:pal.ink,outline:"none"}}/>
+          </div>
+          <button onClick={saveResource} disabled={!rTitle.trim()}
+            style={{width:"100%",padding:"0.65rem",border:"none",borderRadius:"11px",background:rTitle.trim()?pal.accentGrad:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.84rem",cursor:rTitle.trim()?"pointer":"not-allowed"}}>
+            {"Save Resource"}
+          </button>
+        </div>
+      )}
+      {filtered.length===0?(
+        <div style={{background:pal.linen,borderRadius:"14px",padding:"2rem",textAlign:"center",border:`1.5px solid ${pal.stone}30`}}>
+          <div style={{fontSize:"2rem",marginBottom:"0.5rem"}}>{"🔗"}</div>
+          <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.86rem",marginBottom:"0.25rem"}}>{resources.length===0?"No resources yet":"No matches"}</div>
+          <div style={{fontSize:"0.74rem",color:pal.slate}}>{resources.length===0?"Add links, books, videos, and materials organized by subject.":"Try a different search or filter."}</div>
+        </div>
+      ):(
+        Object.entries(bySubj).map(([subj,items])=>(
+          <div key={subj} style={{marginBottom:"1rem"}}>
+            <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.82rem",marginBottom:"0.4rem",paddingLeft:"0.2rem"}}>{subjectLabel(subj)}</div>
+            <div style={{background:pal.linen,borderRadius:"14px",border:`1.5px solid ${pal.stone}30`,overflow:"hidden"}}>
+              {items.map((r,i)=>(
+                <div key={r.id} style={{padding:"0.7rem 0.9rem",borderTop:i>0?`1px solid ${pal.stone}20`:"none",display:"flex",gap:"0.65rem",alignItems:"flex-start"}}>
+                  <span style={{fontSize:"1.1rem",flexShrink:0,marginTop:"1px"}}>{TYPE_ICONS[r.type]||"📌"}</span>
+                  <div style={{flex:1,minWidth:0}}>
+                    {r.url
+                      ? <a href={r.url} target="_blank" rel="noreferrer" style={{fontWeight:"700",color:pal.primary,fontSize:"0.83rem",lineHeight:1.3,textDecoration:"none"}}>{r.title}</a>
+                      : <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.83rem",lineHeight:1.3}}>{r.title}</div>
+                    }
+                    {r.note&&<div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"2px",lineHeight:1.4}}>{r.note}</div>}
+                    <div style={{display:"flex",gap:"0.4rem",marginTop:"3px",flexWrap:"wrap",alignItems:"center"}}>
+                      {(r.childIds||[]).map(cid=>{
+                        const ch=(family.children||[]).find(c=>c.id===cid);
+                        return ch?<span key={cid} style={{fontSize:"0.62rem",background:pal.pale,color:pal.primary,padding:"1px 6px",borderRadius:"10px",fontWeight:"700"}}>{ch.avatar}{" "}{ch.name}</span>:null;
+                      })}
+                      <span style={{fontSize:"0.62rem",color:pal.slate}}>{r.date}</span>
+                    </div>
+                  </div>
+                  <button onClick={()=>deleteResource(r.id)}
+                    style={{flexShrink:0,background:"none",border:"none",cursor:"pointer",color:pal.slate,fontSize:"0.9rem",padding:"2px",lineHeight:1,opacity:0.6}}>{"✕"}</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))
+      )}
+      <div style={{height:"1rem"}}/>
+    </div>
+  );
+}
+
 function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab, portfolioEntries=[], onUpdateFamily}) {
   const LS_UNITS = "rootbloom_units_v1";
   // Curriculum Advisor chat state
@@ -4558,158 +4702,7 @@ function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab, portf
         </>)}
 
         {/* ===== RESOURCES TAB ===== */}
-        {learnTab==="resources"&&(()=>{
-          const resources = family.resources||[];
-          const subjects = [...new Set((family.subjects||[]).concat((family.customSubjects||[]).map(s=>s.id)))];
-          const subjectLabel = id => {
-            const opt = [...(SUBJECT_OPTIONS||[]),...(family.customSubjects||[])].find(s=>s.id===id);
-            return opt ? (opt.icon?" "+opt.label:opt.label) : id;
-          };
-          const [resSearch,   setResSearch]   = React.useState("");
-          const [resSubj,     setResSubj]     = React.useState("all");
-          const [resChild,    setResChild]    = React.useState("all");
-          const [showAdd,     setShowAdd]     = React.useState(false);
-          const [rTitle,      setRTitle]      = React.useState("");
-          const [rUrl,        setRUrl]        = React.useState("");
-          const [rType,       setRType]       = React.useState("link");
-          const [rSubj,       setRSubj]       = React.useState(subjects[0]||"");
-          const [rNote,       setRNote]       = React.useState("");
-          const [rChildIds,   setRChildIds]   = React.useState([]);
-          const TYPE_ICONS = {link:"🔗",video:"🎥",book:"📚",pdf:"📄",other:"📌"};
-          const saveResource = () => {
-            if(!rTitle.trim()) return;
-            const entry = {id:"res_"+Date.now(),title:rTitle.trim(),url:rUrl.trim()||undefined,type:rType,subj:rSubj,childIds:rChildIds,note:rNote.trim()||undefined,date:new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})};
-            if(onUpdateFamily) onUpdateFamily({resources:[...resources,entry]});
-            setShowAdd(false); setRTitle(""); setRUrl(""); setRType("link"); setRNote(""); setRChildIds([]);
-          };
-          const deleteResource = id => {
-            if(onUpdateFamily) onUpdateFamily({resources:resources.filter(r=>r.id!==id)});
-          };
-          const filtered = resources.filter(r=>{
-            if(resSubj!=="all" && r.subj!==resSubj) return false;
-            if(resChild!=="all" && !(r.childIds||[]).includes(resChild) && r.childIds&&r.childIds.length>0) return false;
-            if(resSearch && !r.title.toLowerCase().includes(resSearch.toLowerCase())) return false;
-            return true;
-          });
-          const bySubj = {};
-          filtered.forEach(r=>{ const s=r.subj||"other"; if(!bySubj[s]) bySubj[s]=[]; bySubj[s].push(r); });
-          return (
-            <div>
-              {/* Search + filters */}
-              <div style={{display:"flex",gap:"0.5rem",marginBottom:"0.75rem",flexWrap:"wrap"}}>
-                <input value={resSearch} onChange={e=>setResSearch(e.target.value)} placeholder={"Search resources..."}
-                  style={{flex:1,minWidth:"120px",padding:"0.5rem 0.75rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.82rem",background:pal.parchm,color:pal.ink,outline:"none"}}/>
-                <select value={resSubj} onChange={e=>setResSubj(e.target.value)}
-                  style={{padding:"0.5rem 0.6rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.78rem",background:pal.parchm,color:pal.ink,outline:"none"}}>
-                  <option value="all">All subjects</option>
-                  {subjects.map(s=><option key={s} value={s}>{subjectLabel(s)}</option>)}
-                </select>
-              </div>
-
-              {/* Add button */}
-              <button onClick={()=>setShowAdd(v=>!v)}
-                style={{width:"100%",padding:"0.62rem",border:`2px dashed ${pal.primary}60`,borderRadius:"12px",background:showAdd?pal.pale:"transparent",color:pal.primary,fontWeight:"700",fontSize:"0.82rem",cursor:"pointer",marginBottom:"0.75rem",display:"flex",alignItems:"center",justifyContent:"center",gap:"0.4rem"}}>
-                {showAdd?"✕ Cancel":"+ Add Resource"}
-              </button>
-
-              {/* Add form */}
-              {showAdd&&(
-                <div style={{background:pal.linen,borderRadius:"14px",padding:"1rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.stone}35`}}>
-                  <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.84rem",marginBottom:"0.7rem"}}>{"New Resource"}</div>
-                  <div style={{marginBottom:"0.5rem"}}>
-                    <div style={{fontSize:"0.7rem",color:pal.slate,fontWeight:"600",marginBottom:"3px"}}>Title *</div>
-                    <input value={rTitle} onChange={e=>setRTitle(e.target.value)} placeholder={"e.g. Khan Academy Fractions"}
-                      style={{width:"100%",padding:"0.52rem 0.7rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.82rem",background:pal.parchm,color:pal.ink,outline:"none"}}/>
-                  </div>
-                  <div style={{marginBottom:"0.5rem"}}>
-                    <div style={{fontSize:"0.7rem",color:pal.slate,fontWeight:"600",marginBottom:"3px"}}>URL (optional)</div>
-                    <input value={rUrl} onChange={e=>setRUrl(e.target.value)} placeholder={"https://..."}
-                      style={{width:"100%",padding:"0.52rem 0.7rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.82rem",background:pal.parchm,color:pal.ink,outline:"none"}}/>
-                  </div>
-                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.5rem",marginBottom:"0.5rem"}}>
-                    <div>
-                      <div style={{fontSize:"0.7rem",color:pal.slate,fontWeight:"600",marginBottom:"3px"}}>Type</div>
-                      <select value={rType} onChange={e=>setRType(e.target.value)}
-                        style={{width:"100%",padding:"0.5rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.8rem",background:pal.parchm,color:pal.ink,outline:"none"}}>
-                        {Object.entries(TYPE_ICONS).map(([k,v])=><option key={k} value={k}>{v+" "+k.charAt(0).toUpperCase()+k.slice(1)}</option>)}
-                      </select>
-                    </div>
-                    <div>
-                      <div style={{fontSize:"0.7rem",color:pal.slate,fontWeight:"600",marginBottom:"3px"}}>Subject</div>
-                      <select value={rSubj} onChange={e=>setRSubj(e.target.value)}
-                        style={{width:"100%",padding:"0.5rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.8rem",background:pal.parchm,color:pal.ink,outline:"none"}}>
-                        {subjects.map(s=><option key={s} value={s}>{subjectLabel(s)}</option>)}
-                        <option value="general">General</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div style={{marginBottom:"0.5rem"}}>
-                    <div style={{fontSize:"0.7rem",color:pal.slate,fontWeight:"600",marginBottom:"5px"}}>For which children? (optional)</div>
-                    <div style={{display:"flex",gap:"0.4rem",flexWrap:"wrap"}}>
-                      {(family.children||[]).map(c=>{
-                        const sel = rChildIds.includes(c.id);
-                        return (
-                          <button key={c.id} onClick={()=>setRChildIds(ids=>sel?ids.filter(i=>i!==c.id):[...ids,c.id])}
-                            style={{padding:"0.28rem 0.65rem",border:`2px solid ${sel?pal.primary:pal.stone}`,borderRadius:"20px",background:sel?pal.pale:"transparent",color:sel?pal.primary:pal.slate,fontSize:"0.74rem",fontWeight:"700",cursor:"pointer"}}>
-                            {c.avatar} {c.name}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                  <div style={{marginBottom:"0.75rem"}}>
-                    <div style={{fontSize:"0.7rem",color:pal.slate,fontWeight:"600",marginBottom:"3px"}}>Notes (optional)</div>
-                    <input value={rNote} onChange={e=>setRNote(e.target.value)} placeholder={"e.g. Use for extra practice on fractions"}
-                      style={{width:"100%",padding:"0.52rem 0.7rem",border:`2px solid ${pal.stone}`,borderRadius:"10px",fontSize:"0.82rem",background:pal.parchm,color:pal.ink,outline:"none"}}/>
-                  </div>
-                  <button onClick={saveResource} disabled={!rTitle.trim()}
-                    style={{width:"100%",padding:"0.65rem",border:"none",borderRadius:"11px",background:rTitle.trim()?pal.accentGrad:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.84rem",cursor:rTitle.trim()?"pointer":"not-allowed"}}>
-                    {"Save Resource"}
-                  </button>
-                </div>
-              )}
-
-              {/* Resource list */}
-              {filtered.length===0?(
-                <div style={{background:pal.linen,borderRadius:"14px",padding:"2rem",textAlign:"center",border:`1.5px solid ${pal.stone}30`}}>
-                  <div style={{fontSize:"2rem",marginBottom:"0.5rem"}}>{"🔗"}</div>
-                  <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.86rem",marginBottom:"0.25rem"}}>{resources.length===0?"No resources yet":"No matches"}</div>
-                  <div style={{fontSize:"0.74rem",color:pal.slate}}>{resources.length===0?"Add links, books, videos, and materials organized by subject.":"Try a different search or subject filter."}</div>
-                </div>
-              ):(
-                Object.entries(bySubj).map(([subj,items])=>(
-                  <div key={subj} style={{marginBottom:"1rem"}}>
-                    <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.82rem",marginBottom:"0.4rem",paddingLeft:"0.2rem"}}>{subjectLabel(subj)}</div>
-                    <div style={{background:pal.linen,borderRadius:"14px",border:`1.5px solid ${pal.stone}30`,overflow:"hidden"}}>
-                      {items.map((r,i)=>(
-                        <div key={r.id} style={{padding:"0.7rem 0.9rem",borderTop:i>0?`1px solid ${pal.stone}20`:"none",display:"flex",gap:"0.65rem",alignItems:"flex-start"}}>
-                          <span style={{fontSize:"1.1rem",flexShrink:0,marginTop:"1px"}}>{TYPE_ICONS[r.type]||"📌"}</span>
-                          <div style={{flex:1,minWidth:0}}>
-                            {r.url
-                              ? <a href={r.url} target="_blank" rel="noreferrer" style={{fontWeight:"700",color:pal.primary,fontSize:"0.83rem",lineHeight:1.3,textDecoration:"none"}}>{r.title}</a>
-                              : <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.83rem",lineHeight:1.3}}>{r.title}</div>
-                            }
-                            {r.note&&<div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"2px",lineHeight:1.4}}>{r.note}</div>}
-                            <div style={{display:"flex",gap:"0.4rem",marginTop:"3px",flexWrap:"wrap"}}>
-                              {(r.childIds||[]).map(cid=>{
-                                const ch=(family.children||[]).find(c=>c.id===cid);
-                                return ch?<span key={cid} style={{fontSize:"0.62rem",background:pal.pale,color:pal.primary,padding:"1px 6px",borderRadius:"10px",fontWeight:"700"}}>{ch.avatar}{" "}{ch.name}</span>:null;
-                              })}
-                              <span style={{fontSize:"0.62rem",color:pal.slate}}>{r.date}</span>
-                            </div>
-                          </div>
-                          <button onClick={()=>deleteResource(r.id)}
-                            style={{flexShrink:0,background:"none",border:"none",cursor:"pointer",color:pal.slate,fontSize:"0.9rem",padding:"2px",lineHeight:1,opacity:0.6}}>{"✕"}</button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))
-              )}
-              <div style={{height:"1rem"}}/>
-            </div>
-          );
-        })()}
+        {learnTab==="resources"&&<ResourceLibrary pal={pal} family={family} onUpdateFamily={onUpdateFamily}/>}
 
         {/* ===== CURRICULUM ADVISOR TAB ===== */}
         {learnTab==="advisor"&&(
