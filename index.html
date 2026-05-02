@@ -907,11 +907,12 @@ function RootAndBloom() {
   const [paletteId, setPaletteId] = useState(saved?.paletteId||"sage");
   const [customA,   setCustomA]   = useState(saved?.customA||"#2a4a28");
   const [customB,   setCustomB]   = useState(saved?.customB||"#a8c890");
+  const [darkMode,  setDarkMode]  = useState(saved?.darkMode||false);
 
   // Auto-save whenever key state changes
   useEffect(()=>{
-    savePersist({family,navIds,portfolioLayout,portfolio:portfolioEntries,pendingEntries,coopLog,attendanceDays,attendanceLog,observationLog,checkinDates,studentVisits,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed,notifDismissed});
-  },[family,navIds,homeLayout,portfolioLayout,portfolioEntries,pendingEntries,coopLog,attendanceDays,attendanceLog,observationLog,checkinDates,studentVisits,paletteId,customA,customB,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed,notifDismissed]);
+    savePersist({family,navIds,portfolioLayout,portfolio:portfolioEntries,pendingEntries,coopLog,attendanceDays,attendanceLog,observationLog,checkinDates,studentVisits,paletteId,customA,customB,darkMode,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed,notifDismissed});
+  },[family,navIds,homeLayout,portfolioLayout,portfolioEntries,pendingEntries,coopLog,attendanceDays,attendanceLog,observationLog,checkinDates,studentVisits,paletteId,customA,customB,darkMode,lastCheckinDate,checkinStreak,todayProgress,eoyDismissed,newYearDismissed,notifDismissed]);
 
   // Forward scroll events from outside app container to scrollable inner element
   useEffect(()=>{
@@ -951,8 +952,24 @@ function RootAndBloom() {
 
   const pal = useMemo(() => {
     const p = PRESET_PALETTES.find(p=>p.id===paletteId)||PRESET_PALETTES[0];
-    return buildTheme(p.isCustom?customA:p.a, p.isCustom?customB:p.b);
-  }, [paletteId,customA,customB]);
+    const base = buildTheme(p.isCustom?customA:p.a, p.isCustom?customB:p.b);
+    if(!darkMode) return base;
+    return {
+      ...base,
+      sand:    "#18191c",
+      linen:   "#222428",
+      parchm:  "#2a2d32",
+      stone:   "#444850",
+      ink:     "#f0ede8",
+      inkM:    "#c8c2b8",
+      slate:   "#9a9488",
+      good:    base.good,
+      warnBg:  "#3a2e10",
+      badBg:   "#3a1a1a",
+      goodBg:  "#0e2a18",
+      dark: true,
+    };
+  }, [paletteId,customA,customB,darkMode]);
 
   // ── One-time migration: ensure progress tab is in nav, schedule is optional ──
   React.useEffect(()=>{
@@ -1014,6 +1031,7 @@ function RootAndBloom() {
       if(cloudData.paletteId) setPaletteId(cloudData.paletteId);
       if(cloudData.customA) setCustomA(cloudData.customA);
       if(cloudData.customB) setCustomB(cloudData.customB);
+      if(cloudData.darkMode!=null) setDarkMode(cloudData.darkMode);
       if(cloudData.lastCheckinDate) setLastCheckinDate(cloudData.lastCheckinDate);
       if(cloudData.checkinStreak!=null) setCheckinStreak(cloudData.checkinStreak);
       // Cloud family wins; fall back to localStorage family if cloud has none yet
@@ -1053,6 +1071,7 @@ function RootAndBloom() {
             if(cloudData.paletteId) setPaletteId(cloudData.paletteId);
             if(cloudData.customA) setCustomA(cloudData.customA);
             if(cloudData.customB) setCustomB(cloudData.customB);
+            if(cloudData.darkMode!=null) setDarkMode(cloudData.darkMode);
             if(cloudData.lastCheckinDate) setLastCheckinDate(cloudData.lastCheckinDate);
             if(cloudData.checkinStreak!=null) setCheckinStreak(cloudData.checkinStreak);
             setAuthDone(true);
@@ -1229,6 +1248,7 @@ function RootAndBloom() {
       {view==="settings"   && <SettingsScreen pal={pal} family={family} setFamily={setFamily}
           paletteId={paletteId} setPaletteId={setPaletteId}
           customA={customA} customB={customB} setCustomA={setCustomA} setCustomB={setCustomB}
+          darkMode={darkMode} setDarkMode={setDarkMode}
           navIds={navIds} setNavIds={setNavIds} onBack={closeSettings}
           onCelebReset={()=>setCelebResetToken(t=>t+1)}
           onSignOut={()=>{

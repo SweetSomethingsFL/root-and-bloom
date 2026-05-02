@@ -1813,7 +1813,7 @@ function CoopQuickLogModal({ pal, family, onSave, onClose }) {
    ONBOARDING FLOW - 6 Steps
 ======================================= */
 
-function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, customA, customB, setCustomA, setCustomB, navIds, setNavIds, onBack, onCelebReset, deviceChild, setDeviceChild, onSignOut }) {
+function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, customA, customB, setCustomA, setCustomB, darkMode, setDarkMode, navIds, setNavIds, onBack, onCelebReset, deviceChild, setDeviceChild, onSignOut }) {
   const [tab,         setTab]        = useState("family");
   const [local,       setLocal]      = useState(family ? {...family} : {});
   const [showAddSubj, setShowAddSubj]= useState(false);
@@ -2433,6 +2433,18 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
         )}
         {tab==="theme" && (
           <div style={{animation:"fadeUp 0.18s ease"}}>
+            <SCard pal={pal} title="Appearance">
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0.2rem 0"}}>
+                <div>
+                  <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.85rem"}}>{"🌙 Dark Mode"}</div>
+                  <div style={{fontSize:"0.7rem",color:pal.slate,marginTop:"2px"}}>{"Easier on the eyes at night"}</div>
+                </div>
+                <button onClick={()=>setDarkMode&&setDarkMode(d=>!d)}
+                  style={{flexShrink:0,width:"52px",height:"28px",borderRadius:"14px",border:"none",cursor:"pointer",position:"relative",transition:"background 0.2s",background:darkMode?pal.primary:pal.stone}}>
+                  <div style={{position:"absolute",top:"3px",width:"22px",height:"22px",borderRadius:"50%",background:"#fff",boxShadow:"0 1px 4px rgba(0,0,0,0.22)",transition:"left 0.2s",left:darkMode?"27px":"3px"}}/>
+                </button>
+              </div>
+            </SCard>
             <SCard pal={pal} title="Color Theme">
               <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"0.42rem",marginBottom:"0.85rem"}}>
                 {PRESET_PALETTES.map(p=>{
