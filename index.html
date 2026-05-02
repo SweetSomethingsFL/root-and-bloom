@@ -1214,7 +1214,8 @@ function RootAndBloom() {
         @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
         @keyframes wiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-9deg)}75%{transform:rotate(9deg)}}
         @keyframes starPop{0%{opacity:0;transform:scale(0) rotate(-20deg)}70%{transform:scale(1.25) rotate(5deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
-        @keyframes confetti{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(60px) rotate(360deg)}}
+        @keyframes confetti{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0.2;transform:translateY(300px) rotate(720deg)}}
+        @keyframes confettiFall{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0.2;transform:translateY(400px) rotate(720deg)}}
         @keyframes spin{to{transform:rotate(360deg)}}
         ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{border-radius:99px}
         input,textarea,select,button{font-family:inherit}
@@ -3661,9 +3662,9 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
       {/* ── Birthday banner ── */}
       {hasBirthday&&(
         <div style={{margin:"0 0 0.85rem",borderRadius:"16px",background:"linear-gradient(135deg,#f9a8d4,#fde68a,#a7f3d0)",padding:"1rem 1.1rem",position:"relative",overflow:"hidden",boxShadow:"0 4px 18px rgba(249,168,212,0.35)"}}>
-          <div style={{position:"absolute",inset:0,pointerEvents:"none",overflow:"hidden"}}>
-            {Array.from({length:18},(_,i)=>({id:i,x:Math.random()*100,delay:Math.random()*2,dur:2+Math.random()*1.5,color:["#f472b6","#fbbf24","#34d399","#60a5fa","#a78bfa"][i%5],size:5+Math.random()*7})).map(p=>(
-              <div key={p.id} style={{position:"absolute",left:p.x+"%",top:"-10px",width:p.size+"px",height:p.size+"px",background:p.color,borderRadius:p.id%2===0?"50%":"3px",animation:`confetti ${p.dur}s ${p.delay}s ease-in infinite`,opacity:0.8}}/>
+          <div style={{position:"absolute",top:0,left:0,right:0,bottom:0,pointerEvents:"none",overflow:"hidden",borderRadius:"16px"}}>
+            {Array.from({length:18},(_,i)=>({id:i,x:(i*11+7)%97,delay:(i*0.19)%2,dur:2+(i*0.13)%1.5,color:["#f472b6","#fbbf24","#34d399","#60a5fa","#a78bfa"][i%5],size:5+(i*3)%7})).map(p=>(
+              <div key={p.id} style={{position:"absolute",left:p.x+"%",top:"5px",width:p.size+"px",height:p.size+"px",background:p.color,borderRadius:p.id%2===0?"50%":"3px",animation:`confetti ${p.dur}s ${p.delay}s ease-in infinite`,opacity:0.8}}/>
             ))}
           </div>
           <div style={{position:"relative",zIndex:1,display:"flex",alignItems:"center",gap:"0.75rem"}}>
