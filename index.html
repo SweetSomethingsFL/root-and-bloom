@@ -1491,12 +1491,7 @@ function RootAndBloom() {
           {showLifeReady && family && <LifeReadyScreen pal={pal} family={family} onBack={()=>setShowLifeReady(false)}/>}
           {activeTab==="preparedcapable" && family?.lifeReady && <LifeReadyScreen pal={pal} family={family} onBack={()=>{setActiveTab("home");setPcChildId(null);}} defaultChildId={pcChildId}/>}
           {activeTab==="preparedcapable" && !family?.lifeReady && (
-            <div style={{animation:"fadeUp 0.22s ease",padding:"2rem 1.2rem",textAlign:"center"}}>
-              <div style={{fontSize:"3rem",marginBottom:"0.75rem"}}>🛡</div>
-              <div style={{fontWeight:"800",color:"#8b2500",fontSize:"1rem",marginBottom:"0.5rem"}}>Prepared & Capable</div>
-              <div style={{fontSize:"0.84rem",color:"#666",lineHeight:1.7,marginBottom:"1.2rem"}}>{"A life skills program that prepares your children for the real world — cooking, finances, first aid, and more."}</div>
-              <button onClick={()=>setShowLifeReady(true)} style={{padding:"0.65rem 1.5rem",border:"none",borderRadius:"12px",background:"linear-gradient(135deg,#8b2500,#e84c0a)",color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>{"Set Up Prepared & Capable"}</button>
-            </div>
+            <PCSetupScreen pal={pal} family={family} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} />
           )}
           {!showLifeReady && activeTab==="more"        && <MoreScreen        pal={pal} family={family}
               onNav={id=>{ if(id==="settings") openSettings(); else if(id==="statereqs") setActiveTab("statereqs"); else setActiveTab(id); }}
@@ -4289,6 +4284,90 @@ function incrementAILimit(monthKey) {
 
 // Returns a rich goals string for AI prompts — human-readable, context-rich
 // callClaude, goalSummary, curriculumContext moved to ai-features.js
+
+function PCSetupScreen({pal, family, onUpdateFamily}) {
+  const LRC = typeof LR_CATEGORIES !== "undefined" ? LR_CATEGORIES : [];
+  const LRC_ALL = LRC.map(c=>c.id);
+  const [opted,      setOpted]      = useState(false);
+  const [freq,       setFreq]       = useState("monday_plus_practice");
+  const [selCats,    setSelCats]    = useState(LRC_ALL);
+  const toggleCat = id => setSelCats(cur=>cur.includes(id)?cur.filter(x=>x!==id):[...cur,id]);
+  const allSel = selCats.length===LRC_ALL.length;
+  const LR_COLOR  = "#8b2500";
+  const LR_COLOR2 = "#e84c0a";
+  const LR_ICON   = "🛡";
+  const save = () => {
+    if(onUpdateFamily) onUpdateFamily({lifeReady:true, lifeReadyFreq:freq, lifeReadyCategories:selCats});
+  };
+  return (
+    <div style={{animation:"fadeUp 0.22s ease"}}>
+      <div style={{background:`linear-gradient(160deg,${LR_COLOR},${LR_COLOR2})`,padding:"1.8rem 1.4rem 1.4rem",position:"relative",overflow:"hidden"}}>
+        <div style={{position:"absolute",right:"-30px",top:"-30px",width:"130px",height:"130px",borderRadius:"50%",background:"rgba(255,255,255,0.07)"}}/>
+        <div style={{fontSize:"2.8rem",marginBottom:"0.4rem"}}>{LR_ICON}</div>
+        <h2 style={{fontFamily:"Georgia",fontSize:"1.4rem",fontWeight:"900",color:"#fff",margin:"0 0 0.3rem",lineHeight:1.2}}>{"Prepared & Capable"}</h2>
+        <p style={{color:"rgba(255,255,255,0.78)",fontSize:"0.82rem",margin:0,lineHeight:1.65}}>{"Practical life skills your kids need for the real world — cooking, finances, first aid, and more."}</p>
+      </div>
+      <div style={{padding:"1.2rem"}}>
+        <div style={{display:"flex",gap:"0.6rem",marginBottom:"1.1rem"}}>
+          <button onClick={()=>setOpted(true)}
+            style={{flex:1,padding:"0.9rem",borderRadius:"14px",border:`2px solid ${opted?LR_COLOR:"#ddd"}`,background:opted?LR_COLOR+"18":"transparent",cursor:"pointer",textAlign:"center"}}>
+            <div style={{fontSize:"1.4rem",marginBottom:"0.2rem"}}>{"🌱"}</div>
+            <div style={{fontWeight:"800",color:opted?LR_COLOR:"#666",fontSize:"0.84rem"}}>{"Yes! Add it"}</div>
+            <div style={{fontSize:"0.68rem",color:opted?LR_COLOR:"#999",marginTop:"2px"}}>{"Weekly in our schedule"}</div>
+          </button>
+          <button onClick={()=>setOpted(false)}
+            style={{flex:1,padding:"0.9rem",borderRadius:"14px",border:`2px solid ${!opted?"#aaa":"#ddd"}`,background:"transparent",cursor:"pointer",textAlign:"center"}}>
+            <div style={{fontSize:"1.4rem",marginBottom:"0.2rem"}}>{"👋"}</div>
+            <div style={{fontWeight:"800",color:"#666",fontSize:"0.84rem"}}>{"Not right now"}</div>
+            <div style={{fontSize:"0.68rem",color:"#999",marginTop:"2px"}}>{"You can come back anytime"}</div>
+          </button>
+        </div>
+        {opted&&(<>
+          <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.84rem",marginBottom:"0.4rem"}}>{"How often?"}</div>
+          <div style={{display:"flex",flexDirection:"column",gap:"0.4rem",marginBottom:"1rem"}}>
+            {[["monday_plus_practice","Monday lesson + practice Tue–Thu","Recommended 🌱"],["monday_only","Monday lesson only","Light touch"],["flexible","Flexible — I will schedule it","Full control"]].map(([id,label,note])=>(
+              <button key={id} onClick={()=>setFreq(id)}
+                style={{padding:"0.65rem 1rem",border:`2px solid ${freq===id?LR_COLOR:pal.stone+"50"}`,borderRadius:"12px",background:freq===id?LR_COLOR+"15":"transparent",cursor:"pointer",textAlign:"left",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <span style={{fontWeight:freq===id?"700":"400",color:freq===id?LR_COLOR:pal.inkM,fontSize:"0.83rem"}}>{label}</span>
+                <span style={{fontSize:"0.68rem",color:freq===id?LR_COLOR:pal.slate,fontWeight:"600"}}>{note}</span>
+              </button>
+            ))}
+          </div>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.35rem"}}>
+            <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.84rem"}}>{"Focus areas"}</div>
+            <button onClick={()=>allSel?setSelCats([]):setSelCats(LRC_ALL)}
+              style={{padding:"0.2rem 0.6rem",borderRadius:"20px",border:`1.5px solid ${LR_COLOR}`,background:allSel?LR_COLOR:"transparent",color:allSel?"#fff":LR_COLOR,fontWeight:"700",fontSize:"0.7rem",cursor:"pointer"}}>
+              {allSel?"Deselect all":"Select all"}
+            </button>
+          </div>
+          <div style={{display:"flex",flexDirection:"column",gap:"0.38rem",marginBottom:"1.2rem"}}>
+            {LRC.map(c=>{
+              const sel=selCats.includes(c.id);
+              return (
+                <button key={c.id} onClick={()=>toggleCat(c.id)}
+                  style={{display:"flex",gap:"0.65rem",alignItems:"center",padding:"0.6rem 0.85rem",border:`2px solid ${sel?LR_COLOR:pal.stone+"50"}`,borderRadius:"11px",background:sel?LR_COLOR+"15":"transparent",cursor:"pointer",textAlign:"left"}}>
+                  <span style={{fontSize:"1.2rem",flexShrink:0}}>{c.icon}</span>
+                  <div style={{flex:1}}>
+                    <div style={{fontWeight:sel?"700":"400",color:sel?LR_COLOR:pal.inkM,fontSize:"0.83rem"}}>{c.label}</div>
+                    <div style={{fontSize:"0.68rem",color:pal.slate,marginTop:"1px"}}>{c.desc}</div>
+                  </div>
+                  <div style={{width:"18px",height:"18px",borderRadius:"4px",border:`2px solid ${sel?LR_COLOR:pal.stone}`,background:sel?LR_COLOR:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                    {sel&&<span style={{color:"#fff",fontSize:"0.75rem",fontWeight:"900"}}>{"✓"}</span>}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+          <button onClick={save}
+            style={{width:"100%",padding:"0.9rem",border:"none",borderRadius:"14px",background:`linear-gradient(135deg,${LR_COLOR},${LR_COLOR2})`,color:"#fff",fontWeight:"800",fontSize:"0.92rem",cursor:"pointer"}}>
+            {"Start Prepared & Capable 🛡"}
+          </button>
+        </>)}
+        <div style={{height:"1rem"}}/>
+      </div>
+    </div>
+  );
+}
 
 function ResourceLibrary({pal, family, onUpdateFamily}) {
   const resources = family.resources||[];
