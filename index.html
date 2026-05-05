@@ -1494,8 +1494,8 @@ function RootAndBloom() {
             <div style={{animation:"fadeUp 0.22s ease",padding:"2rem 1.2rem",textAlign:"center"}}>
               <div style={{fontSize:"3rem",marginBottom:"0.75rem"}}>🛡</div>
               <div style={{fontWeight:"800",color:"#8b2500",fontSize:"1rem",marginBottom:"0.5rem"}}>Prepared & Capable</div>
-              <div style={{fontSize:"0.84rem",color:"#666",lineHeight:1.7,marginBottom:"1.2rem"}}>{"You haven't opted into Prepared & Capable yet."}</div>
-              <button onClick={()=>setActiveTab("more")} style={{padding:"0.65rem 1.5rem",border:"none",borderRadius:"12px",background:"linear-gradient(135deg,#8b2500,#e84c0a)",color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>Set it up in More</button>
+              <div style={{fontSize:"0.84rem",color:"#666",lineHeight:1.7,marginBottom:"1.2rem"}}>{"A life skills program that prepares your children for the real world — cooking, finances, first aid, and more."}</div>
+              <button onClick={()=>setShowLifeReady(true)} style={{padding:"0.65rem 1.5rem",border:"none",borderRadius:"12px",background:"linear-gradient(135deg,#8b2500,#e84c0a)",color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>{"Set Up Prepared & Capable"}</button>
             </div>
           )}
           {!showLifeReady && activeTab==="more"        && <MoreScreen        pal={pal} family={family}
