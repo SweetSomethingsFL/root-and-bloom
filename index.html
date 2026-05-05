@@ -1271,6 +1271,7 @@ function RootAndBloom() {
           ],
         };
         setFamily(DEMO_FAMILY);
+        setNavIds(["home","progress","portfolio","learn","more"]);
         setAttendanceDays(142);
         setCheckinStreak(7);
         setAuthDone(true);
@@ -1567,7 +1568,7 @@ function RootAndBloom() {
             const quizBubbleCount=isProgress?(quizNotifs||[]).filter(n=>!n.dismissed&&new Date(n.ts).toDateString()===new Date().toDateString()).length:0;
             const pendingCount=isPortfolio?pendingEntries.length:0;
             return (
-              <button key={t.id} onClick={()=>setActiveTab(t.id)}
+              <button key={t.id} onClick={()=>{ if(view==="student") setView("parent"); setActiveTab(t.id); }}
                 style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:"2px",padding:"0.4rem 0",border:"none",background:"transparent",cursor:"pointer",position:"relative",transition:"transform 0.1s"}}
                 onMouseDown={e=>e.currentTarget.style.transform="scale(0.91)"}
                 onMouseUp={e=>e.currentTarget.style.transform="scale(1)"}
