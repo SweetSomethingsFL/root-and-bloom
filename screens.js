@@ -6276,6 +6276,20 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
                 try{const d1=new Date(e.date+", "+yr);const d=d1<=today?d1:new Date(e.date+", "+(yr-1));return d.getMonth()===today.getMonth()&&d.getFullYear()===today.getFullYear();}catch(ex){return false;}
               })
             : childEntries;
+
+          // First-time nudge — show at top when no entries logged at all
+          if(childEntries.length===0) return (
+            <div style={{textAlign:"center",padding:"2rem 1rem"}}>
+              <div style={{fontSize:"2.5rem",marginBottom:"0.6rem"}}>{"📊"}</div>
+              <div style={{fontWeight:"800",color:pal.ink,fontSize:"1rem",marginBottom:"0.4rem"}}>{"No entries yet"}</div>
+              <div style={{fontSize:"0.8rem",color:pal.slate,lineHeight:1.6,marginBottom:"1.2rem"}}>{"Log your first lesson to see progress insights here."}</div>
+              <button onClick={()=>window.dispatchEvent(new CustomEvent("rootbloom-nav",{detail:"portfolio"}))}
+                style={{padding:"0.75rem 1.5rem",border:"none",borderRadius:"13px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>
+                {"📝 Log a Lesson"}
+              </button>
+            </div>
+          );
+
           const rangeSubjs = [...new Set(rangeEntries.map(e=>e.subj))];
           const rangeNotes = rangeEntries.filter(e=>e.note&&e.note.trim()).length;
 
