@@ -1604,6 +1604,27 @@ function AddExtraModal({pal, family, onClose, onSave, preselect}) {
               style={{width:"100%",padding:"0.55rem 0.75rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.82rem",background:pal.parchm,color:pal.ink,outline:"none",resize:"none",minHeight:"64px",fontFamily:"inherit"}}/>
           </div>
 
+          {/* Photos */}
+          <div style={{marginBottom:"0.9rem"}}>
+            <div style={{fontSize:"0.72rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.35rem"}}>{"Photos (optional)"}</div>
+            <input ref={fileRef} type="file" accept="image/*" multiple onChange={handlePhoto} style={{display:"none"}}/>
+            <button onClick={()=>fileRef.current?.click()}
+              style={{padding:"0.45rem 1rem",border:`1.5px dashed ${pal.stone}`,borderRadius:"11px",background:"transparent",color:pal.slate,fontSize:"0.78rem",fontWeight:"600",cursor:"pointer"}}>
+              {"📷 Add Photo"}
+            </button>
+            {photos.length>0&&(
+              <div style={{display:"flex",gap:"0.4rem",flexWrap:"wrap",marginTop:"0.5rem"}}>
+                {photos.map((p,i)=>(
+                  <div key={i} style={{position:"relative"}}>
+                    <img src={p.dataUrl} alt="" style={{width:"52px",height:"52px",objectFit:"cover",borderRadius:"8px",border:`1.5px solid ${pal.stone}`}}/>
+                    <button onClick={()=>setPhotos(ps=>ps.filter((_,j)=>j!==i))}
+                      style={{position:"absolute",top:"-5px",right:"-5px",width:"16px",height:"16px",borderRadius:"50%",background:"#c0392b",border:"none",color:"#fff",fontSize:"0.6rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",lineHeight:1}}>{"✕"}</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Save */}
           <button onClick={handleSave} disabled={!canSave}
             style={{width:"100%",padding:"0.85rem",border:"none",borderRadius:"14px",background:canSave?pal.accentGrad:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.9rem",cursor:canSave?"pointer":"not-allowed",marginBottom:"1.2rem"}}>
