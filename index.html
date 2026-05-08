@@ -4703,25 +4703,9 @@ function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab, portf
         {(learnTab==="progress"||learnTab==="planner"||learnTab==="advisor") && null}
 
         {/* ====== WORKSHEETS TAB ====== */}
-        {/* ====== WORKSHEETS TAB ====== */}
-        {learnTab==="worksheets" && (<>
-          <div style={{paddingBottom:"1rem"}}>
-            <div style={{background:"linear-gradient(135deg,"+pal.primary+"15,"+pal.accent+"10)",borderRadius:"16px",padding:"1rem 1.1rem",marginBottom:"1rem",border:"1.5px solid "+pal.primary+"25"}}>
-              <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.9rem",marginBottom:"0.3rem"}}>{"\uD83D\uDCC5 AI Lesson Planner"}</div>
-              <div style={{fontSize:"0.76rem",color:pal.slate,lineHeight:1.6,marginBottom:"0.85rem"}}>{"Tell me what to cover this week \u2014 I\u2019ll build a day-by-day plan with activities, questions to ask, and parent tips."}</div>
-              <button onClick={()=>setShowPlanner(true)}
-                style={{width:"100%",padding:"0.78rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>
-                {"\uD83D\uDCC5 Plan This Week"}
-              </button>
-            </div>
-            <div style={{background:pal.linen,borderRadius:"13px",padding:"0.85rem 1rem",border:"1.5px solid "+pal.stone+"25"}}>
-              <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.75rem",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:"0.5rem"}}>{"How it works"}</div>
-              {["\uD83D\uDCDD Pick subjects + describe what to cover","\uD83E\uDD16 AI builds Mon-Fri with specific activities","\uD83D\uDCA1 Parent tips + struggle area notes","\uD83D\uDDA8\uFE0F Print a one-page weekly plan"].map((s,i)=>(
-                <div key={i} style={{fontSize:"0.78rem",color:pal.inkM,lineHeight:1.7}}>{s}</div>
-              ))}
         {learnTab==="worksheets" && (<>
           <div style={{background:pal.pale,borderRadius:"13px",padding:"0.72rem 0.9rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.primary}20`,fontSize:"0.77rem",color:pal.inkM,lineHeight:1.6}}>
-            💡 Worksheet builder uses AI. Add your key in <b>Settings → AI</b> to enable.
+            {"💡 Worksheet builder uses AI. Add your key in Settings \u2192 AI to enable."}
           </div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.55rem",marginBottom:"0.9rem"}}>
             {WS_TYPES.map((w,i)=>(
@@ -4733,15 +4717,10 @@ function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab, portf
               </button>
             ))}
           </div>
-          <button onClick={()=>setShowWS("custom")} style={{width:"100%",padding:"0.85rem",border:"none",borderRadius:"14px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.86rem",cursor:"pointer"}}>Build Custom Worksheet</button>
+          <button onClick={()=>setShowWS("custom")} style={{width:"100%",padding:"0.85rem",border:"none",borderRadius:"14px",background:pal.accentGrad,color:pal.onDark,fontWeight:"800",fontSize:"0.86rem",cursor:"pointer"}}>{"Build Custom Worksheet"}</button>
           <div style={{height:"1rem"}}/>
         </>)}
 
-        {/* ===== RESOURCES TAB ===== */}
-        {learnTab==="resources"&&<ResourceLibrary pal={pal} family={family} onUpdateFamily={onUpdateFamily}/>}
-
-      </div>
-    </div>
   );
 }
 
