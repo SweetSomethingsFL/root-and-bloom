@@ -3816,12 +3816,10 @@ function QuickCaptureModal({pal, family, activeChildId, onClose, onSave, attenda
   const activeCh   = family.children[childIdx];
   const cp = CHILD_COLOR_PALETTES.find(p=>p.id===(activeCh?.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
   const isReading  = subj.toLowerCase().includes("read");
-  const dateLabel  = captureDate===todayIso
-    ? new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"})
-    : new Date(captureDate+", "+new Date().getFullYear()).toLocaleDateString("en-US",{month:"short",day:"numeric"});
-  const displayDate = captureDate===todayIso
-    ? new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"})
-    : new Date(captureDate).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
+  const _capParts  = captureDate.split("-").map(Number);
+  const _capLocal  = new Date(_capParts[0], _capParts[1]-1, _capParts[2]);
+  const dateLabel  = _capLocal.toLocaleDateString("en-US",{month:"short",day:"numeric"});
+  const displayDate = _capLocal.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
 
   useEffect(()=>{ setTimeout(()=>noteRef.current?.focus(), 150); },[]);
 
@@ -3893,7 +3891,10 @@ function QuickCaptureModal({pal, family, activeChildId, onClose, onSave, attenda
   const handleSave = () => {
     if(!subj) return;
     const subjObj = allSubjOptions.find(s=>s.label===subj||s.id===subj);
-    const entryDate = new Date(captureDate).toLocaleDateString("en-US",{month:"short",day:"numeric"});
+    // Parse date in LOCAL time to avoid UTC-offset day shift
+    const [yr,mo,dy] = captureDate.split("-").map(Number);
+    const localDate = new Date(yr, mo-1, dy);
+    const entryDate = localDate.toLocaleDateString("en-US",{month:"short",day:"numeric"});
     const entry = {
       childIdx, subj,
       title: note.trim() ? note.trim().slice(0,80) : subj+"\u2014"+entryDate,

@@ -1480,7 +1480,8 @@ function RootAndBloom() {
             }}
             onCatchup={()=>setShowCatchup(true)}
             onLogPastDay={(dateStr)=>{
-              const parsed = new Date(dateStr);
+              const [py,pm,pd] = dateStr.split("-").map(Number);
+              const parsed = new Date(py, pm-1, pd);
               const label = parsed.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
               const dateShort = parsed.toLocaleDateString("en-US",{month:"short",day:"numeric"});
               setPastDayWrapUp({dateLabel:label, dateStr:dateShort});
@@ -3000,22 +3001,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
               <span style={{color:pal.primary,fontSize:"0.9rem"}}>{"›"}</span>
             </div>
           );
-          if(portfolioEntries.length===0) return (
-            <div onClick={()=>onAddEntry&&onAddEntry()}
-              style={{background:pal.linen,borderRadius:"16px",padding:"0.85rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}40`,cursor:"pointer"}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.5rem"}}>
-                <span style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",textTransform:"uppercase",letterSpacing:"0.06em"}}>{"This Week"}</span>
-              </div>
-              <div style={{display:"flex",gap:"0.75rem",alignItems:"center"}}>
-                <div style={{width:"42px",height:"42px",borderRadius:"11px",background:`${pal.primary}12`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0}}>{"✏️"}</div>
-                <div style={{flex:1}}>
-                  <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.84rem",marginBottom:"2px"}}>{"No lessons logged yet"}</div>
-                  <div style={{fontSize:"0.71rem",color:pal.slate,lineHeight:1.5}}>{"Tap to log your first lesson and start tracking the week."}</div>
-                </div>
-                <span style={{color:pal.primary,fontSize:"0.9rem"}}>{"›"}</span>
-              </div>
-            </div>
-          );
+          if(portfolioEntries.length===0) return null;
 
           // Week boundaries
           const weekStart2 = new Date();
@@ -3592,7 +3578,8 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
 
   const renderSection_coop = () => {
     const doesCoop = family.coopFreq && family.coopFreq !== "We don't do co-op";
-    if(!doesCoop) return null;
+    const extras = (family.extracurriculars||[]).filter(e=>e!=="None right now");
+    if(!doesCoop && extras.length===0) return null;
     const coopName = family.coopName || "Co-op";
     const coopDay  = family.coopDay  || "";
     const lastLog  = coopLog.length > 0 ? coopLog[0] : null;
@@ -3604,25 +3591,47 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
     const isToday = coopDowIdx===todayDow;
     const nextLabel = isToday ? "Today!" : daysUntil===1 ? "Tomorrow" : daysUntil!=null ? "in "+daysUntil+" days" : "";
     return (
-      <div key="coop" data-section="coop" onClick={()=>onTabChange("coop")}
-        style={{background:pal.linen,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:"1rem",border:"1.5px solid "+pal.stone+"40",cursor:"pointer"}}>
-        <div style={{display:"flex",alignItems:"center",gap:"0.75rem",marginBottom:lastLog?"0.55rem":"0"}}>
-          <div style={{width:"42px",height:"42px",borderRadius:"11px",background:"#edf4ff",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0}}>{"\ud83c\udfe2"}</div>
-          <div style={{flex:1}}>
-            <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.85rem",marginBottom:"2px"}}>{coopName}</div>
-            <div style={{fontSize:"0.7rem",color:pal.slate}}>
-              {nextLabel ? (isToday ? "Co-op is today!" : "Next: "+nextLabel+(coopDay?" \u00b7 "+coopDay:"")) : coopDay||"Co-op scheduled"}
-              {totalHrs>0 ? " \u00b7 "+totalHrs+"h total" : ""}
+      <div key="coop" data-section="coop" style={{marginBottom:"1rem"}}>
+        {doesCoop&&(
+          <div onClick={()=>onTabChange("coop")}
+            style={{background:pal.linen,borderRadius:"14px",padding:"0.85rem 1rem",marginBottom:extras.length>0?"0.5rem":"0",border:"1.5px solid "+pal.stone+"40",cursor:"pointer"}}>
+            <div style={{display:"flex",alignItems:"center",gap:"0.75rem",marginBottom:lastLog?"0.55rem":"0"}}>
+              <div style={{width:"42px",height:"42px",borderRadius:"11px",background:"#edf4ff",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0}}>{"🏫"}</div>
+              <div style={{flex:1}}>
+                <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.85rem",marginBottom:"2px"}}>{coopName}</div>
+                <div style={{fontSize:"0.7rem",color:pal.slate}}>
+                  {nextLabel ? (isToday ? "Co-op is today!" : "Next: "+nextLabel+(coopDay?" · "+coopDay:"")) : coopDay||"Co-op scheduled"}
+                  {totalHrs>0 ? " · "+totalHrs+"h total" : ""}
+                </div>
+              </div>
+              <span style={{color:pal.primary,fontSize:"0.9rem"}}>{"›"}</span>
             </div>
+            {lastLog&&(
+              <div style={{background:pal.parchm,borderRadius:"9px",padding:"0.45rem 0.65rem",display:"flex",gap:"0.5rem",alignItems:"center"}}>
+                <span style={{fontSize:"0.8rem",flexShrink:0}}>{"📅"}</span>
+                <div style={{flex:1,minWidth:0}}>
+                  <span style={{fontSize:"0.7rem",color:pal.inkM,fontWeight:"600"}}>{lastLog.date}</span>
+                  <span style={{fontSize:"0.68rem",color:pal.slate}}>{" · "+(lastLog.session||"Session")+" · "+lastLog.hrs+"h"}</span>
+                </div>
+              </div>
+            )}
           </div>
-          <span style={{color:pal.primary,fontSize:"0.9rem"}}>{"\u203a"}</span>
-        </div>
-        {lastLog&&(
-          <div style={{background:pal.parchm,borderRadius:"9px",padding:"0.45rem 0.65rem",display:"flex",gap:"0.5rem",alignItems:"center"}}>
-            <span style={{fontSize:"0.8rem",flexShrink:0}}>{"\ud83d\udcc5"}</span>
-            <div style={{flex:1,minWidth:0}}>
-              <span style={{fontSize:"0.7rem",color:pal.inkM,fontWeight:"600"}}>{lastLog.date}</span>
-              <span style={{fontSize:"0.68rem",color:pal.slate}}>{" \u00b7 "+(lastLog.session||"Session")+" \u00b7 "+lastLog.hrs+"h"}</span>
+        )}
+        {extras.length>0&&(
+          <div style={{background:pal.linen,borderRadius:"14px",padding:"0.85rem 1rem",border:"1.5px solid "+pal.stone+"40"}}>
+            <div style={{display:"flex",alignItems:"center",gap:"0.75rem",marginBottom:"0.5rem"}}>
+              <div style={{width:"42px",height:"42px",borderRadius:"11px",background:"#f0fdf4",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0}}>{"🎯"}</div>
+              <div style={{flex:1}}>
+                <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.85rem",marginBottom:"2px"}}>{"Extracurriculars"}</div>
+                <div style={{fontSize:"0.7rem",color:pal.slate}}>{extras.length+" activit"+(extras.length===1?"y":"ies")}</div>
+              </div>
+              <button onClick={()=>onAddEntry&&onAddEntry()}
+                style={{background:pal.primary,border:"none",borderRadius:"8px",color:"#fff",fontSize:"0.7rem",fontWeight:"700",padding:"0.28rem 0.65rem",cursor:"pointer",flexShrink:0}}>{"+ Log"}</button>
+            </div>
+            <div style={{display:"flex",flexWrap:"wrap",gap:"0.35rem"}}>
+              {extras.map(e=>(
+                <span key={e} style={{padding:"0.22rem 0.65rem",borderRadius:"20px",background:pal.pale,color:pal.primary,fontSize:"0.72rem",fontWeight:"700"}}>{e}</span>
+              ))}
             </div>
           </div>
         )}
