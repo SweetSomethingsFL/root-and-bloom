@@ -832,7 +832,7 @@ function RootAndBloom() {
     });
   });
   // Child-submitted entries awaiting parent approval
-  const [pendingEntries,setPendingEntries]=useState(()=>saved?.pendingEntries||[]);
+  const [pendingEntries,setPendingEntries]=useState(()=>{ try{ return (saved?.pendingEntries||[]).filter(e=>e&&e.subj); }catch(e){return [];} });
   const [coopLog, setCoopLog] = useState(saved?.coopLog||[]);
   const [attendanceDays,    setAttendanceDays]    = useState(saved?.attendanceDays||0);
   const [attendanceLog,     setAttendanceLog]     = useState(saved?.attendanceLog||[]);
@@ -3617,24 +3617,6 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
             )}
           </div>
         )}
-        {extras.length>0&&(
-          <div style={{background:pal.linen,borderRadius:"14px",padding:"0.85rem 1rem",border:"1.5px solid "+pal.stone+"40"}}>
-            <div style={{display:"flex",alignItems:"center",gap:"0.75rem",marginBottom:"0.5rem"}}>
-              <div style={{width:"42px",height:"42px",borderRadius:"11px",background:"#f0fdf4",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.3rem",flexShrink:0}}>{"🎯"}</div>
-              <div style={{flex:1}}>
-                <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.85rem",marginBottom:"2px"}}>{"Extracurriculars"}</div>
-                <div style={{fontSize:"0.7rem",color:pal.slate}}>{extras.length+" activit"+(extras.length===1?"y":"ies")}</div>
-              </div>
-              <button onClick={()=>onAddEntry&&onAddEntry()}
-                style={{background:pal.primary,border:"none",borderRadius:"8px",color:"#fff",fontSize:"0.7rem",fontWeight:"700",padding:"0.28rem 0.65rem",cursor:"pointer",flexShrink:0}}>{"+ Log"}</button>
-            </div>
-            <div style={{display:"flex",flexWrap:"wrap",gap:"0.35rem"}}>
-              {extras.map(e=>(
-                <span key={e} style={{padding:"0.22rem 0.65rem",borderRadius:"20px",background:pal.pale,color:pal.primary,fontSize:"0.72rem",fontWeight:"700"}}>{e}</span>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     );
   };
@@ -3755,6 +3737,31 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
           </div>
         </div>
       )}
+      {/* ── Extracurricular reminder banner ── */}
+      {(()=>{
+        const todayExtras = (family.extracurriculars||[]).filter(e=>e!=="None right now");
+        if(todayExtras.length===0) return null;
+        // Check if already logged today (any portfolioEntry with isExtra or matching activity name)
+        const todayStr2 = new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
+        const loggedToday = portfolioEntries.some(e=>e.date===todayStr2);
+        if(loggedToday) return null;
+        return (
+          <div style={{margin:"0 0 0.85rem",borderRadius:"14px",background:pal.linen,border:`1.5px solid ${pal.primary}30`,padding:"0.75rem 1rem",display:"flex",gap:"0.75rem",alignItems:"center"}}>
+            <span style={{fontSize:"1.4rem",flexShrink:0}}>{"🎯"}</span>
+            <div style={{flex:1}}>
+              <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",marginBottom:"2px"}}>{"Don't forget to log extracurriculars!"}</div>
+              <div style={{display:"flex",flexWrap:"wrap",gap:"0.3rem",marginTop:"4px"}}>
+                {todayExtras.map(e=>(
+                  <span key={e} style={{padding:"0.18rem 0.55rem",borderRadius:"20px",background:pal.pale,color:pal.primary,fontSize:"0.7rem",fontWeight:"700"}}>{e}</span>
+                ))}
+              </div>
+            </div>
+            <button onClick={()=>onAddEntry&&onAddEntry()}
+              style={{background:pal.primary,border:"none",borderRadius:"9px",color:"#fff",fontSize:"0.72rem",fontWeight:"800",padding:"0.4rem 0.75rem",cursor:"pointer",flexShrink:0}}>{"+ Log"}</button>
+          </div>
+        );
+      })()}
+
       {/* ── Friday digest nudge ── */}
       {(()=>{
         const _dow = new Date().getDay(); // 5=Fri, 6=Sat
@@ -5260,8 +5267,7 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
         </PortfolioCard>
 
         {/* ── ADDITIONAL NOTES ── */}
-        {!(searchQuery.trim()||filterSubj||filterRange||filterMilestone)&&<MasteryCard pal={pal} family={family} child={activeCh} cp={cp}/>}
-        <AdditionalNotes pal={pal} family={family} child={activeCh}/>
+        {!(searchQuery.trim()||filterSubj||filterRange||filterMilestone)&&<AdditionalNotes pal={pal} family={family} child={activeCh}/>}
         </>)}
     </div>
   );

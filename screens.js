@@ -6914,7 +6914,12 @@ function ProgressScreen({pal, family, child, setChild, portfolioEntries=[], atte
         })()}
 
             {/* ====== SKILLS TAB ====== */}
-        {activeTab==="skills"&&<SkillsTab pal={pal} ch={ch} family={family}/>}
+        {activeTab==="skills"&&(
+          <>
+            <MasteryCard pal={pal} family={family} child={ch} cp={cp}/>
+            <SkillsTab pal={pal} ch={ch} family={family}/>
+          </>
+        )}
         {activeTab==="grades"&&<GradesTab pal={pal} ch={ch} family={family} childEntries={childEntries}
           cp={cp} gradeStruggle={gradeStruggle} setGradeStruggle={setGradeStruggle}
           gradeStruggleLoading={gradeStruggleLoading} setGradeStruggleLoading={setGradeStruggleLoading}
