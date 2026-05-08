@@ -1419,11 +1419,11 @@ function AddBookModal({pal, family, childIdx, onClose, onSave}) {
   );
 }
 
-function AddExtraModal({pal, family, onClose, onSave}) {
+function AddExtraModal({pal, family, onClose, onSave, preselect}) {
   const fileRef = useRef(null);
   const CHILD_COLORS2 = ["#e8943a","#4aabcf","#9b6fc8","#44aa66","#e85a7a"];
 
-  // Which children participated
+  // Which children participated — default all selected
   const [selChildren, setSelChildren] = useState(
     new Set(family.children.map((_,i)=>i))
   );
@@ -1433,20 +1433,22 @@ function AddExtraModal({pal, family, onClose, onSave}) {
     return n;
   });
 
-  // Activity details
-  const [activity,  setActivity]  = useState("");
-  const [category,  setCategory]  = useState("");
+  // Activity details — preselect if passed
+  const [activity,  setActivity]  = useState(preselect||"");
+  const [category,  setCategory]  = useState(preselect||"");
   const [duration,  setDuration]  = useState("");
   const [note,      setNote]      = useState("");
   const [photos,    setPhotos]    = useState([]);
+  const [showOther, setShowOther] = useState(false);
   const todayISO = new Date().toISOString().slice(0,10);
   const [entryDate, setEntryDate] = useState(todayISO);
 
-  // Build activity list from family extracurriculars + presets
-  const familyExtras = [
+  // Deduplicated family activities
+  const familyExtras = [...new Set([
     ...(family.extracurriculars||[]).filter(e=>e!=="None right now"),
     ...(family.customExtracurriculars||[]),
-  ];
+  ])];
+
   const PRESET_CATEGORIES = [
     {label:"Sports",       icon:"🏃"},
     {label:"Music",        icon:"🎵"},
@@ -1460,10 +1462,7 @@ function AddExtraModal({pal, family, onClose, onSave}) {
     {label:"Volunteer",    icon:"🤎"},
     {label:"Other",        icon:"⭐"},
   ];
-  const allCategories = [
-    ...familyExtras.map(e=>({label:e, icon:"🏆"})),
-    ...PRESET_CATEGORIES.filter(p=>!familyExtras.includes(p.label)),
-  ];
+  const otherCategories = PRESET_CATEGORIES.filter(p=>!familyExtras.includes(p.label));
 
   const handlePhoto = (e) => {
     Array.from(e.target.files).forEach(file=>{
@@ -1476,12 +1475,12 @@ function AddExtraModal({pal, family, onClose, onSave}) {
   const canSave = activity.trim().length > 0;
 
   const handleSave = () => {
-    const today = entryDate
-      ? new Date(entryDate+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric"})
-      : new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"});
+    const [yr,mo,dy] = entryDate.split("-").map(Number);
+    const today = new Date(yr,mo-1,dy).toLocaleDateString("en-US",{month:"short",day:"numeric"});
     const cat = category||activity;
+    const allCats = [...familyExtras.map(e=>({label:e,icon:"🏆"})),...PRESET_CATEGORIES];
     const entries = [...selChildren].map(ci=>{
-      const icon = allCategories.find(c=>c.label===cat)?.icon||"🏆";
+      const icon = allCats.find(c=>c.label===cat)?.icon||"🏆";
       return {
         childIdx: ci,
         title: activity.trim(),
@@ -1500,7 +1499,7 @@ function AddExtraModal({pal, family, onClose, onSave}) {
 
   return (
     <div style={{position:"fixed",inset:0,background:"rgba(15,10,4,0.75)",backdropFilter:"blur(12px)",zIndex:200,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
-      <div style={{background:pal.linen,borderRadius:"28px 28px 0 0",width:"100%",maxWidth:"430px",maxHeight:"90vh",display:"flex",flexDirection:"column",animation:"slideUp 0.26s ease"}}>
+      <div style={{background:pal.linen,borderRadius:"28px 28px 0 0",width:"100%",maxWidth:"430px",maxHeight:"88vh",display:"flex",flexDirection:"column",animation:"slideUp 0.26s ease"}}>
 
         {/* Handle */}
         <div style={{padding:"0.7rem 0 0",display:"flex",justifyContent:"center",flexShrink:0}}>
@@ -1508,30 +1507,27 @@ function AddExtraModal({pal, family, onClose, onSave}) {
         </div>
 
         {/* Header */}
-        <div style={{background:pal.heroGrad,padding:"0.9rem 1.2rem",flexShrink:0,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <div>
-            <div style={{fontWeight:"900",color:"#fff",fontSize:"0.95rem"}}>{"🏆 Log Extracurricular"}</div>
-            <div style={{fontSize:"0.7rem",color:"rgba(255,255,255,0.7)",marginTop:"2px"}}>Sports, music, clubs, field trips, and more</div>
-          </div>
+        <div style={{background:pal.heroGrad,padding:"0.75rem 1.2rem",flexShrink:0,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div style={{fontWeight:"900",color:"#fff",fontSize:"0.95rem"}}>{"🏆 Log Extracurricular"}</div>
           <button onClick={onClose}
             style={{background:"rgba(255,255,255,0.18)",border:"none",borderRadius:"9px",padding:"0.3rem 0.65rem",color:"#fff",fontWeight:"700",fontSize:"0.75rem",cursor:"pointer"}}>
             {"✕"}
           </button>
         </div>
 
-        <div style={{flex:1,overflowY:"auto",padding:"1rem 1.2rem"}}>
+        <div style={{flex:1,overflowY:"auto",padding:"0.9rem 1.1rem"}}>
 
           {/* Who participated */}
           {family.children.length>1&&(
-            <div style={{marginBottom:"1rem"}}>
-              <div style={{fontSize:"0.74rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.45rem"}}>Who participated?</div>
+            <div style={{marginBottom:"0.85rem"}}>
+              <div style={{fontSize:"0.74rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.4rem"}}>{"Who participated?"}</div>
               <div style={{display:"flex",gap:"0.4rem",flexWrap:"wrap"}}>
                 {family.children.map((c,i)=>{
                   const cc=CHILD_COLORS2[i%CHILD_COLORS2.length];
                   const sel=selChildren.has(i);
                   return (
                     <button key={c.id} onClick={()=>toggleChild(i)}
-                      style={{display:"flex",alignItems:"center",gap:"0.35rem",padding:"0.32rem 0.75rem",borderRadius:"20px",border:`2px solid ${sel?cc:pal.stone+"50"}`,background:sel?cc+"22":"transparent",cursor:"pointer",transition:"all 0.12s"}}>
+                      style={{display:"flex",alignItems:"center",gap:"0.35rem",padding:"0.32rem 0.75rem",borderRadius:"20px",border:`2px solid ${sel?cc:pal.stone+"50"}`,background:sel?cc+"22":"transparent",cursor:"pointer"}}>
                       <span style={{fontSize:"1rem"}}>{c.avatar}</span>
                       <span style={{fontSize:"0.78rem",fontWeight:sel?"700":"400",color:sel?cc:pal.slate}}>{c.name}</span>
                     </button>
@@ -1541,135 +1537,83 @@ function AddExtraModal({pal, family, onClose, onSave}) {
             </div>
           )}
 
-          {/* Category chips */}
-          <div style={{marginBottom:"0.85rem"}}>
-            {familyExtras.length>0&&(
-              <>
-                <div style={{fontSize:"0.7rem",fontWeight:"700",color:pal.primary,marginBottom:"0.35rem",textTransform:"uppercase",letterSpacing:"0.05em"}}>
-                  {"🌟 Your Activities (from setup)"}
-                </div>
-                <div style={{display:"flex",flexWrap:"wrap",gap:"0.35rem",marginBottom:"0.55rem"}}>
-                  {familyExtras.map(e=>{
-                    const sel=category===e;
+          {/* Your activities */}
+          {familyExtras.length>0&&(
+            <div style={{marginBottom:"0.85rem"}}>
+              <div style={{fontSize:"0.72rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.4rem"}}>{"Activity"}</div>
+              <div style={{display:"flex",flexWrap:"wrap",gap:"0.35rem",marginBottom:"0.5rem"}}>
+                {familyExtras.map(e=>{
+                  const sel=category===e;
+                  return (
+                    <button key={e} onClick={()=>{setCategory(sel?"":e);if(!sel)setActivity(e);}}
+                      style={{display:"flex",alignItems:"center",gap:"0.28rem",padding:"0.35rem 0.8rem",borderRadius:"20px",border:`2px solid ${sel?pal.primary:pal.primary+"40"}`,background:sel?pal.pale:"transparent",cursor:"pointer"}}>
+                      <span style={{fontSize:"0.85rem"}}>{"🏆"}</span>
+                      <span style={{fontSize:"0.78rem",fontWeight:sel?"800":"600",color:sel?pal.primary:pal.inkM}}>{e}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              {/* Collapsible "add something else" */}
+              <button onClick={()=>setShowOther(v=>!v)}
+                style={{fontSize:"0.72rem",color:pal.slate,fontWeight:"600",background:"none",border:"none",cursor:"pointer",padding:"0.1rem 0",display:"flex",alignItems:"center",gap:"0.3rem"}}>
+                <span style={{transform:showOther?"rotate(90deg)":"none",display:"inline-block",transition:"transform 0.15s"}}>{"›"}</span>
+                {"Log something else"}
+              </button>
+              {showOther&&(
+                <div style={{display:"flex",flexWrap:"wrap",gap:"0.3rem",marginTop:"0.45rem"}}>
+                  {otherCategories.map(c=>{
+                    const sel=category===c.label;
                     return (
-                      <button key={e} onClick={()=>{setCategory(sel?"":e);if(!sel&&!activity.trim())setActivity(e);}}
-                        style={{display:"flex",alignItems:"center",gap:"0.28rem",padding:"0.32rem 0.75rem",borderRadius:"20px",border:`2px solid ${sel?pal.primary:pal.primary+"40"}`,background:sel?pal.pale:pal.pale+"80",cursor:"pointer",transition:"all 0.12s"}}>
-                        <span style={{fontSize:"0.85rem"}}>{"🏆"}</span>
-                        <span style={{fontSize:"0.74rem",fontWeight:sel?"800":"600",color:sel?pal.primary:pal.inkM}}>{e}</span>
+                      <button key={c.label} onClick={()=>setCategory(sel?"":c.label)}
+                        style={{display:"flex",alignItems:"center",gap:"0.25rem",padding:"0.28rem 0.6rem",borderRadius:"20px",border:`1.5px solid ${sel?pal.primary:pal.stone+"50"}`,background:sel?pal.pale:"transparent",cursor:"pointer"}}>
+                        <span style={{fontSize:"0.8rem"}}>{c.icon}</span>
+                        <span style={{fontSize:"0.72rem",fontWeight:sel?"700":"400",color:sel?pal.primary:pal.inkM}}>{c.label}</span>
                       </button>
                     );
                   })}
                 </div>
-                <div style={{fontSize:"0.7rem",fontWeight:"700",color:pal.slate,marginBottom:"0.35rem",textTransform:"uppercase",letterSpacing:"0.05em"}}>{"Or choose another"}</div>
-              </>
-            )}
-            <div style={{display:"flex",flexWrap:"wrap",gap:"0.35rem"}}>
-              {PRESET_CATEGORIES.filter(p=>!familyExtras.includes(p.label)).map(c=>{
-                const sel=category===c.label;
-                return (
-                  <button key={c.label} onClick={()=>setCategory(sel?"":c.label)}
-                    style={{display:"flex",alignItems:"center",gap:"0.28rem",padding:"0.28rem 0.65rem",borderRadius:"20px",border:`2px solid ${sel?pal.primary:pal.stone+"50"}`,background:sel?pal.pale:"transparent",cursor:"pointer",transition:"all 0.12s"}}>
-                    <span style={{fontSize:"0.85rem"}}>{c.icon}</span>
-                    <span style={{fontSize:"0.74rem",fontWeight:sel?"700":"400",color:sel?pal.primary:pal.inkM}}>{c.label}</span>
-                  </button>
-                );
-              })}
+              )}
+            </div>
+          )}
+
+          {/* Activity name field */}
+          <div style={{marginBottom:"0.75rem"}}>
+            <div style={{fontSize:"0.72rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.35rem"}}>{"Specific activity / title"}</div>
+            <input value={activity} onChange={e=>setActivity(e.target.value)} placeholder={"e.g. Karate belt test, Piano recital practice"}
+              style={{width:"100%",padding:"0.55rem 0.75rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.83rem",background:pal.parchm,color:pal.ink,outline:"none"}}/>
+          </div>
+
+          {/* Duration + Date */}
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.5rem",marginBottom:"0.75rem"}}>
+            <div>
+              <div style={{fontSize:"0.72rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.35rem"}}>{"Duration (optional)"}</div>
+              <input value={duration} onChange={e=>setDuration(e.target.value)} placeholder={"e.g. 1 hour"}
+                style={{width:"100%",padding:"0.52rem 0.65rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.8rem",background:pal.parchm,color:pal.ink,outline:"none"}}/>
+            </div>
+            <div>
+              <div style={{fontSize:"0.72rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.35rem"}}>{"Date"}</div>
+              <input type="date" value={entryDate} onChange={e=>setEntryDate(e.target.value)}
+                style={{width:"100%",padding:"0.52rem 0.65rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.8rem",background:pal.parchm,color:pal.ink,outline:"none"}}/>
             </div>
           </div>
 
-          {/* Activity name */}
-          <div style={{marginBottom:"0.85rem"}}>
-            <div style={{fontSize:"0.74rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.35rem"}}>
-              {"Activity / Event *"}
-            </div>
-            <input
-              value={activity}
-              onChange={e=>setActivity(e.target.value)}
-              placeholder={"e.g. Soccer practice, Piano recital, Museum field trip..."}
-              autoFocus
-              style={{width:"100%",padding:"0.62rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.83rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit"}}
-              onFocus={e=>e.target.style.borderColor=pal.primary}
-              onBlur={e=>e.target.style.borderColor=pal.stone}
-            />
+          {/* Note */}
+          <div style={{marginBottom:"0.9rem"}}>
+            <div style={{fontSize:"0.72rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.35rem"}}>{"Notes (optional)"}</div>
+            <textarea value={note} onChange={e=>setNote(e.target.value)} placeholder={"How did it go? Any highlights?"}
+              style={{width:"100%",padding:"0.55rem 0.75rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.82rem",background:pal.parchm,color:pal.ink,outline:"none",resize:"none",minHeight:"64px",fontFamily:"inherit"}}/>
           </div>
 
-          {/* Duration */}
-          <div style={{marginBottom:"0.85rem"}}>
-            <div style={{fontSize:"0.74rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.35rem"}}>Duration (optional)</div>
-            <div style={{display:"flex",gap:"0.35rem",flexWrap:"wrap"}}>
-              {["30 min","45 min","1 hour","1.5 hrs","2 hrs","2.5 hrs","3 hrs","All day"].map(d=>(
-                <button key={d} onClick={()=>setDuration(duration===d?"":d)}
-                  style={{padding:"0.28rem 0.65rem",borderRadius:"20px",border:`2px solid ${duration===d?pal.primary:pal.stone+"50"}`,background:duration===d?pal.pale:"transparent",cursor:"pointer",fontSize:"0.74rem",fontWeight:duration===d?"700":"400",color:duration===d?pal.primary:pal.inkM,transition:"all 0.12s"}}>
-                  {d}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Date */}
-          <div style={{marginBottom:"0.85rem"}}>
-            <div style={{fontSize:"0.74rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.35rem"}}>Date</div>
-            <input type="date" value={entryDate} onChange={e=>setEntryDate(e.target.value)}
-              style={{width:"100%",padding:"0.55rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.83rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit"}}
-              onFocus={e=>e.target.style.borderColor=pal.primary}
-              onBlur={e=>e.target.style.borderColor=pal.stone}
-            />
-          </div>
-
-          {/* Notes */}
-          <div style={{marginBottom:"0.85rem"}}>
-            <div style={{fontSize:"0.74rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.35rem"}}>Notes (optional)</div>
-            <textarea
-              value={note}
-              onChange={e=>setNote(e.target.value)}
-              placeholder={"e.g. Scored first goal! Piano exam passed with distinction. Really enjoyed the science museum."}
-              rows={3}
-              style={{width:"100%",padding:"0.62rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.82rem",fontFamily:"inherit",background:pal.parchm,color:pal.ink,resize:"none",outline:"none",lineHeight:1.55}}
-              onFocus={e=>e.target.style.borderColor=pal.primary}
-              onBlur={e=>e.target.style.borderColor=pal.stone}
-            />
-          </div>
-
-          {/* Photos */}
-          <div style={{marginBottom:"0.5rem"}}>
-            <div style={{fontSize:"0.74rem",fontWeight:"700",color:pal.inkM,marginBottom:"0.35rem"}}>Photos (optional)</div>
-            <input type="file" ref={fileRef} accept="image/*" multiple onChange={handlePhoto} style={{display:"none"}}/>
-            <button onClick={()=>fileRef.current?.click()}
-              style={{padding:"0.45rem 1rem",border:`2px dashed ${pal.primary}50`,borderRadius:"11px",background:"transparent",color:pal.primary,fontWeight:"700",fontSize:"0.78rem",cursor:"pointer",marginBottom:"0.55rem",display:"flex",alignItems:"center",gap:"0.4rem"}}>
-              <span>{"📷"}</span><span>Add photos</span>
-            </button>
-            {photos.length>0&&(
-              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"0.4rem"}}>
-                {photos.map((p,i)=>(
-                  <div key={i} style={{position:"relative",borderRadius:"10px",overflow:"hidden",border:`1.5px solid ${pal.stone}35`}}>
-                    <img src={p.dataUrl} alt="" style={{width:"100%",height:"72px",objectFit:"cover",display:"block"}}/>
-                    <button onClick={()=>setPhotos(ps=>ps.filter((_,pi)=>pi!==i))}
-                      style={{position:"absolute",top:"3px",right:"3px",width:"20px",height:"20px",borderRadius:"50%",background:"rgba(0,0,0,0.55)",border:"none",color:"#fff",fontSize:"0.65rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
-                      {"✕"}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div style={{padding:"0.9rem 1.2rem",borderTop:`1px solid ${pal.stone}40`,background:pal.linen,flexShrink:0,display:"flex",gap:"0.5rem"}}>
-          <button onClick={onClose}
-            style={{padding:"0.7rem 1rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem"}}>
-            Cancel
-          </button>
+          {/* Save */}
           <button onClick={handleSave} disabled={!canSave}
-            style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:canSave?pal.accentGrad:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:canSave?"pointer":"default"}}>
-            {"Save to Portfolio ✓"}
+            style={{width:"100%",padding:"0.85rem",border:"none",borderRadius:"14px",background:canSave?pal.accentGrad:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.9rem",cursor:canSave?"pointer":"not-allowed",marginBottom:"1.2rem"}}>
+            {"Save Entry"}
           </button>
         </div>
       </div>
     </div>
   );
 }
-
 function WeeklyPacket({pal,family,child,entries,onBack}){
   const [generating, setGenerating] = useState(false);
   const [summary,    setSummary]    = useState(null);
