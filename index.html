@@ -3746,7 +3746,8 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
         const loggedToday = portfolioEntries.some(e=>e.date===todayStr2);
         if(loggedToday) return null;
         return (
-          <div style={{margin:"0 0 0.85rem",borderRadius:"14px",background:pal.linen,border:`1.5px solid ${pal.primary}30`,padding:"0.75rem 1rem",display:"flex",gap:"0.75rem",alignItems:"center"}}>
+          <div style={{margin:"0 0 0.85rem",borderRadius:"14px",background:pal.linen,border:`1.5px solid ${pal.primary}30`,padding:"0.75rem 1rem",display:"flex",gap:"0.75rem",alignItems:"center",cursor:"pointer"}}
+            onClick={()=>{ window._openExtraModal=true; onTabChange("portfolio"); }}>
             <span style={{fontSize:"1.4rem",flexShrink:0}}>{"🎯"}</span>
             <div style={{flex:1}}>
               <div style={{fontWeight:"800",color:pal.inkM,fontSize:"0.82rem",marginBottom:"2px"}}>{"Don't forget to log extracurriculars!"}</div>
@@ -3756,8 +3757,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
                 ))}
               </div>
             </div>
-            <button onClick={()=>onAddEntry&&onAddEntry()}
-              style={{background:pal.primary,border:"none",borderRadius:"9px",color:"#fff",fontSize:"0.72rem",fontWeight:"800",padding:"0.4rem 0.75rem",cursor:"pointer",flexShrink:0}}>{"+ Log"}</button>
+            <span style={{color:pal.primary,fontSize:"0.9rem",flexShrink:0}}>{"›"}</span>
           </div>
         );
       })()}
@@ -5081,6 +5081,11 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
   const [showDailyLog,   setShowDailyLog]   = useState(false);
   const [showAdd,        setShowAdd]        = useState(false);
   const [showAddExtra,   setShowAddExtra]   = useState(false);
+
+  // Auto-open extra modal if navigated here from the extracurricular reminder banner
+  useEffect(()=>{
+    if(window._openExtraModal){ window._openExtraModal=false; setShowAddExtra(true); }
+  },[]);
   const [showAddBook,    setShowAddBook]    = useState(false);
   const [editEntry,      setEditEntry]      = useState(null);
   const [detailEntry,    setDetail]         = useState(null);
@@ -5235,12 +5240,28 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
         {/* ── EXTRACURRICULARS CARD ── */}
         <PortfolioCard pal={pal} icon="🏆" title="Extracurriculars" count={extraEntries.length}>
           {extraEntries.length===0 ? (
-            <div style={{padding:"0.5rem 0",textAlign:"center"}}>
-              <div style={{fontSize:"0.78rem",color:pal.slate,marginBottom:"0.65rem"}}>Sports, music, co-op, field trips {"\u2014"} log them here.</div>
-              <button onClick={()=>setShowAddExtra(true)}
-                style={{padding:"0.42rem 1rem",border:`1.5px solid ${pal.primary}`,borderRadius:"10px",background:"transparent",color:pal.primary,fontSize:"0.76rem",fontWeight:"700",cursor:"pointer"}}>
-                + Add Extracurricular
-              </button>
+            <div style={{padding:"0.4rem 0"}}>
+              {(family.extracurriculars||[]).filter(e=>e!=="None right now").length>0 ? (
+                <>
+                  <div style={{display:"flex",flexWrap:"wrap",gap:"0.35rem",marginBottom:"0.65rem"}}>
+                    {(family.extracurriculars||[]).filter(e=>e!=="None right now").map(e=>(
+                      <span key={e} style={{padding:"0.22rem 0.65rem",borderRadius:"20px",background:pal.pale,color:pal.primary,fontSize:"0.74rem",fontWeight:"700"}}>{e}</span>
+                    ))}
+                  </div>
+                  <button onClick={()=>setShowAddExtra(true)}
+                    style={{width:"100%",padding:"0.42rem 1rem",border:`1.5px solid ${pal.primary}`,borderRadius:"10px",background:"transparent",color:pal.primary,fontSize:"0.76rem",fontWeight:"700",cursor:"pointer"}}>
+                    {"+ Log an Entry"}
+                  </button>
+                </>
+              ) : (
+                <div style={{textAlign:"center"}}>
+                  <div style={{fontSize:"0.78rem",color:pal.slate,marginBottom:"0.65rem"}}>{"Sports, music, co-op, field trips \u2014 log them here."}</div>
+                  <button onClick={()=>setShowAddExtra(true)}
+                    style={{padding:"0.42rem 1rem",border:`1.5px solid ${pal.primary}`,borderRadius:"10px",background:"transparent",color:pal.primary,fontSize:"0.76rem",fontWeight:"700",cursor:"pointer"}}>
+                    {"+ Add Extracurricular"}
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <div style={{display:"flex",flexDirection:"column",gap:"0.3rem",paddingTop:"0.1rem"}}>
