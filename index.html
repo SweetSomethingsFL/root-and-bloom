@@ -4721,6 +4721,11 @@ function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab, portf
           <div style={{height:"1rem"}}/>
         </>)}
 
+        {/* ===== RESOURCES TAB ===== */}
+        {learnTab==="resources"&&<ResourceLibrary pal={pal} family={family} onUpdateFamily={onUpdateFamily}/>}
+
+      </div>
+    </div>
   );
 }
 
