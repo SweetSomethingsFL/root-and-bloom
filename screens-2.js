@@ -334,6 +334,10 @@ function printFullPortfolio(family, entries, child, attendanceDays, stateInfoUnu
     +"<div style='flex:1'><div style='border-bottom:1.5px solid #999;height:30px;margin-bottom:4px'></div><div style='font-size:7.5pt;color:#888'>Parent Signature</div></div>"
     +"<div style='flex:1'><div style='border-bottom:1.5px solid #999;height:30px;margin-bottom:4px'></div><div style='font-size:7.5pt;color:#888'>Date</div></div>"
     +"</div>"
+    +"<div style='background:#fffbeb;border:1.5px solid #f5c842;border-radius:10px;padding:0.75rem 1rem;margin:1.5rem 0;font-family:Arial,sans-serif;font-size:9pt;color:#7a5500;display:flex;gap:0.6rem;align-items:flex-start'>"
+    +"<span style='font-size:1.1rem;flex-shrink:0'>📎</span>"
+    +"<span><strong>Tip:</strong> Have you saved AI-generated worksheets to your portfolio? Go to Learn → Worksheets, generate one, and tap Save to Portfolio so it appears here.</span>"
+    +"</div>"
     +"<div class='footer'><span>"+schoolName+" &bull; "+childName+"</span><span>Generated: "+today+"</span></div>"
     +"<script>window.onload=function(){setTimeout(function(){window.print();},600);};<\/script>"
     +"</body></html>";

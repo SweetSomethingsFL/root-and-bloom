@@ -808,8 +808,8 @@ function RootAndBloom() {
   const [view,           setView]           = useState("splash");
   const [activeTab,      setActiveTab]      = useState("home");
   const [navIds,         setNavIds]         = useState(saved?.navIds||["home","progress","portfolio","more"]);
-  const [homeLayout,     setHomeLayout]     = useState(["children","goals","pandc","coop","progress_nudge","thisweek","todaycard"]);
-  const [portfolioLayout,setPortfolioLayout]= useState(saved?.portfolioLayout||["yearoverview","subjects","photosextras","worksheetreminder","statereminder"]);
+  const [homeLayout,     setHomeLayout]     = useState(["children","progress_nudge","thisweek","todaycard"]);
+  const [portfolioLayout,setPortfolioLayout]= useState(saved?.portfolioLayout||["yearoverview","subjects","photosextras"]);
   const [childFilt,      setChildFilt]      = useState("all");
   const [lastCheckinDate,setLastCheckinDate]= useState(saved?.lastCheckinDate||null);
   const [checkinStreak,  setCheckinStreak]  = useState(saved?.checkinStreak||0);
@@ -1161,13 +1161,8 @@ function RootAndBloom() {
     setFamily({...data, createdAt: data.createdAt||new Date().toISOString()});
     setPaletteId(data.paletteId||"sage");
     setCelebData(data);
-    // Set nav based on schedule preference chosen during onboarding
-    const baseNav = ["home","progress","portfolio","more"];
-    if(data.useScheduleTab) {
-      setNavIds(["home","schedule","progress","portfolio","more"]);
-    } else {
-      setNavIds(baseNav);
-    }
+    // Always start with clean 4-tab nav — families can add more in Settings
+    setNavIds(["home","portfolio","progress","more"]);
     // Backfill attendance days from yearStart if provided
     if(data.yearStart) {
       try {
@@ -2858,6 +2853,15 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
   const [dragIdx,      setDragIdx]      = useState(null);
   const [dragOverIdx,  setDragOverIdx]  = useState(null);
 
+  // How many days since family created account — used to suppress early nudges
+  const daysSinceStart = (()=>{
+    try {
+      const start = new Date(family.createdAt||Date.now());
+      return Math.floor((Date.now()-start.getTime())/(1000*60*60*24));
+    } catch(e){ return 999; }
+  })();
+  const showSmartNudges = daysSinceStart >= 14;
+
   // Birthday detection
   const todayMD = (()=>{ const n=new Date(); return (n.getMonth()+1)+"-"+n.getDate(); })();
   const birthdayKids = (family.children||[]).filter(c=>{
@@ -3211,6 +3215,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
     <div key="consistency" data-section="consistency">
       {/* ── Consistency Nudge ── */}
         {(()=>{
+          if(!showSmartNudges) return null;
           if(checkedInToday) return null;
           const lastDate = lastCheckinDate ? new Date(lastCheckinDate) : null;
           if(!lastDate) return null;
@@ -3241,6 +3246,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
     <div key="missedday" data-section="missedday">
       {/* ── Missed Day Nudge ── */}
         {(()=>{
+          if(!showSmartNudges) return null;
           if(!attendanceLog||attendanceLog.length===0) return null;
           const yr = new Date().getFullYear();
           const weekStart3 = new Date();
@@ -3281,6 +3287,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
     <div key="behindweek" data-section="behindweek">
       {/* ── Behind This Week Nudge ── */}
         {(()=>{
+          if(!showSmartNudges) return null;
           const lessonGoals2 = family.lessonGoals||{};
           if(Object.keys(lessonGoals2).length===0) return null;
           // Only show after family has been using the app for 7+ days
@@ -3339,6 +3346,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
   const renderSection_subjectgap = () => (
     <div key="subjectgap" data-section="subjectgap">
       {(()=>{
+        if(!showSmartNudges) return null;
         const now4 = new Date();
         const yr4  = now4.getFullYear();
         // Only show after family has been using the app for 7+ days
@@ -3793,6 +3801,7 @@ function HomeScreen({ pal, family, child, setChild, onTheme, attendanceDays, che
 
       {/* ── Stale subject nudge — subject not logged in 7+ days ── */}
       {(()=>{
+        if(!showSmartNudges) return null;
         if(portfolioEntries.length===0) return null;
         const _activeSubjs=family.subjects||[];
         if(_activeSubjs.length===0) return null;
@@ -4581,7 +4590,7 @@ function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab, portf
         </div>
         {/* Tabs */}
         <div style={{display:"flex",background:pal.parchm,borderRadius:"11px",padding:"3px",gap:"2px",marginBottom:"1rem"}}>
-          {[["📚Curriculum","curriculum"],["📊Progress","progress"],["📋Worksheets","worksheets"],["📅Planner","planner"],["🔗Resources","resources"],["✨ Advisor","advisor"]].map(([l,id])=>(
+          {[["📚 Curriculum","curriculum"],["📋 Worksheets","worksheets"],["🔗 Resources","resources"]].map(([l,id])=>(
             <button key={id} onClick={()=>setLearnTab(id)} style={{flex:1,padding:"0.45rem",border:"none",borderRadius:"9px",background:learnTab===id?pal.linen:"transparent",color:learnTab===id?pal.ink:pal.slate,fontSize:"0.72rem",fontWeight:learnTab===id?"700":"400",cursor:"pointer"}}>{l}</button>
           ))}
         </div>
@@ -4678,139 +4687,24 @@ function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab, portf
               </div>
             );
           })}
+          {/* ── AI Lesson Planner (merged into Curriculum tab) ── */}
+          <div style={{background:`linear-gradient(135deg,${pal.primary}15,${pal.accent}10)`,borderRadius:"16px",padding:"1rem 1.1rem",marginBottom:"1rem",border:"1.5px solid "+pal.primary+"25",marginTop:"0.5rem"}}>
+            <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.9rem",marginBottom:"0.3rem"}}>{"📅 AI Lesson Planner"}</div>
+            <div style={{fontSize:"0.76rem",color:pal.slate,lineHeight:1.6,marginBottom:"0.85rem"}}>{"Tell me what to cover this week — I'll build a day-by-day plan with activities, questions, and parent tips."}</div>
+            <button onClick={()=>setShowPlanner(true)}
+              style={{width:"100%",padding:"0.78rem",border:"none",borderRadius:"12px",background:pal.accentGrad,color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:"pointer"}}>
+              {"📅 Plan This Week"}
+            </button>
+          </div>
           <div style={{height:"1rem"}}/>
         </>)}
 
-        {/* ====== PROGRESS TAB ====== */}
-        {learnTab==="progress" && (<>
-
-          {/* ── Subject progress from real portfolio entries ── */}
-          {(() => {
-            const childIdx = family.children.findIndex(c=>c.id===child);
-            const ciR = childIdx>=0 ? childIdx : 0;
-            const childEntries = portfolioEntries.filter(e=>e.childIdx===ciR&&!e.isDay&&e.subj!=="Daily Notes");
-            const totalEntries = childEntries.length;
-
-            // Count per subject
-            const bySub = {};
-            childEntries.forEach(e=>{
-              if(!bySub[e.subj]) bySub[e.subj]={count:0,recent:null};
-              bySub[e.subj].count++;
-              if(!bySub[e.subj].recent) bySub[e.subj].recent=e.date;
-            });
-
-            // Unique days logged (activity)
-            const uniqueDays = new Set(childEntries.map(e=>e.date)).size;
-            // Reading entries
-            const readingCount = childEntries.filter(e=>e.subj==="Reading"||e.subj==="Reading/Language Arts").length;
-            const maxCount = Math.max(...Object.values(bySub).map(v=>v.count),1);
-
-            return (
-              <>
-                {/* Summary stats */}
-                <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"0.45rem",marginBottom:"1rem"}}>
-                  {[
-                    {l:"Total Entries", v:totalEntries, c:pal.primary,  bg:pal.pale},
-                    {l:"Days Active",   v:uniqueDays,   c:pal.mid,      bg:pal.paleMid},
-                    {l:"Reading",       v:readingCount, c:pal.accentD,  bg:pal.pale},
-                  ].map(s=>(
-                    <div key={s.l} style={{background:s.bg,borderRadius:"12px",padding:"0.65rem 0.4rem",textAlign:"center",border:`1.5px solid ${s.c}22`}}>
-                      <div style={{fontWeight:"900",color:s.c,fontSize:"1.1rem",lineHeight:1}}>{s.v}</div>
-                      <div style={{fontSize:"0.55rem",color:pal.slate,textTransform:"uppercase",letterSpacing:"0.05em",marginTop:"3px"}}>{s.l}</div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Subject breakdown */}
-                <div style={{background:pal.linen,borderRadius:"16px",padding:"0.9rem 1rem",marginBottom:"1rem",border:`1.5px solid ${pal.stone}35`}}>
-                  <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem",marginBottom:"0.75rem"}}>
-                    {"Subjects This Year"}
-                  </div>
-                  {activeSubjs.length===0&&Object.keys(bySub).length===0?(
-                    <div style={{fontSize:"0.78rem",color:pal.slate,textAlign:"center",padding:"0.5rem 0"}}>
-                      No entries yet. Start logging to track progress.
-                    </div>
-                  ):(
-                    <div style={{display:"flex",flexDirection:"column",gap:"0.5rem"}}>
-                      {[...new Set([...activeSubjs.map(s=>s.label),...Object.keys(bySub)])].map(label=>{
-                        const subj = activeSubjs.find(s=>s.label===label);
-                        const data = bySub[label]||{count:0,recent:null};
-                        const pct  = Math.round(data.count/maxCount*100);
-                        return (
-                          <div key={label} style={{display:"flex",alignItems:"center",gap:"0.6rem"}}>
-                            <div style={{width:"32px",height:"32px",borderRadius:"8px",background:data.count>0?pal.pale:pal.parchm,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.95rem",flexShrink:0}}>
-                              {subj?.icon||"📋"}
-                            </div>
-                            <div style={{flex:1,minWidth:0}}>
-                              <div style={{display:"flex",justifyContent:"space-between",marginBottom:"3px"}}>
-                                <span style={{fontSize:"0.78rem",fontWeight:"600",color:data.count>0?pal.ink:pal.slate}}>{label}</span>
-                                <span style={{fontSize:"0.7rem",fontWeight:"800",color:data.count>0?pal.primary:pal.stone}}>
-                                  {data.count>0?data.count+" entries":"—"}
-                                </span>
-                              </div>
-                              <div style={{height:"5px",borderRadius:"99px",background:pal.parchm,overflow:"hidden"}}>
-                                <div style={{height:"100%",width:`${pct}%`,borderRadius:"99px",background:data.count>0?pal.accentGrad:pal.stone+"20",transition:"width 0.4s"}}/>
-                              </div>
-                              {data.recent&&(
-                                <div style={{fontSize:"0.6rem",color:pal.stone,marginTop:"2px"}}>Last: {data.recent}</div>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-
-                {/* Unlogged subjects warning */}
-                {(() => {
-                  const unlogged = activeSubjs.filter(s=>!(bySub[s.label]));
-                  return unlogged.length>0?(
-                    <div style={{background:"#fffbeb",borderRadius:"13px",padding:"0.7rem 0.9rem",marginBottom:"1rem",border:"1.5px solid #f5c842"}}>
-                      <div style={{fontWeight:"700",color:"#7a5500",fontSize:"0.78rem",marginBottom:"0.3rem"}}>{"⚠️ Subjects not yet logged"}</div>
-                      <div style={{display:"flex",flexWrap:"wrap",gap:"0.3rem"}}>
-                        {unlogged.map(s=>(
-                          <span key={s.id} style={{padding:"0.18rem 0.5rem",background:"#fff8e8",borderRadius:"20px",fontSize:"0.7rem",fontWeight:"600",color:"#7a5500",border:"1px solid #f5c842"}}>
-                            {s.icon} {s.label}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  ):null;
-                })()}
-              </>
-            );
-          })()}
-
-          {/* ── Unit studies ── */}
-          {units.length>0&&(
-            <div style={{background:pal.linen,borderRadius:"16px",padding:"0.9rem 1rem",border:`1.5px solid ${pal.stone}35`,marginBottom:"1rem"}}>
-              <div style={{fontWeight:"700",color:pal.inkM,fontSize:"0.78rem",marginBottom:"0.75rem"}}>Unit Studies</div>
-              {units.map((u,i,a)=>{
-                const pct=u.weeks>0?Math.round(u.weeksDone/u.weeks*100):0;
-                return(
-                  <div key={u.id} style={{display:"flex",alignItems:"center",gap:"0.65rem",marginBottom:i<a.length-1?"0.65rem":"0"}}>
-                    <span style={{fontSize:"1rem",width:"22px",textAlign:"center"}}>{u.icon||"📚"}</span>
-                    <div style={{flex:1}}>
-                      <div style={{display:"flex",justifyContent:"space-between",marginBottom:"3px"}}>
-                        <span style={{fontSize:"0.78rem",fontWeight:"600",color:pal.inkM}}>{u.title}</span>
-                        <span style={{fontSize:"0.7rem",fontWeight:"800",color:pct>=100?pal.good:pal.primary}}>{pct}%</span>
-                      </div>
-                      <div style={{height:"5px",borderRadius:"99px",background:pal.parchm,overflow:"hidden"}}>
-                        <div style={{height:"100%",width:`${pct}%`,borderRadius:"99px",background:pct>=100?`linear-gradient(90deg,${pal.good},${pal.mid})`:pal.accentGrad}}/>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          <div style={{height:"1rem"}}/>
-        </>)}
+        {/* PROGRESS + PLANNER + ADVISOR tabs removed — Progress lives in nav, Planner merged into Curriculum, Advisor moved to AI Chat */}
+        {(learnTab==="progress"||learnTab==="planner"||learnTab==="advisor") && null}
 
         {/* ====== WORKSHEETS TAB ====== */}
-        {learnTab==="planner" && (
+        {/* ====== WORKSHEETS TAB ====== */}
+        {learnTab==="worksheets" && (<>
           <div style={{paddingBottom:"1rem"}}>
             <div style={{background:"linear-gradient(135deg,"+pal.primary+"15,"+pal.accent+"10)",borderRadius:"16px",padding:"1rem 1.1rem",marginBottom:"1rem",border:"1.5px solid "+pal.primary+"25"}}>
               <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.9rem",marginBottom:"0.3rem"}}>{"\uD83D\uDCC5 AI Lesson Planner"}</div>
@@ -4825,10 +4719,6 @@ function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab, portf
               {["\uD83D\uDCDD Pick subjects + describe what to cover","\uD83E\uDD16 AI builds Mon-Fri with specific activities","\uD83D\uDCA1 Parent tips + struggle area notes","\uD83D\uDDA8\uFE0F Print a one-page weekly plan"].map((s,i)=>(
                 <div key={i} style={{fontSize:"0.78rem",color:pal.inkM,lineHeight:1.7}}>{s}</div>
               ))}
-            </div>
-          </div>
-        )}
-
         {learnTab==="worksheets" && (<>
           <div style={{background:pal.pale,borderRadius:"13px",padding:"0.72rem 0.9rem",marginBottom:"0.85rem",border:`1.5px solid ${pal.primary}20`,fontSize:"0.77rem",color:pal.inkM,lineHeight:1.6}}>
             💡 Worksheet builder uses AI. Add your key in <b>Settings → AI</b> to enable.
@@ -4849,227 +4739,6 @@ function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab, portf
 
         {/* ===== RESOURCES TAB ===== */}
         {learnTab==="resources"&&<ResourceLibrary pal={pal} family={family} onUpdateFamily={onUpdateFamily}/>}
-
-        {/* ===== CURRICULUM ADVISOR TAB ===== */}
-        {learnTab==="advisor"&&(
-          <div style={{display:"flex",flexDirection:"column",height:"calc(100vh - 160px)"}}>
-            <div style={{background:pal.pale,borderRadius:"16px",padding:"0.85rem 1rem",marginBottom:"0.75rem",border:`1.5px solid ${pal.primary}25`,flexShrink:0}}>
-              <div style={{fontWeight:"800",color:pal.primary,fontSize:"0.88rem",marginBottom:"2px"}}>{"✨ Curriculum Advisor"}</div>
-              <div style={{fontSize:"0.72rem",color:pal.slate,lineHeight:1.5}}>{"Ask me anything about homeschooling, teaching strategies, or how to explain a tricky concept. I know your family's approach."}</div>
-            </div>
-            {advMsgs.length===0&&(
-              <div style={{display:"flex",flexDirection:"column",gap:"0.4rem",marginBottom:"0.75rem",flexShrink:0}}>
-                {[
-                  "📖 How do I teach "+((family.subjects||[]).length>0?([...SUBJECT_OPTIONS,...(family.customSubjects||[])].find(s=>s.id===(family.subjects||[])[0])?.label||"reading"):"reading")+" to a hands-on learner?",
-                  "🔬 Give me a fun hands-on science experiment we can do at home this week",
-                  "🌍 How do I make history come alive for "+(activeChild?.name||"my kids")+"?",
-                  "📝 How do I structure our school day for "+(family.children.length>1?"multiple grade levels":"a "+( activeChild?.grade||"3rd grade")+" student")+"?",
-                ].map((q,i)=>(
-                  <button key={i} onClick={()=>{
-                      const question = q.slice(2).trim();
-                      setAdvInput("");
-                                            const newMsgs=[{role:"user",text:question}];
-                      setAdvMsgs(newMsgs); setAdvLoading(true);
-                      getCurriculumAdvice({messages:[{role:"user",content:question}],family})
-                        .then(t=>{setAdvMsgs(m=>[...m,{role:"advisor",text:t}]);setAdvLoading(false);})
-                        .catch(e=>{setAdvMsgs(m=>[...m,{role:"advisor",text:e.message==="NO_KEY"?"Add your API key in Settings → AI.":"Something went wrong."}]);setAdvLoading(false);});
-                    }}
-                    style={{padding:"0.55rem 0.85rem",borderRadius:"12px",border:`1.5px solid ${pal.primary}30`,background:"#fff",color:pal.inkM,fontSize:"0.78rem",fontWeight:"600",cursor:"pointer",textAlign:"left"}}>
-                    {q}
-                  </button>
-                ))}
-              </div>
-            )}
-            <div style={{flex:1,overflowY:"auto",display:"flex",flexDirection:"column",gap:"0.65rem",marginBottom:"0.65rem"}}>
-              {advMsgs.map((msg,i)=>(
-                <div key={i} style={{display:"flex",gap:"0.5rem",alignItems:"flex-start",flexDirection:msg.role==="user"?"row-reverse":"row"}}>
-                  {msg.role==="advisor"&&<div style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.heroGrad,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.85rem",flexShrink:0,marginTop:"2px"}}>{"✨"}</div>}
-                  <div style={{maxWidth:"80%",background:msg.role==="user"?pal.heroGrad:"#fff",color:msg.role==="user"?"#fff":pal.ink,padding:"0.65rem 0.9rem",borderRadius:msg.role==="user"?"18px 18px 4px 18px":"18px 18px 18px 4px",fontSize:"0.82rem",lineHeight:1.65,boxShadow:"0 1px 6px rgba(0,0,0,0.07)",whiteSpace:"pre-wrap"}}>{msg.text}</div>
-                </div>
-              ))}
-              {advLoading&&(
-                <div style={{display:"flex",gap:"0.5rem",alignItems:"flex-start"}}>
-                  <div style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.heroGrad,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.85rem",flexShrink:0}}>{"✨"}</div>
-                  <div style={{background:"#fff",padding:"0.6rem 0.9rem",borderRadius:"18px 18px 18px 4px",boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}><div style={{display:"flex",gap:"4px",alignItems:"center"}}>{[0,1,2].map(j=>(<div key={j} style={{width:"7px",height:"7px",borderRadius:"50%",background:pal.primary,animation:"bounce 0.9s "+j*0.15+"s ease-in-out infinite"}}/>))}</div></div>
-                </div>
-              )}
-            </div>
-            <div style={{display:"flex",gap:"0.5rem",alignItems:"flex-end",flexShrink:0}}>
-              <textarea value={advInput} onChange={e=>setAdvInput(e.target.value)}
-                onKeyDown={e=>{ if(e.key==="Enter"&&!e.shiftKey){ e.preventDefault(); if(!advInput.trim()||advLoading) return; const q=advInput.trim(); setAdvInput("");
-                                      const newMsgs=[...advMsgs,{role:"user",text:q}];
-                    setAdvMsgs(newMsgs); setAdvLoading(true);
-                    getCurriculumAdvice({messages:newMsgs.map(m=>({role:m.role==="user"?"user":"assistant",content:m.text})),family})
-                      .then(t=>{setAdvMsgs(m=>[...m,{role:"advisor",text:t}]);setAdvLoading(false);})
-                      .catch(e=>{setAdvMsgs(m=>[...m,{role:"advisor",text:e.message==="NO_KEY"?"Add your API key in Settings → AI.":"Something went wrong."}]);setAdvLoading(false);});
-                }}}
-                placeholder={"Ask anything about homeschooling or curriculum..."}
-                rows={2}
-                style={{flex:1,padding:"0.55rem 0.75rem",border:`1.5px solid ${pal.primary}40`,borderRadius:"14px",fontSize:"0.83rem",fontFamily:"inherit",background:pal.linen,color:pal.ink,resize:"none",outline:"none",lineHeight:1.4}}
-              />
-              <button onClick={()=>{ if(!advInput.trim()||advLoading) return; const q=advInput.trim(); setAdvInput("");
-                                      const newMsgs=[...advMsgs,{role:"user",text:q}];
-                    setAdvMsgs(newMsgs); setAdvLoading(true);
-                    getCurriculumAdvice({messages:newMsgs.map(m=>({role:m.role==="user"?"user":"assistant",content:m.text})),family})
-                      .then(t=>{setAdvMsgs(m=>[...m,{role:"advisor",text:t}]);setAdvLoading(false);})
-                      .catch(e=>{setAdvMsgs(m=>[...m,{role:"advisor",text:e.message==="NO_KEY"?"Add your API key in Settings → AI.":"Something went wrong."}]);setAdvLoading(false);});
-                }} disabled={!advInput.trim()||advLoading}
-                style={{width:"38px",height:"38px",borderRadius:"50%",border:"none",background:advInput.trim()&&!advLoading?pal.accentGrad:"#ddd",color:"#fff",fontSize:"1.1rem",cursor:advInput.trim()&&!advLoading?"pointer":"default",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"background 0.2s"}}>
-                {"↑"}
-              </button>
-            </div>
-          </div>
-        )}
-
-      </div>
-
-      {/* Unit Add/Edit Modal */}
-      {(showAddUnit||editUnit) && <UnitModal pal={pal} family={family} initial={editUnit}
-        onClose={()=>{setShowAddUnit(false);setEditUnit(null);}}
-        onSave={u=>{editUnit?updateUnit(editUnit.id,u):addUnit(u);setShowAddUnit(false);setEditUnit(null);}}/>}
-
-      {/* AI Builder Modal */}
-      {showBuilder && (
-        <AIUnitBuilderModal
-          pal={pal} family={family} activeChild={activeChild}
-          onSave={unit=>{ const nu=[{id:uid(),...unit,aiGenerated:true,weeksDone:0},...units]; setUnits(nu);saveUnits(nu); setShowBuilder(false); setLearnTab("curriculum"); }}
-          onClose={()=>setShowBuilder(false)}
-        />
-      )}
-
-      {/* Worksheet Builder Modal */}
-      {showWS && (
-        <AIWorksheetModal
-          pal={pal} family={family} activeChild={activeChild}
-          wsType={showWS}
-          portfolioEntries={portfolioEntries}
-          onClose={()=>setShowWS(false)}
-        />
-      )}
-      {showPlanner && (
-        <AILessonPlannerModal
-          pal={pal} family={family} activeChild={activeChild}
-          portfolioEntries={portfolioEntries}
-          onClose={()=>setShowPlanner(false)}
-        />
-      )}
-
-    </div>
-  );
-}
-
-
-// AIChatModal moved to ai-features-2.js
-
-/* ---- Unit Study Add/Edit Modal ---- */
-function UnitModal({pal,family,initial,onClose,onSave}){
-  const isEdit = !!initial;
-  const ICONS = ["📚","🏛","📐","🔬","📝","🎨","🎵","📜","🌏","🌳","📖","🧪","💻","🖌","📓"];
-  const [title,   setTitle]   = useState(initial?.title||"");
-  const [subject, setSubject] = useState(initial?.subject||"");
-  const [icon,    setIcon]    = useState(initial?.icon||"📚");
-  const [weeks,   setWeeks]   = useState(initial?.weeks||6);
-  const [plan,    setPlan]    = useState(initial?.plan||"");
-  const [notes,   setNotes]   = useState(initial?.notes||"");
-  const [customSubj, setCustomSubj] = useState("");
-  const [readingTitle, setReadingTitle] = useState(initial?.readingTitle||"");
-
-  const customSubjs = family.customSubjects||[];
-  const allSubjs = [...SUBJECT_OPTIONS,...customSubjs];
-  const activeSubjs = (family.subjects||[]).map(id=>allSubjs.find(s=>s.id===id)).filter(Boolean);
-  const subjOptions = activeSubjs.map(s=>s.label);
-  const READING_SUBJS_UM = ["Reading","Reading/Language Arts","Bible / Faith","Literature"];
-  const isReadingSubj = READING_SUBJS_UM.some(r=>finalSubj.toLowerCase().includes(r.toLowerCase()));
-  const READING_TITLE_STATES = ["FL","PA","OH","VA","NC"];
-  const needsReadingTitle = isReadingSubj && READING_TITLE_STATES.includes(family.state||"");
-
-  const canSave = title.trim()&&(subject||customSubj.trim());
-  const finalSubj = subject||customSubj.trim();
-
-  return (
-    <div style={{position:"fixed",inset:0,background:"rgba(15,10,4,0.72)",backdropFilter:"blur(12px)",zIndex:200,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
-      <div style={{background:pal.linen,borderRadius:"28px 28px 0 0",width:"100%",maxWidth:"430px",maxHeight:"88vh",display:"flex",flexDirection:"column",animation:"slideUp 0.28s ease"}}>
-        <div style={{padding:"0.7rem 0 0",display:"flex",justifyContent:"center",flexShrink:0}}><div style={{width:"36px",height:"4px",borderRadius:"99px",background:pal.stone}}/></div>
-        <div style={{padding:"0.75rem 1.3rem",borderBottom:`1px solid ${pal.stone}45`,flexShrink:0,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <div style={{fontWeight:"800",color:pal.ink,fontSize:"1rem"}}>{isEdit?"Edit Unit Study":"Add Unit Study"}</div>
-          <button onClick={onClose} style={{width:"28px",height:"28px",borderRadius:"50%",background:pal.parchm,border:"none",color:pal.slate,cursor:"pointer",fontSize:"0.9rem"}}>{"✕"}</button>
-        </div>
-        <div style={{flex:1,overflowY:"auto",padding:"1rem 1.3rem"}}>
-          <Lbl pal={pal}>Subject</Lbl>
-          <div style={{display:"flex",flexWrap:"wrap",gap:"0.35rem",marginBottom:"0.45rem"}}>
-            {subjOptions.map(s=>(
-              <button key={s} onClick={()=>{setSubject(s);setCustomSubj("");}}
-                style={{padding:"0.25rem 0.65rem",borderRadius:"20px",border:`2px solid ${subject===s?pal.primary:pal.stone+"60"}`,background:subject===s?pal.pale:"transparent",color:subject===s?pal.primary:pal.slate,fontSize:"0.73rem",fontWeight:subject===s?"700":"400",cursor:"pointer"}}>
-                {s}
-              </button>
-            ))}
-            <button onClick={()=>{setSubject("");}} style={{padding:"0.25rem 0.65rem",borderRadius:"20px",border:`2px solid ${!subject?pal.primary:pal.stone+"60"}`,background:!subject?pal.pale:"transparent",color:!subject?pal.primary:pal.slate,fontSize:"0.73rem",cursor:"pointer"}}>Other</button>
-          </div>
-          {!subject && (
-            <input value={customSubj} onChange={e=>setCustomSubj(e.target.value)} placeholder="e.g. Home Ec, Logic, Latin..."
-              style={{width:"100%",padding:"0.5rem 0.75rem",border:`2px solid ${pal.primary}`,borderRadius:"11px",fontSize:"0.8rem",background:pal.parchm,color:pal.ink,outline:"none",fontFamily:"inherit",marginBottom:"0.75rem"}}/>
-          )}
-          {subject && <div style={{height:"0.6rem"}}/>}
-
-          <Lbl pal={pal}>Unit title</Lbl>
-          <Input pal={pal} value={title} onChange={setTitle} placeholder="e.g. Ancient Egypt, Fractions, Essay Writing"/>
-          <div style={{height:"0.75rem"}}/>
-
-          {/* Reading title — required for FL/PA states */}
-          {needsReadingTitle && (
-            <div style={{animation:"fadeUp 0.18s ease",marginBottom:"0.75rem"}}>
-              <Lbl pal={pal}>Book / Material Title <span style={{color:pal.primary,fontWeight:"900"}}>*</span></Lbl>
-              <div style={{background:pal.pale,borderRadius:"10px",padding:"0.45rem 0.7rem",marginBottom:"0.5rem",fontSize:"0.71rem",color:pal.primary,fontWeight:"600",border:`1.5px solid ${pal.primary}25`}}>
-                📖 {family.state||"Your state"} requires reading materials to be listed by title.
-              </div>
-              <Input pal={pal} value={readingTitle} onChange={setReadingTitle} placeholder="e.g. Charlotte Web, Saxon Math 5/4, Bible Story Vol.2"/>
-            </div>
-          )}
-          {isReadingSubj && !needsReadingTitle && (
-            <div style={{marginBottom:"0.55rem"}}>
-              <Lbl pal={pal}>Book / Material Title (optional)</Lbl>
-              <Input pal={pal} value={readingTitle} onChange={setReadingTitle} placeholder="e.g. Charlotte Web, Saxon Phonics..."/>
-            </div>
-          )}
-          <Lbl pal={pal}>Icon</Lbl>
-          <div style={{display:"flex",gap:"0.35rem",flexWrap:"wrap",marginBottom:"0.85rem"}}>
-            {ICONS.map(ic=>(
-              <button key={ic} onClick={()=>setIcon(ic)} style={{width:"36px",height:"36px",borderRadius:"8px",border:`2px solid ${icon===ic?pal.primary:pal.stone+"50"}`,background:icon===ic?pal.pale:"transparent",cursor:"pointer",fontSize:"1.1rem"}}>{ic}</button>
-            ))}
-          </div>
-
-          <Lbl pal={pal}>Duration</Lbl>
-          <div style={{display:"flex",gap:"0.4rem",flexWrap:"wrap",marginBottom:"0.85rem"}}>
-            {[2,4,6,8,10,12,16,20].map(w=>(
-              <button key={w} onClick={()=>setWeeks(w)} style={{padding:"0.3rem 0.65rem",borderRadius:"20px",border:`2px solid ${weeks===w?pal.primary:pal.stone+"50"}`,background:weeks===w?pal.pale:"transparent",cursor:"pointer",fontSize:"0.76rem",fontWeight:weeks===w?"700":"400",color:weeks===w?pal.primary:pal.inkM}}>
-                {w} wks
-              </button>
-            ))}
-          </div>
-
-          <Lbl pal={pal}>Unit plan / overview (optional)</Lbl>
-          <textarea value={plan} onChange={e=>setPlan(e.target.value)} rows={4}
-            placeholder="What will you cover? Key books, activities, goals..."
-            style={{width:"100%",padding:"0.65rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.82rem",fontFamily:"inherit",background:pal.parchm,color:pal.ink,resize:"none",outline:"none",lineHeight:1.55,marginBottom:"0.75rem"}}
-            onFocus={e=>e.target.style.borderColor=pal.primary} onBlur={e=>e.target.style.borderColor=pal.stone}/>
-
-          <Lbl pal={pal}>Notes (optional)</Lbl>
-          <textarea value={notes} onChange={e=>setNotes(e.target.value)} rows={2}
-            placeholder="Curriculum used, any special notes..."
-            style={{width:"100%",padding:"0.65rem 0.85rem",border:`2px solid ${pal.stone}`,borderRadius:"11px",fontSize:"0.82rem",fontFamily:"inherit",background:pal.parchm,color:pal.ink,resize:"none",outline:"none",lineHeight:1.55}}
-            onFocus={e=>e.target.style.borderColor=pal.primary} onBlur={e=>e.target.style.borderColor=pal.stone}/>
-        </div>
-        <div style={{padding:"0.9rem 1.3rem",borderTop:`1px solid ${pal.stone}45`,display:"flex",gap:"0.6rem",flexShrink:0}}>
-          <button onClick={onClose} style={{padding:"0.7rem 1rem",border:`2px solid ${pal.stone}`,borderRadius:"12px",background:"transparent",color:pal.slate,cursor:"pointer",fontSize:"0.84rem"}}>Cancel</button>
-          <button onClick={()=>canSave&&onSave({title,subject:finalSubj,icon,weeks,plan,notes,readingTitle:readingTitle.trim()||undefined})} disabled={!canSave}
-            style={{flex:1,padding:"0.7rem",border:"none",borderRadius:"12px",background:canSave?pal.accentGrad:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:canSave?"pointer":"default"}}>
-            {isEdit?"Save Changes":"Add Unit"}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 /* =======================================
    AI UNIT BUILDER MODAL - 3-step wizard
@@ -5342,14 +5011,12 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
     }
     pTouchDragIdx.current=null;setPDragIdx(null);setPDragOverIdx(null);
   };
-  const PORTFOLIO_LABELS={"yearoverview":"Year Overview","subjects":"Subjects","photosextras":"Photos & Extras","worksheetreminder":"Worksheet Reminder","statereminder":"State Reminder"};
-  const PORTFOLIO_ICONS={"yearoverview":"\ud83d\udcc5","subjects":"\ud83d\udcda","photosextras":"\ud83d\uddbc\ufe0f","worksheetreminder":"\ud83d\udcce","statereminder":"\ud83d\uddfa\ufe0f"};
+  const PORTFOLIO_LABELS={"yearoverview":"Year Overview","subjects":"Subjects","photosextras":"Photos & Extras"};
+  const PORTFOLIO_ICONS={"yearoverview":"📅","subjects":"📚","photosextras":"🖼️"};
   const portfolioRenderMap={
     yearoverview:renderPortfolio_yearoverview,
     subjects:renderPortfolio_subjects,
     photosextras:renderPortfolio_photosextras,
-    worksheetreminder:renderPortfolio_worksheetreminder,
-    statereminder:renderPortfolio_statereminder,
   };
 
   return (
