@@ -4740,6 +4740,11 @@ function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab, portf
         {/* ===== RESOURCES TAB ===== */}
         {learnTab==="resources"&&<ResourceLibrary pal={pal} family={family} onUpdateFamily={onUpdateFamily}/>}
 
+      </div>
+    </div>
+  );
+}
+
 /* =======================================
    AI UNIT BUILDER MODAL - 3-step wizard
    Calls Claude API live
