@@ -807,6 +807,8 @@ function RootAndBloom() {
   const [family,         setFamily]         = useState(saved?.family||null);
   const [view,           setView]           = useState("splash");
   const [activeTab,      setActiveTab]      = useState("home");
+  const [prevTab,        setPrevTab]        = useState("home");
+  const navigateTo = (tab) => { setPrevTab(t=>t); setActiveTab(prev=>{ setPrevTab(prev); return tab; }); };
   const [navIds,         setNavIds]         = useState(saved?.navIds||["home","progress","portfolio","more"]);
   const [homeLayout,     setHomeLayout]     = useState(["children","pandc","thisweek","todaycard"]);
   const [portfolioLayout,setPortfolioLayout]= useState((()=>{
@@ -1005,7 +1007,7 @@ function RootAndBloom() {
 
   // Listen for in-app navigation events (e.g. "View in Portfolio" links)
   useEffect(()=>{
-    const handler = (e) => { setActiveTab(e.detail); };
+    const handler = (e) => { navigateTo(e.detail); };
     window.addEventListener("rootbloom-nav", handler);
     return ()=>window.removeEventListener("rootbloom-nav", handler);
   },[]);
@@ -1370,8 +1372,24 @@ function RootAndBloom() {
         </div>
 
         {/* Main content */}
+        {/* Back button — shown when on a secondary screen not in the user's nav bar */}
+        {(()=>{
+          const inNav = navIdsExt.includes(activeTab) || activeTab==="home";
+          const alwaysBack = ["statereqs","preparedcapable"];
+          const needsBack = !inNav || alwaysBack.includes(activeTab);
+          if(!needsBack || view!=="parent" || !family) return null;
+          const backTarget = prevTab||"more";
+          const backLabel = backTarget==="more"?"More":backTarget==="home"?"Home":(ALL_SECTIONS_EXT.find(s=>s.id===backTarget)?.label||"Back");
+          return (
+            <button onClick={()=>navigateTo(backTarget)}
+              style={{position:"fixed",top:"52px",left:"calc(50% - 215px + 10px)",zIndex:45,display:"flex",alignItems:"center",gap:"0.3rem",padding:"0.32rem 0.75rem 0.32rem 0.55rem",background:pal.linen,border:`1.5px solid ${pal.stone}50`,borderRadius:"99px",boxShadow:"0 2px 8px rgba(0,0,0,0.1)",cursor:"pointer",fontSize:"0.72rem",fontWeight:"700",color:pal.inkM,backdropFilter:"blur(8px)"}}>
+              <span style={{fontSize:"0.85rem",lineHeight:1}}>{"‹"}</span>
+              <span>{backLabel}</span>
+            </button>
+          );
+        })()}
         <div ref={mainScrollRef} className="app-scroll-root" style={{flex:1,overflowY:"auto",paddingBottom:"72px",paddingTop:isDemo?"32px":"0"}}>
-          {activeTab==="home" && <HomeScreen pal={pal} family={family} child={childFilt} setChild={setChildFilt} onTheme={()=>setShowTheme(true)} attendanceDays={attendanceDays} checkinStreak={checkinStreak} lastCheckinDate={lastCheckinDate} portfolioEntries={portfolioEntries} onTabChange={setActiveTab} todayProgress={todayProgress} navIds={navIds}
+          {activeTab==="home" && <HomeScreen pal={pal} family={family} child={childFilt} setChild={setChildFilt} onTheme={()=>setShowTheme(true)} attendanceDays={attendanceDays} checkinStreak={checkinStreak} lastCheckinDate={lastCheckinDate} portfolioEntries={portfolioEntries} onTabChange={navigateTo} todayProgress={todayProgress} navIds={navIds}
             attendanceLog={attendanceLog}
             onAddEntry={addPortfolioEntry}
             onCheckin={handleChildCheckin}
@@ -1396,7 +1414,7 @@ function RootAndBloom() {
             onSetHomeLayout={setHomeLayout}
             coopLog={coopLog}
             onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))}
-            onOpenPC={(childId)=>{setPcChildId(childId);setActiveTab("preparedcapable");}}
+            onOpenPC={(childId)=>{setPcChildId(childId);navigateTo("preparedcapable");}}
           />}
           {activeTab==="schedule" && <ScheduleScreen pal={pal} family={family} child={childFilt} setChild={setChildFilt}
             lastCheckinDate={lastCheckinDate}
@@ -1485,18 +1503,18 @@ function RootAndBloom() {
               const dateShort = parsed.toLocaleDateString("en-US",{month:"short",day:"numeric"});
               setPastDayWrapUp({dateLabel:label, dateStr:dateShort});
             }} />}
-          {activeTab==="goals"       && <GoalsScreen       pal={pal} family={family} portfolioEntries={portfolioEntries} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} onAddEntry={addPortfolioEntry} onTabChange={setActiveTab}/>}
+          {activeTab==="goals"       && <GoalsScreen       pal={pal} family={family} portfolioEntries={portfolioEntries} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} onAddEntry={addPortfolioEntry} onTabChange={navigateTo}/>}
           {activeTab==="coop"        && <CoopScreen        pal={pal} family={family} coopLog={coopLog} onLog={e=>setCoopLog(l=>[e,...l])} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} onAddEntry={addPortfolioEntry} />}
           {activeTab==="transcripts" && <TranscriptsScreen pal={pal} family={family} portfolioEntries={portfolioEntries} attendanceDays={attendanceDays} coopLog={coopLog} observationLog={observationLog} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} />}
           {showLifeReady && family && <LifeReadyScreen pal={pal} family={family} onBack={()=>setShowLifeReady(false)}/>}
-          {activeTab==="preparedcapable" && family?.lifeReady && <LifeReadyScreen pal={pal} family={family} onBack={()=>{setActiveTab("home");setPcChildId(null);}} defaultChildId={pcChildId}/>}
+          {activeTab==="preparedcapable" && family?.lifeReady && <LifeReadyScreen pal={pal} family={family} onBack={()=>{navigateTo("home");setPcChildId(null);}} defaultChildId={pcChildId}/>}
           {activeTab==="preparedcapable" && !family?.lifeReady && (
             <PCSetupScreen pal={pal} family={family} onUpdateFamily={updates=>setFamily(f=>({...f,...updates}))} />
           )}
           {!showLifeReady && activeTab==="more"        && <MoreScreen        pal={pal} family={family}
-              onNav={id=>{ if(id==="settings") openSettings(); else if(id==="statereqs") setActiveTab("statereqs"); else setActiveTab(id); }}
+              onNav={id=>{ if(id==="settings") openSettings(); else navigateTo(id); }}
               onTheme={()=>setShowTheme(true)} onNavEdit={()=>setShowNav(true)} onSettings={openSettings} onLifeReady={()=>setShowLifeReady(true)} />}
-          {activeTab==="statereqs" && <StateRequirementsScreen pal={pal} family={family} onBack={()=>setActiveTab("more")} />}
+          {activeTab==="statereqs" && <StateRequirementsScreen pal={pal} family={family} onBack={()=>navigateTo("more")} />}
         </div>
 
         {/* Floating Quick Capture Button + Parent Note menu */}
@@ -1563,7 +1581,7 @@ function RootAndBloom() {
             const quizBubbleCount=isProgress?(quizNotifs||[]).filter(n=>!n.dismissed&&new Date(n.ts).toDateString()===new Date().toDateString()).length:0;
             const pendingCount=isPortfolio?pendingEntries.length:0;
             return (
-              <button key={t.id} onClick={()=>{ if(view==="student") setView("parent"); setActiveTab(t.id); }}
+              <button key={t.id} onClick={()=>{ if(view==="student") setView("parent"); navigateTo(t.id); }}
                 style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:"2px",padding:"0.4rem 0",border:"none",background:"transparent",cursor:"pointer",position:"relative",transition:"transform 0.1s"}}
                 onMouseDown={e=>e.currentTarget.style.transform="scale(0.91)"}
                 onMouseUp={e=>e.currentTarget.style.transform="scale(1)"}
