@@ -2051,7 +2051,7 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                           </div>
                         ))}
                       </div>
-                      {hasAny&&<div style={{fontSize:"0.62rem",color:pal.good,fontWeight:"700",marginTop:"0.45rem"}}>{"✓ Progress bars will show in "+c.name+{"'"}+"s portfolio"}</div>}
+                      {hasAny&&<div style={{fontSize:"0.62rem",color:pal.good,fontWeight:"700",marginTop:"0.45rem"}}>{"✓ Progress bars will show in "+c.name+"'s portfolio"}</div>}
                     </div>
                   );
                 })()}
