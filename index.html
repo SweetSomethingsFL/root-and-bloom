@@ -809,7 +809,11 @@ function RootAndBloom() {
   const [activeTab,      setActiveTab]      = useState("home");
   const [navIds,         setNavIds]         = useState(saved?.navIds||["home","progress","portfolio","more"]);
   const [homeLayout,     setHomeLayout]     = useState(["children","pandc","thisweek","todaycard"]);
-  const [portfolioLayout,setPortfolioLayout]= useState(saved?.portfolioLayout||["yearoverview","subjects","photosextras"]);
+  const [portfolioLayout,setPortfolioLayout]= useState((()=>{
+    const STRIP=["worksheetreminder","statereminder"];
+    const raw=saved?.portfolioLayout||["yearoverview","subjects","photosextras"];
+    return raw.filter(x=>!STRIP.includes(x));
+  })());
   const [childFilt,      setChildFilt]      = useState("all");
   const [lastCheckinDate,setLastCheckinDate]= useState(saved?.lastCheckinDate||null);
   const [checkinStreak,  setCheckinStreak]  = useState(saved?.checkinStreak||0);
@@ -1020,7 +1024,7 @@ function RootAndBloom() {
       // Merge cloud data into state (cloud wins)
       if(cloudData.family) setFamily(cloudData.family);
       if(cloudData.navIds) setNavIds(cloudData.navIds);
-      if(cloudData.portfolioLayout) setPortfolioLayout(cloudData.portfolioLayout);
+      if(cloudData.portfolioLayout) setPortfolioLayout(cloudData.portfolioLayout.filter(x=>x!=="worksheetreminder"&&x!=="statereminder"));
       if(cloudData.portfolio) setPortfolioEntries(cloudData.portfolio);
       if(cloudData.pendingEntries) setPendingEntries(cloudData.pendingEntries);
       if(cloudData.coopLog) setCoopLog(cloudData.coopLog);
@@ -1063,7 +1067,7 @@ function RootAndBloom() {
           if(cloudData && cloudData.family){
             if(cloudData.family) setFamily(cloudData.family);
             if(cloudData.navIds) setNavIds(cloudData.navIds);
-            if(cloudData.portfolioLayout) setPortfolioLayout(cloudData.portfolioLayout);
+            if(cloudData.portfolioLayout) setPortfolioLayout(cloudData.portfolioLayout.filter(x=>x!=="worksheetreminder"&&x!=="statereminder"));
             if(cloudData.portfolio) setPortfolioEntries(cloudData.portfolio);
             if(cloudData.pendingEntries) setPendingEntries(cloudData.pendingEntries);
             if(cloudData.coopLog) setCoopLog(cloudData.coopLog);
@@ -4735,7 +4739,7 @@ function LearnScreen({pal, family, child, setChild, learnTab, setLearnTab, portf
 ======================================= */
 // AIUnitBuilderModal + AIWorksheetModal moved to ai-features.js
 
-function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEditEntry,attendanceDays=0,lastCheckinDate,coopLog=[],portfolioLayout=["yearoverview","subjects","photosextras","worksheetreminder","statereminder"],onSetPortfolioLayout,onCheckin,pendingEntries=[],onApprovePending,onDeclinePending}){
+function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEditEntry,attendanceDays=0,lastCheckinDate,coopLog=[],portfolioLayout=["yearoverview","subjects","photosextras"],onSetPortfolioLayout,onCheckin,pendingEntries=[],onApprovePending,onDeclinePending}){
   const [showDailyLog,   setShowDailyLog]   = useState(false);
   const [showAdd,        setShowAdd]        = useState(false);
   const [showAddExtra,   setShowAddExtra]   = useState(false);
