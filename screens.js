@@ -2019,6 +2019,42 @@ function SettingsScreen({ pal, family, setFamily, paletteId, setPaletteId, custo
                     </button>
                   </div>
                 </div>
+                {/* Year lesson goals */}
+                {(()=>{
+                  const allSjs=[...SUBJECT_OPTIONS,...(local.customSubjects||[])];
+                  const activeSjs=(local.subjects||[]).map(id=>allSjs.find(s=>s.id===id)).filter(Boolean);
+                  if(activeSjs.length===0) return null;
+                  const goals=(local.subjectYearGoals||{})[c.id]||{};
+                  const hasAny=activeSjs.some(s=>goals[s.label]>0);
+                  return (
+                    <div style={{marginTop:"0.75rem",padding:"0.7rem 0.85rem",background:pal.pale,borderRadius:"12px",border:`1.5px solid ${pal.stone}30`}}>
+                      <div style={{fontWeight:"700",color:pal.ink,fontSize:"0.82rem",marginBottom:"0.45rem"}}>{"📊 Year lesson goals (optional)"}</div>
+                      <div style={{fontSize:"0.68rem",color:pal.slate,lineHeight:1.5,marginBottom:"0.6rem"}}>{"Target lessons per subject for the year. Leave blank to skip. Shows a progress bar in the portfolio."}</div>
+                      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.45rem"}}>
+                        {activeSjs.map(s=>(
+                          <div key={s.id} style={{display:"flex",alignItems:"center",gap:"0.4rem",background:"#fff",borderRadius:"9px",padding:"0.35rem 0.55rem",border:`1.5px solid ${pal.stone}25`}}>
+                            <span style={{fontSize:"0.9rem",flexShrink:0}}>{s.icon}</span>
+                            <span style={{fontSize:"0.68rem",color:pal.inkM,flex:1,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s.label}</span>
+                            <input type="number" min="0" max="999" placeholder={"—"}
+                              value={goals[s.label]||""}
+                              onChange={e=>{
+                                const v=parseInt(e.target.value)||0;
+                                const childGoals={...goals,[s.label]:v||undefined};
+                                if(!v) delete childGoals[s.label];
+                                const updated={...(local.subjectYearGoals||{}),[c.id]:childGoals};
+                                if(Object.keys(childGoals).length===0) delete updated[c.id];
+                                updL("subjectYearGoals",updated);
+                              }}
+                              style={{width:"46px",padding:"0.25rem 0.35rem",border:`1.5px solid ${pal.stone}`,borderRadius:"7px",fontSize:"0.78rem",fontWeight:"700",color:pal.ink,background:pal.parchm,outline:"none",textAlign:"center",fontFamily:"inherit"}}
+                              onFocus={e=>e.target.style.borderColor=pal.primary}
+                              onBlur={e=>e.target.style.borderColor=pal.stone}/>
+                          </div>
+                        ))}
+                      </div>
+                      {hasAny&&<div style={{fontSize:"0.62rem",color:pal.good,fontWeight:"700",marginTop:"0.45rem"}}>{"✓ Progress bars will show in "+c.name+{"'"}+"s portfolio"}</div>}
+                    </div>
+                  );
+                })()}
               </SCard>
             ))}
             <button onClick={addChild} style={{width:"100%",padding:"0.75rem",border:`2px dashed ${pal.stone}`,borderRadius:"14px",background:"transparent",color:pal.slate,fontSize:"0.84rem",fontWeight:"600",cursor:"pointer",marginBottom:"0.75rem"}}>
@@ -3795,7 +3831,14 @@ function QuickCaptureModal({pal, family, activeChildId, onClose, onSave, attenda
     ? Math.max(0, family.children.findIndex(c=>c.id===activeChildId))
     : 0;
   const todayIso  = new Date().toISOString().slice(0,10);
-  const [childIdx,     setChildIdx]     = useState(defaultCi);
+  // Multi-child: selectedChildren is a Set of indices; at least one must always be selected
+  const [selectedChildren, setSelectedChildren] = useState(()=>new Set([defaultCi]));
+  const primaryCi = [...selectedChildren][0] ?? defaultCi;
+  const toggleChild = (i) => setSelectedChildren(prev=>{
+    const n=new Set(prev);
+    if(n.has(i)){ if(n.size>1) n.delete(i); } else n.add(i);
+    return n;
+  });
   const [showAllQCSubjs, setShowAllQCSubjs] = useState(!qcTodaySubjs);
   const qcDisplaySubjs = (showAllQCSubjs||!qcTodaySubjs) ? activeSubjs : qcTodaySubjs;
   const [subj,         setSubj]         = useState((qcTodaySubjs?qcTodaySubjs[0]:activeSubjs[0])?.label||"");
@@ -3813,7 +3856,7 @@ function QuickCaptureModal({pal, family, activeChildId, onClose, onSave, attenda
   const galleryRef = useRef(null);
   const cameraRef  = useRef(null);
   const [scanMode, setScanMode] = useState(false); // doc scan processing
-  const activeCh   = family.children[childIdx];
+  const activeCh   = family.children[primaryCi];
   const cp = CHILD_COLOR_PALETTES.find(p=>p.id===(activeCh?.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
   const isReading  = subj.toLowerCase().includes("read");
   const _capParts  = captureDate.split("-").map(Number);
@@ -3895,8 +3938,8 @@ function QuickCaptureModal({pal, family, activeChildId, onClose, onSave, attenda
     const [yr,mo,dy] = captureDate.split("-").map(Number);
     const localDate = new Date(yr, mo-1, dy);
     const entryDate = localDate.toLocaleDateString("en-US",{month:"short",day:"numeric"});
-    const entry = {
-      childIdx, subj,
+    const baseEntry = {
+      subj,
       title: note.trim() ? note.trim().slice(0,80) : subj+"\u2014"+entryDate,
       note: note.trim(),
       thumb: subjObj?.icon||"📋",
@@ -3905,10 +3948,12 @@ function QuickCaptureModal({pal, family, activeChildId, onClose, onSave, attenda
       lessonCount,
       isSubject: true,
     };
-    if(isReading && readingTitle.trim()) entry.readingTitle = readingTitle.trim();
-    if(goalsHit.size>0) entry.goalsHit = [...goalsHit];
-    if(isMilestone) entry.isMilestone = true;
-    onSave([entry]);
+    if(isReading && readingTitle.trim()) baseEntry.readingTitle = readingTitle.trim();
+    if(goalsHit.size>0) baseEntry.goalsHit = [...goalsHit];
+    if(isMilestone) baseEntry.isMilestone = true;
+    // One entry per selected child
+    const entries = [...selectedChildren].map(ci=>({...baseEntry, childIdx: ci}));
+    onSave(entries);
     setSavedEntryDate(entryDate);
     setSaved(true);
   };
@@ -3924,7 +3969,11 @@ function QuickCaptureModal({pal, family, activeChildId, onClose, onSave, attenda
         <div style={{textAlign:"center",marginBottom:alreadyInAttendance?"1rem":"0"}}>
           <div style={{fontSize:"2.5rem",marginBottom:"0.4rem"}}>{"✓"}</div>
           <div style={{fontWeight:"800",color:pal.good,fontSize:"1rem"}}>{"Captured!"}</div>
-          <div style={{fontSize:"0.78rem",color:pal.inkM,marginTop:"4px"}}>{subj+" saved to "+activeCh?.name+"\u2019s portfolio \u00b7 "+displayDate+(lessonCount>1?" \u00b7 "+lessonCount+" lessons":"")}</div>
+          <div style={{fontSize:"0.82rem",color:pal.inkM,marginTop:"4px"}}>{(()=>{
+            const selNames=[...selectedChildren].map(i=>family.children[i]?.name).filter(Boolean);
+            const names=selNames.length===1?selNames[0]:selNames.length===2?selNames[0]+" & "+selNames[1]:selNames.slice(0,-1).join(", ")+" & "+selNames[selNames.length-1];
+            return subj+" saved to "+names+(selNames.length>1?"'":"\u2019s")+" portfolio \u00b7 "+displayDate+(lessonCount>1?" \u00b7 "+lessonCount+" lessons":"");
+          })()}</div>
         </div>
         {!alreadyInAttendance&&onAttendanceAdd&&savedEntryDate&&(
           <div style={{background:"#fff",borderRadius:"14px",padding:"0.85rem 1rem",marginTop:"0.85rem",border:`1.5px solid ${pal.primary}25`}}>
@@ -3977,20 +4026,26 @@ function QuickCaptureModal({pal, family, activeChildId, onClose, onSave, attenda
               style={{border:"none",background:"transparent",fontSize:"0.72rem",color:pal.primary,fontWeight:"700",cursor:"pointer",outline:"none",fontFamily:"inherit"}}/>
           </div>
 
-          {/* Child picker */}
+          {/* Child picker — multi-select */}
           {family.children.length>1&&(
-            <div style={{display:"flex",gap:"0.35rem",marginBottom:"0.75rem",overflowX:"auto"}}>
-              {family.children.map((c,i)=>{
-                const ccp=CHILD_COLOR_PALETTES.find(p=>p.id===(c.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
-                const sel=i===childIdx;
-                return (
-                  <button key={c.id} onClick={()=>setChildIdx(i)}
-                    style={{display:"flex",alignItems:"center",gap:"0.3rem",padding:"0.3rem 0.65rem",border:`2px solid ${sel?ccp.c1:pal.stone+"40"}`,borderRadius:"20px",background:sel?ccp.c1+"18":"transparent",cursor:"pointer",flexShrink:0}}>
-                    <span style={{fontSize:"1rem"}}>{c.avatar}</span>
-                    <span style={{fontSize:"0.74rem",fontWeight:sel?"800":"500",color:sel?ccp.c1:pal.inkM}}>{c.name}</span>
-                  </button>
-                );
-              })}
+            <div style={{marginBottom:"0.75rem"}}>
+              <div style={{fontSize:"0.68rem",color:pal.slate,fontWeight:"600",marginBottom:"0.3rem"}}>
+                {selectedChildren.size>1 ? "Logging for "+selectedChildren.size+" students" : "Who is this for?"}
+              </div>
+              <div style={{display:"flex",gap:"0.35rem",flexWrap:"wrap"}}>
+                {family.children.map((c,i)=>{
+                  const ccp=CHILD_COLOR_PALETTES.find(p=>p.id===(c.colorId||"sunshine"))||CHILD_COLOR_PALETTES[0];
+                  const sel=selectedChildren.has(i);
+                  return (
+                    <button key={c.id} onClick={()=>toggleChild(i)}
+                      style={{display:"flex",alignItems:"center",gap:"0.3rem",padding:"0.3rem 0.65rem",border:`2px solid ${sel?ccp.c1:pal.stone+"40"}`,borderRadius:"20px",background:sel?ccp.c1+"22":"transparent",cursor:"pointer",flexShrink:0,transition:"all 0.12s"}}>
+                      <span style={{fontSize:"1rem"}}>{c.avatar}</span>
+                      <span style={{fontSize:"0.74rem",fontWeight:sel?"800":"500",color:sel?ccp.c1:pal.inkM}}>{c.name}</span>
+                      {sel&&<span style={{fontSize:"0.6rem",color:ccp.c1,fontWeight:"900"}}>{"✓"}</span>}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           )}
 
@@ -4113,10 +4168,14 @@ function QuickCaptureModal({pal, family, activeChildId, onClose, onSave, attenda
             <button onClick={()=>setIsMilestone(m=>!m)} title="Mark as milestone"
               style={{width:"44px",height:"44px",borderRadius:"12px",border:`2px solid ${isMilestone?cp.c1:pal.stone+"50"}`,background:isMilestone?cp.c1+"18":"transparent",color:isMilestone?cp.c1:pal.slate,fontSize:"1.1rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{"🌟"}</button>
             <button onClick={handleSave} disabled={!subj}
-              style={{flex:1,padding:"0.75rem",border:"none",borderRadius:"13px",background:subj?`linear-gradient(135deg,${cp.c1},${cp.c2})`:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:subj?"pointer":"default"}}>{"Save ✓"}</button>
+              style={{flex:1,padding:"0.75rem",border:"none",borderRadius:"13px",background:subj?`linear-gradient(135deg,${cp.c1},${cp.c2})`:"#ccc",color:"#fff",fontWeight:"800",fontSize:"0.88rem",cursor:subj?"pointer":"default"}}>{selectedChildren.size>1?"Save for "+selectedChildren.size+" \u2713":"Save \u2713"}</button>
           </div>
           <div style={{fontSize:"0.63rem",color:pal.stone,textAlign:"center",marginTop:"0.45rem"}}>
-            {"Saves to "+activeCh?.name+"\u2019s portfolio \u00b7 "+displayDate+(lessonCount>1?" \u00b7 "+lessonCount+" lessons":"")}
+            {(()=>{
+            const selNames=[...selectedChildren].map(i=>family.children[i]?.name).filter(Boolean);
+            const names=selNames.length===1?selNames[0]:selNames.length===2?selNames[0]+" & "+selNames[1]:selNames.slice(0,-1).join(", ")+" & "+selNames[selNames.length-1];
+            return "Saves to "+names+(selNames.length>1?"'":"\u2019s")+" portfolio \u00b7 "+displayDate+(lessonCount>1?" \u00b7 "+lessonCount+" lessons":"");
+          })()}
           </div>
         </div>
       </div>

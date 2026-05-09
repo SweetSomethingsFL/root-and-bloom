@@ -808,7 +808,7 @@ function RootAndBloom() {
   const [view,           setView]           = useState("splash");
   const [activeTab,      setActiveTab]      = useState("home");
   const [navIds,         setNavIds]         = useState(saved?.navIds||["home","progress","portfolio","more"]);
-  const [homeLayout,     setHomeLayout]     = useState(["children","thisweek","todaycard"]);
+  const [homeLayout,     setHomeLayout]     = useState(["children","pandc","thisweek","todaycard"]);
   const [portfolioLayout,setPortfolioLayout]= useState(saved?.portfolioLayout||["yearoverview","subjects","photosextras"]);
   const [childFilt,      setChildFilt]      = useState("all");
   const [lastCheckinDate,setLastCheckinDate]= useState(saved?.lastCheckinDate||null);
@@ -4851,7 +4851,9 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
             <PortfolioSubjectRow key={sd.subj} sd={sd} cp={cp} pal={pal} family={family}
               expanded={expandedSubj===sd.subj}
               onToggle={()=>setExpandedSubj(expandedSubj===sd.subj?null:sd.subj)}
-              onDetail={setDetail}/>
+              onDetail={setDetail}
+              childId={activeCh?.id}
+              yearGoal={(family.subjectYearGoals||{})[activeCh?.id]?.[sd.subj]||0}/>
           ))}
         </PortfolioCard>}
 
@@ -5570,7 +5572,7 @@ function PortfolioCard({pal,icon,title,count,note,children}){
 }
 
 /* ---- Portfolio Subject Row (replaces SubjectBubble) ---- */
-function PortfolioSubjectRow({sd,cp,pal,family,expanded,onToggle,onDetail,onLog}){
+function PortfolioSubjectRow({sd,cp,pal,family,expanded,onToggle,onDetail,onLog,childId,yearGoal=0}){
   const customSubjs = family.customSubjects||[];
   const allSubjs = [...SUBJECT_OPTIONS,...customSubjs];
   const subj = allSubjs.find(x=>x.label===sd.subj);
@@ -5598,6 +5600,10 @@ function PortfolioSubjectRow({sd,cp,pal,family,expanded,onToggle,onDetail,onLog}
   const staleColor = isVeryStale?"#c0392b":isStale?"#e67e22":pal.good;
   const staleBg = isVeryStale?"#fdf0ee":isStale?"#fef9ed":pal.goodBg;
   const staleLabel = daysSince===0?"today":daysSince===1?"yesterday":daysSince!==null?daysSince+"d ago":lastDate||"";
+  // Lesson progress
+  const totalLessons = sd.entries.reduce((s,e)=>s+(e.lessonCount||1),0);
+  const pct = yearGoal>0 ? Math.min(100, Math.round((totalLessons/yearGoal)*100)) : 0;
+  const isDone = yearGoal>0 && totalLessons>=yearGoal;
 
   return (
     <div style={{borderRadius:"12px",border:`1.5px solid ${isVeryStale?"#e74c3c30":isStale?"#f39c1230":expanded?cp.c1+"60":pal.stone+"25"}`,overflow:"hidden",background:"#fff",marginBottom:"0.35rem",transition:"all 0.15s"}}>
@@ -5615,6 +5621,17 @@ function PortfolioSubjectRow({sd,cp,pal,family,expanded,onToggle,onDetail,onLog}
               {thisWeekEntries.length>0&&<span style={{color:pal.good,fontWeight:"700"}}>{thisWeekEntries.length+" this week"}</span>}
               <span style={{color:staleColor,fontWeight:isStale?"700":"400"}}>{"• "+staleLabel}</span>
             </div>
+            {yearGoal>0&&(
+              <div style={{marginTop:"5px"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"3px"}}>
+                  <span style={{fontSize:"0.58rem",color:isDone?pal.good:pal.slate,fontWeight:isDone?"800":"500"}}>{isDone?"✓ Goal reached!":totalLessons+" / "+yearGoal+" lessons"}</span>
+                  <span style={{fontSize:"0.58rem",color:isDone?pal.good:cp.c1,fontWeight:"700"}}>{pct+"%"}</span>
+                </div>
+                <div style={{height:"5px",borderRadius:"99px",background:pal.stone+"30",overflow:"hidden"}}>
+                  <div style={{height:"100%",width:pct+"%",borderRadius:"99px",background:isDone?pal.good:`linear-gradient(90deg,${cp.c1},${cp.c2})`,transition:"width 0.4s ease"}}/>
+                </div>
+              </div>
+            )}
           </div>
           {sd.hasPhotos&&<span style={{fontSize:"0.78rem",flexShrink:0}}>{"📷"}</span>}
           <div style={{background:cp.c1+"20",borderRadius:"20px",padding:"0.1rem 0.45rem",flexShrink:0}}>
