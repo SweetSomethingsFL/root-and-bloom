@@ -543,7 +543,7 @@ function FieldStudyModal({ pal, family, child, allEntries, onAddEntry, onClose, 
           {phase==="loading"&&(
             <div style={{padding:"1.5rem 1.2rem",textAlign:"center"}}>
               {displayImage&&<img src={displayImage} alt="" style={{width:"100%",maxHeight:"200px",objectFit:"cover",borderRadius:"14px",marginBottom:"1rem"}}/>}
-              <div style={{fontWeight:"800",color:pal.primary,fontSize:"0.9rem",marginBottom:"0.25rem"}}>{"Identifying what "+name+" found..."}}</div>
+              <div style={{fontWeight:"800",color:pal.primary,fontSize:"0.9rem",marginBottom:"0.25rem"}>{"Identifying what "+name+" found..."}}</div>
               <div style={{fontSize:"0.74rem",color:pal.slate,lineHeight:1.6}}>{"Claude is looking at the photo and building a "+grade+"-level lesson. About 15 seconds."}</div>
               <div style={{marginTop:"1.5rem",display:"flex",justifyContent:"center",gap:"0.4rem"}}>
                 {[0,1,2].map(i=>(
