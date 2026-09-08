@@ -752,7 +752,7 @@ function FieldStudyModal({ pal, family, child, allEntries, onAddEntry, onClose, 
                   <span style={{fontSize:"1.4rem"}}>{CATEGORY_ICONS[result.category]||"\uD83D\uDD2D"}</span>
                   <div>
                     <div style={{fontWeight:"800",color:pal.ink,fontSize:"0.9rem"}}>{result.subject}</div>
-                    <div style={{fontSize:"0.63rem",color:pal.slate}}>{result._chosenSubj?.label||"Science"}+" - "+result.confidence+" confidence"}</div>
+                    <div style={{fontSize:"0.63rem",color:pal.slate}}>{(result._chosenSubj?.label||"Science")+" - "+result.confidence+" confidence"}</div>
                   </div>
                 </div>
                 {displayImage&&<img src={displayImage} alt="" style={{width:"100%",maxHeight:"150px",objectFit:"cover",borderRadius:"10px",marginTop:"0.4rem"}}/>}
