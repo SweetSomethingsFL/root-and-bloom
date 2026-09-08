@@ -1683,7 +1683,6 @@ function RootAndBloom() {
         {showNewYear && family && <NewYearModal pal={pal} family={family}
           onStart={handleNewYear}
           onDismiss={()=>{setNewYearDismissed("newyear_"+family.yearEnd);setShowNewYear(false);}}/>}
-        }
         {showJournal!==null && family && (
           <ObservationJournalModal
             pal={pal} family={family} childId={showJournal}

@@ -2033,7 +2033,7 @@ function CatchupModal({ pal, family, days, needed, onClose }) {
                 <div style={{fontWeight:"800",color:p.color,fontSize:"0.88rem",marginBottom:"0.2rem"}}>{p.title}</div>
                 <div style={{fontSize:"0.75rem",color:pal.inkM,lineHeight:1.55}}>{p.desc}</div>
               </div>
-              <span style={{color:p.color,fontSize:"1.1rem",flexShrink:0,marginTop:"4px"}}>></span>
+              <span style={{color:p.color,fontSize:"1.1rem",flexShrink:0,marginTop:"4px"}}>{">"}</span>
             </button>
           ))}
         </div>
