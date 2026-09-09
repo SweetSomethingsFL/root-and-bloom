@@ -809,7 +809,7 @@ function RootAndBloom() {
   const [view,           setView]           = useState("splash");
   const [activeTab,      setActiveTab]      = useState("home");
   const [prevTab,        setPrevTab]        = useState("home");
-  const navigateTo = (tab) => { setPrevTab(t=>t); setActiveTab(prev=>{ setPrevTab(prev); return tab; }); };
+  const navigateTo = (tab) => { setPrevTab(activeTab); setActiveTab(tab); };
   const [navIds,         setNavIds]         = useState(saved?.navIds||["home","progress","portfolio","more"]);
   const [homeLayout,     setHomeLayout]     = useState(["children","pandc","thisweek","todaycard"]);
   const [portfolioLayout,setPortfolioLayout]= useState((()=>{
@@ -1378,7 +1378,7 @@ function RootAndBloom() {
           const inNav = navIdsExt.includes(activeTab) || activeTab==="home";
           const alwaysBack = ["statereqs","preparedcapable"];
           const needsBack = !inNav || alwaysBack.includes(activeTab);
-          if(!needsBack || view!=="parent" || !family) return null;
+          if(!needsBack || !family) return null;
           const backTarget = prevTab||"more";
           const backLabel = backTarget==="more"?"More":backTarget==="home"?"Home":(ALL_SECTIONS_EXT.find(s=>s.id===backTarget)?.label||"Back");
           return (
@@ -5090,24 +5090,6 @@ function PortfolioScreen({pal,family,child,setChild,entries=[],onAddEntry,onEdit
           </div>
         </div>
       )}
-      {(()=>{
-        const si=getStateInfo(family.state||"");
-        if(!si.portfolio) return null;
-        const stateTips={
-          "Florida":"Florida law requires an annual portfolio evaluation by a certified teacher. Keep logging — every entry counts!",
-          "Pennsylvania":"PA requires a portfolio review by a certified evaluator each year. Document everything here.",
-          "Ohio":"Ohio requires an assessment each year. Portfolios are one accepted method — log consistently.",
-          "North Carolina":"NC requires testing or portfolio review. Keep your entries detailed for the evaluator.",
-          "New York":"New York requires an annual assessment. Your portfolio entries support your year-end evaluation.",
-        };
-        const tip=stateTips[family.state]||("Your state ("+family.state+") may require documentation. This portfolio is your record.");
-        return (
-          <div style={{margin:"0 1rem 0.75rem",padding:"0.6rem 0.85rem",background:"#fff8e6",borderRadius:"12px",border:"1.5px solid #f5c84250",display:"flex",gap:"0.5rem",alignItems:"flex-start"}}>
-            <span style={{fontSize:"0.9rem",flexShrink:0}}>{"📜"}</span>
-            <span style={{fontSize:"0.72rem",color:"#7a5500",lineHeight:1.55,fontWeight:"600"}}>{tip}</span>
-          </div>
-        );
-      })()}
       <div style={{padding:"0 1rem"}}>
 
         {/* Child tabs */}
