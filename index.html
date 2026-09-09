@@ -1377,8 +1377,9 @@ function RootAndBloom() {
           {(()=>{
             const inNav = navIdsExt.includes(activeTab) || activeTab==="home";
             const alwaysBack = ["statereqs","preparedcapable"];
-            const needsBack = !inNav || alwaysBack.includes(activeTab);
-            if(!needsBack || !family) return null;
+               const needsBack = !inNav || alwaysBack.includes(activeTab);
+   console.log("[BACK BUTTON DEBUG]", {activeTab, navIdsExt, inNav, needsBack});
+   if(!needsBack || !family) return null;
             const backTarget = prevTab||"more";
             const backLabel = backTarget==="more"?"More":backTarget==="home"?"Home":(ALL_SECTIONS_EXT.find(s=>s.id===backTarget)?.label||"Back");
             return (
